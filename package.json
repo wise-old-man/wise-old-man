@@ -1,0 +1,12 @@
+{
+  "name": "wise-old-man",
+  "version": "1.0.0",
+  "description": "The open source Oldschool Runescape progress tracker.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
