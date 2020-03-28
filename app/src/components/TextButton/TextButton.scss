@@ -1,0 +1,23 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.text-button {
+  background: none;
+  color: $brand-color-bright;
+  padding: 12px 0;
+  border: 0;
+  font-family: 'Lato';
+  font-weight: 600;
+  font-size: 0.9em;
+  transition: transform 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    color: $brand-color-dark;
+  }
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.7);
+  }
+}

@@ -1,0 +1,19 @@
+@import '../../styles.scss';
+
+.competitions__container {
+  @extend %page;
+
+  .competitions__header {
+    .text-button {
+      float: right;
+    }
+  }
+
+  .text-input {
+    border: 1px solid $gray-12;
+  }
+
+  .competitions__list {
+    font-size: 1.2em;
+  }
+}

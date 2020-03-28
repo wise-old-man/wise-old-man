@@ -1,0 +1,114 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.table {
+  @extend %panel;
+  width: 100%;
+  border-radius: $border-radius;
+  overflow: hidden;
+
+  a {
+    height: auto;
+    width: auto;
+    display: block;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  &.-clickable {
+    td {
+      cursor: pointer;
+    }
+
+    tr {
+      &:hover {
+        opacity: 0.7;
+      }
+      &:active {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  tr {
+    &.-empty {
+      pointer-events: none;
+    }
+  }
+
+  th {
+    background: $gray-09;
+    padding: 10px 15px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-align: left;
+
+    &.-collapse {
+      font-size: 0;
+      padding: 0;
+    }
+  }
+
+  td {
+    padding: 10px 15px;
+    background: $gray-05;
+    font-size: 0.8em;
+    height: 50px;
+    color: $gray-60;
+
+    &.-collapse {
+      font-size: 0;
+      padding: 0;
+    }
+
+    &.-low-positive {
+      color: $low-positive-green;
+    }
+
+    &.-positive {
+      color: $positive-green;
+    }
+
+    &.-negative {
+      color: $negative-red;
+    }
+
+    &.-primary {
+      color: white;
+      font-weight: 700;
+    }
+  }
+
+  img {
+    @extend %block-text-selection;
+    margin-bottom: -4px;
+  }
+}
+
+@media only screen and (max-width: $breakpoint-large) {
+  .table {
+    td,
+    th {
+      &.-break-large {
+        padding: 0;
+        font-size: 0;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-small) {
+  .table {
+    td,
+    th {
+      padding: 10px;
+
+      &.-break-small {
+        padding: 0;
+        font-size: 0;
+      }
+    }
+  }
+}

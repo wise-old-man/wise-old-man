@@ -1,0 +1,32 @@
+@import '../../variables.scss';
+
+.text-input {
+  background: $gray-05;
+  border-radius: $border-radius;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  &__input {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    color: white;
+    font-family: 'Lato';
+    font-size: 0.9em;
+
+    &:active,
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.3;
+  }
+}

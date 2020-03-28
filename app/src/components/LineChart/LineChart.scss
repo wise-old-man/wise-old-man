@@ -1,0 +1,6 @@
+@import '../../styles.scss';
+
+.chart__container {
+  @extend %panel;
+  padding: 30px;
+}

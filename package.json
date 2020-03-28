@@ -4,7 +4,7 @@
   "description": "The open source Oldschool Runescape progress tracker.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-app": "cd app && npm start"
   },
   "keywords": [],
   "author": "",
