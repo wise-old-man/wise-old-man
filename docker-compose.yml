@@ -16,7 +16,7 @@ services:
             - ./server/.env
         expose:
             - "5432"
-    web:
+    server:
         image: wise-old-man/server
         ports:
             - "5000:5000"
@@ -29,6 +29,16 @@ services:
             DB_HOST: db
             REDIS_HOST: redis
         command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "run", "dev"]
+    app:
+        image: wise-old-man/app
+        networks:
+            - webnet
+        expose:
+            - 3000
+        ports:
+            - 3000:3000
+        environment:
+            REACT_APP_API_BASE_URL: http://192.168.99.100:5000
 networks:
     webnet:
 volumes:
