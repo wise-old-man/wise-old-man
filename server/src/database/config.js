@@ -2,9 +2,9 @@ require("dotenv").config({ path: process.env.NODE_ENV === "test" ? ".env.test" :
 
 module.exports = {
   host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
   dialect: process.env.DB_DIALECT,
   storage: process.env.DB_STORAGE,
   logging: false,
