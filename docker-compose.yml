@@ -44,8 +44,8 @@ services:
             - 3000:3000
         links:
             - server
-        #environment:
-            #REACT_APP_API_BASE_URL: http://localhost:5000
+        environment:
+            REACT_APP_API_BASE_URL: /api
         volumes:
             - ./app:/wise-old-man/app
             - /wise-old-man/app/node_modules
