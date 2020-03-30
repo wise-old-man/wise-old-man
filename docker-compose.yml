@@ -17,7 +17,7 @@ services:
         expose:
             - "5432"
     server:
-        image: wise-old-man/server
+        build: ./server
         ports:
             - "5000:5000"
         networks:
@@ -29,8 +29,11 @@ services:
             DB_HOST: db
             REDIS_HOST: redis
         command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "run", "dev"]
+        volumes:
+            - ./server:/wise-old-man/server
+            - /wise-old-man/server/node_modules
     app:
-        image: wise-old-man/app
+        build: ./app
         networks:
             - webnet
         expose:
@@ -39,6 +42,9 @@ services:
             - 3000:3000
         environment:
             REACT_APP_API_BASE_URL: http://192.168.99.100:5000
+        volumes:
+            - ./app:/wise-old-man/app
+            - /wise-old-man/app/node_modules
 networks:
     webnet:
 volumes:

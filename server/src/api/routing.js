@@ -11,7 +11,7 @@ const achievementRoutes = require("../api/modules/achievements/achievement.route
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.json(true);
+  res.json("see");
 });
 
 // Register all the modules to the router

@@ -1,13 +1,11 @@
-FROM node:alpine
-RUN apk update && apk add bash
+FROM node:12
 
-WORKDIR /wise-old-man
+WORKDIR /wise-old-man/server
 
 COPY package*.json ./
-RUN npm install
+RUN npm install -s
 
 COPY . .
-
 COPY wait-for-it.sh .
 
 CMD ["npm", "start"]

@@ -4,9 +4,10 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
+    "prestart": "sequelize db:migrate",
     "start": "node src/server.js",
     "predev": "sequelize db:migrate",
-    "dev": "nodemon src/server.js --ignore __tests__",
+    "dev": "nodemon -L src/server.js --ignore __tests__",
     "pretest": "NODE_ENV=test sequelize db:migrate",
     "test": "NODE_ENV=test jest",
     "posttest": "NODE_ENV=test sequelize db:migrate:undo:all"
