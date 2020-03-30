@@ -34,21 +34,6 @@ services:
             - ./server:/wise-old-man/server
             - /wise-old-man/server/node_modules
         command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "run", "dev"]
-    app:
-        build: ./app
-        networks:
-            - webnet
-        expose:
-            - 3000
-        ports:
-            - 3000:3000
-        links:
-            - server
-        environment:
-            REACT_APP_API_BASE_URL: /api
-        volumes:
-            - ./app:/wise-old-man/app
-            - /wise-old-man/app/node_modules
 networks:
     webnet:
 volumes:

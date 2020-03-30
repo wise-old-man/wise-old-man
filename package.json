@@ -4,10 +4,19 @@
   "description": "The open source Oldschool Runescape progress tracker.",
   "main": "index.js",
   "scripts": {
-    "dev-app": "cd app && npm start",
-    "dev-server": "cd server && npm run dev"
+    "dev": "docker-compose up -d --build && cd app && npm start",
+    "dev:server": "docker-compose up --build"
   },
-  "keywords": ["Oldschool", "Runescape", "OSRS", "2007scape", "player" "progress", "experience", "tracker"],
+  "keywords": [
+    "Oldschool",
+    "Runescape",
+    "OSRS",
+    "2007scape",
+    "player",
+    "progress",
+    "experience",
+    "tracker"
+  ],
   "author": "Psikoi",
   "license": "MIT"
 }
