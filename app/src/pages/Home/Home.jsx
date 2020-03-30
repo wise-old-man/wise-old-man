@@ -34,7 +34,7 @@ function Home() {
         <div className="hero__intro">
           <div className="intro-container">
             <span className="intro-greeting">Hi, meet the</span>
-            <h1 className="intro-title">Wise Old Man 2</h1>
+            <h1 className="intro-title">Wise Old Man</h1>
             <p className="intro-description">
               The open source Oldschool Runescape player progress tracker.
             </p>

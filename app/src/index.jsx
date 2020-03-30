@@ -6,6 +6,7 @@ import store from './redux/store';
 import App from './App';
 
 import '@openfonts/squada-one_latin';
+import '@openfonts/lato_latin';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import './index.scss';
 

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@openfonts/lato_latin": "^1.44.0",
     "@openfonts/squada-one_latin": "^1.44.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.1",
@@ -60,7 +61,6 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "lato-font": "^3.0.0",
     "prettier": "1.19.1"
   }
 }
