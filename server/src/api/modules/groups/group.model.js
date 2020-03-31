@@ -10,13 +10,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(30),
       allowNull: false,
       unique: {
-        msg: "This group name is already taken.",
-        fields: ["name"]
+        msg: 'This group name is already taken.',
+        fields: ['name']
       },
       validate: {
         len: {
           args: [1, 30],
-          msg: "Group title must be between 1 and 30 characters long."
+          msg: 'Group title must be between 1 and 30 characters long.'
         }
       }
     },
@@ -35,23 +35,23 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ["id"]
+        fields: ['id']
       },
       {
         unique: true,
-        fields: ["name"]
+        fields: ['name']
       }
     ]
   };
 
   // Create the model
-  const Group = sequelize.define("groups", groupSchema, options);
+  const Group = sequelize.define('groups', groupSchema, options);
 
   Group.associate = models => {
     Group.belongsToMany(models.Player, {
-      as: "members",
-      through: "memberships",
-      foreignKey: "groupId"
+      as: 'members',
+      through: 'memberships',
+      foreignKey: 'groupId'
     });
   };
 

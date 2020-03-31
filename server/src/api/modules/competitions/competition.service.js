@@ -1,25 +1,25 @@
-const _ = require("lodash");
-const { Op, Sequelize } = require("sequelize");
-const { ALL_METRICS } = require("../../constants/metrics");
-const STATUSES = require("../../constants/statuses.json");
-const { Competition, Participation, Player, Snapshot } = require("../../../database");
-const { durationBetween, isValidDate, isPast } = require("../../util/dates");
-const { generateVerification, verifyCode } = require("../../util/verification");
-const { BadRequestError } = require("../../errors");
-const playerService = require("../players/player.service");
-const snapshotService = require("../snapshots/snapshot.service");
-const groupService = require("../groups/group.service");
+const _ = require('lodash');
+const { Op, Sequelize } = require('sequelize');
+const { ALL_METRICS } = require('../../constants/metrics');
+const STATUSES = require('../../constants/statuses.json');
+const { Competition, Participation, Player, Snapshot } = require('../../../database');
+const { durationBetween, isValidDate, isPast } = require('../../util/dates');
+const { generateVerification, verifyCode } = require('../../util/verification');
+const { BadRequestError } = require('../../errors');
+const playerService = require('../players/player.service');
+const snapshotService = require('../snapshots/snapshot.service');
+const groupService = require('../groups/group.service');
 
 function sanitizeTitle(title) {
   return title
-    .replace(/_/g, " ")
-    .replace(/-/g, " ")
-    .replace(/ +(?= )/g, "")
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/ +(?= )/g, '')
     .trim();
 }
 
 function format(competition) {
-  return _.omit(competition.toJSON(), ["verificationHash"]);
+  return _.omit(competition.toJSON(), ['verificationHash']);
 }
 
 /**
@@ -51,11 +51,11 @@ async function list(title, status, metric) {
     const formattedStatus = status.toLowerCase();
     const now = new Date();
 
-    if (formattedStatus === "finished") {
+    if (formattedStatus === 'finished') {
       query.endsAt = { [Op.lt]: now };
-    } else if (formattedStatus === "upcoming") {
+    } else if (formattedStatus === 'upcoming') {
       query.startsAt = { [Op.gt]: now };
-    } else if (formattedStatus === "ongoing") {
+    } else if (formattedStatus === 'ongoing') {
       query.startsAt = { [Op.lt]: now };
       query.endsAt = { [Op.gt]: now };
     }
@@ -99,7 +99,7 @@ async function findForPlayer(playerId) {
  */
 async function view(id) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -116,8 +116,8 @@ async function view(id) {
     where: { competitionId: id },
     include: [
       { model: Player },
-      { model: Snapshot, as: "startSnapshot" },
-      { model: Snapshot, as: "endSnapshot" }
+      { model: Snapshot, as: 'startSnapshot' },
+      { model: Snapshot, as: 'endSnapshot' }
     ]
   });
 
@@ -181,22 +181,22 @@ async function view(id) {
  */
 async function create(title, metric, startsAt, endsAt, groupId, participants) {
   if (!startsAt || !isValidDate(startsAt)) {
-    throw new BadRequestError("Invalid start date.");
+    throw new BadRequestError('Invalid start date.');
   }
 
   if (!endsAt || !isValidDate(endsAt)) {
-    throw new BadRequestError("Invalid end date.");
+    throw new BadRequestError('Invalid end date.');
   }
 
   if (isPast(startsAt) || isPast(endsAt)) {
-    throw new BadRequestError("Invalid dates: All start and end dates must be in the future.");
+    throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
   }
 
   if (groupId) {
     const group = await groupService.findOne(groupId);
 
     if (!group) {
-      throw new BadRequestError("Invalid group id");
+      throw new BadRequestError('Invalid group id');
     }
   }
 
@@ -231,15 +231,15 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
  */
 async function edit(id, title, metric, startsAt, endsAt, participants, verificationCode) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   if (endsAt && !isValidDate(endsAt)) {
-    throw new BadRequestError("Invalid end date.");
+    throw new BadRequestError('Invalid end date.');
   }
 
   if (startsAt && !isValidDate(startsAt)) {
-    throw new BadRequestError("Invalid start date.");
+    throw new BadRequestError('Invalid start date.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -259,7 +259,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   const newValues = {};
@@ -300,11 +300,11 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
  */
 async function destroy(id, verificationCode) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   if (!verificationCode) {
-    throw new BadRequestError("Invalid verification code.");
+    throw new BadRequestError('Invalid verification code.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -317,7 +317,7 @@ async function destroy(id, verificationCode) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Incorrect verification code");
+    throw new BadRequestError('Incorrect verification code');
   }
 
   await competition.destroy();
@@ -359,11 +359,11 @@ async function setParticipants(competition, usernames) {
  */
 async function addAllGroupMembers(competition, groupId) {
   if (!competition) {
-    throw new BadRequestError("Invalid competition");
+    throw new BadRequestError('Invalid competition');
   }
 
   if (!groupId) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   // Find all the group's members
@@ -373,7 +373,7 @@ async function addAllGroupMembers(competition, groupId) {
   await Participation.bulkCreate(members.map(p => ({ competitionId: competition.id, playerId: p.id })));
 
   // Update the "updatedAt" timestamp on the competition model
-  await competition.changed("updatedAt", true);
+  await competition.changed('updatedAt', true);
   await competition.save();
 
   return members;
@@ -384,11 +384,11 @@ async function addAllGroupMembers(competition, groupId) {
  */
 async function addParticipants(id, verificationCode, usernames) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError("Invalid participants list");
+    throw new BadRequestError('Invalid participants list');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -400,7 +400,7 @@ async function addParticipants(id, verificationCode, usernames) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   // Find all existing participants
@@ -412,13 +412,13 @@ async function addParticipants(id, verificationCode, usernames) {
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
-    throw new BadRequestError("All players given are already competing.");
+    throw new BadRequestError('All players given are already competing.');
   }
 
   await competition.addParticipants(newPlayers);
 
   // Update the "updatedAt" timestamp on the competition model
-  await competition.changed("updatedAt", true);
+  await competition.changed('updatedAt', true);
   await competition.save();
 
   return newPlayers;
@@ -429,11 +429,11 @@ async function addParticipants(id, verificationCode, usernames) {
  */
 async function removeParticipants(id, verificationCode, usernames) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError("Invalid participants list");
+    throw new BadRequestError('Invalid participants list');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -445,24 +445,24 @@ async function removeParticipants(id, verificationCode, usernames) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError("No valid players were given. (Untracked)");
+    throw new BadRequestError('No valid players were given. (Untracked)');
   }
 
   // Remove all specific players, and return the removed count
   const removedPlayersCount = await competition.removeParticipants(playersToRemove);
 
   if (!removedPlayersCount) {
-    throw new BadRequestError("None of the players given were competing.");
+    throw new BadRequestError('None of the players given were competing.');
   }
 
   // Update the "updatedAt" timestamp on the competition model
-  await competition.changed("updatedAt", true);
+  await competition.changed('updatedAt', true);
   await competition.save();
 
   return removedPlayersCount;
@@ -477,12 +477,12 @@ async function removeParticipants(id, verificationCode, usernames) {
 async function syncParticipations(playerId) {
   // Get all on-going participations
   const participations = await Participation.findAll({
-    attributes: ["competitionId", "playerId"],
+    attributes: ['competitionId', 'playerId'],
     where: { playerId },
     include: [
       {
         model: Competition,
-        attributes: ["startsAt", "endsAt"],
+        attributes: ['startsAt', 'endsAt'],
         where: {
           startsAt: { [Op.lt]: Sequelize.literal(`NOW()`) },
           endsAt: { [Op.gte]: Sequelize.literal(`NOW()`) }
@@ -518,7 +518,7 @@ async function syncParticipations(playerId) {
  */
 async function getParticipants(id) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -541,7 +541,7 @@ async function getParticipants(id) {
 async function addToGroupCompetitions(groupId, playerIds) {
   // Find all upcoming/ongoing competitions for the group
   const competitions = await Competition.findAll({
-    attributes: ["id"],
+    attributes: ['id'],
     where: {
       groupId,
       endsAt: { [Op.gt]: new Date() }
@@ -571,7 +571,7 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
   // Find all upcoming/ongoing competitions for the group
   const competitionIds = (
     await Competition.findAll({
-      attributes: ["id"],
+      attributes: ['id'],
       where: {
         groupId,
         endsAt: { [Op.gt]: new Date() }

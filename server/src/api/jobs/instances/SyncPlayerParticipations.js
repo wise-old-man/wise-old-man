@@ -1,7 +1,7 @@
-const competitionService = require("../../modules/competitions/competition.service");
+const competitionService = require('../../modules/competitions/competition.service');
 
 module.exports = {
-  key: "SyncPlayerParticipations",
+  key: 'SyncPlayerParticipations',
   async handle({ data }) {
     const { playerId } = data;
     await competitionService.syncParticipations(playerId);

@@ -1,8 +1,8 @@
-const PLAYER_TYPES = require("../../api/constants/playerTypes");
+const PLAYER_TYPES = require('../../api/constants/playerTypes');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("players", {
+    return queryInterface.createTable('players', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -30,6 +30,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("players");
+    return queryInterface.dropTable('players');
   }
 };

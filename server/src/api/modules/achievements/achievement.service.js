@@ -1,7 +1,7 @@
-const { SKILLS } = require("../../constants/metrics");
-const { ACHIEVEMENTS } = require("../../constants/achievements");
-const { Achievement } = require("../../../database");
-const snapshotService = require("../snapshots/snapshot.service");
+const { SKILLS } = require('../../constants/metrics');
+const { ACHIEVEMENTS } = require('../../constants/achievements');
+const { Achievement } = require('../../../database');
+const snapshotService = require('../snapshots/snapshot.service');
 
 /**
  * Finds all achievements that should be attributed to a player.
@@ -10,10 +10,10 @@ function getAchievements(snapshot) {
   const achievements = [];
 
   ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes("{skill}")) {
-      SKILLS.filter(s => s !== "overall").forEach(skill => {
+    if (a.name.includes('{skill}')) {
+      SKILLS.filter(s => s !== 'overall').forEach(skill => {
         if (a.validate(snapshot[`${skill}Experience`])) {
-          achievements.push(a.name.replace("{skill}", skill));
+          achievements.push(a.name.replace('{skill}', skill));
         }
       });
     } else if (a.validate(snapshot)) {
@@ -55,9 +55,9 @@ function getAchievementTypes() {
   const types = [];
 
   ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes("{skill}")) {
-      SKILLS.filter(s => s !== "overall").forEach(skill => {
-        types.push(a.name.replace("{skill}", skill));
+    if (a.name.includes('{skill}')) {
+      SKILLS.filter(s => s !== 'overall').forEach(skill => {
+        types.push(a.name.replace('{skill}', skill));
       });
     } else {
       types.push(a.name);

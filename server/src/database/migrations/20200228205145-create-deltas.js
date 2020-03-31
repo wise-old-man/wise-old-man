@@ -1,8 +1,8 @@
-const PERIODS = require("../../api/constants/periods");
+const PERIODS = require('../../api/constants/periods');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("deltas", {
+    return queryInterface.createTable('deltas', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -11,10 +11,10 @@ module.exports = {
       playerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       period: {
@@ -24,15 +24,15 @@ module.exports = {
       startSnapshotId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "snapshots",
-          key: "id"
+          model: 'snapshots',
+          key: 'id'
         }
       },
       endSnapshotId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "snapshots",
-          key: "id"
+          model: 'snapshots',
+          key: 'id'
         }
       },
       updatedAt: {
@@ -42,6 +42,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("deltas");
+    return queryInterface.dropTable('deltas');
   }
 };

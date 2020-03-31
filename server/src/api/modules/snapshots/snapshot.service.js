@@ -1,10 +1,10 @@
-const csv = require("csvtojson");
-const _ = require("lodash");
-const { Op, Sequelize } = require("sequelize");
-const { SKILLS } = require("../../constants/metrics");
-const PERIODS = require("../../constants/periods");
-const { Snapshot } = require("../../../database");
-const { ServerError, BadRequestError } = require("../../errors");
+const csv = require('csvtojson');
+const _ = require('lodash');
+const { Op, Sequelize } = require('sequelize');
+const { SKILLS } = require('../../constants/metrics');
+const PERIODS = require('../../constants/periods');
+const { Snapshot } = require('../../../database');
+const { ServerError, BadRequestError } = require('../../errors');
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
@@ -35,7 +35,7 @@ async function findAll(playerId, limit) {
 
   const result = await Snapshot.findAll({
     where: { playerId },
-    order: [["createdAt", "DESC"]],
+    order: [['createdAt', 'DESC']],
     limit
   });
 
@@ -66,7 +66,7 @@ async function findAllGrouped(playerId) {
 
   // Turn an array of snapshots, into an object, using the period as a key,
   // then include only the snapshots array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, "period"), p => p.snapshots);
+  return _.mapValues(_.keyBy(partials, 'period'), p => p.snapshots);
 }
 
 /**
@@ -86,7 +86,7 @@ async function findAllInPeriod(playerId, period) {
       playerId,
       createdAt: { [Op.gte]: Sequelize.literal(`NOW() - INTERVAL 1 ${period}`) }
     },
-    order: [["createdAt", "DESC"]]
+    order: [['createdAt', 'DESC']]
   });
 
   return result.map(r => format(r));
@@ -98,7 +98,7 @@ async function findAllInPeriod(playerId, period) {
 async function findLatest(playerId) {
   const result = await Snapshot.findOne({
     where: { playerId },
-    order: [["createdAt", "DESC"]]
+    order: [['createdAt', 'DESC']]
   });
   return result;
 }
@@ -114,7 +114,7 @@ async function findFirstIn(playerId, period) {
 
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: Sequelize.literal(`NOW() - INTERVAL 1 ${period}`) } },
-    order: [["createdAt", "ASC"]]
+    order: [['createdAt', 'ASC']]
   });
   return result;
 }
@@ -126,7 +126,7 @@ async function findFirstIn(playerId, period) {
 async function findFirstSince(playerId, date) {
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [["createdAt", "ASC"]]
+    order: [['createdAt', 'ASC']]
   });
   return result;
 }
@@ -142,7 +142,7 @@ async function findAllBetween(playerIds, startDate, endDate) {
       playerId: playerIds,
       createdAt: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] }
     },
-    order: [["createdAt", "ASC"]]
+    order: [['createdAt', 'ASC']]
   });
   return results;
 }
@@ -182,7 +182,7 @@ async function fromCML(playerId, historyRow) {
   // for whatever reason. These blocks are the
   // datapoint timestamp, and the experience and rank
   // arrays respectively.
-  const rows = historyRow.split(" ");
+  const rows = historyRow.split(' ');
   const [timestamp, experienceCSV, ranksCSV] = rows;
 
   // CML stores timestamps in seconds, we need milliseconds
@@ -190,13 +190,13 @@ async function fromCML(playerId, historyRow) {
   const importedAt = new Date();
 
   // Convert the experience and rank from CSV data into arrays
-  const exps = (await csv({ noheader: true, output: "csv" }).fromString(experienceCSV))[0];
-  const ranks = (await csv({ noheader: true, output: "csv" }).fromString(ranksCSV))[0];
+  const exps = (await csv({ noheader: true, output: 'csv' }).fromString(experienceCSV))[0];
+  const ranks = (await csv({ noheader: true, output: 'csv' }).fromString(ranksCSV))[0];
 
   // If a new skill/activity/boss was added to the CML API,
   // prevent any further snapshot saves to prevent incorrect DB data
   if (exps.length !== SKILLS.length) {
-    throw new ServerError("The CML API was updated. Please wait for a fix.");
+    throw new ServerError('The CML API was updated. Please wait for a fix.');
   }
 
   const stats = {};
@@ -220,7 +220,7 @@ async function fromCML(playerId, historyRow) {
 async function fromRS(playerId, csvData) {
   // Convert the CSV text into an array of values
   // Ex: for skills, each row is [rank, level, experience]
-  const rows = await csv({ noheader: true, output: "csv" }).fromString(csvData);
+  const rows = await csv({ noheader: true, output: 'csv' }).fromString(csvData);
 
   // TODO: when bosses and activites get added, uncomment the block below
   // If a new skill/activity/boss was added to the hiscores,

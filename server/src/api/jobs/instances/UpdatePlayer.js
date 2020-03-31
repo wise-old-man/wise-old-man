@@ -1,7 +1,7 @@
-const playerService = require("../../modules/players/player.service");
+const playerService = require('../../modules/players/player.service');
 
 module.exports = {
-  key: "UpdatePlayer",
+  key: 'UpdatePlayer',
   async handle({ data }) {
     const { player } = data;
     await playerService.update(player.username);

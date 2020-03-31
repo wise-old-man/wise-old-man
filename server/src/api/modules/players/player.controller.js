@@ -1,5 +1,5 @@
-const jobs = require("../../jobs");
-const service = require("./player.service");
+const jobs = require('../../jobs');
+const service = require('./player.service');
 
 async function get(req, res, next) {
   try {
@@ -31,8 +31,8 @@ async function track(req, res, next) {
     const player = await service.update(username);
 
     // Run secondary jobs
-    jobs.add("ConfirmPlayerType", { player });
-    jobs.add("ImportPlayer", { player });
+    jobs.add('ConfirmPlayerType', { player });
+    jobs.add('ImportPlayer', { player });
 
     // Send the http response back
     res.status(200).json(player);

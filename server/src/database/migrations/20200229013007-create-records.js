@@ -1,9 +1,9 @@
-const PERIODS = require("../../api/constants/periods");
-const { ALL_METRICS } = require("../../api/constants/metrics");
+const PERIODS = require('../../api/constants/periods');
+const { ALL_METRICS } = require('../../api/constants/metrics');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("records", {
+    return queryInterface.createTable('records', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -12,10 +12,10 @@ module.exports = {
       playerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       period: {
@@ -37,6 +37,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("records");
+    return queryInterface.dropTable('records');
   }
 };

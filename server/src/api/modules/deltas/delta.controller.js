@@ -1,4 +1,4 @@
-const service = require("./delta.service");
+const service = require('./delta.service');
 
 async function get(req, res, next) {
   try {

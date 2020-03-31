@@ -1,4 +1,4 @@
-const moment = require("moment");
+const moment = require('moment');
 
 function castToDate(date) {
   return date instanceof Date ? date : new Date(date);
@@ -32,7 +32,7 @@ function durationBetween(startDate, endDate) {
   const diff = endDate - startDate;
 
   if (diff === 0) {
-    return "0 seconds";
+    return '0 seconds';
   }
 
   let days = 0;
@@ -66,10 +66,10 @@ function durationBetween(startDate, endDate) {
     periods.push(`${seconds} seconds`);
   }
 
-  const str = periods.join(", ");
+  const str = periods.join(', ');
 
-  if (str === "7 days") {
-    return "1 week";
+  if (str === '7 days') {
+    return '1 week';
   }
 
   return str;

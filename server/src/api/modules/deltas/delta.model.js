@@ -1,4 +1,4 @@
-const PERIODS = require("../../constants/periods");
+const PERIODS = require('../../constants/periods');
 
 module.exports = (sequelize, DataTypes) => {
   // Define the delta schema
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [PERIODS],
-          msg: "Invalid period"
+          msg: 'Invalid period'
         }
       }
     },
@@ -40,39 +40,39 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ["id"]
+        fields: ['id']
       },
       {
-        fields: ["playerId"]
+        fields: ['playerId']
       },
       {
-        fields: ["period"]
+        fields: ['period']
       },
       {
-        fields: ["startSnapshotId"]
+        fields: ['startSnapshotId']
       },
       {
-        fields: ["endSnapshotId"]
+        fields: ['endSnapshotId']
       }
     ]
   };
 
   // Create the model
-  const Delta = sequelize.define("deltas", deltaSchema, options);
+  const Delta = sequelize.define('deltas', deltaSchema, options);
 
   // Define all model associations
   Delta.associate = models => {
     Delta.belongsTo(models.Player, {
-      foreignKey: "playerId",
-      onDelete: "CASCADE"
+      foreignKey: 'playerId',
+      onDelete: 'CASCADE'
     });
     Delta.belongsTo(models.Snapshot, {
-      as: "startSnapshot",
-      foreignKey: "startSnapshotId"
+      as: 'startSnapshot',
+      foreignKey: 'startSnapshotId'
     });
     Delta.belongsTo(models.Snapshot, {
-      as: "endSnapshot",
-      foreignKey: "endSnapshotId"
+      as: 'endSnapshot',
+      foreignKey: 'endSnapshotId'
     });
   };
 

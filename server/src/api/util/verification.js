@@ -1,13 +1,13 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
 // Generates a random numeric code with the
 // following format: XXX-XXX-XXX
 function generateCode() {
-  let code = "";
+  let code = '';
   for (let i = 0; i < 9; i += 1) {
     code += Math.floor(Math.random() * 10);
     if (i === 2 || i === 5) {
-      code += "-";
+      code += '-';
     }
   }
   return code;

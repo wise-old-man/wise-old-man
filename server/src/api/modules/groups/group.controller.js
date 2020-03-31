@@ -1,4 +1,4 @@
-const service = require("./group.service");
+const service = require('./group.service');
 
 async function listGroups(req, res, next) {
   try {

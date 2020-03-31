@@ -1,26 +1,26 @@
-const ROLES = require("../../api/constants/roles");
+const ROLES = require('../../api/constants/roles');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("memberships", {
+    return queryInterface.createTable('memberships', {
       playerId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       groupId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "groups",
-          key: "id"
+          model: 'groups',
+          key: 'id'
         }
       },
       role: {
@@ -37,6 +37,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("memberships");
+    return queryInterface.dropTable('memberships');
   }
 };

@@ -1,11 +1,11 @@
-require("dotenv").config({ path: process.env.NODE_ENV === "test" ? ".env.test" : ".env" });
+require('dotenv').config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
-const express = require("express");
-const cors = require("cors");
-const rateLimit = require("express-rate-limit");
-const api = require("./routing");
-const jobs = require("./jobs");
-const hooks = require("./hooks");
+const express = require('express');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const api = require('./routing');
+const jobs = require('./jobs');
+const hooks = require('./hooks');
 
 function init() {
   const app = express();
@@ -21,7 +21,7 @@ function init() {
     })
   );
 
-  app.use("/api", api);
+  app.use('/api', api);
 
   jobs.process();
   hooks.register();

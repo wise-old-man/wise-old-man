@@ -1,4 +1,4 @@
-const service = require("./snapshot.service");
+const service = require('./snapshot.service');
 
 async function get(req, res, next) {
   try {

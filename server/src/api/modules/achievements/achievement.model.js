@@ -19,29 +19,29 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ["id"]
+        fields: ['id']
       },
       {
         unique: true,
-        fields: ["playerId", "type"]
+        fields: ['playerId', 'type']
       },
       {
-        fields: ["playerId"]
+        fields: ['playerId']
       },
       {
-        fields: ["type"]
+        fields: ['type']
       }
     ]
   };
 
   // Create the model
-  const Achievement = sequelize.define("achievements", achievementSchema, options);
+  const Achievement = sequelize.define('achievements', achievementSchema, options);
 
   // Define all model associations
   Achievement.associate = models => {
     Achievement.belongsTo(models.Player, {
-      foreignKey: "playerId",
-      onDelete: "CASCADE"
+      foreignKey: 'playerId',
+      onDelete: 'CASCADE'
     });
   };
 

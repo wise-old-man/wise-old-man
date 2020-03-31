@@ -1,7 +1,7 @@
-const playerService = require("../../modules/players/player.service");
+const playerService = require('../../modules/players/player.service');
 
 module.exports = {
-  key: "ConfirmPlayerType",
+  key: 'ConfirmPlayerType',
   async handle({ data }) {
     const { player } = data;
     await playerService.confirmType(player.username);

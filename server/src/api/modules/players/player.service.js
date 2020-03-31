@@ -1,10 +1,10 @@
-const axios = require("axios");
-const { Op } = require("sequelize");
-const { isValidDate } = require("../../util/dates");
-const { CML, OSRS_HISCORES } = require("../../constants/services");
-const { ServerError, BadRequestError } = require("../../errors");
-const { Player } = require("../../../database");
-const snapshotService = require("../snapshots/snapshot.service");
+const axios = require('axios');
+const { Op } = require('sequelize');
+const { isValidDate } = require('../../util/dates');
+const { CML, OSRS_HISCORES } = require('../../constants/services');
+const { ServerError, BadRequestError } = require('../../errors');
+const { Player } = require('../../../database');
+const snapshotService = require('../snapshots/snapshot.service');
 
 const DECADE_IN_SECONDS = 315569260;
 
@@ -16,13 +16,13 @@ const DECADE_IN_SECONDS = 315569260;
  */
 function formatUsername(username) {
   return username
-    .replace(/_/g, " ")
-    .replace(/-/g, " ")
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
     .trim()
     .toLowerCase()
-    .split(" ")
+    .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
 function shouldUpdate(updatedAt) {
@@ -62,7 +62,7 @@ function shouldImport(lastImportedAt) {
  */
 async function getData(username) {
   if (!username) {
-    throw new BadRequestError("Invalid username.");
+    throw new BadRequestError('Invalid username.');
   }
 
   const player = await Player.findOne({
@@ -83,7 +83,7 @@ async function getData(username) {
  */
 async function getDataById(id) {
   if (!id) {
-    throw new BadRequestError("Invalid player id.");
+    throw new BadRequestError('Invalid player id.');
   }
 
   const player = await Player.findOne({ where: { id } });
@@ -102,7 +102,7 @@ async function getDataById(id) {
  */
 async function search(username) {
   if (!username) {
-    throw new BadRequestError("Invalid username");
+    throw new BadRequestError('Invalid username');
   }
 
   const players = await Player.findAll({
@@ -123,7 +123,7 @@ async function search(username) {
  */
 async function update(username) {
   if (!username) {
-    throw new BadRequestError("Invalid username");
+    throw new BadRequestError('Invalid username');
   }
 
   // Find a player with the given username,
@@ -144,7 +144,7 @@ async function update(username) {
   const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
   // Update the "updatedAt" timestamp on the player model
-  await player.changed("updatedAt", true);
+  await player.changed('updatedAt', true);
   await player.save();
 
   return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
@@ -158,7 +158,7 @@ async function update(username) {
  */
 async function importCML(username) {
   if (!username) {
-    throw new BadRequestError("Invalid username");
+    throw new BadRequestError('Invalid username');
   }
 
   // Find a player with the given username,
@@ -214,28 +214,28 @@ async function isType(username, type) {
  */
 async function confirmType(username) {
   if (!username) {
-    throw new BadRequestError("Invalid username");
+    throw new BadRequestError('Invalid username');
   }
 
   const [player] = await findOrCreate(username);
 
   if (!player || !player.type) {
-    throw new ServerError("Invalid player");
+    throw new ServerError('Invalid player');
   }
 
-  if (player.type !== "unknown") {
+  if (player.type !== 'unknown') {
     return player.type;
   }
 
-  let type = "regular";
+  let type = 'regular';
 
-  if (await isType(player.username, "IRONMAN")) {
-    if (await isType(player.username, "ULTIMATE_IRONMAN")) {
-      type = "ultimate";
-    } else if (await isType(player.username, "HARDCORE_IRONMAN")) {
-      type = "hardcore";
+  if (await isType(player.username, 'IRONMAN')) {
+    if (await isType(player.username, 'ULTIMATE_IRONMAN')) {
+      type = 'ultimate';
+    } else if (await isType(player.username, 'HARDCORE_IRONMAN')) {
+      type = 'hardcore';
     } else {
-      type = "ironman";
+      type = 'ironman';
     }
   }
 
@@ -285,21 +285,21 @@ async function getCMLHistory(username, time) {
     const { data } = await axios.get(URL);
 
     // Validate the response data
-    if (!data || !data.length || data === "-1") {
+    if (!data || !data.length || data === '-1') {
       throw new Error();
     }
 
     // Separate the data into rows and filter invalid ones
-    return data.split("\n").filter(r => r.length);
+    return data.split('\n').filter(r => r.length);
   } catch (e) {
-    throw new ServerError("Failed to load history from CML");
+    throw new ServerError('Failed to load history from CML');
   }
 }
 
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username, type = "NORMAL") {
+async function getHiscoresData(username, type = 'NORMAL') {
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
@@ -307,13 +307,13 @@ async function getHiscoresData(username, type = "NORMAL") {
     const { data } = await axios.get(URL);
 
     // Validate the response data
-    if (!data || !data.length || data.includes("Unavailable")) {
-      throw new ServerError("Failed to load hiscores: Service is unavailable");
+    if (!data || !data.length || data.includes('Unavailable')) {
+      throw new ServerError('Failed to load hiscores: Service is unavailable');
     }
 
     return data;
   } catch (e) {
-    throw new BadRequestError("Failed to load hiscores: Invalid username");
+    throw new BadRequestError('Failed to load hiscores: Invalid username');
   }
 }
 

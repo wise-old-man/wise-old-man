@@ -1,11 +1,11 @@
-const { SKILLS } = require("../../api/constants/metrics");
+const { SKILLS } = require('../../api/constants/metrics');
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
 
   SKILLS.forEach(s => {
     obj[`${s}Rank`] = DataTypes.INTEGER;
-    obj[`${s}Experience`] = s === "overall" ? DataTypes.BIGINT : DataTypes.INTEGER;
+    obj[`${s}Experience`] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
   });
 
   return obj;
@@ -13,7 +13,7 @@ function buildDynamicSchema(DataTypes) {
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("snapshots", {
+    return queryInterface.createTable('snapshots', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -22,10 +22,10 @@ module.exports = {
       playerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       importedAt: {
@@ -39,6 +39,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("snapshots");
+    return queryInterface.dropTable('snapshots');
   }
 };

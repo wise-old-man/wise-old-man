@@ -1,6 +1,6 @@
-const { BadRequestError } = require("../../errors");
-const service = require("./competition.service");
-const jobs = require("../../jobs");
+const { BadRequestError } = require('../../errors');
+const service = require('./competition.service');
+const jobs = require('../../jobs');
 
 async function listCompetitions(req, res, next) {
   try {
@@ -101,12 +101,12 @@ async function updateAllParticipants(req, res, next) {
     const participants = await service.getParticipants(id);
 
     if (!participants || participants.length === 0) {
-      throw new BadRequestError("This competition has no participants.");
+      throw new BadRequestError('This competition has no participants.');
     }
 
     participants.forEach(player => {
       // Attempt this 5 times per player, waiting 65 seconds in between
-      jobs.add("UpdatePlayer", { player }, { attempts: 5, backoff: 65000 });
+      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
     });
 
     const message = `${participants.length} players are being updated. This can take up to a few minutes.`;

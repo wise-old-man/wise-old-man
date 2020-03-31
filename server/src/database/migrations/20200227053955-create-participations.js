@@ -1,24 +1,24 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("participations", {
+    return queryInterface.createTable('participations', {
       playerId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       competitionId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "competitions",
-          key: "id"
+          model: 'competitions',
+          key: 'id'
         }
       },
       startSnapshotId: {
@@ -37,6 +37,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("participations");
+    return queryInterface.dropTable('participations');
   }
 };

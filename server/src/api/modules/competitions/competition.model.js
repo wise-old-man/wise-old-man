@@ -1,4 +1,4 @@
-const { ALL_METRICS } = require("../../constants/metrics");
+const { ALL_METRICS } = require('../../constants/metrics');
 
 module.exports = (sequelize, DataTypes) => {
   // Define the competition schema
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         len: {
           args: [1, 30],
-          msg: "Competition title must be between 1 and 30 characters long."
+          msg: 'Competition title must be between 1 and 30 characters long.'
         }
       }
     },
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ALL_METRICS],
-          msg: "Invalid metric"
+          msg: 'Invalid metric'
         }
       }
     },
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isDate: {
           args: [true],
-          msg: "Start date must be a valid date"
+          msg: 'Start date must be a valid date'
         }
       }
     },
@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isDate: {
           args: [true],
-          msg: "End date must be a valid date"
+          msg: 'End date must be a valid date'
         }
       }
     },
@@ -66,43 +66,43 @@ module.exports = (sequelize, DataTypes) => {
     validate: {
       endsAfterStart() {
         if (this.startsAt - this.endsAt > 0) {
-          throw new Error("Start date must be before the end date.");
+          throw new Error('Start date must be before the end date.');
         }
       }
     },
     indexes: [
       {
         unique: true,
-        fields: ["id"]
+        fields: ['id']
       },
       {
-        fields: ["title"]
+        fields: ['title']
       },
       {
-        fields: ["metric"]
+        fields: ['metric']
       },
       {
-        fields: ["startsAt"]
+        fields: ['startsAt']
       },
       {
-        fields: ["endsAt"]
+        fields: ['endsAt']
       }
     ]
   };
 
   // Create the model
-  const Competition = sequelize.define("competitions", competitionSchema, options);
+  const Competition = sequelize.define('competitions', competitionSchema, options);
 
   Competition.associate = models => {
     Competition.belongsToMany(models.Player, {
-      as: "participants",
-      through: "participations",
-      foreignKey: "competitionId"
+      as: 'participants',
+      through: 'participations',
+      foreignKey: 'competitionId'
     });
 
     Competition.belongsTo(models.Group, {
-      foreignKey: "groupId",
-      onDelete: "SET NULL"
+      foreignKey: 'groupId',
+      onDelete: 'SET NULL'
     });
   };
 

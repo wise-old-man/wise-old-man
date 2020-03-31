@@ -1,12 +1,12 @@
-const _ = require("lodash");
-const PERIODS = require("../../constants/periods");
-const { SKILLS, ALL_METRICS } = require("../../constants/metrics");
-const { BadRequestError } = require("../../errors");
-const { Player, Record } = require("../../../database");
-const deltaService = require("../deltas/delta.service");
+const _ = require('lodash');
+const PERIODS = require('../../constants/periods');
+const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { BadRequestError } = require('../../errors');
+const { Player, Record } = require('../../../database');
+const deltaService = require('../deltas/delta.service');
 
 function format(record) {
-  return _.omit(record.toJSON(), ["id", "playerId"]);
+  return _.omit(record.toJSON(), ['id', 'playerId']);
 }
 
 /**
@@ -86,7 +86,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of records, into an object, using the period as a key,
   // then include only the records array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, "period"), p => p.records);
+  return _.mapValues(_.keyBy(partials, 'period'), p => p.records);
 }
 
 /**
@@ -104,7 +104,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
 
   const records = await Record.findAll({
     where: { period, metric },
-    order: [["value", "DESC"]],
+    order: [['value', 'DESC']],
     limit: 20,
     include: [{ model: Player, where: playerType && { type: playerType } }]
   });

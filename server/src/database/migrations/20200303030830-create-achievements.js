@@ -1,14 +1,14 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("achievements", {
+    return queryInterface.createTable('achievements', {
       playerId: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        onDelete: "CASCADE",
+        onDelete: 'CASCADE',
         references: {
-          model: "players",
-          key: "id"
+          model: 'players',
+          key: 'id'
         }
       },
       type: {
@@ -23,6 +23,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable("achievements");
+    return queryInterface.dropTable('achievements');
   }
 };

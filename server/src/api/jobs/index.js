@@ -1,7 +1,7 @@
-const Queue = require("bull");
-const redisConfig = require("./redis");
+const Queue = require('bull');
+const redisConfig = require('./redis');
 
-const jobs = require("./instances");
+const jobs = require('./instances');
 
 const queues = Object.values(jobs).map(job => ({
   bull: new Queue(job.key, redisConfig),
@@ -35,13 +35,13 @@ function process() {
   return queues.forEach(queue => {
     queue.bull.process(queue.handle);
 
-    queue.bull.on("completed", job => {
+    queue.bull.on('completed', job => {
       if (queue.onSuccess) {
         queue.onSuccess(job.data);
       }
     });
 
-    queue.bull.on("failed", (job, err) => {
+    queue.bull.on('failed', (job, err) => {
       if (queue.onFail) {
         queue.onFail(job.data, err);
       } else {

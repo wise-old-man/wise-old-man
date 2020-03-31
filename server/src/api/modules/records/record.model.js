@@ -1,5 +1,5 @@
-const PERIODS = require("../../constants/periods");
-const { ALL_METRICS } = require("../../constants/metrics");
+const PERIODS = require('../../constants/periods');
+const { ALL_METRICS } = require('../../constants/metrics');
 
 module.exports = (sequelize, DataTypes) => {
   // Define the record schema
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [PERIODS],
-          msg: "Invalid period"
+          msg: 'Invalid period'
         }
       }
     },
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ALL_METRICS],
-          msg: "Invalid metric"
+          msg: 'Invalid metric'
         }
       }
     },
@@ -45,28 +45,28 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ["id"]
+        fields: ['id']
       },
       {
-        fields: ["playerId"]
+        fields: ['playerId']
       },
       {
-        fields: ["period"]
+        fields: ['period']
       },
       {
-        fields: ["metric"]
+        fields: ['metric']
       }
     ]
   };
 
   // Create the model
-  const Record = sequelize.define("records", recordSchema, options);
+  const Record = sequelize.define('records', recordSchema, options);
 
   // Define all model associations
   Record.associate = models => {
     Record.belongsTo(models.Player, {
-      foreignKey: "playerId",
-      onDelete: "CASCADE"
+      foreignKey: 'playerId',
+      onDelete: 'CASCADE'
     });
   };
 

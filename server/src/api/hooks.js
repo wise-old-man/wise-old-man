@@ -1,11 +1,11 @@
-const { Snapshot, Delta, Membership } = require("../database");
-const jobs = require("./jobs");
+const { Snapshot, Delta, Membership } = require('../database');
+const jobs = require('./jobs');
 
 function register() {
   Snapshot.afterCreate(({ playerId }) => {
-    jobs.add("SyncPlayerDeltas", { playerId });
-    jobs.add("SyncPlayerParticipations", { playerId });
-    jobs.add("SyncPlayerAchievements", { playerId });
+    jobs.add('SyncPlayerDeltas', { playerId });
+    jobs.add('SyncPlayerParticipations', { playerId });
+    jobs.add('SyncPlayerAchievements', { playerId });
   });
 
   Snapshot.afterBulkCreate(snapshots => {
@@ -15,12 +15,12 @@ function register() {
 
     const { playerId } = snapshots[0];
 
-    jobs.add("SyncPlayerDeltas", { playerId });
-    jobs.add("SyncPlayerParticipations", { playerId });
+    jobs.add('SyncPlayerDeltas', { playerId });
+    jobs.add('SyncPlayerParticipations', { playerId });
   });
 
   Delta.afterUpdate(({ playerId, period }) => {
-    jobs.add("SyncPlayerRecords", { playerId, period });
+    jobs.add('SyncPlayerRecords', { playerId, period });
   });
 
   Membership.afterBulkCreate(memberships => {
@@ -31,7 +31,7 @@ function register() {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    jobs.add("AddToGroupCompetitions", { groupId, playerIds });
+    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
   });
 
   Membership.afterBulkDestroy(info => {
@@ -40,7 +40,7 @@ function register() {
     }
 
     const { groupId, playerId } = info.where;
-    jobs.add("RemoveFromGroupCompetitions", { groupId, playerIds: playerId });
+    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
   });
 }
 

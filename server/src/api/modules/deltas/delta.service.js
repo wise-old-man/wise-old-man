@@ -1,10 +1,10 @@
-const _ = require("lodash");
-const PERIODS = require("../../constants/periods");
-const { SKILLS, ALL_METRICS } = require("../../constants/metrics");
-const { BadRequestError, ServerError } = require("../../errors");
-const { durationBetween } = require("../../util/dates");
-const { Player, Delta, Snapshot, sequelize } = require("../../../database");
-const snapshotService = require("../snapshots/snapshot.service");
+const _ = require('lodash');
+const PERIODS = require('../../constants/periods');
+const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { BadRequestError, ServerError } = require('../../errors');
+const { durationBetween } = require('../../util/dates');
+const { Player, Delta, Snapshot, sequelize } = require('../../../database');
+const snapshotService = require('../snapshots/snapshot.service');
 
 /**
  * Converts a Delta instance into a JSON friendlier format
@@ -88,14 +88,14 @@ async function updateDelta(playerId, period, startSnapshot, endSnapshot) {
  */
 async function getAllDeltas(playerId) {
   if (!playerId) {
-    throw new BadRequestError("Invalid player id.");
+    throw new BadRequestError('Invalid player id.');
   }
 
   const deltas = await Delta.findAll({
     where: { playerId },
     include: [
-      { model: Snapshot, as: "startSnapshot" },
-      { model: Snapshot, as: "endSnapshot" },
+      { model: Snapshot, as: 'startSnapshot' },
+      { model: Snapshot, as: 'endSnapshot' },
       { model: Player }
     ]
   });
@@ -106,7 +106,7 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include the diffs and format the delta
-  return _.mapValues(_.keyBy(deltas, "period"), delta =>
+  return _.mapValues(_.keyBy(deltas, 'period'), delta =>
     format(delta, snapshotService.diff(delta.startSnapshot, delta.endSnapshot))
   );
 }
@@ -116,7 +116,7 @@ async function getAllDeltas(playerId) {
  */
 async function getDelta(playerId, period) {
   if (!playerId) {
-    throw new BadRequestError("Invalid player id.");
+    throw new BadRequestError('Invalid player id.');
   }
 
   if (!period || !PERIODS.includes(period)) {
@@ -126,8 +126,8 @@ async function getDelta(playerId, period) {
   const delta = await Delta.findOne({
     where: { playerId, period },
     include: [
-      { model: Snapshot, as: "startSnapshot" },
-      { model: Snapshot, as: "endSnapshot" },
+      { model: Snapshot, as: 'startSnapshot' },
+      { model: Snapshot, as: 'endSnapshot' },
       { model: Player }
     ]
   });
@@ -155,7 +155,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, "period"), p => p.deltas);
+  return _.mapValues(_.keyBy(partials, 'period'), p => p.deltas);
 }
 
 /**
@@ -174,14 +174,14 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const metricKey = `${metric}Experience`;
 
   const deltas = await Delta.findAll({
-    attributes: [[sequelize.literal(`endSnapshot.${metricKey} - startSnapshot.${metricKey}`), "gained"]],
+    attributes: [[sequelize.literal(`endSnapshot.${metricKey} - startSnapshot.${metricKey}`), 'gained']],
     where: { period },
-    order: sequelize.literal("gained DESC"),
+    order: sequelize.literal('gained DESC'),
     limit: 20,
     include: [
       { model: Player, where: playerType && { type: playerType } },
-      { model: Snapshot, as: "startSnapshot" },
-      { model: Snapshot, as: "endSnapshot" }
+      { model: Snapshot, as: 'startSnapshot' },
+      { model: Snapshot, as: 'endSnapshot' }
     ]
   });
 

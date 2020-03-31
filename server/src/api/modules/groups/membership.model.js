@@ -1,4 +1,4 @@
-const ROLES = require("../../constants/roles");
+const ROLES = require('../../constants/roles');
 
 module.exports = (sequelize, DataTypes) => {
   // Define the membership schema
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ROLES],
-          msg: "Invalid role"
+          msg: 'Invalid role'
         }
       }
     }
@@ -29,22 +29,22 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ["playerId", "groupId"]
+        fields: ['playerId', 'groupId']
       }
     ]
   };
 
   // Create the model
-  const Membership = sequelize.define("memberships", membershipSchema, options);
+  const Membership = sequelize.define('memberships', membershipSchema, options);
 
   Membership.associate = models => {
     Membership.belongsTo(models.Player, {
-      foreignKey: "playerId",
-      onDelete: "CASCADE"
+      foreignKey: 'playerId',
+      onDelete: 'CASCADE'
     });
     Membership.belongsTo(models.Group, {
-      foreignKey: "groupId",
-      onDelete: "CASCADE"
+      foreignKey: 'groupId',
+      onDelete: 'CASCADE'
     });
   };
 

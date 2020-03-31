@@ -1,21 +1,21 @@
-const _ = require("lodash");
-const { Op } = require("sequelize");
-const ROLES = require("../../constants/roles");
-const { Group, Membership, Player } = require("../../../database");
-const { generateVerification, verifyCode } = require("../../util/verification");
-const { BadRequestError } = require("../../errors");
-const playerService = require("../players/player.service");
+const _ = require('lodash');
+const { Op } = require('sequelize');
+const ROLES = require('../../constants/roles');
+const { Group, Membership, Player } = require('../../../database');
+const { generateVerification, verifyCode } = require('../../util/verification');
+const { BadRequestError } = require('../../errors');
+const playerService = require('../players/player.service');
 
 function sanitizeName(name) {
   return name
-    .replace(/_/g, " ")
-    .replace(/-/g, " ")
-    .replace(/ +(?= )/g, "")
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/ +(?= )/g, '')
     .trim();
 }
 
 function format(group) {
-  return _.omit(group.toJSON(), ["verificationHash"]);
+  return _.omit(group.toJSON(), ['verificationHash']);
 }
 
 /**
@@ -34,7 +34,7 @@ async function list(name) {
  */
 async function view(id) {
   if (!id) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -59,7 +59,7 @@ async function view(id) {
 
 async function create(name, members) {
   if (!name) {
-    throw new BadRequestError("Invalid group name");
+    throw new BadRequestError('Invalid group name');
   }
 
   const sanitizedName = sanitizeName(name);
@@ -87,11 +87,11 @@ async function create(name, members) {
  */
 async function edit(id, name, verificationCode, members) {
   if (!id) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   if (!name) {
-    throw new BadRequestError("Invalid group name.");
+    throw new BadRequestError('Invalid group name.');
   }
 
   const sanitizedName = sanitizeName(name);
@@ -112,7 +112,7 @@ async function edit(id, name, verificationCode, members) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   await group.update({ name: sanitizedName });
@@ -135,7 +135,7 @@ async function edit(id, name, verificationCode, members) {
  */
 async function destroy(id, verificationCode) {
   if (!id) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -148,7 +148,7 @@ async function destroy(id, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   await group.destroy();
@@ -191,11 +191,11 @@ async function setMembers(group, usernames) {
  */
 async function addMembers(id, verificationCode, usernames) {
   if (!id) {
-    throw new BadRequestError("Invalid competition id.");
+    throw new BadRequestError('Invalid competition id.');
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError("Invalid members list (empty)");
+    throw new BadRequestError('Invalid members list (empty)');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -207,7 +207,7 @@ async function addMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   // Find all existing members
@@ -219,13 +219,13 @@ async function addMembers(id, verificationCode, usernames) {
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
-    throw new BadRequestError("All players given are already members.");
+    throw new BadRequestError('All players given are already members.');
   }
 
   await group.addMembers(newPlayers);
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed("updatedAt", true);
+  await group.changed('updatedAt', true);
   await group.save();
 
   return newPlayers;
@@ -236,11 +236,11 @@ async function addMembers(id, verificationCode, usernames) {
  */
 async function removeMembers(id, verificationCode, usernames) {
   if (!id) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError("Invalid members list");
+    throw new BadRequestError('Invalid members list');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -252,24 +252,24 @@ async function removeMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError("No valid players were given. (Untracked)");
+    throw new BadRequestError('No valid players were given. (Untracked)');
   }
 
   // Remove all specific players, and return the removed count
   const removedPlayersCount = await group.removeMembers(playersToRemove);
 
   if (!removedPlayersCount) {
-    throw new BadRequestError("None of the players given were members of that group.");
+    throw new BadRequestError('None of the players given were members of that group.');
   }
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed("updatedAt", true);
+  await group.changed('updatedAt', true);
   await group.save();
 
   return removedPlayersCount;
@@ -280,11 +280,11 @@ async function removeMembers(id, verificationCode, usernames) {
  */
 async function changeRole(id, username, role, verificationCode) {
   if (!id) {
-    throw new BadRequestError("Invalid group id.");
+    throw new BadRequestError('Invalid group id.');
   }
 
   if (!username) {
-    throw new BadRequestError("Invalid username.");
+    throw new BadRequestError('Invalid username.');
   }
 
   if (!role) {
@@ -300,7 +300,7 @@ async function changeRole(id, username, role, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError("Invalid verification code");
+    throw new BadRequestError('Invalid verification code');
   }
 
   const membership = await Membership.findOne({
@@ -332,7 +332,7 @@ async function changeRole(id, username, role, verificationCode) {
   await membership.update({ role });
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed("updatedAt", true);
+  await group.changed('updatedAt', true);
   await group.save();
 
   return { player: membership.player, newRole: role, oldRole };

@@ -1,4 +1,4 @@
-const service = require("./record.service");
+const service = require('./record.service');
 
 async function get(req, res, next) {
   try {
