@@ -1,0 +1,49 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.card-list {
+  @extend %panel;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  &__item {
+    padding: 10px 15px;
+    border-bottom: 1px solid $gray-09;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    &:last-child {
+      border: 0;
+    }
+
+    .list-item__icon {
+      min-width: 25px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+
+      img {
+        height: auto;
+      }
+    }
+
+    .list-item__text {
+      margin-left: 15px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+
+      .list-item__title {
+        font-size: 0.8em;
+        margin-bottom: 2px;
+      }
+
+      .list-item__subtitle {
+        font-size: 0.7em;
+        color: $gray-60;
+      }
+    }
+  }
+}

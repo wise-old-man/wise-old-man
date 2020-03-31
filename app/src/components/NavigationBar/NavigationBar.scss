@@ -1,0 +1,174 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background: #1e1e1e;
+  z-index: 500;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+
+  .container,
+  .row {
+    height: 72px;
+  }
+
+  .text-input {
+    border: 1px solid $gray-12;
+  }
+
+  .nav-brand {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .nav-logo-img {
+      margin-left: -10px;
+      max-height: 100%;
+    }
+
+    .nav-logo-text {
+      @extend %block-text-selection;
+      font-size: 0.8em;
+      margin-left: -5px;
+      margin-top: 3px;
+      font-family: 'Lato', sans-serif;
+      color: $gray-60;
+
+      span:first-child {
+        display: block;
+        width: 100%;
+        font-size: 2.5em;
+        text-align: center;
+        line-height: 0.9em;
+        font-family: 'Squada One', 'Impact', sans-serif;
+        color: white;
+      }
+    }
+  }
+
+  .nav-menu {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      margin-top: 6px;
+
+      &:active {
+        opacity: 0.5;
+      }
+    }
+
+    .nav-links__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      .search-bar {
+        padding: 6px 9px;
+        width: 165px;
+      }
+
+      .nav-links__item {
+        display: inline-block;
+        font-weight: 700;
+        text-shadow: 1px 1px black;
+        font-size: 0.9em;
+        margin-left: 30px;
+
+        &:first-child {
+          margin-left: 0px;
+        }
+
+        &.-button {
+          border: 2px solid $gray-12;
+          border-radius: 5px;
+          padding: 7px 12px;
+        }
+
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+    }
+  }
+}
+
+// Medium or lower
+@media only screen and (max-width: $breakpoint-large) {
+  .nav-bar {
+    height: 65px;
+
+    .row {
+      height: 65px;
+    }
+
+    .nav-brand {
+      font-size: 0.9em;
+    }
+
+    .nav-menu {
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-links__list {
+        position: fixed;
+        top: 65px;
+        left: 0;
+        right: 0;
+
+        &.-collapsed {
+          display: none;
+        }
+
+        .nav-links__item {
+          background: $gray-07;
+          display: block;
+          margin: 0;
+          border-bottom: 1px solid $gray-12;
+
+          &:first-child {
+            padding: 20px;
+          }
+
+          a {
+            padding: 20px;
+            width: 100%;
+            display: block;
+          }
+
+          &:hover {
+            opacity: 1;
+            color: gray;
+          }
+
+          .search-bar {
+            width: 100%;
+          }
+
+          &.-button {
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            border-bottom: 1px solid $gray-12;
+          }
+        }
+      }
+    }
+  }
+}

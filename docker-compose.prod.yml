@@ -1,0 +1,50 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    networks:
+      - webnet
+    env_file:
+      - ./server/.env
+  db:
+    image: postgres
+    networks:
+      - webnet
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - ./server/.env
+    expose:
+      - "5432"
+  server:
+    build: ./server
+    expose:
+      - 5000
+    ports:
+      - "5000:5000"
+    networks:
+      - webnet
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis
+    volumes:
+      - ./server:/wise-old-man/server
+      - /wise-old-man/server/node_modules
+    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
+  app:
+    build: ./app
+    networks:
+      - webnet
+    ports:
+      - 80:80
+    links:
+      - server
+    environment:
+      REACT_APP_API_BASE_URL: /api
+networks:
+  webnet:
+volumes:
+  pgdata:

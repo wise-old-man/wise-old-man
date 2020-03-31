@@ -1,0 +1,64 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.dropdown__container {
+  position: relative;
+
+  .dropdown__toggle {
+    &:active,
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .dropdown-list {
+    @extend %panel;
+    @extend %block-text-selection;
+    overflow: hidden;
+    margin: 0;
+    margin-top: 5px;
+    padding: 0;
+    position: absolute;
+    z-index: 200;
+    max-height: 205px;
+    width: 200px;
+    overflow-y: scroll;
+
+    &.-left {
+      left: 0px;
+    }
+
+    &.-right {
+      right: 0px;
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+
+      &-thumb {
+        background-color: $gray-17;
+      }
+    }
+
+    &__item {
+      padding: 10px;
+      background: $gray-05;
+      font-size: 0.9em;
+      font-family: 'Lato';
+      margin: 5px;
+      border-radius: $border-radius;
+      cursor: pointer;
+      color: $gray-60;
+
+      &:hover {
+        background: $gray-07;
+        color: white;
+      }
+
+      &:active,
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}

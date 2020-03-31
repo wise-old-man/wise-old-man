@@ -1,0 +1,97 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.selector__container {
+  position: relative;
+
+  .selector__toggle {
+    @extend %panel;
+    @extend %block-text-selection;
+    position: relative;
+    display: block;
+    padding: 8px 10px 8px 15px;
+    font-size: 0.9em;
+    font-family: 'Lato';
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 40px;
+
+    &.-disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    &:focus {
+      outline: none;
+      background: $gray-05;
+    }
+
+    &:active {
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    .toggle__text {
+      width: 100%;
+    }
+
+    .toggle__icon {
+      margin-right: 5px;
+    }
+  }
+
+  .selector-list {
+    @extend %panel;
+    @extend %block-text-selection;
+    overflow: hidden;
+    margin: 0;
+    margin-top: 5px;
+    padding: 0;
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    z-index: 200;
+    max-height: 205px;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+
+      &-thumb {
+        background-color: $gray-17;
+      }
+    }
+
+    &__item {
+      padding: 7px 10px;
+      background: $gray-05;
+      font-size: 0.9em;
+      font-family: 'Lato';
+      cursor: pointer;
+      margin: 5px;
+      border-radius: $border-radius;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .selector-item__icon {
+        margin-right: 10px;
+        margin-top: 1px;
+      }
+
+      &.-selected {
+        color: $brand-color-bright;
+        background: $gray-07;
+      }
+
+      &:hover {
+        background: $gray-07;
+      }
+
+      &:active,
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}

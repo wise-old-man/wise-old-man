@@ -1,0 +1,26 @@
+@import '../../../../variables.scss';
+@import '../../../../styles.scss';
+
+.player-records-widget {
+  @extend %panel;
+  padding: 20px;
+
+  .widget-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 25px;
+    margin-bottom: 5px;
+
+    .widget-title {
+      margin-left: 10px;
+    }
+  }
+
+  .widget-body {
+    td {
+      background: $gray-12;
+    }
+  }
+}

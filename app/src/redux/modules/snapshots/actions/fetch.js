@@ -1,0 +1,41 @@
+import axios from 'axios';
+import { BASE_API_URL } from '../../../../config';
+import {
+  FETCH_SNAPSHOTS_REQUEST,
+  FETCH_SNAPSHOTS_SUCCESS,
+  FETCH_SNAPSHOTS_FAILURE
+} from '../reducer';
+
+function fetchPlayerSnapshotsRequest() {
+  return {
+    type: FETCH_SNAPSHOTS_REQUEST
+  };
+}
+
+function fetchPlayerSnapshotsSuccess(data) {
+  return {
+    type: FETCH_SNAPSHOTS_SUCCESS,
+    snapshotData: data
+  };
+}
+
+function fetchPlayerSnapshotsFailure(error) {
+  return {
+    type: FETCH_SNAPSHOTS_FAILURE,
+    error
+  };
+}
+
+export default function fetchPlayerSnapshots({ playerId, period }) {
+  return dispatch => {
+    dispatch(fetchPlayerSnapshotsRequest());
+
+    const url = `${BASE_API_URL}/snapshots/`;
+    const params = { playerId, period };
+
+    return axios
+      .get(url, { params })
+      .then(result => dispatch(fetchPlayerSnapshotsSuccess(result.data)))
+      .catch(error => dispatch(fetchPlayerSnapshotsFailure(error)));
+  };
+}

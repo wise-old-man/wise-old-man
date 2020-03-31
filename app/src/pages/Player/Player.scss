@@ -1,0 +1,107 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.player__container {
+  @extend %page;
+
+  .player__header {
+    .button {
+      margin-right: 15px;
+    }
+
+    .header__options-btn {
+      background: none;
+      padding: 0;
+      margin: 0;
+      border: none;
+      margin-top: 5px;
+      transition: 0.3s;
+
+      &:active {
+        opacity: 0.5;
+        transform: scale(0.7);
+      }
+
+      img {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .player__controls {
+    .selector__toggle {
+      height: 46px;
+    }
+  }
+
+  .player__content {
+    .panel-label {
+      font-size: 0.7em;
+      color: $gray-60;
+      display: block;
+      margin-bottom: 10px;
+      margin-top: -2px;
+    }
+
+    .table-title {
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .table {
+      .skill-tag {
+        img {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .chart__container {
+      margin-bottom: 26px;
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-medium) {
+  .player__container {
+    .tab-bar {
+      flex-wrap: unset;
+      overflow-x: scroll;
+
+      .tab {
+        min-width: 100px;
+      }
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-small) {
+  .player__container {
+    .page-header {
+      // flex-wrap: wrap;
+
+      &__icon {
+        display: none;
+      }
+
+      &__actions {
+        // width: 100%;
+        // margin-top: 20px;
+
+        .button {
+          padding: 0 !important;
+          min-width: unset;
+          background: none;
+          text-shadow: none;
+          box-shadow: none;
+          color: $brand-color-bright;
+          margin-top: 3px;
+        }
+      }
+    }
+  }
+}

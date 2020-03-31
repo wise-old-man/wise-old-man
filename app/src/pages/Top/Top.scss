@@ -1,0 +1,14 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.top__container {
+  @extend %page;
+
+  .table-list-placeholder {
+    margin-top: 15px;
+  }
+
+  .period-label {
+    margin-bottom: 5px;
+  }
+}

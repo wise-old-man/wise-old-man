@@ -1,0 +1,95 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.competition__container {
+  @extend %page;
+
+  .competition__header {
+    .button {
+      margin-right: 15px;
+    }
+
+    .header__options-btn {
+      background: none;
+      padding: 0;
+      margin: 0;
+      border: none;
+      margin-top: 5px;
+      transition: 0.3s;
+
+      &:active {
+        opacity: 0.5;
+        transform: scale(0.7);
+      }
+
+      img {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .competition__widgets {
+    margin-top: 10px;
+
+    .widget-label {
+      display: block;
+      font-size: 0.8em;
+      color: $gray-60;
+      margin-bottom: 10px;
+    }
+  }
+
+  .competition__content {
+    .tab-bar {
+      margin-bottom: 24px;
+    }
+
+    .update-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      transition: 0.3s;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.5;
+      }
+
+      &:active {
+        transform: scale(0.5);
+      }
+
+      &.-loading {
+        pointer-events: none;
+        cursor: auto;
+
+        img {
+          animation: rotation 0.7s infinite linear;
+        }
+      }
+
+      img {
+        max-width: 20px;
+        margin-top: 5px;
+      }
+    }
+  }
+
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(359deg);
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-medium) {
+  .competition__container {
+    .tab-bar {
+      flex-wrap: unset;
+    }
+  }
+}
