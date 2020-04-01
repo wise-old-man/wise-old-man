@@ -1,0 +1,19 @@
+{
+  "name": "wise-old-man-website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "next start",
+    "build": "next build",
+    "dev": "next"
+  },
+  "keywords": [],
+  "author": "Psikoi",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^9.3.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}

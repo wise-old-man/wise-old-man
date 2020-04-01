@@ -1,6 +1,6 @@
 {
-  "name": "wise-old-man-web",
-  "version": "0.1.0",
+  "name": "wise-old-man-app",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@openfonts/lato_latin": "^1.44.0",
