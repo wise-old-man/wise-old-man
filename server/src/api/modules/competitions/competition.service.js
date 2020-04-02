@@ -476,6 +476,9 @@ async function removeParticipants(id, verificationCode, usernames) {
  */
 async function syncParticipations(playerId) {
   // Get all on-going participations
+
+  const currentDate = new Date();
+
   const participations = await Participation.findAll({
     attributes: ['competitionId', 'playerId'],
     where: { playerId },
@@ -484,8 +487,8 @@ async function syncParticipations(playerId) {
         model: Competition,
         attributes: ['startsAt', 'endsAt'],
         where: {
-          startsAt: { [Op.lt]: Sequelize.literal(`NOW()`) },
-          endsAt: { [Op.gte]: Sequelize.literal(`NOW()`) }
+          startsAt: { [Op.lt]: currentDate },
+          endsAt: { [Op.gte]: currentDate }
         }
       }
     ]

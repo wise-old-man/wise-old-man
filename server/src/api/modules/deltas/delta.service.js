@@ -176,7 +176,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const deltas = await Delta.findAll({
     attributes: [[sequelize.literal(`endSnapshot.${metricKey} - startSnapshot.${metricKey}`), 'gained']],
     where: { period },
-    order: sequelize.literal('gained DESC'),
+    order: [['gained', 'DESC']],
     limit: 20,
     include: [
       { model: Player, where: playerType && { type: playerType } },
