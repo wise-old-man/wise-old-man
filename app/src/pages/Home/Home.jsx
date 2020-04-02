@@ -36,7 +36,7 @@ function Home() {
             <span className="intro-greeting">Hi, meet the</span>
             <h1 className="intro-title">Wise Old Man</h1>
             <p className="intro-description">
-              The open source Oldschool Runescape player progress tracker.
+              The open source Oldschool Runescape player progress tracker. PLEASE DELETE THIS
             </p>
             <Button text="Contribute" url="https://github.com/" />
           </div>
@@ -50,13 +50,12 @@ function Home() {
           <div className="details__info col-lg-7 col-md-12">
             <h1 className="section-title">What is it?</h1>
             <p className="description">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sollicitudin gravida
-              est ac tristique. Sed rhoncus eu sapien sed convallis.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sollicitudin gravida est
+              ac tristique. Sed rhoncus eu sapien sed convallis.
               <br />
               <br />
-              Nam blandit augue vel tortor ullamcorper posuere. Orci varius natoque penatibus et
-              magnis dis parturient montes, nascetur ridiculus mus. Ut tempor dolor vel volutpat
-              tempus.
+              Nam blandit augue vel tortor ullamcorper posuere. Orci varius natoque penatibus et magnis
+              dis parturient montes, nascetur ridiculus mus. Ut tempor dolor vel volutpat tempus.
             </p>
             <div className="info-actions">
               <Button
@@ -65,16 +64,8 @@ function Home() {
                 icon="/img/icons/github.svg"
                 url="https://github.com/"
               />
-              <Button
-                className="-discord-btn"
-                text="Join our discord"
-                icon="/img/icons/discord.svg"
-              />
-              <Button
-                className="-twitter-btn"
-                text="Follow on Twitter"
-                icon="/img/icons/twitter.svg"
-              />
+              <Button className="-discord-btn" text="Join our discord" icon="/img/icons/discord.svg" />
+              <Button className="-twitter-btn" text="Follow on Twitter" icon="/img/icons/twitter.svg" />
             </div>
           </div>
           <div className="details__stats col-lg-5">
