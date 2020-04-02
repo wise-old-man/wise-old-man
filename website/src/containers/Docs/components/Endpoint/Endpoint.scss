@@ -1,0 +1,68 @@
+@import '../../../../variables.scss';
+
+.endpoint {
+  &__title {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 5px;
+  }
+
+  &__method {
+    font-size: 0.9em;
+    margin-right: 10px;
+    &.-get {
+      color: $brand-color-bright;
+    }
+
+    &.-post {
+      color: $positive-green;
+    }
+
+    &.-put {
+      color: $neutral-orange;
+    }
+
+    &.-delete {
+      color: $negative-red;
+    }
+  }
+
+  &__url {
+    font-family: monospace;
+  }
+
+  &__comment {
+    padding: 10px;
+    font-size: 0.8em;
+    margin: 20px 0;
+    border-radius: 5px;
+    border: 1.5px dashed gray;
+    color: $gray-60;
+
+    &.-warning {
+      border-color: $neutral-orange;
+    }
+
+    &.-error {
+      border-color: $negative-red;
+    }
+
+    &.-info {
+      border-color: $brand-color-bright;
+    }
+  }
+
+  &__body,
+  &__response {
+    pre {
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 0.9em;
+      overflow-x: scroll;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+}

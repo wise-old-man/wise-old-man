@@ -1,0 +1,39 @@
+@import '../../../../variables.scss';
+
+.docs__navigation {
+  width: 360px;
+
+  &-wrapper {
+    border-right: 1px solid $gray-17;
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      margin-bottom: 40px;
+
+      &__item {
+        color: $gray-60;
+        font-size: 0.9em;
+        line-height: 25px;
+        margin: 5px 0;
+        padding: 0 10px;
+
+        &.-title {
+          color: white;
+          text-transform: uppercase;
+          font-size: 0.7em;
+          font-weight: 700;
+        }
+
+        &.-selected {
+          border-left: 2px solid $brand-color;
+        }
+
+        a:hover {
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+}

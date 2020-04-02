@@ -1,0 +1,57 @@
+@import './variables.scss';
+
+@font-face {
+  font-family: 'Lato';
+  src: url('/fonts/Lato-Black.ttf');
+  src: url('/fonts/Lato-BlackItalic.ttf');
+  src: url('/fonts/Lato-Bold.ttf');
+  src: url('/fonts/Lato-BoldItalic.ttf');
+  src: url('/fonts/Lato-Italic.ttf');
+  src: url('/fonts/Lato-Light.ttf');
+  src: url('/fonts/Lato-LightItalic.ttf');
+  src: url('/fonts/Lato-Thin.ttf');
+  src: url('/fonts/Lato-ThinItalic.ttf');
+  src: url('/fonts/Lato-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Squada One';
+  src: url('/fonts/SquadaOne-Regular.ttf');
+}
+
+body {
+  background: $gray-00;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: 'Lato';
+  color: white;
+}
+
+* {
+  font-family: 'Lato';
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  &:focus,
+  &:active {
+    outline: none;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.content {
+  margin-top: 65px;
+}
+
+.col,
+[class*='col-'] {
+  padding: 12px;
+}
