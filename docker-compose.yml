@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   redis:
     image: redis
@@ -10,18 +10,29 @@ services:
     image: postgres
     networks:
       - webnet
+      - pgadminnet
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - ./server/.env
     expose:
-      - "5432"
+      - '5432'
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - ./server/.env
+    ports:
+      - '54321:80'
+    depends_on:
+      - db
+    networks:
+      - pgadminnet
   server:
     build: ./server
     expose:
-      - 5000
+      - '5000'
     ports:
-      - "5000:5000"
+      - '5000:5000'
     networks:
       - webnet
     depends_on:
@@ -33,9 +44,10 @@ services:
     volumes:
       - ./server:/wise-old-man/server
       - /wise-old-man/server/node_modules
-    command:
-      ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "run", "dev"]
+    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'run', 'dev']
 networks:
   webnet:
+  pgadminnet:
+    driver: bridge
 volumes:
   pgdata:
