@@ -25,7 +25,7 @@ export const getChartData = (state, playerId, period, skill, metric) => {
   }
 
   const data = _.uniqBy(
-    snapshotsData[period].snapshots.map(s => ({
+    snapshotsData[period].map(s => ({
       x: s.createdAt,
       y: s[skill][metric]
     })),
