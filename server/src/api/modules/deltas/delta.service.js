@@ -101,7 +101,7 @@ async function getAllDeltas(playerId) {
   });
 
   if (!deltas || deltas.length === 0) {
-    throw new ServerError(`Couldn't find  deltas for that player.`);
+    throw new ServerError(`Couldn't find deltas for that player.`);
   }
 
   // Turn an array of deltas, into an object, using the period as a key,
@@ -173,11 +173,15 @@ async function getPeriodLeaderboard(metric, period, playerType) {
 
   const metricKey = `${metric}Experience`;
 
+  // Postgres doesn't support the use of calculated column aliases
+  // in "order" clauses, so to work around it, we order by the difference
+  // of the two snapshots, and then calculate the difference again later
+
   const deltas = await Delta.findAll({
-    attributes: [[sequelize.literal(`endSnapshot.${metricKey} - startSnapshot.${metricKey}`), 'gained']],
     where: { period },
-    order: [['gained', 'DESC']],
-    limit: 20,
+    order: [
+      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+    ],
     include: [
       { model: Player, where: playerType && { type: playerType } },
       { model: Snapshot, as: 'startSnapshot' },
@@ -185,12 +189,17 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     ]
   });
 
-  const formattedDeltas = deltas.map(d => ({
-    playerId: d.player.id,
-    username: d.player.username,
-    type: d.player.type,
-    gained: d.toJSON().gained
-  }));
+  const formattedDeltas = deltas.map(delta => {
+    const { player, startSnapshot, endSnapshot } = delta;
+    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+
+    return {
+      playerId: player.id,
+      username: player.username,
+      type: player.type,
+      gained
+    };
+  });
 
   return formattedDeltas;
 }
