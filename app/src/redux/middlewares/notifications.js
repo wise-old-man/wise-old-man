@@ -4,8 +4,8 @@ import {
   UPDATE_PARTICIPANTS_SUCCESS,
   CREATE_COMPETITION_FAILURE,
   CREATE_COMPETITION_SUCCESS,
-  // EDIT_COMPETITION_FAILURE,
-  // EDIT_COMPETITION_SUCCESS,
+  EDIT_COMPETITION_FAILURE,
+  EDIT_COMPETITION_SUCCESS,
   DELETE_COMPETITION_FAILURE,
   DELETE_COMPETITION_SUCCESS
 } from '../modules/competitions/reducer';
@@ -47,6 +47,27 @@ const notificationsMiddleware = store => next => action => {
     case CREATE_COMPETITION_SUCCESS: {
       const notification = {
         text: `${action.competition.title} created successfully`,
+        type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case EDIT_COMPETITION_FAILURE: {
+      const notification = {
+        text: action.error,
+        duration: 10000,
+        type: 'error'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case EDIT_COMPETITION_SUCCESS: {
+      const notification = {
+        text: `${action.competition.title} edited successfully`,
         type: 'success'
       };
 
