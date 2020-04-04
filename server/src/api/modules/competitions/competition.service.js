@@ -40,7 +40,7 @@ async function list(title, status, metric) {
   const query = {};
 
   if (title) {
-    query.title = { [Op.like]: `%${sanitizeTitle(title)}%` };
+    query.title = { [Op.iLike]: `%${sanitizeTitle(title)}%` };
   }
 
   if (metric) {
