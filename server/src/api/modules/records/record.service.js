@@ -25,7 +25,7 @@ async function syncRecords(playerId, period) {
   await Promise.all(
     SKILLS.map(async metric => {
       const [record] = await Record.findOrCreate({ where: { playerId, period, metric } });
-      const newValue = delta.data[metric].delta;
+      const newValue = delta.data[metric].experience.delta;
 
       // If the current delta is higher than the previous record,
       // update the previous record's value

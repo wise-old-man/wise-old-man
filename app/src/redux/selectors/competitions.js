@@ -3,26 +3,24 @@ import _ from 'lodash';
 import { COLORS } from '../../config';
 import { durationBetween, formatDate } from '../../utils';
 
-const competitionSelector = state => state.competitions;
+const rootSelector = state => state.competitions;
+const competitionsSelector = state => state.competitions.competitions;
+const playerCompetitionsSelector = state => state.competitions.playerCompetitions;
 
-export const isFetchingAll = createSelector(
-  competitionSelector,
-  competitions => competitions.isFetchingAll
-);
-
-export const getCompetitionsMap = createSelector(competitionSelector, ({ competitions }) => {
-  return _.mapValues(competitions, comp => formatCompetition(comp));
+export const isFetchingAll = createSelector(rootSelector, root => {
+  return root.isFetchingAll;
 });
 
-export const getPlayerCompetitionsMap = createSelector(
-  competitionSelector,
-  ({ playerCompetitions }) => {
-    return _.mapValues(playerCompetitions, comps => comps.map(c => formatCompetition(c)));
-  }
-);
+export const getCompetitionsMap = createSelector(competitionsSelector, map => {
+  return _.mapValues(map, comp => formatCompetition(comp));
+});
 
-export const getCompetitions = createSelector(competitionSelector, ({ competitions }) => {
-  return Object.values(competitions).map(c => formatCompetition(c));
+export const getPlayerCompetitionsMap = createSelector(playerCompetitionsSelector, map => {
+  return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
+});
+
+export const getCompetitions = createSelector(competitionsSelector, map => {
+  return Object.values(map).map(c => formatCompetition(c));
 });
 
 export const getCompetition = (state, id) => {

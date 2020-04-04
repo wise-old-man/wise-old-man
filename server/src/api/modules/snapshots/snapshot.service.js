@@ -1,6 +1,7 @@
 const csv = require('csvtojson');
 const _ = require('lodash');
-const { Op, Sequelize } = require('sequelize');
+const moment = require('moment');
+const { Op } = require('sequelize');
 const { SKILLS } = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
@@ -81,10 +82,14 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}`);
   }
 
+  const beforeDate = moment()
+    .subtract(1, period)
+    .toDate();
+
   const result = await Snapshot.findAll({
     where: {
       playerId,
-      createdAt: { [Op.gte]: Sequelize.literal(`NOW() - INTERVAL 1 ${period}`) }
+      createdAt: { [Op.gte]: beforeDate }
     },
     order: [['createdAt', 'DESC']]
   });
@@ -112,8 +117,12 @@ async function findFirstIn(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}`);
   }
 
+  const beforeDate = moment()
+    .subtract(1, period)
+    .toDate();
+
   const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: Sequelize.literal(`NOW() - INTERVAL 1 ${period}`) } },
+    where: { playerId, createdAt: { [Op.gte]: beforeDate } },
     order: [['createdAt', 'ASC']]
   });
   return result;

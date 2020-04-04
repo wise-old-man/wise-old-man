@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 import _ from 'lodash';
 import TableList from '../../../../components/TableList';
 import StatusDot from '../../../../components/StatusDot';
@@ -42,14 +43,23 @@ const TABLE_CONFIG = {
 };
 
 function PlayerCompetitionsTable({ competitions }) {
+  const router = useHistory();
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? _.sortBy(competitions, c => _.indexOf(order, c.status)) : [];
+
+  const handleRowClicked = index => {
+    router.push(`/competitions/${rows[index].id}`);
+  };
+
+  const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
   return (
     <TableList
       uniqueKeySelector={TABLE_CONFIG.uniqueKey}
       rows={rows}
       columns={TABLE_CONFIG.columns}
+      clickable
+      onRowClicked={onRowClicked}
     />
   );
 }

@@ -3,15 +3,11 @@ import { createSelector } from 'reselect';
 import { COLORS } from '../../config';
 import { capitalize } from '../../utils';
 
-const snapshotsSelector = state => state.snapshots;
+const snapshotsSelector = state => state.snapshots.snapshots;
 
-export const getSnapshotsMap = createSelector(snapshotsSelector, ({ snapshots }) => {
-  return snapshots;
-});
+export const getSnapshotsMap = createSelector(snapshotsSelector, map => map);
 
-export const getSnapshots = createSelector(snapshotsSelector, ({ snapshots }) => {
-  return Object.values(snapshots);
-});
+export const getSnapshots = createSelector(snapshotsSelector, map => Object.values(map));
 
 export const getPlayerSnapshots = (state, playerId) => {
   return getSnapshotsMap(state)[playerId];
@@ -25,7 +21,7 @@ export const getChartData = (state, playerId, period, skill, metric) => {
   }
 
   const data = _.uniqBy(
-    snapshotsData[period].snapshots.map(s => ({
+    snapshotsData[period].map(s => ({
       x: s.createdAt,
       y: s[skill][metric]
     })),

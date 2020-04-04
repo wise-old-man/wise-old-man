@@ -1,10 +1,6 @@
 import axios from 'axios';
 import { BASE_API_URL } from '../../../../config';
-import {
-  FETCH_SNAPSHOTS_REQUEST,
-  FETCH_SNAPSHOTS_SUCCESS,
-  FETCH_SNAPSHOTS_FAILURE
-} from '../reducer';
+import { FETCH_SNAPSHOTS_REQUEST, FETCH_SNAPSHOTS_SUCCESS, FETCH_SNAPSHOTS_FAILURE } from '../reducer';
 
 function fetchPlayerSnapshotsRequest() {
   return {
@@ -12,9 +8,10 @@ function fetchPlayerSnapshotsRequest() {
   };
 }
 
-function fetchPlayerSnapshotsSuccess(data) {
+function fetchPlayerSnapshotsSuccess(playerId, data) {
   return {
     type: FETCH_SNAPSHOTS_SUCCESS,
+    playerId,
     snapshotData: data
   };
 }
@@ -35,7 +32,7 @@ export default function fetchPlayerSnapshots({ playerId, period }) {
 
     return axios
       .get(url, { params })
-      .then(result => dispatch(fetchPlayerSnapshotsSuccess(result.data)))
+      .then(result => dispatch(fetchPlayerSnapshotsSuccess(playerId, result.data)))
       .catch(error => dispatch(fetchPlayerSnapshotsFailure(error)));
   };
 }

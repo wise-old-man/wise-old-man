@@ -5,7 +5,7 @@ import moment from 'moment';
 // before it hits its respective reducer
 const datesMiddleware = () => next => action => {
   const transformedAction = traverse(action).forEach(val => {
-    if (typeof val === 'string' && moment(val, moment.ISO_8601).isValid()) {
+    if (typeof val === 'string' && val.includes('-') && moment(val, moment.ISO_8601).isValid()) {
       return new Date(val);
     }
 
