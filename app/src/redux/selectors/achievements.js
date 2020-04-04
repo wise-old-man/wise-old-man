@@ -1,14 +1,14 @@
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 
-const achievementsSelector = state => state.achievements;
+const achievementsSelector = state => state.achievements.achievements;
 
-export const getAchievementsMap = createSelector(achievementsSelector, ({ achievements }) => {
-  return _.mapValues(achievements, p => p.map(a => formatAchievement(a)));
+export const getAchievementsMap = createSelector(achievementsSelector, map => {
+  return _.mapValues(map, p => p.map(a => formatAchievement(a)));
 });
 
-export const getAchievements = createSelector(achievementsSelector, ({ achievements }) => {
-  return Object.values(achievements);
+export const getAchievements = createSelector(achievementsSelector, map => {
+  return Object.values(map);
 });
 
 export const getPlayerAchievements = (state, playerId) => {
