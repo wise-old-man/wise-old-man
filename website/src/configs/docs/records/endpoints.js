@@ -1,123 +1,241 @@
 export default [
   {
-    title: 'Create competition',
-    url: '/competitions',
-    method: 'DELETE',
-    comments: [
+    title: 'View player recods',
+    url: '/records',
+    method: 'GET',
+    query: [
       {
-        type: 'info',
-        content:
-          'Praesent consequat justo ac lorem mattis fringilla. Mauris sodales augue nec odio egestas commodo. Mollis velit sed consectetur faucibus. Nulla ut nulla lobortis, elementum quam at, molestie velit.',
+        field: 'playerId',
+        type: 'integer',
+        description: 'The player id.',
       },
       {
-        type: 'error',
-        content:
-          'Hey yo Praesent consequat justo ac lorem mattis fringilla. Mauris sodales augue nec odio egestas commodo. Mollis velit sed consectetur faucibus. Nulla ut nulla lobortis, elementum quam at, molestie velit.',
-      },
-    ],
-    params: [
-      {
-        field: 'name',
+        field: 'period',
         type: 'string',
-        description: 'The name of this competition (5-50 characters)',
+        description: "The record's period (See accepted values above) - Optional",
+      },
+      {
+        field: 'metric',
+        type: 'string',
+        description: "The record's metric (See accepted values above) - Optional",
       },
     ],
-    body: {
-      id: 123,
-      username: 'Ritzi',
-    },
     successResponses: [
       {
-        description: 'If the user is new',
-        body: {
-          id: 5,
-          name: 'Hexis Test Bruh',
-          createdAt: '2020-03-27T23:15:01.000Z',
-          updatedAt: '2020-03-27T23:32:57.000Z',
-          members: [
-            {
-              id: 173,
-              username: 'Psikoi',
-              type: 'regular',
-              lastImportedAt: '2020-03-27T21:56:50.000Z',
-              registeredAt: '2020-03-13T23:29:57.000Z',
-              updatedAt: '2020-03-27T21:56:50.000Z',
-              role: 'leader',
-            },
-            {
-              id: 229,
-              username: 'Ritzi',
-              type: 'regular',
-              lastImportedAt: '2020-03-27T21:51:37.000Z',
-              registeredAt: '2020-03-26T19:59:52.000Z',
-              updatedAt: '2020-03-27T21:51:37.000Z',
-              role: 'member',
-            },
-          ],
-        },
+        description: 'Without any period or metric filtering (Not showing the whole response)',
+        body: [
+          {
+            period: 'day',
+            metric: 'firemaking',
+            value: '16450',
+            updatedAt: '2020-04-04T16:21:50.974Z',
+          },
+          {
+            period: 'month',
+            metric: 'magic',
+            value: '57662',
+            updatedAt: '2020-04-03T23:58:29.522Z',
+          },
+          {
+            period: 'day',
+            metric: 'fletching',
+            value: '4795',
+            updatedAt: '2020-04-04T16:21:50.974Z',
+          },
+          {
+            period: 'day',
+            metric: 'overall',
+            value: '123085',
+            updatedAt: '2020-04-04T16:21:50.907Z',
+          },
+        ],
       },
-    ],
-    errorResponses: [
       {
-        description: 'If is wrong id',
-        body: {
-          message: 'Hey no pls',
-        },
+        description: 'Filtered by the metric field (Woodcutting)',
+        body: [
+          {
+            period: 'week',
+            metric: 'woodcutting',
+            value: '101659',
+            updatedAt: '2020-04-04T16:21:51.060Z',
+          },
+          {
+            period: 'year',
+            metric: 'woodcutting',
+            value: '3225180',
+            updatedAt: '2020-04-04T16:21:51.291Z',
+          },
+          {
+            period: 'month',
+            metric: 'woodcutting',
+            value: '290949',
+            updatedAt: '2020-04-04T16:21:51.185Z',
+          },
+          {
+            period: 'day',
+            metric: 'woodcutting',
+            value: '101659',
+            updatedAt: '2020-04-04T16:21:50.919Z',
+          },
+        ],
       },
     ],
   },
   {
-    title: 'Delete competition',
-    url: '/competitions',
-    method: 'DELETE',
+    title: 'View records leaderboard',
+    url: '/records/leaderboard',
+    method: 'GET',
     comments: [
       {
         type: 'info',
-        content:
-          'Hey bro Praesent consequat justo ac lorem mattis fringilla. Mauris sodales augue nec odio egestas commodo. Mollis velit sed consectetur faucibus. Nulla ut nulla lobortis, elementum quam at, molestie velit.',
+        content: 'This will only return the top 20 players of each period.',
       },
       {
-        type: 'error',
-        content:
-          '123 Praesent consequat justo ac lorem mattis fringilla. Mauris sodales augue nec odio egestas commodo. Mollis velit sed consectetur faucibus. Nulla ut nulla lobortis, elementum quam at, molestie velit.',
+        type: 'warning',
+        content: 'If no "period" param is supplied, it will return the leaderboard for all periods.',
       },
     ],
     query: [
       {
-        field: 'name',
+        field: 'metric',
         type: 'string',
-        description: 'The name of this competition (5-50 characters)',
+        description: "The record's metric (See accepted values above)",
+      },
+      {
+        field: 'period',
+        type: 'string',
+        description: "The record's period (See accepted values above) - Optional",
+      },
+      {
+        field: 'playerType',
+        type: 'string',
+        description: "The player's type (regular, ironman, ultimate, hardcore) - Optional",
       },
     ],
-    body: {
-      id: 123,
-      username: 'Ritzi',
-    },
-    response: {
-      id: 5,
-      name: 'Hexis Test Bruh',
-      createdAt: '2020-03-27T23:15:01.000Z',
-      updatedAt: '2020-03-27T23:32:57.000Z',
-      members: [
-        {
-          id: 173,
-          username: 'Psikoi',
-          type: 'regular',
-          lastImportedAt: '2020-03-27T21:56:50.000Z',
-          registeredAt: '2020-03-13T23:29:57.000Z',
-          updatedAt: '2020-03-27T21:56:50.000Z',
-          role: 'leader',
+    successResponses: [
+      {
+        description: 'Without any period filtering (Only showing top 3 for demo purposes)',
+        body: {
+          day: [
+            {
+              playerId: 37,
+              username: 'Psikoi',
+              type: 'regular',
+              value: '101659',
+              updatedAt: '2020-04-04T16:21:50.919Z',
+            },
+            {
+              playerId: 39,
+              username: 'Zulu',
+              type: 'regular',
+              value: '34655',
+              updatedAt: '2020-04-03T23:03:19.135Z',
+            },
+            {
+              playerId: 40,
+              username: 'Porthuguese',
+              type: 'unknown',
+              value: '0',
+              updatedAt: '2020-04-03T23:03:24.181Z',
+            },
+          ],
+          week: [
+            {
+              playerId: 37,
+              username: 'Psikoi',
+              type: 'regular',
+              value: '101659',
+              updatedAt: '2020-04-04T16:21:51.060Z',
+            },
+            {
+              playerId: 38,
+              username: 'Zulu',
+              type: 'regular',
+              value: '7930',
+              updatedAt: '2020-04-04T16:21:23.462Z',
+            },
+            {
+              playerId: 40,
+              username: 'Porthuguese',
+              type: 'unknown',
+              value: '0',
+              updatedAt: '2020-04-03T23:03:26.343Z',
+            },
+          ],
+          month: [
+            {
+              playerId: 37,
+              username: 'Psikoi',
+              type: 'regular',
+              value: '290949',
+              updatedAt: '2020-04-04T16:21:51.185Z',
+            },
+            {
+              playerId: 38,
+              username: 'Zulu',
+              type: 'regular',
+              value: '25515',
+              updatedAt: '2020-04-04T16:21:23.606Z',
+            },
+            {
+              playerId: 40,
+              username: 'Porthuguese',
+              type: 'unknown',
+              value: '0',
+              updatedAt: '2020-04-03T23:03:28.737Z',
+            },
+          ],
+          year: [
+            {
+              playerId: 37,
+              username: 'Psikoi',
+              type: 'regular',
+              value: '3225180',
+              updatedAt: '2020-04-04T16:21:51.291Z',
+            },
+            {
+              playerId: 38,
+              username: 'Zulu',
+              type: 'regular',
+              value: '25515',
+              updatedAt: '2020-04-04T16:21:23.746Z',
+            },
+            {
+              playerId: 40,
+              username: 'Porthuguese',
+              type: 'unknown',
+              value: '0',
+              updatedAt: '2020-04-03T23:03:30.820Z',
+            },
+          ],
         },
-        {
-          id: 229,
-          username: 'Ritzi',
-          type: 'regular',
-          lastImportedAt: '2020-03-27T21:51:37.000Z',
-          registeredAt: '2020-03-26T19:59:52.000Z',
-          updatedAt: '2020-03-27T21:51:37.000Z',
-          role: 'member',
-        },
-      ],
-    },
+      },
+      {
+        description: 'Filtered by the period field (month) (Only showing top 3 for demo purposes)',
+        body: [
+          {
+            playerId: 37,
+            username: 'Psikoi',
+            type: 'regular',
+            value: '290949',
+            updatedAt: '2020-04-04T16:21:51.185Z',
+          },
+          {
+            playerId: 38,
+            username: 'Zulu',
+            type: 'regular',
+            value: '25515',
+            updatedAt: '2020-04-04T16:21:23.746Z',
+          },
+          {
+            playerId: 40,
+            username: 'Porthuguese',
+            type: 'unknown',
+            value: '0',
+            updatedAt: '2020-04-03T23:03:28.737Z',
+          },
+        ],
+      },
+    ],
   },
 ];
