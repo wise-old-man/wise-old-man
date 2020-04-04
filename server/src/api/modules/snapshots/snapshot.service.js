@@ -83,7 +83,7 @@ async function findAllInPeriod(playerId, period) {
   }
 
   const beforeDate = moment()
-    .subtract(1, period)
+    .subtract(1, 'period')
     .toDate();
 
   const result = await Snapshot.findAll({

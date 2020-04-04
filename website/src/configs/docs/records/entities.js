@@ -32,7 +32,7 @@ export default [
       {
         field: 'updatedAt',
         type: 'date',
-        description: 'The last update value of the record.',
+        description: 'The last update date of the record.',
       },
     ],
   },

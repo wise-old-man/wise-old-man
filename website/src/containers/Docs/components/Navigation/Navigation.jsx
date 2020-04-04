@@ -26,6 +26,10 @@ const sections = [
         url: '/docs/competitions',
       },
       {
+        label: 'Deltas',
+        url: '/docs/deltas',
+      },
+      {
         label: 'Records',
         url: '/docs/records',
       },
