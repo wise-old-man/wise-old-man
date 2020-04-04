@@ -102,7 +102,7 @@ async function getDataById(id) {
  */
 async function search(username) {
   if (!username) {
-    throw new BadRequestError('Invalid username');
+    throw new BadRequestError('Invalid username.');
   }
 
   const players = await Player.findAll({
@@ -123,7 +123,7 @@ async function search(username) {
  */
 async function update(username) {
   if (!username) {
-    throw new BadRequestError('Invalid username');
+    throw new BadRequestError('Invalid username.');
   }
 
   // Find a player with the given username,
@@ -158,7 +158,7 @@ async function update(username) {
  */
 async function importCML(username) {
   if (!username) {
-    throw new BadRequestError('Invalid username');
+    throw new BadRequestError('Invalid username.');
   }
 
   // Find a player with the given username,
@@ -292,7 +292,7 @@ async function getCMLHistory(username, time) {
     // Separate the data into rows and filter invalid ones
     return data.split('\n').filter(r => r.length);
   } catch (e) {
-    throw new ServerError('Failed to load history from CML');
+    throw new ServerError('Failed to load history from CML.');
   }
 }
 
