@@ -6,7 +6,7 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: 'The unique id of the delta',
+        description: "The delta's unique id",
       },
       {
         field: 'playerId',

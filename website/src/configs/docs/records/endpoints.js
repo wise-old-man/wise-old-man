@@ -1,6 +1,6 @@
 export default [
   {
-    title: 'View player recods',
+    title: 'View player records',
     url: '/records',
     method: 'GET',
     query: [
@@ -78,6 +78,26 @@ export default [
             updatedAt: '2020-04-04T16:21:50.919Z',
           },
         ],
+      },
+    ],
+    errorResponses: [
+      {
+        description: 'If no playerId is given.',
+        body: {
+          message: 'Invalid player id.',
+        },
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.',
+        },
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.',
+        },
       },
     ],
   },
@@ -235,6 +255,26 @@ export default [
             updatedAt: '2020-04-03T23:03:28.737Z',
           },
         ],
+      },
+    ],
+    errorResponses: [
+      {
+        description: 'If no playerId is given.',
+        body: {
+          message: 'Invalid player id.',
+        },
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.',
+        },
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.',
+        },
       },
     ],
   },

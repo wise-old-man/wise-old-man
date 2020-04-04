@@ -48,11 +48,11 @@ async function findAll(playerId, period, metric) {
   }
 
   if (period && !PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period ${period}.`);
+    throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
   if (metric && !ALL_METRICS.includes(metric)) {
-    throw new BadRequestError(`Invalid metric ${metric}.`);
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
   const query = {
@@ -95,11 +95,11 @@ async function getLeaderboard(metric, playerType) {
  */
 async function getPeriodLeaderboard(metric, period, playerType) {
   if (!period || !PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period ${period}. Must be one of ${PERIODS}`);
+    throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
   if (!metric || !ALL_METRICS.includes(metric)) {
-    throw new BadRequestError(`Invalid metric ${metric}.`);
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
   const records = await Record.findAll({

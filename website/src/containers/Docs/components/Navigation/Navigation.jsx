@@ -30,6 +30,10 @@ const sections = [
         url: '/docs/deltas',
       },
       {
+        label: 'Snapshots',
+        url: '/docs/snapshots',
+      },
+      {
         label: 'Records',
         url: '/docs/records',
       },

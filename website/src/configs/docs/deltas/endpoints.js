@@ -212,6 +212,26 @@ export default [
         },
       },
     ],
+    errorResponses: [
+      {
+        description: 'If no playerId is given.',
+        body: {
+          message: 'Invalid player id.',
+        },
+      },
+      {
+        description: 'If the player does not have any associated deltas in a period.',
+        body: {
+          message: "Couldn't find month deltas for that player.",
+        },
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.',
+        },
+      },
+    ],
   },
   {
     title: 'View deltas leaderboard',
@@ -353,6 +373,20 @@ export default [
             gained: 348275,
           },
         ],
+      },
+    ],
+    errorResponses: [
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.',
+        },
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.',
+        },
       },
     ],
   },

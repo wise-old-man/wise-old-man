@@ -79,11 +79,11 @@ async function findAllInPeriod(playerId, period) {
   }
 
   if (!PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period ${period}`);
+    throw new BadRequestError(`Invalid period: ${period}`);
   }
 
   const beforeDate = moment()
-    .subtract(1, 'period')
+    .subtract(1, period)
     .toDate();
 
   const result = await Snapshot.findAll({

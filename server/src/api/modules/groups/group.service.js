@@ -288,7 +288,7 @@ async function changeRole(id, username, role, verificationCode) {
   }
 
   if (!role) {
-    throw new BadRequestError(`Invalid group role, must be one of [${ROLES}]`);
+    throw new BadRequestError(`Invalid group role.`);
   }
 
   const group = await Group.findOne({ where: { id } });
