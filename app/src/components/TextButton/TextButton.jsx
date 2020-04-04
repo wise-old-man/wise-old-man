@@ -7,6 +7,9 @@ function TextButton({ text, onClick, redirectTo }) {
   const router = useHistory();
 
   const handleClick = () => {
+    // Slightly delay the click event, to allow
+    // the clicked animation to be displayed
+    // (this is better for UX)
     setTimeout(() => {
       if (onClick) {
         onClick();

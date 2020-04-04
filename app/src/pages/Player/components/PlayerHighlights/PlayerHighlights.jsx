@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import CardList from '../../../../components/CardList';
 import {
@@ -26,7 +27,7 @@ function getAchievementIcon(type) {
   return getSkillIcon('overall');
 }
 
-function renderOngoingCompetitions(competitions) {
+function renderOngoingCompetitions(competitions, router) {
   if (!competitions) {
     return null;
   }
@@ -38,20 +39,24 @@ function renderOngoingCompetitions(competitions) {
   }
 
   const ongoingItems = ongoingCompetitions.map(c => ({
-    icon: getSkillIcon(c.metric),
     title: c.title,
+    icon: getSkillIcon(c.metric),
     subtitle: `Ends in ${durationBetween(new Date(), c.endsAt, 2, true)}`
   }));
+
+  function onClick(index) {
+    router.push(`/competitions/${ongoingCompetitions[index].id}`);
+  }
 
   return (
     <div className="player-highlight">
       <span className="panel-label">Ongoing competitions</span>
-      <CardList items={ongoingItems} />
+      <CardList items={ongoingItems} onClick={onClick} />
     </div>
   );
 }
 
-function renderUpcomingCompetitions(competitions) {
+function renderUpcomingCompetitions(competitions, router) {
   if (!competitions) {
     return null;
   }
@@ -63,15 +68,19 @@ function renderUpcomingCompetitions(competitions) {
   }
 
   const upcomingItems = upcomingCompetitions.map(c => ({
-    icon: getSkillIcon(c.metric),
     title: c.title,
+    icon: getSkillIcon(c.metric),
     subtitle: `Starts in ${durationBetween(new Date(), c.startsAt, 2, true)}`
   }));
+
+  function onClick(index) {
+    router.push(`/competitions/${upcomingCompetitions[index].id}`);
+  }
 
   return (
     <div className="player-highlight">
       <span className="panel-label">Upcoming competitions</span>
-      <CardList items={upcomingItems} />
+      <CardList items={upcomingItems} onClick={onClick} />
     </div>
   );
 }
@@ -137,8 +146,18 @@ function renderClosestSkills(player) {
 }
 
 function PlayerHighlights({ player, competitions, achievements }) {
-  const ongoing = useMemo(() => renderOngoingCompetitions(competitions), [competitions]);
-  const upcoming = useMemo(() => renderUpcomingCompetitions(competitions), [competitions]);
+  const router = useHistory();
+
+  const ongoing = useMemo(() => renderOngoingCompetitions(competitions, router), [
+    competitions,
+    router
+  ]);
+
+  const upcoming = useMemo(() => renderUpcomingCompetitions(competitions, router), [
+    competitions,
+    router
+  ]);
+
   const recentAchievements = useMemo(() => renderRecentAchievements(achievements), [achievements]);
   const closestSkills = useMemo(() => renderClosestSkills(player), [player]);
 
