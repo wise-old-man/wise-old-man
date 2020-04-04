@@ -38,7 +38,7 @@ export default [
   },
   {
     name: 'Periods',
-    description: 'All the possible values for the "periods" field of the delta model.',
+    description: 'All the possible values for the "period" field of the delta model.',
     values: ['day', 'week', 'month', 'year'],
   },
 ];

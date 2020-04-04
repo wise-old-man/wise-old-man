@@ -37,6 +37,10 @@ const sections = [
         label: 'Records',
         url: '/docs/records',
       },
+      {
+        label: 'Achievements',
+        url: '/docs/achievements',
+      },
     ],
   },
 ];

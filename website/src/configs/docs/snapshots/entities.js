@@ -268,7 +268,7 @@ export default [
   {
     name: 'Periods',
     description:
-      'All the possible values for the "periods" field (used for filtering in the endpoint below).',
+      'All the possible values for the "period" field (used for filtering in the endpoint below).',
     values: ['day', 'week', 'month', 'year'],
   },
 ];

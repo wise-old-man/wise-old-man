@@ -38,12 +38,12 @@ export default [
   },
   {
     name: 'Periods',
-    description: 'All the possible values for the "periods" field of the record model.',
+    description: 'All the possible values for the "period" field of the record model.',
     values: ['day', 'week', 'month', 'year'],
   },
   {
     name: 'Metrics',
-    description: 'All the possible values for the "periods" field of the record model.',
+    description: 'All the possible values for the "metric" field of the record model.',
     values: [
       'overall',
       'attack',

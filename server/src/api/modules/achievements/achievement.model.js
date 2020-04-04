@@ -19,10 +19,6 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['id']
-      },
-      {
-        unique: true,
         fields: ['playerId', 'type']
       },
       {
