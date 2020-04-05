@@ -16,12 +16,14 @@ function Docs({ config }) {
           {config.entities &&
             config.entities.map((e) =>
               e.values ? (
-                <div className="entity-values block">
+                <div key={e.name} className="entity-values block">
                   <b className="block-title">{e.name}</b>
                   <span className="block-description">{e.description}</span>
                   <div>
                     {e.values.map((v) => (
-                      <span className="entity-value">{v}</span>
+                      <span key={v} className="entity-value">
+                        {v}
+                      </span>
                     ))}
                   </div>
                 </div>
