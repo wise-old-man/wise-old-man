@@ -4,17 +4,17 @@ import DocsPage from '../../containers/DocsPage';
 import { loadConfig } from '../../utils/docs';
 import '../../index.scss';
 
-PlayersDocs.getInitialProps = async () => {
-  const config = await loadConfig('players');
+IntroductionDocs.getInitialProps = async () => {
+  const config = await loadConfig('introduction');
   return { config };
 };
 
-function PlayersDocs({ config }) {
+function IntroductionDocs({ config }) {
   return <DocsPage config={config} />;
 }
 
-PlayersDocs.propTypes = {
+IntroductionDocs.propTypes = {
   config: PropTypes.shape().isRequired,
 };
 
-export default PlayersDocs;
+export default IntroductionDocs;

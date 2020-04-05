@@ -30,9 +30,33 @@
       font-size: 1.8em;
     }
 
-    .docs-description {
+    .docs-description,
+    .docs-paragraph {
       color: $gray-60;
       white-space: pre-line;
+    }
+
+    .docs-link {
+      span {
+        display: block;
+        color: $gray-60;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+    }
+
+    .docs-title {
+      font-size: 1.2em;
+      margin: 0;
+      padding: 0;
+      margin-top: 60px;
+    }
+
+    .docs-code {
+      padding: 10px;
+      background: $gray-05;
+      border-radius: 5px;
+      font-family: monospace;
     }
 
     .block-title {
