@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { Op, Sequelize } = require('sequelize');
+const { Op } = require('sequelize');
 const { ALL_METRICS } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Snapshot } = require('../../../database');
@@ -29,7 +29,7 @@ function format(competition) {
 async function list(title, status, metric) {
   // The status is optional, however if present, should be valid
   if (status && !STATUSES.includes(status.toLowerCase())) {
-    throw new BadRequestError(`Invalid status, should be one of [${STATUSES}].`);
+    throw new BadRequestError(`Invalid status.`);
   }
 
   // The metric is optional, however if present, should be valid
@@ -196,7 +196,7 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     const group = await groupService.findOne(groupId);
 
     if (!group) {
-      throw new BadRequestError('Invalid group id');
+      throw new BadRequestError('Invalid group id.');
     }
   }
 
@@ -234,6 +234,10 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError('Invalid competition id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   if (endsAt && !isValidDate(endsAt)) {
     throw new BadRequestError('Invalid end date.');
   }
@@ -259,7 +263,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   const newValues = {};
@@ -317,7 +321,7 @@ async function destroy(id, verificationCode) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Incorrect verification code');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   await competition.destroy();
@@ -331,7 +335,7 @@ async function destroy(id, verificationCode) {
  */
 async function setParticipants(competition, usernames) {
   if (!competition) {
-    throw new BadRequestError(`Invalid competition`);
+    throw new BadRequestError(`Invalid competition.`);
   }
 
   const existingParticipants = await competition.getParticipants();
@@ -359,7 +363,7 @@ async function setParticipants(competition, usernames) {
  */
 async function addAllGroupMembers(competition, groupId) {
   if (!competition) {
-    throw new BadRequestError('Invalid competition');
+    throw new BadRequestError('Invalid competition.');
   }
 
   if (!groupId) {
@@ -387,8 +391,12 @@ async function addParticipants(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid competition id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list');
+    throw new BadRequestError('Invalid participants list.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -400,7 +408,7 @@ async function addParticipants(id, verificationCode, usernames) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   // Find all existing participants
@@ -432,8 +440,12 @@ async function removeParticipants(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid competition id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list');
+    throw new BadRequestError('Invalid participants list.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -445,7 +457,7 @@ async function removeParticipants(id, verificationCode, usernames) {
   const verified = await verifyCode(competition.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   const playersToRemove = await playerService.findAll(usernames);

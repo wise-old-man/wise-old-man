@@ -59,7 +59,7 @@ async function view(id) {
 
 async function create(name, members) {
   if (!name) {
-    throw new BadRequestError('Invalid group name');
+    throw new BadRequestError('Invalid group name.');
   }
 
   const sanitizedName = sanitizeName(name);
@@ -148,7 +148,7 @@ async function destroy(id, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Invalid verification code.');
   }
 
   await group.destroy();
@@ -163,7 +163,7 @@ async function destroy(id, verificationCode) {
  */
 async function setMembers(group, usernames) {
   if (!group) {
-    throw new BadRequestError(`Invalid group`);
+    throw new BadRequestError(`Invalid group.`);
   }
 
   const existingMembers = await group.getMembers();
@@ -195,7 +195,7 @@ async function addMembers(id, verificationCode, usernames) {
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid members list (empty)');
+    throw new BadRequestError('Invalid members list (empty).');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -207,7 +207,7 @@ async function addMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Invalid verification code.');
   }
 
   // Find all existing members
@@ -240,7 +240,7 @@ async function removeMembers(id, verificationCode, usernames) {
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid members list');
+    throw new BadRequestError('Invalid members list.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -252,7 +252,7 @@ async function removeMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Invalid verification code.');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
@@ -288,7 +288,7 @@ async function changeRole(id, username, role, verificationCode) {
   }
 
   if (!role) {
-    throw new BadRequestError(`Invalid group role, must be one of [${ROLES}]`);
+    throw new BadRequestError(`Invalid group role.`);
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -300,7 +300,7 @@ async function changeRole(id, username, role, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Invalid verification code.');
   }
 
   const membership = await Membership.findOne({

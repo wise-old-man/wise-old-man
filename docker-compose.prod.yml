@@ -45,6 +45,14 @@ services:
       - ./server:/wise-old-man/server
       - /wise-old-man/server/node_modules
     command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
+  website:
+    build: ./website
+    expose:
+      - 3000
+    ports:
+      - '3000:3000'
+    networks:
+      - webnet
   app:
     build: ./app
     networks:
