@@ -1,60 +1,34 @@
-const fs = require("fs");
-const { promisify } = require("util");
-const { resetDatabase } = require("../utils");
-const { Player, Snapshot } = require("../../src/database/");
-const { SKILLS } = require("../../src/api/constants/metrics");
-const { fromRS, fromCML, saveAll } = require("../../src/api/modules/snapshots/snapshot.service");
+const fs = require('fs');
+const { promisify } = require('util');
+const { resetDatabase } = require('../utils');
+const { Player } = require('../../src/database');
+const { SKILLS } = require('../../src/api/constants/metrics');
+const service = require('../../src/api/modules/snapshots/snapshot.service');
 
 const HISCORES_DATA_PATH = `${__dirname}/../data/lynx_titan_hiscores.txt`;
 const CML_DATA_PATH = `${__dirname}/../data/lynx_titan_cml.txt`;
 
-const PLAYER_ID_VALID = 500;
-const PLAYER_ID_INVALID = 1000;
+const TEST_DATA = {};
 
-const LOADED_DATA = {};
-
-beforeAll(async () => {
+beforeAll(async done => {
   await resetDatabase();
-  await Player.create({ id: PLAYER_ID_VALID, username: "Psikoi" });
-  LOADED_DATA.hiscores = await promisify(fs.readFile)(HISCORES_DATA_PATH, "utf8");
-  LOADED_DATA.cml = await promisify(fs.readFile)(CML_DATA_PATH, "utf8");
+
+  // Setup a test values
+  TEST_DATA.player = await Player.create({ username: 'SnapshotTest' });
+  TEST_DATA.hiscores = await promisify(fs.readFile)(HISCORES_DATA_PATH, 'utf8');
+  TEST_DATA.cml = await promisify(fs.readFile)(CML_DATA_PATH, 'utf8');
+
+  done();
 });
 
-describe("Snapshot model", () => {
-  test("No arguments", async () => {
-    await expect(Snapshot.create()).rejects.toThrow();
-  });
+describe('Snapshot from external sources', () => {
+  test('From hiscores (Lynx Titan) ', async done => {
+    const snapshot = await service.fromRS(TEST_DATA.player.id, TEST_DATA.hiscores);
 
-  test("Null playerId", async () => {
-    await expect(Snapshot.create({ playerId: null })).rejects.toThrow();
-  });
-
-  test("Empty playerId", async () => {
-    await expect(Snapshot.create({ playerId: "" })).rejects.toThrow();
-  });
-
-  test("Invalid playerId (wrong type)", async () => {
-    await expect(Snapshot.create({ playerId: "test" })).rejects.toThrow();
-  });
-
-  test("Invalid playerId (does not exist)", async () => {
-    await expect(Snapshot.create({ playerId: PLAYER_ID_INVALID })).rejects.toThrow();
-  });
-
-  test("Valid playerId (does exist)", async () => {
-    const newSnapshot = await Snapshot.create({ playerId: PLAYER_ID_VALID });
-    expect(newSnapshot.playerId).toBe(PLAYER_ID_VALID);
-  });
-});
-
-describe("Snapshot from external sources", () => {
-  test("From hiscores (Lynx Titan) ", async () => {
-    const snapshot = await fromRS(PLAYER_ID_VALID, LOADED_DATA.hiscores);
-
-    expect(snapshot.playerId).toBe(PLAYER_ID_VALID);
+    expect(snapshot.playerId).toBe(TEST_DATA.player.id);
 
     SKILLS.forEach(skill => {
-      if (skill === "overall") {
+      if (skill === 'overall') {
         expect(snapshot.overallRank).toBe(1);
         expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
       } else {
@@ -62,19 +36,21 @@ describe("Snapshot from external sources", () => {
         expect(snapshot[`${skill}Experience`]).toBe(200000000);
       }
     });
+
+    done();
   });
 
-  test("From CrystalMathLabs (Lynx Titan)", async () => {
-    const cml = LOADED_DATA.cml.split("\n").filter(r => r.length);
-    const snapshots = await Promise.all(cml.map(row => fromCML(PLAYER_ID_VALID, row)));
+  test('From CrystalMathLabs (Lynx Titan)', async done => {
+    const cml = TEST_DATA.cml.split('\n').filter(r => r.length);
+    const snapshots = await Promise.all(cml.map(row => service.fromCML(TEST_DATA.player.id, row)));
 
-    const saved = await saveAll(snapshots);
+    const saved = await service.saveAll(snapshots);
 
     saved.forEach(snapshot => {
-      expect(snapshot.playerId).toBe(PLAYER_ID_VALID);
+      expect(snapshot.playerId).toBe(TEST_DATA.player.id);
 
       SKILLS.forEach(skill => {
-        if (skill === "overall") {
+        if (skill === 'overall') {
           expect(snapshot.overallRank).toBe(1);
           expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
         } else {
@@ -83,5 +59,7 @@ describe("Snapshot from external sources", () => {
         }
       });
     });
+
+    done();
   });
 });

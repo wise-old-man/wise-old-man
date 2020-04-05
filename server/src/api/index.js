@@ -14,17 +14,19 @@ function init() {
   app.use(express.urlencoded({ extended: true }));
   app.use(cors());
 
-  app.use(
-    rateLimit({
-      windowMs: 5 * 60 * 1000, // 5 minutes
-      max: 200 // limit each IP to 200 requests per windowMs
-    })
-  );
+  if (process.env.NODE_ENV !== 'test') {
+    app.use(
+      rateLimit({
+        windowMs: 5 * 60 * 1000, // 5 minutes
+        max: 200 // limit each IP to 200 requests per windowMs
+      })
+    );
+
+    jobs.process();
+    hooks.register();
+  }
 
   app.use('/api', api);
-
-  jobs.process();
-  hooks.register();
 
   return app;
 }
