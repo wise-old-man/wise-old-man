@@ -3,20 +3,26 @@ jobs:
   build-and-test:
     docker:
       - image: circleci/node:10.16.3
-      - image: circleci/redis:4-alpine
     steps:
       - checkout
       - run:
+          name: 'Update npm'
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "./server/package-lock.json" }}
+      - run:
           name: 'Install dependencies'
           command: cd server && npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "./server/package-lock.json" }}
+          paths:
+            - ./server/node_modules
       - run:
           name: 'Run tests'
           command: cd server && npm run test
     environment:
       DB_DIALECT: sqlite
       DB_STORAGE: ./__tests__/database.sqlite
-      REDIS_HOST: localhost
-      REDIS_PORT: 6379
 workflows:
   build-and-test:
     jobs:
