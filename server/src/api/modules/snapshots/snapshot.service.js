@@ -79,7 +79,7 @@ async function findAllInPeriod(playerId, period) {
   }
 
   if (!PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period: ${period}`);
+    throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
   const beforeDate = moment()
@@ -114,7 +114,7 @@ async function findLatest(playerId) {
  */
 async function findFirstIn(playerId, period) {
   if (!PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period ${period}`);
+    throw new BadRequestError(`Invalid period ${period}.`);
   }
 
   const beforeDate = moment()

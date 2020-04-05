@@ -214,13 +214,13 @@ async function isType(username, type) {
  */
 async function confirmType(username) {
   if (!username) {
-    throw new BadRequestError('Invalid username');
+    throw new BadRequestError('Invalid username.');
   }
 
   const [player] = await findOrCreate(username);
 
   if (!player || !player.type) {
-    throw new ServerError('Invalid player');
+    throw new ServerError('Invalid player.');
   }
 
   if (player.type !== 'unknown') {
@@ -313,7 +313,7 @@ async function getHiscoresData(username, type = 'NORMAL') {
 
     return data;
   } catch (e) {
-    throw new BadRequestError('Failed to load hiscores: Invalid username');
+    throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
 }
 

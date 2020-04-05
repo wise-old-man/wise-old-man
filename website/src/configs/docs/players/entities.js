@@ -1,7 +1,7 @@
 export default [
   {
     name: 'Player',
-    description: 'Represents an account.',
+    description: '',
     structure: [
       {
         field: 'id',

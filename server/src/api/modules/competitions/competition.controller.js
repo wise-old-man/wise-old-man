@@ -89,7 +89,7 @@ async function removeParticipants(req, res, next) {
     const { verificationCode, participants } = req.body;
 
     const count = await service.removeParticipants(id, verificationCode, participants);
-    res.json({ message: `Successfully removed ${count} participants from competition of id: ${id}` });
+    res.json({ message: `Successfully removed ${count} participants from competition of id: ${id}.` });
   } catch (e) {
     next(e);
   }
@@ -99,6 +99,10 @@ async function updateAllParticipants(req, res, next) {
   try {
     const { id } = req.params;
     const participants = await service.getParticipants(id);
+
+    if (!id) {
+      throw new BadRequestError('Invalid competition id.');
+    }
 
     if (!participants || participants.length === 0) {
       throw new BadRequestError('This competition has no participants.');

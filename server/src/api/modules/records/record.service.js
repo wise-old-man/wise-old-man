@@ -17,7 +17,7 @@ function format(record) {
  */
 async function syncRecords(playerId, period) {
   if (!playerId) {
-    throw new BadRequestError(`Invalid player`);
+    throw new BadRequestError(`Invalid player.`);
   }
 
   const delta = await deltaService.getDelta(playerId, period);

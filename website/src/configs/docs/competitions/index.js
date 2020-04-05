@@ -5,9 +5,8 @@ export default {
   title: 'Competitions',
   url: '/docs/competitions',
   description:
-    'Mauris vulputate lectus et \
-    justo sagittis tempor. Maecenas vehicula, \
-    dui tempor efficitur luctus, est eros condimentum mi, nec interdum nunc felis eget felis.',
+    "A competition is essentially a comparison of a group of players' deltas, \
+    for a specific metric, within a specific time range.",
   entities,
   endpoints,
 };
