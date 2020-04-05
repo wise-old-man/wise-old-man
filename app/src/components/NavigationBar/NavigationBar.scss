@@ -10,98 +10,111 @@
   background: #1e1e1e;
   z-index: 500;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
 
-  .container,
-  .row {
+  &__wrapper {
+    display: flex;
+    flex-direction: row;
     height: 72px;
-  }
+    width: calc(100% - 30px);
 
-  .text-input {
-    border: 1px solid $gray-12;
-  }
-
-  .nav-brand {
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    .nav-logo-img {
-      margin-left: -10px;
-      max-height: 100%;
+    .text-input {
+      border: 1px solid $gray-12;
     }
 
-    .nav-logo-text {
-      @extend %block-text-selection;
-      font-size: 0.8em;
-      margin-left: -5px;
-      margin-top: 3px;
-      font-family: 'Lato', sans-serif;
-      color: $gray-60;
-
-      span:first-child {
-        display: block;
-        width: 100%;
-        font-size: 2.5em;
-        text-align: center;
-        line-height: 0.9em;
-        font-family: 'Squada One', 'Impact', sans-serif;
-        color: white;
-      }
-    }
-  }
-
-  .nav-menu {
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
-
-    .nav-toggle {
-      display: none;
-      background: none;
-      border: 0;
+    .nav-brand {
+      height: 100%;
       padding: 0;
       margin: 0;
-      margin-top: 6px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
-      &:active {
-        opacity: 0.5;
+      .nav-logo-img {
+        margin-left: -10px;
+        max-height: 100%;
+      }
+
+      .nav-logo-text {
+        @extend %block-text-selection;
+        font-size: 0.8em;
+        margin-left: -5px;
+        margin-top: 3px;
+        font-family: 'Lato', sans-serif;
+        color: $gray-60;
+
+        span:first-child {
+          display: block;
+          width: 100%;
+          font-size: 2.5em;
+          text-align: center;
+          line-height: 0.9em;
+          font-family: 'Squada One', 'Impact', sans-serif;
+          color: white;
+        }
       }
     }
 
-    .nav-links__list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    .nav-menu {
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
 
-      .search-bar {
-        padding: 6px 9px;
-        width: 165px;
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        margin-top: 6px;
+
+        &:active {
+          opacity: 0.5;
+        }
       }
 
-      .nav-links__item {
-        display: inline-block;
-        font-weight: 700;
-        text-shadow: 1px 1px black;
-        font-size: 0.9em;
-        margin-left: 30px;
+      .nav-links__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
 
-        &:first-child {
-          margin-left: 0px;
+        .search-bar {
+          padding: 6px 9px;
+          width: 165px;
         }
 
-        &.-button {
-          border: 2px solid $gray-12;
-          border-radius: 5px;
-          padding: 7px 12px;
-        }
+        .nav-links__item {
+          display: inline-block;
+          font-weight: 700;
+          text-shadow: 1px 1px black;
+          font-size: 0.9em;
+          margin-left: 30px;
 
-        &:hover {
-          opacity: 0.7;
+          &:first-child {
+            margin-left: 0px;
+          }
+
+          &.-button {
+            border: 2px solid $gray-12;
+            border-radius: 5px;
+            padding: 7px 12px;
+          }
+
+          &.-spacing {
+            @extend %block-text-selection;
+            color: $gray-40;
+
+            &:hover {
+              opacity: 1;
+            }
+          }
+
+          &:hover {
+            opacity: 0.7;
+          }
         }
       }
     }
@@ -119,9 +132,11 @@
 
     .nav-brand {
       font-size: 0.9em;
+      height: 65px;
     }
 
     .nav-menu {
+      height: 65px;
       .nav-toggle {
         display: block;
       }
@@ -144,6 +159,10 @@
 
           &:first-child {
             padding: 20px;
+          }
+
+          &.-spacing {
+            display: none;
           }
 
           a {

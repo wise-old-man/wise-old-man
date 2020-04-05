@@ -11,12 +11,12 @@
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 
   &__wrapper {
-    width: 1140px;
-    max-width: calc(100% - 20px);
-    margin: auto;
-    height: 100%;
     display: flex;
     flex-direction: row;
+    height: 72px;
+    width: calc(100% - 30px);
+    margin: auto;
+    height: 100%;
     justify-content: space-between;
     align-items: center;
 
@@ -55,6 +55,8 @@
 
     a {
       font-family: 'Lato';
+      padding-right: 30px;
+      margin-top: -2px;
 
       &:hover {
         opacity: 0.5;
