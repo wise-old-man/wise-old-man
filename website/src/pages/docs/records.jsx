@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Docs from '../../containers/Docs';
+import DocsPage from '../../containers/DocsPage';
 import { loadConfig } from '../../utils/docs';
 import '../../index.scss';
 
@@ -10,7 +10,7 @@ RecordsDocs.getInitialProps = async () => {
 };
 
 function RecordsDocs({ config }) {
-  return <Docs config={config} />;
+  return <DocsPage config={config} />;
 }
 
 RecordsDocs.propTypes = {

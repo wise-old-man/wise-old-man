@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import './Navigation.scss';
+import './Menu.scss';
 
 const sections = [
   {
@@ -45,15 +45,15 @@ const sections = [
   },
 ];
 
-function Navigation({ selectedUrl }) {
-  const linkClass = ({ url }) => classNames('nav-list__item', { '-selected': url === selectedUrl });
+function Menu({ selectedUrl }) {
+  const linkClass = ({ url }) => classNames('menu-list__item', { '-selected': url === selectedUrl });
 
   return (
-    <div className="docs__navigation">
-      <div className="docs__navigation-wrapper">
+    <div className="docs__menu">
+      <div className="docs__menu-wrapper">
         {sections.map((s) => (
-          <ul key={s.key} className="nav-list">
-            <li className="nav-list__item -title">{s.title}</li>
+          <ul key={s.key} className="menu-list">
+            <li className="menu-list__item -title">{s.title}</li>
             {s.links.map((link) => (
               <li key={link.url} className={linkClass(link)}>
                 <a href={link.url}>{link.label}</a>
@@ -66,4 +66,4 @@ function Navigation({ selectedUrl }) {
   );
 }
 
-export default Navigation;
+export default Menu;
