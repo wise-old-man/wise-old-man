@@ -11,6 +11,10 @@ const { ServerError, BadRequestError } = require('../../errors');
  * Converts a Snapshot instance into a JSON friendlier format
  */
 function format(snapshot) {
+  if (!snapshot) {
+    return null;
+  }
+
   const obj = {
     createdAt: snapshot.createdAt,
     importedAt: snapshot.importedAt

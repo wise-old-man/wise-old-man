@@ -1,4 +1,4 @@
-const { sequelize } = require("../src/database");
+const { sequelize } = require('../src/database');
 
 function resetDatabase() {
   return Promise.all(
