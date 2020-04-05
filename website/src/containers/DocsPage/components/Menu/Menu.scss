@@ -1,12 +1,12 @@
 @import '../../../../variables.scss';
 
-.docs__navigation {
+.docs__menu {
   width: 360px;
 
   &-wrapper {
     border-right: 1px solid $gray-17;
 
-    .nav-list {
+    .menu-list {
       list-style: none;
       padding: 0;
       margin: 0;
