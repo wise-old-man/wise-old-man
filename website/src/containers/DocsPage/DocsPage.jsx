@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head';
 import PropTypes from 'prop-types';
 import Table from './components/Table';
 import Endpoint from './components/Endpoint';
@@ -9,6 +10,13 @@ import './DocsPage.scss';
 function DocsPage({ config }) {
   return (
     <>
+      <Head>
+        <title>{`${config.title} API Docs - Wise Old Man`}</title>
+        <meta
+          property="og:description"
+          content={`${config.title} api documentation - Open source Oldschool Runescape player progres tracker.`}
+        />
+      </Head>
       <NavBar />
       <div className="docs-page">
         <Menu selectedUrl={config.url} />
