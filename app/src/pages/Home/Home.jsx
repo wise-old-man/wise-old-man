@@ -17,7 +17,7 @@ const FEATURES = [
   },
   {
     title: 'Skill competitions',
-    description: 'Compete against all your teammates in any skill of your choosing.',
+    description: 'Compete against all your friends in any skill of your choosing.',
     image: '/img/landing_page/features/team_competitions.png'
   },
   {
@@ -36,9 +36,9 @@ function Home() {
             <span className="intro-greeting">Hi, meet the</span>
             <h1 className="intro-title">Wise Old Man</h1>
             <p className="intro-description">
-              The open source Oldschool Runescape player progress tracker. PLEASE DELETE THIS
+              The open source Oldschool Runescape player progress tracker.
             </p>
-            <Button text="Contribute" url="https://github.com/" />
+            <Button text="Contribute" url="https://github.com/psikoi/wise-old-man" />
           </div>
         </div>
         <div className="hero__illustration">
@@ -50,22 +50,33 @@ function Home() {
           <div className="details__info col-lg-7 col-md-12">
             <h1 className="section-title">What is it?</h1>
             <p className="description">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sollicitudin gravida est
-              ac tristique. Sed rhoncus eu sapien sed convallis.
+              The Wise Old Man is an Open source project, meaning anyone in the community can
+              contribute code or ideas to add new functionality.
               <br />
               <br />
-              Nam blandit augue vel tortor ullamcorper posuere. Orci varius natoque penatibus et magnis
-              dis parturient montes, nascetur ridiculus mus. Ut tempor dolor vel volutpat tempus.
+              This application measures Oldschool Runescape player progress. Built on top of the
+              OSRS hiscores, it adds extra functionality like group competitions, player
+              achievements, experience records, etc.
             </p>
             <div className="info-actions">
               <Button
                 className="-github-btn"
                 text="Contribute on Github"
                 icon="/img/icons/github.svg"
-                url="https://github.com/"
+                url="https://github.com/psikoi/wise-old-man"
               />
-              <Button className="-discord-btn" text="Join our discord" icon="/img/icons/discord.svg" />
-              <Button className="-twitter-btn" text="Follow on Twitter" icon="/img/icons/twitter.svg" />
+              <Button
+                className="-discord-btn"
+                text="Join our discord"
+                icon="/img/icons/discord.svg"
+                url="https://discord.gg/NzYmDe"
+              />
+              <Button
+                className="-twitter-btn"
+                text="Follow on Twitter"
+                icon="/img/icons/twitter.svg"
+                url="https://twitter.com/wise_old_man_rs"
+              />
             </div>
           </div>
           <div className="details__stats col-lg-5">
