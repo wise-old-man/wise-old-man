@@ -54,9 +54,10 @@
     }
 
     a {
-      font-family: 'Lato';
       padding-right: 30px;
       margin-top: -2px;
+      font-weight: 700;
+      font-size: 0.9em;
 
       &:hover {
         opacity: 0.5;
