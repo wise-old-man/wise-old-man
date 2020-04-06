@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import Document, { Html, Head, Main, NextScript } from 'next/document';
+import '@openfonts/lato_latin';
+import '@openfonts/squada-one_latin';
 
 class BaseDocument extends Document {
   getInitialProps = async (ctx) => {

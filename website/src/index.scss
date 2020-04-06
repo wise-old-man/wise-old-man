@@ -1,24 +1,5 @@
 @import './variables.scss';
 
-@font-face {
-  font-family: 'Lato';
-  src: url('/fonts/Lato-Black.ttf');
-  src: url('/fonts/Lato-BlackItalic.ttf');
-  src: url('/fonts/Lato-Bold.ttf');
-  src: url('/fonts/Lato-BoldItalic.ttf');
-  src: url('/fonts/Lato-Italic.ttf');
-  src: url('/fonts/Lato-Light.ttf');
-  src: url('/fonts/Lato-LightItalic.ttf');
-  src: url('/fonts/Lato-Thin.ttf');
-  src: url('/fonts/Lato-ThinItalic.ttf');
-  src: url('/fonts/Lato-Regular.ttf');
-}
-
-@font-face {
-  font-family: 'Squada One';
-  src: url('/fonts/SquadaOne-Regular.ttf');
-}
-
 body {
   background: $gray-00;
   margin: 0;
