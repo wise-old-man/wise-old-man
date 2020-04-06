@@ -28,20 +28,32 @@ function DocsPage({ config }) {
             {config.content &&
               config.content.map((c) => {
                 if (c.type === 'paragraph') {
-                  return <p className="docs-paragraph">{c.content}</p>;
+                  return (
+                    <p key={c.content.substring(0, 15)} className="docs-paragraph">
+                      {c.content}
+                    </p>
+                  );
                 }
 
                 if (c.type === 'code') {
-                  return <pre className="docs-code">{c.content}</pre>;
+                  return (
+                    <pre key={c.content.substring(0, 50)} className="docs-code">
+                      {c.content}
+                    </pre>
+                  );
                 }
 
                 if (c.type === 'title') {
-                  return <h5 className="docs-title">{c.text}</h5>;
+                  return (
+                    <h5 key={c.text} className="docs-section-title">
+                      {c.text}
+                    </h5>
+                  );
                 }
 
                 if (c.type === 'link') {
                   return (
-                    <div className="docs-link row">
+                    <div key={c.url} className="docs-link row">
                       <span>{c.label}</span>
                       <a href={c.url}>{c.url}</a>
                     </div>

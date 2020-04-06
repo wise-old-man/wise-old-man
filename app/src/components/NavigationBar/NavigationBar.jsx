@@ -94,7 +94,7 @@ function NavigationBar() {
             <li className="nav-links__item -spacing">|</li>
 
             <li className="nav-links__item">
-              <a href="/docs" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a href="/docs" onClick={closeMenu}>
                 API
               </a>
             </li>
