@@ -178,8 +178,40 @@ function diff(start, end) {
   return obj;
 }
 
+/**
+ * Saves all supplied snapshots, ignoring any
+ * duplicates by playerId and createdAt.
+ *
+ * Note: This only works if all the supplied snaphots
+ * are from a single player.
+ */
 async function saveAll(snapshots) {
-  const results = await Snapshot.bulkCreate(snapshots);
+  const { playerId } = snapshots[0];
+
+  const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
+
+  const existingVals = existingSnapshots.map(s =>
+    JSON.stringify({
+      playerId: s.playerId,
+      timestamp: s.createdAt.getTime()
+    })
+  );
+
+  const newVals = snapshots.filter(
+    s =>
+      !existingVals.includes(
+        JSON.stringify({
+          playerId: s.playerId,
+          timestamp: s.createdAt.getTime()
+        })
+      )
+  );
+
+  if (!newVals || !newVals.length) {
+    return [];
+  }
+
+  const results = await Snapshot.bulkCreate(newVals);
   return results;
 }
 
