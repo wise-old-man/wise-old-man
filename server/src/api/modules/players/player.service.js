@@ -6,6 +6,8 @@ const { ServerError, BadRequestError } = require('../../errors');
 const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
+const WEEK_IN_SECONDS = 604800;
+const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
 
 /**
@@ -173,19 +175,40 @@ async function importCML(username) {
     throw new BadRequestError(`Imported too soon, please wait another ${minsTilImport} minutes.`);
   }
 
-  // Load the CML history
-  const history = await getCMLHistory(player.username, seconds);
+  const importedSnapshots = [];
 
-  // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(player.id, row)));
+  // If the player hasn't imported in over a year
+  // import the last week, year and decade.
+  if (seconds >= YEAR_IN_SECONDS) {
+    const weekSnapshots = await importCMLSince(player.id, player.username, WEEK_IN_SECONDS);
+    const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
+    const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
 
-  // Save new snapshots to db
-  await snapshotService.saveAll(snapshots);
+    importedSnapshots.push(weekSnapshots);
+    importedSnapshots.push(yearSnapshots);
+    importedSnapshots.push(decadeSnapshots);
+  } else {
+    const recentSnapshots = await importCMLSince(player.id, player.username, seconds);
+    importedSnapshots.push(recentSnapshots);
+  }
 
   // Update the "lastImportedAt" field in the player model
   await player.update({ lastImportedAt: new Date() });
 
-  return snapshots;
+  return importedSnapshots;
+}
+
+async function importCMLSince(id, username, time) {
+  // Load the CML history
+  const history = await getCMLHistory(username, time);
+
+  // Convert the CML csv data to Snapshot instances
+  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
+
+  // Save new snapshots to db
+  const savedSnapshots = await snapshotService.saveAll(snapshots);
+
+  return savedSnapshots;
 }
 
 /**

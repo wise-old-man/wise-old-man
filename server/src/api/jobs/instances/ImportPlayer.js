@@ -6,9 +6,4 @@ module.exports = {
     const { player } = data;
     await playerService.importCML(player.username);
   }
-  /*
-  onFail(data) {
-    // console.log(`Failed to import ${data.player.username}`);
-  }
-  */
 };
