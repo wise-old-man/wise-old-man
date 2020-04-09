@@ -1,0 +1,20 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+
+  build-server:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build the App Docker image
+      run: |
+        VERSION=$(date +%s)
+        cd app
+        docker build . --file Dockerfile --tag wise-old-man_app:${VERSION}
