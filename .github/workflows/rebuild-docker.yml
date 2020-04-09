@@ -22,6 +22,8 @@ jobs:
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build the Server Docker image
       run: |
+        echo ${BUILD_VERSION}
+        echo $BUILD_VERSION
         cd server
         docker build . --file Dockerfile --tag psikoi/wise-old-man_server:${BUILD_VERSION}
         docker push psikoi/wise-old-man_server:${BUILD_VERSION}
