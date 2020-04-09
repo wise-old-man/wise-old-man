@@ -16,10 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Hub
-      run: docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+      run: docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} wise-old-man
     - name: Build the Server Docker image
       run: |
         VERSION=$(date +%s)
         cd server
         docker build . --file Dockerfile --tag wise-old-man_server:${VERSION}
-        docker push wise-old-man_server:${VERSION}
+        docker push psikoi/wise-old-man_server:${VERSION}
