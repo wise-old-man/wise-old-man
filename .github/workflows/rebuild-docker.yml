@@ -21,5 +21,5 @@ jobs:
       run: |
         VERSION=$(date +%s)
         cd server
-        docker build --tag psikoi/wise-old-man_server:${VERSION}
+        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:${VERSION}
         docker push psikoi/wise-old-man_server:${VERSION}
