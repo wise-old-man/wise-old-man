@@ -1,0 +1,29 @@
+name: API Integration Testing
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: cd server && npm ci
+      - name: Run integration tests
+        run: cd server && npm test
+        env:
+          CI: true
+          DB_DIALECT: sqlite
+          DB_STORAGE: ./__tests__/database.sqlite
