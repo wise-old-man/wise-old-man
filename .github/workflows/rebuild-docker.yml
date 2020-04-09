@@ -15,8 +15,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Build the App Docker image
-      run: |
-        VERSION=$(date +%s)
-        cd app
-        docker build . --file Dockerfile --tag wise-old-man_app:${VERSION}
+    - name: Login to Docker Hub
+      uses: actions-hub/docker/login@master
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    #- name: Build the App Docker image
+    #  run: |
+    #    VERSION=$(date +%s)
+    #    cd app
+    #    docker build . --file Dockerfile --tag wise-old-man_app:${VERSION}
