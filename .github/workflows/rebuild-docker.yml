@@ -16,10 +16,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Hub
-      uses: actions-hub/docker/login@master
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     #- name: Build the App Docker image
     #  run: |
     #    VERSION=$(date +%s)
