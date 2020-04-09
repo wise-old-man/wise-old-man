@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  BUILD_VERSION: $(date +%s)
+  BUILD_VERSION: ${(date +%s)}
 
 jobs:
    
