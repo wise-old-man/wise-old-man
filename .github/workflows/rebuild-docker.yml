@@ -23,5 +23,5 @@ jobs:
     - name: Build the Server Docker image
       run: |
         cd server
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:$BUILD_VERSION
-        docker push psikoi/wise-old-man_server:$BUILD_VERSION
+        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:${BUILD_VERSION}
+        docker push psikoi/wise-old-man_server:${BUILD_VERSION}
