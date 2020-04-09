@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [ master ]
 
-jobs:
+env:
+  BUILD_VERSION: $(date +%s)
 
+jobs:
+   
   build-server:
 
     runs-on: ubuntu-latest
@@ -19,7 +22,6 @@ jobs:
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build the Server Docker image
       run: |
-        VERSION=$(date +%s)
         cd server
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:${VERSION}
-        docker push psikoi/wise-old-man_server:${VERSION}
+        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:$BUILD_VERSION
+        docker push psikoi/wise-old-man_server:$BUILD_VERSION
