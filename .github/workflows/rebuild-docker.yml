@@ -9,9 +9,7 @@ on:
 jobs:
    
   build-server:
-
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -19,7 +17,20 @@ jobs:
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build the Server Docker image
       run: |
-        VERSION=$(date +%s)
         cd server
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:${VERSION}
-        docker push psikoi/wise-old-man_server:${VERSION}
+        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:latest
+        docker push psikoi/wise-old-man_server:latest
+           
+  build-app:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Login to Docker Hub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build the App Docker image
+      run: |
+        cd app
+        docker build . --file Dockerfile --tag psikoi/wise-old-man_app:latest
+        docker push psikoi/wise-old-man_app:latest
+
