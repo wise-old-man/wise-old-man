@@ -5,7 +5,10 @@ const withFonts = require('next-fonts');
 module.exports = withFonts(
   withCSS(
     withSass({
-      webpack: (options) => options,
+      enableSvg: true,
+      webpack(config) {
+        return config;
+      },
     })
   )
 );
