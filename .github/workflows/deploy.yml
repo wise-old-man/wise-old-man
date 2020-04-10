@@ -2,71 +2,91 @@ name: Rebuild Images and Deploy
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
-  
+    branches: [master]
+
 jobs:
-   
+  integration-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: cd server && npm ci
+      - name: Run integration tests
+        run: cd server && npm test
+        env:
+          CI: true
+          DB_DIALECT: sqlite
+          DB_STORAGE: ./__tests__/database.sqlite
+
   build-server:
     runs-on: ubuntu-latest
+    needs: [integration-test]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Login to Docker Hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build the Server Docker image
-      run: |
-        cd server
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_server:latest
-        docker push psikoi/wise-old-man_server:latest
-           
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build the Server Docker image
+        run: |
+          cd server
+          docker build . --file Dockerfile --tag psikoi/wise-old-man_server:latest
+          docker push psikoi/wise-old-man_server:latest
+
   build-app:
     runs-on: ubuntu-latest
+    needs: [integration-test]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Login to Docker Hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build the App Docker image
-      run: |
-        cd app
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_app:latest
-        docker push psikoi/wise-old-man_app:latest
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build the App Docker image
+        run: |
+          cd app
+          docker build . --file Dockerfile --tag psikoi/wise-old-man_app:latest
+          docker push psikoi/wise-old-man_app:latest
 
   build-website:
     runs-on: ubuntu-latest
+    needs: [integration-test]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Login to Docker Hub
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - name: Build the Website Docker image
-      run: |
-        cd website
-        docker build . --file Dockerfile --tag psikoi/wise-old-man_website:latest
-        docker push psikoi/wise-old-man_website:latest
-        
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build the Website Docker image
+        run: |
+          cd website
+          docker build . --file Dockerfile --tag psikoi/wise-old-man_website:latest
+          docker push psikoi/wise-old-man_website:latest
+
   deploy:
     runs-on: ubuntu-latest
     needs: [build-server, build-app, build-website]
     steps:
-    - name: Restart docker
-      uses: appleboy/ssh-action@master
-      env:
+      - name: Restart docker
+        uses: appleboy/ssh-action@master
+        env:
           GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        host: ${{ secrets.DO_HOST }}
-        username: ${{ secrets.DO_USER }}
-        passphrase: ${{ secrets.DO_SSH_PASS }}
-        key: ${{ secrets.DO_SSH_KEY }}
-        envs: GITHUB_USERNAME, GITHUB_TOKEN
-        script: |
-          cd wise-old-man
-          docker-compose pull
-          docker-compose up -d
-          docker ps
-
-  
-
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          passphrase: ${{ secrets.DO_SSH_PASS }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          envs: GITHUB_USERNAME, GITHUB_TOKEN
+          script: |
+            cd wise-old-man
+            docker-compose pull
+            docker-compose up -d
+            docker ps
