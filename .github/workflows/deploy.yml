@@ -49,6 +49,7 @@ jobs:
         
   deploy:
     runs-on: ubuntu-latest
+    needs: [build-server, build-app, build-website]
     steps:
     - name: Test SSH
       uses: appleboy/ssh-action@master
