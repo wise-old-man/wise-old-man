@@ -64,7 +64,9 @@ jobs:
         envs: GITHUB_USERNAME, GITHUB_TOKEN
         script: |
           cd wise-old-man
-          ls -a
+          docker-compose pull
+          docker-compose up
+          docker ps
 
   
 
