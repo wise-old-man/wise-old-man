@@ -7,7 +7,7 @@ import PlayerTag from '../../components/PlayerTag';
 import TableList from '../../components/TableList';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, SKILLS } from '../../config';
-import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize } from '../../utils';
+import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize, formatNumber } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
@@ -30,12 +30,16 @@ const TABLE_CONFIG = {
     },
     {
       key: 'value',
-      formatNumbers: true,
-      transform: value => (value > 0 ? `+${value}` : value),
+      transform: transformNumber,
       className: value => (value > 0 ? '-positive' : '')
     }
   ]
 };
+
+function transformNumber(value) {
+  const formattedValue = formatNumber(value, true);
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
 
 function getTypeOptions() {
   return [

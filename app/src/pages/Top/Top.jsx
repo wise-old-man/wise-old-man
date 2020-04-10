@@ -7,7 +7,7 @@ import Selector from '../../components/Selector';
 import TableList from '../../components/TableList';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, SKILLS } from '../../config';
-import { capitalize, getPlayerTypeIcon, getSkillIcon } from '../../utils';
+import { capitalize, getPlayerTypeIcon, getSkillIcon, formatNumber } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/deltas';
 import './Top.scss';
@@ -25,12 +25,16 @@ const TABLE_CONFIG = {
     },
     {
       key: 'gained',
-      formatNumbers: true,
-      transform: value => (value > 0 ? `+${value}` : value),
+      transform: transformNumber,
       className: value => (value > 0 ? '-positive' : '')
     }
   ]
 };
+
+function transformNumber(value) {
+  const formattedValue = formatNumber(value, true);
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
 
 function getTypeOptions() {
   return [

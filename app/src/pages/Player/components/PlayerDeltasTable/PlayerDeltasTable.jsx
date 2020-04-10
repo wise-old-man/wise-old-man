@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Table from '../../../../components/Table';
-import { getLevel, getSkillIcon, capitalize } from '../../../../utils';
+import { getLevel, getSkillIcon, capitalize, formatNumber } from '../../../../utils';
 
 function calculateRows(data) {
   const totalLevelBefore = _.filter(data, (val, key) => key !== 'overall')
@@ -44,8 +44,9 @@ function getColoredClass(value, lowThreshold) {
   return '-positive';
 }
 
-function getNumberTransform(value) {
-  return value > 0 ? `+${value}` : value;
+function transformNumber(value) {
+  const formattedValue = formatNumber(value, true);
+  return value > 0 ? `+${formattedValue}` : formattedValue;
 }
 
 function PlayerDeltasTable({ deltas, period }) {
@@ -71,25 +72,24 @@ function PlayerDeltasTable({ deltas, period }) {
       key: 'level',
       label: 'Levels',
       className: value => `-break-small ${getColoredClass(value, 0)}`,
-      transform: getNumberTransform
+      transform: transformNumber
     },
     {
       key: 'experience',
-      formatNumbers: true,
+      label: 'Exp.',
       className: value => getColoredClass(value, 50000),
-      transform: getNumberTransform
+      transform: transformNumber
     },
     {
       key: 'rank',
-      formatNumbers: true,
       className: value => `-break-small ${getColoredClass(value, 10)}`,
-      transform: getNumberTransform
+      transform: transformNumber
     },
     {
       key: 'EHP',
       get: row => row.ehp,
       className: value => getColoredClass(value, 1),
-      transform: getNumberTransform
+      transform: transformNumber
     }
   ];
 

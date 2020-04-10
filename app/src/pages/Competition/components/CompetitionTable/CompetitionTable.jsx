@@ -2,9 +2,14 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween } from '../../../../utils';
+import { durationBetween, formatNumber } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
+
+function transformNumber(value) {
+  const formattedValue = formatNumber(value, true);
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
   const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });
@@ -34,22 +39,21 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked }) {
     },
     {
       key: 'start',
-      formatNumbers: true,
+      transform: val => formatNumber(val, true),
       className: () => '-break-large',
       get: row => (row.progress ? row.progress.start : 0)
     },
     {
       key: 'end',
-      formatNumbers: true,
+      transform: val => formatNumber(val, true),
       className: () => '-break-large',
       get: row => (row.progress ? row.progress.end : 0)
     },
     {
       key: 'gained',
-      formatNumbers: true,
+      transform: transformNumber,
       get: row => (row.progress ? row.progress.delta : 0),
-      className: value => (value > 0 ? '-positive' : ''),
-      transform: value => (value > 0 ? `+${value}` : value)
+      className: value => (value > 0 ? '-positive' : '')
     },
     {
       key: 'updatedAt',
