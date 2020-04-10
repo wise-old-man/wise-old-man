@@ -13,8 +13,8 @@ function formatData(player) {
     { key: 'Id', value: id },
     { key: 'Type', value: capitalize(type) },
     { key: 'Overall Rank', value: formatNumber(overallRank) },
-    { key: 'Registered at', value: formatDate(registeredAt) },
-    { key: 'Last updated at', value: formatDate(updatedAt) },
+    { key: 'Registered at', value: formatDate(registeredAt, 'DD MMM, YYYY') },
+    { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM, YYYY') },
     { key: 'Last imported at', value: lastImportedAt ? formatDate(lastImportedAt) : '---' }
   ];
 }

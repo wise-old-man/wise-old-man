@@ -76,6 +76,7 @@ function PlayerDeltasTable({ deltas, period }) {
     },
     {
       key: 'experience',
+      label: 'Exp.',
       className: value => getColoredClass(value, 50000),
       transform: transformNumber
     },

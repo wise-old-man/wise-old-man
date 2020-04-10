@@ -20,8 +20,14 @@ function formatData(competition) {
     { key: 'Status', value: capitalize(status), className: statusClass },
     { key: 'Participants', value: participants ? participants.length : 'Unknown' },
     { key: 'Duration', value: capitalize(duration) },
-    { key: status === 'upcoming' ? 'Starts at' : 'Started at', value: formatDate(startsAt) },
-    { key: status === 'finished' ? 'Ended at' : 'Ends at', value: formatDate(endsAt) }
+    {
+      key: status === 'upcoming' ? 'Starts at' : 'Started at',
+      value: formatDate(startsAt, 'DD MMM, YYYY')
+    },
+    {
+      key: status === 'finished' ? 'Ended at' : 'Ends at',
+      value: formatDate(endsAt, 'DD MMM, YYYY')
+    }
   ];
 }
 
