@@ -1,4 +1,4 @@
-name: Rebuild Docker Images
+name: Rebuild Images and Deploy
 
 on:
   push:
@@ -46,4 +46,22 @@ jobs:
         cd website
         docker build . --file Dockerfile --tag psikoi/wise-old-man_website:latest
         docker push psikoi/wise-old-man_website:latest
+        
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test SSH
+      uses: appleboy/ssh-action@master
+      env:
+          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        host: ${{ secrets.DO_HOST }}
+        username: ${{ secrets.DO_USERNAME }}
+        password: ${{ secrets.DO_PASSWORD }}
+        envs: GITHUB_USERNAME, GITHUB_TOKEN
+        script: |
+          ls -a
+
+  
 
