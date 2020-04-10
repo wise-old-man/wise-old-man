@@ -17,9 +17,4 @@ describe('General tests', () => {
 
     done();
   });
-
-  test('This should fail, delete later', async done => {
-    expect(1).toBe(2);
-    done();
-  });
 });
