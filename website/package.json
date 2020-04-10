@@ -12,8 +12,6 @@
   "author": "Psikoi",
   "license": "ISC",
   "dependencies": {
-    "@openfonts/lato_latin": "^1.44.0",
-    "@openfonts/squada-one_latin": "^1.44.0",
     "@zeit/next-sass": "^1.0.1",
     "classnames": "^2.2.6",
     "next": "^9.3.3",
