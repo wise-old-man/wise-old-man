@@ -58,10 +58,11 @@ jobs:
       with:
         host: ${{ secrets.DO_HOST }}
         username: ${{ secrets.DO_USER }}
-        passphrase: ${{ secrets.DO_PASSPHRASE }}
+        passphrase: ${{ secrets.DO_SSH_PASS }}
         key: ${{ secrets.DO_SSH_KEY }}
         envs: GITHUB_USERNAME, GITHUB_TOKEN
         script: |
+          cd wise-old-man
           ls -a
 
   
