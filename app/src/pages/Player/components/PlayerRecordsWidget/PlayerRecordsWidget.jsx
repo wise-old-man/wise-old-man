@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TableList from '../../../../components/TableList';
-import { capitalize, getSkillIcon, formatDate } from '../../../../utils';
+import { capitalize, getSkillIcon, formatDate, formatNumber } from '../../../../utils';
 import './PlayerRecordsWidget.scss';
 
 const TABLE_CONFIG = {
@@ -14,9 +14,8 @@ const TABLE_CONFIG = {
     },
     {
       key: 'value',
-      formatNumbers: true,
       className: value => (value > 0 ? '-positive' : ''),
-      transform: value => (value > 0 ? `+${value}` : value)
+      transform: transformNumber
     },
     {
       key: 'updatedAt',
@@ -25,6 +24,11 @@ const TABLE_CONFIG = {
     }
   ]
 };
+
+function transformNumber(value) {
+  const formattedValue = formatNumber(value, true);
+  return value > 0 ? `+${formattedValue}` : formattedValue;
+}
 
 function PlayerRecordsWidget({ records, metric }) {
   if (!records) {

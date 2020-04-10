@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { formatNumber } from '../../utils';
 import './TableList.scss';
 
 function TableList({ uniqueKeySelector, rows, columns, onRowClicked, clickable }) {
@@ -21,11 +20,11 @@ function TableList({ uniqueKeySelector, rows, columns, onRowClicked, clickable }
             const rowKey = uniqueKeySelector(row);
             return (
               <tr key={rowKey} onClick={() => onRowClicked && onRowClicked(i)}>
-                {columns.map(({ key, transform, formatNumbers, className }) => {
+                {columns.map(({ key, transform, className }) => {
                   const value = transform ? transform(row[key], row) : row[key];
                   return (
-                    <td className={className && className(value)} key={`${rowKey}/${key}`}>
-                      {formatNumbers ? formatNumber(value) : value}
+                    <td className={className && className(row[key])} key={`${rowKey}/${key}`}>
+                      {value}
                     </td>
                   );
                 })}
@@ -60,8 +59,7 @@ TableList.propTypes = {
   //  - width (optional) - the column's forced width
   //  - label (optioanl) - the column's label, by default this is the key, capitlized.
   //  - className (optional) - custom styling class, a couple preset classes are: [-primary, -positive, -negative, -neutral, -low-positive, -break-large, -break-small]
-  //  - transform (optioanl) - custom cell rendering (provide a component to render inside the cell)
-  //  - formatNumbers (optional) - if true, 256757 will be rendered as 256,757
+  //  - transform (optional) - custom cell rendering (provide a component to render inside the cell)
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
   // If true, the rows will be clickable

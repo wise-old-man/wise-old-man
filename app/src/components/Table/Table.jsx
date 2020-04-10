@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { capitalize, formatNumber } from '../../utils';
+import { capitalize } from '../../utils';
 import './Table.scss';
 
 function getValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
-  return transform ? transform(value, row) : value;
+  return [transform ? transform(value, row) : value, value];
 }
 
 function Table({ rows, columns, onRowClicked, clickable }) {
@@ -35,11 +35,11 @@ function Table({ rows, columns, onRowClicked, clickable }) {
         {rows && rows.length ? (
           rows.map((row, i) => (
             <tr key={i} onClick={() => clickable && onRowClicked && onRowClicked(i)}>
-              {columns.map(({ key, transform, get, className, formatNumbers }) => {
-                const value = getValue(row, key, get, transform);
+              {columns.map(({ key, transform, get, className }) => {
+                const [formatted, original] = getValue(row, key, get, transform);
                 return (
-                  <td className={className && className(value)} key={i + key}>
-                    {formatNumbers ? formatNumber(value) : value}
+                  <td className={className && className(original)} key={i + key}>
+                    {formatted}
                   </td>
                 );
               })}
@@ -72,7 +72,6 @@ Table.propTypes = {
   //  - className (optional) - custom styling class, a couple preset classes are: [-primary, -positive, -negative, -neutral, -low-positive, -break-large, -break-small]
   //  - transform (optioanl) - custom cell rendering (provide a component to render inside the cell)
   //  - get (optional) - alternate way of fetching data from the row object, by default it will fetch row[key]
-  //  - formatNumbers (optional) - if true, 256757 will be rendered as 256,757
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
   // If true, the rows will be clickable

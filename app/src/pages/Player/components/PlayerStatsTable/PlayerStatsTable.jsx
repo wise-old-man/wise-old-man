@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Table from '../../../../components/Table';
-import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
+import { capitalize, getSkillIcon, getLevel, formatNumber } from '../../../../utils';
 
 function PlayerStatsTable({ player }) {
   const { latestSnapshot } = player;
@@ -38,8 +38,8 @@ function PlayerStatsTable({ player }) {
       )
     },
     { key: 'level' },
-    { key: 'experience', formatNumbers: true },
-    { key: 'rank', formatNumbers: true, className: () => '-break-small' },
+    { key: 'experience', transform: val => formatNumber(val, true) },
+    { key: 'rank', className: () => '-break-small', transform: val => formatNumber(val) },
     { key: 'EHP', get: row => row.ehp, className: () => '-break-small' }
   ];
 
