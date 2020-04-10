@@ -59,6 +59,7 @@ jobs:
         host: ${{ secrets.DO_HOST }}
         username: ${{ secrets.DO_USERNAME }}
         password: ${{ secrets.DO_PASSWORD }}
+        key: ${{ secrets.SSH_KEY }}
         envs: GITHUB_USERNAME, GITHUB_TOKEN
         script: |
           ls -a
