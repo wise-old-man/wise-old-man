@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-server, build-app, build-website]
     steps:
-    - name: Test SSH
+    - name: Restart docker
       uses: appleboy/ssh-action@master
       env:
           GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
