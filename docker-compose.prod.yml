@@ -5,7 +5,7 @@ services:
     networks:
       - webnet
     env_file:
-      - ./server/.env
+      - ./.env
   db:
     image: postgres
     networks:
@@ -14,13 +14,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
-      - ./server/.env
+      - ./.env
     expose:
       - '5432'
   pgadmin:
     image: dpage/pgadmin4
     env_file:
-      - ./server/.env
+      - ./.env
     ports:
       - '54321:80'
     depends_on:
@@ -28,7 +28,9 @@ services:
     networks:
       - pgadminnet
   server:
-    build: ./server
+    image: psikoi/wise-old-man_server:latest
+    env_file:
+      - ./.env
     expose:
       - '5000'
     ports:
@@ -41,20 +43,17 @@ services:
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-    volumes:
-      - ./server:/wise-old-man/server
-      - /wise-old-man/server/node_modules
     command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
   website:
-    build: ./website
+    image: psikoi/wise-old-man_website:latest
     expose:
-      - 3000
+      - '3000'
     ports:
       - '3000:3000'
     networks:
       - webnet
   app:
-    build: ./app
+    image: psikoi/wise-old-man_app:latest
     networks:
       - webnet
     ports:
