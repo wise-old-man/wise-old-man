@@ -1,4 +1,3 @@
-const { BadRequestError } = require('../../errors');
 const service = require('./competition.service');
 const jobs = require('../../jobs');
 
@@ -98,22 +97,11 @@ async function removeParticipants(req, res, next) {
 async function updateAllParticipants(req, res, next) {
   try {
     const { id } = req.params;
-    const participants = await service.getParticipants(id);
 
-    if (!id) {
-      throw new BadRequestError('Invalid competition id.');
-    }
-
-    if (!participants || participants.length === 0) {
-      throw new BadRequestError('This competition has no participants.');
-    }
-
-    participants.forEach(player => {
+    const participants = await service.updateAllParticipants(id, player => {
       // Attempt this 5 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
     });
-
-    await service.onUpdatedAll(id);
 
     const message = `${participants.length} players are being updated. This can take up to a few minutes.`;
     res.json({ message });

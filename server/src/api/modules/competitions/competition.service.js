@@ -94,10 +94,6 @@ async function findForPlayer(playerId) {
   return formattedCompetitions;
 }
 
-async function onUpdatedAll(id) {
-  await Competition.update({ updatedAllAt: new Date() }, { where: { id } });
-}
-
 /**
  * Get all the data on a given competition.
  */
@@ -601,6 +597,36 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
   await Participation.destroy({ where: { competitionId: competitionIds, playerId: playerIds } });
 }
 
+/**
+ * Update all participants of a competition.
+ *
+ * An update action must be supplied, to be executed for
+ * every participant. This is to prevent calling jobs from
+ * within the service. I'd rather call them from the controller.
+ *
+ * Note: this is a soft update, meaning it will only create a new
+ * snapshot. It won't import from CML or determine player type.
+ */
+async function updateAllParticipants(id, updateAction) {
+  if (!id) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const participants = await getParticipants(id);
+
+  if (!participants || participants.length === 0) {
+    throw new BadRequestError('This competition has no participants.');
+  }
+
+  participants.forEach(player => {
+    updateAction(player);
+  });
+
+  await Competition.update({ updatedAllAt: new Date() }, { where: { id } });
+
+  return participants;
+}
+
 exports.list = list;
 exports.view = view;
 exports.create = create;
@@ -613,4 +639,4 @@ exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
 exports.findForPlayer = findForPlayer;
-exports.onUpdatedAll = onUpdatedAll;
+exports.updateAllParticipants = updateAllParticipants;
