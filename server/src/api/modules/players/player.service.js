@@ -139,17 +139,29 @@ async function update(username) {
     throw new BadRequestError(`Failed to update: ${username} was updated ${seconds} seconds ago.`);
   }
 
-  // Load data from OSRS hiscores
-  const hiscoresCSV = await getHiscoresData(player.username);
+  try {
+    // Load data from OSRS hiscores
+    const hiscoresCSV = await getHiscoresData(player.username);
 
-  // Convert the csv data to a Snapshot instance (saved in the DB)
-  const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+    // Convert the csv data to a Snapshot instance (saved in the DB)
+    const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
-  // Update the "updatedAt" timestamp on the player model
-  await player.changed('updatedAt', true);
-  await player.save();
+    // Update the "updatedAt" timestamp on the player model
+    await player.changed('updatedAt', true);
+    await player.save();
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
+    return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
+  } catch (e) {
+    // If the player was just registered and it failed to fetch hiscores,
+    // set updatedAt to null to allow for re-attempts without the 60s waiting period
+    if (created) {
+      // Doing this with the model method (Player.update) because the
+      // instance method (instance.update) doesn't seem to work.
+      await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
+    }
+
+    throw e;
+  }
 }
 
 /**
