@@ -1,5 +1,5 @@
 FROM node:alpine
-WORKDIR /wise-old-man/website
+WORKDIR /wise-old-man/docs
 
 COPY package*.json ./
 RUN npm install
