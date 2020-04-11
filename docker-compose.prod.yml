@@ -44,8 +44,8 @@ services:
       DB_HOST: db
       REDIS_HOST: redis
     command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
-  website:
-    image: psikoi/wise-old-man_website:latest
+  docs:
+    image: psikoi/wise-old-man_docs:latest
     expose:
       - '3000'
     ports:
