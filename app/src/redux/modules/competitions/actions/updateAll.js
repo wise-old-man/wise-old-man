@@ -22,7 +22,7 @@ function updateParticipantsSuccess(data) {
 function updateParticipantsFailure(error) {
   return {
     type: UPDATE_PARTICIPANTS_FAILURE,
-    error
+    error: error.response.data.message
   };
 }
 

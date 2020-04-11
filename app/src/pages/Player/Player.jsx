@@ -85,32 +85,20 @@ function Player() {
     try {
       setIsTracking(true);
       await dispatch(trackPlayerAction(player.username));
-    } finally {
+
+      fetchAll();
+      setIsTracking(false);
+    } catch (e) {
       setIsTracking(false);
     }
   };
 
-  const fetchPlayerDetails = () => {
+  const fetchAll = () => {
     dispatch(fetchPlayerAction({ id }));
-  };
-
-  const fetchPlayerSnapshots = () => {
     dispatch(fetchSnapshotsAction({ playerId: id }));
-  };
-
-  const fetchPlayerAchievements = () => {
     dispatch(fetchAchievementsAction({ playerId: id }));
-  };
-
-  const fetchPlayerCompetitions = () => {
     dispatch(fetchCompetitionsAction({ playerId: id }));
-  };
-
-  const fetchPlayerRecords = () => {
     dispatch(fetchRecordsAction({ playerId: id }));
-  };
-
-  const fetchPlayerDeltas = () => {
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
@@ -132,12 +120,7 @@ function Player() {
   const onUpdatedButtonClicked = useCallback(trackPlayer, [player]);
 
   // Fetch all player info on mount
-  useEffect(fetchPlayerDetails, [dispatch, id]);
-  useEffect(fetchPlayerSnapshots, [dispatch, id]);
-  useEffect(fetchPlayerAchievements, [dispatch, id]);
-  useEffect(fetchPlayerCompetitions, [dispatch, id]);
-  useEffect(fetchPlayerRecords, [dispatch, id]);
-  useEffect(fetchPlayerDeltas, [dispatch, id]);
+  useEffect(fetchAll, [dispatch, id]);
 
   const metricOptions = useMemo(getMetricOptions, [SKILLS]);
 

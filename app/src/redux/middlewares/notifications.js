@@ -2,6 +2,7 @@ import { showNotification } from '../modules/notifications/actions/toggle';
 import { TRACK_PLAYER_SUCCESS, TRACK_PLAYER_FAILURE } from '../modules/players/reducer';
 import {
   UPDATE_PARTICIPANTS_SUCCESS,
+  UPDATE_PARTICIPANTS_FAILURE,
   CREATE_COMPETITION_FAILURE,
   CREATE_COMPETITION_SUCCESS,
   EDIT_COMPETITION_FAILURE,
@@ -100,6 +101,16 @@ const notificationsMiddleware = store => next => action => {
       const notification = {
         text: action.message,
         type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case UPDATE_PARTICIPANTS_FAILURE: {
+      const notification = {
+        text: action.error,
+        type: 'error'
       };
 
       store.dispatch(showNotification({ ...notification }));
