@@ -22,6 +22,21 @@ function format(competition) {
   return _.omit(competition.toJSON(), ['verificationHash']);
 }
 
+function shouldUpdateAll(updatedAllAt) {
+  if (!updatedAllAt || !isValidDate(updatedAllAt)) {
+    return [true, 600000];
+  }
+
+  const diff = Date.now() - updatedAllAt.getTime();
+  const seconds = Math.floor(diff / 1000);
+
+  // Only allow the updating of all participants,
+  // if it hasn't been done the last 600 seconds (10 minutes)
+  const should = seconds >= 600;
+
+  return [should, seconds];
+}
+
 /**
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
@@ -597,6 +612,55 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
   await Participation.destroy({ where: { competitionId: competitionIds, playerId: playerIds } });
 }
 
+/**
+ * Update all participants of a competition.
+ *
+ * An update action must be supplied, to be executed for
+ * every participant. This is to prevent calling jobs from
+ * within the service. I'd rather call them from the controller.
+ *
+ * Note: this is a soft update, meaning it will only create a new
+ * snapshot. It won't import from CML or determine player type.
+ */
+async function updateAllParticipants(id, updateAction) {
+  if (!id) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const competition = await Competition.findOne({ where: { id } });
+
+  if (!competition) {
+    throw new BadRequestError(`Competition of id ${id} was not found.`);
+  }
+
+  const [should, seconds] = await shouldUpdateAll(competition.updatedAllAt);
+
+  // If the competition has had a global participant update
+  // recently (in the past 10 mins), don't allow the api to
+  // update all participants
+  if (!should) {
+    const secsLeft = Math.floor(600 - seconds);
+    const timeLeft = secsLeft <= 60 ? `${secsLeft} seconds` : `${Math.floor(secsLeft / 60)} minutes`;
+    const msg = `Failed to update: Please wait another ${timeLeft} before updating all participants.`;
+
+    throw new BadRequestError(msg);
+  }
+
+  const participants = await competition.getParticipants();
+
+  if (!participants || participants.length === 0) {
+    throw new BadRequestError('This competition has no participants.');
+  }
+
+  // Execute the update action for every participant
+  participants.forEach(player => updateAction(player));
+
+  // Update the "updatedAllAt" field in the competition instance
+  await competition.update({ updatedAllAt: new Date() });
+
+  return participants;
+}
+
 exports.list = list;
 exports.view = view;
 exports.create = create;
@@ -609,3 +673,4 @@ exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
 exports.findForPlayer = findForPlayer;
+exports.updateAllParticipants = updateAllParticipants;

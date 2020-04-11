@@ -510,6 +510,12 @@ export default [
         description: "If the competition's participants list is invalid or empty.",
         body: { message: 'This competition has no participants.' },
       },
+      {
+        description: "If the competition's participants have been 'updated all' in the last 10 minutes.",
+        body: {
+          message: 'Failed to update: Please wait another 2 minutes before updating all participants.',
+        },
+      },
     ],
   },
 ];

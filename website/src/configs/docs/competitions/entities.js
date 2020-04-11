@@ -34,6 +34,11 @@ export default [
         description: "The competition's end date.",
       },
       {
+        field: 'updatedAllAt',
+        type: 'date',
+        description: "The last time the competition's participants were globally updated.",
+      },
+      {
         field: 'createdAt',
         type: 'date',
         description: "The competition's creation date.",
