@@ -113,6 +113,8 @@ async function updateAllParticipants(req, res, next) {
       jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
     });
 
+    await service.onUpdatedAll(id);
+
     const message = `${participants.length} players are being updated. This can take up to a few minutes.`;
     res.json({ message });
   } catch (e) {

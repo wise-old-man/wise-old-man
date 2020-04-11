@@ -94,6 +94,10 @@ async function findForPlayer(playerId) {
   return formattedCompetitions;
 }
 
+async function onUpdatedAll(id) {
+  await Competition.update({ updatedAllAt: new Date() }, { where: { id } });
+}
+
 /**
  * Get all the data on a given competition.
  */
@@ -609,3 +613,4 @@ exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
 exports.findForPlayer = findForPlayer;
+exports.onUpdatedAll = onUpdatedAll;
