@@ -58,8 +58,8 @@ Have something else you'd like to discuss? [Join us on discord](https://discord.
 
 Each component of the project has it's own build and development process, check the documentation for each one below:
 
-**Help expand and improve the Wise Old Man API:** [Server / API Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/server-guide.yml)
+**Help expand and improve the Wise Old Man API:** [Server / API Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/server-guide.md)
 
-**Help expand and improve the Wise Old Man Web App:** [App Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/app-guide.yml)
+**Help expand and improve the Wise Old Man Web App:** [App Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/app-guide.md)
 
-**Help update or improve the Wise Old Man API Docs:** [Docs Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/docs-guide.yml)
+**Help update or improve the Wise Old Man API Docs:** [Docs Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/docs-guide.md)
