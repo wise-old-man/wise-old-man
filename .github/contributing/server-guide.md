@@ -63,7 +63,7 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 
 ## Environment Variables
 
-Finally, create two new files inside the server directory:
+Create two new files inside the server directory:
 
 - .env
 - .env.test
@@ -101,9 +101,9 @@ DB_STORAGE=./__tests__/database.sqlite
 
 ## Running the Server
 
-After you have everything above setup, **make sure you have docker running**.
+After you have everything above setup, **make sure you have Docker running**.
 
-Using the terminal (I use the VSCode terminal), start the development docker containers.
+Using the terminal (I use the VSCode terminal), start the development Docker containers.
 
 ```
 docker-compose up --build
@@ -117,7 +117,7 @@ If you're using the regular Docker installation, you should be able to access th
 
 http://localhost:5000/
 
-If you're using docker toolbox instead, you can find out what the machine's ip is by typing:
+If you're using Docker Toolbox instead, you can find out what the machine's ip is by typing:
 
 ```
 docker-machine ip
