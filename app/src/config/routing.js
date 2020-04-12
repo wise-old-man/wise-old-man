@@ -8,6 +8,8 @@ import CompetitionPage from '../pages/Competition';
 import PlayerPage from '../pages/Player';
 import PlayerSearchPage from '../pages/PlayerSearch';
 
+// Note: if you're adding a new route with a dynamic url param
+// be sure to add it to the analytics.js file.
 export const ROUTES = [
   {
     path: '/',

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Analytics from 'react-ga';
 import { BASE_API_URL } from '../../../../config';
 import {
   CREATE_COMPETITION_REQUEST,
@@ -13,6 +14,12 @@ function createCompetitionRequest() {
 }
 
 function createCompetitionSuccess(data) {
+  Analytics.event({
+    category: 'Competition',
+    action: 'Created new competition',
+    value: data.id
+  });
+
   return {
     type: CREATE_COMPETITION_SUCCESS,
     competition: data

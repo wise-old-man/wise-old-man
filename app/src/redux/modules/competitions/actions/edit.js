@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Analytics from 'react-ga';
 import { BASE_API_URL } from '../../../../config';
 import {
   EDIT_COMPETITION_REQUEST,
@@ -13,6 +14,12 @@ function editCompetitionRequest() {
 }
 
 function editCompetitionSuccess(data) {
+  Analytics.event({
+    category: 'Competition',
+    action: 'Edited competition',
+    value: data.id
+  });
+
   return {
     type: EDIT_COMPETITION_SUCCESS,
     competition: data
