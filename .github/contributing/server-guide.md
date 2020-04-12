@@ -137,8 +137,8 @@ Example: http://localhost:54321 or http://192.168.99.100:54321
 
 Next, login with the following credentials:
 
-**email:** test@wiseoldman.net
-**password:** postgres
+- **email:** _test@wiseoldman.net_
+- **password:** _postgres_
 
 Then follow these instructions:
 
