@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Analytics from 'react-ga';
 import { BASE_API_URL } from '../../../../config';
 import {
   DELETE_COMPETITION_REQUEST,
@@ -13,6 +14,12 @@ function deleteCompetitionRequest() {
 }
 
 function deleteCompetitionSuccess(id, data) {
+  Analytics.event({
+    category: 'Competition',
+    action: 'Deleted competition',
+    value: id
+  });
+
   return {
     type: DELETE_COMPETITION_SUCCESS,
     competitionId: id,

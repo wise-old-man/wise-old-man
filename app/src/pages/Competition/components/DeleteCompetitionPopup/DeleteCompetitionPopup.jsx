@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Analytics from 'react-ga';
 import Button from '../../../../components/Button';
 import deleteCompetitionAction from '../../../../redux/modules/competitions/actions/delete';
 import './DeleteCompetitionPopup.scss';
@@ -24,6 +25,8 @@ function DeleteCompetitionPopup({ competition, onCancel }) {
 
   const onVerificationInput = useCallback(handleVerificationInput, []);
   const onDeleteClicked = useCallback(handleDeleteClicked, [competition, verificationCode]);
+
+  useEffect(() => Analytics.modalview(`/competition/${competition.id}/delete`), [competition]);
 
   return (
     <div className="delete-competition">

@@ -54,6 +54,8 @@ services:
       - webnet
   app:
     image: psikoi/wise-old-man_app:latest
+    env_file:
+      - ./.env
     networks:
       - webnet
     ports:
