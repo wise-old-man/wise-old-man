@@ -54,16 +54,21 @@ services:
       - webnet
   app:
     image: psikoi/wise-old-man_app:latest
-    env_file:
-      - ./.env
     networks:
       - webnet
     ports:
       - 80:80
+      - 443:443
     links:
       - server
-    environment:
-      REACT_APP_API_BASE_URL: /api
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
 networks:
   webnet:
   pgadminnet:

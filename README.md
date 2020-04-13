@@ -1,6 +1,6 @@
 # Wise Old Man
 
-[www.wiseoldman.net](http://wiseoldman.net/)
+[www.wiseoldman.net](https://wiseoldman.net/)
 
 The open source Oldschool Runescape progress tracker.
 
@@ -10,7 +10,7 @@ The Wise Old Man is an Open source project, meaning anyone in the community can 
 
 This application measures Oldschool Runescape player progress. Built on top of the OSRS hiscores, it adds extra functionality like group competitions, player achievements, experience records, etc.
 
-[Website](http://wiseoldman.net/) |
+[Website](https://wiseoldman.net/) |
 [Twitter](https://twitter.com/wise_old_man_rs) |
 [Discord](https://discord.gg/NzYmDe)
 
@@ -22,7 +22,7 @@ We also offer a REST API for developers and encourage you to create your own app
 
 You can read the documentation at:
 
-[API Docs](http://wiseoldman.net/docs)
+[API Docs](https://wiseoldman.net/docs)
 
 <br />
 
