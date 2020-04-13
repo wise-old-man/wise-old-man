@@ -2,7 +2,7 @@ name: Rebuild Images and Deploy
 
 on:
   push:
-    branches: [master, ssl-certificate]
+    branches: [master]
 
 jobs:
   integration-test:

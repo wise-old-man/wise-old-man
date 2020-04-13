@@ -52,7 +52,7 @@ services:
       - '3000:3000'
     networks:
       - webnet
-  app:
+  nginx:
     image: psikoi/wise-old-man_app:latest
     networks:
       - webnet
@@ -61,11 +61,13 @@ services:
       - 443:443
     links:
       - server
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
   certbot:
     image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
