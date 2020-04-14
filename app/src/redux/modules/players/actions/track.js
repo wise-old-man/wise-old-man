@@ -6,7 +6,7 @@ import { TRACK_PLAYER_REQUEST, TRACK_PLAYER_SUCCESS, TRACK_PLAYER_FAILURE } from
 function trackPlayerRequest(username) {
   return {
     type: TRACK_PLAYER_REQUEST,
-    username
+    username,
   };
 }
 
@@ -14,13 +14,13 @@ function trackPlayerSuccess(data, username) {
   Analytics.event({
     category: 'Player',
     action: 'Tracked player',
-    value: username
+    value: username,
   });
 
   return {
     type: TRACK_PLAYER_SUCCESS,
     username,
-    data
+    data,
   };
 }
 
@@ -28,7 +28,7 @@ function trackPlayerFailure(error, username) {
   return {
     type: TRACK_PLAYER_FAILURE,
     username,
-    error: error.response.data.message
+    error: error.response.data.message,
   };
 }
 

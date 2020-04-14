@@ -8,7 +8,7 @@ import notificationsMiddleware from './middlewares/notifications';
 
 const store = createStore(
   reducers,
-  applyMiddleware(thunk, logger, datesMiddleware, notificationsMiddleware)
+  applyMiddleware(thunk, logger, datesMiddleware, notificationsMiddleware),
 );
 
 export default store;

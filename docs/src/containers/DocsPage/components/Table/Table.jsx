@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './Table.scss';
 
 function Table({ title, description, columns, rows }) {
@@ -27,5 +28,12 @@ function Table({ title, description, columns, rows }) {
     </div>
   );
 }
+
+Table.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+};
 
 export default Table;

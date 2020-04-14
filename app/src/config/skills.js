@@ -22,5 +22,5 @@ export const SKILLS = [
   'farming',
   'runecrafting',
   'hunter',
-  'construction'
+  'construction',
 ];

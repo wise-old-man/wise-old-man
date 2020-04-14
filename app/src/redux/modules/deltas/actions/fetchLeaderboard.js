@@ -3,26 +3,26 @@ import { BASE_API_URL } from '../../../../config';
 import {
   FETCH_LEADERBOARD_REQUEST,
   FETCH_LEADERBOARD_SUCCESS,
-  FETCH_LEADERBOARD_FAILURE
+  FETCH_LEADERBOARD_FAILURE,
 } from '../reducer';
 
 function fetchLeaderboardRequest() {
   return {
-    type: FETCH_LEADERBOARD_REQUEST
+    type: FETCH_LEADERBOARD_REQUEST,
   };
 }
 
 function fetchLeaderboardSuccess(data) {
   return {
     type: FETCH_LEADERBOARD_SUCCESS,
-    leaderboard: data
+    leaderboard: data,
   };
 }
 
 function fetchLeaderboardFailure(error) {
   return {
     type: FETCH_LEADERBOARD_FAILURE,
-    error
+    error,
   };
 }
 

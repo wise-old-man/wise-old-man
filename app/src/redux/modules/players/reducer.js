@@ -17,7 +17,7 @@ const initialState = {
   isSearching: false,
   players: {},
   searchResults: {},
-  updating: []
+  updating: [],
 };
 
 export default function playersReducer(state = initialState, action) {
@@ -29,13 +29,13 @@ export default function playersReducer(state = initialState, action) {
       return {
         ...state,
         updating: [...state.updating.filter(username => username !== action.username)],
-        players: { ...state.players, [action.data.id]: { ...action.data } }
+        players: { ...state.players, [action.data.id]: { ...action.data } },
       };
 
     case TRACK_PLAYER_FAILURE:
       return {
         ...state,
-        updating: [...state.updating.filter(username => username !== action.username)]
+        updating: [...state.updating.filter(username => username !== action.username)],
       };
 
     case FETCH_PLAYER_REQUEST:
@@ -45,7 +45,7 @@ export default function playersReducer(state = initialState, action) {
       return {
         ...state,
         isFetching: false,
-        players: { ...state.players, [action.player.id]: action.player }
+        players: { ...state.players, [action.player.id]: action.player },
       };
 
     case FETCH_PLAYER_FAILURE:
@@ -59,7 +59,7 @@ export default function playersReducer(state = initialState, action) {
         ...state,
         isSearching: false,
         searchResults: { ...toMap(action.players, 'id') },
-        players: { ...state.players, ...toMap(action.players, 'id') }
+        players: { ...state.players, ...toMap(action.players, 'id') },
       };
 
     case SEARCH_PLAYERS_FAILURE:

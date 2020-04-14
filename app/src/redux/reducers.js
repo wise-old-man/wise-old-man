@@ -15,5 +15,5 @@ export default combineReducers({
   competitions,
   snapshots,
   players,
-  achievements
+  achievements,
 });

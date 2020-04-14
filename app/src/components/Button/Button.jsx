@@ -2,8 +2,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import './Button.scss';
 import { useHistory } from 'react-router-dom';
+import './Button.scss';
 
 function Button({ text, className, icon, type, url, onClick, disabled, loading }) {
   const router = useHistory();
@@ -48,7 +48,7 @@ Button.defaultProps = {
   url: undefined,
   onClick: undefined,
   disabled: false,
-  loading: false
+  loading: false,
 };
 
 Button.propTypes = {
@@ -74,7 +74,7 @@ Button.propTypes = {
   disabled: PropTypes.bool,
 
   // If true, the button will be disabled and present a loading icon and text
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 export default React.memo(Button);

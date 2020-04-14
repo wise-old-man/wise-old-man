@@ -4,12 +4,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   DELETE_COMPETITION_REQUEST,
   DELETE_COMPETITION_SUCCESS,
-  DELETE_COMPETITION_FAILURE
+  DELETE_COMPETITION_FAILURE,
 } from '../reducer';
 
 function deleteCompetitionRequest() {
   return {
-    type: DELETE_COMPETITION_REQUEST
+    type: DELETE_COMPETITION_REQUEST,
   };
 }
 
@@ -17,20 +17,20 @@ function deleteCompetitionSuccess(id, data) {
   Analytics.event({
     category: 'Competition',
     action: 'Deleted competition',
-    value: id
+    value: id,
   });
 
   return {
     type: DELETE_COMPETITION_SUCCESS,
     competitionId: id,
-    message: data.message
+    message: data.message,
   };
 }
 
 function deleteCompetitionFailure(error) {
   return {
     type: DELETE_COMPETITION_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
   };
 }
 

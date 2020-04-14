@@ -4,21 +4,21 @@ import { SEARCH_PLAYERS_REQUEST, SEARCH_PLAYERS_SUCCESS, SEARCH_PLAYERS_FAILURE 
 
 function searchPlayersRequest() {
   return {
-    type: SEARCH_PLAYERS_REQUEST
+    type: SEARCH_PLAYERS_REQUEST,
   };
 }
 
 function searchPlayersSuccess(data) {
   return {
     type: SEARCH_PLAYERS_SUCCESS,
-    players: data
+    players: data,
   };
 }
 
 function searchPlayersFailure(error) {
   return {
     type: SEARCH_PLAYERS_FAILURE,
-    error
+    error,
   };
 }
 

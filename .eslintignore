@@ -1,0 +1,6 @@
+!.*
+coverage/
+junit/
+dist/
+mobiles/
+**/node_modules/*

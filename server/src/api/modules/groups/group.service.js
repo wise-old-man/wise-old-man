@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const { Op } = require('sequelize');
-const ROLES = require('../../constants/roles');
 const { Group, Membership, Player } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');

@@ -13,6 +13,4 @@ export const getRecordsMap = createSelector(recordsSelector, map => map);
 
 export const getRecords = createSelector(recordsSelector, map => Object.values(map));
 
-export const getPlayerRecords = (state, playerId) => {
-  return getRecordsMap(state)[playerId];
-};
+export const getPlayerRecords = (state, playerId) => getRecordsMap(state)[playerId];

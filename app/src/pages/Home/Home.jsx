@@ -7,24 +7,24 @@ const FEATURES = [
   {
     title: 'Player progress tracking',
     description: 'Track your progression overtime, browse your personal records and achievements.',
-    image: '/img/landing_page/features/player_tracking.png'
+    image: '/img/landing_page/features/player_tracking.png',
   },
   {
     title: 'Efficiency metrics',
     description: "Measure your account's progress using updated effiency metrics.",
     image: '/img/landing_page/features/efficiency_metrics.png',
-    unavailable: true
+    unavailable: true,
   },
   {
     title: 'Skill competitions',
     description: 'Compete against all your friends in any skill of your choosing.',
-    image: '/img/landing_page/features/team_competitions.png'
+    image: '/img/landing_page/features/team_competitions.png',
   },
   {
     title: 'Global leaderboards',
     description: 'Browse or compete with the community in the global record/gained leaderboards.',
-    image: '/img/landing_page/features/leaderboards.png'
-  }
+    image: '/img/landing_page/features/leaderboards.png',
+  },
 ];
 
 function Home() {
@@ -35,9 +35,7 @@ function Home() {
           <div className="intro-container">
             <span className="intro-greeting">Hi, meet the</span>
             <h1 className="intro-title">Wise Old Man</h1>
-            <p className="intro-description">
-              The open source Oldschool Runescape player progress tracker.
-            </p>
+            <p className="intro-description">The open source Oldschool Runescape player progress tracker.</p>
             <Button text="Contribute" url="https://github.com/psikoi/wise-old-man" />
           </div>
         </div>
@@ -50,13 +48,13 @@ function Home() {
           <div className="details__info col-lg-7 col-md-12">
             <h1 className="section-title">What is it?</h1>
             <p className="description">
-              The Wise Old Man is an Open source project, meaning anyone in the community can
-              contribute code or ideas to add new functionality.
+              The Wise Old Man is an Open source project, meaning anyone in the community can contribute code
+              or ideas to add new functionality.
               <br />
               <br />
-              This application measures Oldschool Runescape player progress. Built on top of the
-              OSRS hiscores, it adds extra functionality like group competitions, player
-              achievements, experience records, etc.
+              This application measures Oldschool Runescape player progress. Built on top of the OSRS
+              hiscores, it adds extra functionality like group competitions, player achievements, experience
+              records, etc.
             </p>
             <div className="info-actions">
               <Button
@@ -85,7 +83,7 @@ function Home() {
         </div>
         <div className="features row">
           {FEATURES.map(({ unavailable, title, image, description }) => (
-            <div className={className({ 'feature-card': true, '-unavailable': unavailable })}>
+            <div key={title} className={className({ 'feature-card': true, '-unavailable': unavailable })}>
               <img className="feature-card__image" src={image} alt="" />
               <div className="feature-card__info">
                 <b className="feature-title">{title}</b>

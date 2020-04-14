@@ -10,7 +10,7 @@ const initialState = {
   isFetchingLeaderboard: false,
   isFetchingPlayerDeltas: false,
   deltas: {},
-  leaderboard: {}
+  leaderboard: {},
 };
 
 export default function deltasReducer(state = initialState, action) {
@@ -31,7 +31,7 @@ export default function deltasReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerDeltas: false,
-        deltas: { ...state.deltas, [action.playerId]: action.deltas }
+        deltas: { ...state.deltas, [action.playerId]: action.deltas },
       };
 
     case FETCH_PLAYER_DELTAS_FAILURE:

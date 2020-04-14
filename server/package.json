@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
+    "lint": "npx eslint .",
     "prestart": "sequelize db:migrate",
     "start": "pm2-runtime src/server.js",
     "predev": "sequelize db:migrate",
@@ -30,16 +31,6 @@
     "sequelize": "^5.21.4"
   },
   "devDependencies": {
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-node": "^4.0.0",
-    "eslint-config-prettier": "^6.10.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-prettier": "^3.1.2",
-    "eslint-plugin-react": "^7.14.3",
-    "eslint-plugin-react-hooks": "^1.7.0",
     "faker": "^4.1.0",
     "jest": "^25.1.0",
     "nodemon": "^2.0.2",

@@ -10,7 +10,7 @@ const initialState = {
   isFetchingLeaderboard: false,
   isFetchingPlayerRecords: false,
   records: {},
-  leaderboard: {}
+  leaderboard: {},
 };
 
 export default function recordsReducer(state = initialState, action) {
@@ -31,7 +31,7 @@ export default function recordsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerRecords: false,
-        records: { ...state.records, [action.playerId]: action.records }
+        records: { ...state.records, [action.playerId]: action.records },
       };
 
     case FETCH_PLAYER_RECORDS_FAILURE:
