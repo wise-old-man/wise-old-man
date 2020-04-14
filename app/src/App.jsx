@@ -10,8 +10,6 @@ function initGoogleAnalytics() {
   const trackingId = process.env.REACT_APP_ANALYTICS_TRACKING_ID;
   const testMode = process.env.NODE_ENV === 'development';
 
-  alert(trackingId);
-
   Analytics.initialize(trackingId, { testMode });
 }
 

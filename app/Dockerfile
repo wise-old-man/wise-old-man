@@ -1,8 +1,11 @@
 # setup react production build
 FROM node:alpine as builder
+
 WORKDIR /wise-old-man/app
-COPY . /wise-old-man/app
-RUN npm install
+COPY package*.json ./
+RUN npm install -s
+COPY . .
+ARG REACT_APP_ANALYTICS_TRACKING_ID
 RUN npm run build
 
 #setup nginx
