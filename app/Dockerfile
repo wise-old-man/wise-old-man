@@ -2,6 +2,9 @@
 FROM node:alpine as builder
 WORKDIR /wise-old-man/app
 COPY . /wise-old-man/app
+
+ARG REACT_APP_ANALYTICS_TRACKING_ID
+
 RUN npm install
 RUN npm run build
 

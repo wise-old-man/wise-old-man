@@ -2,14 +2,14 @@ name: Rebuild Images and Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [master, fix-analytics-id]
 
 jobs:
   integration-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x]
+        node-version: [12.x]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -49,9 +49,11 @@ jobs:
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build the App Docker image
+        env:
+          ANALYTICS_TRACKING_ID: ${{ secrets.ANALYTICS_TRACKING_ID }}
         run: |
           cd app
-          docker build . --file Dockerfile --tag psikoi/wise-old-man_app:latest
+          docker build . --file Dockerfile --tag psikoi/wise-old-man_app:latest --build-arg REACT_APP_ANALYTICS_TRACKING_ID=$ANALYTICS_TRACKING_ID
           docker push psikoi/wise-old-man_app:latest
 
   build-docs:
