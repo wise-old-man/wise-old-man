@@ -22,6 +22,9 @@
     "import/prefer-default-export": "off",
     "react/react-in-jsx-scope": "off",
     "object-curly-newline": ["error", { "ImportDeclaration": "never" }],
-    "comma-dangle": ["never"]
+    "comma-dangle": [0],
+    "template-curly-spacing": "off",
+    "indent": ["error", 2, { "ignoredNodes": ["TemplateLiteral"] }],
+    "no-multi-str": "off"
   }
 }
