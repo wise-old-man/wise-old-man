@@ -1,7 +1,7 @@
 {
   "name": "wise-old-man",
   "version": "1.0.0",
-  "description": "The open source Oldschool Runescape progress tracker.",
+  "description": "The Open Source Old School Runescape progress tracker.",
   "main": "index.js",
   "scripts": {
     "dev": "docker-compose up -d --build && cd app && npm start",
@@ -9,6 +9,7 @@
   },
   "keywords": [
     "Oldschool",
+    "Old School",
     "Runescape",
     "OSRS",
     "2007scape",
