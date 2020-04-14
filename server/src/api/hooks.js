@@ -8,7 +8,7 @@ function register() {
     jobs.add('SyncPlayerAchievements', { playerId });
   });
 
-  Snapshot.afterBulkCreate(snapshots => {
+  Snapshot.afterBulkCreate((snapshots) => {
     if (!snapshots || !snapshots.length) {
       return;
     }
@@ -23,18 +23,18 @@ function register() {
     jobs.add('SyncPlayerRecords', { playerId, period });
   });
 
-  Membership.afterBulkCreate(memberships => {
+  Membership.afterBulkCreate((memberships) => {
     if (!memberships || !memberships.length) {
       return;
     }
 
     const { groupId } = memberships[0];
-    const playerIds = memberships.map(m => m.playerId);
+    const playerIds = memberships.map((m) => m.playerId);
 
     jobs.add('AddToGroupCompetitions', { groupId, playerIds });
   });
 
-  Membership.afterBulkDestroy(info => {
+  Membership.afterBulkDestroy((info) => {
     if (!info || !info.where) {
       return;
     }

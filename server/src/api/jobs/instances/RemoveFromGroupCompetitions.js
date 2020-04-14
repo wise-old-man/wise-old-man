@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { groupId, playerIds } = data;
     await competitionService.removeFromGroupCompetitions(groupId, playerIds);
-  }
+  },
 };

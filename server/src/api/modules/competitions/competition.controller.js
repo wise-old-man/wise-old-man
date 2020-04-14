@@ -98,7 +98,7 @@ async function updateAllParticipants(req, res, next) {
   try {
     const { id } = req.params;
 
-    const participants = await service.updateAllParticipants(id, player => {
+    const participants = await service.updateAllParticipants(id, (player) => {
       // Attempt this 5 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
     });

@@ -1,6 +1,6 @@
 import React from 'react';
-import Head from 'next/head';
 import PropTypes from 'prop-types';
+import Head from 'next/head';
 import Table from './components/Table';
 import Endpoint from './components/Endpoint';
 import NavBar from '../../components/NavBar';
@@ -59,6 +59,8 @@ function DocsPage({ config }) {
                     </div>
                   );
                 }
+
+                return null;
               })}
           </div>
 

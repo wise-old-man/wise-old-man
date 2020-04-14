@@ -23,7 +23,7 @@ async function syncRecords(playerId, period) {
   const delta = await deltaService.getDelta(playerId, period);
 
   await Promise.all(
-    SKILLS.map(async metric => {
+    SKILLS.map(async (metric) => {
       const [record] = await Record.findOrCreate({ where: { playerId, period, metric } });
       const newValue = delta.data[metric].experience.delta;
 
@@ -56,7 +56,7 @@ async function findAll(playerId, period, metric) {
   }
 
   const query = {
-    playerId
+    playerId,
   };
 
   if (period) {
@@ -69,7 +69,7 @@ async function findAll(playerId, period, metric) {
 
   const records = await Record.findAll({ where: query });
 
-  return records.map(r => format(r));
+  return records.map((r) => format(r));
 }
 
 /**
@@ -78,7 +78,7 @@ async function findAll(playerId, period, metric) {
  */
 async function getLeaderboard(metric, playerType) {
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    PERIODS.map(async (period) => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, records: list };
     })
@@ -86,7 +86,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of records, into an object, using the period as a key,
   // then include only the records array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.records);
+  return _.mapValues(_.keyBy(partials, 'period'), (p) => p.records);
 }
 
 /**
@@ -106,7 +106,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     where: { period, metric },
     order: [['value', 'DESC']],
     limit: 20,
-    include: [{ model: Player, where: playerType && { type: playerType } }]
+    include: [{ model: Player, where: playerType && { type: playerType } }],
   });
 
   const formattedRecords = records.map(({ player, value, updatedAt }) => ({
@@ -114,7 +114,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     username: player.username,
     type: player.type,
     value,
-    updatedAt
+    updatedAt,
   }));
 
   return formattedRecords;

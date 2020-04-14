@@ -7,7 +7,7 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       playerId: {
         type: Sequelize.INTEGER,
@@ -15,28 +15,28 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'players',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       period: {
         type: Sequelize.ENUM(PERIODS),
-        allowNull: false
+        allowNull: false,
       },
       metric: {
         type: Sequelize.ENUM(ALL_METRICS),
-        allowNull: false
+        allowNull: false,
       },
       value: {
         type: Sequelize.BIGINT,
-        defaultValue: 0
+        defaultValue: 0,
       },
       updatedAt: {
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable('records');
-  }
+  },
 };

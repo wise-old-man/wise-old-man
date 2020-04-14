@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { playerId } = data;
     await competitionService.syncParticipations(playerId);
-  }
+  },
 };

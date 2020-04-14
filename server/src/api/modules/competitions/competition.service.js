@@ -78,7 +78,7 @@ async function list(title, status, metric) {
 
   const competitions = await Competition.findAll({ where: query });
 
-  const formattedCompetitions = competitions.map(c => {
+  const formattedCompetitions = competitions.map((c) => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
   });
 
@@ -96,13 +96,13 @@ async function findForPlayer(playerId) {
   const participations = await Participation.findAll({
     where: { playerId },
     attributes: [],
-    include: [{ model: Competition }]
+    include: [{ model: Competition }],
   });
 
   const formattedCompetitions = participations.map(({ competition }) => {
     return {
       ...format(competition),
-      duration: durationBetween(competition.startsAt, competition.endsAt)
+      duration: durationBetween(competition.startsAt, competition.endsAt),
     };
   });
 
@@ -132,8 +132,8 @@ async function view(id) {
     include: [
       { model: Player },
       { model: Snapshot, as: 'startSnapshot' },
-      { model: Snapshot, as: 'endSnapshot' }
-    ]
+      { model: Snapshot, as: 'endSnapshot' },
+    ],
   });
 
   // Format the participants, and sort them (by descending delta)
@@ -149,13 +149,13 @@ async function view(id) {
         type: player.type,
         updatedAt: player.updatedAt,
         progress: { start, end, delta },
-        history: []
+        history: [],
       };
     })
     .sort((a, b) => b.progress.delta - a.progress.delta);
 
   // Select the top 10 players
-  const top10Ids = participants.slice(0, 10).map(p => p.id);
+  const top10Ids = participants.slice(0, 10).map((p) => p.id);
 
   // Select all snapshots for the top 10 players, created during the competition
   const raceSnapshots = await snapshotService.findAllBetween(
@@ -165,15 +165,15 @@ async function view(id) {
   );
 
   // Map the snapshots into a simpler format
-  const raceData = raceSnapshots.map(s => ({
+  const raceData = raceSnapshots.map((s) => ({
     createdAt: s.createdAt,
     playerId: s.playerId,
-    value: s[metricKey]
+    value: s[metricKey],
   }));
 
   // Add all "race data" to their respective players' history
-  raceData.forEach(d => {
-    const player = participants.find(p => p.id === d.playerId);
+  raceData.forEach((d) => {
+    const player = participants.find((p) => p.id === d.playerId);
     if (player) {
       player.history.push({ date: d.createdAt, value: d.value });
     }
@@ -183,7 +183,7 @@ async function view(id) {
   const totalGained =
     participants &&
     participants.length &&
-    participants.map(p => p.progress.delta).reduce((a, c) => a + c);
+    participants.map((p) => p.progress.delta).reduce((a, c) => a + c);
 
   return { ...format(competition), duration, totalGained, participants };
 }
@@ -225,7 +225,7 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     verificationHash,
     startsAt,
     endsAt,
-    groupId
+    groupId,
   });
 
   if (!groupId && !participants) {
@@ -310,7 +310,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   return {
     ...format(competition),
-    participants: participations.map(p => ({ ...p.toJSON(), participations: undefined }))
+    participants: participations.map((p) => ({ ...p.toJSON(), participations: undefined })),
   };
 }
 
@@ -354,11 +354,11 @@ async function setParticipants(competition, usernames) {
   }
 
   const existingParticipants = await competition.getParticipants();
-  const existingUsernames = existingParticipants.map(e => e.username);
+  const existingUsernames = existingParticipants.map((e) => e.username);
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  const usernamesToAdd = usernames.filter((u) => !existingUsernames.includes(u));
 
-  const playersToRemove = existingParticipants.filter(p => !usernames.includes(p.username));
+  const playersToRemove = existingParticipants.filter((p) => !usernames.includes(p.username));
   const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
 
   if (playersToRemove && playersToRemove.length > 0) {
@@ -370,7 +370,7 @@ async function setParticipants(competition, usernames) {
   }
 
   const participants = await competition.getParticipants();
-  return participants.map(p => ({ ...p.toJSON(), participations: undefined }));
+  return participants.map((p) => ({ ...p.toJSON(), participations: undefined }));
 }
 
 /**
@@ -389,7 +389,9 @@ async function addAllGroupMembers(competition, groupId) {
   const members = await groupService.getMembers(groupId);
 
   // Manually create participations for all these players
-  await Participation.bulkCreate(members.map(p => ({ competitionId: competition.id, playerId: p.id })));
+  await Participation.bulkCreate(
+    members.map((p) => ({ competitionId: competition.id, playerId: p.id }))
+  );
 
   // Update the "updatedAt" timestamp on the competition model
   await competition.changed('updatedAt', true);
@@ -427,12 +429,12 @@ async function addParticipants(id, verificationCode, usernames) {
   }
 
   // Find all existing participants
-  const existingIds = (await competition.getParticipants()).map(p => p.id);
+  const existingIds = (await competition.getParticipants()).map((p) => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(usernames);
 
-  const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
+  const newPlayers = players.filter((p) => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
     throw new BadRequestError('All players given are already competing.');
@@ -515,10 +517,10 @@ async function syncParticipations(playerId) {
         attributes: ['startsAt', 'endsAt'],
         where: {
           startsAt: { [Op.lt]: currentDate },
-          endsAt: { [Op.gte]: currentDate }
-        }
-      }
-    ]
+          endsAt: { [Op.gte]: currentDate },
+        },
+      },
+    ],
   });
 
   if (!participations || participations.length === 0) {
@@ -529,13 +531,13 @@ async function syncParticipations(playerId) {
   const latestSnapshot = await snapshotService.findLatest(playerId);
 
   await Promise.all(
-    participations.map(async participation => {
+    participations.map(async (participation) => {
       const { startsAt } = participation.competition;
       const startSnapshot = await snapshotService.findFirstSince(playerId, startsAt);
 
       await participation.update({
         startSnapshotId: startSnapshot.id,
-        endSnapshotId: latestSnapshot.id
+        endSnapshotId: latestSnapshot.id,
       });
 
       return participation;
@@ -574,15 +576,15 @@ async function addToGroupCompetitions(groupId, playerIds) {
     attributes: ['id'],
     where: {
       groupId,
-      endsAt: { [Op.gt]: new Date() }
-    }
+      endsAt: { [Op.gt]: new Date() },
+    },
   });
 
   const participations = [];
 
   // Build an array of all (supposed) participations
-  competitions.forEach(c => {
-    playerIds.forEach(playerId => {
+  competitions.forEach((c) => {
+    playerIds.forEach((playerId) => {
       participations.push({ playerId, competitionId: c.id });
     });
   });
@@ -604,10 +606,10 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
       attributes: ['id'],
       where: {
         groupId,
-        endsAt: { [Op.gt]: new Date() }
-      }
+        endsAt: { [Op.gt]: new Date() },
+      },
     })
-  ).map(c => c.id);
+  ).map((c) => c.id);
 
   await Participation.destroy({ where: { competitionId: competitionIds, playerId: playerIds } });
 }
@@ -653,7 +655,7 @@ async function updateAllParticipants(id, updateAction) {
   }
 
   // Execute the update action for every participant
-  participants.forEach(player => updateAction(player));
+  participants.forEach((player) => updateAction(player));
 
   // Update the "updatedAllAt" field in the competition instance
   await competition.update({ updatedAllAt: new Date() });

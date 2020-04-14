@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { playerId } = data;
     await achievementService.syncAchievements(playerId);
-  }
+  },
 };

@@ -3,28 +3,18 @@
     "browser": true,
     "es6": true
   },
-  "extends": ["plugin:react/recommended", "airbnb"],
-  "globals": {
-    "Atomics": "readonly",
-    "SharedArrayBuffer": "readonly"
-  },
-  "parser": "babel-eslint",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": 2018,
-    "sourceType": "module"
-  },
-  "plugins": ["react", "jsx-a11y", "import"],
+  "extends": ["airbnb", "prettier", "plugin:react/recommended"],
+  "plugins": ["react", "jsx-a11y", "import", "prettier"],
   "rules": {
     "arrow-parens": "off",
     "no-use-before-define": "off",
-    "import/prefer-default-export": "off",
-    "react/prop-types": [2, { "ignore": ["children"] }],
-    "jsx-a11y/control-has-associated-label": "off",
     "object-curly-newline": "off",
     "comma-dangle": [0],
-    "arrow-body-style": "off"
+    "arrow-body-style": "off",
+    "react/display-name": "off",
+    "react/prop-types": [2, { "ignore": ["children"] }],
+    "react/no-array-index-key": "warn",
+    "jsx-a11y/control-has-associated-label": "off",
+    "import/prefer-default-export": "off"
   }
 }

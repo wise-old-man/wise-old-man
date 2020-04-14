@@ -5,7 +5,6 @@
     "jest": true
   },
   "rules": {
-    "node/no-unpublished-require": 0,
     "no-use-before-define": "off",
     "prettier/prettier": "error",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "next" }],
@@ -14,12 +13,7 @@
     "no-process-exit": "off",
     "object-shorthand": "off",
     "class-methods-use-this": "off",
-    "node/no-unsupported-features/es-syntax": [
-      "error",
-      {
-        "version": ">=8.3.0",
-        "ignores": []
-      }
-    ]
+    "node/no-unpublished-require": 0,
+    "node/no-unsupported-features/es-syntax": ["error", { "version": ">=8.3.0", "ignores": [] }]
   }
 }

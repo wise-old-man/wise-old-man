@@ -46,7 +46,7 @@ async function view(id) {
   // Fetch all members
   const memberships = await Membership.findAll({
     where: { groupId: id },
-    include: [{ model: Player }]
+    include: [{ model: Player }],
   });
 
   // Format the members
@@ -126,7 +126,7 @@ async function edit(id, name, verificationCode, members) {
 
   return {
     ...format(group),
-    members: memberships.map(p => ({ ...p.toJSON(), memberships: undefined }))
+    members: memberships.map((p) => ({ ...p.toJSON(), memberships: undefined })),
   };
 }
 
@@ -167,11 +167,11 @@ async function setMembers(group, usernames) {
   }
 
   const existingMembers = await group.getMembers();
-  const existingUsernames = existingMembers.map(e => e.username);
+  const existingUsernames = existingMembers.map((e) => e.username);
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  const usernamesToAdd = usernames.filter((u) => !existingUsernames.includes(u));
 
-  const playersToRemove = existingMembers.filter(p => !usernames.includes(p.username));
+  const playersToRemove = existingMembers.filter((p) => !usernames.includes(p.username));
   const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
 
   if (playersToRemove && playersToRemove.length > 0) {
@@ -183,7 +183,7 @@ async function setMembers(group, usernames) {
   }
 
   const members = await group.getMembers();
-  return members.map(p => ({ ...p.toJSON(), memberships: undefined }));
+  return members.map((p) => ({ ...p.toJSON(), memberships: undefined }));
 }
 
 /**
@@ -211,12 +211,12 @@ async function addMembers(id, verificationCode, usernames) {
   }
 
   // Find all existing members
-  const existingIds = (await group.getMembers()).map(p => p.id);
+  const existingIds = (await group.getMembers()).map((p) => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(usernames);
 
-  const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
+  const newPlayers = players.filter((p) => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
     throw new BadRequestError('All players given are already members.');
@@ -309,10 +309,10 @@ async function changeRole(id, username, role, verificationCode) {
       {
         model: Player,
         where: {
-          username: playerService.formatUsername(username)
-        }
-      }
-    ]
+          username: playerService.formatUsername(username),
+        },
+      },
+    ],
   });
 
   if (!membership) {
@@ -345,7 +345,7 @@ async function getMembers(groupId) {
   // Fetch all members
   const memberships = await Membership.findAll({
     where: { groupId },
-    include: [{ model: Player }]
+    include: [{ model: Player }],
   });
 
   // Format the members

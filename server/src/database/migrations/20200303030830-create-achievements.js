@@ -8,21 +8,21 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'players',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       type: {
         type: Sequelize.STRING,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable('achievements');
-  }
+  },
 };

@@ -41,7 +41,7 @@ function App() {
       <div className="content">
         <Switch>
           <AppWrapper>
-            {ROUTES.map(route => (
+            {ROUTES.map((route) => (
               <Route key={route.path} exact path={route.path} component={route.component} />
             ))}
           </AppWrapper>

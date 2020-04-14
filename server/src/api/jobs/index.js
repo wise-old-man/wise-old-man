@@ -4,17 +4,17 @@ const redisConfig = require('./redis');
 const jobs = require('./instances');
 
 function setup() {
-  const queues = Object.values(jobs).map(job => ({
+  const queues = Object.values(jobs).map((job) => ({
     bull: new Queue(job.key, redisConfig),
     name: job.key,
     handle: job.handle,
     onFail: job.onFail,
-    onSuccess: job.onSuccess
+    onSuccess: job.onSuccess,
   }));
 
   // Supports cronjobs { repeat: { cron: "* * * * *" } }
   function add(name, data, options) {
-    const queue = queues.find(q => q.name === name);
+    const queue = queues.find((q) => q.name === name);
 
     if (!queue) {
       throw new Error(`No job found for name ${name}`);
@@ -33,10 +33,10 @@ function setup() {
   }
 
   function process() {
-    return queues.forEach(queue => {
+    return queues.forEach((queue) => {
       queue.bull.process(queue.handle);
 
-      queue.bull.on('completed', job => {
+      queue.bull.on('completed', (job) => {
         if (queue.onSuccess) {
           queue.onSuccess(job.data);
         }
@@ -57,7 +57,7 @@ function setup() {
     queues,
     add,
     process,
-    schedule
+    schedule,
   };
 }
 

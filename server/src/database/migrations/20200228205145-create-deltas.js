@@ -6,7 +6,7 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       playerId: {
         type: Sequelize.INTEGER,
@@ -14,34 +14,34 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'players',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       period: {
         type: Sequelize.ENUM(PERIODS),
-        allowNull: false
+        allowNull: false,
       },
       startSnapshotId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'snapshots',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       endSnapshotId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'snapshots',
-          key: 'id'
-        }
+          key: 'id',
+        },
       },
       updatedAt: {
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
 
-  down: queryInterface => {
+  down: (queryInterface) => {
     return queryInterface.dropTable('deltas');
-  }
+  },
 };

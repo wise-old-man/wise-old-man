@@ -17,5 +17,5 @@ module.exports = {
   SyncPlayerParticipations,
   SyncPlayerAchievements,
   AddToGroupCompetitions,
-  RemoveFromGroupCompetitions
+  RemoveFromGroupCompetitions,
 };

@@ -9,9 +9,9 @@ const snapshotService = require('../snapshots/snapshot.service');
 function getAchievements(snapshot) {
   const achievements = [];
 
-  ACHIEVEMENTS.forEach(a => {
+  ACHIEVEMENTS.forEach((a) => {
     if (a.name.includes('{skill}')) {
-      SKILLS.filter(s => s !== 'overall').forEach(skill => {
+      SKILLS.filter((s) => s !== 'overall').forEach((skill) => {
         if (a.validate(snapshot[`${skill}Experience`])) {
           achievements.push(a.name.replace('{skill}', skill));
         }
@@ -38,7 +38,7 @@ async function syncAchievements(playerId) {
   // If it's a new player, then the achievement date is unknown,
   // so set it as the min unix date for "unknown"
   const createdAt = snapshots.length <= 1 ? new Date(0) : new Date();
-  const newAchievements = getAchievements(snapshots[0]).map(type => ({ playerId, type, createdAt }));
+  const newAchievements = getAchievements(snapshots[0]).map((type) => ({ playerId, type, createdAt }));
 
   if (!newAchievements || !newAchievements.length) {
     return;
@@ -54,9 +54,9 @@ async function syncAchievements(playerId) {
 function getAchievementTypes() {
   const types = [];
 
-  ACHIEVEMENTS.forEach(a => {
+  ACHIEVEMENTS.forEach((a) => {
     if (a.name.includes('{skill}')) {
-      SKILLS.filter(s => s !== 'overall').forEach(skill => {
+      SKILLS.filter((s) => s !== 'overall').forEach((skill) => {
         types.push(a.name.replace('{skill}', skill));
       });
     } else {
@@ -75,23 +75,23 @@ function getAchievementTypes() {
  */
 async function findAll(playerId, includeMissing = false) {
   const achievements = await Achievement.findAll({
-    where: { playerId }
+    where: { playerId },
   });
 
   if (!includeMissing) {
     return achievements;
   }
 
-  const achievedTypes = achievements.map(a => a.type);
+  const achievedTypes = achievements.map((a) => a.type);
   const allTypes = getAchievementTypes();
 
   const missingAchievements = allTypes
-    .filter(t => !achievedTypes.includes(t))
-    .map(type => ({
+    .filter((t) => !achievedTypes.includes(t))
+    .map((type) => ({
       playerId: parseInt(playerId, 10),
       type,
       createdAt: null,
-      missing: true
+      missing: true,
     }));
 
   return [...achievements, ...missingAchievements];

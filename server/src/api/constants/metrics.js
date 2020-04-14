@@ -23,7 +23,7 @@ const metrics = {
     'farming',
     'runecrafting',
     'hunter',
-    'construction'
+    'construction',
   ],
   ACTIVITIES: [
     'league_points',
@@ -36,7 +36,7 @@ const metrics = {
     'clue_scroll_hard',
     'clue_scroll_elite',
     'clue_scroll_master',
-    'last_man_standing'
+    'last_man_standing',
   ],
   BOSSES: [
     'abyssal_sire',
@@ -82,11 +82,11 @@ const metrics = {
     'vorkath',
     'wintertodt',
     'zalcano',
-    'zulrah'
-  ]
+    'zulrah',
+  ],
 };
 
 module.exports = {
   ...metrics,
-  ALL_METRICS: [...metrics.SKILLS, ...metrics.ACTIVITIES, ...metrics.BOSSES]
+  ALL_METRICS: [...metrics.SKILLS, ...metrics.ACTIVITIES, ...metrics.BOSSES],
 };

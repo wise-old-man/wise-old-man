@@ -4,13 +4,13 @@ module.exports = (sequelize, DataTypes) => {
     playerId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
     },
     type: {
       type: DataTypes.STRING,
       primaryKey: true,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   };
 
   // Define other table options
@@ -19,25 +19,25 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['playerId', 'type']
+        fields: ['playerId', 'type'],
       },
       {
-        fields: ['playerId']
+        fields: ['playerId'],
       },
       {
-        fields: ['type']
-      }
-    ]
+        fields: ['type'],
+      },
+    ],
   };
 
   // Create the model
   const Achievement = sequelize.define('achievements', achievementSchema, options);
 
   // Define all model associations
-  Achievement.associate = models => {
+  Achievement.associate = (models) => {
     Achievement.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
     });
   };
 

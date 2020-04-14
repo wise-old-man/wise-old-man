@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     username: {
       type: DataTypes.STRING(20),
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         len: {
           args: [1, 12],
-          msg: 'Username must be between 1 and 12 characters long.'
+          msg: 'Username must be between 1 and 12 characters long.',
         },
         isValid(value) {
           if (value.startsWith(' ')) {
@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
           } else if (new RegExp(/[^A-Za-z0-9 ]/).test(value)) {
             throw new Error('Username cannot contain any special characters');
           }
-        }
-      }
+        },
+      },
     },
     type: {
       type: DataTypes.ENUM(PLAYER_TYPES),
@@ -35,13 +35,13 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [PLAYER_TYPES],
-          msg: 'Invalid player type.'
-        }
-      }
+          msg: 'Invalid player type.',
+        },
+      },
     },
     lastImportedAt: {
-      type: DataTypes.DATE
-    }
+      type: DataTypes.DATE,
+    },
   };
 
   // Define other table options
@@ -50,34 +50,34 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['id']
+        fields: ['id'],
       },
       {
         unique: true,
-        fields: ['username']
-      }
-    ]
+        fields: ['username'],
+      },
+    ],
   };
 
   // Create the model
   const Player = sequelize.define('players', playerSchema, options);
 
   // Define all model associations
-  Player.associate = models => {
+  Player.associate = (models) => {
     Player.belongsToMany(models.Competition, {
       as: 'participants',
       through: 'participations',
-      foreignKey: 'playerId'
+      foreignKey: 'playerId',
     });
 
     Player.belongsToMany(models.Group, {
       as: 'members',
       through: 'memberships',
-      foreignKey: 'playerId'
+      foreignKey: 'playerId',
     });
 
     Player.hasMany(models.Snapshot, {
-      foreignKey: 'playerId'
+      foreignKey: 'playerId',
     });
   };
 

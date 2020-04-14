@@ -5,7 +5,7 @@ const { resetDatabase } = require('../utils');
 
 const request = supertest(api);
 
-beforeAll(async done => {
+beforeAll(async (done) => {
   await resetDatabase();
 
   await Player.create({ id: 1000000, username: 'Test Player' });
@@ -16,7 +16,7 @@ beforeAll(async done => {
 
 describe('Player API', () => {
   describe('Tracking', () => {
-    test('Do not track valid username too soon', async done => {
+    test('Do not track valid username too soon', async (done) => {
       const response = await request.post('/api/players/track').send({ username: 'Test Player' });
 
       expect(response.status).toBe(400);
@@ -25,7 +25,7 @@ describe('Player API', () => {
       done();
     }, 90000);
 
-    test('Do not track undefined username', async done => {
+    test('Do not track undefined username', async (done) => {
       const response = await request.post('/api/players/track').send({});
 
       expect(response.status).toBe(400);
@@ -34,7 +34,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Do not track empty username', async done => {
+    test('Do not track empty username', async (done) => {
       const response = await request.post('/api/players/track').send({ username: '' });
 
       expect(response.status).toBe(400);
@@ -43,7 +43,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Do not track lengthy username', async done => {
+    test('Do not track lengthy username', async (done) => {
       const response = await request.post('/api/players/track').send({ username: 'ALongUsername' });
 
       expect(response.status).toBe(500);
@@ -52,7 +52,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Track valid username', async done => {
+    test('Track valid username', async (done) => {
       const response = await request.post('/api/players/track').send({ username: 'Psikoi' });
 
       if (response.status === 200) {
@@ -64,7 +64,7 @@ describe('Player API', () => {
       done();
     }, 90000);
 
-    test('Track unformatted username', async done => {
+    test('Track unformatted username', async (done) => {
       const response = await request.post('/api/players/track').send({ username: ' iron_mammal ' });
 
       if (response.status === 200) {
@@ -78,7 +78,7 @@ describe('Player API', () => {
   });
 
   describe('Importing', () => {
-    test('Do not import undefined username', async done => {
+    test('Do not import undefined username', async (done) => {
       const response = await request.post('/api/players/import').send({});
 
       expect(response.status).toBe(400);
@@ -87,7 +87,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Import existing username', async done => {
+    test('Import existing username', async (done) => {
       const response = await request.post('/api/players/import').send({ username: 'Test Player' });
 
       if (response.status === 200) {
@@ -101,7 +101,7 @@ describe('Player API', () => {
   });
 
   describe('Importing Too soon', () => {
-    test('Do not import existing username too soon', async done => {
+    test('Do not import existing username too soon', async (done) => {
       const firstResponse = await request.post('/api/players/import').send({ username: 'Test Player' });
 
       // If the first response is successful, the second should fail
@@ -117,7 +117,7 @@ describe('Player API', () => {
   });
 
   describe('Searching', () => {
-    test('Search with undefined username', async done => {
+    test('Search with undefined username', async (done) => {
       const response = await request.get('/api/players/search').query({});
 
       expect(response.status).toBe(400);
@@ -126,7 +126,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Search for valid partial username', async done => {
+    test('Search for valid partial username', async (done) => {
       const response = await request.get('/api/players/search').query({ username: 'tes' });
 
       expect(response.status).toBe(200);
@@ -136,7 +136,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('Search for non-existing valid partial username', async done => {
+    test('Search for non-existing valid partial username', async (done) => {
       const response = await request.get('/api/players/search').query({ username: 'something else' });
 
       expect(response.status).toBe(200);
@@ -147,7 +147,7 @@ describe('Player API', () => {
   });
 
   describe('Viewing', () => {
-    test('View undefined username and id', async done => {
+    test('View undefined username and id', async (done) => {
       const response = await request.get('/api/players').query({});
 
       expect(response.status).toBe(400);
@@ -156,7 +156,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('View non-existing id', async done => {
+    test('View non-existing id', async (done) => {
       const response = await request.get('/api/players').query({ id: 9999 });
 
       expect(response.status).toBe(400);
@@ -165,7 +165,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('View non-existing username', async done => {
+    test('View non-existing username', async (done) => {
       const response = await request.get('/api/players').query({ username: 'playerViewTest' });
 
       expect(response.status).toBe(400);
@@ -174,7 +174,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('View valid id', async done => {
+    test('View valid id', async (done) => {
       const response = await request.get('/api/players').query({ id: 1000000 });
 
       expect(response.status).toBe(200);
@@ -183,7 +183,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('View valid username', async done => {
+    test('View valid username', async (done) => {
       const response = await request.get('/api/players').query({ username: 'Test Player' });
 
       expect(response.status).toBe(200);
@@ -192,7 +192,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('View valid unformatted username', async done => {
+    test('View valid unformatted username', async (done) => {
       const response = await request.get('/api/players').query({ username: ' alt_player' });
 
       expect(response.status).toBe(200);

@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { player } = data;
     await playerService.importCML(player.username);
-  }
+  },
 };

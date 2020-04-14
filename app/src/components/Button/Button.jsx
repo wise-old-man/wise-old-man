@@ -48,7 +48,7 @@ Button.defaultProps = {
   url: undefined,
   onClick: undefined,
   disabled: false,
-  loading: false
+  loading: false,
 };
 
 Button.propTypes = {
@@ -74,7 +74,7 @@ Button.propTypes = {
   disabled: PropTypes.bool,
 
   // If true, the button will be disabled and present a loading icon and text
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
 };
 
 export default React.memo(Button);

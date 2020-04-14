@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Menu.scss';
 
@@ -65,5 +66,9 @@ function Menu({ selectedUrl }) {
     </div>
   );
 }
+
+Menu.propTypes = {
+  selectedUrl: PropTypes.string.isRequired,
+};
 
 export default Menu;

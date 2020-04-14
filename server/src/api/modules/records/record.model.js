@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     playerId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     period: {
       type: DataTypes.ENUM(PERIODS),
@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [PERIODS],
-          msg: 'Invalid period'
-        }
-      }
+          msg: 'Invalid period',
+        },
+      },
     },
     metric: {
       type: DataTypes.ENUM(ALL_METRICS),
@@ -29,14 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ALL_METRICS],
-          msg: 'Invalid metric'
-        }
-      }
+          msg: 'Invalid metric',
+        },
+      },
     },
     value: {
       type: DataTypes.BIGINT,
-      defaultValue: 0
-    }
+      defaultValue: 0,
+    },
   };
 
   // Define other table options
@@ -45,28 +45,28 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['id']
+        fields: ['id'],
       },
       {
-        fields: ['playerId']
+        fields: ['playerId'],
       },
       {
-        fields: ['period']
+        fields: ['period'],
       },
       {
-        fields: ['metric']
-      }
-    ]
+        fields: ['metric'],
+      },
+    ],
   };
 
   // Create the model
   const Record = sequelize.define('records', recordSchema, options);
 
   // Define all model associations
-  Record.associate = models => {
+  Record.associate = (models) => {
     Record.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
     });
   };
 

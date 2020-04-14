@@ -17,13 +17,13 @@ function format(snapshot) {
 
   const obj = {
     createdAt: snapshot.createdAt,
-    importedAt: snapshot.importedAt
+    importedAt: snapshot.importedAt,
   };
 
-  SKILLS.forEach(s => {
+  SKILLS.forEach((s) => {
     obj[s] = {
       rank: snapshot[`${s}Rank`],
-      experience: snapshot[`${s}Experience`]
+      experience: snapshot[`${s}Experience`],
     };
   });
 
@@ -41,7 +41,7 @@ async function findAll(playerId, limit) {
   const result = await Snapshot.findAll({
     where: { playerId },
     order: [['createdAt', 'DESC']],
-    limit
+    limit,
   });
 
   return result;
@@ -63,7 +63,7 @@ async function findAllGrouped(playerId) {
   }
 
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    PERIODS.map(async (period) => {
       const list = await findAllInPeriod(playerId, period);
       return { period, snapshots: list };
     })
@@ -71,7 +71,7 @@ async function findAllGrouped(playerId) {
 
   // Turn an array of snapshots, into an object, using the period as a key,
   // then include only the snapshots array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.snapshots);
+  return _.mapValues(_.keyBy(partials, 'period'), (p) => p.snapshots);
 }
 
 /**
@@ -86,19 +86,17 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const beforeDate = moment()
-    .subtract(1, period)
-    .toDate();
+  const beforeDate = moment().subtract(1, period).toDate();
 
   const result = await Snapshot.findAll({
     where: {
       playerId,
-      createdAt: { [Op.gte]: beforeDate }
+      createdAt: { [Op.gte]: beforeDate },
     },
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   });
 
-  return result.map(r => format(r));
+  return result.map((r) => format(r));
 }
 
 /**
@@ -107,7 +105,7 @@ async function findAllInPeriod(playerId, period) {
 async function findLatest(playerId) {
   const result = await Snapshot.findOne({
     where: { playerId },
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   });
   return result;
 }
@@ -121,13 +119,11 @@ async function findFirstIn(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}.`);
   }
 
-  const beforeDate = moment()
-    .subtract(1, period)
-    .toDate();
+  const beforeDate = moment().subtract(1, period).toDate();
 
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: beforeDate } },
-    order: [['createdAt', 'ASC']]
+    order: [['createdAt', 'ASC']],
   });
   return result;
 }
@@ -139,7 +135,7 @@ async function findFirstIn(playerId, period) {
 async function findFirstSince(playerId, date) {
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [['createdAt', 'ASC']]
+    order: [['createdAt', 'ASC']],
   });
   return result;
 }
@@ -153,9 +149,9 @@ async function findAllBetween(playerIds, startDate, endDate) {
   const results = await Snapshot.findAll({
     where: {
       playerId: playerIds,
-      createdAt: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] }
+      createdAt: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] },
     },
-    order: [['createdAt', 'ASC']]
+    order: [['createdAt', 'ASC']],
   });
   return results;
 }
@@ -167,7 +163,7 @@ async function findAllBetween(playerIds, startDate, endDate) {
 function diff(start, end) {
   const obj = {};
 
-  SKILLS.forEach(s => {
+  SKILLS.forEach((s) => {
     const rankKey = `${s}Rank`;
     const experienceKey = `${s}Experience`;
 
@@ -190,19 +186,19 @@ async function saveAll(snapshots) {
 
   const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
 
-  const existingVals = existingSnapshots.map(s =>
+  const existingVals = existingSnapshots.map((s) =>
     JSON.stringify({
       playerId: s.playerId,
-      timestamp: s.createdAt.getTime()
+      timestamp: s.createdAt.getTime(),
     })
   );
 
   const newVals = snapshots.filter(
-    s =>
+    (s) =>
       !existingVals.includes(
         JSON.stringify({
           playerId: s.playerId,
-          timestamp: s.createdAt.getTime()
+          timestamp: s.createdAt.getTime(),
         })
       )
   );
