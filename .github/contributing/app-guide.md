@@ -70,7 +70,7 @@ REACT_APP_API_BASE_URL=http://localhost:5000/api
 Alternatively, if you don't want to also develop the api simultaneously and are looking to just make some frontend changes, you can use the following snippet instead, to use the production api url:
 
 ```
-REACT_APP_API_BASE_URL=http://wiseoldman.net/api
+REACT_APP_API_BASE_URL=https://wiseoldman.net/api
 ```
 
 <br />
