@@ -2,7 +2,7 @@ name: Rebuild Images and Deploy
 
 on:
   push:
-    branches: [master, fix-analytics-id]
+    branches: [master]
 
 jobs:
   integration-test:
