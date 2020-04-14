@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
     },
     playerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false
     },
     period: {
       type: DataTypes.ENUM(PERIODS),
@@ -18,19 +18,19 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [PERIODS],
-          msg: 'Invalid period',
-        },
-      },
+          msg: 'Invalid period'
+        }
+      }
     },
     startSnapshotId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     endSnapshotId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     updatedAt: {
-      type: DataTypes.DATE,
-    },
+      type: DataTypes.DATE
+    }
   };
 
   // Define other table options
@@ -40,39 +40,39 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['id'],
+        fields: ['id']
       },
       {
-        fields: ['playerId'],
+        fields: ['playerId']
       },
       {
-        fields: ['period'],
+        fields: ['period']
       },
       {
-        fields: ['startSnapshotId'],
+        fields: ['startSnapshotId']
       },
       {
-        fields: ['endSnapshotId'],
-      },
-    ],
+        fields: ['endSnapshotId']
+      }
+    ]
   };
 
   // Create the model
   const Delta = sequelize.define('deltas', deltaSchema, options);
 
   // Define all model associations
-  Delta.associate = (models) => {
+  Delta.associate = models => {
     Delta.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
     Delta.belongsTo(models.Snapshot, {
       as: 'startSnapshot',
-      foreignKey: 'startSnapshotId',
+      foreignKey: 'startSnapshotId'
     });
     Delta.belongsTo(models.Snapshot, {
       as: 'endSnapshot',
-      foreignKey: 'endSnapshotId',
+      foreignKey: 'endSnapshotId'
     });
   };
 

@@ -5,12 +5,12 @@ module.exports = {
       onDelete: 'SET NULL',
       references: {
         model: 'groups',
-        key: 'id',
-      },
+        key: 'id'
+      }
     });
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.removeColumn('competitions', 'groupId');
-  },
+  }
 };

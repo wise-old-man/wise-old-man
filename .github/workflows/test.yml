@@ -1,4 +1,4 @@
-name: API Integration Testing
+name: Run tests
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   integration-test:
+    name: Integration Test (API)
     runs-on: ubuntu-latest
     strategy:
       matrix:

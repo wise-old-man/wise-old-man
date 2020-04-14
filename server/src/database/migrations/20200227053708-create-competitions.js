@@ -4,38 +4,38 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true,
+        autoIncrement: true
       },
       title: {
         type: Sequelize.STRING(30),
-        allowNull: false,
+        allowNull: false
       },
       metric: {
         type: Sequelize.STRING(100),
-        allowNull: false,
+        allowNull: false
       },
       verificationHash: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       startsAt: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       endsAt: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updatedAt: {
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.dropTable('competitions');
-  },
+  }
 };

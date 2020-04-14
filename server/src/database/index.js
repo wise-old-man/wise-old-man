@@ -13,11 +13,11 @@ const models = {
   Participation: sequelize.import(`../api/modules/competitions/participation.model`),
   Group: sequelize.import(`../api/modules/groups/group.model`),
   Membership: sequelize.import(`../api/modules/groups/membership.model`),
-  Achievement: sequelize.import(`../api/modules/achievements/achievement.model`),
+  Achievement: sequelize.import(`../api/modules/achievements/achievement.model`)
 };
 
 // Setup all model associations
-Object.keys(models).forEach((modelName) => {
+Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {
     models[modelName].associate(models);
   }

@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
     },
     title: {
       type: DataTypes.STRING(30),
@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         len: {
           args: [1, 30],
-          msg: 'Competition title must be between 1 and 30 characters long.',
-        },
-      },
+          msg: 'Competition title must be between 1 and 30 characters long.'
+        }
+      }
     },
     metric: {
       type: DataTypes.ENUM(ALL_METRICS),
@@ -24,17 +24,17 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ALL_METRICS],
-          msg: 'Invalid metric',
-        },
-      },
+          msg: 'Invalid metric'
+        }
+      }
     },
     verificationCode: {
       type: DataTypes.VIRTUAL,
-      allowNull: false,
+      allowNull: false
     },
     verificationHash: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     startsAt: {
       type: DataTypes.DATE,
@@ -42,9 +42,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isDate: {
           args: [true],
-          msg: 'Start date must be a valid date',
-        },
-      },
+          msg: 'Start date must be a valid date'
+        }
+      }
     },
     endsAt: {
       type: DataTypes.DATE,
@@ -52,20 +52,20 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isDate: {
           args: [true],
-          msg: 'End date must be a valid date',
-        },
-      },
+          msg: 'End date must be a valid date'
+        }
+      }
     },
     groupId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     updatedAllAt: {
       type: DataTypes.DATE,
       allowNull: true,
       validate: {
-        isDate: true,
-      },
-    },
+        isDate: true
+      }
+    }
   };
 
   // Define other table options
@@ -75,41 +75,41 @@ module.exports = (sequelize, DataTypes) => {
         if (this.startsAt - this.endsAt > 0) {
           throw new Error('Start date must be before the end date.');
         }
-      },
+      }
     },
     indexes: [
       {
         unique: true,
-        fields: ['id'],
+        fields: ['id']
       },
       {
-        fields: ['title'],
+        fields: ['title']
       },
       {
-        fields: ['metric'],
+        fields: ['metric']
       },
       {
-        fields: ['startsAt'],
+        fields: ['startsAt']
       },
       {
-        fields: ['endsAt'],
-      },
-    ],
+        fields: ['endsAt']
+      }
+    ]
   };
 
   // Create the model
   const Competition = sequelize.define('competitions', competitionSchema, options);
 
-  Competition.associate = (models) => {
+  Competition.associate = models => {
     Competition.belongsToMany(models.Player, {
       as: 'participants',
       through: 'participations',
-      foreignKey: 'competitionId',
+      foreignKey: 'competitionId'
     });
 
     Competition.belongsTo(models.Group, {
       foreignKey: 'groupId',
-      onDelete: 'SET NULL',
+      onDelete: 'SET NULL'
     });
   };
 

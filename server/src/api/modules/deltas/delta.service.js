@@ -23,11 +23,11 @@ function format(delta, diffs) {
     startsAt,
     endsAt,
     interval,
-    data: {},
+    data: {}
   };
 
   if (startSnapshot && endSnapshot && diffs) {
-    SKILLS.forEach((s) => {
+    SKILLS.forEach(s => {
       const rankKey = `${s}Rank`;
       const expKey = `${s}Experience`;
 
@@ -35,13 +35,13 @@ function format(delta, diffs) {
         rank: {
           start: startSnapshot[rankKey],
           end: endSnapshot[rankKey],
-          delta: diffs[rankKey],
+          delta: diffs[rankKey]
         },
         experience: {
           start: startSnapshot[expKey],
           end: endSnapshot[expKey],
-          delta: diffs[expKey],
-        },
+          delta: diffs[expKey]
+        }
       };
     });
   }
@@ -56,7 +56,7 @@ async function syncDeltas(playerId) {
   const latestSnapshot = await snapshotService.findLatest(playerId);
 
   await Promise.all(
-    PERIODS.map(async (period) => {
+    PERIODS.map(async period => {
       const start = await snapshotService.findFirstIn(playerId, period);
       const delta = await updateDelta(playerId, period, start, latestSnapshot);
 
@@ -71,7 +71,7 @@ async function updateDelta(playerId, period, startSnapshot, endSnapshot) {
   const newDelta = await delta.update({
     updatedAt: new Date(),
     startSnapshotId: startSnapshot.id,
-    endSnapshotId: endSnapshot.id,
+    endSnapshotId: endSnapshot.id
   });
 
   return newDelta;
@@ -96,8 +96,8 @@ async function getAllDeltas(playerId) {
     include: [
       { model: Snapshot, as: 'startSnapshot' },
       { model: Snapshot, as: 'endSnapshot' },
-      { model: Player },
-    ],
+      { model: Player }
+    ]
   });
 
   if (!deltas || deltas.length === 0) {
@@ -106,7 +106,7 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include the diffs and format the delta
-  return _.mapValues(_.keyBy(deltas, 'period'), (delta) =>
+  return _.mapValues(_.keyBy(deltas, 'period'), delta =>
     format(delta, snapshotService.diff(delta.startSnapshot, delta.endSnapshot))
   );
 }
@@ -128,8 +128,8 @@ async function getDelta(playerId, period) {
     include: [
       { model: Snapshot, as: 'startSnapshot' },
       { model: Snapshot, as: 'endSnapshot' },
-      { model: Player },
-    ],
+      { model: Player }
+    ]
   });
 
   if (!delta) {
@@ -147,7 +147,7 @@ async function getDelta(playerId, period) {
  */
 async function getLeaderboard(metric, playerType) {
   const partials = await Promise.all(
-    PERIODS.map(async (period) => {
+    PERIODS.map(async period => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, deltas: list };
     })
@@ -155,7 +155,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), (p) => p.deltas);
+  return _.mapValues(_.keyBy(partials, 'period'), p => p.deltas);
 }
 
 /**
@@ -180,16 +180,16 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const deltas = await Delta.findAll({
     where: { period },
     order: [
-      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC'],
+      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
     ],
     include: [
       { model: Player, where: playerType && { type: playerType } },
       { model: Snapshot, as: 'startSnapshot' },
-      { model: Snapshot, as: 'endSnapshot' },
-    ],
+      { model: Snapshot, as: 'endSnapshot' }
+    ]
   });
 
-  const formattedDeltas = deltas.map((delta) => {
+  const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
     const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
 
@@ -197,7 +197,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
       playerId: player.id,
       username: player.username,
       type: player.type,
-      gained,
+      gained
     };
   });
 

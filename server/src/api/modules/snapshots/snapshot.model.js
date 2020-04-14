@@ -3,7 +3,7 @@ const { SKILLS } = require('../../constants/metrics');
 function buildDynamicSchema(DataTypes) {
   const obj = {};
 
-  SKILLS.forEach((s) => {
+  SKILLS.forEach(s => {
     obj[`${s}Rank`] = DataTypes.INTEGER;
     obj[`${s}Experience`] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
   });
@@ -17,16 +17,16 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
+      autoIncrement: true
     },
     playerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false
     },
     importedAt: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE
     },
-    ...buildDynamicSchema(DataTypes),
+    ...buildDynamicSchema(DataTypes)
   };
 
   // Define other table options
@@ -35,25 +35,25 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['id'],
+        fields: ['id']
       },
       {
-        fields: ['playerId'],
+        fields: ['playerId']
       },
       {
-        fields: ['createdAt'],
-      },
-    ],
+        fields: ['createdAt']
+      }
+    ]
   };
 
   // Create the model
   const Snapshot = sequelize.define('snapshots', snapshotSchema, options);
 
   // Define all model associations
-  Snapshot.associate = (models) => {
+  Snapshot.associate = models => {
     Snapshot.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
   };
 

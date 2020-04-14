@@ -8,8 +8,8 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'players',
-          key: 'id',
-        },
+          key: 'id'
+        }
       },
       competitionId: {
         type: Sequelize.INTEGER,
@@ -18,25 +18,25 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'competitions',
-          key: 'id',
-        },
+          key: 'id'
+        }
       },
       startSnapshotId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       endSnapshotId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updatedAt: {
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.dropTable('participations');
-  },
+  }
 };

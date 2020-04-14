@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
   const membershipSchema = {
     playerId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      primaryKey: true
     },
     groupId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      primaryKey: true
     },
     role: {
       type: DataTypes.ENUM(ROLES),
@@ -18,10 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isIn: {
           args: [ROLES],
-          msg: 'Invalid role',
-        },
-      },
-    },
+          msg: 'Invalid role'
+        }
+      }
+    }
   };
 
   // Define other table options
@@ -29,22 +29,22 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['playerId', 'groupId'],
-      },
-    ],
+        fields: ['playerId', 'groupId']
+      }
+    ]
   };
 
   // Create the model
   const Membership = sequelize.define('memberships', membershipSchema, options);
 
-  Membership.associate = (models) => {
+  Membership.associate = models => {
     Membership.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
     Membership.belongsTo(models.Group, {
       foreignKey: 'groupId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
   };
 

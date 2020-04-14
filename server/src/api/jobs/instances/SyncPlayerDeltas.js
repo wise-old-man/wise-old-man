@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { playerId } = data;
     await deltaService.syncDeltas(playerId);
-  },
+  }
 };

@@ -10,8 +10,8 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'players',
-          key: 'id',
-        },
+          key: 'id'
+        }
       },
       groupId: {
         type: Sequelize.INTEGER,
@@ -20,23 +20,23 @@ module.exports = {
         onDelete: 'CASCADE',
         references: {
           model: 'groups',
-          key: 'id',
-        },
+          key: 'id'
+        }
       },
       role: {
         type: Sequelize.ENUM(ROLES),
-        allowNull: false,
+        allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updatedAt: {
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.dropTable('memberships');
-  },
+  }
 };

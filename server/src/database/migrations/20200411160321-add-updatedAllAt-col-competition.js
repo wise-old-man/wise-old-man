@@ -1,11 +1,11 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('competitions', 'updatedAllAt', {
-      type: Sequelize.DATE,
+      type: Sequelize.DATE
     });
   },
 
-  down: (queryInterface) => {
+  down: queryInterface => {
     return queryInterface.removeColumn('competitions', 'updatedAllAt');
-  },
+  }
 };

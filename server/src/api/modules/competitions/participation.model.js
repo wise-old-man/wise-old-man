@@ -3,18 +3,18 @@ module.exports = (sequelize, DataTypes) => {
   const participationSchema = {
     playerId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      primaryKey: true
     },
     competitionId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
+      primaryKey: true
     },
     startSnapshotId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
     endSnapshotId: {
-      type: DataTypes.INTEGER,
-    },
+      type: DataTypes.INTEGER
+    }
   };
 
   // Define other table options
@@ -22,36 +22,36 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['playerId', 'competitionId'],
+        fields: ['playerId', 'competitionId']
       },
       {
-        fields: ['startSnapshotId'],
+        fields: ['startSnapshotId']
       },
       {
-        fields: ['endSnapshotId'],
-      },
-    ],
+        fields: ['endSnapshotId']
+      }
+    ]
   };
 
   // Create the model
   const Participation = sequelize.define('participations', participationSchema, options);
 
-  Participation.associate = (models) => {
+  Participation.associate = models => {
     Participation.belongsTo(models.Player, {
       foreignKey: 'playerId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
     Participation.belongsTo(models.Competition, {
       foreignKey: 'competitionId',
-      onDelete: 'CASCADE',
+      onDelete: 'CASCADE'
     });
     Participation.belongsTo(models.Snapshot, {
       as: 'startSnapshot',
-      foreignKey: 'startSnapshotId',
+      foreignKey: 'startSnapshotId'
     });
     Participation.belongsTo(models.Snapshot, {
       as: 'endSnapshot',
-      foreignKey: 'endSnapshotId',
+      foreignKey: 'endSnapshotId'
     });
   };
 

@@ -23,7 +23,7 @@ function formatUsername(username) {
     .trim()
     .toLowerCase()
     .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
@@ -68,7 +68,7 @@ async function getData(username) {
   }
 
   const player = await Player.findOne({
-    where: { username: { [Op.like]: `${formatUsername(username)}` } },
+    where: { username: { [Op.like]: `${formatUsername(username)}` } }
   });
 
   if (!player) {
@@ -110,10 +110,10 @@ async function search(username) {
   const players = await Player.findAll({
     where: {
       username: {
-        [Op.like]: `${formatUsername(username)}%`,
-      },
+        [Op.like]: `${formatUsername(username)}%`
+      }
     },
-    limit: 20,
+    limit: 20
   });
 
   return players;
@@ -215,7 +215,7 @@ async function importCMLSince(id, username, time) {
   const history = await getCMLHistory(username, time);
 
   // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map((row) => snapshotService.fromCML(id, row)));
+  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
 
   // Save new snapshots to db
   const savedSnapshots = await snapshotService.saveAll(snapshots);
@@ -295,12 +295,12 @@ async function find(username) {
 }
 
 async function findAllOrCreate(usernames) {
-  const promises = await Promise.all(usernames.map((username) => findOrCreate(username)));
-  return promises.map((p) => p[0]);
+  const promises = await Promise.all(usernames.map(username => findOrCreate(username)));
+  return promises.map(p => p[0]);
 }
 
 async function findAll(usernames) {
-  const promises = await Promise.all(usernames.map((username) => find(username)));
+  const promises = await Promise.all(usernames.map(username => find(username)));
 
   if (!promises || !promises.length) {
     return [];
@@ -325,7 +325,7 @@ async function getCMLHistory(username, time) {
     }
 
     // Separate the data into rows and filter invalid ones
-    return data.split('\n').filter((r) => r.length);
+    return data.split('\n').filter(r => r.length);
   } catch (e) {
     throw new ServerError('Failed to load history from CML.');
   }

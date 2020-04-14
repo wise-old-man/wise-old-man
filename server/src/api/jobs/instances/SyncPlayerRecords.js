@@ -5,5 +5,5 @@ module.exports = {
   async handle({ data }) {
     const { playerId, period } = data;
     await recordService.syncRecords(playerId, period);
-  },
+  }
 };

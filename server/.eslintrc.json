@@ -5,6 +5,7 @@
     "jest": true
   },
   "rules": {
+    "arrow-parens": "off",
     "no-use-before-define": "off",
     "prettier/prettier": "error",
     "no-unused-vars": ["warn", { "argsIgnorePattern": "next" }],

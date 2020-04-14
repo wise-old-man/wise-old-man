@@ -9,5 +9,5 @@ module.exports = {
   storage: process.env.DB_STORAGE,
   logging: false,
   pool: { max: 5, min: 0, acquire: 20000, idle: 10000 },
-  retry: { max: 10 },
+  retry: { max: 10 }
 };
