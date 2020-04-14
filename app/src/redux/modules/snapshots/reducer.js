@@ -4,7 +4,7 @@ export const FETCH_SNAPSHOTS_FAILURE = 'wise-old-man/snapshots/FETCH_SNAPSHOTS_F
 
 const initialState = {
   isFetchingSnapshots: false,
-  snapshots: {}
+  snapshots: {},
 };
 
 export default function snapshotsReducer(state = initialState, action) {
@@ -16,7 +16,7 @@ export default function snapshotsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingSnapshots: false,
-        snapshots: { ...state.snapshots, [action.playerId]: action.snapshotData }
+        snapshots: { ...state.snapshots, [action.playerId]: action.snapshotData },
       };
 
     case FETCH_SNAPSHOTS_FAILURE:

@@ -13,38 +13,38 @@ import PlayerSearchPage from '../pages/PlayerSearch';
 export const ROUTES = [
   {
     path: '/',
-    component: HomePage
+    component: HomePage,
   },
   {
     path: '/top',
-    component: TopPage
+    component: TopPage,
   },
   {
     path: '/records',
-    component: RecordsPage
+    component: RecordsPage,
   },
   {
     path: '/competitions',
-    component: CompetitionsListPage
+    component: CompetitionsListPage,
   },
   {
     path: '/competitions/create',
-    component: CreateCompetitionPage
+    component: CreateCompetitionPage,
   },
   {
     path: '/competitions/:id/edit',
-    component: EditCompetitionPage
+    component: EditCompetitionPage,
   },
   {
     path: '/competitions/:id',
-    component: CompetitionPage
+    component: CompetitionPage,
   },
   {
     path: '/players/:id',
-    component: PlayerPage
+    component: PlayerPage,
   },
   {
     path: '/players/search/:username',
-    component: PlayerSearchPage
-  }
+    component: PlayerSearchPage,
+  },
 ];

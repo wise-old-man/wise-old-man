@@ -13,6 +13,4 @@ export const getDeltasMap = createSelector(deltasSelector, map => map);
 
 export const getDeltas = createSelector(deltasSelector, map => Object.values(map));
 
-export const getPlayerDeltas = (state, playerId) => {
-  return getDeltasMap(state)[playerId];
-};
+export const getPlayerDeltas = (state, playerId) => getDeltasMap(state)[playerId];

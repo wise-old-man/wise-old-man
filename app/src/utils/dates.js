@@ -26,7 +26,7 @@ export function durationOf(diff) {
     days,
     hours,
     minutes,
-    seconds
+    seconds,
   };
 }
 
@@ -35,7 +35,9 @@ export function durationBetween(startDate, endDate, maxDepth = 10, shortNames = 
     return null;
   }
 
-  const { days, hours, minutes, seconds } = durationOf(endDate - startDate);
+  const {
+    days, hours, minutes, seconds,
+  } = durationOf(endDate - startDate);
   const periods = [];
 
   if (days > 0 && periods.length < maxDepth) {

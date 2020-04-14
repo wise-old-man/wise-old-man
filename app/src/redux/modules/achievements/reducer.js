@@ -4,7 +4,7 @@ export const FETCH_ACHIEVEMENTS_FAILURE = 'wise-old-man/deltas/FETCH_ACHIEVEMENT
 
 const initialState = {
   isFetchingAchievements: false,
-  achievements: {}
+  achievements: {},
 };
 
 export default function achievementsReducer(state = initialState, action) {
@@ -16,7 +16,7 @@ export default function achievementsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingAchievements: false,
-        achievements: { ...state.achievements, [action.playerId]: action.achievements }
+        achievements: { ...state.achievements, [action.playerId]: action.achievements },
       };
 
     case FETCH_ACHIEVEMENTS_FAILURE:

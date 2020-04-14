@@ -4,10 +4,10 @@ const notificationSelector = state => state.notifications;
 
 export const isVisible = createSelector(
   notificationSelector,
-  notifications => notifications.isVisible
+  notifications => notifications.isVisible,
 );
 
 export const getNotification = createSelector(
   notificationSelector,
-  notifications => notifications.current
+  notifications => notifications.current,
 );

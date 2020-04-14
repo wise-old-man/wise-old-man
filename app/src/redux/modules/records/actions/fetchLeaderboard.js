@@ -1,10 +1,6 @@
 import axios from 'axios';
 import { BASE_API_URL } from '../../../../config';
-import {
-  FETCH_LEADERBOARD_REQUEST,
-  FETCH_LEADERBOARD_SUCCESS,
-  FETCH_LEADERBOARD_FAILURE
-} from '../reducer';
+import { FETCH_LEADERBOARD_REQUEST, FETCH_LEADERBOARD_SUCCESS, FETCH_LEADERBOARD_FAILURE } from '../reducer';
 
 function fetchLeaderboardRequest() {
   return {

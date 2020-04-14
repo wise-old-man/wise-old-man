@@ -3,12 +3,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   FETCH_PLAYER_DELTAS_REQUEST,
   FETCH_PLAYER_DELTAS_SUCCESS,
-  FETCH_PLAYER_DELTAS_FAILURE
+  FETCH_PLAYER_DELTAS_FAILURE,
 } from '../reducer';
 
 function fetchPlayerDeltasRequest() {
   return {
-    type: FETCH_PLAYER_DELTAS_REQUEST
+    type: FETCH_PLAYER_DELTAS_REQUEST,
   };
 }
 
@@ -16,14 +16,14 @@ function fetchPlayerDeltasSuccess(playerId, data) {
   return {
     type: FETCH_PLAYER_DELTAS_SUCCESS,
     playerId,
-    deltas: data
+    deltas: data,
   };
 }
 
 function fetchPlayerDeltasFailure(error) {
   return {
     type: FETCH_PLAYER_DELTAS_FAILURE,
-    error
+    error,
   };
 }
 

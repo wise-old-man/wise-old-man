@@ -39,7 +39,7 @@ const initialState = {
   isFetchingPlayerCompetitions: false,
   isFetchingDetails: false,
   competitions: {},
-  playerCompetitions: {}
+  playerCompetitions: {},
 };
 
 export default function competitionsReducer(state = initialState, action) {
@@ -56,7 +56,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isCreating: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) }
+        competitions: { ...replaceDetails(state.competitions, action.competition) },
       };
 
     case CREATE_COMPETITION_FAILURE:
@@ -69,7 +69,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isEditing: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) }
+        competitions: { ...replaceDetails(state.competitions, action.competition) },
       };
 
     case EDIT_COMPETITION_FAILURE:
@@ -82,7 +82,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isDeleting: false,
-        competitions: { ..._.omit(state.competitions, action.competitionId) }
+        competitions: { ..._.omit(state.competitions, action.competitionId) },
       };
 
     case DELETE_COMPETITION_FAILURE:
@@ -95,7 +95,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingAll: false,
-        competitions: { ...toMap(action.competitions, 'id') }
+        competitions: { ...toMap(action.competitions, 'id') },
       };
 
     case FETCH_COMPETITIONS_FAILURE:
@@ -108,7 +108,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingDetails: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) }
+        competitions: { ...replaceDetails(state.competitions, action.competition) },
       };
 
     case FETCH_COMPETITION_FAILURE:
@@ -122,7 +122,7 @@ export default function competitionsReducer(state = initialState, action) {
         ...state,
         isFetchingPlayerCompetitions: false,
         competitions: { ...toMap(action.competitions, 'id') },
-        playerCompetitions: { ...state.playerCompetitions, [action.playerId]: action.competitions }
+        playerCompetitions: { ...state.playerCompetitions, [action.playerId]: action.competitions },
       };
 
     case FETCH_PLAYER_COMPETITIONS_FAILURE:
@@ -153,8 +153,8 @@ function playerUpdated(competitions, username) {
       ...c,
       participants: c.participants.map(p => ({
         ...p,
-        updatedAt: p.username === username ? new Date() : p.updatedAt
-      }))
+        updatedAt: p.username === username ? new Date() : p.updatedAt,
+      })),
     };
   });
 

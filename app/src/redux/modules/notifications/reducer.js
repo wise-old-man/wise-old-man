@@ -4,14 +4,14 @@ export const HIDE_NOTIFICATION = 'wise-old-man/notifications/HIDE';
 const emptyNotification = {
   text: '',
   type: 'warn',
-  duration: 0
+  duration: 0,
 };
 
 const initialState = {
   isVisible: false,
   current: {
-    ...emptyNotification
-  }
+    ...emptyNotification,
+  },
 };
 
 export default function notificationsReducer(state = initialState, action) {

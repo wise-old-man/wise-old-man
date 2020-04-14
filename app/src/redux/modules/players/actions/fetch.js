@@ -4,21 +4,21 @@ import { FETCH_PLAYER_REQUEST, FETCH_PLAYER_SUCCESS, FETCH_PLAYER_FAILURE } from
 
 function fetchPlayerRequest() {
   return {
-    type: FETCH_PLAYER_REQUEST
+    type: FETCH_PLAYER_REQUEST,
   };
 }
 
 function fetchPlayerSuccess(data) {
   return {
     type: FETCH_PLAYER_SUCCESS,
-    player: data
+    player: data,
   };
 }
 
 function fetchPlayerFailure(error) {
   return {
     type: FETCH_PLAYER_FAILURE,
-    error
+    error,
   };
 }
 

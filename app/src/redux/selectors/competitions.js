@@ -7,9 +7,7 @@ const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;
 const playerCompetitionsSelector = state => state.competitions.playerCompetitions;
 
-export const isFetchingAll = createSelector(rootSelector, root => {
-  return root.isFetchingAll;
-});
+export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 
 export const getCompetitionsMap = createSelector(competitionsSelector, map => {
   return _.mapValues(map, comp => formatCompetition(comp));
@@ -23,13 +21,9 @@ export const getCompetitions = createSelector(competitionsSelector, map => {
   return Object.values(map).map(c => formatCompetition(c));
 });
 
-export const getCompetition = (state, id) => {
-  return getCompetitionsMap(state)[id];
-};
+export const getCompetition = (state, id) => getCompetitionsMap(state)[id];
 
-export const getPlayerCompetitions = (state, playerId) => {
-  return getPlayerCompetitionsMap(state)[playerId];
-};
+export const getPlayerCompetitions = (state, playerId) => getPlayerCompetitionsMap(state)[playerId];
 
 export const getChartData = (state, id) => {
   const comp = getCompetition(state, id);

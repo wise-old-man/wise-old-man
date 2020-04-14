@@ -9,9 +9,7 @@ export const getSnapshotsMap = createSelector(snapshotsSelector, map => map);
 
 export const getSnapshots = createSelector(snapshotsSelector, map => Object.values(map));
 
-export const getPlayerSnapshots = (state, playerId) => {
-  return getSnapshotsMap(state)[playerId];
-};
+export const getPlayerSnapshots = (state, playerId) => getSnapshotsMap(state)[playerId];
 
 export const getChartData = (state, playerId, period, skill, metric) => {
   const snapshotsData = getPlayerSnapshots(state, playerId);
@@ -23,9 +21,9 @@ export const getChartData = (state, playerId, period, skill, metric) => {
   const data = _.uniqBy(
     snapshotsData[period].map(s => ({
       x: s.createdAt,
-      y: s[skill][metric]
+      y: s[skill][metric],
     })),
-    'y'
+    'y',
   );
 
   return [
@@ -34,7 +32,7 @@ export const getChartData = (state, playerId, period, skill, metric) => {
       pointBorderWidth: 4,
       label: capitalize(metric),
       data,
-      fill: false
-    }
+      fill: false,
+    },
   ];
 };

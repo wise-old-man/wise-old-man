@@ -3,26 +3,26 @@ import { BASE_API_URL } from '../../../../config';
 import {
   FETCH_COMPETITION_REQUEST,
   FETCH_COMPETITION_SUCCESS,
-  FETCH_COMPETITION_FAILURE
+  FETCH_COMPETITION_FAILURE,
 } from '../reducer';
 
 function fetchCompetitionRequest() {
   return {
-    type: FETCH_COMPETITION_REQUEST
+    type: FETCH_COMPETITION_REQUEST,
   };
 }
 
 function fetchCompetitionSuccess(data) {
   return {
     type: FETCH_COMPETITION_SUCCESS,
-    competition: data
+    competition: data,
   };
 }
 
 function fetchCompetitionFailure(error) {
   return {
     type: FETCH_COMPETITION_FAILURE,
-    error
+    error,
   };
 }
 

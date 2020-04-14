@@ -4,12 +4,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   UPDATE_PARTICIPANTS_REQUEST,
   UPDATE_PARTICIPANTS_SUCCESS,
-  UPDATE_PARTICIPANTS_FAILURE
+  UPDATE_PARTICIPANTS_FAILURE,
 } from '../reducer';
 
 function updateParticipantsRequest() {
   return {
-    type: UPDATE_PARTICIPANTS_REQUEST
+    type: UPDATE_PARTICIPANTS_REQUEST,
   };
 }
 
@@ -17,19 +17,19 @@ function updateParticipantsSuccess(competitionId, data) {
   Analytics.event({
     category: 'Competition',
     action: 'Updated all competition participants',
-    value: competitionId
+    value: competitionId,
   });
 
   return {
     type: UPDATE_PARTICIPANTS_SUCCESS,
-    message: data.message
+    message: data.message,
   };
 }
 
 function updateParticipantsFailure(error) {
   return {
     type: UPDATE_PARTICIPANTS_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
   };
 }
 

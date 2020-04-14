@@ -3,12 +3,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   FETCH_ACHIEVEMENTS_REQUEST,
   FETCH_ACHIEVEMENTS_SUCCESS,
-  FETCH_ACHIEVEMENTS_FAILURE
+  FETCH_ACHIEVEMENTS_FAILURE,
 } from '../reducer';
 
 function fetchAchievementsRequest() {
   return {
-    type: FETCH_ACHIEVEMENTS_REQUEST
+    type: FETCH_ACHIEVEMENTS_REQUEST,
   };
 }
 
@@ -16,14 +16,14 @@ function fetchAchievementsSuccess(playerId, data) {
   return {
     type: FETCH_ACHIEVEMENTS_SUCCESS,
     playerId,
-    achievements: data
+    achievements: data,
   };
 }
 
 function fetchAchievementsFailure(error) {
   return {
     type: FETCH_ACHIEVEMENTS_FAILURE,
-    error
+    error,
   };
 }
 

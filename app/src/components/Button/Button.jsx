@@ -2,8 +2,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import './Button.scss';
 import { useHistory } from 'react-router-dom';
+import './Button.scss';
 
 function Button({ text, className, icon, type, url, onClick, disabled, loading }) {
   const router = useHistory();
