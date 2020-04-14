@@ -14,7 +14,7 @@ function DocsPage({ config }) {
         <title>{`${config.title} API Docs - Wise Old Man`}</title>
         <meta
           property="og:description"
-          content={`${config.title} api documentation - Open source Oldschool Runescape player progres tracker.`}
+          content={`${config.title} api documentation - Open source Old School Runescape player progres tracker.`}
         />
       </Head>
       <NavBar />
@@ -100,7 +100,7 @@ function DocsPage({ config }) {
 }
 
 DocsPage.propTypes = {
-  config: PropTypes.shape().isRequired,
+  config: PropTypes.shape().isRequired
 };
 
 export default DocsPage;
