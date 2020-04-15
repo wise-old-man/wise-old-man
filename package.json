@@ -4,7 +4,6 @@
   "description": "The Open Source Old School Runescape progress tracker.",
   "main": "index.js",
   "scripts": {
-    "dev": "docker-compose up -d --build && cd app && npm start",
     "dev:server": "docker-compose up --build"
   },
   "keywords": [

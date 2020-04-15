@@ -23,7 +23,7 @@ function format(group) {
  */
 async function list(name) {
   const query = name && { name: { [Op.like]: `%${sanitizeName(name)}%` } };
-  const groups = await Group.findAll({ where: query });
+  const groups = await Group.findAll({ where: query, limit: 20 });
 
   return groups.map(format);
 }
