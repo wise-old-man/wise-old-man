@@ -182,6 +182,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     order: [
       [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
     ],
+    limit: 20,
     include: [
       { model: Player, where: playerType && { type: playerType } },
       { model: Snapshot, as: 'startSnapshot' },

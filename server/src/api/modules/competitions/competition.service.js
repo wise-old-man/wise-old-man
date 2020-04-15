@@ -76,7 +76,7 @@ async function list(title, status, metric) {
     }
   }
 
-  const competitions = await Competition.findAll({ where: query });
+  const competitions = await Competition.findAll({ where: query, limit: 20 });
 
   const formattedCompetitions = competitions.map(c => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
