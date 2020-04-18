@@ -195,6 +195,14 @@ async function view(id) {
  * the group's members, and the "participants" argument will be ignored.
  */
 async function create(title, metric, startsAt, endsAt, groupId, participants) {
+  if (!title) {
+    throw new BadRequestError('Invalid competition title.');
+  }
+
+  if (!metric) {
+    throw new BadRequestError('Invalid competition metric.');
+  }
+
   if (!startsAt || !isValidDate(startsAt)) {
     throw new BadRequestError('Invalid start date.');
   }
@@ -478,7 +486,7 @@ async function removeParticipants(id, verificationCode, usernames) {
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid players were given. (Untracked)');
+    throw new BadRequestError('No valid untracked players were given.');
   }
 
   // Remove all specific players, and return the removed count

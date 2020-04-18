@@ -89,21 +89,22 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  if (!name) {
-    throw new BadRequestError('Invalid group name.');
-  }
-
   if (!verificationCode) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  const sanitizedName = sanitizeName(name);
+  if (!name && !members) {
+    throw new BadRequestError('You must either include a new name or a new member list.');
+  }
 
-  const matchingGroup = await Group.findOne({ where: { name: sanitizedName } });
+  if (name) {
+    const sanitizedName = sanitizeName(name);
+    const matchingGroup = await Group.findOne({ where: { name: sanitizedName } });
 
-  // If attempting to change to some other group's name.
-  if (matchingGroup && matchingGroup.id !== parseInt(id, 10)) {
-    throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
+    // If attempting to change to some other group's name.
+    if (matchingGroup && matchingGroup.id !== parseInt(id, 10)) {
+      throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
+    }
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -118,7 +119,9 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  await group.update({ name: sanitizedName });
+  if (name) {
+    await group.update({ name: sanitizeName(name) });
+  }
 
   if (members) {
     const newMembers = await setMembers(group, members);
@@ -200,7 +203,7 @@ async function setMembers(group, usernames) {
  */
 async function addMembers(id, verificationCode, usernames) {
   if (!id) {
-    throw new BadRequestError('Invalid competition id.');
+    throw new BadRequestError('Invalid group id.');
   }
 
   if (!verificationCode) {
@@ -208,7 +211,7 @@ async function addMembers(id, verificationCode, usernames) {
   }
 
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid members list (empty).');
+    throw new BadRequestError('Invalid members list.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -337,17 +340,13 @@ async function changeRole(id, username, role, verificationCode) {
   });
 
   if (!membership) {
-    throw new BadRequestError(`${username} is not a member of ${group.name}.`);
+    throw new BadRequestError(`'${username}' is not a member of ${group.name}.`);
   }
 
   const oldRole = membership.role;
 
-  if (!membership) {
-    throw new BadRequestError(`${username} is not in group '${group.name}'`);
-  }
-
   if (membership.role === role) {
-    throw new BadRequestError(`${username} already has the role of ${role}.`);
+    throw new BadRequestError(`'${username}' already has the role of ${role}.`);
   }
 
   await membership.update({ role });

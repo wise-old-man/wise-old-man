@@ -8,30 +8,30 @@ export default [
         type: 'warning',
         content:
           'If a "playerId" query param is given, this will only return competitions of which \
-          that player is a participant and will ignore every other query parameter.',
-      },
+          that player is a participant and will ignore every other query parameter.'
+      }
     ],
     query: [
       {
         field: 'title',
         type: 'string',
-        description: 'A partial title match. - Optional',
+        description: 'A partial title match. - Optional'
       },
       {
         field: 'metric',
         type: 'string',
-        description: 'The metric to filter the list by. (See accepted values above) - Optional',
+        description: 'The metric to filter the list by. (See accepted values above) - Optional'
       },
       {
         field: 'status',
         type: 'string',
-        description: 'The status to filter the list by. (See accepted values above) - Optional',
+        description: 'The status to filter the list by. (See accepted values above) - Optional'
       },
       {
         field: 'playerId',
         type: 'string',
-        description: 'The playerId to filter the list by. (See comment above) - Optional',
-      },
+        description: 'The playerId to filter the list by. (See comment above) - Optional'
+      }
     ],
     successResponses: [
       {
@@ -46,25 +46,25 @@ export default [
             groupId: null,
             createdAt: '2020-04-03T23:00:27.184Z',
             updatedAt: '2020-04-03T23:48:03.502Z',
-            duration: '27 days',
-          },
-        ],
-      },
+            duration: '27 days'
+          }
+        ]
+      }
     ],
     errorResponses: [
       {
         description: 'If status is given but is not valid.',
         body: {
-          message: 'Invalid status.',
-        },
+          message: 'Invalid status.'
+        }
       },
       {
         description: 'If metric is given but is not valid.',
         body: {
-          message: 'Invalid metric.',
-        },
-      },
-    ],
+          message: 'Invalid metric.'
+        }
+      }
+    ]
   },
   {
     title: 'View competition',
@@ -74,8 +74,8 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     successResponses: [
       {
@@ -100,49 +100,49 @@ export default [
               progress: {
                 start: 5481946,
                 end: 5505921,
-                delta: 23975,
+                delta: 23975
               },
               history: [
                 {
                   date: '2020-03-22T19:56:09.000Z',
-                  value: 5481946,
+                  value: 5481946
                 },
                 {
                   date: '2020-04-03T23:58:28.554Z',
-                  value: 5492446,
+                  value: 5492446
                 },
                 {
                   date: '2020-04-04T00:35:51.715Z',
-                  value: 5494371,
+                  value: 5494371
                 },
                 {
                   date: '2020-04-04T16:04:46.000Z',
-                  value: 5498396,
+                  value: 5498396
                 },
                 {
                   date: '2020-04-04T22:35:31.463Z',
-                  value: 5505921,
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  value: 5505921
+                }
+              ]
+            }
+          ]
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid competition id.',
-        },
+          message: 'Invalid competition id.'
+        }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Competition of id 4553 was not found.',
-        },
-      },
-    ],
+          message: 'Competition of id 4553 was not found.'
+        }
+      }
+    ]
   },
   {
     title: 'Create competition',
@@ -153,15 +153,15 @@ export default [
         type: 'error',
         content:
           'The response will contain a "verificationCode", this code must be stored \
-          as it is not possible to edit or delete the competition at a later date without it.',
-      },
+          as it is not possible to edit or delete the competition at a later date without it.'
+      }
     ],
     body: {
       title: 'SOTW 52 - Fishing',
       metric: 'fishing',
       startsAt: '2020-05-20T19:00:00.000Z',
       endsAt: '2020-05-27T19:00:00.000Z',
-      participants: ['Zezima', 'Psikoi'],
+      participants: ['Zezima', 'Psikoi']
     },
     successResponses: [
       {
@@ -182,7 +182,7 @@ export default [
               type: 'regular',
               lastImportedAt: '2020-03-27T21:56:50.000Z',
               registeredAt: '2020-03-13T23:29:57.000Z',
-              updatedAt: '2020-03-27T21:56:50.000Z',
+              updatedAt: '2020-03-27T21:56:50.000Z'
             },
             {
               id: 45,
@@ -190,26 +190,38 @@ export default [
               type: 'regular',
               lastImportedAt: '2020-03-15T02:21:49.000Z',
               registeredAt: '2020-03-15T02:21:46.000Z',
-              updatedAt: '2020-03-15T02:21:49.000Z',
-            },
-          ],
-        },
-      },
+              updatedAt: '2020-03-15T02:21:49.000Z'
+            }
+          ]
+        }
+      }
     ],
     errorResponses: [
       {
+        description: 'If no title is given,',
+        body: { message: 'Invalid competition title.' }
+      },
+      {
+        description: 'If no metric is given,',
+        body: { message: 'Invalid competition metric.' }
+      },
+      {
         description: 'If startsAt is not a valid date.',
-        body: { message: 'Invalid start date.' },
+        body: { message: 'Invalid start date.' }
+      },
+      {
+        description: 'If startsAt is not a valid date.',
+        body: { message: 'Invalid start date.' }
       },
       {
         description: 'If endsAt is not a valid date.',
-        body: { message: 'Invalid end date.' },
+        body: { message: 'Invalid end date.' }
       },
       {
         description: 'If startsAt OR endsAt is a past date.',
-        body: { message: 'Invalid dates: All start and end dates must be in the future.' },
-      },
-    ],
+        body: { message: 'Invalid dates: All start and end dates must be in the future.' }
+      }
+    ]
   },
   {
     title: 'Edit competition',
@@ -218,20 +230,20 @@ export default [
     comments: [
       {
         type: 'error',
-        content: 'If a list of participants is supplied, it will replace any existing participant list.',
-      },
+        content: 'If a list of participants is supplied, it will replace any existing participant list.'
+      }
     ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     body: {
       title: 'New title',
       verificationCode: '373-418-957',
-      participants: ['Psikoi', 'Zulu', 'Another'],
+      participants: ['Psikoi', 'Zulu', 'Another']
     },
     successResponses: [
       {
@@ -251,7 +263,7 @@ export default [
               type: 'regular',
               lastImportedAt: '2020-04-04T22:33:53.450Z',
               registeredAt: '2020-04-03T21:43:17.574Z',
-              updatedAt: '2020-04-04T22:35:31.530Z',
+              updatedAt: '2020-04-04T22:35:31.530Z'
             },
             {
               id: 42,
@@ -259,7 +271,7 @@ export default [
               type: 'unknown',
               lastImportedAt: null,
               registeredAt: '2020-04-03T23:48:03.561Z',
-              updatedAt: '2020-04-04T16:43:30.787Z',
+              updatedAt: '2020-04-04T16:43:30.787Z'
             },
             {
               id: 46,
@@ -267,46 +279,46 @@ export default [
               type: 'unknown',
               lastImportedAt: null,
               registeredAt: '2020-04-04T23:44:53.755Z',
-              updatedAt: '2020-04-04T23:44:53.755Z',
-            },
-          ],
-        },
-      },
+              updatedAt: '2020-04-04T23:44:53.755Z'
+            }
+          ]
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' },
+        body: { message: 'Invalid competition id.' }
       },
       {
         description: 'If endsAt is given but not valid.',
-        body: { message: 'Invalid end date.' },
+        body: { message: 'Invalid end date.' }
       },
       {
         description: 'If startsAt is given but not valid.',
-        body: { message: 'Invalid start date.' },
+        body: { message: 'Invalid start date.' }
       },
       {
         description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' },
+        body: { message: 'Competition of id 5667 was not found.' }
       },
       {
         description: 'If the competition has already started and a metric was given.',
-        body: { message: 'The competition has started, the metric cannot be changed.' },
+        body: { message: 'The competition has started, the metric cannot be changed.' }
       },
       {
         description: 'If the competition has already started and startsAt was given.',
-        body: { message: 'The competition has started, the start date cannot be changed.' },
+        body: { message: 'The competition has started, the start date cannot be changed.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' },
+        body: { message: 'Invalid verification code.' }
       },
       {
         description: 'If the verification code is not correct.',
-        body: { message: 'Incorrect verification code.' },
-      },
-    ],
+        body: { message: 'Incorrect verification code.' }
+      }
+    ]
   },
   {
     title: 'Delete competition',
@@ -315,45 +327,45 @@ export default [
     comments: [
       {
         type: 'error',
-        content: 'This action is permanent: If a competition is deleted, there is no way to restore it.',
-      },
+        content: 'This action is permanent: If a competition is deleted, there is no way to restore it.'
+      }
     ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     body: {
-      verificationCode: '373-418-957',
+      verificationCode: '373-418-957'
     },
     successResponses: [
       {
         description: '',
         body: {
-          message: "Successfully deleted competition 'SOTW 52 - Fishing' (id: 56)",
-        },
-      },
+          message: "Successfully deleted competition 'SOTW 52 - Fishing' (id: 56)"
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' },
+        body: { message: 'Invalid competition id.' }
       },
       {
         description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' },
+        body: { message: 'Competition of id 5667 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' },
+        body: { message: 'Invalid verification code.' }
       },
       {
         description: 'If the verification code is not correct.',
-        body: { message: 'Incorrect verification code.' },
-      },
-    ],
+        body: { message: 'Incorrect verification code.' }
+      }
+    ]
   },
   {
     title: 'Add participants',
@@ -363,12 +375,12 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     body: {
       verificationCode: '373-418-957',
-      participants: ['Psikoi'],
+      participants: ['Psikoi']
     },
     successResponses: [
       {
@@ -381,38 +393,38 @@ export default [
               type: 'regular',
               updatedAt: '2020-04-04T23:59:58.661Z',
               registeredAt: '2020-04-04T23:59:58.661Z',
-              lastImportedAt: null,
-            },
-          ],
-        },
-      },
+              lastImportedAt: null
+            }
+          ]
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' },
+        body: { message: 'Invalid competition id.' }
       },
       {
         description: 'If participants is invalid or empty.',
-        body: { message: 'Invalid participants list' },
+        body: { message: 'Invalid participants list' }
       },
       {
         description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' },
+        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' },
+        body: { message: 'Invalid verification code.' }
       },
       {
         description: 'If the verification code is not correct.',
-        body: { message: 'Incorrect verification code.' },
+        body: { message: 'Incorrect verification code.' }
       },
       {
         description: 'If all the participants are already participating.',
-        body: { message: 'All players given are already competing.' },
-      },
-    ],
+        body: { message: 'All players given are already competing.' }
+      }
+    ]
   },
   {
     title: 'Remove participants',
@@ -422,51 +434,51 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     body: {
       verificationCode: '373-418-957',
-      participants: ['Psikoi'],
+      participants: ['Psikoi']
     },
     successResponses: [
       {
         description: '',
         body: {
-          message: 'Successfully removed 1 participants from competition of id: 3.',
-        },
-      },
+          message: 'Successfully removed 1 participants from competition of id: 3.'
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' },
+        body: { message: 'Invalid competition id.' }
       },
       {
         description: 'If participants is invalid or empty.',
-        body: { message: 'Invalid participants list' },
+        body: { message: 'Invalid participants list' }
       },
       {
         description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' },
+        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' },
+        body: { message: 'Invalid verification code.' }
       },
       {
         description: 'If the verification code is not correct.',
-        body: { message: 'Incorrect verification code.' },
+        body: { message: 'Incorrect verification code.' }
       },
       {
         description: 'If none of the participants given exist.',
-        body: { message: 'No valid players were given. (Untracked)' },
+        body: { message: 'No valid tracked players were given.' }
       },
       {
         description: 'If none of the participants given were participating.',
-        body: { message: 'None of the players given were competing.' },
-      },
-    ],
+        body: { message: 'None of the players given were competing.' }
+      }
+    ]
   },
   {
     title: 'Update all participants',
@@ -477,45 +489,45 @@ export default [
         type: 'warning',
         content:
           "This action will perform a soft-update, meaning it won't \
-          import the player from CML or determine it's type.",
+          import the player from CML or determine it's type."
       },
       {
         type: 'warning',
         content:
           'If a player update fails, it will re-attempt in 65 seconds. \
-          It will re-attempt up to 5 times per player.',
-      },
+          It will re-attempt up to 5 times per player.'
+      }
     ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The competition's id.",
-      },
+        description: "The competition's id."
+      }
     ],
     successResponses: [
       {
         description: '',
         body: {
-          message: '19 players are being updated. This can take up to a few minutes.',
-        },
-      },
+          message: '19 players are being updated. This can take up to a few minutes.'
+        }
+      }
     ],
     errorResponses: [
       {
         description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' },
+        body: { message: 'Invalid competition id.' }
       },
       {
         description: "If the competition's participants list is invalid or empty.",
-        body: { message: 'This competition has no participants.' },
+        body: { message: 'This competition has no participants.' }
       },
       {
         description: "If the competition's participants have been 'updated all' in the last 10 minutes.",
         body: {
-          message: 'Failed to update: Please wait another 2 minutes before updating all participants.',
-        },
-      },
-    ],
-  },
+          message: 'Failed to update: Please wait another 2 minutes before updating all participants.'
+        }
+      }
+    ]
+  }
 ];
