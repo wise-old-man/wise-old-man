@@ -22,7 +22,7 @@ function format(group) {
  * partially match the given name.
  */
 async function list(name) {
-  const query = name && { name: { [Op.like]: `%${sanitizeName(name)}%` } };
+  const query = name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } };
   const groups = await Group.findAll({ where: query, limit: 20 });
 
   return groups.map(format);
