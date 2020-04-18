@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@openfonts/lato_latin": "^1.44.0",
-    "@openfonts/squada-one_latin": "^1.44.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.1",
     "@testing-library/user-event": "^7.2.1",

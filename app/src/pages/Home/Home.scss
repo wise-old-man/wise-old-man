@@ -14,6 +14,7 @@
     min-height: 450px;
     display: flex;
     flex-direction: row;
+    overflow: hidden;
 
     &__intro {
       align-self: center;
