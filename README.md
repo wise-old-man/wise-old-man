@@ -12,7 +12,7 @@ This application measures Old School Runescape player progress. Built on top of 
 
 [Website](https://wiseoldman.net/) |
 [Twitter](https://twitter.com/wise_old_man_rs) |
-[Discord](https://discord.gg/NzYmDe)
+[Discord](https://discord.gg/Ky5vNt2)
 
 <br />
 
@@ -50,7 +50,7 @@ The project is currently divided into 3 components:
 
 Have a suggestion or a bug to report? [Click here to create a issue](https://github.com/psikoi/wise-old-man/issues)
 
-Have something else you'd like to discuss? [Join us on discord](https://discord.gg/NzYmDe)
+Have something else you'd like to discuss? [Join us on discord](https://discord.gg/Ky5vNt2)
 
 <br />
 

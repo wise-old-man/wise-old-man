@@ -89,7 +89,7 @@ function Home() {
                 className="-discord-btn"
                 text="Join our discord"
                 icon="/img/icons/discord.svg"
-                url="https://discord.gg/NzYmDe"
+                url="https://discord.gg/Ky5vNt2"
               />
               <Button
                 className="-twitter-btn"
