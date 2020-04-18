@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
-import Dropdown from '../../components/Dropdown';
 import Selector from '../../components/Selector';
 import Tabs from '../../components/Tabs';
 import LineChart from '../../components/LineChart';
@@ -31,13 +30,6 @@ import { capitalize, getSkillIcon, getPlayerTypeIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
-const OPTIONS = [
-  {
-    label: 'Import from CML history',
-    value: 'import'
-  }
-];
-
 const TABS = ['Overview', 'Gained', 'Records', 'Achievements', 'Competitions'];
 
 const PERIOD_SELECTOR_OPTIONS = [
@@ -49,7 +41,7 @@ const PERIOD_SELECTOR_OPTIONS = [
 
 function getMetricOptions() {
   return [
-    ...SKILLS.map(skill => ({
+    ...SKILLS.map((skill) => ({
       label: capitalize(skill),
       icon: getSkillIcon(skill, true),
       value: skill
@@ -67,17 +59,17 @@ function Player() {
   const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
 
   // Memoized redux variables
-  const player = useSelector(state => getPlayer(state, id));
-  const deltas = useSelector(state => getPlayerDeltas(state, id));
-  const records = useSelector(state => getPlayerRecords(state, id));
-  const achievements = useSelector(state => getPlayerAchievements(state, id));
-  const competitions = useSelector(state => getPlayerCompetitions(state, id));
+  const player = useSelector((state) => getPlayer(state, id));
+  const deltas = useSelector((state) => getPlayerDeltas(state, id));
+  const records = useSelector((state) => getPlayerRecords(state, id));
+  const achievements = useSelector((state) => getPlayerAchievements(state, id));
+  const competitions = useSelector((state) => getPlayerCompetitions(state, id));
 
-  const experienceChartData = useSelector(state =>
+  const experienceChartData = useSelector((state) =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
   );
 
-  const rankChartData = useSelector(state =>
+  const rankChartData = useSelector((state) =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'rank')
   );
 
@@ -102,15 +94,15 @@ function Player() {
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
-  const handleTabChanged = i => {
+  const handleTabChanged = (i) => {
     setSelectedTabIndex(i);
   };
 
-  const handleDeltasPeriodSelected = e => {
+  const handleDeltasPeriodSelected = (e) => {
     setSelectedDeltasPeriod((e && e.value) || null);
   };
 
-  const handleDeltasSkillSelected = e => {
+  const handleDeltasSkillSelected = (e) => {
     setSelectedDeltasSkill((e && e.value) || null);
   };
 
@@ -134,11 +126,6 @@ function Player() {
         <div className="col">
           <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>
             <Button text="Update" onClick={onUpdatedButtonClicked} loading={isTracking} />
-            <Dropdown options={OPTIONS} onSelect={() => {}}>
-              <button className="header__options-btn" type="button">
-                <img src="/img/icons/options.svg" alt="" />
-              </button>
-            </Dropdown>
           </PageHeader>
         </div>
       </div>
@@ -206,7 +193,7 @@ function Player() {
         )}
         {selectedTabIndex === 2 && (
           <>
-            {SKILLS.map(skill => (
+            {SKILLS.map((skill) => (
               <div key={`records-widget-${skill}`} className="col-md-6 col-lg-4">
                 <PlayerRecordsWidget records={records} metric={skill} />
               </div>
