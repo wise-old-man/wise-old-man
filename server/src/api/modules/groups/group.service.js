@@ -93,11 +93,15 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Invalid group name.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   const sanitizedName = sanitizeName(name);
 
   const matchingGroup = await Group.findOne({ where: { name: sanitizedName } });
 
-  // If is attempting to change to someone else's name.
+  // If attempting to change to some other group's name.
   if (matchingGroup && matchingGroup.id !== parseInt(id, 10)) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
   }
@@ -111,7 +115,7 @@ async function edit(id, name, verificationCode, members) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   await group.update({ name: sanitizedName });
@@ -137,6 +141,10 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError('Invalid group id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   const group = await Group.findOne({ where: { id } });
   const { name } = group;
 
@@ -147,11 +155,10 @@ async function destroy(id, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code.');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   await group.destroy();
-
   return name;
 }
 
@@ -193,6 +200,10 @@ async function addMembers(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid competition id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   if (!usernames || usernames.length === 0) {
     throw new BadRequestError('Invalid members list (empty).');
   }
@@ -206,7 +217,7 @@ async function addMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code.');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   // Find all existing members
@@ -238,6 +249,10 @@ async function removeMembers(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid group id.');
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   if (!usernames || usernames.length === 0) {
     throw new BadRequestError('Invalid members list.');
   }
@@ -251,7 +266,7 @@ async function removeMembers(id, verificationCode, usernames) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code.');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
@@ -290,6 +305,10 @@ async function changeRole(id, username, role, verificationCode) {
     throw new BadRequestError(`Invalid group role.`);
   }
 
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
   const group = await Group.findOne({ where: { id } });
 
   if (!group) {
@@ -299,7 +318,7 @@ async function changeRole(id, username, role, verificationCode) {
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Invalid verification code.');
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   const membership = await Membership.findOne({
@@ -307,9 +326,7 @@ async function changeRole(id, username, role, verificationCode) {
     include: [
       {
         model: Player,
-        where: {
-          username: playerService.formatUsername(username)
-        }
+        where: { username: playerService.formatUsername(username) }
       }
     ]
   });

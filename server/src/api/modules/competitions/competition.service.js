@@ -502,8 +502,6 @@ async function removeParticipants(id, verificationCode, usernames) {
  * This should update all the "endSnapshotId" field in the player's participations.
  */
 async function syncParticipations(playerId) {
-  // Get all on-going participations
-
   const currentDate = new Date();
 
   const participations = await Participation.findAll({
