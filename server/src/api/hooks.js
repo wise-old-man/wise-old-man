@@ -1,7 +1,7 @@
 const { Snapshot, Delta, Membership } = require('../database');
 const jobs = require('./jobs');
 
-function register() {
+function setup() {
   Snapshot.afterCreate(({ playerId }) => {
     jobs.add('SyncPlayerDeltas', { playerId });
     jobs.add('SyncPlayerParticipations', { playerId });
@@ -44,4 +44,4 @@ function register() {
   });
 }
 
-exports.register = register;
+exports.setup = setup;

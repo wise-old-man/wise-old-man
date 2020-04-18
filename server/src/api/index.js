@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const api = require('./routing');
 const jobs = require('./jobs');
 const hooks = require('./hooks');
+const proxies = require('./proxies');
 
 function init() {
   const app = express();
@@ -22,8 +23,9 @@ function init() {
       })
     );
 
-    jobs.process();
-    hooks.register();
+    jobs.setup();
+    hooks.setup();
+    proxies.setup();
   }
 
   app.use('/api', api);
