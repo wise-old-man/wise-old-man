@@ -5,6 +5,7 @@ const { CML, OSRS_HISCORES } = require('../../constants/services');
 const { ServerError, BadRequestError } = require('../../errors');
 const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
+const { getNextProxy } = require('../../proxies');
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -335,11 +336,12 @@ async function getCMLHistory(username, time) {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username, type = 'NORMAL') {
+  const proxy = getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
     // Fetch the data through the API Url
-    const { data } = await axios.get(URL);
+    const { data } = await axios({ url: proxy ? URL.replace('https', 'http') : URL, proxy });
 
     // Validate the response data
     if (!data || !data.length || data.includes('Unavailable')) {

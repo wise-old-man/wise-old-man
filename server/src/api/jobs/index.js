@@ -3,7 +3,7 @@ const redisConfig = require('./redis');
 
 const jobs = require('./instances');
 
-function setup() {
+function instance() {
   const queues = Object.values(jobs).map(job => ({
     bull: new Queue(job.key, redisConfig),
     name: job.key,
@@ -32,7 +32,7 @@ function setup() {
     }
   }
 
-  function process() {
+  function setup() {
     return queues.forEach(queue => {
       queue.bull.process(queue.handle);
 
@@ -56,9 +56,9 @@ function setup() {
   return {
     queues,
     add,
-    process,
+    setup,
     schedule
   };
 }
 
-module.exports = process.env.NODE_ENV === 'test' ? { add: () => {} } : setup();
+module.exports = process.env.NODE_ENV === 'test' ? { add: () => {} } : instance();
