@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import className from 'classnames';
 import Button from '../../components/Button';
 import './Home.scss';
@@ -28,10 +28,30 @@ const FEATURES = [
 ];
 
 function Home() {
+  function onScroll() {
+    const { scrollY } = window;
+    const hero = document.getElementById('hero');
+    const intro = document.getElementById('intro');
+    const illustration = document.getElementById('illustration');
+
+    const scrollPercent = scrollY / (hero.offsetHeight * 0.6);
+
+    intro.style.opacity = 1 - scrollPercent;
+    intro.style.transform = `translateY(${scrollPercent * 50}px)`;
+
+    illustration.style.opacity = 1 - scrollPercent;
+    illustration.style.transform = `scale(${1 + scrollPercent * 0.05})`;
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <div className="home__container">
-      <section className="hero">
-        <div className="hero__intro">
+      <section id="hero" className="hero">
+        <div id="intro" className="hero__intro">
           <div className="intro-container">
             <span className="intro-greeting">Hi, meet the</span>
             <h1 className="intro-title">Wise Old Man</h1>
@@ -41,7 +61,7 @@ function Home() {
             <Button text="Contribute" url="https://github.com/psikoi/wise-old-man" />
           </div>
         </div>
-        <div className="hero__illustration">
+        <div id="illustration" className="hero__illustration">
           <img src="/img/landing_page/hero_background.png" alt="" />
         </div>
       </section>
