@@ -10,9 +10,9 @@ const sections = [
     links: [
       {
         label: 'Introduction',
-        url: '/docs',
-      },
-    ],
+        url: '/docs'
+      }
+    ]
   },
   {
     key: 'resources',
@@ -20,30 +20,34 @@ const sections = [
     links: [
       {
         label: 'Players',
-        url: '/docs/players',
+        url: '/docs/players'
       },
       {
         label: 'Competitions',
-        url: '/docs/competitions',
+        url: '/docs/competitions'
+      },
+      {
+        label: 'Groups',
+        url: '/docs/groups'
       },
       {
         label: 'Deltas',
-        url: '/docs/deltas',
+        url: '/docs/deltas'
       },
       {
         label: 'Snapshots',
-        url: '/docs/snapshots',
+        url: '/docs/snapshots'
       },
       {
         label: 'Records',
-        url: '/docs/records',
+        url: '/docs/records'
       },
       {
         label: 'Achievements',
-        url: '/docs/achievements',
-      },
-    ],
-  },
+        url: '/docs/achievements'
+      }
+    ]
+  }
 ];
 
 function Menu({ selectedUrl }) {
@@ -68,7 +72,7 @@ function Menu({ selectedUrl }) {
 }
 
 Menu.propTypes = {
-  selectedUrl: PropTypes.string.isRequired,
+  selectedUrl: PropTypes.string.isRequired
 };
 
 export default Menu;

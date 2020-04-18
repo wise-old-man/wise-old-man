@@ -6,6 +6,7 @@ const snapshotRoutes = require('./modules/snapshots/snapshot.route');
 const recordRoutes = require('./modules/records/record.route');
 const competitionRoutes = require('./modules/competitions/competition.route');
 const achievementRoutes = require('./modules/achievements/achievement.route');
+const groupRoutes = require('./modules/groups/group.route');
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ router.use('/deltas', deltaRoutes);
 router.use('/records', recordRoutes);
 router.use('/competitions', competitionRoutes);
 router.use('/achievements', achievementRoutes);
+router.use('/groups', groupRoutes);
 
 // Handle endpoint not found
 router.use((req, res, next) => {
