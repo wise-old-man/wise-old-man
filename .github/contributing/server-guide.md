@@ -175,4 +175,4 @@ Read the logs in the terminal, and if all the tests passed, go ahead and commit 
 
 After adding new features or changing existing features, make sure you update the API docs if necessary.
 
-[Docs Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/docs-guide.yml)
+[Docs Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/docs-guide.md)
