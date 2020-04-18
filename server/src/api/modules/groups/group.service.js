@@ -146,12 +146,12 @@ async function destroy(id, verificationCode) {
   }
 
   const group = await Group.findOne({ where: { id } });
-  const { name } = group;
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
+  const { name } = group;
   const verified = await verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
@@ -188,8 +188,11 @@ async function setMembers(group, usernames) {
     await group.addMembers(playersToAdd);
   }
 
-  const members = await group.getMembers();
-  return members.map(p => ({ ...p.toJSON(), memberships: undefined }));
+  const members = (await group.getMembers()).map(member => {
+    return _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships']);
+  });
+
+  return members;
 }
 
 /**
@@ -238,7 +241,9 @@ async function addMembers(id, verificationCode, usernames) {
   await group.changed('updatedAt', true);
   await group.save();
 
-  return newPlayers;
+  // TODO: for now, all new players are just members,
+  // this should be changed to allow for other roles at creation
+  return newPlayers.map(n => ({ ...n.toJSON(), role: 'member' }));
 }
 
 /**
@@ -272,7 +277,7 @@ async function removeMembers(id, verificationCode, usernames) {
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid players were given. (Untracked)');
+    throw new BadRequestError('No valid tracked players were given.');
   }
 
   // Remove all specific players, and return the removed count
@@ -351,7 +356,7 @@ async function changeRole(id, username, role, verificationCode) {
   await group.changed('updatedAt', true);
   await group.save();
 
-  return { player: membership.player, newRole: role, oldRole };
+  return { player: { ...membership.player.toJSON(), role: membership.role }, newRole: role, oldRole };
 }
 
 /**
