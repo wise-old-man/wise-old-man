@@ -1,0 +1,41 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.group__container {
+  @extend %page;
+
+  .group__header {
+    .button {
+      margin-right: 15px;
+    }
+
+    .header__options-btn {
+      background: none;
+      padding: 0;
+      margin: 0;
+      border: none;
+      margin-top: 5px;
+      transition: 0.3s;
+
+      &:active {
+        opacity: 0.5;
+        transform: scale(0.7);
+      }
+
+      img {
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .group__widgets {
+    margin-top: 10px;
+
+    .widget-label {
+      display: block;
+      font-size: 0.8em;
+      color: $gray-60;
+      margin-bottom: 10px;
+    }
+  }
+}

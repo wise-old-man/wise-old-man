@@ -8,6 +8,7 @@ import CompetitionPage from '../pages/Competition';
 import PlayerPage from '../pages/Player';
 import PlayerSearchPage from '../pages/PlayerSearch';
 import GroupsListPage from '../pages/GroupsList';
+import GroupPage from '../pages/Group';
 
 // Note: if you're adding a new route with a dynamic url param
 // be sure to add it to the analytics.js file.
@@ -43,6 +44,10 @@ export const ROUTES = [
   {
     path: '/groups',
     component: GroupsListPage
+  },
+  {
+    path: '/groups/:id',
+    component: GroupPage
   },
   {
     path: '/players/:id',

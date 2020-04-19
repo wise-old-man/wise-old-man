@@ -240,7 +240,7 @@ async function getMonthlyTop(playerIds) {
     };
   });
 
-  return formattedDeltas;
+  return formattedDeltas[0];
 }
 
 exports.syncDeltas = syncDeltas;

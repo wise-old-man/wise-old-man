@@ -1,0 +1,31 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import { formatNumber } from '../../../../utils';
+import './TopPlayerWidget.scss';
+
+function TopPlayerWidget({ group }) {
+  if (!group || group.monthlyTopPlayer === undefined) {
+    return (
+      <div className="top-player-widget">
+        <b className="top__username -placeholder" />
+        <span className="top__gained -placeholder" />
+      </div>
+    );
+  }
+
+  const topPlayer = group.monthlyTopPlayer;
+  const gained = formatNumber(topPlayer && topPlayer.gained ? topPlayer.gained : 0);
+
+  return (
+    <div className="top-player-widget">
+      <b className="top__username">{topPlayer.username}</b>
+      <span className="top__gained">{`${gained} exp gained`}</span>
+    </div>
+  );
+}
+
+TopPlayerWidget.propTypes = {
+  group: PropTypes.shape().isRequired
+};
+
+export default TopPlayerWidget;
