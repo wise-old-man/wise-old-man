@@ -3,12 +3,19 @@ const jobs = require('../../jobs');
 
 async function listCompetitions(req, res, next) {
   try {
-    const { title, status, metric, playerId } = req.query;
+    const { title, status, metric, playerId, groupId } = req.query;
 
-    const results = playerId
-      ? await service.findForPlayer(playerId)
-      : await service.list(title, status, metric);
+    if (groupId) {
+      const results = await service.findForGroup(groupId);
+      res.json(results);
+    }
 
+    if (playerId) {
+      const results = await service.findForPlayer(playerId);
+      res.json(results);
+    }
+
+    const results = await service.list(title, status, metric);
     res.json(results);
   } catch (e) {
     next(e);

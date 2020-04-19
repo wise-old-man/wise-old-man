@@ -446,6 +446,11 @@ async function getMembers(groupId) {
   return members;
 }
 
+async function findOne(groupId) {
+  const group = await Group.findOne({ where: { id: groupId } });
+  return group;
+}
+
 exports.list = list;
 exports.view = view;
 exports.create = create;
@@ -455,3 +460,4 @@ exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
 exports.getMembers = getMembers;
+exports.findOne = findOne;

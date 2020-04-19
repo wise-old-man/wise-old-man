@@ -86,6 +86,19 @@ async function list(title, status, metric) {
 }
 
 /**
+ * Returns a list of all competitions for a specific group.
+ */
+async function findForGroup(groupId) {
+  const competitions = await Competition.findAll({ where: { groupId } });
+
+  const formattedCompetitions = competitions.map(c => {
+    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
+  });
+
+  return formattedCompetitions;
+}
+
+/**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
 async function findForPlayer(playerId) {
@@ -668,6 +681,7 @@ async function updateAllParticipants(id, updateAction) {
 }
 
 exports.list = list;
+exports.findForGroup = findForGroup;
 exports.view = view;
 exports.create = create;
 exports.edit = edit;
