@@ -18,14 +18,33 @@ function format(group) {
 }
 
 /**
- * Returns a list of all competitions that
- * partially match the given name.
+ * Returns a list of all competitions that partially match
+ * the given name and/or includes a player whose username partially
+ * matches the given username.
  */
-async function list(name) {
-  const query = name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } };
-  const groups = await Group.findAll({ where: query, limit: 20 });
+async function list(name, username) {
+  const formattedName = name && sanitizeName(name);
+  const formattedUsername = username && playerService.formatUsername(username);
 
-  return groups.map(format);
+  const nameQuery = name && { name: { [Op.iLike]: `%${formattedName}%` } };
+  const usernameQuery = username && { username: { [Op.iLike]: `%${formattedUsername}%` } };
+
+  const memberships = await Membership.findAll({
+    include: [
+      { model: Group, where: nameQuery },
+      { model: Player, attributes: ['username'], where: usernameQuery }
+    ]
+  });
+
+  const groupMap = {};
+
+  memberships.forEach(({ group }) => {
+    if (!groupMap[group.id]) {
+      groupMap[group.id] = group;
+    }
+  });
+
+  return Object.values(groupMap).map(format);
 }
 
 /**

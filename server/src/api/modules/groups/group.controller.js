@@ -2,9 +2,9 @@ const service = require('./group.service');
 
 async function listGroups(req, res, next) {
   try {
-    const { name } = req.query;
+    const { name, username } = req.query;
 
-    const results = await service.list(name);
+    const results = await service.list(name, username);
     res.json(results);
   } catch (e) {
     next(e);
