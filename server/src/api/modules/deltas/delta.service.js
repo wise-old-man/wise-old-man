@@ -205,8 +205,47 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   return formattedDeltas;
 }
 
+/**
+ * Gets the best OVERALL monthly delta from a list of players.
+ */
+async function getMonthlyTop(playerIds) {
+  const metricKey = `overallExperience`;
+
+  // Postgres doesn't support the use of calculated column aliases
+  // in "order" clauses, so to work around it, we order by the difference
+  // of the two snapshots, and then calculate the difference again later
+
+  const deltas = await Delta.findAll({
+    where: { period: 'month' },
+    order: [
+      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+    ],
+    limit: 1,
+    include: [
+      { model: Player, where: { id: playerIds } },
+      { model: Snapshot, as: 'startSnapshot' },
+      { model: Snapshot, as: 'endSnapshot' }
+    ]
+  });
+
+  const formattedDeltas = deltas.map(delta => {
+    const { player, startSnapshot, endSnapshot } = delta;
+    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+
+    return {
+      playerId: player.id,
+      username: player.username,
+      type: player.type,
+      gained
+    };
+  });
+
+  return formattedDeltas;
+}
+
 exports.syncDeltas = syncDeltas;
 exports.getAllDeltas = getAllDeltas;
 exports.getDelta = getDelta;
 exports.getPeriodLeaderboard = getPeriodLeaderboard;
 exports.getLeaderboard = getLeaderboard;
+exports.getMonthlyTop = getMonthlyTop;

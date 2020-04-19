@@ -4,6 +4,7 @@ const { Group, Membership, Player, Snapshot } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
+const deltaService = require('../deltas/delta.service');
 
 function sanitizeName(name) {
   return name
@@ -85,11 +86,17 @@ async function view(id) {
     return { ...player.toJSON(), role };
   });
 
-  const totalExp = await getTotalExperience(id);
+  const memberIds = members.map(m => m.id);
 
-  return { ...format(group), members, totalExperience: totalExp };
+  const totalExperience = members.length ? await getTotalExperience(id) : 0;
+  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  return { ...format(group), members, totalExperience, monthlyTopPlayer };
 }
 
+/**
+ * Get the sum total of the overall experiences of every group member.
+ */
 async function getTotalExperience(groupId) {
   const memberships = await Membership.findAll({
     attributes: [],
