@@ -13,7 +13,17 @@ import './GroupsList.scss';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
-  columns: [{ key: 'name', className: () => '-primary' }]
+  columns: [
+    {
+      key: 'name',
+      className: () => '-primary'
+    },
+    {
+      key: 'memberCount',
+      transform: val => `${val} members`,
+      width: 130
+    }
+  ]
 };
 
 function GroupsList() {
@@ -34,7 +44,7 @@ function GroupsList() {
 
   const handleSubmitSearch = _.debounce(
     () => {
-      fetchGroups({ name: nameSearch, player: playerSearch });
+      fetchGroups({ name: nameSearch, username: playerSearch });
     },
     500,
     { leading: true, trailing: false }

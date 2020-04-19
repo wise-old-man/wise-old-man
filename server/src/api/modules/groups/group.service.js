@@ -29,6 +29,7 @@ async function list(name, username) {
   const nameQuery = name && { name: { [Op.iLike]: `%${formattedName}%` } };
   const usernameQuery = username && { username: { [Op.iLike]: `%${formattedUsername}%` } };
 
+  // Find all memberships for that match the search query.
   const memberships = await Membership.findAll({
     include: [
       { model: Group, where: nameQuery },
@@ -36,15 +37,27 @@ async function list(name, username) {
     ]
   });
 
-  const groupMap = {};
+  // Extract all the unique groups from the memberships, and format them.
+  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
 
-  memberships.forEach(({ group }) => {
-    if (!groupMap[group.id]) {
-      groupMap[group.id] = group;
+  // Find all memberships for the searched groups.
+  const filteredMemberships = await Membership.findAll({
+    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  });
+
+  // Store in this variable the members count for each group id
+  const membersMap = {};
+
+  filteredMemberships.forEach(m => {
+    if (!membersMap[m.groupId]) {
+      membersMap[m.groupId] = 1;
+    } else {
+      const curCount = membersMap[m.groupId];
+      membersMap[m.groupId] = curCount + 1;
     }
   });
 
-  return Object.values(groupMap).map(format);
+  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
 }
 
 /**
