@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { Op } = require('sequelize');
-const { Group, Membership, Player } = require('../../../database');
+const { Group, Membership, Player, Snapshot } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
@@ -85,7 +85,38 @@ async function view(id) {
     return { ...player.toJSON(), role };
   });
 
-  return { ...format(group), members };
+  const totalExp = await getTotalExperience(id);
+
+  return { ...format(group), members, totalExperience: totalExp };
+}
+
+async function getTotalExperience(groupId) {
+  const memberships = await Membership.findAll({
+    attributes: [],
+    where: { groupId },
+    include: [
+      {
+        model: Player,
+        include: [
+          {
+            model: Snapshot,
+            attributes: ['overallExperience', 'createdAt'],
+            order: [['createdAt', 'DESC']],
+            limit: 1
+          }
+        ]
+      }
+    ]
+  });
+
+  const sum = memberships
+    .map(({ player }) => {
+      const { snapshots } = player;
+      return snapshots && snapshots.length > 0 ? parseInt(snapshots[0].overallExperience, 10) : 0;
+    })
+    .reduce((acc, cur) => acc + cur);
+
+  return sum;
 }
 
 async function create(name, members) {
