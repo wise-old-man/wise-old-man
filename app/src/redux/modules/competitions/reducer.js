@@ -23,6 +23,10 @@ export const FETCH_PLAYER_COMPETITIONS_REQUEST = 'wise-old-man/competitions/FETC
 export const FETCH_PLAYER_COMPETITIONS_SUCCESS = 'wise-old-man/competitions/FETCH_PLAYER_SUCCESS';
 export const FETCH_PLAYER_COMPETITIONS_FAILURE = 'wise-old-man/competitions/FETCH_PLAYER_FAILURE';
 
+export const FETCH_GROUP_COMPETITIONS_REQUEST = 'wise-old-man/competitions/FETCH_GROUP_REQUEST';
+export const FETCH_GROUP_COMPETITIONS_SUCCESS = 'wise-old-man/competitions/FETCH_GROUP_SUCCESS';
+export const FETCH_GROUP_COMPETITIONS_FAILURE = 'wise-old-man/competitions/FETCH_GROUP_FAILURE';
+
 export const FETCH_COMPETITION_REQUEST = 'wise-old-man/competition/FETCH_REQUEST';
 export const FETCH_COMPETITION_SUCCESS = 'wise-old-man/competition/FETCH_SUCCESS';
 export const FETCH_COMPETITION_FAILURE = 'wise-old-man/competition/FETCH_FAILURE';
@@ -37,9 +41,11 @@ const initialState = {
   isEditing: false,
   isFetchingAll: false,
   isFetchingPlayerCompetitions: false,
+  isFetchingGroupCompetitions: false,
   isFetchingDetails: false,
   competitions: {},
   playerCompetitions: {},
+  groupCompetitions: {}
 };
 
 export default function competitionsReducer(state = initialState, action) {
@@ -56,7 +62,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isCreating: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) },
+        competitions: { ...replaceDetails(state.competitions, action.competition) }
       };
 
     case CREATE_COMPETITION_FAILURE:
@@ -69,7 +75,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isEditing: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) },
+        competitions: { ...replaceDetails(state.competitions, action.competition) }
       };
 
     case EDIT_COMPETITION_FAILURE:
@@ -82,7 +88,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isDeleting: false,
-        competitions: { ..._.omit(state.competitions, action.competitionId) },
+        competitions: { ..._.omit(state.competitions, action.competitionId) }
       };
 
     case DELETE_COMPETITION_FAILURE:
@@ -95,7 +101,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingAll: false,
-        competitions: { ...toMap(action.competitions, 'id') },
+        competitions: { ...toMap(action.competitions, 'id') }
       };
 
     case FETCH_COMPETITIONS_FAILURE:
@@ -108,7 +114,7 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingDetails: false,
-        competitions: { ...replaceDetails(state.competitions, action.competition) },
+        competitions: { ...replaceDetails(state.competitions, action.competition) }
       };
 
     case FETCH_COMPETITION_FAILURE:
@@ -122,11 +128,25 @@ export default function competitionsReducer(state = initialState, action) {
         ...state,
         isFetchingPlayerCompetitions: false,
         competitions: { ...toMap(action.competitions, 'id') },
-        playerCompetitions: { ...state.playerCompetitions, [action.playerId]: action.competitions },
+        playerCompetitions: { ...state.playerCompetitions, [action.playerId]: action.competitions }
       };
 
     case FETCH_PLAYER_COMPETITIONS_FAILURE:
       return { ...state, isFetchingPlayerCompetitions: false, error: action.error };
+
+    case FETCH_GROUP_COMPETITIONS_REQUEST:
+      return { ...state, isFetchingGroupCompetitions: true };
+
+    case FETCH_GROUP_COMPETITIONS_SUCCESS:
+      return {
+        ...state,
+        isFetchingGroupCompetitions: false,
+        competitions: { ...toMap(action.competitions, 'id') },
+        groupCompetitions: { ...state.groupCompetitions, [action.groupId]: action.competitions }
+      };
+
+    case FETCH_GROUP_COMPETITIONS_FAILURE:
+      return { ...state, isFetchingGroupCompetitions: false, error: action.error };
 
     default:
       return state;
@@ -153,8 +173,8 @@ function playerUpdated(competitions, username) {
       ...c,
       participants: c.participants.map(p => ({
         ...p,
-        updatedAt: p.username === username ? new Date() : p.updatedAt,
-      })),
+        updatedAt: p.username === username ? new Date() : p.updatedAt
+      }))
     };
   });
 

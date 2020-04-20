@@ -1,7 +1,7 @@
 @import '../../../../variables.scss';
 @import '../../../../styles.scss';
 
-.total-exp-widget {
+.competition-widget {
   @extend %panel;
   padding: 25px;
   height: 100px;
@@ -10,30 +10,38 @@
   justify-content: center;
   align-items: center;
 
-  .total-icon {
-    width: 35px;
-    image-rendering: pixelated;
+  &.-clickable {
+    &:hover {
+      opacity: 0.5;
+    }
   }
 
-  .total-info {
+  .no-competitions {
+    color: $gray-17;
+    font-size: 1.4em;
+  }
+
+  .competition-icon {
+    width: 35px;
+    image-rendering: pixelated;
+
+    &.-placeholder {
+      width: 35px;
+      height: 35px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: $border-radius;
+    }
+  }
+
+  .competition-info {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     max-width: calc(100% - 55px);
     margin-left: 25px;
 
-    &__metric {
-      &.-placeholder {
-        width: 60%;
-        height: 12px;
-        margin: 4px 0;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: $border-radius;
-      }
-    }
-
-    &__gained {
-      font-size: 1.6em;
+    &__title {
+      font-size: 1.4em;
       display: block;
       margin-top: 2px;
 
@@ -45,19 +53,17 @@
         border-radius: $border-radius;
       }
     }
-  }
-}
 
-// Medium or lower
-@media only screen and (max-width: $breakpoint-large) {
-  .total-exp-widget {
-    .total-info {
-      &__metric {
-        font-size: 0.9em;
-      }
+    &__time {
+      font-size: 0.9em;
+      color: $gray-60;
 
-      &__gained {
-        font-size: 1.1em;
+      &.-placeholder {
+        width: 60%;
+        height: 12px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: $border-radius;
       }
     }
   }

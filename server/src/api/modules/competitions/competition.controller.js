@@ -8,15 +8,13 @@ async function listCompetitions(req, res, next) {
     if (groupId) {
       const results = await service.findForGroup(groupId);
       res.json(results);
-    }
-
-    if (playerId) {
+    } else if (playerId) {
       const results = await service.findForPlayer(playerId);
       res.json(results);
+    } else {
+      const results = await service.list(title, status, metric);
+      res.json(results);
     }
-
-    const results = await service.list(title, status, metric);
-    res.json(results);
   } catch (e) {
     next(e);
   }

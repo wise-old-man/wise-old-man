@@ -8,6 +8,12 @@
   display: flex;
   flex-direction: column;
 
+  &.-clickable {
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
   .top__username {
     width: 100%;
     display: block;
