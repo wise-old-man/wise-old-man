@@ -2,20 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Table from '../../../../components/Table';
-import { getLevel, getSkillIcon, capitalize, formatNumber } from '../../../../utils';
+import NumberLabel from '../../../../components/NumberLabel';
+import { getLevel, getSkillIcon, capitalize } from '../../../../utils';
 
 function calculateRows(data) {
   const totalLevelBefore = _.filter(data, (val, key) => key !== 'overall')
-    .map(skill => getLevel(skill.experience.start))
+    .map((skill) => getLevel(skill.experience.start))
     .reduce((acc, cur) => acc + cur);
 
   const totalLevelAfter = _.filter(data, (val, key) => key !== 'overall')
-    .map(skill => getLevel(skill.experience.end))
+    .map((skill) => getLevel(skill.experience.end))
     .reduce((acc, cur) => acc + cur);
 
   const totalLevelDiff = totalLevelAfter - totalLevelBefore;
 
-  const levelDiff = exps => getLevel(exps.end) - getLevel(exps.start);
+  const levelDiff = (exps) => getLevel(exps.end) - getLevel(exps.start);
 
   return _.map(data, (value, key) => ({
     skill: key,
@@ -26,27 +27,6 @@ function calculateRows(data) {
     rank: -value.rank.delta,
     ehp: 0
   }));
-}
-
-function getColoredClass(value, lowThreshold) {
-  if (value === 0) {
-    return '';
-  }
-
-  if (value < 0) {
-    return '-negative';
-  }
-
-  if (value < lowThreshold) {
-    return '-low-positive';
-  }
-
-  return '-positive';
-}
-
-function transformNumber(value) {
-  const formattedValue = formatNumber(value, true);
-  return value > 0 ? `+${formattedValue}` : formattedValue;
 }
 
 function PlayerDeltasTable({ deltas, period }) {
@@ -61,7 +41,7 @@ function PlayerDeltasTable({ deltas, period }) {
     {
       key: 'skill',
       className: () => '-primary',
-      transform: value => (
+      transform: (value) => (
         <div className="skill-tag">
           <img src={getSkillIcon(value, true)} alt="" />
           <span>{capitalize(value)}</span>
@@ -71,25 +51,22 @@ function PlayerDeltasTable({ deltas, period }) {
     {
       key: 'level',
       label: 'Levels',
-      className: value => `-break-small ${getColoredClass(value, 0)}`,
-      transform: transformNumber
+      className: () => `-break-small`,
+      transform: (val) => <NumberLabel value={val} isColored isSigned />
     },
     {
       key: 'experience',
       label: 'Exp.',
-      className: value => getColoredClass(value, 50000),
-      transform: transformNumber
+      transform: (val) => <NumberLabel value={val} isColored isSigned lowThreshold={50000} />
     },
     {
       key: 'rank',
-      className: value => `-break-small ${getColoredClass(value, 10)}`,
-      transform: transformNumber
+      className: () => `-break-small`,
+      transform: (val) => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
       key: 'EHP',
-      get: row => row.ehp,
-      className: value => getColoredClass(value, 1),
-      transform: transformNumber
+      get: (row) => row.ehp
     }
   ];
 
