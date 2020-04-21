@@ -5,7 +5,16 @@ function buildDynamicSchema(DataTypes) {
 
   SKILLS.forEach(s => {
     obj[`${s}Rank`] = DataTypes.INTEGER;
-    obj[`${s}Experience`] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
+
+    obj[`${s}Experience`] = {
+      type: s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER,
+      get() {
+        // As experience (overall) can exceed the integer maximum of 2.147b,
+        // we have to store it into a BIGINT, however, sequelize returns bigints
+        // as strings, to counter that, we convert every bigint to a JS number
+        return parseInt(this.getDataValue(`${s}Experience`), 10);
+      }
+    };
   });
 
   return obj;
