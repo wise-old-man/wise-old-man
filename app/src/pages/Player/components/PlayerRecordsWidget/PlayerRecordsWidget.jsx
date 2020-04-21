@@ -30,7 +30,11 @@ function PlayerRecordsWidget({ records, metric }) {
     return null;
   }
 
-  const filteredRecords = records.filter((r) => r.metric === metric);
+  const PERIOD_ORDER = ['day', 'week', 'month', 'year'];
+
+  const filteredRecords = records
+    .filter((r) => r.metric === metric)
+    .sort((a, b) => PERIOD_ORDER.indexOf(a.period) - PERIOD_ORDER.indexOf(b.period));
 
   return (
     <div className="player-records-widget">
