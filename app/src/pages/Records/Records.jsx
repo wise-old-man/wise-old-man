@@ -5,9 +5,10 @@ import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import PlayerTag from '../../components/PlayerTag';
 import TableList from '../../components/TableList';
+import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, SKILLS } from '../../config';
-import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize, formatNumber } from '../../utils';
+import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
@@ -15,7 +16,7 @@ import './Records.scss';
 const DEFAULT_TYPE_OPTIONS = { label: 'Any player', value: null };
 
 const TABLE_CONFIG = {
-  uniqueKey: row => row.username,
+  uniqueKey: (row) => row.username,
   columns: [
     { key: 'rank', width: '30' },
     {
@@ -26,24 +27,18 @@ const TABLE_CONFIG = {
     {
       key: 'updatedAt',
       className: () => '-break-small',
-      transform: value => formatDate(value, 'DD-MM-YYYY')
+      transform: (value) => formatDate(value, 'DD-MM-YYYY')
     },
     {
       key: 'value',
-      transform: transformNumber,
-      className: value => (value > 0 ? '-positive' : '')
+      transform: (val) => <NumberLabel value={val} isColored />
     }
   ]
 };
 
-function transformNumber(value) {
-  const formattedValue = formatNumber(value, true);
-  return value > 0 ? `+${formattedValue}` : formattedValue;
-}
-
 function getTypeOptions() {
   return [
-    ...PLAYER_TYPES.map(type => ({
+    ...PLAYER_TYPES.map((type) => ({
       label: capitalize(type),
       icon: getPlayerTypeIcon(type),
       value: type
@@ -53,7 +48,7 @@ function getTypeOptions() {
 
 function getMetricOptions() {
   return [
-    ...SKILLS.map(skill => ({
+    ...SKILLS.map((skill) => ({
       label: capitalize(skill),
       icon: getSkillIcon(skill, true),
       value: skill
@@ -74,31 +69,31 @@ function Records() {
   const [selectedType, setSelectedType] = useState(null);
 
   // Memoized redux variables
-  const leaderboard = useSelector(state => getLeaderboard(state));
+  const leaderboard = useSelector((state) => getLeaderboard(state));
 
   function reloadList() {
     dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedType }));
   }
 
-  const handleMetricSelected = e => {
+  const handleMetricSelected = (e) => {
     setSelectedMetric((e && e.value) || null);
   };
 
-  const handleTypeSelected = e => {
+  const handleTypeSelected = (e) => {
     setSelectedType((e && e.value) || null);
   };
 
-  const handleDayRowClicked = index => {
+  const handleDayRowClicked = (index) => {
     const { playerId } = leaderboard.day[index];
     router.push(`/players/${playerId}`);
   };
 
-  const handleWeekRowClicked = index => {
+  const handleWeekRowClicked = (index) => {
     const { playerId } = leaderboard.week[index];
     router.push(`/players/${playerId}`);
   };
 
-  const handleMonthRowClicked = index => {
+  const handleMonthRowClicked = (index) => {
     const { playerId } = leaderboard.week[index];
     router.push(`/players/${playerId}`);
   };
