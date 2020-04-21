@@ -1,0 +1,18 @@
+@import '../../variables.scss';
+
+.special-number {
+  text-decoration: none;
+  cursor: default;
+
+  &.-low-positive {
+    color: $low-positive-green;
+  }
+
+  &.-positive {
+    color: $positive-green;
+  }
+
+  &.-negative {
+    color: $negative-red;
+  }
+}
