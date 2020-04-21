@@ -75,39 +75,16 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  // Fetch all members
+  // Fetch all members, and their latest snapshot
   const memberships = await Membership.findAll({
     where: { groupId: id },
-    include: [{ model: Player }]
-  });
-
-  // Format the members
-  const members = memberships.map(({ player, role }) => {
-    return { ...player.toJSON(), role };
-  });
-
-  const memberIds = members.map(m => m.id);
-
-  const totalExperience = members.length ? await getTotalExperience(id) : 0;
-  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
-
-  return { ...format(group), members, totalExperience, monthlyTopPlayer };
-}
-
-/**
- * Get the sum total of the overall experiences of every group member.
- */
-async function getTotalExperience(groupId) {
-  const memberships = await Membership.findAll({
-    attributes: [],
-    where: { groupId },
     include: [
       {
         model: Player,
         include: [
           {
             model: Snapshot,
-            attributes: ['overallExperience', 'createdAt'],
+            attributes: ['overallExperience', 'overallRank', 'createdAt'],
             order: [['createdAt', 'DESC']],
             limit: 1
           }
@@ -116,14 +93,28 @@ async function getTotalExperience(groupId) {
     ]
   });
 
-  const sum = memberships
-    .map(({ player }) => {
+  // Format the members
+  const members = memberships
+    .map(({ player, role }) => {
       const { snapshots } = player;
-      return snapshots && snapshots.length > 0 ? parseInt(snapshots[0].overallExperience, 10) : 0;
+
+      const overallExperience = snapshots && snapshots.length ? snapshots[0].overallExperience : -1;
+      const overallRank = snapshots && snapshots.length ? snapshots[0].overallRank : -1;
+
+      return { ..._.omit(player.toJSON(), ['snapshots']), role, overallExperience, overallRank };
     })
+    .sort((a, b) => b.overallExperience - a.overallExperience);
+
+  const memberIds = members.map(m => m.id);
+
+  const totalExperience = memberships
+    .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
+    .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
     .reduce((acc, cur) => acc + cur);
 
-  return sum;
+  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  return { ...format(group), members, totalExperience, monthlyTopPlayer };
 }
 
 async function create(name, members) {
