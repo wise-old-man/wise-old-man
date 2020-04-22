@@ -7,6 +7,8 @@ import Dropdown from '../../components/Dropdown';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
+import GroupInfo from './components/GroupInfo';
+import MembersTable from './components/MembersTable';
 import { getGroup } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
@@ -72,6 +74,14 @@ function Group() {
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Total overall experience</span>
           <TotalExperienceWidget group={group} />
+        </div>
+      </div>
+      <div className="group__content row">
+        <div className="col-md-4">
+          <GroupInfo group={group} />
+        </div>
+        <div className="col-md-8">
+          <MembersTable members={group.members} />
         </div>
       </div>
     </div>
