@@ -1,5 +1,5 @@
 # setup react production build
-FROM node:alpine as builder
+FROM node:13-alpine as builder
 
 WORKDIR /wise-old-man/app
 COPY package*.json ./
