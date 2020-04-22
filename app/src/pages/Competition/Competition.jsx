@@ -17,7 +17,7 @@ import CompetitionInfo from './components/CompetitionInfo';
 import TotalGainedWidget from './components/TotalGainedWidget';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import CountdownWidget from './components/CountdownWidget';
-import DeleteCompetitionPopup from './components/DeleteCompetitionPopup';
+import DeleteCompetitionModal from './components/DeleteCompetitionModal';
 import './Competition.scss';
 
 const TABS = ['Progress Table', 'Top 10 progress chart'];
@@ -54,7 +54,7 @@ function Competition() {
   const dispatch = useDispatch();
 
   // State variables
-  const [showingDeletePopup, setShowingDeletePopup] = useState(false);
+  const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
@@ -80,13 +80,13 @@ function Competition() {
     setSelectedTabIndex(i);
   };
 
-  const handleDeletePopupClosed = () => {
-    setShowingDeletePopup(false);
+  const handleDeleteModalClosed = () => {
+    setShowingDeleteModal(false);
   };
 
   const handleOptionSelected = option => {
     if (option.value === 'delete') {
-      setShowingDeletePopup(true);
+      setShowingDeleteModal(true);
     } else {
       const URL = `/competitions/${competition.id}/${option.value}`;
       router.push(URL);
@@ -98,7 +98,7 @@ function Competition() {
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
   const onOptionSelected = useCallback(handleOptionSelected, [router, competition]);
   const onTabChanged = useCallback(handleTabChanged, []);
-  const onDeletePopupClosed = useCallback(handleDeletePopupClosed, []);
+  const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
 
   const menuOptions = useMemo(() => getMenuOptions(competition), [competition]);
 
@@ -156,8 +156,8 @@ function Competition() {
           )}
         </div>
       </div>
-      {showingDeletePopup && competition && (
-        <DeleteCompetitionPopup competition={competition} onCancel={onDeletePopupClosed} />
+      {showingDeleteModal && competition && (
+        <DeleteCompetitionModal competition={competition} onCancel={onDeleteModalClosed} />
       )}
     </div>
   );

@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
 import Button from '../../../../components/Button';
 import deleteCompetitionAction from '../../../../redux/modules/competitions/actions/delete';
-import './DeleteCompetitionPopup.scss';
+import './DeleteCompetitionModal.scss';
 
-function DeleteCompetitionPopup({ competition, onCancel }) {
+function DeleteCompetitionModal({ competition, onCancel }) {
   const router = useHistory();
   const dispatch = useDispatch();
 
@@ -49,9 +49,9 @@ function DeleteCompetitionPopup({ competition, onCancel }) {
   );
 }
 
-DeleteCompetitionPopup.propTypes = {
+DeleteCompetitionModal.propTypes = {
   competition: PropTypes.shape().isRequired,
   onCancel: PropTypes.func.isRequired
 };
 
-export default DeleteCompetitionPopup;
+export default DeleteCompetitionModal;
