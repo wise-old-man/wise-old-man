@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
@@ -9,6 +9,7 @@ import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
+import DeleteGroupModal from './components/DeleteGroupModal';
 import { getGroup } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
@@ -28,7 +29,10 @@ const MENU_OPTIONS = [
 
 function Group() {
   const { id } = useParams();
+  const router = useHistory();
   const dispatch = useDispatch();
+
+  const [showingDeleteModal, setShowingDeleteModal] = useState(false);
 
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
@@ -40,6 +44,22 @@ function Group() {
   const fetchCompetitions = () => {
     dispatch(fetchGroupCompetitionsAction(id));
   };
+
+  const handleDeleteModalClosed = () => {
+    setShowingDeleteModal(false);
+  };
+
+  const handleOptionSelected = option => {
+    if (option.value === 'delete') {
+      setShowingDeleteModal(true);
+    } else {
+      const URL = `/groups/${group.id}/${option.value}`;
+      router.push(URL);
+    }
+  };
+
+  const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
+  const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
 
   // Fetch group details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -54,7 +74,7 @@ function Group() {
       <div className="group__header row">
         <div className="col">
           <PageHeader title={group.name}>
-            <Dropdown options={MENU_OPTIONS} onSelect={() => {}}>
+            <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
               </button>
@@ -84,6 +104,7 @@ function Group() {
           <MembersTable members={group.members} />
         </div>
       </div>
+      {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}
     </div>
   );
 }

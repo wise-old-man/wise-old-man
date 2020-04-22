@@ -4,10 +4,10 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
 import Button from '../../../../components/Button';
-import deleteCompetitionAction from '../../../../redux/modules/competitions/actions/delete';
-import './DeleteCompetitionPopup.scss';
+import deleteGroupAction from '../../../../redux/modules/groups/actions/delete';
+import './DeleteGroupModal.scss';
 
-function DeleteCompetitionPopup({ competition, onCancel }) {
+function DeleteGroupModal({ group, onCancel }) {
   const router = useHistory();
   const dispatch = useDispatch();
 
@@ -18,23 +18,23 @@ function DeleteCompetitionPopup({ competition, onCancel }) {
   };
 
   const handleDeleteClicked = () => {
-    dispatch(deleteCompetitionAction(competition.id, verificationCode)).then(() => {
-      router.push('/competitions');
+    dispatch(deleteGroupAction(group.id, verificationCode)).then(() => {
+      router.push('/groups');
     });
   };
 
   const onVerificationInput = useCallback(handleVerificationInput, []);
-  const onDeleteClicked = useCallback(handleDeleteClicked, [competition, verificationCode]);
+  const onDeleteClicked = useCallback(handleDeleteClicked, [group, verificationCode]);
 
-  useEffect(() => Analytics.modalview(`/competitions/${competition.id}/delete`), [competition]);
+  useEffect(() => Analytics.modalview(`/groups/${group.id}/delete`), [group]);
 
   return (
-    <div className="delete-competition">
-      <div className="delete-competition__modal">
+    <div className="delete-group">
+      <div className="delete-group__modal">
         <button className="close-btn" type="button" onClick={onCancel}>
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
-        <b className="modal-title">{`Delete ${competition.title}?`}</b>
+        <b className="modal-title">{`Delete ${group.name}?`}</b>
         <span className="modal-warning">This action is permanent and cannot be reversed</span>
         <input
           className="verification-input"
@@ -49,9 +49,9 @@ function DeleteCompetitionPopup({ competition, onCancel }) {
   );
 }
 
-DeleteCompetitionPopup.propTypes = {
-  competition: PropTypes.shape().isRequired,
+DeleteGroupModal.propTypes = {
+  group: PropTypes.shape().isRequired,
   onCancel: PropTypes.func.isRequired
 };
 
-export default DeleteCompetitionPopup;
+export default DeleteGroupModal;
