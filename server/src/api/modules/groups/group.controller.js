@@ -15,8 +15,8 @@ async function viewGroup(req, res, next) {
   try {
     const { id } = req.params;
 
-    const competition = await service.view(id);
-    res.json(competition);
+    const group = await service.view(id);
+    res.json(group);
   } catch (e) {
     next(e);
   }

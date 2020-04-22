@@ -5,9 +5,14 @@ export default [
     method: 'GET',
     query: [
       {
-        field: 'title',
+        field: 'name',
         type: 'string',
         description: 'A partial name match. - Optional'
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: 'A partial member username match. - Optional'
       }
     ],
     successResponses: [
@@ -18,19 +23,22 @@ export default [
             id: 1,
             name: 'Hexis',
             createdAt: '2020-04-18T08:37:24.190Z',
-            updatedAt: '2020-04-18T08:37:24.190Z'
+            updatedAt: '2020-04-18T08:37:24.190Z',
+            memberCount: 3
           },
           {
             id: 2,
             name: 'RSPT',
             createdAt: '2020-04-18T08:45:28.726Z',
-            updatedAt: '2020-04-18T08:47:50.870Z'
+            updatedAt: '2020-04-18T08:47:50.870Z',
+            memberCount: 21
           },
           {
             id: 4,
             name: 'Varrock Titans',
             createdAt: '2020-04-18T09:01:10.630Z',
-            updatedAt: '2020-04-18T09:07:00.915Z'
+            updatedAt: '2020-04-18T09:07:00.915Z',
+            memberCount: 13
           }
         ]
       }
@@ -55,6 +63,13 @@ export default [
           name: 'RSPT',
           createdAt: '2020-04-18T09:01:10.630Z',
           updatedAt: '2020-04-18T09:07:00.915Z',
+          totalExperience: 4213019496,
+          monthlyTopPlayer: {
+            playerId: 61,
+            username: 'Psikoi',
+            type: 'regular',
+            gained: 9735587
+          },
           members: [
             {
               id: 61,
@@ -63,7 +78,9 @@ export default [
               lastImportedAt: '2020-04-18T02:22:49.364Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
               updatedAt: '2020-04-18T04:02:42.235Z',
-              role: 'leader'
+              role: 'leader',
+              overallExperience: 278434548,
+              overallRank: 29456
             },
             {
               id: 93,
@@ -72,7 +89,9 @@ export default [
               lastImportedAt: null,
               registeredAt: '2020-04-18T02:22:56.415Z',
               updatedAt: '2020-04-18T06:44:28.660Z',
-              role: 'leader'
+              role: 'leader',
+              overallExperience: 3280026365,
+              overallRank: 33
             },
             {
               id: 77,
@@ -81,7 +100,9 @@ export default [
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
               updatedAt: '2020-04-18T03:40:17.940Z',
-              role: 'member'
+              role: 'member',
+              overallExperience: 27957906,
+              overallRank: 581480
             }
           ]
         }
