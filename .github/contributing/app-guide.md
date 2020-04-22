@@ -53,13 +53,12 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 
 ## Environment Variables
 
-Create a new file inside the app directory:
+Copy the example file to configure the development app
+```
+cp .env.example .env
+```
 
-- .env
-
-This file will give the development app some needed configurations.
-
-Copy the following snippet into the .env file:
+By default the example file contains the following snippet
 
 ```
 REACT_APP_API_BASE_URL=http://localhost:5000/api

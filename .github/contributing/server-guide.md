@@ -63,16 +63,16 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 
 ## Environment Variables
 
-Create two new files inside the server directory:
-
-- .env
-- .env.test
-
-These will give the development server some needed configurations.
-
-Copy the following snippet into the .env file:
+Copy the example files to configure the development server
 
 ```
+cp .env.example .env && cp .env.test.example .env.test
+```
+
+By default the example files contain the following snippets
+
+```
+#.env
 DB_DIALECT=postgres
 
 POSTGRES_PASSWORD=postgres
@@ -86,9 +86,8 @@ PGADMIN_DEFAULT_EMAIL=test@wiseoldman.net
 PGADMIN_DEFAULT_PASSWORD=postgres
 ```
 
-And copy the following snippet into the .env.test file:
-
 ```
+#.env.test
 DB_DIALECT=sqlite
 DB_STORAGE=./__tests__/database.sqlite
 ```
