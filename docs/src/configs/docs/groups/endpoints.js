@@ -137,25 +137,39 @@ export default [
     ],
     body: {
       name: 'Falador Knights',
-      members: ['Zezima', 'Psikoi']
+      members: [
+        { username: 'Psikoi', role: 'leader' },
+        { username: 'Zezima', role: 'leader' },
+        { username: 'Zulu', role: 'member' },
+        { username: 'Lynx Titan', role: 'member' }
+      ]
     },
     successResponses: [
       {
         description: '',
         body: {
-          id: 5,
+          id: 23,
           name: 'Falador Knights',
-          verificationCode: '926-579-976',
-          updatedAt: '2020-04-18T09:48:37.238Z',
-          createdAt: '2020-04-18T09:48:37.238Z',
+          verificationCode: '107-719-861',
+          updatedAt: '2020-04-23T01:53:26.079Z',
+          createdAt: '2020-04-23T01:53:26.079Z',
           members: [
             {
               id: 61,
               username: 'Psikoi',
               type: 'regular',
-              lastImportedAt: '2020-04-18T02:22:49.364Z',
+              lastImportedAt: '2020-04-19T17:21:12.258Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
-              updatedAt: '2020-04-18T04:02:42.235Z',
+              updatedAt: '2020-04-20T23:55:14.540Z',
+              role: 'leader'
+            },
+            {
+              id: 62,
+              username: 'Zulu',
+              type: 'regular',
+              lastImportedAt: '2020-04-18T02:23:59.945Z',
+              registeredAt: '2020-04-10T18:11:52.333Z',
+              updatedAt: '2020-04-20T23:55:19.286Z',
               role: 'member'
             },
             {
@@ -164,7 +178,16 @@ export default [
               type: 'regular',
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
-              updatedAt: '2020-04-18T03:40:17.940Z',
+              updatedAt: '2020-04-20T23:55:24.007Z',
+              role: 'leader'
+            },
+            {
+              id: 298,
+              username: 'Lynx Titan',
+              type: 'unknown',
+              lastImportedAt: null,
+              registeredAt: '2020-04-23T01:53:26.156Z',
+              updatedAt: '2020-04-23T01:53:26.156Z',
               role: 'member'
             }
           ]
@@ -179,6 +202,10 @@ export default [
       {
         description: 'If name is already taken.',
         body: { message: "Group name 'Hexis' is already taken." }
+      },
+      {
+        description: 'If members is given but does not respect the correct format.',
+        body: { message: 'Invalid members list. Each array element must have a username key.' }
       }
     ]
   },
@@ -322,13 +349,25 @@ export default [
     ],
     body: {
       verificationCode: '373-418-957',
-      members: ['Psikoi']
+      members: [
+        { username: 'Psikoi', role: 'leader' },
+        { username: 'Zulu', role: 'member' }
+      ]
     },
     successResponses: [
       {
         description: '',
         body: {
-          newMembers: [
+          members: [
+            {
+              id: 37,
+              username: 'Psikoi',
+              type: 'regular',
+              lastImportedAt: '2020-04-18T02:23:59.945Z',
+              registeredAt: '2020-04-10T18:11:52.333Z',
+              updatedAt: '2020-04-18T03:22:36.419Z',
+              role: 'leader'
+            },
             {
               id: 62,
               username: 'Zulu',
@@ -350,6 +389,10 @@ export default [
       {
         description: 'If members is invalid or empty.',
         body: { message: 'Invalid member list.' }
+      },
+      {
+        description: 'If members does not respect the correct format.',
+        body: { message: 'Invalid members list. Each array element must have a username key.' }
       },
       {
         description: 'If group of id could not be found.',
