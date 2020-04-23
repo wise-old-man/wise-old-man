@@ -55,8 +55,12 @@ function CompetitionWidget({ competitions }) {
   );
 }
 
+CompetitionWidget.defaultProps = {
+  competitions: undefined
+};
+
 CompetitionWidget.propTypes = {
-  competitions: PropTypes.arrayOf(PropTypes.shape).isRequired
+  competitions: PropTypes.arrayOf(PropTypes.shape)
 };
 
 export default CompetitionWidget;

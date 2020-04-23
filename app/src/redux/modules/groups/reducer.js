@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import { toMap } from '../../utils';
 
+export const CREATE_GROUP_REQUEST = 'wise-old-man/groups/CREATE_GROUP_REQUEST';
+export const CREATE_GROUP_SUCCESS = 'wise-old-man/groups/CREATE_GROUP_SUCCESS';
+export const CREATE_GROUP_FAILURE = 'wise-old-man/groups/CREATE_GROUP_FAILURE';
+
 export const FETCH_GROUPS_REQUEST = 'wise-old-man/groups/FETCH_LIST_REQUEST';
 export const FETCH_GROUPS_SUCCESS = 'wise-old-man/groups/FETCH_LIST_SUCCESS';
 export const FETCH_GROUPS_FAILURE = 'wise-old-man/groups/FETCH_LIST_FAILURE';
@@ -14,6 +18,7 @@ export const DELETE_GROUP_SUCCESS = 'wise-old-man/groups/DELETE_GROUP_SUCCESS';
 export const DELETE_GROUP_FAILURE = 'wise-old-man/groups/DELETE_GROUP_FAILURE';
 
 const initialState = {
+  isCreating: false,
   isFetchingAll: false,
   isFetchingDetails: false,
   isDeleting: false,
@@ -22,6 +27,19 @@ const initialState = {
 
 export default function groupsReducer(state = initialState, action) {
   switch (action.type) {
+    case CREATE_GROUP_REQUEST:
+      return { ...state, isCreating: true };
+
+    case CREATE_GROUP_SUCCESS:
+      return {
+        ...state,
+        isCreating: false,
+        groups: { ...replaceDetails(state.groups, action.group) }
+      };
+
+    case CREATE_GROUP_FAILURE:
+      return { ...state, isCreating: false, error: action.error };
+
     case FETCH_GROUPS_REQUEST:
       return { ...state, isFetchingAll: true };
 

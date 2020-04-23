@@ -72,9 +72,10 @@ function AutoSuggestInput({ suggestions, onInput, onSelected, clearOnSelect, pla
   const onKeyUp = useCallback(handleKeyUp, [highlightedSuggestion, suggestions]);
   const onFocus = useCallback(show, [text]);
   const onBlur = useCallback(hide, []);
+  const onResetHighlight = useCallback(highlightSuggestion, []);
 
   // Clear highlights on mount
-  useEffect(() => highlightSuggestion(null), [highlightSuggestion]);
+  useEffect(onResetHighlight, []);
 
   return (
     <div className="auto-suggest" onFocus={onFocus} onBlur={onBlur}>

@@ -1,6 +1,11 @@
 import { showNotification } from '../modules/notifications/actions/toggle';
 import { TRACK_PLAYER_SUCCESS, TRACK_PLAYER_FAILURE } from '../modules/players/reducer';
-import { DELETE_GROUP_FAILURE, DELETE_GROUP_SUCCESS } from '../modules/groups/reducer';
+import {
+  CREATE_GROUP_FAILURE,
+  CREATE_GROUP_SUCCESS,
+  DELETE_GROUP_FAILURE,
+  DELETE_GROUP_SUCCESS
+} from '../modules/groups/reducer';
 import {
   UPDATE_PARTICIPANTS_SUCCESS,
   UPDATE_PARTICIPANTS_FAILURE,
@@ -112,6 +117,27 @@ const notificationsMiddleware = store => next => action => {
     case DELETE_GROUP_SUCCESS: {
       const notification = {
         text: action.message,
+        type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case CREATE_GROUP_FAILURE: {
+      const notification = {
+        text: action.error,
+        duration: 10000,
+        type: 'error'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case CREATE_GROUP_SUCCESS: {
+      const notification = {
+        text: `${action.group.name} created successfully`,
         type: 'success'
       };
 
