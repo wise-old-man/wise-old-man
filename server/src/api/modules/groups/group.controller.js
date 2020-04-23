@@ -60,10 +60,10 @@ async function deleteGroup(req, res, next) {
 async function addMembers(req, res, next) {
   try {
     const { id } = req.params;
-    const { verificationCode, players } = req.body;
+    const { verificationCode, members } = req.body;
 
-    const result = await service.addMembers(id, verificationCode, players);
-    res.json({ newMembers: result });
+    const result = await service.addMembers(id, verificationCode, members);
+    res.json({ members: result });
   } catch (e) {
     next(e);
   }

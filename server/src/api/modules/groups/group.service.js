@@ -128,6 +128,11 @@ async function create(name, members) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
   }
 
+  // If not all elements of members array have a "username" key.
+  if (members && members.filter(m => m.username).length !== members.length) {
+    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
+  }
+
   const [verificationCode, verificationHash] = await generateVerification();
   const group = await Group.create({ name: sanitizedName, verificationCode, verificationHash });
 
@@ -229,12 +234,16 @@ async function destroy(id, verificationCode) {
 /**
  * Set the members of a group.
  *
- * This will replace any existing members.
+ * Note: This will replace any existing members.
+ * Note: The members array should have this format:
+ * [{username: "...", role: "member"}]
  */
-async function setMembers(group, usernames) {
+async function setMembers(group, members) {
   if (!group) {
     throw new BadRequestError(`Invalid group.`);
   }
+
+  const usernames = members.map(m => m.username);
 
   const existingMembers = await group.getMembers();
   const existingUsernames = existingMembers.map(e => e.username);
@@ -252,17 +261,33 @@ async function setMembers(group, usernames) {
     await group.addMembers(playersToAdd);
   }
 
-  const members = (await group.getMembers()).map(member => {
-    return _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships']);
-  });
+  const leaderUsernames = members
+    .filter(m => m.role === 'leader')
+    .map(m => playerService.formatUsername(m.username));
 
-  return members;
+  // If there's leaders, we have to re-add them, forcing the leader role
+  if (leaderUsernames && leaderUsernames.length > 0) {
+    const allMembers = await group.getMembers();
+    const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
+    await group.addMembers(leaders, { through: { role: 'leader' } });
+  }
+
+  const allMembers = await group.getMembers();
+
+  const formatted = allMembers.map(member =>
+    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+  );
+
+  return formatted;
 }
 
 /**
  * Adds all the usernames as group members.
+ *
+ * Note: The members array should have this format:
+ * [{username: "...", role: "member"}]
  */
-async function addMembers(id, verificationCode, usernames) {
+async function addMembers(id, verificationCode, members) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -271,8 +296,13 @@ async function addMembers(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  if (!usernames || usernames.length === 0) {
+  if (!members || members.length === 0) {
     throw new BadRequestError('Invalid members list.');
+  }
+
+  // If not all elements of members array have a "username" key.
+  if (members.filter(m => m.username).length !== members.length) {
+    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -291,7 +321,7 @@ async function addMembers(id, verificationCode, usernames) {
   const existingIds = (await group.getMembers()).map(p => p.id);
 
   // Find or create all players with the given usernames
-  const players = await playerService.findAllOrCreate(usernames);
+  const players = await playerService.findAllOrCreate(members.map(m => m.username));
 
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
@@ -301,13 +331,28 @@ async function addMembers(id, verificationCode, usernames) {
 
   await group.addMembers(newPlayers);
 
+  const leaderUsernames = members
+    .filter(m => m.role === 'leader')
+    .map(m => playerService.formatUsername(m.username));
+
+  // If there's any new leaders, we have to re-add them, forcing the leader role
+  if (leaderUsernames && leaderUsernames.length > 0) {
+    const allMembers = await group.getMembers();
+    const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
+    await group.addMembers(leaders, { through: { role: 'leader' } });
+  }
+
   // Update the "updatedAt" timestamp on the group model
   await group.changed('updatedAt', true);
   await group.save();
 
-  // TODO: for now, all new players are just members,
-  // this should be changed to allow for other roles at creation
-  return newPlayers.map(n => ({ ...n.toJSON(), role: 'member' }));
+  const allMembers = await group.getMembers();
+
+  const formatted = allMembers.map(member =>
+    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+  );
+
+  return formatted;
 }
 
 /**
