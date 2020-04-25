@@ -2,10 +2,15 @@ const service = require('./group.service');
 
 async function listGroups(req, res, next) {
   try {
-    const { name } = req.query;
+    const { name, username, playerId } = req.query;
 
-    const results = await service.list(name);
-    res.json(results);
+    if (playerId) {
+      const results = await service.findForPlayer(playerId);
+      res.json(results);
+    } else {
+      const results = await service.list(name, username);
+      res.json(results);
+    }
   } catch (e) {
     next(e);
   }
@@ -15,8 +20,8 @@ async function viewGroup(req, res, next) {
   try {
     const { id } = req.params;
 
-    const competition = await service.view(id);
-    res.json(competition);
+    const group = await service.view(id);
+    res.json(group);
   } catch (e) {
     next(e);
   }
@@ -60,10 +65,10 @@ async function deleteGroup(req, res, next) {
 async function addMembers(req, res, next) {
   try {
     const { id } = req.params;
-    const { verificationCode, players } = req.body;
+    const { verificationCode, members } = req.body;
 
-    const result = await service.addMembers(id, verificationCode, players);
-    res.json({ newMembers: result });
+    const result = await service.addMembers(id, verificationCode, members);
+    res.json({ members: result });
   } catch (e) {
     next(e);
   }

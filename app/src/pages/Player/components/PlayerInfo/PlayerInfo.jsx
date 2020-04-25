@@ -10,12 +10,30 @@ function formatData(player) {
   const overallRank = latestSnapshot ? latestSnapshot.overall.rank : 'Unknown';
 
   return [
-    { key: 'Id', value: id },
-    { key: 'Type', value: capitalize(type) },
-    { key: 'Overall Rank', value: formatNumber(overallRank) },
-    { key: 'Registered at', value: formatDate(registeredAt, 'DD MMM, YYYY') },
-    { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM, YYYY') },
-    { key: 'Last imported at', value: lastImportedAt ? formatDate(lastImportedAt) : '---' }
+    {
+      key: 'Id',
+      value: id
+    },
+    {
+      key: 'Type',
+      value: capitalize(type)
+    },
+    {
+      key: 'Overall Rank',
+      value: formatNumber(overallRank)
+    },
+    {
+      key: 'Registered at',
+      value: formatDate(registeredAt, 'DD MMM, YYYY')
+    },
+    {
+      key: 'Last updated at',
+      value: formatDate(updatedAt, 'DD MMM, YYYY')
+    },
+    {
+      key: 'Last imported at',
+      value: lastImportedAt ? formatDate(lastImportedAt, 'DD MMM, YYYY') : '---'
+    }
   ];
 }
 

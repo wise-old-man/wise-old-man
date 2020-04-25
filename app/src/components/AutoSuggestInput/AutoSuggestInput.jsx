@@ -47,9 +47,9 @@ function AutoSuggestInput({ suggestions, onInput, onSelected, clearOnSelect, pla
   const handleKeyUp = e => {
     if (e.key === 'Enter') {
       if (highlightedSuggestion > -1) {
-        select(suggestions[highlightedSuggestion].value, false);
+        handleSelect(suggestions[highlightedSuggestion].value, false);
       } else {
-        select(e.target.value, true);
+        handleSelect(e.target.value, true);
       }
     } else if (e.key === 'ArrowDown') {
       highlightSuggestion(1);
@@ -67,14 +67,14 @@ function AutoSuggestInput({ suggestions, onInput, onSelected, clearOnSelect, pla
     highlightSuggestion(null);
   };
 
-  const select = useCallback(handleSelect, []);
   const onChange = useCallback(handleChange, []);
   const onKeyUp = useCallback(handleKeyUp, [highlightedSuggestion, suggestions]);
   const onFocus = useCallback(show, [text]);
   const onBlur = useCallback(hide, []);
+  const onResetHighlight = useCallback(highlightSuggestion, []);
 
   // Clear highlights on mount
-  useEffect(() => highlightSuggestion(null), [highlightSuggestion]);
+  useEffect(onResetHighlight, []);
 
   return (
     <div className="auto-suggest" onFocus={onFocus} onBlur={onBlur}>
@@ -97,7 +97,7 @@ function AutoSuggestInput({ suggestions, onInput, onSelected, clearOnSelect, pla
                   '-highlighted': i === highlightedSuggestion
                 })}
                 type="button"
-                onMouseDown={() => select(s.value)}
+                onMouseDown={() => handleSelect(s.value)}
               >
                 {s.label}
               </button>

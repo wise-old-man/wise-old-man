@@ -7,6 +7,10 @@ export function capitalize(str) {
 }
 
 export function formatNumber(num, withLetters = false) {
+  if (num === undefined) {
+    return -1;
+  }
+
   if ((num < 10000 && num > -10000) || !withLetters) {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }

@@ -1,0 +1,29 @@
+@import '../../variables.scss';
+
+.switch {
+  width: 50px;
+  height: 22px;
+  padding: 4px;
+  background-color: $gray-30;
+  border-radius: 50px;
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.35);
+  border: none;
+  transition: background-color 0.3s;
+
+  &.-on {
+    background-color: $brand-color;
+
+    .switch-thumb {
+      transform: translateX(27px);
+    }
+  }
+
+  &-thumb {
+    background: white;
+    width: 15px;
+    height: 15px;
+    border-radius: 50px;
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.35);
+    transition: transform 0.3s;
+  }
+}

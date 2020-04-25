@@ -70,7 +70,7 @@ Table.propTypes = {
   //  - width (optional) - the column's forced width
   //  - label (optioanl) - the column's label, by default this is the key, capitlized.
   //  - className (optional) - custom styling class, a couple preset classes are: [-primary, -positive, -negative, -neutral, -low-positive, -break-large, -break-small]
-  //  - transform (optioanl) - custom cell rendering (provide a component to render inside the cell)
+  //  - transform (optional) - custom cell rendering (provide a component to render inside the cell)
   //  - get (optional) - alternate way of fetching data from the row object, by default it will fetch row[key]
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 

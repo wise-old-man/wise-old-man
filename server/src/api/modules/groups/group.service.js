@@ -1,9 +1,10 @@
 const _ = require('lodash');
 const { Op } = require('sequelize');
-const { Group, Membership, Player } = require('../../../database');
+const { Group, Membership, Player, Snapshot } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
+const deltaService = require('../deltas/delta.service');
 
 function sanitizeName(name) {
   return name
@@ -18,14 +19,83 @@ function format(group) {
 }
 
 /**
- * Returns a list of all competitions that
- * partially match the given name.
+ * Returns a list of all groups that partially match
+ * the given name and/or includes a player whose username partially
+ * matches the given username.
  */
-async function list(name) {
-  const query = name && { name: { [Op.like]: `%${sanitizeName(name)}%` } };
-  const groups = await Group.findAll({ where: query, limit: 20 });
+async function list(name, username) {
+  const formattedName = name && sanitizeName(name);
+  const formattedUsername = username && playerService.formatUsername(username);
 
-  return groups.map(format);
+  const nameQuery = name && { name: { [Op.iLike]: `%${formattedName}%` } };
+  const usernameQuery = username && { username: { [Op.iLike]: `%${formattedUsername}%` } };
+
+  // Find all memberships for that match the search query.
+  const memberships = await Membership.findAll({
+    include: [
+      { model: Group, where: nameQuery },
+      { model: Player, attributes: ['username'], where: usernameQuery }
+    ]
+  });
+
+  // Extract all the unique groups from the memberships, and format them.
+  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
+
+  // Find all memberships for the searched groups.
+  const filteredMemberships = await Membership.findAll({
+    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  });
+
+  // Store in this variable the members count for each group id
+  const membersMap = {};
+
+  filteredMemberships.forEach(m => {
+    if (!membersMap[m.groupId]) {
+      membersMap[m.groupId] = 1;
+    } else {
+      const curCount = membersMap[m.groupId];
+      membersMap[m.groupId] = curCount + 1;
+    }
+  });
+
+  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+}
+
+/**
+ * Returns a list of all groups of which a given player is a member.
+ */
+async function findForPlayer(playerId) {
+  if (!playerId) {
+    throw new BadRequestError(`Invalid player id.`);
+  }
+
+  // Find all memberships for the player
+  const memberships = await Membership.findAll({
+    where: { playerId },
+    include: [{ model: Group }]
+  });
+
+  // Extract all the unique groups from the memberships, and format them.
+  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
+
+  // Find all memberships for the searched groups.
+  const filteredMemberships = await Membership.findAll({
+    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  });
+
+  // Store in this variable the members count for each group id
+  const membersMap = {};
+
+  filteredMemberships.forEach(m => {
+    if (!membersMap[m.groupId]) {
+      membersMap[m.groupId] = 1;
+    } else {
+      const curCount = membersMap[m.groupId];
+      membersMap[m.groupId] = curCount + 1;
+    }
+  });
+
+  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
 }
 
 /**
@@ -42,18 +112,46 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  // Fetch all members
+  // Fetch all members, and their latest snapshot
   const memberships = await Membership.findAll({
     where: { groupId: id },
-    include: [{ model: Player }]
+    include: [
+      {
+        model: Player,
+        include: [
+          {
+            model: Snapshot,
+            attributes: ['overallExperience', 'overallRank', 'createdAt'],
+            order: [['createdAt', 'DESC']],
+            limit: 1
+          }
+        ]
+      }
+    ]
   });
 
   // Format the members
-  const members = memberships.map(({ player, role }) => {
-    return { ...player.toJSON(), role };
-  });
+  const members = memberships
+    .map(({ player, role }) => {
+      const { snapshots } = player;
 
-  return { ...format(group), members };
+      const overallExperience = snapshots && snapshots.length ? snapshots[0].overallExperience : -1;
+      const overallRank = snapshots && snapshots.length ? snapshots[0].overallRank : -1;
+
+      return { ..._.omit(player.toJSON(), ['snapshots']), role, overallExperience, overallRank };
+    })
+    .sort((a, b) => b.overallExperience - a.overallExperience);
+
+  const memberIds = members.map(m => m.id);
+
+  const totalExperience = memberships
+    .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
+    .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
+    .reduce((acc, cur) => acc + cur);
+
+  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  return { ...format(group), members, totalExperience, monthlyTopPlayer };
 }
 
 async function create(name, members) {
@@ -65,6 +163,11 @@ async function create(name, members) {
 
   if (await Group.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
+  }
+
+  // If not all elements of members array have a "username" key.
+  if (members && members.filter(m => m.username).length !== members.length) {
+    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
   const [verificationCode, verificationHash] = await generateVerification();
@@ -125,7 +228,7 @@ async function edit(id, name, verificationCode, members) {
 
   if (members) {
     const newMembers = await setMembers(group, members);
-    return { ...format(group), participants: newMembers };
+    return { ...format(group), members: newMembers };
   }
 
   const memberships = await group.getMembers();
@@ -168,40 +271,45 @@ async function destroy(id, verificationCode) {
 /**
  * Set the members of a group.
  *
- * This will replace any existing members.
+ * Note: This will replace any existing members.
+ * Note: The members array should have this format:
+ * [{username: "ABC", role: "member"}]
  */
-async function setMembers(group, usernames) {
+async function setMembers(group, members) {
   if (!group) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const existingMembers = await group.getMembers();
-  const existingUsernames = existingMembers.map(e => e.username);
+  const players = await playerService.findAll(members.map(m => m.username));
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  const newMemberships = players.map((p, i) => ({
+    playerId: p.id,
+    groupId: group.id,
+    role: members[i].role || 'member'
+  }));
 
-  const playersToRemove = existingMembers.filter(p => !usernames.includes(p.username));
-  const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
+  // Remove all existing memberships
+  await Membership.destroy({ where: { groupId: group.id } });
 
-  if (playersToRemove && playersToRemove.length > 0) {
-    await group.removeMembers(playersToRemove);
-  }
+  // Add all the new memberships
+  await Membership.bulkCreate(newMemberships, { ignoreDuplicates: true });
 
-  if (playersToAdd && playersToAdd.length > 0) {
-    await group.addMembers(playersToAdd);
-  }
+  const allMembers = await group.getMembers();
 
-  const members = (await group.getMembers()).map(member => {
-    return _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships']);
-  });
+  const formatted = allMembers.map(member =>
+    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+  );
 
-  return members;
+  return formatted;
 }
 
 /**
  * Adds all the usernames as group members.
+ *
+ * Note: The members array should have this format:
+ * [{username: "ABC", role: "member"}]
  */
-async function addMembers(id, verificationCode, usernames) {
+async function addMembers(id, verificationCode, members) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -210,8 +318,13 @@ async function addMembers(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  if (!usernames || usernames.length === 0) {
+  if (!members || members.length === 0) {
     throw new BadRequestError('Invalid members list.');
+  }
+
+  // If not all elements of members array have a "username" key.
+  if (members.filter(m => m.username).length !== members.length) {
+    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
   const group = await Group.findOne({ where: { id } });
@@ -230,7 +343,7 @@ async function addMembers(id, verificationCode, usernames) {
   const existingIds = (await group.getMembers()).map(p => p.id);
 
   // Find or create all players with the given usernames
-  const players = await playerService.findAllOrCreate(usernames);
+  const players = await playerService.findAllOrCreate(members.map(m => m.username));
 
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
@@ -240,13 +353,28 @@ async function addMembers(id, verificationCode, usernames) {
 
   await group.addMembers(newPlayers);
 
+  const leaderUsernames = members
+    .filter(m => m.role === 'leader')
+    .map(m => playerService.formatUsername(m.username));
+
+  // If there's any new leaders, we have to re-add them, forcing the leader role
+  if (leaderUsernames && leaderUsernames.length > 0) {
+    const allMembers = await group.getMembers();
+    const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
+    await group.addMembers(leaders, { through: { role: 'leader' } });
+  }
+
   // Update the "updatedAt" timestamp on the group model
   await group.changed('updatedAt', true);
   await group.save();
 
-  // TODO: for now, all new players are just members,
-  // this should be changed to allow for other roles at creation
-  return newPlayers.map(n => ({ ...n.toJSON(), role: 'member' }));
+  const allMembers = await group.getMembers();
+
+  const formatted = allMembers.map(member =>
+    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+  );
+
+  return formatted;
 }
 
 /**
@@ -376,7 +504,14 @@ async function getMembers(groupId) {
   return members;
 }
 
+async function findOne(groupId) {
+  const group = await Group.findOne({ where: { id: groupId } });
+  return group;
+}
+
+exports.format = format;
 exports.list = list;
+exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.create = create;
 exports.edit = edit;
@@ -385,3 +520,4 @@ exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
 exports.getMembers = getMembers;
+exports.findOne = findOne;

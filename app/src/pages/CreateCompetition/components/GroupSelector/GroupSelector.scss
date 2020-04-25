@@ -1,0 +1,21 @@
+@import '../../../../variables.scss';
+@import '../../../../styles.scss';
+
+.group-selector {
+  .auto-suggest__input {
+    margin-bottom: 30px;
+  }
+
+  .table-list {
+    margin-top: -10px;
+  }
+
+  .no-groups {
+    @extend %panel;
+    display: block;
+    padding: 15px;
+    width: 100%;
+    font-size: 0.9em;
+    color: $gray-60;
+  }
+}

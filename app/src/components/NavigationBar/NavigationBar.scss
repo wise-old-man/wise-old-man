@@ -19,10 +19,6 @@
     height: 72px;
     width: calc(100% - 30px);
 
-    .text-input {
-      border: 1px solid $gray-12;
-    }
-
     .nav-brand {
       height: 100%;
       padding: 0;
@@ -81,9 +77,10 @@
         margin: 0;
         padding: 0;
 
-        .search-bar {
+        .text-input {
+          border: 1px solid $gray-12;
           padding: 6px 9px;
-          width: 165px;
+          width: 135px;
         }
 
         .nav-links__item {
@@ -91,7 +88,7 @@
           font-weight: 700;
           text-shadow: 1px 1px black;
           font-size: 0.9em;
-          margin-left: 30px;
+          margin-left: 25px;
 
           &:first-child {
             margin-left: 0px;
@@ -100,7 +97,7 @@
           &.-button {
             border: 2px solid $gray-12;
             border-radius: 5px;
-            padding: 7px 12px;
+            padding: 7px 10px;
           }
 
           &.-spacing {
@@ -176,8 +173,9 @@
             color: gray;
           }
 
-          .search-bar {
+          .text-input {
             width: 100%;
+            padding: 15px 10px;
           }
 
           &.-button {

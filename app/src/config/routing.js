@@ -7,44 +7,64 @@ import EditCompetitionPage from '../pages/EditCompetition';
 import CompetitionPage from '../pages/Competition';
 import PlayerPage from '../pages/Player';
 import PlayerSearchPage from '../pages/PlayerSearch';
+import GroupsListPage from '../pages/GroupsList';
+import GroupPage from '../pages/Group';
+import CreateGroupPage from '../pages/CreateGroup';
+import EditGroupPage from '../pages/EditGroup';
 
 // Note: if you're adding a new route with a dynamic url param
 // be sure to add it to the analytics.js file.
 export const ROUTES = [
   {
     path: '/',
-    component: HomePage,
+    component: HomePage
   },
   {
     path: '/top',
-    component: TopPage,
+    component: TopPage
   },
   {
     path: '/records',
-    component: RecordsPage,
+    component: RecordsPage
   },
   {
     path: '/competitions',
-    component: CompetitionsListPage,
+    component: CompetitionsListPage
   },
   {
     path: '/competitions/create',
-    component: CreateCompetitionPage,
+    component: CreateCompetitionPage
   },
   {
     path: '/competitions/:id/edit',
-    component: EditCompetitionPage,
+    component: EditCompetitionPage
   },
   {
     path: '/competitions/:id',
-    component: CompetitionPage,
+    component: CompetitionPage
+  },
+  {
+    path: '/groups',
+    component: GroupsListPage
+  },
+  {
+    path: '/groups/create',
+    component: CreateGroupPage
+  },
+  {
+    path: '/groups/:id/edit',
+    component: EditGroupPage
+  },
+  {
+    path: '/groups/:id',
+    component: GroupPage
   },
   {
     path: '/players/:id',
-    component: PlayerPage,
+    component: PlayerPage
   },
   {
     path: '/players/search/:username',
-    component: PlayerSearchPage,
-  },
+    component: PlayerSearchPage
+  }
 ];

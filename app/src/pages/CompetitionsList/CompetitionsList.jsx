@@ -160,7 +160,7 @@ function CompetitionsList() {
       </div>
       <div className="competitions__list row">
         <div className="col">
-          {isFetching ? (
+          {isFetching && (!competitions || competitions.length === 0) ? (
             <TableListPlaceholder size={5} />
           ) : (
             <TableList

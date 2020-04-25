@@ -4,12 +4,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   CREATE_COMPETITION_REQUEST,
   CREATE_COMPETITION_SUCCESS,
-  CREATE_COMPETITION_FAILURE,
+  CREATE_COMPETITION_FAILURE
 } from '../reducer';
 
 function createCompetitionRequest() {
   return {
-    type: CREATE_COMPETITION_REQUEST,
+    type: CREATE_COMPETITION_REQUEST
   };
 }
 
@@ -17,25 +17,23 @@ function createCompetitionSuccess(data) {
   Analytics.event({
     category: 'Competition',
     action: 'Created new competition',
-    value: data.id,
+    value: data.id
   });
 
   return {
     type: CREATE_COMPETITION_SUCCESS,
-    competition: data,
+    competition: data
   };
 }
 
 function createCompetitionFailure(error) {
   return {
     type: CREATE_COMPETITION_FAILURE,
-    error: error.response.data.message,
+    error: error.response.data.message
   };
 }
 
-export default function createCompetition({
-  title, metric, startDate, endDate, participants,
-}) {
+export default function createCompetition({ title, metric, startDate, endDate, participants, groupId }) {
   return dispatch => {
     dispatch(createCompetitionRequest());
 
@@ -47,6 +45,7 @@ export default function createCompetition({
       startsAt: startDate,
       endsAt: endDate,
       participants,
+      groupId
     };
 
     return axios

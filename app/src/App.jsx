@@ -39,13 +39,13 @@ function App() {
       <NavigationBar />
       <Notification />
       <div className="content">
-        <Switch>
-          <AppWrapper>
-            {ROUTES.map((route) => (
+        <AppWrapper>
+          <Switch>
+            {ROUTES.map(route => (
               <Route key={route.path} exact path={route.path} component={route.component} />
             ))}
-          </AppWrapper>
-        </Switch>
+          </Switch>
+        </AppWrapper>
       </div>
     </BrowserRouter>
   );

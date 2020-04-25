@@ -1,0 +1,70 @@
+@import '../../../../variables.scss';
+@import '../../../../styles.scss';
+
+.competition-widget {
+  @extend %panel;
+  padding: 25px;
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  &.-clickable {
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .no-competitions {
+    color: $gray-17;
+    font-size: 1.4em;
+  }
+
+  .competition-icon {
+    width: 35px;
+    image-rendering: pixelated;
+
+    &.-placeholder {
+      width: 35px;
+      height: 35px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: $border-radius;
+    }
+  }
+
+  .competition-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    max-width: calc(100% - 55px);
+    margin-left: 25px;
+
+    &__title {
+      font-size: 1.4em;
+      display: block;
+      margin-top: 2px;
+
+      &.-placeholder {
+        width: 80%;
+        height: 18px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: $border-radius;
+      }
+    }
+
+    &__time {
+      font-size: 0.9em;
+      color: $gray-60;
+
+      &.-placeholder {
+        width: 60%;
+        height: 12px;
+        margin: 4px 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: $border-radius;
+      }
+    }
+  }
+}

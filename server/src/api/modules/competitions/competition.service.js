@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Op } = require('sequelize');
 const { ALL_METRICS } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
-const { Competition, Participation, Player, Snapshot } = require('../../../database');
+const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -86,6 +86,19 @@ async function list(title, status, metric) {
 }
 
 /**
+ * Returns a list of all competitions for a specific group.
+ */
+async function findForGroup(groupId) {
+  const competitions = await Competition.findAll({ where: { groupId } });
+
+  const formattedCompetitions = competitions.map(c => {
+    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
+  });
+
+  return formattedCompetitions;
+}
+
+/**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
 async function findForPlayer(playerId) {
@@ -117,7 +130,10 @@ async function view(id) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await Competition.findOne({
+    where: { id },
+    include: [{ model: Group }]
+  });
 
   if (!competition) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
@@ -125,6 +141,7 @@ async function view(id) {
 
   const metricKey = `${competition.metric}Experience`;
   const duration = durationBetween(competition.startsAt, competition.endsAt);
+  const group = competition.group ? groupService.format(competition.group) : null;
 
   // Fetch all participations, including their players and snapshots
   const participations = await Participation.findAll({
@@ -185,7 +202,7 @@ async function view(id) {
     participants.length &&
     participants.map(p => p.progress.delta).reduce((a, c) => a + c);
 
-  return { ...format(competition), duration, totalGained, participants };
+  return { ...format(competition), duration, totalGained, participants, group };
 }
 
 /**
@@ -668,6 +685,8 @@ async function updateAllParticipants(id, updateAction) {
 }
 
 exports.list = list;
+exports.findForGroup = findForGroup;
+exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.create = create;
 exports.edit = edit;
@@ -678,5 +697,4 @@ exports.syncParticipations = syncParticipations;
 exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
-exports.findForPlayer = findForPlayer;
 exports.updateAllParticipants = updateAllParticipants;

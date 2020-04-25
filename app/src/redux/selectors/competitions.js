@@ -1,11 +1,12 @@
-import { createSelector } from 'reselect';
 import _ from 'lodash';
+import { createSelector } from 'reselect';
 import { COLORS } from '../../config';
-import { durationBetween, formatDate } from '../../utils';
+import { durationBetween } from '../../utils';
 
 const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;
 const playerCompetitionsSelector = state => state.competitions.playerCompetitions;
+const groupCompetitionsSelector = state => state.competitions.groupCompetitions;
 
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 
@@ -17,6 +18,10 @@ export const getPlayerCompetitionsMap = createSelector(playerCompetitionsSelecto
   return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
 });
 
+export const getGroupCompetitionsMap = createSelector(groupCompetitionsSelector, map => {
+  return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
+});
+
 export const getCompetitions = createSelector(competitionsSelector, map => {
   return Object.values(map).map(c => formatCompetition(c));
 });
@@ -24,6 +29,8 @@ export const getCompetitions = createSelector(competitionsSelector, map => {
 export const getCompetition = (state, id) => getCompetitionsMap(state)[id];
 
 export const getPlayerCompetitions = (state, playerId) => getPlayerCompetitionsMap(state)[playerId];
+
+export const getGroupCompetitions = (state, groupId) => getGroupCompetitionsMap(state)[groupId];
 
 export const getChartData = (state, id) => {
   const comp = getCompetition(state, id);
@@ -81,7 +88,7 @@ function formatCompetition(competition) {
     formatted.countdown = `Starts in ${durationBetween(curDate, startsAt, 2)}`;
   } else if (endsAt < curDate) {
     formatted.status = 'finished';
-    formatted.countdown = `Ended at ${formatDate(endsAt)}`;
+    formatted.countdown = `Ended ${durationBetween(endsAt, curDate, 1)} ago`;
   } else if (startsAt < curDate && endsAt > curDate) {
     formatted.status = 'ongoing';
     formatted.countdown = `Ends in ${durationBetween(curDate, endsAt, 2)}`;

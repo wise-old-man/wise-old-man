@@ -12,12 +12,14 @@ import PlayerDeltasTable from './components/PlayerDeltasTable';
 import PlayerRecordsWidget from './components/PlayerRecordsWidget';
 import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
+import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
 import { getPlayerRecords } from '../../redux/selectors/records';
 import { getPlayerAchievements } from '../../redux/selectors/achievements';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
+import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
@@ -26,11 +28,12 @@ import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
 import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
+import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import { capitalize, getSkillIcon, getPlayerTypeIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
-const TABS = ['Overview', 'Gained', 'Records', 'Achievements', 'Competitions'];
+const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];
 
 const PERIOD_SELECTOR_OPTIONS = [
   { label: 'Day', value: 'day' },
@@ -41,7 +44,7 @@ const PERIOD_SELECTOR_OPTIONS = [
 
 function getMetricOptions() {
   return [
-    ...SKILLS.map((skill) => ({
+    ...SKILLS.map(skill => ({
       label: capitalize(skill),
       icon: getSkillIcon(skill, true),
       value: skill
@@ -59,17 +62,18 @@ function Player() {
   const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
 
   // Memoized redux variables
-  const player = useSelector((state) => getPlayer(state, id));
-  const deltas = useSelector((state) => getPlayerDeltas(state, id));
-  const records = useSelector((state) => getPlayerRecords(state, id));
-  const achievements = useSelector((state) => getPlayerAchievements(state, id));
-  const competitions = useSelector((state) => getPlayerCompetitions(state, id));
+  const player = useSelector(state => getPlayer(state, id));
+  const deltas = useSelector(state => getPlayerDeltas(state, id));
+  const records = useSelector(state => getPlayerRecords(state, id));
+  const achievements = useSelector(state => getPlayerAchievements(state, id));
+  const competitions = useSelector(state => getPlayerCompetitions(state, id));
+  const groups = useSelector(state => getPlayerGroups(state, id));
 
-  const experienceChartData = useSelector((state) =>
+  const experienceChartData = useSelector(state =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
   );
 
-  const rankChartData = useSelector((state) =>
+  const rankChartData = useSelector(state =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'rank')
   );
 
@@ -90,19 +94,20 @@ function Player() {
     dispatch(fetchSnapshotsAction({ playerId: id }));
     dispatch(fetchAchievementsAction({ playerId: id }));
     dispatch(fetchCompetitionsAction({ playerId: id }));
+    dispatch(fetchGroupsAction({ playerId: id }));
     dispatch(fetchRecordsAction({ playerId: id }));
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
-  const handleTabChanged = (i) => {
+  const handleTabChanged = i => {
     setSelectedTabIndex(i);
   };
 
-  const handleDeltasPeriodSelected = (e) => {
+  const handleDeltasPeriodSelected = e => {
     setSelectedDeltasPeriod((e && e.value) || null);
   };
 
-  const handleDeltasSkillSelected = (e) => {
+  const handleDeltasSkillSelected = e => {
     setSelectedDeltasSkill((e && e.value) || null);
   };
 
@@ -191,16 +196,27 @@ function Player() {
             </div>
           </>
         )}
+
         {selectedTabIndex === 2 && (
+          <div className="col">
+            <PlayerCompetitionsTable competitions={competitions} />
+          </div>
+        )}
+        {selectedTabIndex === 3 && (
+          <div className="col">
+            <PlayerGroupsTable groups={groups} />
+          </div>
+        )}
+        {selectedTabIndex === 4 && (
           <>
-            {SKILLS.map((skill) => (
+            {SKILLS.map(skill => (
               <div key={`records-widget-${skill}`} className="col-md-6 col-lg-4">
                 <PlayerRecordsWidget records={records} metric={skill} />
               </div>
             ))}
           </>
         )}
-        {selectedTabIndex === 3 && (
+        {selectedTabIndex === 5 && (
           <>
             <div className="col-md-6 col-lg-4">
               <PlayerAchievementsWidget achievements={achievements} type="general" />
@@ -212,11 +228,6 @@ function Player() {
               <PlayerAchievementsWidget achievements={achievements} type="levels" />
             </div>
           </>
-        )}
-        {selectedTabIndex === 4 && (
-          <div className="col">
-            <PlayerCompetitionsTable competitions={competitions} />
-          </div>
         )}
       </div>
     </div>
