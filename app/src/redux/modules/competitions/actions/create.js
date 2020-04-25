@@ -33,7 +33,7 @@ function createCompetitionFailure(error) {
   };
 }
 
-export default function createCompetition({ title, metric, startDate, endDate, participants }) {
+export default function createCompetition({ title, metric, startDate, endDate, participants, groupId }) {
   return dispatch => {
     dispatch(createCompetitionRequest());
 
@@ -44,7 +44,8 @@ export default function createCompetition({ title, metric, startDate, endDate, p
       metric,
       startsAt: startDate,
       endsAt: endDate,
-      participants
+      participants,
+      groupId
     };
 
     return axios

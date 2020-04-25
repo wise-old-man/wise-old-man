@@ -46,4 +46,14 @@
     height: 1px;
     border: 0;
   }
+
+  .group-toggle {
+    margin-bottom: 30px;
+    &__label {
+      font-size: 0.9em;
+      display: inline-block;
+      margin-left: 10px;
+      margin-bottom: 2px;
+    }
+  }
 }

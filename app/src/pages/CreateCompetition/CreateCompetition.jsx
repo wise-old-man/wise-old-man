@@ -4,11 +4,13 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
+import Switch from '../../components/Switch';
 import TextButton from '../../components/TextButton';
 import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
+import GroupSelector from './components/GroupSelector';
 import ParticipantsPopup from './components/ParticipantsPopup';
 import VerificationPopup from './components/VerificationPopup';
 import { capitalize, getSkillIcon } from '../../utils';
@@ -41,7 +43,9 @@ function CreateCompetition() {
   const [startDate, setStartDate] = useState(initialStartMoment.toDate());
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
+  const [groupCompetition, setGroupCompetition] = useState(false);
   const [showingImportPopup, toggleImportPopup] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
@@ -82,7 +86,8 @@ function CreateCompetition() {
       metric,
       startDate,
       endDate,
-      participants
+      participants: !groupCompetition ? participants : null,
+      groupId: groupCompetition && selectedGroup ? selectedGroup.id : null
     };
 
     dispatch(createCompetitionAction(formData)).then(a => {
@@ -93,8 +98,13 @@ function CreateCompetition() {
     });
   };
 
+  const handleToggleGroupCompetition = () => {
+    setGroupCompetition(!groupCompetition);
+  };
+
   const hideParticipantsPopup = useCallback(() => toggleImportPopup(false), []);
   const showParticipantsPopup = useCallback(() => toggleImportPopup(true), []);
+  const toggleGroupCompetition = useCallback(handleToggleGroupCompetition, [groupCompetition]);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
   const onMetricSelected = useCallback(handleMetricSelected, []);
@@ -103,7 +113,16 @@ function CreateCompetition() {
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onSubmitParticipantsPopup = useCallback(handlePopupSubmit, []);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
-  const onSubmit = useCallback(handleSubmit, [title, metric, startDate, endDate, participants]);
+
+  const onSubmit = useCallback(handleSubmit, [
+    title,
+    metric,
+    startDate,
+    endDate,
+    participants,
+    groupCompetition,
+    selectedGroup
+  ]);
 
   return (
     <div className="create-competition__container container">
@@ -130,17 +149,28 @@ function CreateCompetition() {
         </div>
 
         <div className="form-row">
-          <span className="form-row__label">
-            Participants
-            <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-            <TextButton text="Import list" onClick={showParticipantsPopup} />
-          </span>
+          <div className="group-toggle">
+            <Switch on={groupCompetition} onToggle={toggleGroupCompetition} />
+            <span className="group-toggle__label">Group competition</span>
+          </div>
 
-          <ParticipantsSelector
-            participants={participants}
-            onParticipantAdded={onParticipantAdded}
-            onParticipantRemoved={onParticipantRemoved}
-          />
+          {groupCompetition ? (
+            <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
+          ) : (
+            <>
+              <span className="form-row__label">
+                Participants
+                <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
+                <TextButton text="Import list" onClick={showParticipantsPopup} />
+              </span>
+
+              <ParticipantsSelector
+                participants={participants}
+                onParticipantAdded={onParticipantAdded}
+                onParticipantRemoved={onParticipantRemoved}
+              />
+            </>
+          )}
         </div>
 
         <div className="form-row form-actions">
