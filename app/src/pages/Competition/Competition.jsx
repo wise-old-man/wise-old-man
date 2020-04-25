@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import LineChart from '../../components/LineChart';
@@ -111,6 +112,9 @@ function Competition() {
 
   return (
     <div className="competition__container container">
+      <Helmet>
+        <title>{competition.title}</title>
+      </Helmet>
       <div className="competition__header row">
         <div className="col">
           <PageHeader title={competition.title}>

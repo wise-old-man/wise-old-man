@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
@@ -138,8 +139,16 @@ function EditCompetition() {
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(populate, [competition]);
 
+  if (!competition) {
+    return null;
+  }
+
   return (
     <div className="edit-competition__container container">
+      <Helmet>
+        <title>{`Edit: ${competition.title}`}</title>
+      </Helmet>
+
       <div className="col">
         <PageTitle title="Edit competition" />
 
@@ -154,11 +163,7 @@ function EditCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Metric</span>
-          <Selector
-            options={metricOptions}
-            onSelect={onMetricSelected}
-            selectedIndex={metricIndex}
-          />
+          <Selector options={metricOptions} onSelect={onMetricSelected} selectedIndex={metricIndex} />
         </div>
 
         <div className="form-row">

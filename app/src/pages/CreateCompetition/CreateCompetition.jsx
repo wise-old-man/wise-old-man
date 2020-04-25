@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import moment from 'moment';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Switch from '../../components/Switch';
@@ -126,6 +127,10 @@ function CreateCompetition() {
 
   return (
     <div className="create-competition__container container">
+      <Helmet>
+        <title>Creat new competition</title>
+      </Helmet>
+
       <div className="col">
         <PageTitle title="Create new competition" />
 

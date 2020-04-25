@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import _ from 'lodash';
+import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Selector from '../../components/Selector';
@@ -131,6 +132,9 @@ function CompetitionsList() {
 
   return (
     <div className="competitions__container container">
+      <Helmet>
+        <title>Competitions</title>
+      </Helmet>
       <div className="competitions__header row">
         <div className="col">
           <PageTitle title="Competitions" />

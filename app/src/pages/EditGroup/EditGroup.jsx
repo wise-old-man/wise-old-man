@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -111,8 +112,16 @@ function EditGroup() {
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(populate, [group]);
 
+  if (!group) {
+    return null;
+  }
+
   return (
     <div className="create-group__container container">
+      <Helmet>
+        <title>{`Edit: ${group.name}`}</title>
+      </Helmet>
+
       <div className="col">
         <PageTitle title="Edit group" />
 
