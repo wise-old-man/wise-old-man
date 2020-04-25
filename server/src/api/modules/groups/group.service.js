@@ -191,7 +191,7 @@ async function edit(id, name, verificationCode, members) {
 
   if (members) {
     const newMembers = await setMembers(group, members);
-    return { ...format(group), participants: newMembers };
+    return { ...format(group), members: newMembers };
   }
 
   const memberships = await group.getMembers();
@@ -236,41 +236,26 @@ async function destroy(id, verificationCode) {
  *
  * Note: This will replace any existing members.
  * Note: The members array should have this format:
- * [{username: "...", role: "member"}]
+ * [{username: "ABC", role: "member"}]
  */
 async function setMembers(group, members) {
   if (!group) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const usernames = members.map(m => m.username);
+  const players = await playerService.findAll(members.map(m => m.username));
 
-  const existingMembers = await group.getMembers();
-  const existingUsernames = existingMembers.map(e => e.username);
+  const newMemberships = players.map((p, i) => ({
+    playerId: p.id,
+    groupId: group.id,
+    role: members[i].role || 'member'
+  }));
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  // Remove all existing memberships
+  await Membership.destroy({ where: { groupId: group.id } });
 
-  const playersToRemove = existingMembers.filter(p => !usernames.includes(p.username));
-  const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
-
-  if (playersToRemove && playersToRemove.length > 0) {
-    await group.removeMembers(playersToRemove);
-  }
-
-  if (playersToAdd && playersToAdd.length > 0) {
-    await group.addMembers(playersToAdd);
-  }
-
-  const leaderUsernames = members
-    .filter(m => m.role === 'leader')
-    .map(m => playerService.formatUsername(m.username));
-
-  // If there's leaders, we have to re-add them, forcing the leader role
-  if (leaderUsernames && leaderUsernames.length > 0) {
-    const allMembers = await group.getMembers();
-    const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
-    await group.addMembers(leaders, { through: { role: 'leader' } });
-  }
+  // Add all the new memberships
+  await Membership.bulkCreate(newMemberships, { ignoreDuplicates: true });
 
   const allMembers = await group.getMembers();
 
@@ -285,7 +270,7 @@ async function setMembers(group, members) {
  * Adds all the usernames as group members.
  *
  * Note: The members array should have this format:
- * [{username: "...", role: "member"}]
+ * [{username: "ABC", role: "member"}]
  */
 async function addMembers(id, verificationCode, members) {
   if (!id) {

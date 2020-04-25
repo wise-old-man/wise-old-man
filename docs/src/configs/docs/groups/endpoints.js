@@ -239,7 +239,7 @@ export default [
           name: 'Some new name',
           createdAt: '2020-04-18T08:45:28.726Z',
           updatedAt: '2020-04-18T15:30:41.380Z',
-          participants: [
+          members: [
             {
               id: 61,
               username: 'Psikoi',
