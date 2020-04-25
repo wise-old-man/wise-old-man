@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import Button from '../../components/Button';
 import TableList from '../../components/TableList';
 import PlayerTag from '../../components/PlayerTag';
@@ -61,6 +62,9 @@ function PlayerSearch() {
 
   return (
     <div className="player-search__container container">
+      <Helmet>
+        <title>{`Player search: ${username}`}</title>
+      </Helmet>
       <div className="player-search__header row">
         <div className="col">
           <h1 className="header__title">{`Couldn't find "${username}"`}</h1>

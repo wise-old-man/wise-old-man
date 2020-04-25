@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
@@ -73,6 +74,9 @@ function GroupsList() {
 
   return (
     <div className="groups__container container">
+      <Helmet>
+        <title>Groups</title>
+      </Helmet>
       <div className="groups__header row">
         <div className="col">
           <PageTitle title="Groups" />

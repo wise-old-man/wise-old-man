@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import className from 'classnames';
+import { Helmet } from 'react-helmet';
 import Button from '../../components/Button';
 import './Home.scss';
 
@@ -50,6 +51,9 @@ function Home() {
 
   return (
     <div className="home__container">
+      <Helmet>
+        <title>Wise Old Man - The Open Source Old School Runescape player progress tracker.</title>
+      </Helmet>
       <section id="hero" className="hero">
         <div id="intro" className="hero__intro">
           <div className="intro-container">

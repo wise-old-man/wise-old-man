@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -127,6 +128,9 @@ function Player() {
 
   return (
     <div className="player__container container">
+      <Helmet>
+        <title>{player.username}</title>
+      </Helmet>
       <div className="player__header row">
         <div className="col">
           <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -96,6 +97,10 @@ function CreateGroup() {
 
   return (
     <div className="create-group__container container">
+      <Helmet>
+        <title>Create new group</title>
+      </Helmet>
+
       <div className="col">
         <PageTitle title="Create new group" />
 

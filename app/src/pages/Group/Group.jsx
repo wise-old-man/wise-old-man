@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Helmet } from 'react-helmet';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Dropdown from '../../components/Dropdown';
@@ -71,6 +72,9 @@ function Group() {
 
   return (
     <div className="group__container container">
+      <Helmet>
+        <title>{group.name}</title>
+      </Helmet>
       <div className="group__header row">
         <div className="col">
           <PageHeader title={group.name}>
