@@ -472,6 +472,7 @@ async function findOne(groupId) {
   return group;
 }
 
+exports.format = format;
 exports.list = list;
 exports.view = view;
 exports.create = create;
