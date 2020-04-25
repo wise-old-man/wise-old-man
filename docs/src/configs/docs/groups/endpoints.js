@@ -3,6 +3,14 @@ export default [
     title: 'Search groups',
     url: '/groups',
     method: 'GET',
+    comments: [
+      {
+        type: 'warning',
+        content:
+          'If a "playerId" query param is given, this will only return groups of which \
+          that player is a member and will ignore every other query parameter.'
+      }
+    ],
     query: [
       {
         field: 'name',
@@ -13,6 +21,11 @@ export default [
         field: 'username',
         type: 'string',
         description: 'A partial member username match. - Optional'
+      },
+      {
+        field: 'playerId',
+        type: 'number',
+        description: "A player's unique id."
       }
     ],
     successResponses: [
