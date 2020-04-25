@@ -1,17 +1,19 @@
-import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useHistory } from 'react-router-dom';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from './components/MembersSelector';
 import MembersModal from './components/MembersModal';
-import VerificationModal from './components/VerificationModal';
-import createGroupAction from '../../redux/modules/groups/actions/create';
-import './CreateGroup.scss';
+import editGroupAction from '../../redux/modules/groups/actions/edit';
+import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
+import { getGroup } from '../../redux/selectors/groups';
+import './EditGroup.scss';
 
-function CreateGroup() {
+function EditGroup() {
+  const { id } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
 
@@ -19,10 +21,26 @@ function CreateGroup() {
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
-  const [createdId, setCreatedId] = useState(-1);
+
+  const group = useSelector(state => getGroup(state, parseInt(id, 10)));
+
+  const fetchDetails = () => {
+    dispatch(fetchDetailsAction(id));
+  };
+
+  const populate = () => {
+    if (group) {
+      setName(group.name);
+      setMembers(group.members.map(({ username, role }) => ({ username, role })));
+    }
+  };
 
   const handleNameChanged = e => {
     setName(e.target.value);
+  };
+
+  const handleVerificationChanged = e => {
+    setVerificationCode(e.target.value);
   };
 
   const handleAddMember = username => {
@@ -69,18 +87,13 @@ function CreateGroup() {
   };
 
   const handleSubmit = async () => {
-    const formData = { name, members };
+    const formData = { name, members, verificationCode };
 
-    dispatch(createGroupAction(formData)).then(a => {
+    dispatch(editGroupAction(group.id, formData)).then(a => {
       if (a && a.group) {
-        setVerificationCode(a.group.verificationCode);
-        setCreatedId(a.group.id);
+        router.push(`/groups/${group.id}`);
       }
     });
-  };
-
-  const handleConfirmVerification = () => {
-    router.push(`/groups/${createdId}`);
   };
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
@@ -90,18 +103,22 @@ function CreateGroup() {
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
-  const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
-  const onSubmit = useCallback(handleSubmit, [name, members]);
+  const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
+  const onSubmit = useCallback(handleSubmit, [name, members, verificationCode]);
+
+  // Fetch competition details, on mount
+  useEffect(fetchDetails, [dispatch, id]);
+  useEffect(populate, [group]);
 
   return (
     <div className="create-group__container container">
       <div className="col">
-        <PageTitle title="Create new group" />
+        <PageTitle title="Edit group" />
 
         <div className="form-row">
           <span className="form-row__label">Group name</span>
-          <TextInput placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+          <TextInput value={name} placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
         </div>
 
         <div className="form-row">
@@ -119,6 +136,11 @@ function CreateGroup() {
           />
         </div>
 
+        <div className="form-row">
+          <span className="form-row__label">Verification code</span>
+          <TextInput type="password" placeholder="Ex: 123-456-789" onChange={onVerificationChanged} />
+        </div>
+
         <div className="form-row form-actions">
           <Button text="Confirm" onClick={onSubmit} />
         </div>
@@ -126,11 +148,8 @@ function CreateGroup() {
       {showingImportModal && (
         <MembersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
-      {verificationCode && (
-        <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />
-      )}
     </div>
   );
 }
 
-export default CreateGroup;
+export default EditGroup;

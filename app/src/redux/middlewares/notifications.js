@@ -4,7 +4,9 @@ import {
   CREATE_GROUP_FAILURE,
   CREATE_GROUP_SUCCESS,
   DELETE_GROUP_FAILURE,
-  DELETE_GROUP_SUCCESS
+  DELETE_GROUP_SUCCESS,
+  EDIT_GROUP_FAILURE,
+  EDIT_GROUP_SUCCESS
 } from '../modules/groups/reducer';
 import {
   UPDATE_PARTICIPANTS_SUCCESS,
@@ -138,6 +140,27 @@ const notificationsMiddleware = store => next => action => {
     case CREATE_GROUP_SUCCESS: {
       const notification = {
         text: `${action.group.name} created successfully`,
+        type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case EDIT_GROUP_FAILURE: {
+      const notification = {
+        text: action.error,
+        duration: 10000,
+        type: 'error'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case EDIT_GROUP_SUCCESS: {
+      const notification = {
+        text: `${action.group.name} edited successfully`,
         type: 'success'
       };
 
