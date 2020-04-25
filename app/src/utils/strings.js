@@ -7,7 +7,7 @@ export function capitalize(str) {
 }
 
 export function formatNumber(num, withLetters = false) {
-  if (!num) {
+  if (num === undefined) {
     return -1;
   }
 

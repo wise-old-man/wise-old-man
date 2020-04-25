@@ -6,7 +6,7 @@ import { formatDate, capitalize } from '../../../../utils';
 import './CompetitionInfo.scss';
 
 function formatData(competition) {
-  const { id, metric, status, participants, duration, startsAt, endsAt } = competition;
+  const { id, metric, status, participants, duration, startsAt, endsAt, group } = competition;
 
   const statusClass = classNames({
     '-positive': status === 'ongoing',
@@ -18,6 +18,7 @@ function formatData(competition) {
     { key: 'Id', value: id },
     { key: 'Skill', value: capitalize(metric) },
     { key: 'Status', value: capitalize(status), className: statusClass },
+    { key: 'Group', value: group ? group.name : '---' },
     { key: 'Participants', value: participants ? participants.length : 'Unknown' },
     { key: 'Duration', value: capitalize(duration) },
     {

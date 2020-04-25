@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 import { COLORS } from '../../config';
-import { durationBetween, formatDate } from '../../utils';
+import { durationBetween } from '../../utils';
 
 const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;
@@ -88,7 +88,7 @@ function formatCompetition(competition) {
     formatted.countdown = `Starts in ${durationBetween(curDate, startsAt, 2)}`;
   } else if (endsAt < curDate) {
     formatted.status = 'finished';
-    formatted.countdown = `Ended at ${formatDate(endsAt)}`;
+    formatted.countdown = `Ended ${durationBetween(endsAt, curDate, 1)} ago`;
   } else if (startsAt < curDate && endsAt > curDate) {
     formatted.status = 'ongoing';
     formatted.countdown = `Ends in ${durationBetween(curDate, endsAt, 2)}`;
