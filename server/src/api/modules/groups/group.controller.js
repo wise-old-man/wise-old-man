@@ -2,10 +2,15 @@ const service = require('./group.service');
 
 async function listGroups(req, res, next) {
   try {
-    const { name, username } = req.query;
+    const { name, username, playerId } = req.query;
 
-    const results = await service.list(name, username);
-    res.json(results);
+    if (playerId) {
+      const results = await service.findForPlayer(playerId);
+      res.json(results);
+    } else {
+      const results = await service.list(name, username);
+      res.json(results);
+    }
   } catch (e) {
     next(e);
   }

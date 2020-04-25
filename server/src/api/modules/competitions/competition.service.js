@@ -686,6 +686,7 @@ async function updateAllParticipants(id, updateAction) {
 
 exports.list = list;
 exports.findForGroup = findForGroup;
+exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.create = create;
 exports.edit = edit;
@@ -696,5 +697,4 @@ exports.syncParticipations = syncParticipations;
 exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
-exports.findForPlayer = findForPlayer;
 exports.updateAllParticipants = updateAllParticipants;

@@ -19,7 +19,7 @@ function format(group) {
 }
 
 /**
- * Returns a list of all competitions that partially match
+ * Returns a list of all groups that partially match
  * the given name and/or includes a player whose username partially
  * matches the given username.
  */
@@ -36,6 +36,43 @@ async function list(name, username) {
       { model: Group, where: nameQuery },
       { model: Player, attributes: ['username'], where: usernameQuery }
     ]
+  });
+
+  // Extract all the unique groups from the memberships, and format them.
+  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
+
+  // Find all memberships for the searched groups.
+  const filteredMemberships = await Membership.findAll({
+    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  });
+
+  // Store in this variable the members count for each group id
+  const membersMap = {};
+
+  filteredMemberships.forEach(m => {
+    if (!membersMap[m.groupId]) {
+      membersMap[m.groupId] = 1;
+    } else {
+      const curCount = membersMap[m.groupId];
+      membersMap[m.groupId] = curCount + 1;
+    }
+  });
+
+  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+}
+
+/**
+ * Returns a list of all groups of which a given player is a member.
+ */
+async function findForPlayer(playerId) {
+  if (!playerId) {
+    throw new BadRequestError(`Invalid player id.`);
+  }
+
+  // Find all memberships for the player
+  const memberships = await Membership.findAll({
+    where: { playerId },
+    include: [{ model: Group }]
   });
 
   // Extract all the unique groups from the memberships, and format them.
@@ -474,6 +511,7 @@ async function findOne(groupId) {
 
 exports.format = format;
 exports.list = list;
+exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.create = create;
 exports.edit = edit;
