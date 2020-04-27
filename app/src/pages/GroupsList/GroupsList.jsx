@@ -33,7 +33,6 @@ function GroupsList() {
 
   // State variables
   const [nameSearch, setNameSearch] = useState('');
-  const [playerSearch, setPlayerSearch] = useState('');
 
   // Memoized redux variables
   const groups = useSelector(state => getGroups(state));
@@ -45,7 +44,7 @@ function GroupsList() {
 
   const handleSubmitSearch = _.debounce(
     () => {
-      fetchGroups({ name: nameSearch, username: playerSearch });
+      fetchGroups({ name: nameSearch });
     },
     500,
     { leading: true, trailing: false }
@@ -55,10 +54,6 @@ function GroupsList() {
     setNameSearch(e.target.value);
   };
 
-  const handlePlayerSearchInput = e => {
-    setPlayerSearch(e.target.value);
-  };
-
   const handleRowClicked = index => {
     router.push(`/groups/${groups[index].id}`);
   };
@@ -66,11 +61,10 @@ function GroupsList() {
   // Memoized callbacks
   const onSubmitSearch = useCallback(handleSubmitSearch, [fetchGroups]);
   const onNameSearchInput = useCallback(handleNameSearchInput, [setNameSearch]);
-  const onPlayerSearchInput = useCallback(handlePlayerSearchInput, [setPlayerSearch]);
   const onRowClicked = useCallback(handleRowClicked, [router, groups]);
 
   // Submit search each time any of the search variable change
-  useEffect(onSubmitSearch, [nameSearch, playerSearch]);
+  useEffect(onSubmitSearch, [nameSearch]);
 
   return (
     <div className="groups__container container">
@@ -86,11 +80,8 @@ function GroupsList() {
         </div>
       </div>
       <div className="groups__options row">
-        <div className="col-md-6 col-sm-12">
+        <div className="col-12">
           <TextInput onChange={onNameSearchInput} placeholder="Search group" />
-        </div>
-        <div className="col-md-6 col-sm-12">
-          <TextInput onChange={onPlayerSearchInput} placeholder="Search by username" />
         </div>
       </div>
       <div className="groups__list row">

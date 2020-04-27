@@ -19,27 +19,14 @@ function format(group) {
 }
 
 /**
- * Returns a list of all groups that partially match
- * the given name and/or includes a player whose username partially
- * matches the given username.
+ * Returns a list of all groups that partially match the given name.
  */
-async function list(name, username) {
-  const formattedName = name && sanitizeName(name);
-  const formattedUsername = username && playerService.formatUsername(username);
-
-  const nameQuery = name && { name: { [Op.iLike]: `%${formattedName}%` } };
-  const usernameQuery = username && { username: { [Op.iLike]: `%${formattedUsername}%` } };
-
-  // Find all memberships for that match the search query.
-  const memberships = await Membership.findAll({
-    include: [
-      { model: Group, where: nameQuery },
-      { model: Player, attributes: ['username'], where: usernameQuery }
-    ]
+async function list(name) {
+  // Fetch all groups that match the name, limited to 20 results
+  const groups = await Group.findAll({
+    where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
+    limit: 20
   });
-
-  // Extract all the unique groups from the memberships, and format them.
-  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
 
   // Find all memberships for the searched groups.
   const filteredMemberships = await Membership.findAll({
@@ -58,7 +45,7 @@ async function list(name, username) {
     }
   });
 
-  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+  return groups.map(format).map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
 }
 
 /**
@@ -147,7 +134,7 @@ async function view(id) {
   const totalExperience = memberships
     .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
     .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
-    .reduce((acc, cur) => acc + cur);
+    .reduce((acc, cur) => acc + cur, 0);
 
   const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
 
