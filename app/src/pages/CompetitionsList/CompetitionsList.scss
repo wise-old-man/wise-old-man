@@ -2,7 +2,8 @@
 
 .competitions__container {
   @extend %page;
-  max-width: 800px !important;
+  width: 800px !important;
+  max-width: 100%;
 
   .competitions__header {
     .text-button {
