@@ -18,11 +18,6 @@ export default [
         description: 'A partial name match. - Optional'
       },
       {
-        field: 'username',
-        type: 'string',
-        description: 'A partial member username match. - Optional'
-      },
-      {
         field: 'playerId',
         type: 'number',
         description: "A player's unique id."
