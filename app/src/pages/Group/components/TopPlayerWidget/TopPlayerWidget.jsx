@@ -15,6 +15,16 @@ function TopPlayerWidget({ group }) {
   }
 
   const topPlayer = group.monthlyTopPlayer;
+
+  if (!topPlayer) {
+    return (
+      <div className="top-player-widget">
+        <b className="top__username">---</b>
+        <span className="top__gained">0 exp gained</span>
+      </div>
+    );
+  }
+
   const gained = formatNumber(topPlayer && topPlayer.gained ? topPlayer.gained : 0);
 
   return (

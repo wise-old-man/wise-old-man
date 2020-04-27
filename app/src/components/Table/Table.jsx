@@ -47,7 +47,7 @@ function Table({ rows, columns, onRowClicked, clickable }) {
           ))
         ) : (
           <tr className="-empty">
-            <td>No results found</td>
+            <td colSpan={2}>No results found</td>
           </tr>
         )}
       </tbody>
