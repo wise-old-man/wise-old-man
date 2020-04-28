@@ -3,10 +3,6 @@ const controller = require('./group.controller');
 
 const api = express.Router();
 
-api.use((req, res, next) => {
-  setTimeout(next, 5000);
-});
-
 api.get('/', controller.listGroups);
 api.get('/:id', controller.viewGroup);
 api.post('/', controller.createGroup);

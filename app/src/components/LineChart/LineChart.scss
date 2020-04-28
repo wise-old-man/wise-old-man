@@ -3,4 +3,13 @@
 .chart__container {
   @extend %panel;
   padding: 30px;
+
+  .not-enough-data {
+    color: $gray-60;
+    font-size: 2em;
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding: 100px 0;
+  }
 }
