@@ -8,6 +8,9 @@ const jobs = require('./jobs');
 const hooks = require('./hooks');
 const proxies = require('./proxies');
 
+const RATE_LIMIT_MINUTES = 5;
+const RATE_LIMIT_REQUESTS = 500;
+
 function init() {
   const app = express();
 
@@ -16,12 +19,10 @@ function init() {
   app.use(cors());
 
   if (process.env.NODE_ENV !== 'test') {
-    app.use(
-      rateLimit({
-        windowMs: 5 * 60 * 1000, // 5 minutes
-        max: 200 // limit each IP to 200 requests per windowMs
-      })
-    );
+    app.set('trust proxy', 1);
+
+    // Limits 500 requests per ip, every 5 minutes
+    app.use(rateLimit({ windowMs: RATE_LIMIT_MINUTES * 60 * 1000, max: RATE_LIMIT_REQUESTS }));
 
     jobs.setup();
     hooks.setup();
