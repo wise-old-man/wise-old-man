@@ -6,6 +6,7 @@ import { durationBetween } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
+import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
   const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });
@@ -18,7 +19,7 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
   );
 }
 
-function CompetitionTable({ competition, updatingUsernames, onUpdateClicked }) {
+function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isLoading }) {
   const isFinished = competition.endsAt < new Date();
 
   // Column config
@@ -35,26 +36,26 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked }) {
     },
     {
       key: 'start',
-      transform: (val) => <NumberLabel value={val} />,
+      transform: val => <NumberLabel value={val} />,
       className: () => '-break-large',
-      get: (row) => (row.progress ? row.progress.start : 0)
+      get: row => (row.progress ? row.progress.start : 0)
     },
     {
       key: 'end',
-      transform: (val) => <NumberLabel value={val} />,
+      transform: val => <NumberLabel value={val} />,
       className: () => '-break-large',
-      get: (row) => (row.progress ? row.progress.end : 0)
+      get: row => (row.progress ? row.progress.end : 0)
     },
     {
       key: 'gained',
-      transform: (val) => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
-      get: (row) => (row.progress ? row.progress.delta : 0)
+      transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
+      get: row => (row.progress ? row.progress.delta : 0)
     },
     {
       key: 'updatedAt',
       label: 'Last updated',
       className: () => '-break-small',
-      transform: (value) => `${durationBetween(value, new Date(), 2, true)} ago`
+      transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
     },
     {
       key: 'update',
@@ -70,6 +71,10 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked }) {
     }
   ];
 
+  if (isLoading) {
+    return <TableListPlaceholder size={10} />;
+  }
+
   return <Table rows={competition.participants} columns={columns} />;
 }
 
@@ -82,7 +87,8 @@ TableUpdateButton.propTypes = {
 CompetitionTable.propTypes = {
   competition: PropTypes.shape().isRequired,
   updatingUsernames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onUpdateClicked: PropTypes.func.isRequired
+  onUpdateClicked: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default CompetitionTable;

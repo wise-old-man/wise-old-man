@@ -3,6 +3,10 @@ const controller = require('./competition.controller');
 
 const api = express.Router();
 
+api.use((req, res, next) => {
+  setTimeout(next, 5000);
+});
+
 api.get('/:id', controller.viewCompetition);
 api.post('/', controller.createCompetition);
 api.put('/:id', controller.editCompetition);

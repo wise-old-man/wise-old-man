@@ -11,7 +11,7 @@ import CompetitionWidget from './components/CompetitionWidget';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import DeleteGroupModal from './components/DeleteGroupModal';
-import { getGroup } from '../../redux/selectors/groups';
+import { getGroup, isFetchingDetails } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
@@ -35,6 +35,7 @@ function Group() {
 
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
 
+  const isLoading = useSelector(state => isFetchingDetails(state));
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
 
@@ -105,7 +106,7 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <MembersTable members={group.members} />
+          <MembersTable members={group.members} isLoading={isLoading} />
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}
