@@ -267,7 +267,7 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const players = await playerService.findAll(members.map(m => m.username));
+  const players = await playerService.findAllOrCreate(members.map(m => m.username));
 
   const newMemberships = players.map((p, i) => ({
     playerId: p.id,
