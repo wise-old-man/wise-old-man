@@ -11,7 +11,7 @@ import Tabs from '../../components/Tabs';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import updateAllAction from '../../redux/modules/competitions/actions/updateAll';
 import updatePlayerAction from '../../redux/modules/players/actions/track';
-import { getCompetition, getChartData } from '../../redux/selectors/competitions';
+import { getCompetition, getChartData, isFetchingDetails } from '../../redux/selectors/competitions';
 import { getUpdatingUsernames } from '../../redux/selectors/players';
 import CompetitionTable from './components/CompetitionTable';
 import CompetitionInfo from './components/CompetitionInfo';
@@ -60,6 +60,7 @@ function Competition() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   // Memoized redux variables
+  const isLoading = useSelector(state => isFetchingDetails(state));
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const competitionChartData = useSelector(state => getChartData(state, parseInt(id, 10)));
   const updatingUsernames = useSelector(state => getUpdatingUsernames(state));
@@ -154,6 +155,7 @@ function Competition() {
               competition={competition}
               updatingUsernames={updatingUsernames}
               onUpdateClicked={onUpdatePlayer}
+              isLoading={isLoading}
             />
           ) : (
             <LineChart datasets={competitionChartData} />

@@ -54,7 +54,7 @@ function getConfig(datasets, invertYAxis) {
           {
             ticks: {
               reverse: invertYAxis,
-              callback: value => `${value / 1000}k`,
+              callback: value => formatNumber(value, true),
               beginAtZero: false,
               maxTicksLimit: 5
             }
@@ -71,10 +71,16 @@ function getConfig(datasets, invertYAxis) {
 }
 
 function LineChart({ datasets, invertYAxis }) {
+  const hasEnoughData = datasets.filter(d => d.data.length > 1).length > 0;
+
   const chartObjectRef = useRef(null);
   const chartRef = useRef(null);
 
   function setupChart() {
+    if (!hasEnoughData) {
+      return;
+    }
+
     if (chartObjectRef.current) {
       chartObjectRef.current.destroy();
     }
@@ -86,6 +92,14 @@ function LineChart({ datasets, invertYAxis }) {
   }
 
   useEffect(setupChart, [datasets]);
+
+  if (!hasEnoughData) {
+    return (
+      <div className="chart__container">
+        <b className="not-enough-data">Not enough data to display</b>
+      </div>
+    );
+  }
 
   return (
     <div className="chart__container">

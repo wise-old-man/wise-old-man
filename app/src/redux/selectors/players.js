@@ -1,8 +1,11 @@
 import { createSelector } from 'reselect';
 
+const rootSelector = state => state.players;
 const playersSelector = state => state.players.players;
 const updatingSelector = state => state.players.updating;
 const searchResultsSelector = state => state.players.searchResults;
+
+export const isFetching = createSelector(rootSelector, root => root.isFetching);
 
 export const getUpdatingUsernames = createSelector(updatingSelector, updating => updating);
 

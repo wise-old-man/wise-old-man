@@ -16,7 +16,7 @@ import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerHighlights from './components/PlayerHighlights';
-import { getPlayer } from '../../redux/selectors/players';
+import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
 import { getPlayerRecords } from '../../redux/selectors/records';
 import { getPlayerAchievements } from '../../redux/selectors/achievements';
@@ -78,6 +78,7 @@ function Player() {
   const achievements = useSelector(state => getPlayerAchievements(state, id));
   const competitions = useSelector(state => getPlayerCompetitions(state, id));
   const groups = useSelector(state => getPlayerGroups(state, id));
+  const isLoadingDetails = useSelector(state => isFetching(state));
 
   const experienceChartData = useSelector(state =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
@@ -206,7 +207,7 @@ function Player() {
             </div>
             <div className="col-lg-6 col-md-12">
               <span className="panel-label">Current stats</span>
-              <PlayerStatsTable player={player} />
+              <PlayerStatsTable player={player} isLoading={isLoadingDetails} />
             </div>
           </>
         )}

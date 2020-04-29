@@ -55,6 +55,7 @@ function NavigationBar() {
           <div className="nav-logo-text">
             <span>WISE</span>
             <span>OLD MAN</span>
+            <span className="tag">BETA</span>
           </div>
         </Link>
         <div className="nav-menu col-md-9 col-4">

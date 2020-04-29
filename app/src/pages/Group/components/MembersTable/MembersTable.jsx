@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
-import { durationBetween, capitalize } from '../../../../utils';
 import NumberLabel from '../../../../components/NumberLabel';
+import TableListPlaceholder from '../../../../components/TableListPlaceholder';
+import { durationBetween, capitalize } from '../../../../utils';
 
-function MembersTable({ members }) {
+function MembersTable({ members, isLoading }) {
   if (!members) {
     return null;
   }
@@ -50,11 +51,16 @@ function MembersTable({ members }) {
     }
   ];
 
+  if (isLoading) {
+    return <TableListPlaceholder size={10} />;
+  }
+
   return <Table rows={members} columns={columns} />;
 }
 
 MembersTable.propTypes = {
-  members: PropTypes.arrayOf(PropTypes.shape()).isRequired
+  members: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default React.memo(MembersTable);
