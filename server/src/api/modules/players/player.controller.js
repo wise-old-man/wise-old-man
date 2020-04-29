@@ -41,6 +41,17 @@ async function track(req, res, next) {
   }
 }
 
+async function assertType(req, res, next) {
+  try {
+    const { username } = req.body;
+
+    const type = await service.assertType(username, true);
+    res.status(200).json({ type });
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function importPlayer(req, res, next) {
   try {
     const { username } = req.body;
@@ -57,4 +68,5 @@ async function importPlayer(req, res, next) {
 exports.get = get;
 exports.search = search;
 exports.track = track;
+exports.assertType = assertType;
 exports.importPlayer = importPlayer;
