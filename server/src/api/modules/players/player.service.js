@@ -225,59 +225,107 @@ async function importCMLSince(id, username, time) {
 }
 
 /**
- * Check the hiscores to check if a player
- * with a given username is of a specific player type.
+ * Gets a player's overall experience in a specific
+ * player type hiscores endpoint.
+ *
+ * Note: This is an auxilary function for the assertType function
+ * and should not be used for any other situation.
  */
-async function isType(username, type) {
+async function getOverallExperience(username, hiscoresType) {
   try {
-    await getHiscoresData(username, type);
-    return true;
+    const data = await getHiscoresData(username, hiscoresType);
+
+    if (!data || data.length === 0) {
+      throw new ServerError('Failed to fetch hiscores data.');
+    }
+
+    const rows = data.split('\n');
+
+    if (!rows || rows.length === 0) {
+      throw new ServerError('Failed to fetch hiscores data.');
+    }
+
+    const values = rows[0].split(',');
+
+    if (values.length < 3) {
+      throw new ServerError('Failed to fetch hiscores data.');
+    }
+
+    return parseInt(values[2], 10);
   } catch (e) {
-    // If the hiscores are down, abort mission,
-    // otherwise if it's a BadRequestError,
-    // then it's possible the player is not of "type"
     if (e instanceof ServerError) {
       throw e;
     }
+    return -1;
   }
-
-  return false;
 }
 
 /**
- * If a player type is unknown, check different
- * hiscores endpoints to try and determine it.
+ * Query the multiple hiscore endpoints to try and determine
+ * the player's account type.
+ *
+ * If force is true, this will reassign the type, even if the current
+ * value is not unknown.
+ *
+ * Note: If an hardcore acc dies at 1m overall exp, it stays that way in the
+ * hardcore hiscores, even if the regular ironman hiscores continue to progress.
+ * So to check if the player is no longer hardcore, we have to check if the
+ * ironman exp is higher than the hardcore exp (meaning it progressed further as an ironman)
  */
-async function confirmType(username) {
+async function assertType(username, force = false) {
+  async function submitType(player, type) {
+    if (player.type === type) {
+      throw new BadRequestError(`Failed to reasign player type: ${username}'s is already ${type}.`);
+    }
+
+    await player.update({ type });
+  }
+
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
 
-  const [player] = await findOrCreate(username);
+  const formattedUsername = formatUsername(username);
 
-  if (!player || !player.type) {
-    throw new ServerError('Invalid player.');
+  const player = await find(formattedUsername);
+
+  if (!player) {
+    throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
   }
 
-  if (player.type !== 'unknown') {
+  if (!force && player.type !== 'unknown') {
     return player.type;
   }
 
-  let type = 'regular';
+  const regularExp = await getOverallExperience(formattedUsername, 'NORMAL');
 
-  if (await isType(player.username, 'IRONMAN')) {
-    if (await isType(player.username, 'ULTIMATE_IRONMAN')) {
-      type = 'ultimate';
-    } else if (await isType(player.username, 'HARDCORE_IRONMAN')) {
-      type = 'hardcore';
-    } else {
-      type = 'ironman';
-    }
+  if (regularExp === -1) {
+    throw new BadRequestError(`Couldn't find player ${username} in the hiscores.`);
   }
 
-  await player.update({ type });
+  const ironmanExp = await getOverallExperience(formattedUsername, 'IRONMAN');
 
-  return type;
+  if (ironmanExp < regularExp) {
+    await submitType(player, 'regular');
+    return 'regular';
+  }
+
+  const hardcoreExp = await getOverallExperience(formattedUsername, 'HARDCORE_IRONMAN');
+
+  if (hardcoreExp >= ironmanExp) {
+    await submitType(player, 'hardcore');
+    return 'hardcore';
+  }
+
+  const ultimateExp = await getOverallExperience(formattedUsername, 'ULTIMATE_IRONMAN');
+
+  if (ultimateExp >= ironmanExp) {
+    await submitType(player, 'ultimate');
+    return 'ultimate';
+  }
+
+  await submitType(player, 'ironman');
+  return 'ironman';
 }
 
 async function findOrCreate(username) {
@@ -362,7 +410,7 @@ exports.getData = getData;
 exports.search = search;
 exports.update = update;
 exports.importCML = importCML;
-exports.confirmType = confirmType;
+exports.assertType = assertType;
 exports.find = find;
 exports.findById = findById;
 exports.findOrCreate = findOrCreate;

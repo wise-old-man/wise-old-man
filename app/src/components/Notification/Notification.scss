@@ -24,6 +24,7 @@
     opacity: 0;
     transform: translateY(-200px);
     transition: 0.5s;
+    pointer-events: all;
 
     &.-visible {
       opacity: 1;

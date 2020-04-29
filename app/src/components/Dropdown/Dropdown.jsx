@@ -1,17 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
 import classNames from 'classnames';
 import './Dropdown.scss';
 
 function Dropdown({ options, align, onSelect, children }) {
-  function handleSelection(selectedLabel) {
-    onSelect(options.find(o => o.label === selectedLabel));
-  }
-
-  // Memoized callback
-  const onOptionSelected = useCallback(handleSelection, [options, onSelect]);
-
   const listClass = classNames({
     'dropdown-list': true,
     '-right': align === 'right',
@@ -19,13 +12,17 @@ function Dropdown({ options, align, onSelect, children }) {
   });
 
   return (
-    <Wrapper className="dropdown__container" onSelection={onOptionSelected}>
+    <Wrapper className="dropdown__container">
       <Button className="dropdown__toggle">{children}</Button>
       <Menu className={listClass}>
         {options &&
           options.map(option => {
             return (
-              <MenuItem key={option.label} className="dropdown-list__item">
+              <MenuItem
+                key={option.label}
+                className="dropdown-list__item"
+                onClick={() => onSelect(option)}
+              >
                 {option.label}
               </MenuItem>
             );

@@ -7,5 +7,6 @@ api.get('/', controller.get);
 api.get('/search', controller.search);
 api.post('/track', controller.track);
 api.post('/import', controller.importPlayer);
+api.post('/assert-type', controller.assertType);
 
 module.exports = api;
