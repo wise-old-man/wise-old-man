@@ -11,6 +11,7 @@ function NavBar() {
             <div className="nav-logo-text">
               <span>WISE</span>
               <span>OLD MAN</span>
+              <span className="tag">BETA</span>
             </div>
           </div>
         </a>

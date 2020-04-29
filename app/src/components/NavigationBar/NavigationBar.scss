@@ -20,12 +20,25 @@
     width: calc(100% - 30px);
 
     .nav-brand {
+      position: relative;
       height: 100%;
       padding: 0;
       margin: 0;
       display: flex;
       flex-direction: row;
       align-items: center;
+
+      .tag {
+        position: absolute;
+        top: 15px;
+        left: 100px;
+        color: $neutral-orange;
+        font-weight: 900;
+        font-size: 0.8em;
+        letter-spacing: 0.15em;
+        text-shadow: 1px 1px black;
+        transform: rotate(20deg);
+      }
 
       .nav-logo-img {
         margin-left: -10px;
@@ -130,6 +143,11 @@
     .nav-brand {
       font-size: 0.9em;
       height: 65px;
+
+      .tag {
+        top: 12px;
+        left: 88px;
+      }
     }
 
     .nav-menu {
