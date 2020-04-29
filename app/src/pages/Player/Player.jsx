@@ -130,8 +130,8 @@ function Player() {
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
   const onSkillsPeriodSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
-  const onUpdatedButtonClicked = useCallback(trackPlayer, [player]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
+  const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
@@ -150,7 +150,7 @@ function Player() {
       <div className="player__header row">
         <div className="col">
           <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>
-            <Button text="Update" onClick={onUpdatedButtonClicked} loading={isTracking} />
+            <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
