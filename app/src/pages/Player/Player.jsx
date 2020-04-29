@@ -7,6 +7,7 @@ import Button from '../../components/Button';
 import Selector from '../../components/Selector';
 import Tabs from '../../components/Tabs';
 import LineChart from '../../components/LineChart';
+import Dropdown from '../../components/Dropdown';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
@@ -23,6 +24,7 @@ import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
+import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetch';
 import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
@@ -41,6 +43,13 @@ const PERIOD_SELECTOR_OPTIONS = [
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
   { label: 'Year', value: 'year' }
+];
+
+const MENU_OPTIONS = [
+  {
+    label: 'Reasign player type',
+    value: 'assertType'
+  }
 ];
 
 function getMetricOptions() {
@@ -112,10 +121,17 @@ function Player() {
     setSelectedDeltasSkill((e && e.value) || null);
   };
 
+  const handleOptionSelected = async option => {
+    if (option.value === 'assertType') {
+      await dispatch(assertPlayerTypeAction(player.username, player.id));
+    }
+  };
+
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
   const onSkillsPeriodSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
   const onUpdatedButtonClicked = useCallback(trackPlayer, [player]);
+  const onOptionSelected = useCallback(handleOptionSelected, [player]);
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
@@ -135,6 +151,11 @@ function Player() {
         <div className="col">
           <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>
             <Button text="Update" onClick={onUpdatedButtonClicked} loading={isTracking} />
+            <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
+              <button className="header__options-btn" type="button">
+                <img src="/img/icons/options.svg" alt="" />
+              </button>
+            </Dropdown>
           </PageHeader>
         </div>
       </div>

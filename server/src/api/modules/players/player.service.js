@@ -273,6 +273,14 @@ async function getOverallExperience(username, hiscoresType) {
  * ironman exp is higher than the hardcore exp (meaning it progressed further as an ironman)
  */
 async function assertType(username, force = false) {
+  async function submitType(player, type) {
+    if (player.type === type) {
+      throw new BadRequestError(`Failed to reasign player type: ${username}'s is already ${type}.`);
+    }
+
+    await player.update({ type });
+  }
+
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -298,25 +306,25 @@ async function assertType(username, force = false) {
   const ironmanExp = await getOverallExperience(formattedUsername, 'IRONMAN');
 
   if (ironmanExp < regularExp) {
-    await player.update({ type: 'regular' });
+    await submitType(player, 'regular');
     return 'regular';
   }
 
   const hardcoreExp = await getOverallExperience(formattedUsername, 'HARDCORE_IRONMAN');
 
   if (hardcoreExp >= ironmanExp) {
-    await player.update({ type: 'hardcore' });
+    await submitType(player, 'hardcore');
     return 'hardcore';
   }
 
   const ultimateExp = await getOverallExperience(formattedUsername, 'ULTIMATE_IRONMAN');
 
   if (ultimateExp >= ironmanExp) {
-    await player.update({ type: 'ultimate' });
+    await submitType(player, 'ultimate');
     return 'ultimate';
   }
 
-  await player.update({ type: 'ironman' });
+  await submitType(player, 'ironman');
   return 'ironman';
 }
 

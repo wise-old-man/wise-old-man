@@ -1,5 +1,11 @@
 import { showNotification } from '../modules/notifications/actions/toggle';
-import { TRACK_PLAYER_SUCCESS, TRACK_PLAYER_FAILURE } from '../modules/players/reducer';
+import {
+  TRACK_PLAYER_SUCCESS,
+  TRACK_PLAYER_FAILURE,
+  ASSERT_TYPE_SUCCESS,
+  ASSERT_TYPE_FAILURE,
+  ASSERT_TYPE_REQUEST
+} from '../modules/players/reducer';
 import {
   CREATE_GROUP_FAILURE,
   CREATE_GROUP_SUCCESS,
@@ -33,6 +39,37 @@ const notificationsMiddleware = store => next => action => {
     }
 
     case TRACK_PLAYER_FAILURE: {
+      const notification = {
+        text: action.error,
+        type: 'error'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_TYPE_REQUEST: {
+      const notification = {
+        text: `Reasigning player type..`,
+        type: 'warn',
+        duration: 10000
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_TYPE_SUCCESS: {
+      const notification = {
+        text: `Player type successfully reasigned to ${action.playerType}.`,
+        type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_TYPE_FAILURE: {
       const notification = {
         text: action.error,
         type: 'error'
