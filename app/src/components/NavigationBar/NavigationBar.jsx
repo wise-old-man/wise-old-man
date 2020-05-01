@@ -105,17 +105,6 @@ function NavigationBar() {
                 API
               </a>
             </li>
-
-            <li className="nav-links__item -button">
-              <a
-                href="https://github.com/psikoi/wise-old-man"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={closeMenu}
-              >
-                Contribute
-              </a>
-            </li>
           </ul>
         </div>
       </div>
