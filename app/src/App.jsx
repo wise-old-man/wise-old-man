@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import Analytics from 'react-ga';
+import ScrollToTop from 'react-router-scroll-top';
 import NavigationBar from './components/NavigationBar';
 import Notification from './components/Notification';
 import { uniformUrl } from './utils/analytics';
@@ -36,17 +37,19 @@ function AppWrapper({ children }) {
 function App() {
   return (
     <BrowserRouter>
-      <NavigationBar />
-      <Notification />
-      <div className="content">
-        <AppWrapper>
-          <Switch>
-            {ROUTES.map(route => (
-              <Route key={route.path} exact path={route.path} component={route.component} />
-            ))}
-          </Switch>
-        </AppWrapper>
-      </div>
+      <ScrollToTop>
+        <NavigationBar />
+        <Notification />
+        <div className="content">
+          <AppWrapper>
+            <Switch>
+              {ROUTES.map(route => (
+                <Route key={route.path} exact path={route.path} component={route.component} />
+              ))}
+            </Switch>
+          </AppWrapper>
+        </div>
+      </ScrollToTop>
     </BrowserRouter>
   );
 }
