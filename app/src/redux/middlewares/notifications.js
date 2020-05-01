@@ -50,7 +50,7 @@ const notificationsMiddleware = store => next => action => {
 
     case ASSERT_TYPE_REQUEST: {
       const notification = {
-        text: `Reasigning player type..`,
+        text: `Reassigning player type..`,
         type: 'warn',
         duration: 10000
       };
@@ -61,7 +61,7 @@ const notificationsMiddleware = store => next => action => {
 
     case ASSERT_TYPE_SUCCESS: {
       const notification = {
-        text: `Player type successfully reasigned to ${action.playerType}.`,
+        text: `Player type successfully reassigned to ${action.playerType}.`,
         type: 'success'
       };
 

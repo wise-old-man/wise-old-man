@@ -275,7 +275,7 @@ async function getOverallExperience(username, hiscoresType) {
 async function assertType(username, force = false) {
   async function submitType(player, type) {
     if (player.type === type) {
-      throw new BadRequestError(`Failed to reasign player type: ${username}'s is already ${type}.`);
+      throw new BadRequestError(`Failed to reassign player type: ${username}'s is already ${type}.`);
     }
 
     await player.update({ type });
