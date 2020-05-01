@@ -14,7 +14,7 @@ function DocsPage({ config }) {
         <title>{`${config.title} API Docs - Wise Old Man`}</title>
         <meta
           property="og:description"
-          content={`${config.title} api documentation - Open source Old School Runescape player progres tracker.`}
+          content={`${config.title} api documentation - Open source Old School Runescape player progress tracker.`}
         />
       </Head>
       <NavBar />
@@ -26,7 +26,7 @@ function DocsPage({ config }) {
 
           <div className="docs-info">
             {config.content &&
-              config.content.map((c) => {
+              config.content.map(c => {
                 if (c.type === 'paragraph') {
                   return (
                     <p key={c.content.substring(0, 15)} className="docs-paragraph">
@@ -66,13 +66,13 @@ function DocsPage({ config }) {
 
           <div className="docs-entities section">
             {config.entities &&
-              config.entities.map((e) =>
+              config.entities.map(e =>
                 e.values ? (
                   <div key={e.name} className="entity-values block">
                     <b className="block-title">{e.name}</b>
                     <span className="block-description">{e.description}</span>
                     <div>
-                      {e.values.map((v) => (
+                      {e.values.map(v => (
                         <span key={v} className="entity-value">
                           {v}
                         </span>
@@ -91,7 +91,7 @@ function DocsPage({ config }) {
               )}
           </div>
           <div className="docs-endpoints">
-            {config.endpoints && config.endpoints.map((e) => <Endpoint key={e.title} endpoint={e} />)}
+            {config.endpoints && config.endpoints.map(e => <Endpoint key={e.title} endpoint={e} />)}
           </div>
         </div>
       </div>

@@ -37,7 +37,7 @@ export default {
     },
     {
       type: 'paragraph',
-      content: 'All routes described in this documentation are to be used with the /api preffix.'
+      content: 'All routes described in this documentation are to be used with the /api prefix.'
     },
     {
       type: 'paragraph',
