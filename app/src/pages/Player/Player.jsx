@@ -47,7 +47,7 @@ const PERIOD_SELECTOR_OPTIONS = [
 
 const MENU_OPTIONS = [
   {
-    label: 'Reasign player type',
+    label: 'Reassign player type',
     value: 'assertType'
   }
 ];

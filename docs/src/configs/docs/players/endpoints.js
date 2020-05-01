@@ -185,7 +185,7 @@ export default [
     ]
   },
   {
-    title: 'Assert player type (reasign)',
+    title: 'Assert player type (reassign)',
     url: '/players/assert-type',
     method: 'POST',
     body: {
