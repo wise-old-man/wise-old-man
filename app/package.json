@@ -10,6 +10,7 @@
     "bootstrap": "^4.4.1",
     "chart.js": "^2.9.3",
     "classnames": "^2.2.6",
+    "conditional-wrap": "^1.0.2",
     "date-fns": "^2.11.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",

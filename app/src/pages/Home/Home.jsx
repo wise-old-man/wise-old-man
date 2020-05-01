@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
 import className from 'classnames';
 import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
+import ConditionalWrap from 'conditional-wrap';
 import Button from '../../components/Button';
 import './Home.scss';
 
 const FEATURES = [
   {
     title: 'Player progress tracking',
+    page: '/players/1057', // Lynx Titan
     description: 'Track your progression overtime, browse your personal records and achievements.',
     image: '/img/landing_page/features/player_tracking.png'
   },
@@ -18,11 +21,13 @@ const FEATURES = [
   },
   {
     title: 'Skill competitions',
+    page: '/competitions',
     description: 'Compete against all your friends in any skill of your choosing.',
     image: '/img/landing_page/features/team_competitions.png'
   },
   {
     title: 'Global leaderboards',
+    page: '/top',
     description: 'Browse or compete with the community in the global record/gained leaderboards.',
     image: '/img/landing_page/features/leaderboards.png'
   }
@@ -108,14 +113,19 @@ function Home() {
           </div>
         </div>
         <div className="features row">
-          {FEATURES.map(({ unavailable, title, image, description }) => (
+          {FEATURES.map(({ unavailable, title, image, description, page }) => (
             <div
               key={title}
               className={className({ 'feature-card': true, '-unavailable': unavailable })}
             >
               <img className="feature-card__image" src={image} alt="" />
               <div className="feature-card__info">
-                <b className="feature-title">{title}</b>
+                <ConditionalWrap
+                  condition={!unavailable && !!page}
+                  wrap={children => <Link to={page}>{children}</Link>}
+                >
+                  <b className="feature-title">{title}</b>
+                </ConditionalWrap>
                 {unavailable && <span className="unavailable-label">Coming soon</span>}
                 <p className="feature-description">{description}</p>
               </div>
