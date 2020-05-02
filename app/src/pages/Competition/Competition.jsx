@@ -66,7 +66,12 @@ function Competition() {
   const updatingUsernames = useSelector(state => getUpdatingUsernames(state));
 
   const fetchDetails = () => {
-    dispatch(fetchDetailsAction(id));
+    // Attempt to fetch competition of that id, if it fails redirect to 404
+    dispatch(fetchDetailsAction(id))
+      .then(action => {
+        if (action.error) throw new Error();
+      })
+      .catch(() => router.push('/404'));
   };
 
   const handleUpdatePlayer = username => {
