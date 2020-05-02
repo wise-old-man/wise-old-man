@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             throw new Error('Username cannot start with spaces');
           } else if (value.endsWith(' ')) {
             throw new Error('Username cannot end with spaces');
-          } else if (new RegExp(/[^A-Za-z0-9 ]/).test(value)) {
+          } else if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(value)) {
             throw new Error('Username cannot contain any special characters');
           }
         }
