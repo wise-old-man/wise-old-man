@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 import InfoPanel from '../../../../components/InfoPanel';
 import { formatDate, capitalize } from '../../../../utils';
 import './CompetitionInfo.scss';
@@ -18,7 +19,7 @@ function formatData(competition) {
     { key: 'Id', value: id },
     { key: 'Skill', value: capitalize(metric) },
     { key: 'Status', value: capitalize(status), className: statusClass },
-    { key: 'Group', value: group ? group.name : '---' },
+    { key: 'Group', value: group ? <Link to={`/groups/${group.id}`}>{group.name}</Link> : '---' },
     { key: 'Participants', value: participants ? participants.length : 'Unknown' },
     { key: 'Duration', value: capitalize(duration) },
     {
