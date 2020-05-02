@@ -107,6 +107,7 @@ async function view(id) {
   }
 
   // Fetch all members, and their latest snapshot
+  /*
   const memberships = await Membership.findAll({
     where: { groupId: id },
     include: [
@@ -142,10 +143,12 @@ async function view(id) {
     .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
     .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
     .reduce((acc, cur) => acc + cur, 0);
+   
 
   const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
+   */
 
-  return { ...format(group), members, totalExperience, monthlyTopPlayer };
+  return { ...format(group) /* members, totalExperience, monthlyTopPlayer */ };
 }
 
 async function create(name, members) {
