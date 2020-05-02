@@ -1,0 +1,66 @@
+@import '../../styles.scss';
+
+.not-found__container {
+  max-height: calc(100vh - 70px);
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .panel {
+    @extend %panel;
+    position: relative;
+    margin: auto;
+    background: $gray-05;
+    width: 500px;
+    max-width: 100%;
+    padding: 30px;
+
+    .title,
+    .text {
+      margin: 0;
+      padding: 0;
+    }
+
+    .title {
+      font-weight: 900;
+      font-size: 3em;
+    }
+
+    .text {
+      font-size: 1.5em;
+      color: $gray-60;
+    }
+
+    .cta {
+      color: $brand-color-bright;
+      font-size: 1.1em;
+      font-weight: 700;
+      margin-top: 25px;
+      display: block;
+    }
+
+    .troll {
+      position: absolute;
+      right: -60px;
+      top: -30px;
+      height: 300px;
+    }
+  }
+}
+
+// Small or lower
+@media only screen and (max-width: $breakpoint-medium) {
+  .not-found__container {
+    .troll {
+      display: none;
+    }
+  }
+}
+
+// Extra-small
+@media only screen and (max-width: $breakpoint-small) {
+  .not-found__container {
+    font-size: 0.8em;
+  }
+}
