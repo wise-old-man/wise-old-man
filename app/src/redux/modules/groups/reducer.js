@@ -33,6 +33,10 @@ export const FETCH_PLAYER_GROUPS_REQUEST = 'wise-old-man/groups/FETCH_PLAYER_REQ
 export const FETCH_PLAYER_GROUPS_SUCCESS = 'wise-old-man/groups/FETCH_PLAYER_SUCCESS';
 export const FETCH_PLAYER_GROUPS_FAILURE = 'wise-old-man/groups/FETCH_PLAYER_FAILURE';
 
+export const UPDATE_MEMBERS_REQUEST = 'wise-old-man/groups/UPDATE_MEMBERS_REQUEST';
+export const UPDATE_MEMBERS_SUCCESS = 'wise-old-man/groups/UPDATE_MEMBERS_SUCCESS';
+export const UPDATE_MEMBERS_FAILURE = 'wise-old-man/groups/UPDATE_MEMBERS_FAILURE';
+
 const initialState = {
   isCreating: false,
   isEditing: false,

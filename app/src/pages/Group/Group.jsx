@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Dropdown from '../../components/Dropdown';
+import Button from '../../components/Button';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
@@ -17,6 +18,7 @@ import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails'
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
+import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import './Group.scss';
 
 const MENU_OPTIONS = [
@@ -36,6 +38,7 @@ function Group() {
   const dispatch = useDispatch();
 
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   const isLoadingMembers = useSelector(state => isFetchingMembers(state));
   const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
@@ -76,8 +79,14 @@ function Group() {
     }
   };
 
+  const handleUpdateAll = () => {
+    dispatch(updateAllAction(id));
+    setButtonDisabled(true);
+  };
+
   const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
+  const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
 
   // Fetch group details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -97,6 +106,7 @@ function Group() {
       <div className="group__header row">
         <div className="col">
           <PageHeader title={group.name}>
+            <Button text="Update all" onClick={onUpdateAllClicked} disabled={isButtonDisabled} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
