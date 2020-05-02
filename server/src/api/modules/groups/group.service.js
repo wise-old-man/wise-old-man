@@ -157,6 +157,12 @@ async function create(name, members) {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
+  for (let i = 0; i < members.length; i += 1) {
+    if (!playerService.isValidUsername(members[i].username)) {
+      throw new BadRequestError(`Invalid player username: ${members[i].username}`);
+    }
+  }
+
   const [verificationCode, verificationHash] = await generateVerification();
   const group = await Group.create({ name: sanitizedName, verificationCode, verificationHash });
 

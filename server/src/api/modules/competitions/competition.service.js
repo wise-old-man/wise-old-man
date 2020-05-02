@@ -240,6 +240,12 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     }
   }
 
+  for (let i = 0; i < participants.length; i += 1) {
+    if (!playerService.isValidUsername(participants[i])) {
+      throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+    }
+  }
+
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
