@@ -4,6 +4,8 @@ function instance() {
 
   function setup() {
     const hostList = process.env.PROXY_LIST;
+    const cpuCount = process.env.CPU_COUNT || 1;
+    const cpuIndex = process.env.pm_id || 0;
 
     if (!hostList) {
       return;
@@ -15,6 +17,9 @@ function instance() {
       return;
     }
 
+    const hostsPerCpu = Math.floor(hosts.length / cpuCount);
+    const allowedHosts = hosts.slice(hostsPerCpu * cpuIndex, hostsPerCpu * (cpuIndex + 1));
+
     const port = process.env.PROXY_PORT;
     const username = process.env.PROXY_USER;
     const password = process.env.PROXY_PASSWORD;
@@ -22,7 +27,7 @@ function instance() {
     config.port = port;
     config.username = username;
     config.password = password;
-    config.hosts = hosts;
+    config.hosts = allowedHosts;
   }
 
   function getNextProxy() {
