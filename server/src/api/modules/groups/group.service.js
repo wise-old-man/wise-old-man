@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const { Group, Membership, Player, Snapshot } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -28,24 +28,31 @@ async function list(name) {
     limit: 20
   });
 
-  // Find all memberships for the searched groups.
-  const filteredMemberships = await Membership.findAll({
-    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  const groupIds = groups.map(g => g.id);
+
+  /**
+   * Will return a members count for every group, with the format:
+   * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
+   */
+  const membersCount = await Membership.findAll({
+    where: { groupId: groupIds },
+    attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
+    group: ['groupId']
   });
 
-  // Store in this variable the members count for each group id
-  const membersMap = {};
+  /**
+   * Convert the counts fetched above, into a key:value format:
+   * { 35: 4, 41: 31 }
+   */
+  const countMap = _.mapValues(
+    _.keyBy(
+      membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
+      c => c.groupId
+    ),
+    c => c.count
+  );
 
-  filteredMemberships.forEach(m => {
-    if (!membersMap[m.groupId]) {
-      membersMap[m.groupId] = 1;
-    } else {
-      const curCount = membersMap[m.groupId];
-      membersMap[m.groupId] = curCount + 1;
-    }
-  });
-
-  return groups.map(format).map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+  return groups.map(format).map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
 }
 
 /**
