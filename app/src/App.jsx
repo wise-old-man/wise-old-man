@@ -4,6 +4,7 @@ import Analytics from 'react-ga';
 import ScrollToTop from 'react-router-scroll-top';
 import NavigationBar from './components/NavigationBar';
 import Notification from './components/Notification';
+import NotFound from './pages/NotFound';
 import { uniformUrl } from './utils/analytics';
 import { ROUTES } from './config/routing';
 
@@ -46,6 +47,7 @@ function App() {
               {ROUTES.map(route => (
                 <Route key={route.path} exact path={route.path} component={route.component} />
               ))}
+              <Route component={NotFound} />
             </Switch>
           </AppWrapper>
         </div>
