@@ -40,7 +40,12 @@ function Group() {
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
 
   const fetchDetails = () => {
-    dispatch(fetchDetailsAction(id));
+    // Attempt to fetch group of that id, if it fails redirect to 404
+    dispatch(fetchDetailsAction(id))
+      .then(action => {
+        if (action.error) throw new Error();
+      })
+      .catch(() => router.push('/404'));
   };
 
   const fetchCompetitions = () => {

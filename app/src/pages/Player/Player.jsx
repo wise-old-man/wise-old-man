@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
@@ -64,6 +64,7 @@ function getMetricOptions() {
 
 function Player() {
   const { id } = useParams();
+  const router = useHistory();
   const dispatch = useDispatch();
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -101,7 +102,13 @@ function Player() {
   };
 
   const fetchAll = () => {
-    dispatch(fetchPlayerAction({ id }));
+    // Attempt to fetch player of that id, if it fails redirect to 404
+    dispatch(fetchPlayerAction({ id }))
+      .then(action => {
+        if (action.error) throw new Error();
+      })
+      .catch(() => router.push('/404'));
+
     dispatch(fetchSnapshotsAction({ playerId: id }));
     dispatch(fetchAchievementsAction({ playerId: id }));
     dispatch(fetchCompetitionsAction({ playerId: id }));
