@@ -3,7 +3,8 @@
 
 .create-group__container {
   @extend %page;
-  max-width: 700px !important;
+  width: 700px !important;
+  max-width: 90%;
 
   .page__title {
     padding-bottom: 15px;

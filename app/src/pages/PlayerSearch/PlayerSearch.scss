@@ -3,7 +3,8 @@
 
 .player-search__container {
   @extend %page;
-  max-width: 600px !important;
+  width: 600px !important;
+  max-width: 90%;
 
   .player-search__header {
     margin-bottom: 30px;
