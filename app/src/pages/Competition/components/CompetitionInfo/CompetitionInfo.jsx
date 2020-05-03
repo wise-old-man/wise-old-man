@@ -23,11 +23,11 @@ function formatData(competition) {
     { key: 'Duration', value: capitalize(duration) },
     {
       key: status === 'upcoming' ? 'Starts at' : 'Started at',
-      value: formatDate(startsAt, 'DD MMM, YYYY')
+      value: formatDate(startsAt, 'DD MMM YYYY, HH:mm')
     },
     {
       key: status === 'finished' ? 'Ended at' : 'Ends at',
-      value: formatDate(endsAt, 'DD MMM, YYYY')
+      value: formatDate(endsAt, 'DD MMM YYYY, HH:mm')
     }
   ];
 }
