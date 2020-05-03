@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
 const { ALL_METRICS } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
@@ -72,7 +72,8 @@ async function list(title, status, metric, pagination) {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
   });
 
-  return formattedCompetitions;
+  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
+  return completeCompetitions;
 }
 
 /**
@@ -89,7 +90,8 @@ async function findForGroup(groupId, pagination) {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
   });
 
-  return formattedCompetitions;
+  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
+  return completeCompetitions;
 }
 
 /**
@@ -107,13 +109,47 @@ async function findForPlayer(playerId, pagination) {
   });
 
   const formattedCompetitions = participations
+    .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(({ competition }) => ({
       ...format(competition),
       duration: durationBetween(competition.startsAt, competition.endsAt)
-    }))
-    .slice(pagination.offset, pagination.offset + pagination.limit);
+    }));
 
-  return formattedCompetitions;
+  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
+  return completeCompetitions;
+}
+
+/**
+ * Given a list of competitions, it will fetch the participant count of each,
+ * and inserts a "participantCount" field in every competition object.
+ */
+async function attachParticipantCount(competitions) {
+  /**
+   * Will return a participant count for every competition, with the format:
+   * [ {competitionId: 35, count: "4"}, {competitionId: 41, count: "31"} ]
+   */
+  const participantCount = await Participation.findAll({
+    where: { competitionId: competitions.map(countMap => countMap.id) },
+    attributes: ['competitionId', [Sequelize.fn('COUNT', Sequelize.col('competitionId')), 'count']],
+    group: ['competitionId']
+  });
+
+  /**
+   * Convert the counts fetched above, into a key:value format:
+   * { 35: 4, 41: 31 }
+   */
+  const countMap = _.mapValues(
+    _.keyBy(
+      participantCount.map(c => ({
+        competitionId: c.competitionId,
+        count: parseInt(c.toJSON().count, 10)
+      })),
+      c => c.competitionId
+    ),
+    c => c.count
+  );
+
+  return competitions.map(g => ({ ...g, participantCount: countMap[g.id] || 0 }));
 }
 
 /**
@@ -603,7 +639,7 @@ async function getOutdatedParticipants(competitionId) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+  const tenMinsAgo = moment().subtract(10, 'minute');
 
   const participantsToUpdate = await Participation.findAll({
     attributes: ['competitionId', 'playerId'],
@@ -612,7 +648,7 @@ async function getOutdatedParticipants(competitionId) {
       {
         model: Player,
         where: {
-          updatedAt: { [Op.lt]: tenMinsAgo }
+          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
         }
       }
     ]
