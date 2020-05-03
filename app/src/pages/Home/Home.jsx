@@ -87,8 +87,7 @@ function Home() {
               hiscores, it adds extra functionality like group competitions, player achievements,
               experience records, etc.
             </p>
-            <div className="info-actions">
-              
+            <div className="info-actions">         
               <a href="https://github.com/psikoi/wise-old-man">
               <Button
                 className="-github-btn"
