@@ -9,6 +9,8 @@ export const isFetchingAll = createSelector(rootSelector, root => root.isFetchin
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);
 export const isFetchingMonthlyTop = createSelector(rootSelector, root => root.isFetchingMonthlyTop);
+export const isCreating = createSelector(rootSelector, root => root.isCreating);
+export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
 export const getGroupsMap = createSelector(groupsSelector, map => {
   return _.mapValues(map, group => formatGroup(group));

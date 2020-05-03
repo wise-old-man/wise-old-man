@@ -10,7 +10,8 @@ import MembersSelector from './components/MembersSelector';
 import MembersModal from './components/MembersModal';
 import editGroupAction from '../../redux/modules/groups/actions/edit';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
-import { getGroup } from '../../redux/selectors/groups';
+import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
+import { getGroup, isEditing } from '../../redux/selectors/groups';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -24,9 +25,11 @@ function EditGroup() {
   const [verificationCode, setVerificationCode] = useState('');
 
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
+  const isSubmitting = useSelector(state => isEditing(state));
 
   const fetchDetails = () => {
     dispatch(fetchDetailsAction(id));
+    dispatch(fetchMembersAction(id));
   };
 
   const populate = () => {
@@ -80,10 +83,7 @@ function EditGroup() {
   };
 
   const handleModalSubmit = usernames => {
-    usernames.forEach(u => {
-      handleAddMember(u);
-    });
-
+    setMembers([...usernames.map(u => ({ username: u, role: 'member' }))]);
     toggleImportModal(false);
   };
 
@@ -151,7 +151,7 @@ function EditGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} />
+          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
       {showingImportModal && (

@@ -30,7 +30,6 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      transition: 0.1s;
       cursor: pointer;
 
       &:hover {
@@ -40,7 +39,6 @@
       &:active,
       &:focus {
         opacity: 0.7;
-        transform: scale(0.7);
       }
 
       &__icon {
