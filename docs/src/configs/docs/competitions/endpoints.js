@@ -56,6 +56,7 @@ export default [
             groupId: null,
             createdAt: '2020-04-03T23:00:27.184Z',
             updatedAt: '2020-04-03T23:48:03.502Z',
+            participantCount: 21,
             duration: '27 days'
           }
         ]
