@@ -89,15 +89,15 @@ function Home() {
             </p>
             <div className="info-actions">         
               <a href="https://github.com/psikoi/wise-old-man" className="-github-btn" role="button">
-              <img src="/img/icons/github.svg" alt="github icon" height="30" with="30" className="-icon-btn"/> 
+                <img src="/img/icons/github.svg" alt="github icon" height="30" with="30" className="-icon-btn" /> 
               Contribute on Github
               </a>
               <a href="https://discord.gg/Ky5vNt2" className="-discord-btn" role="button">
-              <img src="/img/icons/discord.svg" alt="discord icon" height="30" with="30" className="-icon-btn"/> 
+                <img src="/img/icons/discord.svg" alt="discord icon" height="30" with="30" className="-icon-btn" /> 
               Join our discord
               </a>
               <a href="https://twitter.com/wise_old_man_rs" className="-twitter-btn" role="button">
-              <img src="/img/icons/twitter.svg" alt="twitter bicon" height="30" with="30" className="-icon-btn"/> 
+                <img src="/img/icons/twitter.svg" alt="twitter bicon" height="30" with="30" className="-icon-btn" /> 
               Follow on Twitter
               </a>      
             </div>
