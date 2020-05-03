@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
@@ -17,6 +17,7 @@ import VerificationPopup from './components/VerificationPopup';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
+import { isCreating } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
@@ -32,6 +33,8 @@ function getMetricOptions() {
 function CreateCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const isSubmitting = useSelector(state => isCreating(state));
 
   const metricOptions = useMemo(getMetricOptions, [SKILLS]);
 
@@ -179,7 +182,7 @@ function CreateCompetition() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} />
+          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
       {showingImportPopup && (

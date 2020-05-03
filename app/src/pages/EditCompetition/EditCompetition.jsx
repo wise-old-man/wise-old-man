@@ -15,7 +15,7 @@ import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import editAction from '../../redux/modules/competitions/actions/edit';
-import { getCompetition } from '../../redux/selectors/competitions';
+import { getCompetition, isEditing } from '../../redux/selectors/competitions';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
@@ -49,6 +49,7 @@ function EditCompetition() {
   const [showingImportPopup, toggleImportPopup] = useState(false);
 
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
+  const isSubmitting = useSelector(state => isEditing(state));
 
   const metricIndex = useMemo(() => metricOptions.findIndex(o => o.value === metric), [
     metricOptions,
@@ -199,7 +200,7 @@ function EditCompetition() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} />
+          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
       {showingImportPopup && (
