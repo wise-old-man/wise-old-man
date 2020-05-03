@@ -8,7 +8,7 @@ export default [
         type: 'warning',
         content:
           'If a "playerId" query param is given, this will only return competitions of which \
-          that player is a participant and will ignore every other query parameter.'
+          that player is a participant and will ignore every other search parameter.'
       }
     ],
     query: [
@@ -31,6 +31,16 @@ export default [
         field: 'playerId',
         type: 'string',
         description: 'The playerId to filter the list by. (See comment above) - Optional'
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
       }
     ],
     successResponses: [
@@ -67,7 +77,7 @@ export default [
     ]
   },
   {
-    title: 'View competition',
+    title: 'View competition details',
     url: '/competitions/:id',
     method: 'GET',
     params: [
@@ -220,6 +230,10 @@ export default [
       {
         description: 'If startsAt OR endsAt is a past date.',
         body: { message: 'Invalid dates: All start and end dates must be in the future.' }
+      },
+      {
+        description: "If one of the participant' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
       }
     ]
   },
@@ -317,6 +331,10 @@ export default [
       {
         description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description: "If one of the participant' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
       }
     ]
   },
@@ -494,6 +512,11 @@ export default [
       {
         type: 'warning',
         content:
+          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+      },
+      {
+        type: 'warning',
+        content:
           'If a player update fails, it will re-attempt in 65 seconds. \
           It will re-attempt up to 5 times per player.'
       }
@@ -519,14 +542,9 @@ export default [
         body: { message: 'Invalid competition id.' }
       },
       {
-        description: "If the competition's participants list is invalid or empty.",
-        body: { message: 'This competition has no participants.' }
-      },
-      {
-        description: "If the competition's participants have been 'updated all' in the last 10 minutes.",
-        body: {
-          message: 'Failed to update: Please wait another 2 minutes before updating all participants.'
-        }
+        description:
+          "If the competition's participants list is invalid, empty or every participant has been updated in the last 10 minutes",
+        body: { message: 'This competition has no participants that should be updated' }
       }
     ]
   }

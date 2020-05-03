@@ -24,15 +24,15 @@ function formatData(player) {
     },
     {
       key: 'Registered at',
-      value: formatDate(registeredAt, 'DD MMM, YYYY')
+      value: formatDate(registeredAt, 'DD MMM YYYY, HH:mm')
     },
     {
       key: 'Last updated at',
-      value: formatDate(updatedAt, 'DD MMM, YYYY')
+      value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm')
     },
     {
       key: 'Last imported at',
-      value: lastImportedAt ? formatDate(lastImportedAt, 'DD MMM, YYYY') : '---'
+      value: lastImportedAt ? formatDate(lastImportedAt, 'DD MMM YYYY, HH:mm') : '---'
     }
   ];
 }

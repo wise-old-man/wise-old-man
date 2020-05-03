@@ -228,6 +228,10 @@ async function getMonthlyTop(playerIds) {
     ]
   });
 
+  if (!deltas || deltas.length === 0) {
+    throw new BadRequestError('None of the group members are tracked.');
+  }
+
   const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
     const gained = endSnapshot[metricKey] - startSnapshot[metricKey];

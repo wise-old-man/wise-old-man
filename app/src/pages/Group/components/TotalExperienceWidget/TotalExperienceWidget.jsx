@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { formatNumber, getSkillIcon } from '../../../../utils';
 import './TotalExperienceWidget.scss';
 
-function TotalExperienceWidget({ group }) {
-  if (!group || group.totalExperience === undefined) {
+function TotalExperienceWidget({ group, isLoading }) {
+  if (!group || isLoading) {
     return (
       <div className="total-exp-widget">
         <img className="total-icon" src={getSkillIcon('overall')} alt="" />
@@ -30,7 +30,8 @@ function TotalExperienceWidget({ group }) {
 }
 
 TotalExperienceWidget.propTypes = {
-  group: PropTypes.shape().isRequired
+  group: PropTypes.shape().isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default TotalExperienceWidget;

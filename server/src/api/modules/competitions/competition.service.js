@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { Op } = require('sequelize');
+const moment = require('moment');
 const { ALL_METRICS } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
@@ -22,26 +23,11 @@ function format(competition) {
   return _.omit(competition.toJSON(), ['verificationHash']);
 }
 
-function shouldUpdateAll(updatedAllAt) {
-  if (!updatedAllAt || !isValidDate(updatedAllAt)) {
-    return [true, 600000];
-  }
-
-  const diff = Date.now() - updatedAllAt.getTime();
-  const seconds = Math.floor(diff / 1000);
-
-  // Only allow the updating of all participants,
-  // if it hasn't been done the last 600 seconds (10 minutes)
-  const should = seconds >= 600;
-
-  return [should, seconds];
-}
-
 /**
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function list(title, status, metric) {
+async function list(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
   if (status && !STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -76,7 +62,11 @@ async function list(title, status, metric) {
     }
   }
 
-  const competitions = await Competition.findAll({ where: query, limit: 20 });
+  const competitions = await Competition.findAll({
+    where: query,
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
 
   const formattedCompetitions = competitions.map(c => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
@@ -88,8 +78,12 @@ async function list(title, status, metric) {
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function findForGroup(groupId) {
-  const competitions = await Competition.findAll({ where: { groupId } });
+async function findForGroup(groupId, pagination) {
+  const competitions = await Competition.findAll({
+    where: { groupId },
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
 
   const formattedCompetitions = competitions.map(c => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
@@ -101,7 +95,7 @@ async function findForGroup(groupId) {
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function findForPlayer(playerId) {
+async function findForPlayer(playerId, pagination) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -112,12 +106,12 @@ async function findForPlayer(playerId) {
     include: [{ model: Competition }]
   });
 
-  const formattedCompetitions = participations.map(({ competition }) => {
-    return {
+  const formattedCompetitions = participations
+    .map(({ competition }) => ({
       ...format(competition),
       duration: durationBetween(competition.startsAt, competition.endsAt)
-    };
-  });
+    }))
+    .slice(pagination.offset, pagination.offset + pagination.limit);
 
   return formattedCompetitions;
 }
@@ -240,6 +234,14 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     }
   }
 
+  // Check if every username in the list is valid
+  if (participants && participants.length > 0) {
+    for (let i = 0; i < participants.length; i += 1) {
+      if (!playerService.isValidUsername(participants[i])) {
+        throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+      }
+    }
+  }
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
@@ -324,12 +326,19 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     newValues.endsAt = endsAt;
   }
 
-  await competition.update(newValues);
-
   if (participants) {
+    // Check if every username in the list is valid
+    for (let i = 0; i < participants.length; i += 1) {
+      if (!playerService.isValidUsername(participants[i])) {
+        throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+      }
+    }
+
     const newParticipants = await setParticipants(competition, participants);
     return { ...format(competition), participants: newParticipants };
   }
+
+  await competition.update(newValues);
 
   const participations = await competition.getParticipants();
 
@@ -586,6 +595,33 @@ async function getParticipants(id) {
 }
 
 /**
+ * Get outdated participants for a specific competition id.
+ * A participant is considered outdated 10 minutes after their last update
+ */
+async function getOutdatedParticipants(competitionId) {
+  if (!competitionId) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+
+  const participantsToUpdate = await Participation.findAll({
+    attributes: ['competitionId', 'playerId'],
+    where: { competitionId },
+    include: [
+      {
+        model: Player,
+        where: {
+          updatedAt: { [Op.lt]: tenMinsAgo }
+        }
+      }
+    ]
+  });
+
+  return participantsToUpdate.map(({ player }) => player);
+}
+
+/**
  * Adds all the playerIds to all ongoing/upcoming competitions of a specific group.
  *
  * This should be executed when players are added to a group, so that they can
@@ -656,30 +692,14 @@ async function updateAllParticipants(id, updateAction) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  const [should, seconds] = await shouldUpdateAll(competition.updatedAllAt);
-
-  // If the competition has had a global participant update
-  // recently (in the past 10 mins), don't allow the api to
-  // update all participants
-  if (!should) {
-    const secsLeft = Math.floor(600 - seconds);
-    const timeLeft = secsLeft <= 60 ? `${secsLeft} seconds` : `${Math.floor(secsLeft / 60)} minutes`;
-    const msg = `Failed to update: Please wait another ${timeLeft} before updating all participants.`;
-
-    throw new BadRequestError(msg);
-  }
-
-  const participants = await competition.getParticipants();
+  const participants = await getOutdatedParticipants(id);
 
   if (!participants || participants.length === 0) {
-    throw new BadRequestError('This competition has no participants.');
+    throw new BadRequestError('This competition has no participants that should be updated');
   }
 
   // Execute the update action for every participant
   participants.forEach(player => updateAction(player));
-
-  // Update the "updatedAllAt" field in the competition instance
-  await competition.update({ updatedAllAt: new Date() });
 
   return participants;
 }
