@@ -88,24 +88,25 @@ function Home() {
               experience records, etc.
             </p>
             <div className="info-actions">
+              
+              <a href="https://github.com/psikoi/wise-old-man">
               <Button
                 className="-github-btn"
                 text="Contribute on Github"
-                icon="/img/icons/github.svg"
-                url="https://github.com/psikoi/wise-old-man"
-              />
+                icon="/img/icons/github.svg"/>
+              </a>
+              <a href="https://discord.gg/Ky5vNt2">
               <Button
                 className="-discord-btn"
                 text="Join our discord"
-                icon="/img/icons/discord.svg"
-                url="https://discord.gg/Ky5vNt2"
-              />
+                icon="/img/icons/discord.svg"/>
+              </a>
+              <a href="https://twitter.com/wise_old_man_rs">
               <Button
                 className="-twitter-btn"
                 text="Follow on Twitter"
-                icon="/img/icons/twitter.svg"
-                url="https://twitter.com/wise_old_man_rs"
-              />
+                icon="/img/icons/twitter.svg"/>
+              </a>       
             </div>
           </div>
           <div className="details__stats col-lg-5">
