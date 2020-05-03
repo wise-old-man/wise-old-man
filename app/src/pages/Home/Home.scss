@@ -97,6 +97,9 @@
           justify-content: space-between;
           width: 550px;
           max-width: 100%;
+          text-align: center;
+          font-size: 14px;
+          font-weight: bold;
 
           .-github-btn {
             background: #2d2d2d;
@@ -104,6 +107,7 @@
             height: 40px;
             line-height: 40px;
             padding: 0;
+            border-radius: 5px;
           }
 
           .-discord-btn {
@@ -112,6 +116,7 @@
             height: 40px;
             line-height: 40px;
             padding: 0;
+            border-radius: 5px;
           }
 
           .-twitter-btn {
@@ -120,6 +125,10 @@
             height: 40px;
             line-height: 40px;
             padding: 0;
+            border-radius: 5px;
+          }
+          .-icon-btn {
+           margin-right: 10px;
           }
         }
       }

@@ -88,27 +88,18 @@ function Home() {
               experience records, etc.
             </p>
             <div className="info-actions">         
-              <a href="https://github.com/psikoi/wise-old-man">
-                <Button
-                  className="-github-btn"
-                  text="Contribute on Github"
-                  icon="/img/icons/github.svg"
-                />
+              <a href="https://github.com/psikoi/wise-old-man" className="-github-btn" role="button">
+              <img src="/img/icons/github.svg" alt="github icon" height="30" with="30" className="-icon-btn"/> 
+              Contribute on Github
               </a>
-              <a href="https://discord.gg/Ky5vNt2">
-                <Button
-                  className="-discord-btn"
-                  text="Join our discord"
-                  icon="/img/icons/discord.svg"
-                />
+              <a href="https://discord.gg/Ky5vNt2" className="-discord-btn" role="button">
+              <img src="/img/icons/discord.svg" alt="discord icon" height="30" with="30" className="-icon-btn"/> 
+              Join our discord
               </a>
-              <a href="https://twitter.com/wise_old_man_rs">
-                <Button
-                  className="-twitter-btn"
-                  text="Follow on Twitter"
-                  icon="/img/icons/twitter.svg"
-                />
-              </a>       
+              <a href="https://twitter.com/wise_old_man_rs" className="-twitter-btn" role="button">
+              <img src="/img/icons/twitter.svg" alt="twitter bicon" height="30" with="30" className="-icon-btn"/> 
+              Follow on Twitter
+              </a>      
             </div>
           </div>
           <div className="details__stats col-lg-5">
