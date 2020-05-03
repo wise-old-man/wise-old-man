@@ -1,4 +1,5 @@
 const service = require('./group.service');
+const jobs = require('../../jobs');
 
 async function listGroups(req, res, next) {
   try {
@@ -119,6 +120,21 @@ async function changeRole(req, res, next) {
     next(e);
   }
 }
+async function updateAllMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const members = await service.updateAllMembers(id, player => {
+      // Attempt this 5 times per player, waiting 65 seconds in between
+      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+    });
+
+    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
 
 exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
@@ -130,3 +146,4 @@ exports.deleteGroup = deleteGroup;
 exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
+exports.updateAllMembers = updateAllMembers;

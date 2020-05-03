@@ -13,5 +13,6 @@ api.delete('/:id', controller.deleteGroup);
 api.post('/:id/add', controller.addMembers);
 api.post('/:id/remove', controller.removeMembers);
 api.put('/:id/roles', controller.changeRole);
+api.post('/:id/update-all', controller.updateAllMembers);
 
 module.exports = api;

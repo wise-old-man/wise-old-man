@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { Op } = require('sequelize');
+const moment = require('moment');
 const { ALL_METRICS } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
@@ -20,21 +21,6 @@ function sanitizeTitle(title) {
 
 function format(competition) {
   return _.omit(competition.toJSON(), ['verificationHash']);
-}
-
-function shouldUpdateAll(updatedAllAt) {
-  if (!updatedAllAt || !isValidDate(updatedAllAt)) {
-    return [true, 600000];
-  }
-
-  const diff = Date.now() - updatedAllAt.getTime();
-  const seconds = Math.floor(diff / 1000);
-
-  // Only allow the updating of all participants,
-  // if it hasn't been done the last 600 seconds (10 minutes)
-  const should = seconds >= 600;
-
-  return [should, seconds];
 }
 
 /**
@@ -601,6 +587,33 @@ async function getParticipants(id) {
 }
 
 /**
+ * Get outdated participants for a specific competition id.
+ * A participant is considered outdated 10 minutes after their last update
+ */
+async function getOutdatedParticipants(competitionId) {
+  if (!competitionId) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+
+  const participantsToUpdate = await Participation.findAll({
+    attributes: ['competitionId', 'playerId'],
+    where: { competitionId },
+    include: [
+      {
+        model: Player,
+        where: {
+          updatedAt: { [Op.lt]: tenMinsAgo }
+        }
+      }
+    ]
+  });
+
+  return participantsToUpdate.map(({ player }) => player);
+}
+
+/**
  * Adds all the playerIds to all ongoing/upcoming competitions of a specific group.
  *
  * This should be executed when players are added to a group, so that they can
@@ -671,30 +684,14 @@ async function updateAllParticipants(id, updateAction) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  const [should, seconds] = await shouldUpdateAll(competition.updatedAllAt);
-
-  // If the competition has had a global participant update
-  // recently (in the past 10 mins), don't allow the api to
-  // update all participants
-  if (!should) {
-    const secsLeft = Math.floor(600 - seconds);
-    const timeLeft = secsLeft <= 60 ? `${secsLeft} seconds` : `${Math.floor(secsLeft / 60)} minutes`;
-    const msg = `Failed to update: Please wait another ${timeLeft} before updating all participants.`;
-
-    throw new BadRequestError(msg);
-  }
-
-  const participants = await competition.getParticipants();
+  const participants = await getOutdatedParticipants(id);
 
   if (!participants || participants.length === 0) {
-    throw new BadRequestError('This competition has no participants.');
+    throw new BadRequestError('This competition has no participants that should be updated');
   }
 
   // Execute the update action for every participant
   participants.forEach(player => updateAction(player));
-
-  // Update the "updatedAllAt" field in the competition instance
-  await competition.update({ updatedAllAt: new Date() });
 
   return participants;
 }

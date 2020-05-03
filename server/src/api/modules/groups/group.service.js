@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
+const moment = require('moment');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -548,6 +549,60 @@ async function findOne(groupId) {
   return group;
 }
 
+/**
+ * Update all members of a group.
+ *
+ * An update action must be supplied, to be executed for
+ * every member. This is to prevent calling jobs from
+ * within the service. I'd rather call them from the controller.
+ *
+ * Note: this is a soft update, meaning it will only create a new
+ * snapshot. It won't import from CML or determine player type.
+ */
+async function updateAllMembers(id, updateAction) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const members = await getOutdatedMembers(id);
+
+  if (!members || members.length === 0) {
+    throw new BadRequestError('This group has no members that should be updated.');
+  }
+
+  // Execute the update action for every member
+  members.forEach(player => updateAction(player));
+
+  return members;
+}
+
+/**
+ * Get outdated members of a specific group id.
+ * A member is considered outdated 10 minutes after their last update
+ */
+async function getOutdatedMembers(groupId) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+
+  const membersToUpdate = await Membership.findAll({
+    attributes: ['groupId', 'playerId'],
+    where: { groupId },
+    include: [
+      {
+        model: Player,
+        where: {
+          updatedAt: { [Op.lt]: tenMinsAgo }
+        }
+      }
+    ]
+  });
+
+  return membersToUpdate.map(({ player }) => player);
+}
+
 exports.format = format;
 exports.list = list;
 exports.findForPlayer = findForPlayer;
@@ -562,3 +617,4 @@ exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
 exports.getMembers = getMembers;
 exports.findOne = findOne;
+exports.updateAllMembers = updateAllMembers;
