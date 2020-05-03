@@ -502,6 +502,11 @@ export default [
       {
         type: 'warning',
         content:
+          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+      },
+      {
+        type: 'warning',
+        content:
           'If a player update fails, it will re-attempt in 65 seconds. \
           It will re-attempt up to 5 times per player.'
       }
@@ -527,14 +532,9 @@ export default [
         body: { message: 'Invalid competition id.' }
       },
       {
-        description: "If the competition's participants list is invalid or empty.",
-        body: { message: 'This competition has no participants.' }
-      },
-      {
-        description: "If the competition's participants have been 'updated all' in the last 10 minutes.",
-        body: {
-          message: 'Failed to update: Please wait another 2 minutes before updating all participants.'
-        }
+        description:
+          "If the competition's participants list is invalid, empty or every participant has been updated in the last 10 minutes",
+        body: { message: 'This competition has no participants that should be updated' }
       }
     ]
   }

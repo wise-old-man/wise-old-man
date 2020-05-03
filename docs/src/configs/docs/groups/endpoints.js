@@ -604,5 +604,55 @@ export default [
         body: { message: "'Psikoi' already has the role of leader." }
       }
     ]
+  },
+  {
+    title: 'Update all members',
+    url: '/groups/:id/update-all',
+    method: 'POST',
+    comments: [
+      {
+        type: 'warning',
+        content:
+          "This action will perform a soft-update, meaning it won't \
+          import the player from CML or determine it's type."
+      },
+      {
+        type: 'warning',
+        content:
+          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+      },
+      {
+        type: 'warning',
+        content:
+          'If a player update fails, it will re-attempt in 65 seconds. \
+          It will re-attempt up to 5 times per player.'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          message: '19 players are being updated. This can take up to a few minutes.'
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If id is not given.',
+        body: { message: 'Invalid group id.' }
+      },
+      {
+        description:
+          "If the group's member list is invalid, empty or every member has been updated in the last 10 minutes",
+        body: { message: 'This group has no members that should be updated' }
+      }
+    ]
   }
 ];
