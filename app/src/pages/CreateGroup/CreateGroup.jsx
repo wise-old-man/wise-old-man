@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
@@ -10,11 +10,14 @@ import MembersSelector from './components/MembersSelector';
 import MembersModal from './components/MembersModal';
 import VerificationModal from './components/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
+import { isCreating } from '../../redux/selectors/groups';
 import './CreateGroup.scss';
 
 function CreateGroup() {
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const isSubmitting = useSelector(state => isCreating(state));
 
   const [name, setName] = useState('');
   const [members, setMembers] = useState([]);
@@ -62,10 +65,7 @@ function CreateGroup() {
   };
 
   const handleModalSubmit = usernames => {
-    usernames.forEach(u => {
-      handleAddMember(u);
-    });
-
+    setMembers([...usernames.map(u => ({ username: u, role: 'member' }))]);
     toggleImportModal(false);
   };
 
@@ -125,7 +125,7 @@ function CreateGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} />
+          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
       {showingImportModal && (
