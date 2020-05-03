@@ -18,4 +18,11 @@
   .groups__list {
     font-size: 1.2em;
   }
+
+  .loading-indicator {
+    width: 100%;
+    display: block;
+    text-align: center;
+    color: $gray-60;
+  }
 }

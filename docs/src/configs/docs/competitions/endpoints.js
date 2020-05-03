@@ -8,7 +8,7 @@ export default [
         type: 'warning',
         content:
           'If a "playerId" query param is given, this will only return competitions of which \
-          that player is a participant and will ignore every other query parameter.'
+          that player is a participant and will ignore every other search parameter.'
       }
     ],
     query: [
@@ -31,6 +31,16 @@ export default [
         field: 'playerId',
         type: 'string',
         description: 'The playerId to filter the list by. (See comment above) - Optional'
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
       }
     ],
     successResponses: [
@@ -46,6 +56,7 @@ export default [
             groupId: null,
             createdAt: '2020-04-03T23:00:27.184Z',
             updatedAt: '2020-04-03T23:48:03.502Z',
+            participantCount: 21,
             duration: '27 days'
           }
         ]
