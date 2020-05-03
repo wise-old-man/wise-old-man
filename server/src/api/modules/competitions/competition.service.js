@@ -241,12 +241,13 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
   }
 
   // Check if every username in the list is valid
-  for (let i = 0; i < participants.length; i += 1) {
-    if (!playerService.isValidUsername(participants[i])) {
-      throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+  if (participants && participants.length > 0) {
+    for (let i = 0; i < participants.length; i += 1) {
+      if (!playerService.isValidUsername(participants[i])) {
+        throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+      }
     }
   }
-
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 

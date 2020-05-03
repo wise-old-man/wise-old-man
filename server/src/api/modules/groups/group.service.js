@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const { Op, Sequelize } = require('sequelize');
-const { Group, Membership, Player, Snapshot } = require('../../../database');
+const { Op, Sequelize, QueryTypes } = require('sequelize');
+const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
@@ -106,49 +106,75 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  // Fetch all members, and their latest snapshot
-  /*
+  return format(group);
+}
+
+async function getMonthlyTopPlayer(groupId) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
   const memberships = await Membership.findAll({
-    where: { groupId: id },
-    include: [
-      {
-        model: Player,
-        include: [
-          {
-            model: Snapshot,
-            attributes: ['overallExperience', 'overallRank', 'createdAt'],
-            order: [['createdAt', 'DESC']],
-            limit: 1
-          }
-        ]
-      }
-    ]
+    where: { groupId },
+    attributes: ['playerId']
   });
 
-  // Format the members
+  const memberIds = memberships.map(m => m.playerId);
+  const monthlyTopPlayer = memberIds.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  return monthlyTopPlayer;
+}
+
+async function getMembersList(id) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const group = await Group.findOne({ where: { id } });
+
+  if (!group) {
+    throw new BadRequestError(`Group of id ${id} was not found.`);
+  }
+
+  // Fetch all memberships for the group
+  const memberships = await Membership.findAll({
+    attributes: ['groupId', 'playerId', 'role'],
+    where: { groupId: id },
+    include: [{ model: Player }]
+  });
+
+  const ROLE_PRIORITY = ['leader', 'member'];
+
+  // Format all the members, and sort them by their role (leader > member)
   const members = memberships
-    .map(({ player, role }) => {
-      const { snapshots } = player;
+    .map(({ player, role }) => ({ ...player.toJSON(), role }))
+    .sort((a, b) => ROLE_PRIORITY.indexOf(a.role) - ROLE_PRIORITY.indexOf(b.role));
 
-      const overallExperience = snapshots && snapshots.length ? snapshots[0].overallExperience : -1;
-      const overallRank = snapshots && snapshots.length ? snapshots[0].overallRank : -1;
+  const query = `
+        SELECT s."playerId", s."overallExperience"
+        FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+              FROM public.snapshots q
+              WHERE q."playerId" = ANY(ARRAY[${members.map(m => m.id).join(',')}])
+              GROUP BY q."playerId"
+              ) r
+        JOIN public.snapshots s
+          ON s."playerId" = r."playerId"  
+          AND s."createdAt"   = r.max_date
+        ORDER BY s."playerId"
+  `;
 
-      return { ..._.omit(player.toJSON(), ['snapshots']), role, overallExperience, overallRank };
-    })
-    .sort((a, b) => b.overallExperience - a.overallExperience);
+  // Execute the query above, which returns the latest snapshot for each member,
+  // in the following format: [{playerId: 61, overallExerience: "4465456"}]
+  // Note: this used to be a sequelize query, but it was very slow for large groups
+  const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
 
-  const memberIds = members.map(m => m.id);
+  // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
+  const experienceMap = _.mapValues(_.keyBy(experienceSnapshots, 'playerId'), d =>
+    parseInt(d.overallExperience, 10)
+  );
 
-  const totalExperience = memberships
-    .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
-    .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
-    .reduce((acc, cur) => acc + cur, 0);
-   
-
-  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
-   */
-
-  return { ...format(group) /* members, totalExperience, monthlyTopPlayer */ };
+  // Add each experience to its respective player
+  return members.map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }));
 }
 
 async function create(name, members) {
@@ -168,9 +194,11 @@ async function create(name, members) {
   }
 
   // Check if every username in the list is valid
-  for (let i = 0; i < members.length; i += 1) {
-    if (!playerService.isValidUsername(members[i].username)) {
-      throw new BadRequestError(`Invalid player username: ${members[i].username}`);
+  if (members && members.length > 0) {
+    for (let i = 0; i < members.length; i += 1) {
+      if (!playerService.isValidUsername(members[i].username)) {
+        throw new BadRequestError(`Invalid player username: ${members[i].username}`);
+      }
     }
   }
 
@@ -524,6 +552,8 @@ exports.format = format;
 exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
+exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
+exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;
 exports.destroy = destroy;

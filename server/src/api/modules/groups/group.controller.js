@@ -27,6 +27,28 @@ async function viewGroup(req, res, next) {
   }
 }
 
+async function monthlyTop(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const topPlayer = await service.getMonthlyTopPlayer(id);
+    res.json(topPlayer);
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function listMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const membersList = await service.getMembersList(id);
+    res.json(membersList);
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function createGroup(req, res, next) {
   try {
     const { name, members } = req.body;
@@ -100,6 +122,8 @@ async function changeRole(req, res, next) {
 
 exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
+exports.monthlyTop = monthlyTop;
+exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;
 exports.deleteGroup = deleteGroup;
