@@ -22,11 +22,12 @@ function format(group) {
 /**
  * Returns a list of all groups that partially match the given name.
  */
-async function list(name) {
-  // Fetch all groups that match the name, limited to 20 results
+async function list(name, pagination) {
+  // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
-    limit: 20
+    limit: Math.min(100, pagination.limit), // maximum limit is 100
+    offset: pagination.offset
   });
 
   const groupIds = groups.map(g => g.id);
@@ -59,7 +60,7 @@ async function list(name) {
 /**
  * Returns a list of all groups of which a given player is a member.
  */
-async function findForPlayer(playerId) {
+async function findForPlayer(playerId, pagination) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -71,7 +72,9 @@ async function findForPlayer(playerId) {
   });
 
   // Extract all the unique groups from the memberships, and format them.
-  const groups = _.uniqBy(memberships, m => m.group.id).map(m => format(m.group));
+  const groups = _.uniqBy(memberships, m => m.group.id)
+    .map(m => format(m.group))
+    .slice(pagination.offset, pagination.offset + pagination.limit);
 
   // Find all memberships for the searched groups.
   const filteredMemberships = await Membership.findAll({

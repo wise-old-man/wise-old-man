@@ -1,15 +1,17 @@
 const service = require('./group.service');
+const pagination = require('../../util/pagination');
 const jobs = require('../../jobs');
 
 async function listGroups(req, res, next) {
   try {
-    const { name, playerId } = req.query;
+    const { name, playerId, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     if (playerId) {
-      const results = await service.findForPlayer(playerId);
+      const results = await service.findForPlayer(playerId, paginationConfig);
       res.json(results);
     } else {
-      const results = await service.list(name);
+      const results = await service.list(name, paginationConfig);
       res.json(results);
     }
   } catch (e) {
