@@ -143,18 +143,11 @@ async function getMembersList(id) {
     include: [{ model: Player }]
   });
 
-  const ROLE_PRIORITY = ['leader', 'member'];
-
-  // Format all the members, and sort them by their role (leader > member)
-  const members = memberships
-    .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .sort((a, b) => ROLE_PRIORITY.indexOf(a.role) - ROLE_PRIORITY.indexOf(b.role));
-
   const query = `
         SELECT s."playerId", s."overallExperience"
         FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
               FROM public.snapshots q
-              WHERE q."playerId" = ANY(ARRAY[${members.map(m => m.id).join(',')}])
+              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
               GROUP BY q."playerId"
               ) r
         JOIN public.snapshots s
@@ -173,8 +166,11 @@ async function getMembersList(id) {
     parseInt(d.overallExperience, 10)
   );
 
-  // Add each experience to its respective player
-  return members.map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }));
+  // Format all the members, add each experience to its respective player, and sort them by exp
+  return memberships
+    .map(({ player, role }) => ({ ...player.toJSON(), role }))
+    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }))
+    .sort((a, b) => b.overallExperience - a.overallExperience);
 }
 
 async function create(name, members) {

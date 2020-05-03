@@ -11,9 +11,10 @@ import CompetitionWidget from './components/CompetitionWidget';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import DeleteGroupModal from './components/DeleteGroupModal';
-import { getGroup, isFetchingDetails } from '../../redux/selectors/groups';
+import { getGroup, isFetchingMembers } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
+import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import './Group.scss';
 
@@ -35,7 +36,7 @@ function Group() {
 
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
 
-  const isLoading = useSelector(state => isFetchingDetails(state));
+  const isLoadingMembers = useSelector(state => isFetchingMembers(state));
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
 
@@ -50,6 +51,10 @@ function Group() {
 
   const fetchCompetitions = () => {
     dispatch(fetchGroupCompetitionsAction(id));
+  };
+
+  const fetchMembers = () => {
+    dispatch(fetchMembersAction(id));
   };
 
   const handleDeleteModalClosed = () => {
@@ -71,6 +76,7 @@ function Group() {
   // Fetch group details, on mount
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(fetchCompetitions, [dispatch, id]);
+  useEffect(fetchMembers, [dispatch, id]);
 
   if (!group) {
     return <Loading />;
@@ -103,7 +109,7 @@ function Group() {
         </div>
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Total overall experience</span>
-          <TotalExperienceWidget group={group} />
+          <TotalExperienceWidget group={group} isLoading={isLoadingMembers} />
         </div>
       </div>
       <div className="group__content row">
@@ -111,7 +117,7 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <MembersTable members={group.members} isLoading={isLoading} />
+          <MembersTable members={group.members} isLoading={isLoadingMembers} />
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}

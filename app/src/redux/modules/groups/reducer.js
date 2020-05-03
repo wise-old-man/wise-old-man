@@ -21,6 +21,10 @@ export const FETCH_GROUP_REQUEST = 'wise-old-man/groups/FETCH_REQUEST';
 export const FETCH_GROUP_SUCCESS = 'wise-old-man/groups/FETCH_SUCCESS';
 export const FETCH_GROUP_FAILURE = 'wise-old-man/groups/FETCH_FAILURE';
 
+export const FETCH_GROUP_MEMBERS_REQUEST = 'wise-old-man/groups/FETCH_MEMBERS_REQUEST';
+export const FETCH_GROUP_MEMBERS_SUCCESS = 'wise-old-man/groups/FETCH_MEMBERS_SUCCESS';
+export const FETCH_GROUP_MEMBERS_FAILURE = 'wise-old-man/groups/FETCH_MEMBERS_FAILURE';
+
 export const FETCH_PLAYER_GROUPS_REQUEST = 'wise-old-man/groups/FETCH_PLAYER_REQUEST';
 export const FETCH_PLAYER_GROUPS_SUCCESS = 'wise-old-man/groups/FETCH_PLAYER_SUCCESS';
 export const FETCH_PLAYER_GROUPS_FAILURE = 'wise-old-man/groups/FETCH_PLAYER_FAILURE';
@@ -31,6 +35,7 @@ const initialState = {
   isFetchingAll: false,
   isDeleting: false,
   isFetchingDetails: false,
+  isFetchingMembers: false,
   isFetchingPlayerGroups: false,
   groups: {},
   playerGroups: {}
@@ -103,6 +108,22 @@ export default function groupsReducer(state = initialState, action) {
 
     case FETCH_GROUP_FAILURE:
       return { ...state, isFetchingDetails: false, error: action.error };
+
+    case FETCH_GROUP_MEMBERS_REQUEST:
+      return { ...state, isFetchingMembers: true };
+
+    case FETCH_GROUP_MEMBERS_SUCCESS:
+      return {
+        ...state,
+        isFetchingMembers: false,
+        groups: {
+          ...state.groups,
+          [action.groupId]: { ...state.groups[action.groupId], members: action.members }
+        }
+      };
+
+    case FETCH_GROUP_MEMBERS_FAILURE:
+      return { ...state, isFetchingMembers: false, error: action.error };
 
     case DELETE_GROUP_REQUEST:
       return { ...state, isDeleting: true };

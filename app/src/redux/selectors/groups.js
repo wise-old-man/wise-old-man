@@ -7,6 +7,7 @@ const playerGroupsSelector = state => state.groups.playerGroups;
 
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
+export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);
 
 export const getGroupsMap = createSelector(groupsSelector, map => {
   return _.mapValues(map, group => formatGroup(group));
@@ -31,5 +32,11 @@ function formatGroup(group) {
 
   const { members } = group;
 
-  return { ...group, members: members ? members.map((p, i) => ({ ...p, rank: i + 1 })) : [] };
+  if (members && members.length > 0) {
+    const rankedMembers = members.map((p, i) => ({ ...p, rank: i + 1 }));
+    const totalExperience = members.map(m => m.overallExperience).reduce((acc, cur) => acc + cur, 0);
+    return { ...group, members: rankedMembers, totalExperience };
+  }
+
+  return { ...group, members: [], totalExperience: 0 };
 }
