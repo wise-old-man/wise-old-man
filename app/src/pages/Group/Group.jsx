@@ -5,16 +5,20 @@ import { Helmet } from 'react-helmet';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Dropdown from '../../components/Dropdown';
+import Button from '../../components/Button';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import DeleteGroupModal from './components/DeleteGroupModal';
-import { getGroup, isFetchingDetails } from '../../redux/selectors/groups';
+import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
+import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
+import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
+import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import './Group.scss';
 
 const MENU_OPTIONS = [
@@ -34,8 +38,10 @@ function Group() {
   const dispatch = useDispatch();
 
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
+  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
-  const isLoading = useSelector(state => isFetchingDetails(state));
+  const isLoadingMembers = useSelector(state => isFetchingMembers(state));
+  const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
 
@@ -52,6 +58,14 @@ function Group() {
     dispatch(fetchGroupCompetitionsAction(id));
   };
 
+  const fetchMembers = () => {
+    dispatch(fetchMembersAction(id));
+  };
+
+  const fetchMonthlyTop = () => {
+    dispatch(fetchMonthlyTopAction(id));
+  };
+
   const handleDeleteModalClosed = () => {
     setShowingDeleteModal(false);
   };
@@ -65,12 +79,20 @@ function Group() {
     }
   };
 
+  const handleUpdateAll = () => {
+    dispatch(updateAllAction(id));
+    setButtonDisabled(true);
+  };
+
   const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
+  const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
 
   // Fetch group details, on mount
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(fetchCompetitions, [dispatch, id]);
+  useEffect(fetchMembers, [dispatch, id]);
+  useEffect(fetchMonthlyTop, [dispatch, id]);
 
   if (!group) {
     return <Loading />;
@@ -84,6 +106,7 @@ function Group() {
       <div className="group__header row">
         <div className="col">
           <PageHeader title={group.name}>
+            <Button text="Update all" onClick={onUpdateAllClicked} disabled={isButtonDisabled} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
@@ -99,11 +122,11 @@ function Group() {
         </div>
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Monthly Top Player</span>
-          <TopPlayerWidget group={group} />
+          <TopPlayerWidget group={group} isLoading={isLoadingMonthlyTop} />
         </div>
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Total overall experience</span>
-          <TotalExperienceWidget group={group} />
+          <TotalExperienceWidget group={group} isLoading={isLoadingMembers} />
         </div>
       </div>
       <div className="group__content row">
@@ -111,7 +134,7 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <MembersTable members={group.members} isLoading={isLoading} />
+          <MembersTable members={group.members} isLoading={isLoadingMembers} />
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}

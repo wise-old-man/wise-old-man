@@ -10,8 +10,8 @@ function formatData(group) {
   return [
     { key: 'Id', value: id },
     { key: 'Members', value: members ? members.length : 'Unknown' },
-    { key: 'Created at', value: formatDate(createdAt, 'DD MMM, YYYY') },
-    { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM, YYYY') }
+    { key: 'Created at', value: formatDate(createdAt, 'DD MMM YYYY, HH:mm') },
+    { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm') }
   ];
 }
 

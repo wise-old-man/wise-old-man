@@ -53,7 +53,7 @@ export default [
     ]
   },
   {
-    title: 'View group',
+    title: 'View group details',
     url: '/groups/:id',
     method: 'GET',
     params: [
@@ -70,49 +70,7 @@ export default [
           id: 4,
           name: 'RSPT',
           createdAt: '2020-04-18T09:01:10.630Z',
-          updatedAt: '2020-04-18T09:07:00.915Z',
-          totalExperience: 4213019496,
-          monthlyTopPlayer: {
-            playerId: 61,
-            username: 'Psikoi',
-            type: 'regular',
-            gained: 9735587
-          },
-          members: [
-            {
-              id: 61,
-              username: 'Psikoi',
-              type: 'regular',
-              lastImportedAt: '2020-04-18T02:22:49.364Z',
-              registeredAt: '2020-04-10T18:11:02.544Z',
-              updatedAt: '2020-04-18T04:02:42.235Z',
-              role: 'leader',
-              overallExperience: 278434548,
-              overallRank: 29456
-            },
-            {
-              id: 93,
-              username: 'Zulu',
-              type: 'regular',
-              lastImportedAt: null,
-              registeredAt: '2020-04-18T02:22:56.415Z',
-              updatedAt: '2020-04-18T06:44:28.660Z',
-              role: 'leader',
-              overallExperience: 3280026365,
-              overallRank: 33
-            },
-            {
-              id: 77,
-              username: 'Zezima',
-              type: 'regular',
-              lastImportedAt: '2020-04-11T01:02:25.132Z',
-              registeredAt: '2020-04-11T01:02:06.424Z',
-              updatedAt: '2020-04-18T03:40:17.940Z',
-              role: 'member',
-              overallExperience: 27957906,
-              overallRank: 581480
-            }
-          ]
+          updatedAt: '2020-04-18T09:07:00.915Z'
         }
       }
     ],
@@ -127,6 +85,102 @@ export default [
         description: 'If the given id does not exist.',
         body: {
           message: 'Group of id 4553 was not found.'
+        }
+      }
+    ]
+  },
+  {
+    title: 'Get group members list',
+    url: '/groups/:id/members',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 352,
+            username: 'Psikoi',
+            type: 'regular',
+            lastImportedAt: null,
+            registeredAt: '2020-05-02T20:35:05.251Z',
+            updatedAt: '2020-05-03T01:08:18.827Z',
+            role: 'leader',
+            overallExperience: 546067684
+          },
+          {
+            id: 416,
+            username: 'Zulu',
+            type: 'regular',
+            lastImportedAt: '2020-05-03T01:27:05.764Z',
+            registeredAt: '2020-05-02T20:35:06.302Z',
+            updatedAt: '2020-05-03T01:49:14.712Z',
+            role: 'member',
+            overallExperience: 365282547
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group of id 4553 was not found.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's monthly top member",
+    url: '/groups/:id/monthly-top',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          playerId: 299,
+          username: 'Psikoi',
+          type: 'regular',
+          gained: 63758697
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group of id 4553 was not found.'
+        }
+      },
+      {
+        description: "If none of the group's members are being tracked.",
+        body: {
+          message: 'None of the group members are tracked.'
         }
       }
     ]
@@ -212,6 +266,10 @@ export default [
         body: { message: "Group name 'Hexis' is already taken." }
       },
       {
+        description: "If one of the members' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
+      },
+      {
         description: 'If members is given but does not respect the correct format.',
         body: { message: 'Invalid members list. Each array element must have a username key.' }
       }
@@ -286,6 +344,10 @@ export default [
       {
         description: 'If name is given but is already taken.',
         body: { message: "Group name 'Some taken name' is already taken." }
+      },
+      {
+        description: "If one of the members' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
       },
       {
         description: 'If the verification code is not given.',
@@ -540,6 +602,56 @@ export default [
       {
         description: 'If player already has the given role.',
         body: { message: "'Psikoi' already has the role of leader." }
+      }
+    ]
+  },
+  {
+    title: 'Update all members',
+    url: '/groups/:id/update-all',
+    method: 'POST',
+    comments: [
+      {
+        type: 'warning',
+        content:
+          "This action will perform a soft-update, meaning it won't \
+          import the player from CML or determine it's type."
+      },
+      {
+        type: 'warning',
+        content:
+          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+      },
+      {
+        type: 'warning',
+        content:
+          'If a player update fails, it will re-attempt in 65 seconds. \
+          It will re-attempt up to 5 times per player.'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          message: '19 players are being updated. This can take up to a few minutes.'
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If id is not given.',
+        body: { message: 'Invalid group id.' }
+      },
+      {
+        description:
+          "If the group's member list is invalid, empty or every member has been updated in the last 10 minutes",
+        body: { message: 'This group has no members that should be updated' }
       }
     ]
   }

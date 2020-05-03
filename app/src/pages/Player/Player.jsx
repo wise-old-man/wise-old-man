@@ -32,7 +32,7 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { capitalize, getSkillIcon, getPlayerTypeIcon } from '../../utils';
+import { capitalize, getSkillIcon, getPlayerTypeIcon, getOfficialHiscoresUrl } from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
@@ -46,6 +46,10 @@ const PERIOD_SELECTOR_OPTIONS = [
 ];
 
 const MENU_OPTIONS = [
+  {
+    label: 'Open official hiscores',
+    value: 'openOsrsHiscores'
+  },
   {
     label: 'Reassign player type',
     value: 'assertType'
@@ -132,6 +136,8 @@ function Player() {
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
+    } else if (option.value === 'openOsrsHiscores') {
+      window.location = getOfficialHiscoresUrl(player);
     }
   };
 

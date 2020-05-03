@@ -7,6 +7,8 @@ import {
   ASSERT_TYPE_REQUEST
 } from '../modules/players/reducer';
 import {
+  UPDATE_MEMBERS_SUCCESS,
+  UPDATE_MEMBERS_FAILURE,
   CREATE_GROUP_FAILURE,
   CREATE_GROUP_SUCCESS,
   DELETE_GROUP_FAILURE,
@@ -205,7 +207,8 @@ const notificationsMiddleware = store => next => action => {
       break;
     }
 
-    case UPDATE_PARTICIPANTS_SUCCESS: {
+    case UPDATE_PARTICIPANTS_SUCCESS:
+    case UPDATE_MEMBERS_SUCCESS: {
       const notification = {
         text: action.message,
         type: 'success'
@@ -215,7 +218,8 @@ const notificationsMiddleware = store => next => action => {
       break;
     }
 
-    case UPDATE_PARTICIPANTS_FAILURE: {
+    case UPDATE_PARTICIPANTS_FAILURE:
+    case UPDATE_MEMBERS_FAILURE: {
       const notification = {
         text: action.error,
         type: 'error'

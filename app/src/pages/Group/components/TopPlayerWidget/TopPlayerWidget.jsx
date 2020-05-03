@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { formatNumber } from '../../../../utils';
 import './TopPlayerWidget.scss';
 
-function TopPlayerWidget({ group }) {
-  if (!group || group.monthlyTopPlayer === undefined) {
+function TopPlayerWidget({ group, isLoading }) {
+  if (!group || isLoading) {
     return (
       <div className="top-player-widget">
         <b className="top__username -placeholder" />
@@ -36,7 +36,8 @@ function TopPlayerWidget({ group }) {
 }
 
 TopPlayerWidget.propTypes = {
-  group: PropTypes.shape().isRequired
+  group: PropTypes.shape().isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default TopPlayerWidget;

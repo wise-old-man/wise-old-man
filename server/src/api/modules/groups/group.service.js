@@ -1,6 +1,7 @@
 const _ = require('lodash');
-const { Op } = require('sequelize');
-const { Group, Membership, Player, Snapshot } = require('../../../database');
+const { Op, Sequelize, QueryTypes } = require('sequelize');
+const moment = require('moment');
+const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
@@ -28,24 +29,31 @@ async function list(name) {
     limit: 20
   });
 
-  // Find all memberships for the searched groups.
-  const filteredMemberships = await Membership.findAll({
-    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  const groupIds = groups.map(g => g.id);
+
+  /**
+   * Will return a members count for every group, with the format:
+   * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
+   */
+  const membersCount = await Membership.findAll({
+    where: { groupId: groupIds },
+    attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
+    group: ['groupId']
   });
 
-  // Store in this variable the members count for each group id
-  const membersMap = {};
+  /**
+   * Convert the counts fetched above, into a key:value format:
+   * { 35: 4, 41: 31 }
+   */
+  const countMap = _.mapValues(
+    _.keyBy(
+      membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
+      c => c.groupId
+    ),
+    c => c.count
+  );
 
-  filteredMemberships.forEach(m => {
-    if (!membersMap[m.groupId]) {
-      membersMap[m.groupId] = 1;
-    } else {
-      const curCount = membersMap[m.groupId];
-      membersMap[m.groupId] = curCount + 1;
-    }
-  });
-
-  return groups.map(format).map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+  return groups.map(format).map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
 }
 
 /**
@@ -99,46 +107,75 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  // Fetch all members, and their latest snapshot
+  return format(group);
+}
+
+async function getMonthlyTopPlayer(groupId) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
   const memberships = await Membership.findAll({
-    where: { groupId: id },
-    include: [
-      {
-        model: Player,
-        include: [
-          {
-            model: Snapshot,
-            attributes: ['overallExperience', 'overallRank', 'createdAt'],
-            order: [['createdAt', 'DESC']],
-            limit: 1
-          }
-        ]
-      }
-    ]
+    where: { groupId },
+    attributes: ['playerId']
   });
 
-  // Format the members
-  const members = memberships
-    .map(({ player, role }) => {
-      const { snapshots } = player;
+  const memberIds = memberships.map(m => m.playerId);
+  const monthlyTopPlayer = memberIds.length ? await deltaService.getMonthlyTop(memberIds) : null;
 
-      const overallExperience = snapshots && snapshots.length ? snapshots[0].overallExperience : -1;
-      const overallRank = snapshots && snapshots.length ? snapshots[0].overallRank : -1;
+  return monthlyTopPlayer;
+}
 
-      return { ..._.omit(player.toJSON(), ['snapshots']), role, overallExperience, overallRank };
-    })
+async function getMembersList(id) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const group = await Group.findOne({ where: { id } });
+
+  if (!group) {
+    throw new BadRequestError(`Group of id ${id} was not found.`);
+  }
+
+  // Fetch all memberships for the group
+  const memberships = await Membership.findAll({
+    attributes: ['groupId', 'playerId', 'role'],
+    where: { groupId: id },
+    include: [{ model: Player }]
+  });
+
+  if (!memberships || memberships.length === 0) {
+    return [];
+  }
+
+  const query = `
+        SELECT s."playerId", s."overallExperience"
+        FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+              FROM public.snapshots q
+              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
+              GROUP BY q."playerId"
+              ) r
+        JOIN public.snapshots s
+          ON s."playerId" = r."playerId"  
+          AND s."createdAt"   = r.max_date
+        ORDER BY s."playerId"
+  `;
+
+  // Execute the query above, which returns the latest snapshot for each member,
+  // in the following format: [{playerId: 61, overallExerience: "4465456"}]
+  // Note: this used to be a sequelize query, but it was very slow for large groups
+  const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+  // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
+  const experienceMap = _.mapValues(_.keyBy(experienceSnapshots, 'playerId'), d =>
+    parseInt(d.overallExperience, 10)
+  );
+
+  // Format all the members, add each experience to its respective player, and sort them by exp
+  return memberships
+    .map(({ player, role }) => ({ ...player.toJSON(), role }))
+    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }))
     .sort((a, b) => b.overallExperience - a.overallExperience);
-
-  const memberIds = members.map(m => m.id);
-
-  const totalExperience = memberships
-    .filter(({ player }) => player.snapshots && player.snapshots.length > 0)
-    .map(({ player }) => parseInt(player.snapshots[0].overallExperience, 10))
-    .reduce((acc, cur) => acc + cur, 0);
-
-  const monthlyTopPlayer = members.length ? await deltaService.getMonthlyTop(memberIds) : null;
-
-  return { ...format(group), members, totalExperience, monthlyTopPlayer };
 }
 
 async function create(name, members) {
@@ -155,6 +192,15 @@ async function create(name, members) {
   // If not all elements of members array have a "username" key.
   if (members && members.filter(m => m.username).length !== members.length) {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
+  }
+
+  // Check if every username in the list is valid
+  if (members && members.length > 0) {
+    for (let i = 0; i < members.length; i += 1) {
+      if (!playerService.isValidUsername(members[i].username)) {
+        throw new BadRequestError(`Invalid player username: ${members[i].username}`);
+      }
+    }
   }
 
   const [verificationCode, verificationHash] = await generateVerification();
@@ -209,13 +255,20 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  if (name) {
-    await group.update({ name: sanitizeName(name) });
-  }
-
   if (members) {
+    // Check if every username in the list is valid
+    for (let i = 0; i < members.length; i += 1) {
+      if (!playerService.isValidUsername(members[i].username)) {
+        throw new BadRequestError(`Invalid player username: ${members[i].username}`);
+      }
+    }
+
     const newMembers = await setMembers(group, members);
     return { ...format(group), members: newMembers };
+  }
+
+  if (name) {
+    await group.update({ name: sanitizeName(name) });
   }
 
   const memberships = await group.getMembers();
@@ -496,10 +549,66 @@ async function findOne(groupId) {
   return group;
 }
 
+/**
+ * Update all members of a group.
+ *
+ * An update action must be supplied, to be executed for
+ * every member. This is to prevent calling jobs from
+ * within the service. I'd rather call them from the controller.
+ *
+ * Note: this is a soft update, meaning it will only create a new
+ * snapshot. It won't import from CML or determine player type.
+ */
+async function updateAllMembers(id, updateAction) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const members = await getOutdatedMembers(id);
+
+  if (!members || members.length === 0) {
+    throw new BadRequestError('This group has no members that should be updated.');
+  }
+
+  // Execute the update action for every member
+  members.forEach(player => updateAction(player));
+
+  return members;
+}
+
+/**
+ * Get outdated members of a specific group id.
+ * A member is considered outdated 10 minutes after their last update
+ */
+async function getOutdatedMembers(groupId) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+
+  const membersToUpdate = await Membership.findAll({
+    attributes: ['groupId', 'playerId'],
+    where: { groupId },
+    include: [
+      {
+        model: Player,
+        where: {
+          updatedAt: { [Op.lt]: tenMinsAgo }
+        }
+      }
+    ]
+  });
+
+  return membersToUpdate.map(({ player }) => player);
+}
+
 exports.format = format;
 exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
+exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
+exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;
 exports.destroy = destroy;
@@ -508,3 +617,4 @@ exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
 exports.getMembers = getMembers;
 exports.findOne = findOne;
+exports.updateAllMembers = updateAllMembers;

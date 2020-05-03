@@ -23,6 +23,9 @@ function getConfig(datasets, invertYAxis) {
           padding: 30
         }
       },
+      hover: {
+        mode: 'point'
+      },
       tooltips: {
         callbacks: {
           title: data => formatDate(data[0].xLabel, 'DD MMM, HH:mm'),
