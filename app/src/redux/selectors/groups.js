@@ -8,6 +8,7 @@ const playerGroupsSelector = state => state.groups.playerGroups;
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);
+export const isFetchingMonthlyTop = createSelector(rootSelector, root => root.isFetchingMonthlyTop);
 
 export const getGroupsMap = createSelector(groupsSelector, map => {
   return _.mapValues(map, group => formatGroup(group));

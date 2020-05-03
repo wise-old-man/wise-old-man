@@ -143,6 +143,10 @@ async function getMembersList(id) {
     include: [{ model: Player }]
   });
 
+  if (!memberships || memberships.length === 0) {
+    return [];
+  }
+
   const query = `
         SELECT s."playerId", s."overallExperience"
         FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date

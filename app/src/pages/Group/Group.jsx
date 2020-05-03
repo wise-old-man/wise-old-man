@@ -11,10 +11,11 @@ import CompetitionWidget from './components/CompetitionWidget';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import DeleteGroupModal from './components/DeleteGroupModal';
-import { getGroup, isFetchingMembers } from '../../redux/selectors/groups';
+import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
+import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import './Group.scss';
 
@@ -37,6 +38,7 @@ function Group() {
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
 
   const isLoadingMembers = useSelector(state => isFetchingMembers(state));
+  const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
 
@@ -55,6 +57,10 @@ function Group() {
 
   const fetchMembers = () => {
     dispatch(fetchMembersAction(id));
+  };
+
+  const fetchMonthlyTop = () => {
+    dispatch(fetchMonthlyTopAction(id));
   };
 
   const handleDeleteModalClosed = () => {
@@ -77,6 +83,7 @@ function Group() {
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(fetchCompetitions, [dispatch, id]);
   useEffect(fetchMembers, [dispatch, id]);
+  useEffect(fetchMonthlyTop, [dispatch, id]);
 
   if (!group) {
     return <Loading />;
@@ -105,7 +112,7 @@ function Group() {
         </div>
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Monthly Top Player</span>
-          <TopPlayerWidget group={group} />
+          <TopPlayerWidget group={group} isLoading={isLoadingMonthlyTop} />
         </div>
         <div className="col-md-4 col-sm-6">
           <span className="widget-label">Total overall experience</span>
