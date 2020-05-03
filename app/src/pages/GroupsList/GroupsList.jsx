@@ -12,6 +12,8 @@ import fetchGroupsAction from '../../redux/modules/groups/actions/fetchAll';
 import { getGroups, isFetchingAll } from '../../redux/selectors/groups';
 import './GroupsList.scss';
 
+const RESULTS_PER_PAGE = 20;
+
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
   columns: [
@@ -33,22 +35,34 @@ function GroupsList() {
 
   // State variables
   const [nameSearch, setNameSearch] = useState('');
+  const [pageIndex, setPageIndex] = useState(0);
 
   // Memoized redux variables
   const groups = useSelector(state => getGroups(state));
-  const isFetching = useSelector(state => isFetchingAll(state));
+  const isLoading = useSelector(state => isFetchingAll(state));
 
-  const fetchGroups = query => {
-    dispatch(fetchGroupsAction(query));
-  };
+  const isFullyLoaded = groups.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
   const handleSubmitSearch = _.debounce(
     () => {
-      fetchGroups({ name: nameSearch });
+      setPageIndex(0); // Reset pagination when the search changes
+      dispatch(fetchGroupsAction({ name: nameSearch }, RESULTS_PER_PAGE, 0));
     },
     500,
     { leading: true, trailing: false }
   );
+
+  const handleLoadMore = () => {
+    if (pageIndex === 0) return;
+
+    const limit = RESULTS_PER_PAGE;
+    const offset = RESULTS_PER_PAGE * pageIndex;
+    dispatch(fetchGroupsAction({ name: nameSearch }, limit, offset));
+  };
+
+  const handleNextPage = () => {
+    setPageIndex(pageIndex + 1);
+  };
 
   const handleNameSearchInput = e => {
     setNameSearch(e.target.value);
@@ -58,12 +72,37 @@ function GroupsList() {
     router.push(`/groups/${groups[index].id}`);
   };
 
+  const handleScrolling = () => {
+    const margin = 300;
+
+    window.onscroll = _.debounce(() => {
+      // If has no more content to load, ignore the scrolling
+      if (groups.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
+        return;
+      }
+
+      const { innerHeight } = window;
+      const { scrollTop, offsetHeight } = document.documentElement;
+
+      // If has reached the bottom of the page, load more data
+      if (innerHeight + scrollTop + margin > offsetHeight) {
+        // This timeout is simply to wait for the scrolling
+        // inertia to stop, to then load the contents, otherwise
+        // it will resume the inertia and scroll to the bottom of the page again
+        setTimeout(() => handleNextPage(), 800);
+      }
+    }, 100);
+  };
+
   // Memoized callbacks
-  const onSubmitSearch = useCallback(handleSubmitSearch, [fetchGroups]);
+  const onSubmitSearch = useCallback(handleSubmitSearch, [nameSearch]);
+  const onLoadMore = useCallback(handleLoadMore, [pageIndex]);
   const onNameSearchInput = useCallback(handleNameSearchInput, [setNameSearch]);
   const onRowClicked = useCallback(handleRowClicked, [router, groups]);
 
   // Submit search each time any of the search variable change
+  useEffect(onLoadMore, [pageIndex]);
+  useEffect(handleScrolling, [groups, pageIndex]);
   useEffect(onSubmitSearch, [nameSearch]);
 
   return (
@@ -86,7 +125,7 @@ function GroupsList() {
       </div>
       <div className="groups__list row">
         <div className="col">
-          {isFetching && (!groups || groups.length === 0) ? (
+          {isLoading && (!groups || groups.length === 0) ? (
             <TableListPlaceholder size={5} />
           ) : (
             <TableList
@@ -96,6 +135,15 @@ function GroupsList() {
               onRowClicked={onRowClicked}
               clickable
             />
+          )}
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          {!isFullyLoaded && (
+            <b id="loading" className="loading-indicator">
+              Loading...
+            </b>
           )}
         </div>
       </div>

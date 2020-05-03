@@ -27,7 +27,7 @@ function format(competition) {
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function list(title, status, metric) {
+async function list(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
   if (status && !STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -62,7 +62,11 @@ async function list(title, status, metric) {
     }
   }
 
-  const competitions = await Competition.findAll({ where: query, limit: 20 });
+  const competitions = await Competition.findAll({
+    where: query,
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
 
   const formattedCompetitions = competitions.map(c => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
@@ -74,8 +78,12 @@ async function list(title, status, metric) {
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function findForGroup(groupId) {
-  const competitions = await Competition.findAll({ where: { groupId } });
+async function findForGroup(groupId, pagination) {
+  const competitions = await Competition.findAll({
+    where: { groupId },
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
 
   const formattedCompetitions = competitions.map(c => {
     return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
@@ -87,7 +95,7 @@ async function findForGroup(groupId) {
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function findForPlayer(playerId) {
+async function findForPlayer(playerId, pagination) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -98,12 +106,12 @@ async function findForPlayer(playerId) {
     include: [{ model: Competition }]
   });
 
-  const formattedCompetitions = participations.map(({ competition }) => {
-    return {
+  const formattedCompetitions = participations
+    .map(({ competition }) => ({
       ...format(competition),
       duration: durationBetween(competition.startsAt, competition.endsAt)
-    };
-  });
+    }))
+    .slice(pagination.offset, pagination.offset + pagination.limit);
 
   return formattedCompetitions;
 }
