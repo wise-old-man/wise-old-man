@@ -137,7 +137,9 @@ function Competition() {
       </div>
       <div className="competition__widgets row">
         <div className="col-md-4">
-          <span className="widget-label">Time Remaining</span>
+          <span className="widget-label">
+            {competition.status === 'upcoming' ? 'Starting in' : 'Time Remaining'}
+          </span>
           <CountdownWidget competition={competition} />
         </div>
         <div className="col-md-4 col-sm-6">
