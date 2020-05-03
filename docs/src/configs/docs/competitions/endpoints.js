@@ -67,7 +67,7 @@ export default [
     ]
   },
   {
-    title: 'View competition',
+    title: 'View competition details',
     url: '/competitions/:id',
     method: 'GET',
     params: [
@@ -220,6 +220,10 @@ export default [
       {
         description: 'If startsAt OR endsAt is a past date.',
         body: { message: 'Invalid dates: All start and end dates must be in the future.' }
+      },
+      {
+        description: "If one of the participant' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
       }
     ]
   },
@@ -317,6 +321,10 @@ export default [
       {
         description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description: "If one of the participant' usernames is invalid",
+        body: { message: 'Invalid player username: Crazy@@Name' }
       }
     ]
   },

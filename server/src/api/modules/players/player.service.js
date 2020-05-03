@@ -19,13 +19,30 @@ const DECADE_IN_SECONDS = 315569260;
  */
 function formatUsername(username) {
   return username
-    .replace(/_/g, ' ')
-    .replace(/-/g, ' ')
+    .replace(/[-_\s]/g, ' ')
     .trim()
     .toLowerCase()
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+function isValidUsername(username) {
+  const formattedUsername = formatUsername(username);
+
+  if (formattedUsername.length < 1 || formattedUsername.length > 12) {
+    return false;
+  }
+
+  if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
+    return false;
+  }
+
+  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
+    return false;
+  }
+
+  return true;
 }
 
 function shouldUpdate(updatedAt) {
@@ -403,6 +420,7 @@ async function getHiscoresData(username, type = 'NORMAL') {
 }
 
 exports.formatUsername = formatUsername;
+exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
 exports.getDataById = getDataById;

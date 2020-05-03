@@ -240,6 +240,14 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     }
   }
 
+  // Check if every username in the list is valid
+  if (participants && participants.length > 0) {
+    for (let i = 0; i < participants.length; i += 1) {
+      if (!playerService.isValidUsername(participants[i])) {
+        throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+      }
+    }
+  }
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
@@ -324,12 +332,19 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     newValues.endsAt = endsAt;
   }
 
-  await competition.update(newValues);
-
   if (participants) {
+    // Check if every username in the list is valid
+    for (let i = 0; i < participants.length; i += 1) {
+      if (!playerService.isValidUsername(participants[i])) {
+        throw new BadRequestError(`Invalid player username: ${participants[i]}`);
+      }
+    }
+
     const newParticipants = await setParticipants(competition, participants);
     return { ...format(competition), participants: newParticipants };
   }
+
+  await competition.update(newValues);
 
   const participations = await competition.getParticipants();
 

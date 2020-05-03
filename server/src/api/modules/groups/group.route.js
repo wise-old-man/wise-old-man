@@ -5,6 +5,8 @@ const api = express.Router();
 
 api.get('/', controller.listGroups);
 api.get('/:id', controller.viewGroup);
+api.get('/:id/monthly-top', controller.monthlyTop);
+api.get('/:id/members', controller.listMembers);
 api.post('/', controller.createGroup);
 api.put('/:id', controller.editGroup);
 api.delete('/:id', controller.deleteGroup);
