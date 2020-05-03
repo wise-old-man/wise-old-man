@@ -1,18 +1,36 @@
 @import '../../variables.scss';
+@import '../../styles.scss';
 
-.special-number {
-  text-decoration: none;
-  cursor: default;
+.special-number-btn {
+  position: relative;
+  background: transparent;
+  border: none;
 
-  &.-low-positive {
-    color: $low-positive-green;
+  .special-number-popup {
+    @extend %panel;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    margin-bottom: 5px;
+    color: white;
   }
+  
+  .special-number {
+    text-decoration: none;
+    cursor: default;
 
-  &.-positive {
-    color: $positive-green;
-  }
+    &.-low-positive {
+      color: $low-positive-green;
+    }
 
-  &.-negative {
-    color: $negative-red;
+    &.-positive {
+      color: $positive-green;
+    }
+
+    &.-negative {
+      color: $negative-red;
+    }
   }
 }
