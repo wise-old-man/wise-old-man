@@ -101,7 +101,9 @@ export default function competitionsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingAll: false,
-        competitions: { ...toMap(action.competitions, 'id') }
+        competitions: action.refresh
+          ? { ...toMap(action.competitions, 'id') }
+          : { ...state.competitions, ...toMap(action.competitions, 'id') }
       };
 
     case FETCH_COMPETITIONS_FAILURE:
