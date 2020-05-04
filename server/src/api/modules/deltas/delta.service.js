@@ -1,6 +1,13 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { SKILLS, ALL_METRICS, getRankKey, getValueKey } = require('../../constants/metrics');
+const {
+  SKILLS,
+  ACTIVITIES,
+  BOSSES,
+  ALL_METRICS,
+  getRankKey,
+  getValueKey
+} = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { durationBetween } = require('../../util/dates');
 const { Player, Delta, Snapshot, sequelize } = require('../../../database');
@@ -41,6 +48,42 @@ function format(delta, diffs) {
           start: startSnapshot[expKey],
           end: endSnapshot[expKey],
           delta: diffs[expKey]
+        }
+      };
+    });
+
+    ACTIVITIES.forEach(a => {
+      const rankKey = getRankKey(a);
+      const scoreKey = getValueKey(a);
+
+      obj.data[a] = {
+        rank: {
+          start: startSnapshot[rankKey],
+          end: endSnapshot[rankKey],
+          delta: diffs[rankKey]
+        },
+        score: {
+          start: startSnapshot[scoreKey],
+          end: endSnapshot[scoreKey],
+          delta: diffs[scoreKey]
+        }
+      };
+    });
+
+    BOSSES.forEach(a => {
+      const rankKey = getRankKey(a);
+      const killsKey = getValueKey(a);
+
+      obj.data[a] = {
+        rank: {
+          start: startSnapshot[rankKey],
+          end: endSnapshot[rankKey],
+          delta: diffs[rankKey]
+        },
+        kills: {
+          start: startSnapshot[killsKey],
+          end: endSnapshot[killsKey],
+          delta: diffs[killsKey]
         }
       };
     });
