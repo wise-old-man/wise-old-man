@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { formatNumber } from '../../utils';
 import './NumberLabel.scss';
@@ -24,6 +24,8 @@ function getNumberClass(value, lowThreshold) {
 }
 
 function NumberLabel({ value, isColored, isSigned, lowThreshold }) {
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
   const className = isColored ? getNumberClass(value, lowThreshold) : '';
 
   const formattedValue = formatNumber(value, true);
@@ -31,10 +33,20 @@ function NumberLabel({ value, isColored, isSigned, lowThreshold }) {
 
   const finalValue = isSigned ? signNumber(value, formattedValue) : formattedValue;
 
+  const togglePopup = e => {
+    e.stopPropagation();
+    setIsPopupVisible(!isPopupVisible);
+  };
+
+  const hidePopup = () => setIsPopupVisible(false);
+
   return (
-    <abbr className={`special-number ${className}`} title={formattedFullValue}>
-      <span>{finalValue}</span>
-    </abbr>
+    <button className="number-label-btn" type="button" onClick={togglePopup} onBlur={hidePopup}>
+      {isPopupVisible && <div className="number-label-popup">{formattedFullValue}</div>}
+      <abbr className={`number-label ${className}`} title={formattedFullValue}>
+        <span>{finalValue}</span>
+      </abbr>
+    </button>
   );
 }
 
