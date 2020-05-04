@@ -30,7 +30,7 @@ router.use((req, res, next) => {
 
 // Handle errors
 router.use((error, req, res, next) => {
-  res.status(error.statusCode || 500).json({ message: error.message });
+  res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
 });
 
 module.exports = router;
