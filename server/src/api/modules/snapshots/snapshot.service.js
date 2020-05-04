@@ -2,7 +2,7 @@ const csv = require('csvtojson');
 const _ = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
-const { SKILLS } = require('../../constants/metrics');
+const { SKILLS, BOSSES, ACTIVITIES } = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
 const { ServerError, BadRequestError } = require('../../errors');
@@ -86,12 +86,12 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const before = moment().subtract(1, period);
 
   const result = await Snapshot.findAll({
     where: {
       playerId,
-      createdAt: { [Op.gte]: beforeDate }
+      createdAt: { [Op.gte]: before.toDate() }
     },
     order: [['createdAt', 'DESC']]
   });
@@ -119,10 +119,10 @@ async function findFirstIn(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const before = moment().subtract(1, period);
 
   const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: beforeDate } },
+    where: { playerId, createdAt: { [Op.gte]: before.toDate() } },
     order: [['createdAt', 'ASC']]
   });
   return result;
@@ -263,14 +263,11 @@ async function fromRS(playerId, csvData) {
   // Ex: for skills, each row is [rank, level, experience]
   const rows = await csv({ noheader: true, output: 'csv' }).fromString(csvData);
 
-  // TODO: when bosses and activites get added, uncomment the block below
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
-  /*
   if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
-    throw new ServerError("The OSRS Hiscores were updated. Please wait for a fix.");
+    throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
-  */
 
   const stats = {};
 
@@ -279,6 +276,20 @@ async function fromRS(playerId, csvData) {
     const [rank, , experience] = rows[i];
     stats[`${s}Rank`] = parseInt(rank, 10);
     stats[`${s}Experience`] = parseInt(experience, 10);
+  });
+
+  // Populate the activities' values with the values from the csv
+  ACTIVITIES.forEach((s, i) => {
+    const [rank, score] = rows[SKILLS.length + i];
+    stats[`${s}Rank`] = parseInt(rank, 10);
+    stats[`${s}Score`] = parseInt(score, 10);
+  });
+
+  // Populate the bosses' values with the values from the csv
+  BOSSES.forEach((s, i) => {
+    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
+    stats[`${s}Rank`] = parseInt(rank, 10);
+    stats[`${s}Kills`] = parseInt(kills, 10);
   });
 
   const newSnapshot = await Snapshot.create({ playerId, ...stats });
