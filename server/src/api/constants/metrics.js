@@ -1,110 +1,139 @@
 const metrics = {
   SKILLS: [
-    'overall',
-    'attack',
-    'defence',
-    'strength',
-    'hitpoints',
-    'ranged',
-    'prayer',
-    'magic',
-    'cooking',
-    'woodcutting',
-    'fletching',
-    'fishing',
-    'firemaking',
-    'crafting',
-    'smithing',
-    'mining',
-    'herblore',
-    'agility',
-    'thieving',
-    'slayer',
-    'farming',
-    'runecrafting',
-    'hunter',
-    'construction'
+    { key: 'overall', name: 'Overall' },
+    { key: 'attack', name: 'Attack' },
+    { key: 'defence', name: 'Defence' },
+    { key: 'strength', name: 'Strength' },
+    { key: 'hitpoints', name: 'Hitpoints' },
+    { key: 'ranged', name: 'Ranged' },
+    { key: 'prayer', name: 'Prayer' },
+    { key: 'magic', name: 'Magic' },
+    { key: 'cooking', name: 'Cooking' },
+    { key: 'woodcutting', name: 'Woodcutting' },
+    { key: 'fletching', name: 'Fletching' },
+    { key: 'fishing', name: 'Fishing' },
+    { key: 'firemaking', name: 'Firemaking' },
+    { key: 'crafting', name: 'Crafting' },
+    { key: 'smithing', name: 'Smithing' },
+    { key: 'mining', name: 'Mining' },
+    { key: 'herblore', name: 'Herblore' },
+    { key: 'agility', name: 'Agility' },
+    { key: 'thieving', name: 'Thieving' },
+    { key: 'slayer', name: 'Slayer' },
+    { key: 'farming', name: 'Farming' },
+    { key: 'runecrafting', name: 'Runecrafting' },
+    { key: 'hunter', name: 'Hunter' },
+    { key: 'construction', name: 'Construction' }
   ],
   ACTIVITIES: [
-    'league_points',
-    'bounter_hunter_hunter',
-    'bounter_hunter_rogue',
-    'clue_scrolls_all',
-    'clue_scrolls_beginner',
-    'clue_scroll_easy',
-    'clue_scroll_medium',
-    'clue_scroll_hard',
-    'clue_scroll_elite',
-    'clue_scroll_master',
-    'last_man_standing'
+    { key: 'league_points', name: 'League Points' },
+    { key: 'bounty_hunter_hunter', name: 'Bounty Hunter (Hunter)' },
+    { key: 'bounty_hunter_rogue', name: 'Bounty Hunter (Rogue)' },
+    { key: 'clue_scrolls_all', name: 'Clue Scrolls (All)' },
+    { key: 'clue_scrolls_beginner', name: 'Clue Scrolls (Beginner)' },
+    { key: 'clue_scrolls_easy', name: 'Clue Scroll (Easy)' },
+    { key: 'clue_scrolls_medium', name: 'Clue Scroll (Medium)' },
+    { key: 'clue_scrolls_hard', name: 'Clue Scroll (Hard)' },
+    { key: 'clue_scrolls_elite', name: 'Clue Scroll (Elite)' },
+    { key: 'clue_scrolls_master', name: 'Clue Scroll (Master)' },
+    { key: 'last_man_standing', name: 'Last Man Standing' }
   ],
   BOSSES: [
-    'abyssal_sire',
-    'alchemical_hydra',
-    'barrows_chests',
-    'bryophyta',
-    'callisto',
-    'cerberus',
-    'chambers_of_xeric',
-    'chambers_of_xeric_challenge_mode',
-    'chaos_elemental',
-    'chaos_fanatic',
-    'commander_zilyana',
-    'corporeal_beast',
-    'crazy_archaeologist',
-    'dagannoth_prime',
-    'dagannoth_rex',
-    'dagannoth_supreme',
-    'deranged_archaeologist',
-    'general_graardor',
-    'giant_mole',
-    'grotesque_guardians',
-    'hespori',
-    'kalphite_queen',
-    'king_black_dragon',
-    'kraken',
-    'kreearra',
-    'kril_tsutsaroth',
-    'mimic',
-    'nightmare',
-    'obor',
-    'sarachnis',
-    'scorpia',
-    'skotizo',
-    'the_gauntlet',
-    'the_corrupted_gauntlet',
-    'theatre_of_blood',
-    'thermonuclear_smoke_devil',
-    'tzkal_zuk',
-    'tztok_jad',
-    'venenatis',
-    'vetion',
-    'vorkath',
-    'wintertodt',
-    'zalcano',
-    'zulrah'
+    { key: 'abyssal_sire', name: 'Abyssal Sire' },
+    { key: 'alchemical_hydra', name: 'Alchemical Hydra' },
+    { key: 'barrows_chests', name: 'Barrows Chests' },
+    { key: 'bryophyta', name: 'Bryophyta' },
+    { key: 'callisto', name: 'Callisto' },
+    { key: 'cerberus', name: 'Cerberus' },
+    { key: 'chambers_of_xeric', name: 'Chambers Of Xeric' },
+    { key: 'chambers_of_xeric_challenge_mode', name: 'Chambers Of Xeric (Challenge Mode)' },
+    { key: 'chaos_elemental', name: 'Chaos Elemental' },
+    { key: 'chaos_fanatic', name: 'Chaos Fanatic' },
+    { key: 'commander_zilyana', name: 'Commander Zilyana' },
+    { key: 'corporeal_beast', name: 'Corporeal Beast' },
+    { key: 'crazy_archaeologist', name: 'Crazy Archaeologist' },
+    { key: 'dagannoth_prime', name: 'Dagannoth Prime' },
+    { key: 'dagannoth_rex', name: 'Dagannoth Rex' },
+    { key: 'dagannoth_supreme', name: 'Dagannoth Supreme' },
+    { key: 'deranged_archaeologist', name: 'Deranged Archaeologist' },
+    { key: 'general_graardor', name: 'General Graardor' },
+    { key: 'giant_mole', name: 'Giant Mole' },
+    { key: 'grotesque_guardians', name: 'Grotesque Guardians' },
+    { key: 'hespori', name: 'Hespori' },
+    { key: 'kalphite_queen', name: 'Kalphite Queen' },
+    { key: 'king_black_dragon', name: 'King Black Dragon' },
+    { key: 'kraken', name: 'Kraken' },
+    { key: 'kreearra', name: "Kree'Arra" },
+    { key: 'kril_tsutsaroth', name: "K'ril Tsutsaroth" },
+    { key: 'mimic', name: 'Mimic' },
+    { key: 'nightmare', name: 'Nightmare' },
+    { key: 'obor', name: 'Obor' },
+    { key: 'sarachnis', name: 'Sarachnis' },
+    { key: 'scorpia', name: 'Scorpia' },
+    { key: 'skotizo', name: 'Skotizo' },
+    { key: 'the_gauntlet', name: 'The Gauntlet' },
+    { key: 'the_corrupted_gauntlet', name: 'The Corrupted Gauntlet' },
+    { key: 'theatre_of_blood', name: 'Theatre Of Blood' },
+    { key: 'thermonuclear_smoke_devil', name: 'Thermonuclear Smoke Devil' },
+    { key: 'tzkal_zuk', name: 'TzKal-Zuk' },
+    { key: 'tztok_jad', name: 'TzTok-Jad' },
+    { key: 'venenatis', name: 'Venenatis' },
+    { key: 'vetion', name: "Vet'ion" },
+    { key: 'vorkath', name: 'Vorkath' },
+    { key: 'wintertodt', name: 'Wintertodt' },
+    { key: 'zalcano', name: 'Zalcano' },
+    { key: 'zulrah', name: 'Zulrah' }
   ]
 };
+
+const SKILLS_KEYS = metrics.SKILLS.map(s => s.key);
+const ACTIVITIES_KEYS = metrics.ACTIVITIES.map(s => s.key);
+const BOSSES_KEYS = metrics.BOSSES.map(s => s.key);
 
 function getRankKey(value) {
   return `${value}Rank`;
 }
 
 function getValueKey(value) {
-  if (metrics.SKILLS.includes(value)) {
+  if (SKILLS_KEYS.includes(value)) {
     return `${value}Experience`;
   }
 
-  if (metrics.ACTIVITIES.includes(value)) {
+  if (ACTIVITIES_KEYS.includes(value)) {
     return `${value}Score`;
   }
 
   return `${value}Kills`;
 }
 
+function getFormattedName(value) {
+  for (let i = 0; i < metrics.SKILLS.length; i += 1) {
+    if (metrics.SKILLS[i].key === value) {
+      return metrics.SKILLS[i].name;
+    }
+  }
+
+  for (let i = 0; i < metrics.ACTIVITIES.length; i += 1) {
+    if (metrics.ACTIVITIES[i].key === value) {
+      return metrics.ACTIVITIES[i].name;
+    }
+  }
+
+  for (let i = 0; i < metrics.BOSSES.length; i += 1) {
+    if (metrics.BOSSES[i].key === value) {
+      return metrics.BOSSES[i].name;
+    }
+  }
+
+  return 'Invalid metric name';
+}
+
 module.exports = {
-  ...metrics,
-  ALL_METRICS: [...metrics.SKILLS, ...metrics.ACTIVITIES, ...metrics.BOSSES],
+  SKILLS: SKILLS_KEYS,
+  ACTIVITIES: ACTIVITIES_KEYS,
+  BOSSES: BOSSES_KEYS,
+  ALL_METRICS: [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS],
+  getFormattedName,
   getRankKey,
   getValueKey
 };
