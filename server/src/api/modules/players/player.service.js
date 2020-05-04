@@ -45,6 +45,38 @@ function isValidUsername(username) {
   return true;
 }
 
+function isValidUsernames(usernames) {
+  const errorMessages = []
+  const badNames = []
+
+  usernames.forEach(username => {
+    const formattedUsername = formatUsername(username);
+
+    if (formattedUsername.length < 1 || formattedUsername.length > 12) {
+      const message = 'The username must have a length greater than 1 and less than 13.'
+      if (!errorMessages.includes(message)) {
+        errorMessages.push(message)
+      }
+    }
+
+    if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
+      const message = 'The username must not start or end with a space.'
+      if (!errorMessages.includes(message)) {
+        errorMessages.push(message)
+      }
+    }
+
+    if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
+      const message = 'The username must not contain any special characters.'
+      if (!errorMessages.includes(message)) {
+        errorMessages.push(message)
+      }
+    }
+  })
+
+  return { errors: errorMessages, names: badNames }
+}
+
 function shouldUpdate(updatedAt) {
   if (!updatedAt || !isValidDate(updatedAt)) {
     return [true, DECADE_IN_SECONDS];

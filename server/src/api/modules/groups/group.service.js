@@ -202,7 +202,12 @@ async function create(name, members) {
     });
 
     if (badNames.length > 0) {
-      throw new BadRequestError(`Invalid player usernames: ${JSON.stringify(badNames)}`);
+      const invalidMessage =
+        'Invalid usernames:\
+      \n\n1. Usernames cannot have a space at the start or the end.\
+      \n\n2. Usernames must be greater than 0 and less than 13 characters long.\
+      3. Usernames must contain no special characters, except - and _.'
+      throw new BadRequestError(invalidMessage, badNames);
     }
   }
 
