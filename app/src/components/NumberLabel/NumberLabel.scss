@@ -1,13 +1,14 @@
 @import '../../variables.scss';
 @import '../../styles.scss';
 
-.special-number-btn {
+.number-label-btn {
   position: relative;
   background: transparent;
   border: none;
 
-  .special-number-popup {
+  .number-label-popup {
     @extend %panel;
+    background: $gray-12;
     position: absolute;
     bottom: 100%;
     left: 50%;
@@ -16,8 +17,8 @@
     margin-bottom: 5px;
     color: white;
   }
-  
-  .special-number {
+
+  .number-label {
     text-decoration: none;
     cursor: default;
 

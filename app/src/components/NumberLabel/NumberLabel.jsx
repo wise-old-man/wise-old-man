@@ -33,7 +33,7 @@ function NumberLabel({ value, isColored, isSigned, lowThreshold }) {
 
   const finalValue = isSigned ? signNumber(value, formattedValue) : formattedValue;
 
-  const togglePopup = (e) => {
+  const togglePopup = e => {
     e.stopPropagation();
     setIsPopupVisible(!isPopupVisible);
   };
@@ -41,16 +41,9 @@ function NumberLabel({ value, isColored, isSigned, lowThreshold }) {
   const hidePopup = () => setIsPopupVisible(false);
 
   return (
-    <button
-      className="special-number-btn"
-      type="button"
-      onClick={togglePopup}
-      onBlur={hidePopup}
-    >
-      {isPopupVisible && (
-        <div className="special-number-popup">{formattedFullValue}</div>
-      )}
-      <abbr className={`special-number ${className}`} title={formattedFullValue}>
+    <button className="number-label-btn" type="button" onClick={togglePopup} onBlur={hidePopup}>
+      {isPopupVisible && <div className="number-label-popup">{formattedFullValue}</div>}
+      <abbr className={`number-label ${className}`} title={formattedFullValue}>
         <span>{finalValue}</span>
       </abbr>
     </button>
