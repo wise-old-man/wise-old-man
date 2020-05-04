@@ -86,7 +86,25 @@ const metrics = {
   ]
 };
 
+function getRankKey(value) {
+  return `${value}Rank`;
+}
+
+function getValueKey(value) {
+  if (metrics.SKILLS.includes(value)) {
+    return `${value}Experience`;
+  }
+
+  if (metrics.ACTIVITIES.includes(value)) {
+    return `${value}Score`;
+  }
+
+  return `${value}Kills`;
+}
+
 module.exports = {
   ...metrics,
-  ALL_METRICS: [...metrics.SKILLS, ...metrics.ACTIVITIES, ...metrics.BOSSES]
+  ALL_METRICS: [...metrics.SKILLS, ...metrics.ACTIVITIES, ...metrics.BOSSES],
+  getRankKey,
+  getValueKey
 };

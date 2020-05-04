@@ -2,7 +2,7 @@ const csv = require('csvtojson');
 const _ = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
-const { SKILLS, BOSSES, ACTIVITIES } = require('../../constants/metrics');
+const { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
 const { ServerError, BadRequestError } = require('../../errors');
@@ -22,8 +22,22 @@ function format(snapshot) {
 
   SKILLS.forEach(s => {
     obj[s] = {
-      rank: snapshot[`${s}Rank`],
-      experience: snapshot[`${s}Experience`]
+      rank: snapshot[getRankKey(s)],
+      experience: snapshot[getValueKey(s)]
+    };
+  });
+
+  ACTIVITIES.forEach(s => {
+    obj[s] = {
+      rank: snapshot[getRankKey(s)],
+      score: snapshot[getValueKey(s)]
+    };
+  });
+
+  BOSSES.forEach(s => {
+    obj[s] = {
+      rank: snapshot[getRankKey(s)],
+      kills: snapshot[getValueKey(s)]
     };
   });
 
@@ -164,11 +178,27 @@ function diff(start, end) {
   const obj = {};
 
   SKILLS.forEach(s => {
-    const rankKey = `${s}Rank`;
-    const experienceKey = `${s}Experience`;
+    const rankKey = getRankKey(s);
+    const experienceKey = getValueKey(s);
 
     obj[rankKey] = end[rankKey] - start[rankKey];
     obj[experienceKey] = end[experienceKey] - start[experienceKey];
+  });
+
+  ACTIVITIES.forEach(s => {
+    const rankKey = getRankKey(s);
+    const scoreKey = getValueKey(s);
+
+    obj[rankKey] = end[rankKey] - start[rankKey];
+    obj[scoreKey] = end[scoreKey] - start[scoreKey];
+  });
+
+  BOSSES.forEach(s => {
+    const rankKey = getRankKey(s);
+    const killsKey = getValueKey(s);
+
+    obj[rankKey] = end[rankKey] - start[rankKey];
+    obj[killsKey] = end[killsKey] - start[killsKey];
   });
 
   return obj;
@@ -244,8 +274,8 @@ async function fromCML(playerId, historyRow) {
 
   // Populate the skills' values with experience and rank data
   SKILLS.forEach((s, i) => {
-    stats[`${s}Rank`] = parseInt(ranks[i], 10);
-    stats[`${s}Experience`] = parseInt(exps[i], 10);
+    stats[getRankKey(s)] = parseInt(ranks[i], 10);
+    stats[getValueKey(s)] = parseInt(exps[i], 10);
   });
 
   return { playerId, createdAt, importedAt, ...stats };
@@ -274,22 +304,22 @@ async function fromRS(playerId, csvData) {
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
-    stats[`${s}Rank`] = parseInt(rank, 10);
-    stats[`${s}Experience`] = parseInt(experience, 10);
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(experience, 10);
   });
 
   // Populate the activities' values with the values from the csv
   ACTIVITIES.forEach((s, i) => {
     const [rank, score] = rows[SKILLS.length + i];
-    stats[`${s}Rank`] = parseInt(rank, 10);
-    stats[`${s}Score`] = parseInt(score, 10);
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(score, 10);
   });
 
   // Populate the bosses' values with the values from the csv
   BOSSES.forEach((s, i) => {
     const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
-    stats[`${s}Rank`] = parseInt(rank, 10);
-    stats[`${s}Kills`] = parseInt(kills, 10);
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(kills, 10);
   });
 
   const newSnapshot = await Snapshot.create({ playerId, ...stats });
