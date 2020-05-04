@@ -95,7 +95,7 @@ function Records() {
   };
 
   const handleMonthRowClicked = index => {
-    const { playerId } = leaderboard.week[index];
+    const { playerId } = leaderboard.month[index];
     router.push(`/players/${playerId}`);
   };
 
