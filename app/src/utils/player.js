@@ -24,7 +24,7 @@ export function getOfficialHiscoresUrl(player) {
   return `https://secure.runescape.com/m=hiscore_oldschool${suffix}/hiscorepersonal.ws?user1=${username}`;
 }
 
-export function getTooltip(type) {
+export function getPlayerTooltip(type) {
   // Unknown player types happen when tracking fails,
   // so re-tracking should fix it.
   if (type === 'unknown') {

@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { getPlayerTypeIcon, getTooltip } from '../../utils';
+import { getPlayerTypeIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
 
 function PlayerTag({ username, type }) {
   const icon = getPlayerTypeIcon(type);
-  const tooltip = useMemo(() => getTooltip(type), [type]);
+  const tooltip = useMemo(() => getPlayerTooltip(type), [type]);
 
   return (
     <div className="player-tag">
