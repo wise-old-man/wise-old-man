@@ -19,7 +19,13 @@ module.exports = {
     const newColumns = [...getActivityColumns(Sequelize), ...getBossColumns(Sequelize)];
 
     const actions = Promise.all(
-      newColumns.map(({ name, type }) => queryInterface.addColumn('snapshots', name, { type }))
+      newColumns.map(({ name, type }) =>
+        queryInterface.addColumn('snapshots', name, {
+          type,
+          defaultValue: -1,
+          allowNull: false
+        })
+      )
     );
 
     return actions;

@@ -4,9 +4,15 @@ function buildDynamicSchema(DataTypes) {
   const obj = {};
 
   SKILLS.forEach(s => {
-    obj[getRankKey(s)] = DataTypes.INTEGER;
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
     obj[getValueKey(s)] = {
       type: s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false,
       get() {
         // As experience (overall) can exceed the integer maximum of 2.147b,
         // we have to store it into a BIGINT, however, sequelize returns bigints
@@ -17,13 +23,29 @@ function buildDynamicSchema(DataTypes) {
   });
 
   ACTIVITIES.forEach(s => {
-    obj[getRankKey(s)] = DataTypes.INTEGER;
-    obj[getValueKey(s)] = DataTypes.INTEGER;
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+    obj[getValueKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
   });
 
   BOSSES.forEach(s => {
-    obj[getRankKey(s)] = DataTypes.INTEGER;
-    obj[getValueKey(s)] = DataTypes.INTEGER;
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+    obj[getValueKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
   });
 
   return obj;
