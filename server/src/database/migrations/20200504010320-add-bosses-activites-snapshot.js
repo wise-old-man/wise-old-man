@@ -1,16 +1,16 @@
-const { ACTIVITIES, BOSSES } = require('../../api/constants/metrics');
+const { ACTIVITIES, BOSSES, getRankKey, getValueKey } = require('../../api/constants/metrics');
 
 function getActivityColumns(Sequelize) {
   return ACTIVITIES.map(activity => [
-    { name: `${activity}Rank`, type: Sequelize.INTEGER },
-    { name: `${activity}Score`, type: Sequelize.INTEGER }
+    { name: getRankKey(activity), type: Sequelize.INTEGER },
+    { name: getValueKey(activity), type: Sequelize.INTEGER }
   ]).flat();
 }
 
 function getBossColumns(Sequelize) {
   return BOSSES.map(boss => [
-    { name: `${boss}Rank`, type: Sequelize.INTEGER },
-    { name: `${boss}Kills`, type: Sequelize.INTEGER }
+    { name: getRankKey(boss), type: Sequelize.INTEGER },
+    { name: getValueKey(boss), type: Sequelize.INTEGER }
   ]).flat();
 }
 

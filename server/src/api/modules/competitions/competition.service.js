@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
-const { ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
@@ -169,7 +169,7 @@ async function view(id) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  const metricKey = `${competition.metric}Experience`;
+  const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
   const group = competition.group ? groupService.format(competition.group) : null;
 

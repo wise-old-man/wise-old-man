@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { SKILLS, ALL_METRICS, getRankKey, getValueKey } = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { durationBetween } = require('../../util/dates');
 const { Player, Delta, Snapshot, sequelize } = require('../../../database');
@@ -28,8 +28,8 @@ function format(delta, diffs) {
 
   if (startSnapshot && endSnapshot && diffs) {
     SKILLS.forEach(s => {
-      const rankKey = `${s}Rank`;
-      const expKey = `${s}Experience`;
+      const rankKey = getRankKey(s);
+      const expKey = getValueKey(s);
 
       obj.data[s] = {
         rank: {
@@ -171,7 +171,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const metricKey = `${metric}Experience`;
+  const metricKey = getValueKey(metric);
 
   // Postgres doesn't support the use of calculated column aliases
   // in "order" clauses, so to work around it, we order by the difference
