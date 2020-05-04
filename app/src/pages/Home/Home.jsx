@@ -87,19 +87,19 @@ function Home() {
               hiscores, it adds extra functionality like group competitions, player achievements,
               experience records, etc.
             </p>
-            <div className="info-actions">         
-              <a href="https://github.com/psikoi/wise-old-man" className="-github-btn" role="button">
-                <img src="/img/icons/github.svg" alt="github icon" height="20" with="20" className="-icon-btn" /> 
-              Contribute on Github
+            <div className="info-actions">
+              <a href="https://wiseoldman.net/github" className="about-btn -github" role="button">
+                <img className="about-btn__icon" src="/img/icons/github.svg" alt="github icon" />
+                <span className="about-btn__text">Contribute on Github</span>
               </a>
-              <a href="https://discord.gg/Ky5vNt2" className="-discord-btn" role="button">
-                <img src="/img/icons/discord.svg" alt="discord icon" height="20" with="20" className="-icon-btn" /> 
-              Join our discord
+              <a href="https://wiseoldman.net/discord" className="about-btn -discord" role="button">
+                <img className="about-btn__icon" src="/img/icons/discord.svg" alt="discord icon" />
+                <span className="about-btn__text">Join our discord</span>
               </a>
-              <a href="https://twitter.com/wise_old_man_rs" className="-twitter-btn" role="button">
-                <img src="/img/icons/twitter.svg" alt="twitter bicon" height="20" with="20" className="-icon-btn" /> 
-              Follow on Twitter
-              </a>      
+              <a href="https://wiseoldman.net/twitter" className="about-btn -twitter" role="button">
+                <img className="about-btn__icon" src="/img/icons/twitter.svg" alt="twitter icon" />
+                <span className="about-btn__text">Follow on Twitter</span>
+              </a>
             </div>
           </div>
           <div className="details__stats col-lg-5">
