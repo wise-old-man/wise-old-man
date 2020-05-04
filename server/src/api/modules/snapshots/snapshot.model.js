@@ -1,4 +1,4 @@
-const { SKILLS } = require('../../constants/metrics');
+const { SKILLS, BOSSES, ACTIVITIES } = require('../../constants/metrics');
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
@@ -15,6 +15,16 @@ function buildDynamicSchema(DataTypes) {
         return parseInt(this.getDataValue(`${s}Experience`), 10);
       }
     };
+  });
+
+  ACTIVITIES.forEach(s => {
+    obj[`${s}Rank`] = DataTypes.INTEGER;
+    obj[`${s}Score`] = DataTypes.INTEGER;
+  });
+
+  BOSSES.forEach(s => {
+    obj[`${s}Rank`] = DataTypes.INTEGER;
+    obj[`${s}Kills`] = DataTypes.INTEGER;
   });
 
   return obj;
