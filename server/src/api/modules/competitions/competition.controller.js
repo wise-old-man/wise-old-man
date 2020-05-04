@@ -1,18 +1,20 @@
 const service = require('./competition.service');
+const pagination = require('../../util/pagination');
 const jobs = require('../../jobs');
 
 async function listCompetitions(req, res, next) {
   try {
-    const { title, status, metric, playerId, groupId } = req.query;
+    const { title, status, metric, playerId, groupId, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     if (groupId) {
-      const results = await service.findForGroup(groupId);
+      const results = await service.findForGroup(groupId, paginationConfig);
       res.json(results);
     } else if (playerId) {
-      const results = await service.findForPlayer(playerId);
+      const results = await service.findForPlayer(playerId, paginationConfig);
       res.json(results);
     } else {
-      const results = await service.list(title, status, metric);
+      const results = await service.list(title, status, metric, paginationConfig);
       res.json(results);
     }
   } catch (e) {

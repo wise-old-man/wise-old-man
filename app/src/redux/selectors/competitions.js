@@ -10,6 +10,8 @@ const groupCompetitionsSelector = state => state.competitions.groupCompetitions;
 
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
+export const isCreating = createSelector(rootSelector, root => root.isCreating);
+export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
 export const getCompetitionsMap = createSelector(competitionsSelector, map => {
   return _.mapValues(map, comp => formatCompetition(comp));

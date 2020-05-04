@@ -19,6 +19,8 @@ import './CompetitionsList.scss';
 const DEFAULT_METRICS_OPTION = { label: 'Any skill', value: null };
 const DEFAULT_STATUS_OPTION = { label: 'Any status', value: null };
 
+const RESULTS_PER_PAGE = 20;
+
 function convertStatus(status) {
   switch (status) {
     case 'upcoming':
@@ -41,7 +43,6 @@ const TABLE_CONFIG = {
       transform: value => <img src={getSkillIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
-    { key: 'duration', className: () => '-break-large' },
     {
       key: 'status',
       className: () => '-break-small',
@@ -53,6 +54,11 @@ const TABLE_CONFIG = {
           </div>
         );
       }
+    },
+    {
+      key: 'participantCount',
+      transform: val => `${val} participants`,
+      className: () => '-break-large'
     }
   ]
 };
@@ -79,26 +85,47 @@ function CompetitionsList() {
   const [titleSearch, setTitleSearch] = useState('');
   const [selectedMetric, setSelectedMetric] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [pageIndex, setPageIndex] = useState(0);
 
   // Memoized redux variables
   const competitions = useSelector(state => getCompetitions(state));
-  const isFetching = useSelector(state => isFetchingAll(state));
+  const isLoading = useSelector(state => isFetchingAll(state));
 
-  const fetchCompetitions = query => {
-    dispatch(fetchCompetitionsAction(query));
-  };
+  const isFullyLoaded = competitions.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
   const handleSubmitSearch = _.debounce(
     () => {
-      fetchCompetitions({
+      const query = {
         title: titleSearch,
         metric: selectedMetric || null,
         status: selectedStatus || null
-      });
+      };
+
+      setPageIndex(0); // Reset pagination when the search changes
+      dispatch(fetchCompetitionsAction(query, RESULTS_PER_PAGE, 0));
     },
     500,
     { leading: true, trailing: false }
   );
+
+  const handleLoadMore = () => {
+    if (pageIndex === 0) return;
+
+    const query = {
+      title: titleSearch,
+      metric: selectedMetric || null,
+      status: selectedStatus || null
+    };
+
+    const limit = RESULTS_PER_PAGE;
+    const offset = RESULTS_PER_PAGE * pageIndex;
+
+    dispatch(fetchCompetitionsAction(query, limit, offset));
+  };
+
+  const handleNextPage = () => {
+    setPageIndex(pageIndex + 1);
+  };
 
   const handleSearchInput = e => {
     setTitleSearch(e.target.value);
@@ -116,8 +143,31 @@ function CompetitionsList() {
     router.push(`/competitions/${competitions[index].id}`);
   };
 
+  const handleScrolling = () => {
+    const margin = 300;
+
+    window.onscroll = _.debounce(() => {
+      // If has no more content to load, ignore the scrolling
+      if (competitions.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
+        return;
+      }
+
+      const { innerHeight } = window;
+      const { scrollTop, offsetHeight } = document.documentElement;
+
+      // If has reached the bottom of the page, load more data
+      if (innerHeight + scrollTop + margin > offsetHeight) {
+        // This timeout is simply to wait for the scrolling
+        // inertia to stop, to then load the contents, otherwise
+        // it will resume the inertia and scroll to the bottom of the page again
+        setTimeout(() => handleNextPage(), 800);
+      }
+    }, 100);
+  };
+
   // Memoized callbacks
-  const onSubmitSearch = useCallback(handleSubmitSearch, [fetchCompetitions]);
+  const onSubmitSearch = useCallback(handleSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
+  const onLoadMore = useCallback(handleLoadMore, [pageIndex]);
   const onSearchInput = useCallback(handleSearchInput, [setTitleSearch]);
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
   const onStatusSelected = useCallback(handleStatusSelected, [setSelectedStatus]);
@@ -129,6 +179,8 @@ function CompetitionsList() {
 
   // Submit search each time any of the search variable change
   useEffect(onSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
+  useEffect(onLoadMore, [pageIndex]);
+  useEffect(handleScrolling, [competitions, pageIndex]);
 
   return (
     <div className="competitions__container container">
@@ -164,7 +216,7 @@ function CompetitionsList() {
       </div>
       <div className="competitions__list row">
         <div className="col">
-          {isFetching && (!competitions || competitions.length === 0) ? (
+          {isLoading && (!competitions || competitions.length === 0) ? (
             <TableListPlaceholder size={5} />
           ) : (
             <TableList
@@ -174,6 +226,15 @@ function CompetitionsList() {
               onRowClicked={onRowClicked}
               clickable
             />
+          )}
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          {!isFullyLoaded && (
+            <b id="loading" className="loading-indicator">
+              Loading...
+            </b>
           )}
         </div>
       </div>

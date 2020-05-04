@@ -85,7 +85,9 @@ export default function groupsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingAll: false,
-        groups: { ...toMap(action.groups, 'id') }
+        groups: action.refresh
+          ? { ...toMap(action.groups, 'id') }
+          : { ...state.groups, ...toMap(action.groups, 'id') }
       };
 
     case FETCH_GROUPS_FAILURE:

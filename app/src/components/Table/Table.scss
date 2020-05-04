@@ -103,6 +103,18 @@
   }
 }
 
+@media only screen and (max-width: $breakpoint-medium) {
+  .table {
+    td,
+    th {
+      &.-break-medium {
+        padding: 0;
+        font-size: 0;
+      }
+    }
+  }
+}
+
 @media only screen and (max-width: $breakpoint-small) {
   .table {
     td,
