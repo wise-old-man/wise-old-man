@@ -32,7 +32,7 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { capitalize, getSkillIcon, getPlayerTypeIcon, getOfficialHiscoresUrl } from '../../utils';
+import { capitalize, getSkillIcon, getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip } from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
@@ -163,7 +163,7 @@ function Player() {
       </Helmet>
       <div className="player__header row">
         <div className="col">
-          <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>
+          <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)} iconTooltip={getPlayerTooltip(player.type)}>
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
