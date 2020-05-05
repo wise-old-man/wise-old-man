@@ -6,7 +6,7 @@ import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import { capitalize, getSkillIcon, getLevel, getVirtualLevel } from '../../../../utils';
 
-function PlayerStatsTable({ player, isLoading }) {
+function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
   if (isLoading) {
     return <TableListPlaceholder size={20} />;
   }
@@ -22,28 +22,22 @@ function PlayerStatsTable({ player, isLoading }) {
   const totalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
     .map(skill => getLevel(skill.experience))
     .reduce((acc, cur) => acc + cur);
-  
+
   const virtualTotalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
     .map(skill => getVirtualLevel(skill.experience))
     .reduce((acc, cur) => acc + cur);
 
-  // Display virtual total level if there are any
-  const totalLevelString = virtualTotalLevel === totalLevel ? totalLevel : `${totalLevel} (${virtualTotalLevel})`;
-
   const rows = _.map(filteredSnapshot, (value, key) => {
-    const currentLevel = getLevel(value.experience);
-    const currentVirtualLevel = getVirtualLevel(value.experience);
-
-    // Display the virtual level if above level 99
-    const currentLevelString = currentVirtualLevel < 100 ? currentLevel : `${currentLevel} (${currentVirtualLevel})`;
+    const level = key === 'overall' ? totalLevel : getLevel(value.experience);
+    const virtualLevel = key === 'overall' ? virtualTotalLevel : getVirtualLevel(value.experience);
 
     return {
       skill: key,
-      level: key === 'overall' ? totalLevelString : currentLevelString,
+      level: showVirtualLevels ? virtualLevel : level,
       experience: value.experience,
       rank: value.rank,
       ehp: 0
-    }
+    };
   });
 
   // Column config
@@ -82,6 +76,7 @@ function PlayerStatsTable({ player, isLoading }) {
 
 PlayerStatsTable.propTypes = {
   player: PropTypes.shape().isRequired,
+  showVirtualLevels: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired
 };
 

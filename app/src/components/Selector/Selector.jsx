@@ -5,7 +5,7 @@ import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
 import './Selector.scss';
 
 function Selector({ options, defaultOption, selectedIndex, onSelect, disabled }) {
-  const initialState = selectedIndex ? options[selectedIndex] : defaultOption;
+  const initialState = selectedIndex !== undefined ? options[selectedIndex] : defaultOption;
   const [selectedOption, setSelectedOption] = useState(initialState || null);
 
   const toggleOption = selectedOption || defaultOption || options[0];
