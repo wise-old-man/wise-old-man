@@ -2,7 +2,15 @@ const csv = require('csvtojson');
 const _ = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
-const { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } = require('../../constants/metrics');
+const {
+  ALL_METRICS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  getRankKey,
+  getValueKey,
+  getMeasure
+} = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
 const { ServerError, BadRequestError } = require('../../errors');
@@ -20,24 +28,10 @@ function format(snapshot) {
     importedAt: snapshot.importedAt
   };
 
-  SKILLS.forEach(s => {
+  ALL_METRICS.forEach(s => {
     obj[s] = {
       rank: snapshot[getRankKey(s)],
-      experience: snapshot[getValueKey(s)]
-    };
-  });
-
-  ACTIVITIES.forEach(s => {
-    obj[s] = {
-      rank: snapshot[getRankKey(s)],
-      score: snapshot[getValueKey(s)]
-    };
-  });
-
-  BOSSES.forEach(s => {
-    obj[s] = {
-      rank: snapshot[getRankKey(s)],
-      kills: snapshot[getValueKey(s)]
+      [getMeasure(s)]: snapshot[getValueKey(s)]
     };
   });
 
@@ -171,34 +165,17 @@ async function findAllBetween(playerIds, startDate, endDate) {
 }
 
 /**
- * Calculates the difference in ranks and experience
- * (for every skill), between two snapshots
+ * Calculates the difference in ranks and values (for every metric), between two snapshots
  */
 function diff(start, end) {
   const obj = {};
 
-  SKILLS.forEach(s => {
+  ALL_METRICS.forEach(s => {
     const rankKey = getRankKey(s);
-    const experienceKey = getValueKey(s);
+    const valueKey = getValueKey(s);
 
     obj[rankKey] = end[rankKey] - start[rankKey];
-    obj[experienceKey] = end[experienceKey] - start[experienceKey];
-  });
-
-  ACTIVITIES.forEach(s => {
-    const rankKey = getRankKey(s);
-    const scoreKey = getValueKey(s);
-
-    obj[rankKey] = end[rankKey] - start[rankKey];
-    obj[scoreKey] = end[scoreKey] - start[scoreKey];
-  });
-
-  BOSSES.forEach(s => {
-    const rankKey = getRankKey(s);
-    const killsKey = getValueKey(s);
-
-    obj[rankKey] = end[rankKey] - start[rankKey];
-    obj[killsKey] = end[killsKey] - start[killsKey];
+    obj[valueKey] = end[valueKey] - start[valueKey];
   });
 
   return obj;
