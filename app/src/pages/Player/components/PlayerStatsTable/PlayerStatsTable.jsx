@@ -28,7 +28,7 @@ function PlayerStatsTable({ player, isLoading }) {
     .reduce((acc, cur) => acc + cur);
 
   // Display virtual total level if there are any
-  const totalLevelString = virtualTotalLevel < totalLevel ? totalLevel : `${totalLevel} (${virtualTotalLevel})`;
+  const totalLevelString = virtualTotalLevel === totalLevel ? totalLevel : `${totalLevel} (${virtualTotalLevel})`;
 
   const rows = _.map(filteredSnapshot, (value, key) => {
     const currentLevel = getLevel(value.experience);
