@@ -46,6 +46,6 @@ module.exports = {
     // So this migration should remain "everlasting" until I figure out a solution.
     // This issue has been submitted to Sequelize's repo at:
     // https://github.com/sequelize/sequelize/issues/12229
-    return new Promise();
+    return new Promise(success => success([]));
   }
 };
