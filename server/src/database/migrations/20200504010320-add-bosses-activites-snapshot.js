@@ -31,7 +31,8 @@ module.exports = {
     return actions;
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: () => {
+    /*
     const newColumns = [...getActivityColumns(Sequelize), ...getBossColumns(Sequelize)];
 
     const actions = Promise.all(
@@ -39,5 +40,12 @@ module.exports = {
     );
 
     return actions;
+    */
+
+    // This migration fails to undo on SQLite (used for integration test)
+    // So this migration should remain "everlasting" until I figure out a solution.
+    // This issue has been submitted to Sequelize's repo at:
+    // https://github.com/sequelize/sequelize/issues/12229
+    return new Promise();
   }
 };
