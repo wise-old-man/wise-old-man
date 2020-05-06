@@ -185,8 +185,8 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     limit: 20,
     include: [
       { model: Player, where: playerType && { type: playerType } },
-      { model: Snapshot, as: 'startSnapshot' },
-      { model: Snapshot, as: 'endSnapshot' }
+      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
     ]
   });
 
@@ -223,8 +223,8 @@ async function getMonthlyTop(playerIds) {
     limit: 1,
     include: [
       { model: Player, where: { id: playerIds } },
-      { model: Snapshot, as: 'startSnapshot' },
-      { model: Snapshot, as: 'endSnapshot' }
+      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
     ]
   });
 

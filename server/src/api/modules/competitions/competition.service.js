@@ -178,8 +178,8 @@ async function view(id) {
     where: { competitionId: id },
     include: [
       { model: Player },
-      { model: Snapshot, as: 'startSnapshot' },
-      { model: Snapshot, as: 'endSnapshot' }
+      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
     ]
   });
 
