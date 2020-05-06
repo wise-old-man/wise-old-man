@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { minBy } = require('lodash');
 const { Op } = require('sequelize');
 const { isValidDate } = require('../../util/dates');
 const { CML, OSRS_HISCORES } = require('../../constants/services');
@@ -153,9 +154,11 @@ async function update(username) {
 
   // If the player already existed and was updated recently,
   // don't allow the api to update it
+  /*
   if (!should && !created) {
     throw new BadRequestError(`Failed to update: ${username} was updated ${seconds} seconds ago.`);
   }
+  */
 
   try {
     // Load data from OSRS hiscores
@@ -200,10 +203,12 @@ async function importCML(username) {
 
   // If the player hasn't imported in over 24h,
   // attempt to import its history from CML
+  /*
   if (!should) {
     const minsTilImport = Math.floor((24 * 3600 - seconds) / 60);
     throw new BadRequestError(`Imported too soon, please wait another ${minsTilImport} minutes.`);
   }
+  */
 
   const importedSnapshots = [];
 
@@ -222,8 +227,14 @@ async function importCML(username) {
     importedSnapshots.push(recentSnapshots);
   }
 
+  // Find the oldest imported snapshot and tell the system to start analyzing achievements from there
+  const oldestSnapshot = minBy(importedSnapshots, snapshot => new Date(snapshot.createdAt).getTime());
+  const lastUpdatedAchievementsAt = oldestSnapshot ? oldestSnapshot.createdAt : null;
   // Update the "lastImportedAt" field in the player model
-  await player.update({ lastImportedAt: new Date() });
+  await player.update({
+    lastImportedAt: new Date(),
+    lastUpdatedAchievementsAt
+  });
 
   return importedSnapshots;
 }
@@ -390,6 +401,7 @@ async function getCMLHistory(username, time) {
       throw new Error();
     }
 
+    console.log(data.split('\n').length);
     // Separate the data into rows and filter invalid ones
     return data.split('\n').filter(r => r.length);
   } catch (e) {

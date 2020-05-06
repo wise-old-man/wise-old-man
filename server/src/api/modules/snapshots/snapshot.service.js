@@ -86,7 +86,9 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const beforeDate = moment()
+    .subtract(1, period)
+    .toDate();
 
   const result = await Snapshot.findAll({
     where: {
@@ -119,7 +121,9 @@ async function findFirstIn(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const beforeDate = moment()
+    .subtract(1, period)
+    .toDate();
 
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: beforeDate } },

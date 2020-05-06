@@ -41,6 +41,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     lastImportedAt: {
       type: DataTypes.DATE
+    },
+    lastUpdatedAchievementsAt: {
+      type: DataTypes.DATE
     }
   };
 
