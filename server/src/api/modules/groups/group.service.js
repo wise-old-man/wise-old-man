@@ -26,35 +26,14 @@ async function list(name, pagination) {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
-    limit: Math.min(100, pagination.limit), // maximum limit is 100
+    limit: pagination.limit,
     offset: pagination.offset
   });
 
-  const groupIds = groups.map(g => g.id);
+  // Fetch and attach member counts for each group
+  const completeGroups = await attachMembersCount(groups.map(format));
 
-  /**
-   * Will return a members count for every group, with the format:
-   * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
-   */
-  const membersCount = await Membership.findAll({
-    where: { groupId: groupIds },
-    attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
-    group: ['groupId']
-  });
-
-  /**
-   * Convert the counts fetched above, into a key:value format:
-   * { 35: 4, 41: 31 }
-   */
-  const countMap = _.mapValues(
-    _.keyBy(
-      membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
-      c => c.groupId
-    ),
-    c => c.count
-  );
-
-  return groups.map(format).map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
+  return completeGroups;
 }
 
 /**
@@ -73,27 +52,43 @@ async function findForPlayer(playerId, pagination) {
 
   // Extract all the unique groups from the memberships, and format them.
   const groups = _.uniqBy(memberships, m => m.group.id)
-    .map(m => format(m.group))
-    .slice(pagination.offset, pagination.offset + pagination.limit);
+    .slice(pagination.offset, pagination.offset + pagination.limit)
+    .map(p => p.group)
+    .map(format);
 
-  // Find all memberships for the searched groups.
-  const filteredMemberships = await Membership.findAll({
-    include: [{ model: Group, where: { id: groups.map(g => g.id) } }]
+  const completeGroups = await attachMembersCount(groups);
+
+  return completeGroups;
+}
+
+/**
+ * Given a list of groups, it will fetch the member count of each,
+ * and inserts a "memberCount" field in every group object.
+ */
+async function attachMembersCount(groups) {
+  /**
+   * Will return a members count for every group, with the format:
+   * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
+   */
+  const membersCount = await Membership.findAll({
+    where: { groupId: groups.map(g => g.id) },
+    attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
+    group: ['groupId']
   });
 
-  // Store in this variable the members count for each group id
-  const membersMap = {};
+  /**
+   * Convert the counts fetched above, into a key:value format:
+   * { 35: 4, 41: 31 }
+   */
+  const countMap = _.mapValues(
+    _.keyBy(
+      membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
+      c => c.groupId
+    ),
+    c => c.count
+  );
 
-  filteredMemberships.forEach(m => {
-    if (!membersMap[m.groupId]) {
-      membersMap[m.groupId] = 1;
-    } else {
-      const curCount = membersMap[m.groupId];
-      membersMap[m.groupId] = curCount + 1;
-    }
-  });
-
-  return groups.map(g => ({ ...g, memberCount: membersMap[g.id] || 0 }));
+  return groups.map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
 }
 
 /**
@@ -588,7 +583,7 @@ async function getOutdatedMembers(groupId) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const tenMinsAgo = moment().subtract(10, 'minute').toDate();
+  const tenMinsAgo = moment().subtract(10, 'minute');
 
   const membersToUpdate = await Membership.findAll({
     attributes: ['groupId', 'playerId'],
@@ -597,7 +592,7 @@ async function getOutdatedMembers(groupId) {
       {
         model: Player,
         where: {
-          updatedAt: { [Op.lt]: tenMinsAgo }
+          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
         }
       }
     ]

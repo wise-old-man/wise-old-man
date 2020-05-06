@@ -43,7 +43,6 @@ const TABLE_CONFIG = {
       transform: value => <img src={getSkillIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
-    { key: 'duration', className: () => '-break-large' },
     {
       key: 'status',
       className: () => '-break-small',
@@ -55,6 +54,11 @@ const TABLE_CONFIG = {
           </div>
         );
       }
+    },
+    {
+      key: 'participantCount',
+      transform: val => `${val} participants`,
+      className: () => '-break-large'
     }
   ]
 };

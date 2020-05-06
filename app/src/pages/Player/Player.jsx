@@ -32,7 +32,13 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { capitalize, getSkillIcon, getPlayerTypeIcon, getOfficialHiscoresUrl } from '../../utils';
+import {
+  capitalize,
+  getSkillIcon,
+  getPlayerTypeIcon,
+  getOfficialHiscoresUrl,
+  getPlayerTooltip
+} from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
@@ -43,6 +49,17 @@ const PERIOD_SELECTOR_OPTIONS = [
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
   { label: 'Year', value: 'year' }
+];
+
+const LEVEL_TYPE_OPTIONS = [
+  {
+    label: 'Show Regular Levels',
+    value: 'regular'
+  },
+  {
+    label: 'Show Virtual Levels',
+    value: 'virtual'
+  }
 ];
 
 const MENU_OPTIONS = [
@@ -75,6 +92,7 @@ function Player() {
   const [isTracking, setIsTracking] = useState(false);
   const [selectedDeltasPeriod, setSelectedDeltasPeriod] = useState('week');
   const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
+  const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
   const player = useSelector(state => getPlayer(state, id));
@@ -133,6 +151,10 @@ function Player() {
     setSelectedDeltasSkill((e && e.value) || null);
   };
 
+  const handleLevelTypeSelected = e => {
+    setSelectedLevelType((e && e.value) || null);
+  };
+
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
@@ -144,6 +166,7 @@ function Player() {
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
   const onSkillsPeriodSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
+  const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
 
@@ -163,7 +186,11 @@ function Player() {
       </Helmet>
       <div className="player__header row">
         <div className="col">
-          <PageHeader title={player.username} icon={getPlayerTypeIcon(player.type)}>
+          <PageHeader
+            title={player.username}
+            icon={getPlayerTypeIcon(player.type)}
+            iconTooltip={getPlayerTooltip(player.type)}
+          >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
@@ -177,13 +204,13 @@ function Player() {
         <div className="col-md-12 col-lg-7">
           <Tabs tabs={TABS} onChange={onTabChanged} align="space-between" />
         </div>
-        {selectedTabIndex !== 1 && (
+        {selectedTabIndex === 0 && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector options={[{ label: '', value: null }]} disabled />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector options={LEVEL_TYPE_OPTIONS} selectedIndex={0} onSelect={onLevelTypeSelected} />
             </div>
           </>
         )}
@@ -198,6 +225,16 @@ function Player() {
             </div>
             <div className="col-md-6 col-lg-3">
               <Selector options={metricOptions} onSelect={onSkillsPeriodSelected} />
+            </div>
+          </>
+        )}
+        {selectedTabIndex > 1 && (
+          <>
+            <div className="col-md-6 col-lg-2">
+              <Selector options={[{ label: '', value: null }]} disabled />
+            </div>
+            <div className="col-md-6 col-lg-3">
+              <Selector options={[{ label: '', value: null }]} disabled />
             </div>
           </>
         )}
@@ -220,7 +257,11 @@ function Player() {
             </div>
             <div className="col-lg-6 col-md-12">
               <span className="panel-label">Current stats</span>
-              <PlayerStatsTable player={player} isLoading={isLoadingDetails} />
+              <PlayerStatsTable
+                player={player}
+                showVirtualLevels={selectedLevelType === 'virtual'}
+                isLoading={isLoadingDetails}
+              />
             </div>
           </>
         )}

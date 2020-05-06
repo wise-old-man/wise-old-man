@@ -1,21 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { getPlayerTypeIcon } from '../../utils';
+import { getPlayerTypeIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
-
-function getTooltip(type) {
-  // Unknown player types happen when tracking fails,
-  // so re-tracking should fix it.
-  if (type === 'unknown') {
-    return `Player type: ${type}. Please re-track this player to update this.`;
-  }
-
-  return `Player type: ${type}.`;
-}
 
 function PlayerTag({ username, type }) {
   const icon = getPlayerTypeIcon(type);
-  const tooltip = useMemo(() => getTooltip(type), [type]);
+  const tooltip = useMemo(() => getPlayerTooltip(type), [type]);
 
   return (
     <div className="player-tag">

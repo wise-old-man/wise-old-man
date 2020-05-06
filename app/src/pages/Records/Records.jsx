@@ -19,7 +19,11 @@ const DEFAULT_TYPE_OPTIONS = { label: 'Any player', value: null };
 const TABLE_CONFIG = {
   uniqueKey: row => row.username,
   columns: [
-    { key: 'rank', width: '30' },
+    {
+      key: 'rank',
+      width: '10',
+      transform: rank => <span className="record-rank">{rank}</span>
+    },
     {
       key: 'username',
       className: () => '-primary',
@@ -28,7 +32,11 @@ const TABLE_CONFIG = {
     {
       key: 'updatedAt',
       className: () => '-break-small',
-      transform: value => formatDate(value, 'DD-MM-YYYY')
+      transform: value => (
+        <abbr title={formatDate(value, 'Do MMM YYYY HH:mm')}>
+          <span className="record-date">{formatDate(value, "DD MMM 'YY")}</span>
+        </abbr>
+      )
     },
     {
       key: 'value',
@@ -95,7 +103,7 @@ function Records() {
   };
 
   const handleMonthRowClicked = index => {
-    const { playerId } = leaderboard.week[index];
+    const { playerId } = leaderboard.month[index];
     router.push(`/players/${playerId}`);
   };
 

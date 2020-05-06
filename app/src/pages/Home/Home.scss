@@ -97,29 +97,41 @@
           justify-content: space-between;
           width: 550px;
           max-width: 100%;
+          text-align: center;
+          font-size: 14px;
+          font-weight: bold;
+          align-items: center;
 
-          .-github-btn {
-            background: #2d2d2d;
-            width: 190px;
-            height: 40px;
-            line-height: 40px;
-            padding: 0;
-          }
+          .about-btn {
+            border-radius: 5px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 15px;
+            text-shadow: 2px 1px 2px rgba(0, 0, 0, 0.5);
+            padding: 8px 14px;
 
-          .-discord-btn {
-            background: #7289da;
-            width: 160px;
-            height: 40px;
-            line-height: 40px;
-            padding: 0;
-          }
+            &__icon {
+              width: 20px;
+              height: 20px;
+              margin-right: 10px;
+            }
 
-          .-twitter-btn {
-            background: #1da1f2;
-            width: 170px;
-            height: 40px;
-            line-height: 40px;
-            padding: 0;
+            &__text {
+              flex-grow: 1;
+            }
+
+            &.-github {
+              background: #2d2d2d;
+            }
+
+            &.-discord {
+              background: #7289da;
+            }
+
+            &.-twitter {
+              background: #1da1f2;
+            }
           }
         }
       }
@@ -233,9 +245,14 @@
         flex-direction: column !important;
         width: 100%;
 
-        .button {
+        .about-btn {
           width: 100% !important;
+          justify-content: center;
           margin-bottom: 15px;
+
+          &__text {
+            flex-grow: unset !important;
+          }
         }
       }
     }

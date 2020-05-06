@@ -28,16 +28,25 @@ const TABLE_CONFIG = {
       transform: value => <img src={getSkillIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
-    { key: 'duration' },
     {
       key: 'status',
-      width: 250,
+      className: () => '-break-small',
       transform: (value, row) => (
         <div className="status-cell">
           <StatusDot status={convertStatus(value)} />
           <span>{row && row.countdown}</span>
         </div>
       )
+    },
+    {
+      key: 'participantCount',
+      className: () => '-break-medium',
+      transform: val => `${val} participants`
+    },
+    {
+      key: 'duration',
+      className: () => '-break-large',
+      transform: val => `Lasts for ${val}`
     }
   ]
 };

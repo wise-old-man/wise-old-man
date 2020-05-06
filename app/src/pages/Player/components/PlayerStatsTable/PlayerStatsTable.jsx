@@ -4,9 +4,9 @@ import _ from 'lodash';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
+import { capitalize, getSkillIcon, getLevel, getVirtualLevel } from '../../../../utils';
 
-function PlayerStatsTable({ player, isLoading }) {
+function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
   if (isLoading) {
     return <TableListPlaceholder size={20} />;
   }
@@ -23,13 +23,22 @@ function PlayerStatsTable({ player, isLoading }) {
     .map(skill => getLevel(skill.experience))
     .reduce((acc, cur) => acc + cur);
 
-  const rows = _.map(filteredSnapshot, (value, key) => ({
-    skill: key,
-    level: key === 'overall' ? totalLevel : getLevel(value.experience),
-    experience: value.experience,
-    rank: value.rank,
-    ehp: 0
-  }));
+  const virtualTotalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
+    .map(skill => getVirtualLevel(skill.experience))
+    .reduce((acc, cur) => acc + cur);
+
+  const rows = _.map(filteredSnapshot, (value, key) => {
+    const level = key === 'overall' ? totalLevel : getLevel(value.experience);
+    const virtualLevel = key === 'overall' ? virtualTotalLevel : getVirtualLevel(value.experience);
+
+    return {
+      skill: key,
+      level: showVirtualLevels ? virtualLevel : level,
+      experience: value.experience,
+      rank: value.rank,
+      ehp: 0
+    };
+  });
 
   // Column config
   const columns = [
@@ -67,6 +76,7 @@ function PlayerStatsTable({ player, isLoading }) {
 
 PlayerStatsTable.propTypes = {
   player: PropTypes.shape().isRequired,
+  showVirtualLevels: PropTypes.bool.isRequired,
   isLoading: PropTypes.bool.isRequired
 };
 
