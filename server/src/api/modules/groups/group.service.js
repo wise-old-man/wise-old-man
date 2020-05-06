@@ -197,8 +197,7 @@ async function create(name, members) {
     const usernamesCheck = await playerService.isValidUsernames(members);
 
     if (usernamesCheck.length > 0) {
-      throw new BadRequestError('Invalid usernames: Names must be 1-12 characters long, contain no special characters, \
-      and/or contain no space a the beginning or end of the name.', usernamesCheck);
+      throw new BadRequestError('Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.', usernamesCheck);
     }
   }
 
@@ -259,8 +258,7 @@ async function edit(id, name, verificationCode, members) {
     const usernamesCheck = await playerService.isValidUsernames(members);
 
     if (usernamesCheck.length > 0) {
-      throw new BadRequestError('Invalid usernames: Names must be 1-12 characters long, contain no special characters, \
-      and/or contain no space a the beginning or end of the name.', usernamesCheck);
+      throw new BadRequestError('Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.', usernamesCheck);
     }
 
     const newMembers = await setMembers(group, members);

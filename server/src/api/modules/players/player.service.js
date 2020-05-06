@@ -46,7 +46,7 @@ function isValidUsernames(members) {
     }
   })
 
-  return badNames
+  return badNames;
 }
 
 function shouldUpdate(updatedAt) {
