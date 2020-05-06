@@ -12,6 +12,7 @@ export const SKILLS = [
   'fletching',
   'fishing',
   'firemaking',
+  'runecrafting',
   'crafting',
   'smithing',
   'mining',
@@ -20,7 +21,6 @@ export const SKILLS = [
   'thieving',
   'slayer',
   'farming',
-  'runecrafting',
   'hunter',
   'construction',
 ];
