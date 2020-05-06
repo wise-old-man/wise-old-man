@@ -8,6 +8,6 @@ module.exports = {
   dialect: process.env.DB_DIALECT,
   storage: process.env.DB_STORAGE,
   logging: false,
-  pool: { max: 5, min: 0, acquire: 20000, idle: 10000 },
+  pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
   retry: { max: 10 }
 };
