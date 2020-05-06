@@ -397,7 +397,6 @@ async function getCMLHistory(username, time) {
       throw new Error();
     }
 
-    console.log(data.split('\n').length);
     // Separate the data into rows and filter invalid ones
     return data.split('\n').filter(r => r.length);
   } catch (e) {
