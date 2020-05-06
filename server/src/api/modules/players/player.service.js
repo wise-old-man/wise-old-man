@@ -154,11 +154,9 @@ async function update(username) {
 
   // If the player already existed and was updated recently,
   // don't allow the api to update it
-  /*
   if (!should && !created) {
     throw new BadRequestError(`Failed to update: ${username} was updated ${seconds} seconds ago.`);
   }
-  */
 
   try {
     // Load data from OSRS hiscores
@@ -203,12 +201,10 @@ async function importCML(username) {
 
   // If the player hasn't imported in over 24h,
   // attempt to import its history from CML
-  /*
   if (!should) {
     const minsTilImport = Math.floor((24 * 3600 - seconds) / 60);
     throw new BadRequestError(`Imported too soon, please wait another ${minsTilImport} minutes.`);
   }
-  */
 
   const importedSnapshots = [];
 
