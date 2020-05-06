@@ -4,6 +4,19 @@
 .top__container {
   @extend %page;
 
+  td {
+    padding: 5px;
+  }
+
+  .top-rank {
+    font-size: 0.9em;
+  }
+
+  .col,
+  [class*='col-'] {
+    padding: 6px;
+  }
+
   .table-list-placeholder {
     margin-top: 15px;
   }

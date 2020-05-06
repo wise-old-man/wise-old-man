@@ -4,6 +4,23 @@
 .records__container {
   @extend %page;
 
+  abbr {
+    text-decoration: none;
+  }
+
+  td {
+    padding: 5px;
+  }
+
+  .record-rank {
+    font-size: 0.9em;
+  }
+
+  .col,
+  [class*='col-'] {
+    padding: 6px;
+  }
+
   .table-list-placeholder {
     margin-top: 15px;
   }
