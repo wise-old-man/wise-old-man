@@ -15,9 +15,23 @@ function getAchievements(snapshots, prevAchievements) {
   // Return true if d1 is after d2
   const dateCmp = (d1, d2) => d1.getTime() > d2.getTime();
 
-  // Return true if current achievement of type does not exit or if new date is before the old one
-  const achievementCheck = (type, newDate) =>
-    !achievements[type] || dateCmp(new Date(achievements[type].createdAt), new Date(newDate));
+  // Return true if current achievement should replace the old one
+  const achievementCheck = (type, newDate) => {
+    const oldAchievement = achievements[type];
+    // replace old achievement if it does not exist
+    if (!oldAchievement) {
+      return true;
+    }
+
+    const oldDate = new Date(achievements[type].createdAt);
+    // replace old achievement if old timestamp is unix time 0
+    if (oldDate.getTime() === 0) {
+      return true;
+    }
+
+    // replace old achievement if new time date is before old date
+    return dateCmp(oldDate, new Date(newDate));
+  };
 
   // Check if each snapshot will create a new achievement
   snapshots.forEach(snapshot => {
