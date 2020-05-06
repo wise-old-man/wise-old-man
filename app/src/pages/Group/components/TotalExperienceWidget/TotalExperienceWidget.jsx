@@ -23,7 +23,7 @@ function TotalExperienceWidget({ group, isLoading }) {
       <img className="total-icon" src={getSkillIcon('overall')} alt="" />
       <div className="total-info">
         <span className="total-info__metric">Overall exp</span>
-        <b className="total-info__gained">{formatNumber(totalExperience)}</b>
+        <b className="total-info__gained">{formatNumber(Math.max(0, totalExperience))}</b>
       </div>
     </div>
   );
