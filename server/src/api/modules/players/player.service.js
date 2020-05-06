@@ -44,7 +44,7 @@ function isValidUsernames(members) {
     if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
       badNames.push(formattedUsername);
     }
-  })
+  });
 
   return badNames;
 }
