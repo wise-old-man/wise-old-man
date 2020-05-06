@@ -19,7 +19,11 @@ const DEFAULT_TYPE_OPTIONS = { label: 'All players', value: null };
 const TABLE_CONFIG = {
   uniqueKey: row => row.username,
   columns: [
-    { key: 'rank', width: 30 },
+    {
+      key: 'rank',
+      width: '30',
+      transform: rank => <span className="top-rank">{rank}</span>
+    },
     {
       key: 'username',
       className: () => '-primary',
@@ -27,6 +31,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'gained',
+      width: 90,
       transform: val => <NumberLabel value={val} isColored />
     }
   ]
