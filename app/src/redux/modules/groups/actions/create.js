@@ -41,7 +41,6 @@ export default function createGroup({ name, members }) {
       .post(url, body)
       .then(result => dispatch(createGroupSuccess(result.data)))
       .catch(error => {
-        console.log(error);
         dispatch(createGroupFailure(error))
       });
   };

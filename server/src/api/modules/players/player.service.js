@@ -27,54 +27,26 @@ function formatUsername(username) {
     .join(' ');
 }
 
-function isValidUsername(username) {
-  const formattedUsername = formatUsername(username);
+function isValidUsernames(members) {
+  const badNames = [];
 
-  if (formattedUsername.length < 1 || formattedUsername.length > 12) {
-    return false;
-  }
-
-  if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
-    return false;
-  }
-
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
-    return false;
-  }
-
-  return true;
-}
-
-function isValidUsernames(usernames) {
-  const errorMessages = []
-  const badNames = []
-
-  usernames.forEach(username => {
-    const formattedUsername = formatUsername(username);
+  members.forEach(member => {
+    const formattedUsername = formatUsername(member.username);
 
     if (formattedUsername.length < 1 || formattedUsername.length > 12) {
-      const message = 'The username must have a length greater than 1 and less than 13.'
-      if (!errorMessages.includes(message)) {
-        errorMessages.push(message)
-      }
+      badNames.push(formattedUsername);
     }
 
     if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
-      const message = 'The username must not start or end with a space.'
-      if (!errorMessages.includes(message)) {
-        errorMessages.push(message)
-      }
+      badNames.push(formattedUsername);
     }
 
     if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
-      const message = 'The username must not contain any special characters.'
-      if (!errorMessages.includes(message)) {
-        errorMessages.push(message)
-      }
+      badNames.push(formattedUsername);
     }
   })
 
-  return { errors: errorMessages, names: badNames }
+  return badNames
 }
 
 function shouldUpdate(updatedAt) {
@@ -452,7 +424,7 @@ async function getHiscoresData(username, type = 'NORMAL') {
 }
 
 exports.formatUsername = formatUsername;
-exports.isValidUsername = isValidUsername;
+exports.isValidUsernames = isValidUsernames;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
 exports.getDataById = getDataById;
