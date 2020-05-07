@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -82,8 +83,18 @@ function EditGroup() {
     });
   };
 
-  const handleModalSubmit = usernames => {
-    setMembers([...usernames.map(u => ({ username: u, role: 'member' }))]);
+  const handleModalSubmit = (usernames, replace) => {
+    setMembers(currentMembers => {
+      if (replace) {
+        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+      }
+
+      const existingUsernames = currentMembers.map(c => c.username);
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+
+      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+    });
+
     toggleImportModal(false);
   };
 

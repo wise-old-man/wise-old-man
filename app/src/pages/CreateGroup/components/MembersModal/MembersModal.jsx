@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Selector from '../../../../components/Selector';
 import Button from '../../../../components/Button';
+import Switch from '../../../../components/Switch';
 import TextButton from '../../../../components/TextButton';
 import './MembersModal.scss';
 
@@ -23,6 +24,7 @@ const OPTIONS = [
 function MembersModal({ onConfirm, onClose }) {
   const [text, setText] = useState('');
   const [delimiter, setDelimiter] = useState(OPTIONS[0].value);
+  const [replace, setReplace] = useState(false);
 
   const handleTextChange = e => {
     setText(e.target.value);
@@ -32,14 +34,19 @@ function MembersModal({ onConfirm, onClose }) {
     setDelimiter(option.value);
   };
 
+  const toggleReplace = () => {
+    setReplace(!replace);
+  };
+
   const handleSubmit = () => {
     const members = text.split(delimiter);
-    onConfirm(members);
+    onConfirm(members, replace);
   };
 
   const onTextChange = useCallback(handleTextChange, []);
   const onDelimiterSelected = useCallback(handleDelimiterSelected, []);
-  const onSubmit = useCallback(handleSubmit, [text, delimiter]);
+  const onSwitchChanged = useCallback(toggleReplace, [replace]);
+  const onSubmit = useCallback(handleSubmit, [text, delimiter, replace]);
 
   return (
     <div className="members-popup">
@@ -51,6 +58,10 @@ function MembersModal({ onConfirm, onClose }) {
           placeholder="Insert your username list here"
           onChange={onTextChange}
         />
+        <div className="modal-replace">
+          <span className="modal-replace__label">Replace existing members</span>
+          <Switch on={replace} onToggle={onSwitchChanged} />
+        </div>
         <div className="modal-actions">
           <TextButton text="Cancel" onClick={onClose} />
           <Button text="Confirm" onClick={onSubmit} />
