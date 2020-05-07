@@ -52,10 +52,7 @@ function EditCompetition() {
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(state => isEditing(state));
 
-  const metricIndex = useMemo(() => metricOptions.findIndex(o => o.value === metric), [
-    metricOptions,
-    metric
-  ]);
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
   const fetchDetails = () => {
     dispatch(fetchDetailsAction(id));
@@ -175,7 +172,11 @@ function EditCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Metric</span>
-          <Selector options={metricOptions} onSelect={onMetricSelected} selectedIndex={metricIndex} />
+          <Selector
+            options={metricOptions}
+            onSelect={onMetricSelected}
+            selectedIndex={selectedMetricIndex}
+          />
         </div>
 
         <div className="form-row">

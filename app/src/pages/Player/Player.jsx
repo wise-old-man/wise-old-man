@@ -103,6 +103,12 @@ function Player() {
   const groups = useSelector(state => getPlayerGroups(state, id));
   const isLoadingDetails = useSelector(state => isFetching(state));
 
+  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+
+  const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
+  const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
+  const deltasSkillIndex = metricOptions.findIndex(o => o.value === selectedDeltasSkill);
+
   const experienceChartData = useSelector(state =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
   );
@@ -165,15 +171,13 @@ function Player() {
 
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
-  const onSkillsPeriodSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
+  const onDeltasSkillSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
-
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
 
   if (!player) {
     return null;
@@ -207,10 +211,14 @@ function Player() {
         {selectedTabIndex === 0 && (
           <>
             <div className="col-md-6 col-lg-2">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector disabled />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={LEVEL_TYPE_OPTIONS} selectedIndex={0} onSelect={onLevelTypeSelected} />
+              <Selector
+                options={LEVEL_TYPE_OPTIONS}
+                selectedIndex={levelTypeIndex}
+                onSelect={onLevelTypeSelected}
+              />
             </div>
           </>
         )}
@@ -219,22 +227,26 @@ function Player() {
             <div className="col-md-6 col-lg-2">
               <Selector
                 options={PERIOD_SELECTOR_OPTIONS}
-                selectedIndex={1}
+                selectedIndex={deltasPeriodIndex}
                 onSelect={onDeltasPeriodSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={metricOptions} onSelect={onSkillsPeriodSelected} />
+              <Selector
+                options={metricOptions}
+                selectedIndex={deltasSkillIndex}
+                onSelect={onDeltasSkillSelected}
+              />
             </div>
           </>
         )}
         {selectedTabIndex > 1 && (
           <>
             <div className="col-md-6 col-lg-2">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector disabled />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector disabled />
             </div>
           </>
         )}

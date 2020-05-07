@@ -26,6 +26,8 @@ function ImportPlayersModal({ onConfirm, onClose }) {
   const [delimiter, setDelimiter] = useState(OPTIONS[0].value);
   const [replace, setReplace] = useState(false);
 
+  const selectedDelimiterIndex = OPTIONS.findIndex(o => o.value === delimiter);
+
   const handleTextChange = e => {
     setText(e.target.value);
   };
@@ -52,7 +54,11 @@ function ImportPlayersModal({ onConfirm, onClose }) {
     <div className="import-players">
       <div className="import-players__modal">
         <h4 className="modal-title">Import username list</h4>
-        <Selector options={OPTIONS} onSelect={onDelimiterSelected} />
+        <Selector
+          options={OPTIONS}
+          selectedIndex={selectedDelimiterIndex}
+          onSelect={onDelimiterSelected}
+        />
         <textarea
           className="modal-text"
           placeholder="Insert your username list here"

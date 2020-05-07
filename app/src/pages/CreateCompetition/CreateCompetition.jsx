@@ -55,6 +55,8 @@ function CreateCompetition() {
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
+
   const handleTitleChanged = e => {
     setTitle(e.target.value);
   };
@@ -155,7 +157,11 @@ function CreateCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Metric</span>
-          <Selector options={metricOptions} onSelect={onMetricSelected} />
+          <Selector
+            options={metricOptions}
+            selectedIndex={selectedMetricIndex}
+            onSelect={onMetricSelected}
+          />
         </div>
 
         <div className="form-row">
@@ -172,7 +178,6 @@ function CreateCompetition() {
             <Switch on={groupCompetition} onToggle={toggleGroupCompetition} />
             <span className="group-toggle__label">Group competition</span>
           </div>
-
           {groupCompetition ? (
             <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
           ) : (

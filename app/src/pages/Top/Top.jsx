@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -8,13 +8,11 @@ import Selector from '../../components/Selector';
 import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
-import { PLAYER_TYPES, SKILLS } from '../../config';
+import { PLAYER_TYPES, SKILLS, BOSSES, ACTIVITIES, getMetricName } from '../../config';
 import { capitalize, getPlayerTypeIcon, getSkillIcon } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/deltas';
 import './Top.scss';
-
-const DEFAULT_TYPE_OPTIONS = { label: 'All players', value: null };
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.username,
@@ -37,8 +35,15 @@ const TABLE_CONFIG = {
   ]
 };
 
-function getTypeOptions() {
+const METRIC_TYPE_OPTIONS = [
+  { label: 'Skilling', value: 'skilling' },
+  { label: 'Bossing', value: 'bossing' },
+  { label: 'Activities', value: 'activities' }
+];
+
+function getPlayerTypeOptions() {
   return [
+    { label: 'All players', value: null },
     ...PLAYER_TYPES.map(type => ({
       label: capitalize(type),
       icon: getPlayerTypeIcon(type),
@@ -47,41 +52,61 @@ function getTypeOptions() {
   ];
 }
 
-function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
+function getMetricOptions(metricType) {
+  if (metricType === 'skilling') {
+    return SKILLS.map(skill => ({
+      label: getMetricName(skill),
       icon: getSkillIcon(skill, true),
       value: skill
-    }))
-  ];
+    }));
+  }
+
+  if (metricType === 'bossing') {
+    return BOSSES.map(boss => ({
+      label: getMetricName(boss),
+      value: boss
+    }));
+  }
+
+  return ACTIVITIES.map(activity => ({
+    label: getMetricName(activity),
+    value: activity
+  }));
 }
 
 function Top() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // Memoized variables
-  const metricOptions = useMemo(getMetricOptions, []);
-  const typeOptions = useMemo(getTypeOptions, []);
-
   // State variables
-  const [selectedMetric, setSelectedMetric] = useState(metricOptions[0].value);
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedMetricType, setSelectedMetricType] = useState(METRIC_TYPE_OPTIONS[0].value);
+  const [selectedMetric, setSelectedMetric] = useState('overall');
+  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
+
+  const metricOptions = getMetricOptions(selectedMetricType);
+  const playerTypeOptions = getPlayerTypeOptions();
+
+  const selectedMetricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
 
-  function reloadList() {
-    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedType }));
-  }
+  const reloadList = () => {
+    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
+  };
+
+  const handleMetricTypeSelected = e => {
+    setSelectedMetricType((e && e.value) || null);
+  };
 
   const handleMetricSelected = e => {
     setSelectedMetric((e && e.value) || null);
   };
 
   const handleTypeSelected = e => {
-    setSelectedType((e && e.value) || null);
+    setSelectedPlayerType((e && e.value) || null);
   };
 
   const handleDayRowClicked = index => {
@@ -99,13 +124,19 @@ function Top() {
     router.push(`/players/${playerId}`);
   };
 
+  const resetMetrics = () => {
+    handleMetricSelected(metricOptions[0]);
+  };
+
+  const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedType]);
+  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedPlayerType]);
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
   const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
 
-  useEffect(reloadList, [selectedMetric, selectedType]);
+  useEffect(reloadList, [selectedMetric, selectedPlayerType]);
+  useEffect(resetMetrics, [selectedMetricType]);
 
   return (
     <div className="top__container container">
@@ -119,12 +150,23 @@ function Top() {
       </div>
       <div className="top__filters row">
         <div className="col-md-3">
-          <Selector options={metricOptions} onSelect={onMetricSelected} />
+          <Selector
+            options={METRIC_TYPE_OPTIONS}
+            selectedIndex={selectedMetricTypeIndex}
+            onSelect={onMetricTypeSelected}
+          />
         </div>
         <div className="col-md-3">
           <Selector
-            options={typeOptions}
-            defaultOption={DEFAULT_TYPE_OPTIONS}
+            options={metricOptions}
+            selectedIndex={selectedMetricIndex}
+            onSelect={onMetricSelected}
+          />
+        </div>
+        <div className="col-md-3">
+          <Selector
+            options={playerTypeOptions}
+            selectedIndex={selectedPlayerTypeIndex}
             onSelect={onTypeSelected}
           />
         </div>

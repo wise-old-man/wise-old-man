@@ -7,16 +7,16 @@ import { getLevel, getSkillIcon, capitalize } from '../../../../utils';
 
 function calculateRows(data) {
   const totalLevelBefore = _.filter(data, (val, key) => key !== 'overall')
-    .map((skill) => getLevel(skill.experience.start))
+    .map(skill => getLevel(skill.experience.start))
     .reduce((acc, cur) => acc + cur);
 
   const totalLevelAfter = _.filter(data, (val, key) => key !== 'overall')
-    .map((skill) => getLevel(skill.experience.end))
+    .map(skill => getLevel(skill.experience.end))
     .reduce((acc, cur) => acc + cur);
 
   const totalLevelDiff = totalLevelAfter - totalLevelBefore;
 
-  const levelDiff = (exps) => getLevel(exps.end) - getLevel(exps.start);
+  const levelDiff = exps => getLevel(exps.end) - getLevel(exps.start);
 
   return _.map(data, (value, key) => ({
     skill: key,
@@ -34,6 +34,9 @@ function PlayerDeltasTable({ deltas, period }) {
     return null;
   }
 
+  /*
+  console.log(deltas, period);
+
   const rows = calculateRows(deltas[period].data);
 
   // Column config
@@ -41,7 +44,7 @@ function PlayerDeltasTable({ deltas, period }) {
     {
       key: 'skill',
       className: () => '-primary',
-      transform: (value) => (
+      transform: value => (
         <div className="skill-tag">
           <img src={getSkillIcon(value, true)} alt="" />
           <span>{capitalize(value)}</span>
@@ -52,25 +55,27 @@ function PlayerDeltasTable({ deltas, period }) {
       key: 'level',
       label: 'Levels',
       className: () => `-break-small`,
-      transform: (val) => <NumberLabel value={val} isColored isSigned />
+      transform: val => <NumberLabel value={val} isColored isSigned />
     },
     {
       key: 'experience',
       label: 'Exp.',
-      transform: (val) => <NumberLabel value={val} isColored isSigned lowThreshold={50000} />
+      transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={50000} />
     },
     {
       key: 'rank',
       className: () => `-break-small`,
-      transform: (val) => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
+      transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
       key: 'EHP',
-      get: (row) => row.ehp
+      get: row => row.ehp
     }
   ];
 
   return <Table rows={rows} columns={columns} />;
+  */
+  return null;
 }
 
 PlayerDeltasTable.propTypes = {

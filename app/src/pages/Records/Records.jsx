@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -45,8 +45,9 @@ const TABLE_CONFIG = {
   ]
 };
 
-function getTypeOptions() {
+function getPlayerTypeOptions() {
   return [
+    DEFAULT_TYPE_OPTIONS,
     ...PLAYER_TYPES.map(type => ({
       label: capitalize(type),
       icon: getPlayerTypeIcon(type),
@@ -69,27 +70,29 @@ function Records() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // Memoized variables
-  const metricOptions = useMemo(getMetricOptions, []);
-  const typeOptions = useMemo(getTypeOptions, []);
+  const metricOptions = getMetricOptions();
+  const playerTypeOptions = getPlayerTypeOptions();
 
   // State variables
   const [selectedMetric, setSelectedMetric] = useState(metricOptions[0].value);
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
 
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
+
   function reloadList() {
-    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedType }));
+    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
   }
 
   const handleMetricSelected = e => {
     setSelectedMetric((e && e.value) || null);
   };
 
-  const handleTypeSelected = e => {
-    setSelectedType((e && e.value) || null);
+  const handlePlayerTypeSelected = e => {
+    setSelectedPlayerType((e && e.value) || null);
   };
 
   const handleDayRowClicked = index => {
@@ -108,12 +111,12 @@ function Records() {
   };
 
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedType]);
+  const onTypeSelected = useCallback(handlePlayerTypeSelected, [setSelectedPlayerType]);
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
   const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
 
-  useEffect(reloadList, [selectedMetric, selectedType]);
+  useEffect(reloadList, [selectedMetric, selectedPlayerType]);
 
   return (
     <div className="records__container container">
@@ -127,12 +130,16 @@ function Records() {
       </div>
       <div className="records__filters row">
         <div className="col-md-3">
-          <Selector options={metricOptions} onSelect={onMetricSelected} />
+          <Selector
+            options={metricOptions}
+            selectedIndex={selectedMetricIndex}
+            onSelect={onMetricSelected}
+          />
         </div>
         <div className="col-md-3">
           <Selector
-            options={typeOptions}
-            defaultOption={DEFAULT_TYPE_OPTIONS}
+            options={playerTypeOptions}
+            selectedIndex={selectedPlayerTypeIndex}
             onSelect={onTypeSelected}
           />
         </div>
