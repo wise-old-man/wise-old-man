@@ -270,14 +270,14 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     }
   }
 
-  // Check if every username in the list is valid
   if (participants && participants.length > 0) {
-    const usernamesCheck = await playerService.isValidUsernames(participants);
+    // Check if every username in the list is valid
+    const invalidUsernames = playerService.isValidUsernames(participant.map(participant => participant.username));
 
-    if (usernamesCheck.length > 0) {
+    if (invalidUsernames.length > 0) {
       throw new BadRequestError(
         'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
-        usernamesCheck
+        invalidUsernames
       );
     }
   }
@@ -368,12 +368,12 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (participants) {
     // Check if every username in the list is valid
-    const usernamesCheck = await playerService.isValidUsernames(participants);
+    const invalidUsernames = playerService.isValidUsernames(participant.map(participant => participant.username));
 
-    if (usernamesCheck.length > 0) {
+    if (invalidUsernames.length > 0) {
       throw new BadRequestError(
         'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
-        usernamesCheck
+        invalidUsernames
       );
     }
 

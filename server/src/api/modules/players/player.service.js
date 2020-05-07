@@ -27,11 +27,16 @@ function formatUsername(username) {
     .join(' ');
 }
 
-function isValidUsernames(members) {
+/**
+ * Check an array of usernames for invalid values
+ *
+ * If verifying one name, pass the username in an array still
+ */
+function isValidUsernames(usernames) {
   const badNames = [];
 
-  members.forEach(member => {
-    const formattedUsername = formatUsername(member.username);
+  usernames.forEach(username => {
+    const formattedUsername = formatUsername(username);
 
     if (formattedUsername.length < 1 || formattedUsername.length > 12) {
       badNames.push(formattedUsername);

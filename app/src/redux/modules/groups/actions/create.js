@@ -40,8 +40,6 @@ export default function createGroup({ name, members }) {
     return axios
       .post(url, body)
       .then(result => dispatch(createGroupSuccess(result.data)))
-      .catch(error => {
-        dispatch(createGroupFailure(error))
-      });
+      .catch(error => dispatch(createGroupFailure(error)));
   };
 }
