@@ -172,7 +172,7 @@ async function getMembersList(id) {
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }))
+    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => b.overallExperience - a.overallExperience);
 }
 
