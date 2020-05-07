@@ -12,9 +12,9 @@ import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
+import VerificationModal from '../../modals/VerificationModal';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import VerificationModal from './components/VerificationModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
@@ -191,7 +191,6 @@ function CreateCompetition() {
             </>
           )}
         </div>
-
         <div className="form-row form-actions">
           <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
@@ -200,7 +199,11 @@ function CreateCompetition() {
         <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
       )}
       {verificationCode && (
-        <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />
+        <VerificationModal
+          entity="competition"
+          verificationCode={verificationCode}
+          onConfirm={onConfirmVerification}
+        />
       )}
     </div>
   );
