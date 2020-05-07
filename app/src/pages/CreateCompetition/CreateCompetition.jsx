@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -75,8 +76,18 @@ function CreateCompetition() {
     setParticipants(ps => [...ps.filter(p => p !== username)]);
   };
 
-  const handleImportModalSubmit = usernames => {
-    setParticipants(usernames);
+  const handleImportModalSubmit = (usernames, replace) => {
+    setParticipants(currentParticipants => {
+      if (replace) {
+        return [..._.uniq(usernames)];
+      }
+
+      const existingUsernames = currentParticipants;
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+
+      return [...currentParticipants, ..._.uniq(newUsernames)];
+    });
+
     toggleImportModal(false);
   };
 
