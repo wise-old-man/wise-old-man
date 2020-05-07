@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Selector from '../../../../components/Selector';
 import Button from '../../../../components/Button';
 import TextButton from '../../../../components/TextButton';
-import './ParticipantsPopup.scss';
+import './ParticipantsModal.scss';
 
 const OPTIONS = [
   {
@@ -20,7 +20,7 @@ const OPTIONS = [
   }
 ];
 
-function ParticipantsPopup({ onConfirm, onClose }) {
+function ParticipantsModal({ onConfirm, onClose }) {
   const [text, setText] = useState('');
   const [delimiter, setDelimiter] = useState(OPTIONS[0].value);
 
@@ -60,9 +60,9 @@ function ParticipantsPopup({ onConfirm, onClose }) {
   );
 }
 
-ParticipantsPopup.propTypes = {
+ParticipantsModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired
 };
 
-export default ParticipantsPopup;
+export default ParticipantsModal;

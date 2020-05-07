@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../../../components/Button';
-import './VerificationPopup.scss';
+import './VerificationModal.scss';
 
-function VerificationPopup({ verificationCode, onConfirm }) {
+function VerificationModal({ verificationCode, onConfirm }) {
   return (
     <div className="verification-popup">
       <div className="verification-popup__modal">
@@ -19,9 +19,9 @@ function VerificationPopup({ verificationCode, onConfirm }) {
   );
 }
 
-VerificationPopup.propTypes = {
+VerificationModal.propTypes = {
   verificationCode: PropTypes.string.isRequired,
   onConfirm: PropTypes.func.isRequired
 };
 
-export default VerificationPopup;
+export default VerificationModal;

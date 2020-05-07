@@ -12,8 +12,8 @@ import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import ParticipantsPopup from './components/ParticipantsPopup';
-import VerificationPopup from './components/VerificationPopup';
+import ParticipantsModal from './components/ParticipantsModal';
+import VerificationModal from './components/VerificationModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
@@ -50,7 +50,7 @@ function CreateCompetition() {
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const [groupCompetition, setGroupCompetition] = useState(false);
-  const [showingImportPopup, toggleImportPopup] = useState(false);
+  const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
@@ -75,9 +75,9 @@ function CreateCompetition() {
     setParticipants(ps => [...ps.filter(p => p !== username)]);
   };
 
-  const handlePopupSubmit = usernames => {
+  const handleImportModalSubmit = usernames => {
     setParticipants(usernames);
-    toggleImportPopup(false);
+    toggleImportModal(false);
   };
 
   const handleConfirmVerification = () => {
@@ -106,8 +106,8 @@ function CreateCompetition() {
     setGroupCompetition(!groupCompetition);
   };
 
-  const hideParticipantsPopup = useCallback(() => toggleImportPopup(false), []);
-  const showParticipantsPopup = useCallback(() => toggleImportPopup(true), []);
+  const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
+  const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
   const toggleGroupCompetition = useCallback(handleToggleGroupCompetition, [groupCompetition]);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
@@ -115,7 +115,7 @@ function CreateCompetition() {
   const onDateRangeChanged = useCallback(handleDateRangeChanged, []);
   const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
-  const onSubmitParticipantsPopup = useCallback(handlePopupSubmit, []);
+  const onSubmitParticipantsModal = useCallback(handleImportModalSubmit, []);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
 
   const onSubmit = useCallback(handleSubmit, [
@@ -169,7 +169,7 @@ function CreateCompetition() {
               <span className="form-row__label">
                 Participants
                 <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-                <TextButton text="Import list" onClick={showParticipantsPopup} />
+                <TextButton text="Import list" onClick={showParticipantsModal} />
               </span>
 
               <ParticipantsSelector
@@ -185,11 +185,11 @@ function CreateCompetition() {
           <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
-      {showingImportPopup && (
-        <ParticipantsPopup onClose={hideParticipantsPopup} onConfirm={onSubmitParticipantsPopup} />
+      {showingImportModal && (
+        <ParticipantsModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
       )}
       {verificationCode && (
-        <VerificationPopup verificationCode={verificationCode} onConfirm={onConfirmVerification} />
+        <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />
       )}
     </div>
   );

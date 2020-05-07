@@ -10,7 +10,7 @@ import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
-import ParticipantsPopup from './components/ParticipantsPopup';
+import ParticipantsModal from './components/ParticipantsModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
@@ -46,7 +46,7 @@ function EditCompetition() {
   const [participants, setParticipants] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
 
-  const [showingImportPopup, toggleImportPopup] = useState(false);
+  const [showingImportModal, toggleImportModal] = useState(false);
 
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(state => isEditing(state));
@@ -112,13 +112,13 @@ function EditCompetition() {
     });
   };
 
-  const handleImportPopupSubmit = usernames => {
+  const handleImportModalSubmit = usernames => {
     setParticipants(usernames);
-    toggleImportPopup(false);
+    toggleImportModal(false);
   };
 
-  const hideParticipantsPopup = useCallback(() => toggleImportPopup(false), []);
-  const showParticipantsPopup = useCallback(() => toggleImportPopup(true), []);
+  const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
+  const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
   const onMetricSelected = useCallback(handleMetricSelected, []);
@@ -126,7 +126,7 @@ function EditCompetition() {
   const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onVerificationCodeChanged = useCallback(handleVerificationCodeChanged, []);
-  const onSubmitImportPopup = useCallback(handleImportPopupSubmit, []);
+  const onSubmitImportModal = useCallback(handleImportModalSubmit, []);
   const onSubmit = useCallback(handleSubmit, [
     title,
     metric,
@@ -180,7 +180,7 @@ function EditCompetition() {
           <span className="form-row__label">
             Participants
             <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-            <TextButton text="Import list" onClick={showParticipantsPopup} />
+            <TextButton text="Import list" onClick={showParticipantsModal} />
           </span>
 
           <ParticipantsSelector
@@ -203,8 +203,8 @@ function EditCompetition() {
           <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
-      {showingImportPopup && (
-        <ParticipantsPopup onClose={hideParticipantsPopup} onConfirm={onSubmitImportPopup} />
+      {showingImportModal && (
+        <ParticipantsModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
       )}
     </div>
   );
