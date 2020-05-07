@@ -1,10 +1,10 @@
 @import '../../variables.scss';
 @import '../../styles.scss';
 
-.selector__container {
+.selector {
   position: relative;
 
-  .selector__toggle {
+  &-toggle {
     @extend %panel;
     @extend %block-text-selection;
     position: relative;
@@ -16,6 +16,9 @@
     align-items: center;
     cursor: pointer;
     height: 40px;
+    width: 100%;
+    border: none;
+    color: white;
 
     &.-disabled {
       opacity: 0.3;
@@ -33,14 +36,17 @@
 
     .toggle__text {
       width: 100%;
+      text-align: left;
+      display: block;
+      margin-bottom: 1px;
     }
 
     .toggle__icon {
-      margin-right: 5px;
+      margin-right: 10px;
     }
   }
 
-  .selector-list {
+  &-list {
     @extend %panel;
     @extend %block-text-selection;
     overflow: hidden;
@@ -53,6 +59,11 @@
     z-index: 200;
     max-height: 205px;
     overflow-y: scroll;
+    display: none;
+
+    &.-open {
+      display: block;
+    }
 
     &::-webkit-scrollbar {
       width: 5px;
@@ -73,6 +84,10 @@
       display: flex;
       flex-direction: row;
       align-items: center;
+      width: 100%;
+      color: white;
+      border: none;
+      text-align: left;
 
       .selector-item__icon {
         margin-right: 10px;
