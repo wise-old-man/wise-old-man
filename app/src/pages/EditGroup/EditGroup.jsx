@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -7,7 +8,7 @@ import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from './components/MembersSelector';
-import MembersModal from './components/MembersModal';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import editGroupAction from '../../redux/modules/groups/actions/edit';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
@@ -82,8 +83,18 @@ function EditGroup() {
     });
   };
 
-  const handleModalSubmit = usernames => {
-    setMembers([...usernames.map(u => ({ username: u, role: 'member' }))]);
+  const handleModalSubmit = (usernames, replace) => {
+    setMembers(currentMembers => {
+      if (replace) {
+        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+      }
+
+      const existingUsernames = currentMembers.map(c => c.username);
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+
+      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+    });
+
     toggleImportModal(false);
   };
 
@@ -155,7 +166,7 @@ function EditGroup() {
         </div>
       </div>
       {showingImportModal && (
-        <MembersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+        <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
     </div>
   );

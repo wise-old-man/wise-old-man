@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
-import Button from '../../../../components/Button';
-import deleteGroupAction from '../../../../redux/modules/groups/actions/delete';
+import Button from '../../components/Button';
+import deleteGroupAction from '../../redux/modules/groups/actions/delete';
 import './DeleteGroupModal.scss';
 
 function DeleteGroupModal({ group, onCancel }) {
