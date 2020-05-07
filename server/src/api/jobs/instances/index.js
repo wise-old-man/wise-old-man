@@ -1,4 +1,3 @@
-const ConfirmPlayerType = require('./ConfirmPlayerType');
 const ImportPlayer = require('./ImportPlayer');
 const UpdatePlayer = require('./UpdatePlayer');
 const SyncPlayerDeltas = require('./SyncPlayerDeltas');
@@ -11,7 +10,6 @@ const RemoveFromGroupCompetitions = require('./RemoveFromGroupCompetitions');
 module.exports = {
   ImportPlayer,
   UpdatePlayer,
-  ConfirmPlayerType,
   SyncPlayerDeltas,
   SyncPlayerRecords,
   SyncPlayerParticipations,
