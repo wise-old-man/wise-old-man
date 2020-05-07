@@ -8,7 +8,7 @@ import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from './components/MembersSelector';
-import MembersModal from './components/MembersModal';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import editGroupAction from '../../redux/modules/groups/actions/edit';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
@@ -166,7 +166,7 @@ function EditGroup() {
         </div>
       </div>
       {showingImportModal && (
-        <MembersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+        <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
     </div>
   );

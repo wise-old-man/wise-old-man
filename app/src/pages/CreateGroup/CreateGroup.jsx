@@ -8,7 +8,7 @@ import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from './components/MembersSelector';
-import MembersModal from './components/MembersModal';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from './components/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
 import { isCreating } from '../../redux/selectors/groups';
@@ -140,7 +140,7 @@ function CreateGroup() {
         </div>
       </div>
       {showingImportModal && (
-        <MembersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+        <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
       {verificationCode && (
         <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />

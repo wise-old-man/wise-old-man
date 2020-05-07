@@ -11,7 +11,7 @@ import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
-import ParticipantsModal from './components/ParticipantsModal';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
@@ -215,7 +215,7 @@ function EditCompetition() {
         </div>
       </div>
       {showingImportModal && (
-        <ParticipantsModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
+        <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
       )}
     </div>
   );

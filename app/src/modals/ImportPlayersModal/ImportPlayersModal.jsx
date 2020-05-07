@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import Selector from '../../../../components/Selector';
-import Button from '../../../../components/Button';
-import Switch from '../../../../components/Switch';
-import TextButton from '../../../../components/TextButton';
-import './ParticipantsModal.scss';
+import Selector from '../../components/Selector';
+import Button from '../../components/Button';
+import Switch from '../../components/Switch';
+import TextButton from '../../components/TextButton';
+import './ImportPlayersModal.scss';
 
 const OPTIONS = [
   {
@@ -21,7 +21,7 @@ const OPTIONS = [
   }
 ];
 
-function ParticipantsModal({ onConfirm, onClose }) {
+function ImportPlayersModal({ onConfirm, onClose }) {
   const [text, setText] = useState('');
   const [delimiter, setDelimiter] = useState(OPTIONS[0].value);
   const [replace, setReplace] = useState(false);
@@ -39,8 +39,8 @@ function ParticipantsModal({ onConfirm, onClose }) {
   };
 
   const handleSubmit = () => {
-    const participants = text.split(delimiter);
-    onConfirm(participants, replace);
+    const usernames = text.split(delimiter);
+    onConfirm(usernames, replace);
   };
 
   const onTextChange = useCallback(handleTextChange, []);
@@ -49,9 +49,9 @@ function ParticipantsModal({ onConfirm, onClose }) {
   const onSubmit = useCallback(handleSubmit, [text, delimiter, replace]);
 
   return (
-    <div className="participants-popup">
-      <div className="participants-popup__modal">
-        <h4 className="modal-title">Import participants list</h4>
+    <div className="import-players">
+      <div className="import-players__modal">
+        <h4 className="modal-title">Import username list</h4>
         <Selector options={OPTIONS} onSelect={onDelimiterSelected} />
         <textarea
           className="modal-text"
@@ -59,7 +59,7 @@ function ParticipantsModal({ onConfirm, onClose }) {
           onChange={onTextChange}
         />
         <div className="modal-replace">
-          <span className="modal-replace__label">Replace existing participants</span>
+          <span className="modal-replace__label">Replace existing usernames</span>
           <Switch on={replace} onToggle={onSwitchChanged} />
         </div>
         <div className="modal-actions">
@@ -71,9 +71,9 @@ function ParticipantsModal({ onConfirm, onClose }) {
   );
 }
 
-ParticipantsModal.propTypes = {
+ImportPlayersModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired
 };
 
-export default ParticipantsModal;
+export default ImportPlayersModal;

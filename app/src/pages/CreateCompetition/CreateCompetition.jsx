@@ -11,9 +11,9 @@ import TextButton from '../../components/TextButton';
 import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import ParticipantsModal from './components/ParticipantsModal';
 import VerificationModal from './components/VerificationModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
@@ -197,7 +197,7 @@ function CreateCompetition() {
         </div>
       </div>
       {showingImportModal && (
-        <ParticipantsModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
+        <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
       )}
       {verificationCode && (
         <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />
