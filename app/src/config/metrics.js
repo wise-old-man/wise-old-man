@@ -86,23 +86,24 @@ const metrics = {
   ]
 };
 
-const SKILLS_KEYS = metrics.SKILLS.map(s => s.key);
-const ACTIVITIES_KEYS = metrics.ACTIVITIES.map(s => s.key);
-const BOSSES_KEYS = metrics.BOSSES.map(s => s.key);
+export const SKILLS = metrics.SKILLS.map(s => s.key);
+export const ACTIVITIES = metrics.ACTIVITIES.map(s => s.key);
+export const BOSSES = metrics.BOSSES.map(s => s.key);
+export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
 
-function isSkill(value) {
-  return SKILLS_KEYS.includes(value);
+export function isSkill(value) {
+  return SKILLS.includes(value);
 }
 
-function isActivity(value) {
-  return ACTIVITIES_KEYS.includes(value);
+export function isActivity(value) {
+  return ACTIVITIES.includes(value);
 }
 
-function isBoss(value) {
-  return BOSSES_KEYS.includes(value);
+export function isBoss(value) {
+  return BOSSES.includes(value);
 }
 
-function getMeasure(value) {
+export function getMeasure(value) {
   if (isSkill(value)) {
     return 'experience';
   }
@@ -114,11 +115,11 @@ function getMeasure(value) {
   return 'kills';
 }
 
-function getRankKey(value) {
+export function getRankKey(value) {
   return `${value}Rank`;
 }
 
-function getValueKey(value) {
+export function getValueKey(value) {
   if (isSkill(value)) {
     return `${value}Experience`;
   }
@@ -130,7 +131,7 @@ function getValueKey(value) {
   return `${value}Kills`;
 }
 
-function getFormattedName(value) {
+export function getMetricName(value) {
   for (let i = 0; i < metrics.SKILLS.length; i += 1) {
     if (metrics.SKILLS[i].key === value) {
       return metrics.SKILLS[i].name;
@@ -151,17 +152,3 @@ function getFormattedName(value) {
 
   return 'Invalid metric name';
 }
-
-module.exports = {
-  SKILLS: SKILLS_KEYS,
-  ACTIVITIES: ACTIVITIES_KEYS,
-  BOSSES: BOSSES_KEYS,
-  ALL_METRICS: [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS],
-  isSkill,
-  isActivity,
-  isBoss,
-  getMeasure,
-  getFormattedName,
-  getRankKey,
-  getValueKey
-};

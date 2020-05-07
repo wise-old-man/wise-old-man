@@ -149,21 +149,21 @@ function Top() {
         </div>
       </div>
       <div className="top__filters row">
-        <div className="col-md-3">
+        <div className="col-lg-2 col-md-3">
           <Selector
             options={METRIC_TYPE_OPTIONS}
             selectedIndex={selectedMetricTypeIndex}
             onSelect={onMetricTypeSelected}
           />
         </div>
-        <div className="col-md-3">
+        <div className="col-lg-4 col-md-6">
           <Selector
             options={metricOptions}
             selectedIndex={selectedMetricIndex}
             onSelect={onMetricSelected}
           />
         </div>
-        <div className="col-md-3">
+        <div className="col-lg-2 col-md-3">
           <Selector
             options={playerTypeOptions}
             selectedIndex={selectedPlayerTypeIndex}
