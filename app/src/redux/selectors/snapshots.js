@@ -11,7 +11,7 @@ export const getSnapshots = createSelector(snapshotsSelector, map => Object.valu
 
 export const getPlayerSnapshots = (state, playerId) => getSnapshotsMap(state)[playerId];
 
-export const getChartData = (state, playerId, period, skill, metric) => {
+export const getChartData = (state, playerId, period, skill, measure) => {
   const snapshotsData = getPlayerSnapshots(state, playerId);
 
   if (!snapshotsData) {
@@ -21,18 +21,19 @@ export const getChartData = (state, playerId, period, skill, metric) => {
   const data = _.uniqBy(
     snapshotsData[period].map(s => ({
       x: s.createdAt,
-      y: s[skill][metric],
+      y: s[skill][measure]
     })),
-    'y',
+    'y'
   );
 
   return [
     {
-      borderColor: COLORS[metric === 'experience' ? 0 : 1],
+      borderColor: COLORS[measure === 'experience' ? 0 : 1],
       pointBorderWidth: 4,
-      label: capitalize(metric),
-      data,
-      fill: false,
-    },
+      label: capitalize(measure),
+      // If showing ranks, don't include any -1 ranks
+      data: measure === 'rank' ? data.filter(d => d.y > 0) : data,
+      fill: false
+    }
   ];
 };
