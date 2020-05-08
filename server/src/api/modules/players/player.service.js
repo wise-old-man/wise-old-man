@@ -6,6 +6,7 @@ const { ServerError, BadRequestError } = require('../../errors');
 const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 const { getNextProxy } = require('../../proxies');
+const { getLevel, getCombatLevel } = require('../../util/level');
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -94,8 +95,33 @@ async function getData(username) {
   }
 
   const latestSnapshot = await snapshotService.findLatest(player.id);
+  const {
+    attackExperience,
+    strengthExperience,
+    defenceExperience,
+    hitpointsExperience,
+    rangedExperience,
+    prayerExperience,
+    magicExperience
+  } = latestSnapshot;
+  const attackLevel = getLevel(attackExperience);
+  const strengthLevel = getLevel(strengthExperience);
+  const defenceLevel = getLevel(defenceExperience);
+  const hitpointsLevel = getLevel(hitpointsExperience);
+  const rangedLevel = getLevel(rangedExperience);
+  const prayerLevel = getLevel(prayerExperience);
+  const magicLevel = getLevel(magicExperience);
+  const combatLevel = getCombatLevel(
+    attackLevel,
+    strengthLevel,
+    defenceLevel,
+    hitpointsLevel,
+    rangedLevel,
+    prayerLevel,
+    magicLevel
+  );
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot) };
+  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
 }
 
 /**
@@ -113,8 +139,33 @@ async function getDataById(id) {
   }
 
   const latestSnapshot = await snapshotService.findLatest(player.id);
+  const {
+    attackExperience,
+    strengthExperience,
+    defenceExperience,
+    hitpointsExperience,
+    rangedExperience,
+    prayerExperience,
+    magicExperience
+  } = latestSnapshot;
+  const attackLevel = getLevel(attackExperience);
+  const strengthLevel = getLevel(strengthExperience);
+  const defenceLevel = getLevel(defenceExperience);
+  const hitpointsLevel = getLevel(hitpointsExperience);
+  const rangedLevel = getLevel(rangedExperience);
+  const prayerLevel = getLevel(prayerExperience);
+  const magicLevel = getLevel(magicExperience);
+  const combatLevel = getCombatLevel(
+    attackLevel,
+    strengthLevel,
+    defenceLevel,
+    hitpointsLevel,
+    rangedLevel,
+    prayerLevel,
+    magicLevel
+  );
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot) };
+  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
 }
 
 /**
