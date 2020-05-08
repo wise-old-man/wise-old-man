@@ -194,7 +194,7 @@ async function create(name, members) {
 
   // Check if every username in the list is valid
   if (members && members.length > 0) {
-    for (let i = 0; i < members.length; i += 1) {
+    for (let i = 0; i < members.length; i++) {
       if (!playerService.isValidUsername(members[i].username)) {
         throw new BadRequestError(`Invalid player username: ${members[i].username}`);
       }
@@ -257,7 +257,7 @@ async function edit(id, name, verificationCode, members) {
 
   if (members) {
     // Check if every username in the list is valid
-    for (let i = 0; i < members.length; i += 1) {
+    for (let i = 0; i < members.length; i++) {
       if (!playerService.isValidUsername(members[i].username)) {
         throw new BadRequestError(`Invalid player username: ${members[i].username}`);
       }

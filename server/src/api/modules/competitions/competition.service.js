@@ -272,7 +272,7 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
 
   // Check if every username in the list is valid
   if (participants && participants.length > 0) {
-    for (let i = 0; i < participants.length; i += 1) {
+    for (let i = 0; i < participants.length; i++) {
       if (!playerService.isValidUsername(participants[i])) {
         throw new BadRequestError(`Invalid player username: ${participants[i]}`);
       }
@@ -366,7 +366,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (participants) {
     // Check if every username in the list is valid
-    for (let i = 0; i < participants.length; i += 1) {
+    for (let i = 0; i < participants.length; i++) {
       if (!playerService.isValidUsername(participants[i])) {
         throw new BadRequestError(`Invalid player username: ${participants[i]}`);
       }
