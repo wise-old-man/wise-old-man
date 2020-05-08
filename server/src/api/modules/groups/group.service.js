@@ -253,6 +253,8 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
+  let groupMembers;
+
   if (members) {
     // Check if every username in the list is valid
     for (let i = 0; i < members.length; i += 1) {
@@ -261,20 +263,17 @@ async function edit(id, name, verificationCode, members) {
       }
     }
 
-    const newMembers = await setMembers(group, members);
-    return { ...format(group), members: newMembers };
+    groupMembers = await setMembers(group, members);
+  } else {
+    const memberships = await group.getMembers();
+    groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
   if (name) {
     await group.update({ name: sanitizeName(name) });
   }
 
-  const memberships = await group.getMembers();
-
-  return {
-    ...format(group),
-    members: memberships.map(p => ({ ...p.toJSON(), memberships: undefined }))
-  };
+  return { ...format(group), members: groupMembers };
 }
 
 /**
