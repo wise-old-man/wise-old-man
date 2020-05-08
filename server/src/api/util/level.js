@@ -34,7 +34,7 @@ function getCombatLevel({
   // If the player has at least one of the stats as level 0 the calculation becomes incorrect
   // This is due to the player not being on the Hiscores
   // eslint-disable-next-line prefer-rest-params
-  if ([...arguments].some(level => level === 0)) {
+  if ([...levels].some(level => level === 0)) {
     return '-';
   }
 
