@@ -12,30 +12,41 @@ function getLevel(experience) {
   return Math.min(index, 99);
 }
 
-function getCombatLevel(
-  attackLevel,
-  strengthLevel,
-  defenceLevel,
-  hitpointsLevel,
-  rangedLevel,
-  prayerLevel,
-  magicLevel
-) {
+function getCombatLevel({
+  attackExperience,
+  strengthExperience,
+  defenceExperience,
+  hitpointsExperience,
+  rangedExperience,
+  prayerExperience,
+  magicExperience
+}) {
+  const levels = [
+    attackExperience,
+    strengthExperience,
+    defenceExperience,
+    hitpointsExperience,
+    rangedExperience,
+    prayerExperience,
+    magicExperience
+  ].map(experience => getLevel(experience));
+
   // If the player has at least one of the stats as level 0 the calculation becomes incorrect
   // This is due to the player not being on the Hiscores
-  if (
-    [
-      attackLevel,
-      strengthLevel,
-      defenceLevel,
-      hitpointsLevel,
-      rangedLevel,
-      prayerLevel,
-      magicLevel
-    ].some(level => level === 0)
-  ) {
+  // eslint-disable-next-line prefer-rest-params
+  if ([...arguments].some(level => level === 0)) {
     return '-';
   }
+
+  const [
+    attackLevel,
+    strengthLevel,
+    defenceLevel,
+    hitpointsLevel,
+    rangedLevel,
+    prayerLevel,
+    magicLevel
+  ] = levels;
 
   // Formula from https://oldschool.runescape.wiki/w/Combat_level
   // Calculate the combat level
