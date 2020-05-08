@@ -1,14 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import TextInput from '../TextInput';
 import './Selector.scss';
 
-const itemClass = isSelected => classNames('selector-list__item', { '-selected': isSelected });
-const menuClass = isOpen => classNames('selector-list', { '-open': isOpen });
+const itemClass = (isSelected, isSearchMatch) =>
+  classNames('selector-list__item', { '-selected': isSelected, '-hidden': !isSearchMatch });
+
+const menuClass = isOpen => classNames('selector-menu', { '-closed': !isOpen });
+
 const buttonClass = isDisabled => classNames({ 'selector-toggle': true, '-disabled': isDisabled });
 
-function Selector({ options, selectedIndex, onSelect, disabled }) {
+function Selector({ options, selectedIndex, onSelect, disabled, search }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const inputId = `selector-search-${options[0].value}`;
 
   function handleSelection(option) {
     if (onSelect) {
@@ -16,11 +23,24 @@ function Selector({ options, selectedIndex, onSelect, disabled }) {
     }
 
     close();
+    setSearchText('');
+  }
+
+  function handleSearch(e) {
+    setSearchText(e.target.value);
+  }
+
+  function handleBlur(e) {
+    // If focus was lost to an elementbesides the search bar
+    if (!e || !e.relatedTarget || e.relatedTarget.id !== inputId) {
+      close();
+    }
   }
 
   const onSelection = useCallback(handleSelection, [options, onSelect]);
-  const open = useCallback(() => setIsOpen(true), []);
+  const onSearch = useCallback(handleSearch, [options]);
   const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback(() => setIsOpen(o => !o), [isOpen]);
 
   const selectedOption = options && options[selectedIndex];
 
@@ -28,24 +48,38 @@ function Selector({ options, selectedIndex, onSelect, disabled }) {
   const icon = selectedOption && selectedOption.icon;
 
   return (
-    <div className="selector" onBlur={close}>
-      <button className={buttonClass(disabled)} type="button" onClick={open}>
+    <div className="selector" onBlur={handleBlur}>
+      <button className={buttonClass(disabled)} type="button" onClick={toggle}>
         {icon && <img className="toggle__icon" src={icon} alt="" />}
         <span className="toggle__text">{disabled ? '' : label}</span>
         <img className="toggle__icon" src="/img/icons/dropdown_arrow_down.svg" alt="" />
       </button>
       <div className={menuClass(isOpen)}>
-        {options &&
-          options.map((o, i) => (
-            <button
-              key={o.value}
-              type="button"
-              className={itemClass(i === selectedIndex)}
-              onMouseDown={() => onSelection(o)}
-            >
-              {o.label}
-            </button>
-          ))}
+        {options && (
+          <>
+            {search && (
+              <TextInput
+                id={inputId}
+                value={searchText}
+                placeholder="Search..."
+                onChange={onSearch}
+                search
+              />
+            )}
+            <div className="selector-list">
+              {options.map((o, i) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  className={itemClass(i === selectedIndex, o.label.toLowerCase().includes(searchText))}
+                  onMouseDown={() => onSelection(o)}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -55,7 +89,8 @@ Selector.defaultProps = {
   options: undefined,
   onSelect: undefined,
   selectedIndex: undefined,
-  disabled: false
+  disabled: false,
+  search: false
 };
 
 Selector.propTypes = {
@@ -69,7 +104,10 @@ Selector.propTypes = {
   onSelect: PropTypes.func,
 
   // If true, the selector will be unclickable and visually darker
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+
+  // If true, the search bar will be enabled
+  search: PropTypes.bool
 };
 
 export default React.memo(Selector);
