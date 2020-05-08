@@ -5,29 +5,27 @@ import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
+import { SKILLS } from '../../../../config';
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
   if (isLoading) {
     return <TableListPlaceholder size={20} />;
   }
 
-  const { latestSnapshot } = player;
-
-  if (!latestSnapshot) {
+  if (!player.latestSnapshot) {
     return null;
   }
 
-  const filteredSnapshot = _.omit(latestSnapshot, ['createdAt', 'importedAt']);
+  const filteredSnapshot = _.omit(player.latestSnapshot, ['createdAt', 'importedAt']);
 
-  const totalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
-    .map(skill => getLevel(skill.experience), showVirtualLevels)
+  const totalLevel = SKILLS.filter(skill => skill !== 'overall')
+    .map(s => getLevel(filteredSnapshot[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
 
   const rows = _.map(filteredSnapshot, ({ experience, rank }, key) => {
-    const level = key === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels);
     return {
       skill: key,
-      level,
+      level: key === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels),
       experience,
       rank,
       ehp: 0
