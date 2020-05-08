@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
-import { SKILLS, isBoss, isActivity, getMetricName } from '../../../../config';
+import { SKILLS, BOSSES, ACTIVITIES, getMetricName } from '../../../../config';
 
 function getSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
@@ -54,12 +53,10 @@ function getSkillsTable(snapshot, showVirtualLevels) {
 }
 
 function getBossesTable(snapshot) {
-  const rows = _.map(snapshot, (value, key) => ({
-    metric: key,
-    kills: value.kills,
-    rank: value.rank,
-    ehb: 0
-  })).filter(r => isBoss(r.metric));
+  const rows = BOSSES.map(boss => {
+    const { kills, rank } = snapshot[boss];
+    return { metric: boss, kills, rank, ehb: 0 };
+  });
 
   // Column config
   const columns = [
@@ -93,12 +90,10 @@ function getBossesTable(snapshot) {
 }
 
 function getActivitiesTable(snapshot) {
-  const rows = _.map(snapshot, (value, key) => ({
-    metric: key,
-    score: value.score,
-    rank: value.rank,
-    ehb: 0
-  })).filter(r => isActivity(r.metric));
+  const rows = ACTIVITIES.map(activity => {
+    const { score, rank } = snapshot[activity];
+    return { metric: activity, score, rank };
+  });
 
   // Column config
   const columns = [
@@ -131,21 +126,21 @@ function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) 
     return <TableListPlaceholder size={20} />;
   }
 
-  if (!player.latestSnapshot) {
+  const { latestSnapshot } = player;
+
+  if (!latestSnapshot) {
     return null;
   }
 
-  const filteredSnapshot = _.omit(player.latestSnapshot, ['createdAt', 'importedAt']);
-
   if (metricType === 'skilling') {
-    return getSkillsTable(filteredSnapshot, showVirtualLevels);
+    return getSkillsTable(latestSnapshot, showVirtualLevels);
   }
 
   if (metricType === 'activities') {
-    return getActivitiesTable(filteredSnapshot);
+    return getActivitiesTable(latestSnapshot);
   }
 
-  return getBossesTable(filteredSnapshot);
+  return getBossesTable(latestSnapshot);
 }
 
 PlayerStatsTable.propTypes = {
