@@ -6,7 +6,7 @@ import NumberLabel from '../../../../components/NumberLabel';
 import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES, getMetricName } from '../../../../config';
 
-function getSkillsTable(snapshot, showVirtualLevels) {
+function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
     .map(s => getLevel(snapshot[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
@@ -52,7 +52,7 @@ function getSkillsTable(snapshot, showVirtualLevels) {
   return <Table rows={rows} columns={columns} />;
 }
 
-function getBossesTable(snapshot) {
+function renderBossesTable(snapshot) {
   const rows = BOSSES.map(boss => {
     const { kills, rank } = snapshot[boss];
     return { metric: boss, kills, rank, ehb: 0 };
@@ -89,7 +89,7 @@ function getBossesTable(snapshot) {
   return <Table rows={rows} columns={columns} />;
 }
 
-function getActivitiesTable(snapshot) {
+function renderActivitiesTable(snapshot) {
   const rows = ACTIVITIES.map(activity => {
     const { score, rank } = snapshot[activity];
     return { metric: activity, score, rank };
@@ -133,14 +133,14 @@ function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) 
   }
 
   if (metricType === 'skilling') {
-    return getSkillsTable(latestSnapshot, showVirtualLevels);
+    return renderSkillsTable(latestSnapshot, showVirtualLevels);
   }
 
   if (metricType === 'activities') {
-    return getActivitiesTable(latestSnapshot);
+    return renderActivitiesTable(latestSnapshot);
   }
 
-  return getBossesTable(latestSnapshot);
+  return renderBossesTable(latestSnapshot);
 }
 
 PlayerStatsTable.propTypes = {

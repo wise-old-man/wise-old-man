@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -32,13 +32,7 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import {
-  capitalize,
-  getSkillIcon,
-  getPlayerTypeIcon,
-  getOfficialHiscoresUrl,
-  getPlayerTooltip
-} from '../../utils';
+import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip } from '../../utils';
 import { SKILLS } from '../../config';
 import './Player.scss';
 
@@ -67,14 +61,6 @@ const MENU_OPTIONS = [
   { label: 'Reassign player type', value: 'assertType' }
 ];
 
-function getMetricOptions() {
-  return SKILLS.map(skill => ({
-    label: capitalize(skill),
-    icon: getSkillIcon(skill, true),
-    value: skill
-  }));
-}
-
 function Player() {
   const { id } = useParams();
   const router = useHistory();
@@ -96,12 +82,9 @@ function Player() {
   const groups = useSelector(state => getPlayerGroups(state, id));
   const isLoadingDetails = useSelector(state => isFetching(state));
 
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
-
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
   const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
-  const deltasSkillIndex = metricOptions.findIndex(o => o.value === selectedDeltasSkill);
 
   const experienceChartData = useSelector(state =>
     getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
@@ -230,16 +213,16 @@ function Player() {
           <>
             <div className="col-md-6 col-lg-2">
               <Selector
-                options={PERIOD_SELECTOR_OPTIONS}
-                selectedIndex={deltasPeriodIndex}
-                onSelect={onDeltasPeriodSelected}
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
               <Selector
-                options={metricOptions}
-                selectedIndex={deltasSkillIndex}
-                onSelect={onDeltasSkillSelected}
+                options={PERIOD_SELECTOR_OPTIONS}
+                selectedIndex={deltasPeriodIndex}
+                onSelect={onDeltasPeriodSelected}
               />
             </div>
           </>
@@ -289,7 +272,11 @@ function Player() {
               <LineChart datasets={rankChartData} invertYAxis />
             </div>
             <div className="col-lg-5 col-md-12">
-              <PlayerDeltasTable deltas={deltas} period={selectedDeltasPeriod} />
+              <PlayerDeltasTable
+                deltas={deltas}
+                period={selectedDeltasPeriod}
+                metricType={selectedMetricType}
+              />
             </div>
           </>
         )}
