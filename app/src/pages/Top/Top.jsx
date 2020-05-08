@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -8,7 +8,7 @@ import Selector from '../../components/Selector';
 import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
-import { PLAYER_TYPES, SKILLS, BOSSES, ACTIVITIES, getMetricName } from '../../config';
+import { PLAYER_TYPES, ALL_METRICS, getMetricName } from '../../config';
 import { capitalize, getPlayerTypeIcon, getSkillIcon } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/deltas';
@@ -35,12 +35,6 @@ const TABLE_CONFIG = {
   ]
 };
 
-const METRIC_TYPE_OPTIONS = [
-  { label: 'Skilling', value: 'skilling' },
-  { label: 'Bossing', value: 'bossing' },
-  { label: 'Activities', value: 'activities' }
-];
-
 function getPlayerTypeOptions() {
   return [
     { label: 'All players', value: null },
@@ -52,25 +46,11 @@ function getPlayerTypeOptions() {
   ];
 }
 
-function getMetricOptions(metricType) {
-  if (metricType === 'skilling') {
-    return SKILLS.map(skill => ({
-      label: getMetricName(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }));
-  }
-
-  if (metricType === 'bossing') {
-    return BOSSES.map(boss => ({
-      label: getMetricName(boss),
-      value: boss
-    }));
-  }
-
-  return ACTIVITIES.map(activity => ({
-    label: getMetricName(activity),
-    value: activity
+function getMetricOptions() {
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: getSkillIcon(metric, true),
+    value: metric
   }));
 }
 
@@ -79,14 +59,12 @@ function Top() {
   const dispatch = useDispatch();
 
   // State variables
-  const [selectedMetricType, setSelectedMetricType] = useState(METRIC_TYPE_OPTIONS[0].value);
   const [selectedMetric, setSelectedMetric] = useState('overall');
   const [selectedPlayerType, setSelectedPlayerType] = useState(null);
 
-  const metricOptions = getMetricOptions(selectedMetricType);
-  const playerTypeOptions = getPlayerTypeOptions();
+  const metricOptions = useMemo(() => getMetricOptions(), []);
+  const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
 
-  const selectedMetricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
   const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
@@ -95,10 +73,6 @@ function Top() {
 
   const reloadList = () => {
     dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
-  };
-
-  const handleMetricTypeSelected = e => {
-    setSelectedMetricType((e && e.value) || null);
   };
 
   const handleMetricSelected = e => {
@@ -124,11 +98,6 @@ function Top() {
     router.push(`/players/${playerId}`);
   };
 
-  const resetMetrics = () => {
-    handleMetricSelected(metricOptions[0]);
-  };
-
-  const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
   const onTypeSelected = useCallback(handleTypeSelected, [setSelectedPlayerType]);
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
@@ -136,7 +105,6 @@ function Top() {
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
 
   useEffect(reloadList, [selectedMetric, selectedPlayerType]);
-  useEffect(resetMetrics, [selectedMetricType]);
 
   return (
     <div className="top__container container">
@@ -149,13 +117,6 @@ function Top() {
         </div>
       </div>
       <div className="top__filters row">
-        <div className="col-lg-2 col-md-3">
-          <Selector
-            options={METRIC_TYPE_OPTIONS}
-            selectedIndex={selectedMetricTypeIndex}
-            onSelect={onMetricTypeSelected}
-          />
-        </div>
         <div className="col-lg-4 col-md-6">
           <Selector
             options={metricOptions}
@@ -164,7 +125,7 @@ function Top() {
             search
           />
         </div>
-        <div className="col-lg-2 col-md-3">
+        <div className="col-lg-2 col-md-4">
           <Selector
             options={playerTypeOptions}
             selectedIndex={selectedPlayerTypeIndex}
