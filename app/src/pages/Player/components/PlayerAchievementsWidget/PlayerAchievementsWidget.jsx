@@ -41,7 +41,7 @@ const TABLE_CONFIG = {
       key: 'type',
       className: () => '-primary',
       transform: value => (
-        <div className="skill-tag">
+        <div className="metric-tag">
           <img src={getIcon(value)} alt="" />
           <span>{capitalize(value)}</span>
         </div>

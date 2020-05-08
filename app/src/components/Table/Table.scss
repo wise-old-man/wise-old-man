@@ -122,8 +122,15 @@
       padding: 10px;
 
       &.-break-small {
+        font-size: 0;
         padding: 0;
         font-size: 0;
+
+        * {
+          font-size: 0;
+          padding: 0;
+          font-size: 0;
+        }
       }
     }
   }

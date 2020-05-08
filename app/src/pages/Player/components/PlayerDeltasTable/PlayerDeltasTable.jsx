@@ -45,7 +45,7 @@ function PlayerDeltasTable({ deltas, period }) {
       key: 'skill',
       className: () => '-primary',
       transform: value => (
-        <div className="skill-tag">
+        <div className="metric-tag">
           <img src={getSkillIcon(value, true)} alt="" />
           <span>{capitalize(value)}</span>
         </div>

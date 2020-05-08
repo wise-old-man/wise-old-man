@@ -108,7 +108,7 @@ const BOSS_ACHIEVEMENTS = [
           count += 1;
         }
       });
-      return count === BOSSES.length - 1;
+      return count === BOSSES.length;
     }
   }
 ];

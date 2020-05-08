@@ -15,7 +15,7 @@ function Selector({ options, selectedIndex, onSelect, disabled, search }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
 
-  const inputId = `selector-search-${options[0].value}`;
+  const inputId = options && `selector-search-${options[0].label}`;
 
   function handleSelection(option) {
     if (onSelect) {

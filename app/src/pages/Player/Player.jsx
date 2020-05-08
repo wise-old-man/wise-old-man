@@ -52,35 +52,27 @@ const PERIOD_SELECTOR_OPTIONS = [
 ];
 
 const LEVEL_TYPE_OPTIONS = [
-  {
-    label: 'Show Regular Levels',
-    value: 'regular'
-  },
-  {
-    label: 'Show Virtual Levels',
-    value: 'virtual'
-  }
+  { label: 'Show Regular Levels', value: 'regular' },
+  { label: 'Show Virtual Levels', value: 'virtual' }
+];
+
+const METRIC_TYPE_OPTIONS = [
+  { label: 'Skilling', value: 'skilling' },
+  { label: 'Bossing', value: 'bossing' },
+  { label: 'Activities', value: 'activities' }
 ];
 
 const MENU_OPTIONS = [
-  {
-    label: 'Open official hiscores',
-    value: 'openOsrsHiscores'
-  },
-  {
-    label: 'Reassign player type',
-    value: 'assertType'
-  }
+  { label: 'Open official hiscores', value: 'openOsrsHiscores' },
+  { label: 'Reassign player type', value: 'assertType' }
 ];
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return SKILLS.map(skill => ({
+    label: capitalize(skill),
+    icon: getSkillIcon(skill, true),
+    value: skill
+  }));
 }
 
 function Player() {
@@ -92,6 +84,7 @@ function Player() {
   const [isTracking, setIsTracking] = useState(false);
   const [selectedDeltasPeriod, setSelectedDeltasPeriod] = useState('week');
   const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
+  const [selectedMetricType, setSelectedMetricType] = useState('skilling');
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
@@ -105,6 +98,7 @@ function Player() {
 
   const metricOptions = useMemo(getMetricOptions, [SKILLS]);
 
+  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
   const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
   const deltasSkillIndex = metricOptions.findIndex(o => o.value === selectedDeltasSkill);
@@ -161,6 +155,10 @@ function Player() {
     setSelectedLevelType((e && e.value) || null);
   };
 
+  const handleMetricTypeSelected = e => {
+    setSelectedMetricType((e && e.value) || null);
+  };
+
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
@@ -172,6 +170,7 @@ function Player() {
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
   const onDeltasSkillSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
+  const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
@@ -211,13 +210,18 @@ function Player() {
         {selectedTabIndex === 0 && (
           <>
             <div className="col-md-6 col-lg-2">
-              <Selector disabled />
+              <Selector
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
+              />
             </div>
             <div className="col-md-6 col-lg-3">
               <Selector
                 options={LEVEL_TYPE_OPTIONS}
                 selectedIndex={levelTypeIndex}
                 onSelect={onLevelTypeSelected}
+                disabled={selectedMetricType !== 'skilling'}
               />
             </div>
           </>
@@ -272,6 +276,7 @@ function Player() {
               <PlayerStatsTable
                 player={player}
                 showVirtualLevels={selectedLevelType === 'virtual'}
+                metricType={selectedMetricType}
                 isLoading={isLoadingDetails}
               />
             </div>
