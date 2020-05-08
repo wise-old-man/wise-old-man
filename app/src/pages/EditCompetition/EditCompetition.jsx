@@ -12,21 +12,19 @@ import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import { capitalize, getSkillIcon } from '../../utils';
-import { SKILLS } from '../../config';
+import { getSkillIcon } from '../../utils';
+import { ALL_METRICS, getMetricName, isSkill } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import editAction from '../../redux/modules/competitions/actions/edit';
 import { getCompetition, isEditing } from '../../redux/selectors/competitions';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: isSkill(metric) ? getSkillIcon(metric, true) : null,
+    value: metric
+  }));
 }
 
 function EditCompetition() {
@@ -34,7 +32,7 @@ function EditCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+  const metricOptions = useMemo(getMetricOptions, []);
 
   const today = useMemo(() => moment().startOf('day'), []);
   const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
@@ -176,6 +174,7 @@ function EditCompetition() {
             options={metricOptions}
             onSelect={onMetricSelected}
             selectedIndex={selectedMetricIndex}
+            search
           />
         </div>
 

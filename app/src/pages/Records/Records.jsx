@@ -169,6 +169,7 @@ function Records() {
             options={metricOptions}
             selectedIndex={selectedMetricIndex}
             onSelect={onMetricSelected}
+            search
           />
         </div>
         <div className="col-lg-2 col-md-3">

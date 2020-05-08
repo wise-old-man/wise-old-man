@@ -15,20 +15,18 @@ import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import { capitalize, getSkillIcon } from '../../utils';
-import { SKILLS } from '../../config';
+import { getSkillIcon } from '../../utils';
+import { ALL_METRICS, getMetricName, isSkill } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
 import { isCreating } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: isSkill(metric) ? getSkillIcon(metric, true) : null,
+    value: metric
+  }));
 }
 
 function CreateCompetition() {
@@ -37,7 +35,7 @@ function CreateCompetition() {
 
   const isSubmitting = useSelector(state => isCreating(state));
 
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+  const metricOptions = useMemo(getMetricOptions, []);
 
   const today = useMemo(() => moment().startOf('day'), []);
   const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
@@ -161,6 +159,7 @@ function CreateCompetition() {
             options={metricOptions}
             selectedIndex={selectedMetricIndex}
             onSelect={onMetricSelected}
+            search
           />
         </div>
 

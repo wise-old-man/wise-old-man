@@ -74,7 +74,8 @@ function Selector({ options, selectedIndex, onSelect, disabled, search }) {
                   className={itemClass(i === selectedIndex, o.label.toLowerCase().includes(searchText))}
                   onMouseDown={() => onSelection(o)}
                 >
-                  {o.label}
+                  {o.icon && <img className="selector-item__icon" src={o.icon} alt="" />}
+                  <span className="selector-item__label">{o.label}</span>
                 </button>
               ))}
             </div>
