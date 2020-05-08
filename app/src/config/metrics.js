@@ -91,6 +91,18 @@ export const ACTIVITIES = metrics.ACTIVITIES.map(s => s.key);
 export const BOSSES = metrics.BOSSES.map(s => s.key);
 export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
 
+export function getType(value) {
+  if (isSkill(value)) {
+    return 'skill';
+  }
+
+  if (isActivity(value)) {
+    return 'activity';
+  }
+
+  return 'boss';
+}
+
 export function isSkill(value) {
   return SKILLS.includes(value);
 }

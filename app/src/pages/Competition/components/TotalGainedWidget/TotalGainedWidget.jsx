@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { capitalize, formatNumber, getSkillIcon } from '../../../../utils';
+import { formatNumber, getSkillIcon } from '../../../../utils';
+import { getMetricName } from '../../../../config';
 import './TotalGainedWidget.scss';
 
 function TotalGainedWidget({ competition }) {
   const { metric, totalGained } = competition;
 
-  const label = `${capitalize(metric)} Exp`;
+  const label = `${getMetricName(metric)}`;
   const icon = getSkillIcon(metric);
 
   const backgroundImage = {
