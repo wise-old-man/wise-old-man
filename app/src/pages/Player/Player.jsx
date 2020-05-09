@@ -33,7 +33,7 @@ import fetchAchievementsAction from '../../redux/modules/achievements/actions/fe
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip } from '../../utils';
-import { SKILLS } from '../../config';
+import { SKILLS, ACTIVITIES, BOSSES, getMeasure } from '../../config';
 import './Player.scss';
 
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];
@@ -69,7 +69,7 @@ function Player() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [selectedDeltasPeriod, setSelectedDeltasPeriod] = useState('week');
-  const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
+  const [selectedDeltasMetric, setSelectedDeltasMetric] = useState(SKILLS[0]);
   const [selectedMetricType, setSelectedMetricType] = useState('skilling');
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
@@ -87,11 +87,11 @@ function Player() {
   const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
 
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
+    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, getMeasure(selectedDeltasMetric))
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'rank')
+    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, 'rank')
   );
 
   const trackPlayer = async () => {
@@ -130,8 +130,8 @@ function Player() {
     setSelectedDeltasPeriod((e && e.value) || null);
   };
 
-  const handleDeltasSkillSelected = e => {
-    setSelectedDeltasSkill((e && e.value) || null);
+  const handleDeltasMetricSelected = metric => {
+    setSelectedDeltasMetric(metric);
   };
 
   const handleLevelTypeSelected = e => {
@@ -140,6 +140,16 @@ function Player() {
 
   const handleMetricTypeSelected = e => {
     setSelectedMetricType((e && e.value) || null);
+  };
+
+  const resetSelectedDeltasMetric = () => {
+    if (selectedMetricType === 'skilling') {
+      setSelectedDeltasMetric(SKILLS[0]);
+    } else if (selectedMetricType === 'activities') {
+      setSelectedDeltasMetric(ACTIVITIES[0]);
+    } else {
+      setSelectedDeltasMetric(BOSSES[0]);
+    }
   };
 
   const handleOptionSelected = async option => {
@@ -152,7 +162,7 @@ function Player() {
 
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
-  const onDeltasSkillSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
+  const onDeltasMetricSelected = useCallback(handleDeltasMetricSelected, [setSelectedDeltasMetric]);
   const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
@@ -160,6 +170,7 @@ function Player() {
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
+  useEffect(resetSelectedDeltasMetric, [selectedMetricType]);
 
   if (!player) {
     return null;
@@ -276,6 +287,8 @@ function Player() {
                 deltas={deltas}
                 period={selectedDeltasPeriod}
                 metricType={selectedMetricType}
+                highlightedMetric={selectedDeltasMetric}
+                onMetricSelected={onDeltasMetricSelected}
               />
             </div>
           </>

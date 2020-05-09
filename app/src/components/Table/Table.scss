@@ -58,6 +58,14 @@
     height: 50px;
     color: $gray-60;
 
+    &.-highlighted {
+      background: $gray-07;
+
+      &:first-child {
+        border-left: 3px solid $brand-color;
+      }
+    }
+
     &.-collapse {
       font-size: 0;
       padding: 0;
