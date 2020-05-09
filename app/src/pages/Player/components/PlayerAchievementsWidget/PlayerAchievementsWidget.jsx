@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TableList from '../../../../components/TableList';
-import { capitalize, getSkillIcon, formatDate } from '../../../../utils';
+import { capitalize, getMetricIcon, formatDate } from '../../../../utils';
 import { SKILLS } from '../../../../config';
 import './PlayerAchievementsWidget.scss';
 
 function getIcon(type) {
   for (let i = 0; i < SKILLS.length; i++) {
     if (type.includes(SKILLS[i])) {
-      return getSkillIcon(SKILLS[i], true);
+      return getMetricIcon(SKILLS[i], true);
     }
   }
 
   if (type === 'Maxed combat') {
-    return getSkillIcon('combat', true);
+    return getMetricIcon('combat', true);
   }
 
-  return getSkillIcon('overall', true);
+  return getMetricIcon('overall', true);
 }
 
 function filterAchievements(achievements, type) {

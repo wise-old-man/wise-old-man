@@ -15,8 +15,8 @@ import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import { getSkillIcon } from '../../utils';
-import { ALL_METRICS, getMetricName, isSkill } from '../../config';
+import { getMetricIcon, getMetricName, isSkill } from '../../utils';
+import { ALL_METRICS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
 import { isCreating } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
@@ -24,7 +24,7 @@ import './CreateCompetition.scss';
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
     label: getMetricName(metric),
-    icon: isSkill(metric) ? getSkillIcon(metric, true) : null,
+    icon: isSkill(metric) ? getMetricIcon(metric, true) : null,
     value: metric
   }));
 }

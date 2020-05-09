@@ -32,8 +32,8 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip } from '../../utils';
-import { SKILLS, ACTIVITIES, BOSSES, getMeasure } from '../../config';
+import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import { SKILLS, ACTIVITIES, BOSSES } from '../../config';
 import './Player.scss';
 
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];

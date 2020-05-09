@@ -12,7 +12,7 @@ import TableListPlaceholder from '../../components/TableListPlaceholder';
 import StatusDot from '../../components/StatusDot';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchAll';
 import { getCompetitions, isFetchingAll } from '../../redux/selectors/competitions';
-import { capitalize, getSkillIcon } from '../../utils';
+import { capitalize, getMetricIcon } from '../../utils';
 import { COMPETITION_SATUSES, SKILLS } from '../../config';
 import './CompetitionsList.scss';
 
@@ -40,7 +40,7 @@ const TABLE_CONFIG = {
     {
       key: 'metric',
       width: 30,
-      transform: value => <img src={getSkillIcon(value)} alt="" />
+      transform: value => <img src={getMetricIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
     {
@@ -72,7 +72,7 @@ function getMetricOptions() {
     DEFAULT_METRICS_OPTION,
     ...SKILLS.map(skill => ({
       label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
+      icon: getMetricIcon(skill, true),
       value: skill
     }))
   ];

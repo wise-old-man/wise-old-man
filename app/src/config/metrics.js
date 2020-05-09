@@ -86,81 +86,9 @@ const metrics = {
   ]
 };
 
+export const METRICS_CONFIG = metrics;
+
 export const SKILLS = metrics.SKILLS.map(s => s.key);
 export const ACTIVITIES = metrics.ACTIVITIES.map(s => s.key);
 export const BOSSES = metrics.BOSSES.map(s => s.key);
 export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
-
-export function getType(value) {
-  if (isSkill(value)) {
-    return 'skill';
-  }
-
-  if (isActivity(value)) {
-    return 'activity';
-  }
-
-  return 'boss';
-}
-
-export function isSkill(value) {
-  return SKILLS.includes(value);
-}
-
-export function isActivity(value) {
-  return ACTIVITIES.includes(value);
-}
-
-export function isBoss(value) {
-  return BOSSES.includes(value);
-}
-
-export function getMeasure(value) {
-  if (isSkill(value)) {
-    return 'experience';
-  }
-
-  if (isActivity(value)) {
-    return 'score';
-  }
-
-  return 'kills';
-}
-
-export function getRankKey(value) {
-  return `${value}Rank`;
-}
-
-export function getValueKey(value) {
-  if (isSkill(value)) {
-    return `${value}Experience`;
-  }
-
-  if (isActivity(value)) {
-    return `${value}Score`;
-  }
-
-  return `${value}Kills`;
-}
-
-export function getMetricName(value) {
-  for (let i = 0; i < metrics.SKILLS.length; i += 1) {
-    if (metrics.SKILLS[i].key === value) {
-      return metrics.SKILLS[i].name;
-    }
-  }
-
-  for (let i = 0; i < metrics.ACTIVITIES.length; i += 1) {
-    if (metrics.ACTIVITIES[i].key === value) {
-      return metrics.ACTIVITIES[i].name;
-    }
-  }
-
-  for (let i = 0; i < metrics.BOSSES.length; i += 1) {
-    if (metrics.BOSSES[i].key === value) {
-      return metrics.BOSSES[i].name;
-    }
-  }
-
-  return 'Invalid metric name';
-}

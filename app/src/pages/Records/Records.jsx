@@ -8,8 +8,8 @@ import PlayerTag from '../../components/PlayerTag';
 import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
-import { PLAYER_TYPES, getMetricName, ALL_METRICS } from '../../config';
-import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize } from '../../utils';
+import { PLAYER_TYPES, ALL_METRICS } from '../../config';
+import { formatDate, getPlayerTypeIcon, getMetricIcon, capitalize, getMetricName } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
@@ -57,7 +57,7 @@ function getPlayerTypeOptions() {
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
     label: getMetricName(metric),
-    icon: getSkillIcon(metric, true),
+    icon: getMetricIcon(metric, true),
     value: metric
   }));
 }

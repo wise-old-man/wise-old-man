@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { formatNumber, getSkillIcon } from '../../../../utils';
-import { getMetricName } from '../../../../config';
+import { formatNumber, getMetricIcon, getMetricName } from '../../../../utils';
 import './TotalGainedWidget.scss';
 
 function TotalGainedWidget({ competition }) {
   const { metric, totalGained } = competition;
 
   const label = `${getMetricName(metric)}`;
-  const icon = getSkillIcon(metric);
+  const icon = getMetricIcon(metric);
 
   const backgroundImage = {
     backgroundImage: `url("/img/widgets/${metric}.png")`,

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { formatNumber } from '../../../../utils';
-import { isSkill, getMeasure } from '../../../../config';
+import { formatNumber, isSkill, getMeasure } from '../../../../utils';
 import './TopPlayerWidget.scss';
 
 function TopPlayerWidget({ competition }) {

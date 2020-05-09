@@ -5,7 +5,7 @@ import CardList from '../../../../components/CardList';
 import {
   durationBetween,
   formatDate,
-  getSkillIcon,
+  getMetricIcon,
   capitalize,
   formatNumber,
   getExperienceAt
@@ -16,15 +16,15 @@ import './PlayerHighlights.scss';
 function getAchievementIcon(type) {
   for (let i = 0; i < SKILLS.length; i++) {
     if (type.includes(SKILLS[i])) {
-      return getSkillIcon(SKILLS[i]);
+      return getMetricIcon(SKILLS[i]);
     }
   }
 
   if (type === 'Maxed combat') {
-    return getSkillIcon('combat');
+    return getMetricIcon('combat');
   }
 
-  return getSkillIcon('overall');
+  return getMetricIcon('overall');
 }
 
 function renderOngoingCompetitions(competitions, router) {
@@ -40,7 +40,7 @@ function renderOngoingCompetitions(competitions, router) {
 
   const ongoingItems = ongoingCompetitions.map(c => ({
     title: c.title,
-    icon: getSkillIcon(c.metric),
+    icon: getMetricIcon(c.metric),
     subtitle: `Ends in ${durationBetween(new Date(), c.endsAt, 2, true)}`
   }));
 
@@ -69,7 +69,7 @@ function renderUpcomingCompetitions(competitions, router) {
 
   const upcomingItems = upcomingCompetitions.map(c => ({
     title: c.title,
-    icon: getSkillIcon(c.metric),
+    icon: getMetricIcon(c.metric),
     subtitle: `Starts in ${durationBetween(new Date(), c.startsAt, 2, true)}`
   }));
 
@@ -132,7 +132,7 @@ function renderClosestSkills(player) {
   }
 
   const diffItems = diffs.map(d => ({
-    icon: getSkillIcon(d.skill),
+    icon: getMetricIcon(d.skill),
     title: `99 ${capitalize(d.skill)}`,
     subtitle: `${formatNumber(d.expLeft)} exp left`
   }));

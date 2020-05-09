@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import InfoPanel from '../../../../components/InfoPanel';
-import { formatDate, capitalize } from '../../../../utils';
-import { getType, getMetricName } from '../../../../config';
+import { formatDate, capitalize, getType, getMetricName } from '../../../../utils';
 import './CompetitionInfo.scss';
 
 function formatData(competition) {

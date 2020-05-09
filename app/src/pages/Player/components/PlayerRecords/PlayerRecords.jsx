@@ -2,8 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TableList from '../../../../components/TableList';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getSkillIcon, formatDate } from '../../../../utils';
-import { ALL_METRICS, getMetricName, isSkill, isActivity, isBoss } from '../../../../config';
+import {
+  capitalize,
+  getMetricIcon,
+  formatDate,
+  getMetricName,
+  isSkill,
+  isActivity,
+  isBoss
+} from '../../../../utils';
+import { ALL_METRICS } from '../../../../config';
 import './PlayerRecords.scss';
 
 const TABLE_CONFIG = {
@@ -52,7 +60,7 @@ function PlayerRecord({ metricRecords, metric }) {
   return (
     <div className="record">
       <div className="record__header">
-        <img src={getSkillIcon(metric)} alt="" />
+        <img src={getMetricIcon(metric)} alt="" />
         <b className="record__title">{getMetricName(metric)}</b>
       </div>
       <div className="record__body">

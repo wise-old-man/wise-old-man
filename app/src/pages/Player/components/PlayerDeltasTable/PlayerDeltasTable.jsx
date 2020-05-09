@@ -2,8 +2,8 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import NumberLabel from '../../../../components/NumberLabel';
-import { getLevel, getSkillIcon } from '../../../../utils';
-import { SKILLS, BOSSES, ACTIVITIES, getMetricName } from '../../../../config';
+import { getLevel, getMetricIcon, getMetricName } from '../../../../utils';
+import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function getSkillsTable(delta) {
   const totalLevelDiff = SKILLS.filter(skill => skill !== 'overall')
@@ -26,7 +26,7 @@ function getSkillsTable(delta) {
       className: () => '-primary',
       transform: value => (
         <div className="metric-tag">
-          <img src={getSkillIcon(value, true)} alt="" />
+          <img src={getMetricIcon(value, true)} alt="" />
           <span>{getMetricName(value)}</span>
         </div>
       )
