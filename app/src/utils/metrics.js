@@ -11,7 +11,7 @@ function getBossIcon(boss, smallVersion) {
 }
 
 function getActivityIcon(ativity, smallVersion) {
-  const folder = smallVersion ? 'ativity_icons_small' : 'ativity_icons';
+  const folder = smallVersion ? 'activity_icons_small' : 'activity_icons';
   return `/img/runescape/${folder}/${ativity}.png`;
 }
 

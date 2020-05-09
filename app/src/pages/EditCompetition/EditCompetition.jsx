@@ -12,7 +12,7 @@ import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import { getMetricIcon, getMetricName, isSkill } from '../../utils';
+import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import editAction from '../../redux/modules/competitions/actions/edit';
@@ -22,7 +22,7 @@ import './EditCompetition.scss';
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
     label: getMetricName(metric),
-    icon: isSkill(metric) ? getMetricIcon(metric, true) : null,
+    icon: getMetricIcon(metric, true),
     value: metric
   }));
 }

@@ -6,17 +6,18 @@ import {
   durationBetween,
   formatDate,
   getMetricIcon,
+  getMetricName,
   capitalize,
   formatNumber,
   getExperienceAt
 } from '../../../../utils';
-import { SKILLS } from '../../../../config';
+import { ALL_METRICS, SKILLS } from '../../../../config';
 import './PlayerHighlights.scss';
 
 function getAchievementIcon(type) {
-  for (let i = 0; i < SKILLS.length; i++) {
-    if (type.includes(SKILLS[i])) {
-      return getMetricIcon(SKILLS[i]);
+  for (let i = 0; i < ALL_METRICS.length; i++) {
+    if (type.includes(getMetricName(ALL_METRICS[i]))) {
+      return getMetricIcon(ALL_METRICS[i]);
     }
   }
 

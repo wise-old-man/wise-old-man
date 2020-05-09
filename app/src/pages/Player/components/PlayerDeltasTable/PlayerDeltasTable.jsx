@@ -70,6 +70,7 @@ function getBossesTable(delta) {
       className: () => '-primary',
       transform: value => (
         <div className="metric-tag">
+          <img src={getMetricIcon(value, true)} alt="" />
           <span>{getMetricName(value)}</span>
         </div>
       )
@@ -106,6 +107,7 @@ function getActivitiesTable(delta) {
       className: () => '-primary',
       transform: value => (
         <div className="metric-tag">
+          <img src={getMetricIcon(value, true)} alt="" />
           <span>{getMetricName(value)}</span>
         </div>
       )

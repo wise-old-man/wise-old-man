@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getMetricIcon, getLevel, getMetricName } from '../../../../utils';
+import { capitalize, getMetricIcon, getLevel } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
@@ -66,7 +66,8 @@ function renderBossesTable(snapshot) {
       className: () => '-primary',
       transform: value => (
         <div className="metric-tag">
-          <span>{getMetricName(value)}</span>
+          <img src={getMetricIcon(value, true)} alt="" />
+          <span>{capitalize(value)}</span>
         </div>
       )
     },
@@ -103,7 +104,8 @@ function renderActivitiesTable(snapshot) {
       className: () => '-primary',
       transform: value => (
         <div className="metric-tag">
-          <span>{getMetricName(value)}</span>
+          <img src={getMetricIcon(value, true)} alt="" />
+          <span>{capitalize(value)}</span>
         </div>
       )
     },

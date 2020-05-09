@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TableList from '../../../../components/TableList';
-import { capitalize, getMetricIcon, formatDate } from '../../../../utils';
-import { SKILLS } from '../../../../config';
+import { capitalize, getMetricIcon, getMetricName, formatDate } from '../../../../utils';
+import { ALL_METRICS } from '../../../../config';
 import './PlayerAchievementsWidget.scss';
 
 function getIcon(type) {
-  for (let i = 0; i < SKILLS.length; i++) {
-    if (type.includes(SKILLS[i])) {
-      return getMetricIcon(SKILLS[i], true);
+  for (let i = 0; i < ALL_METRICS.length; i++) {
+    if (type.includes(getMetricName(ALL_METRICS[i]))) {
+      return getMetricIcon(ALL_METRICS[i], true);
     }
   }
 
