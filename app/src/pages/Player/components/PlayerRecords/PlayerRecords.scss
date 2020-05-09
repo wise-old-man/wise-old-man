@@ -1,0 +1,28 @@
+@import '../../../../variables.scss';
+@import '../../../../styles.scss';
+
+.player-records__container {
+  .record {
+    @extend %panel;
+    padding: 20px;
+
+    &__header {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      height: 25px;
+      margin-bottom: 5px;
+    }
+
+    &__title {
+      margin-left: 10px;
+    }
+
+    &__body {
+      td {
+        background: $gray-12;
+      }
+    }
+  }
+}

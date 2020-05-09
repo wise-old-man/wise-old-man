@@ -40,7 +40,7 @@ function Selector({ options, selectedIndex, onSelect, disabled, search }) {
   const onSelection = useCallback(handleSelection, [options, onSelect]);
   const onSearch = useCallback(handleSearch, [options]);
   const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen(o => !o), [isOpen]);
+  const toggle = useCallback(() => setIsOpen(o => !o), []);
 
   const selectedOption = options && options[selectedIndex];
 

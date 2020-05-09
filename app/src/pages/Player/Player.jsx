@@ -11,10 +11,10 @@ import Dropdown from '../../components/Dropdown';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
-import PlayerRecordsWidget from './components/PlayerRecordsWidget';
 import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
+import PlayerRecords from './components/PlayerRecords';
 import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
@@ -238,7 +238,21 @@ function Player() {
             </div>
           </>
         )}
-        {selectedTabIndex > 1 && (
+        {selectedTabIndex === 4 && (
+          <>
+            <div className="col-md-6 col-lg-2">
+              <Selector
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
+              />
+            </div>
+            <div className="col-md-6 col-lg-3">
+              <Selector disabled />
+            </div>
+          </>
+        )}
+        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 5) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector disabled />
@@ -305,13 +319,9 @@ function Player() {
           </div>
         )}
         {selectedTabIndex === 4 && (
-          <>
-            {SKILLS.map(skill => (
-              <div key={`records-widget-${skill}`} className="col-md-6 col-lg-4">
-                <PlayerRecordsWidget records={records} metric={skill} />
-              </div>
-            ))}
-          </>
+          <div className="col">
+            <PlayerRecords records={records} metricType={selectedMetricType} />
+          </div>
         )}
         {selectedTabIndex === 5 && (
           <>
