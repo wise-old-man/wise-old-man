@@ -1,6 +1,6 @@
-@import '../../../../styles.scss';
+@import '../../styles.scss';
 
-.members-popup {
+.import-players {
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 0;
@@ -45,6 +45,22 @@
 
       &:focus {
         outline: none;
+      }
+    }
+
+    .modal-replace {
+      margin: 15px 0 25px 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      &__label {
+        font-size: 0.8em;
+        color: $gray-60;
+        display: block;
+        flex-grow: 1;
+        text-align: right;
+        margin-right: 15px;
       }
     }
 

@@ -1,11 +1,9 @@
 {
   "OSRS_HISCORES": {
-    "NORMAL": "https://services.runescape.com/m=hiscore_oldschool/index_lite.ws",
-    "IRONMAN": "https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws",
-    "HARDCORE_IRONMAN": "https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws",
-    "ULTIMATE_IRONMAN": "https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws",
-    "DEADMAN": "https://services.runescape.com/m=hiscore_oldschool_deadman/index_lite.ws",
-    "LEAGUE": "https://services.runescape.com/m=hiscore_oldschool_seasonal/index_lite.ws"
+    "regular": "https://services.runescape.com/m=hiscore_oldschool/index_lite.ws",
+    "ironman": "https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws",
+    "hardcore": "https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws",
+    "ultimate": "https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws"
   },
   "CML": {
     "HISTORY": "https://crystalmathlabs.com/tracker/api.php?type=datapoints"

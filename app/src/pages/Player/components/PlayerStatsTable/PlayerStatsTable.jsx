@@ -4,38 +4,30 @@ import _ from 'lodash';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getSkillIcon, getLevel, getVirtualLevel } from '../../../../utils';
+import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
+import { SKILLS } from '../../../../config';
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
   if (isLoading) {
     return <TableListPlaceholder size={20} />;
   }
 
-  const { latestSnapshot } = player;
-
-  if (!latestSnapshot) {
+  if (!player.latestSnapshot) {
     return null;
   }
 
-  const filteredSnapshot = _.omit(latestSnapshot, ['createdAt', 'importedAt']);
+  const filteredSnapshot = _.omit(player.latestSnapshot, ['createdAt', 'importedAt']);
 
-  const totalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
-    .map(skill => getLevel(skill.experience))
+  const totalLevel = SKILLS.filter(skill => skill !== 'overall')
+    .map(s => getLevel(filteredSnapshot[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
 
-  const virtualTotalLevel = _.filter(filteredSnapshot, (val, key) => key !== 'overall')
-    .map(skill => getVirtualLevel(skill.experience))
-    .reduce((acc, cur) => acc + cur);
-
-  const rows = _.map(filteredSnapshot, (value, key) => {
-    const level = key === 'overall' ? totalLevel : getLevel(value.experience);
-    const virtualLevel = key === 'overall' ? virtualTotalLevel : getVirtualLevel(value.experience);
-
+  const rows = _.map(filteredSnapshot, ({ experience, rank }, key) => {
     return {
       skill: key,
-      level: showVirtualLevels ? virtualLevel : level,
-      experience: value.experience,
-      rank: value.rank,
+      level: key === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels),
+      experience,
+      rank,
       ehp: 0
     };
   });

@@ -14,7 +14,7 @@ import { SKILLS } from '../../../../config';
 import './PlayerHighlights.scss';
 
 function getAchievementIcon(type) {
-  for (let i = 0; i < SKILLS.length; i += 1) {
+  for (let i = 0; i < SKILLS.length; i++) {
     if (type.includes(SKILLS[i])) {
       return getSkillIcon(SKILLS[i]);
     }
@@ -148,10 +148,7 @@ function renderClosestSkills(player) {
 function PlayerHighlights({ player, competitions, achievements }) {
   const router = useHistory();
 
-  const ongoing = useMemo(() => renderOngoingCompetitions(competitions, router), [
-    competitions,
-    router
-  ]);
+  const ongoing = useMemo(() => renderOngoingCompetitions(competitions, router), [competitions, router]);
 
   const upcoming = useMemo(() => renderUpcomingCompetitions(competitions, router), [
     competitions,

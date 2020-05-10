@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -7,8 +8,8 @@ import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from './components/MembersSelector';
-import MembersModal from './components/MembersModal';
-import VerificationModal from './components/VerificationModal';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
+import VerificationModal from '../../modals/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
 import { isCreating } from '../../redux/selectors/groups';
 import './CreateGroup.scss';
@@ -64,8 +65,18 @@ function CreateGroup() {
     });
   };
 
-  const handleModalSubmit = usernames => {
-    setMembers([...usernames.map(u => ({ username: u, role: 'member' }))]);
+  const handleModalSubmit = (usernames, replace) => {
+    setMembers(currentMembers => {
+      if (replace) {
+        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+      }
+
+      const existingUsernames = currentMembers.map(c => c.username);
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+
+      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+    });
+
     toggleImportModal(false);
   };
 
@@ -129,10 +140,14 @@ function CreateGroup() {
         </div>
       </div>
       {showingImportModal && (
-        <MembersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+        <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
       {verificationCode && (
-        <VerificationModal verificationCode={verificationCode} onConfirm={onConfirmVerification} />
+        <VerificationModal
+          entity="group"
+          verificationCode={verificationCode}
+          onConfirm={onConfirmVerification}
+        />
       )}
     </div>
   );

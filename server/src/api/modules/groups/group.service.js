@@ -172,7 +172,7 @@ async function getMembersList(id) {
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }))
+    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => b.overallExperience - a.overallExperience);
 }
 
@@ -194,7 +194,7 @@ async function create(name, members) {
 
   // Check if every username in the list is valid
   if (members && members.length > 0) {
-    for (let i = 0; i < members.length; i += 1) {
+    for (let i = 0; i < members.length; i++) {
       if (!playerService.isValidUsername(members[i].username)) {
         throw new BadRequestError(`Invalid player username: ${members[i].username}`);
       }
@@ -253,28 +253,27 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
+  let groupMembers;
+
   if (members) {
     // Check if every username in the list is valid
-    for (let i = 0; i < members.length; i += 1) {
+    for (let i = 0; i < members.length; i++) {
       if (!playerService.isValidUsername(members[i].username)) {
         throw new BadRequestError(`Invalid player username: ${members[i].username}`);
       }
     }
 
-    const newMembers = await setMembers(group, members);
-    return { ...format(group), members: newMembers };
+    groupMembers = await setMembers(group, members);
+  } else {
+    const memberships = await group.getMembers();
+    groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
   if (name) {
     await group.update({ name: sanitizeName(name) });
   }
 
-  const memberships = await group.getMembers();
-
-  return {
-    ...format(group),
-    members: memberships.map(p => ({ ...p.toJSON(), memberships: undefined }))
-  };
+  return { ...format(group), members: groupMembers };
 }
 
 /**

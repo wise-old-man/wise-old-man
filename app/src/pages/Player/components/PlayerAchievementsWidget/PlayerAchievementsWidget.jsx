@@ -6,7 +6,7 @@ import { SKILLS } from '../../../../config';
 import './PlayerAchievementsWidget.scss';
 
 function getIcon(type) {
-  for (let i = 0; i < SKILLS.length; i += 1) {
+  for (let i = 0; i < SKILLS.length; i++) {
     if (type.includes(SKILLS[i])) {
       return getSkillIcon(SKILLS[i], true);
     }

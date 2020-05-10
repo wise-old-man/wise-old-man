@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -10,7 +11,7 @@ import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
-import ParticipantsPopup from './components/ParticipantsPopup';
+import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { capitalize, getSkillIcon } from '../../utils';
 import { SKILLS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
@@ -46,7 +47,7 @@ function EditCompetition() {
   const [participants, setParticipants] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
 
-  const [showingImportPopup, toggleImportPopup] = useState(false);
+  const [showingImportModal, toggleImportModal] = useState(false);
 
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(state => isEditing(state));
@@ -112,13 +113,23 @@ function EditCompetition() {
     });
   };
 
-  const handleImportPopupSubmit = usernames => {
-    setParticipants(usernames);
-    toggleImportPopup(false);
+  const handleImportModalSubmit = (usernames, replace) => {
+    setParticipants(currentParticipants => {
+      if (replace) {
+        return [..._.uniq(usernames)];
+      }
+
+      const existingUsernames = currentParticipants;
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+
+      return [...currentParticipants, ..._.uniq(newUsernames)];
+    });
+
+    toggleImportModal(false);
   };
 
-  const hideParticipantsPopup = useCallback(() => toggleImportPopup(false), []);
-  const showParticipantsPopup = useCallback(() => toggleImportPopup(true), []);
+  const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
+  const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
   const onMetricSelected = useCallback(handleMetricSelected, []);
@@ -126,7 +137,7 @@ function EditCompetition() {
   const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onVerificationCodeChanged = useCallback(handleVerificationCodeChanged, []);
-  const onSubmitImportPopup = useCallback(handleImportPopupSubmit, []);
+  const onSubmitImportModal = useCallback(handleImportModalSubmit, []);
   const onSubmit = useCallback(handleSubmit, [
     title,
     metric,
@@ -180,7 +191,7 @@ function EditCompetition() {
           <span className="form-row__label">
             Participants
             <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-            <TextButton text="Import list" onClick={showParticipantsPopup} />
+            <TextButton text="Import list" onClick={showParticipantsModal} />
           </span>
 
           <ParticipantsSelector
@@ -203,8 +214,8 @@ function EditCompetition() {
           <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
         </div>
       </div>
-      {showingImportPopup && (
-        <ParticipantsPopup onClose={hideParticipantsPopup} onConfirm={onSubmitImportPopup} />
+      {showingImportModal && (
+        <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
       )}
     </div>
   );

@@ -272,7 +272,7 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
 
   // Check if every username in the list is valid
   if (participants && participants.length > 0) {
-    for (let i = 0; i < participants.length; i += 1) {
+    for (let i = 0; i < participants.length; i++) {
       if (!playerService.isValidUsername(participants[i])) {
         throw new BadRequestError(`Invalid player username: ${participants[i]}`);
       }
@@ -362,26 +362,25 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     newValues.endsAt = endsAt;
   }
 
+  let competitionParticipants;
+
   if (participants) {
     // Check if every username in the list is valid
-    for (let i = 0; i < participants.length; i += 1) {
+    for (let i = 0; i < participants.length; i++) {
       if (!playerService.isValidUsername(participants[i])) {
         throw new BadRequestError(`Invalid player username: ${participants[i]}`);
       }
     }
 
-    const newParticipants = await setParticipants(competition, participants);
-    return { ...format(competition), participants: newParticipants };
+    competitionParticipants = await setParticipants(competition, participants);
+  } else {
+    const participations = await competition.getParticipants();
+    competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
   }
 
   await competition.update(newValues);
 
-  const participations = await competition.getParticipants();
-
-  return {
-    ...format(competition),
-    participants: participations.map(p => ({ ...p.toJSON(), participations: undefined }))
-  };
+  return { ...format(competition), participants: competitionParticipants };
 }
 
 /**
