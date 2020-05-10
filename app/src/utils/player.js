@@ -1,5 +1,5 @@
 export function getPlayerTypeIcon(type) {
-  return `/img/runescape/player_types/${type}.png`;
+  return `/img/runescape/icons_small/${type}.png`;
 }
 
 export function getOfficialHiscoresUrl(player) {

@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getMeasure } = require('../../constants/metrics');
 const { BadRequestError } = require('../../errors');
 const { Player, Record } = require('../../../database');
 const deltaService = require('../deltas/delta.service');
@@ -20,13 +20,13 @@ async function syncRecords(playerId, period) {
     throw new BadRequestError(`Invalid player.`);
   }
 
-  const allRecordDefs = SKILLS.map(metric => ({ period, metric }));
+  const allRecordDefs = ALL_METRICS.map(metric => ({ period, metric }));
   const periodDelta = await deltaService.getDelta(playerId, period);
   let playerRecords = await Record.findAll({ where: { playerId, period } });
 
   // If has missing records, create them
   if (playerRecords.length !== allRecordDefs.length) {
-    // Create a map of all metrics (ex: {"woodcutting": false, "prayer": false})
+    // Create a map of all metrics (ex: {"woodcutting": false, "zulrah": false})
     const checkMap = _.mapValues(_.keyBy(allRecordDefs, 'metric'), () => false);
 
     // Mark any found playerRecords as existant (true)
@@ -52,7 +52,7 @@ async function syncRecords(playerId, period) {
   await Promise.all(
     playerRecords.map(async record => {
       const { value, metric } = record;
-      const newValue = periodDelta.data[metric].experience.delta;
+      const newValue = periodDelta.data[metric][getMeasure(metric)].delta;
 
       // If the current delta is higher than the previous record,
       // update the previous record's value

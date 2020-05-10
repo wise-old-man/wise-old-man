@@ -1,45 +1,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getSkillIcon, getLevel } from '../../../../utils';
-import { SKILLS } from '../../../../config';
+import { capitalize, getMetricIcon, getLevel } from '../../../../utils';
+import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
-function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
-  if (isLoading) {
-    return <TableListPlaceholder size={20} />;
-  }
-
-  if (!player.latestSnapshot) {
-    return null;
-  }
-
-  const filteredSnapshot = _.omit(player.latestSnapshot, ['createdAt', 'importedAt']);
-
+function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
-    .map(s => getLevel(filteredSnapshot[s].experience, showVirtualLevels))
+    .map(s => getLevel(snapshot[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
 
-  const rows = _.map(filteredSnapshot, ({ experience, rank }, key) => {
-    return {
-      skill: key,
-      level: key === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels),
-      experience,
-      rank,
-      ehp: 0
-    };
+  const rows = SKILLS.map(skill => {
+    const { experience, rank } = snapshot[skill];
+    const level = skill === 'overall' ? totalLevel : getLevel(experience);
+    return { metric: skill, level, experience, rank, ehp: 0 };
   });
 
   // Column config
   const columns = [
     {
-      key: 'skill',
+      key: 'metric',
+      label: 'Skill',
       className: () => '-primary',
       transform: value => (
-        <div className="skill-tag">
-          <img src={getSkillIcon(value, true)} alt="" />
+        <div className="metric-tag">
+          <img src={getMetricIcon(value, true)} alt="" />
           <span>{capitalize(value)}</span>
         </div>
       )
@@ -66,9 +52,103 @@ function PlayerStatsTable({ player, showVirtualLevels, isLoading }) {
   return <Table rows={rows} columns={columns} />;
 }
 
+function renderBossesTable(snapshot) {
+  const rows = BOSSES.map(boss => {
+    const { kills, rank } = snapshot[boss];
+    return { metric: boss, kills, rank, ehb: 0 };
+  });
+
+  // Column config
+  const columns = [
+    {
+      key: 'metric',
+      label: 'Boss',
+      className: () => '-primary',
+      transform: value => (
+        <div className="metric-tag">
+          <img src={getMetricIcon(value, true)} alt="" />
+          <span>{capitalize(value)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'kills',
+      transform: val => <NumberLabel value={val} />
+    },
+    {
+      key: 'rank',
+      className: () => '-break-small',
+      transform: val => <NumberLabel value={val} />
+    },
+    {
+      key: 'EHB',
+      get: row => row.ehb,
+      className: () => '-break-small'
+    }
+  ];
+
+  return <Table rows={rows} columns={columns} />;
+}
+
+function renderActivitiesTable(snapshot) {
+  const rows = ACTIVITIES.map(activity => {
+    const { score, rank } = snapshot[activity];
+    return { metric: activity, score, rank };
+  });
+
+  // Column config
+  const columns = [
+    {
+      key: 'metric',
+      label: 'Activity',
+      className: () => '-primary',
+      transform: value => (
+        <div className="metric-tag">
+          <img src={getMetricIcon(value, true)} alt="" />
+          <span>{capitalize(value)}</span>
+        </div>
+      )
+    },
+    {
+      key: 'score',
+      transform: val => <NumberLabel value={val} />
+    },
+    {
+      key: 'rank',
+      className: () => '-break-small',
+      transform: val => <NumberLabel value={val} />
+    }
+  ];
+
+  return <Table rows={rows} columns={columns} />;
+}
+
+function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) {
+  if (isLoading) {
+    return <TableListPlaceholder size={20} />;
+  }
+
+  const { latestSnapshot } = player;
+
+  if (!latestSnapshot) {
+    return null;
+  }
+
+  if (metricType === 'skilling') {
+    return renderSkillsTable(latestSnapshot, showVirtualLevels);
+  }
+
+  if (metricType === 'activities') {
+    return renderActivitiesTable(latestSnapshot);
+  }
+
+  return renderBossesTable(latestSnapshot);
+}
+
 PlayerStatsTable.propTypes = {
   player: PropTypes.shape().isRequired,
   showVirtualLevels: PropTypes.bool.isRequired,
+  metricType: PropTypes.string.isRequired,
   isLoading: PropTypes.bool.isRequired
 };
 

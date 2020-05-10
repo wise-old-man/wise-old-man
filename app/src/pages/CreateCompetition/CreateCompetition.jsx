@@ -15,20 +15,18 @@ import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
-import { capitalize, getSkillIcon } from '../../utils';
-import { SKILLS } from '../../config';
+import { getMetricIcon, getMetricName } from '../../utils';
+import { ALL_METRICS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
 import { isCreating } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: getMetricIcon(metric, true),
+    value: metric
+  }));
 }
 
 function CreateCompetition() {
@@ -37,7 +35,7 @@ function CreateCompetition() {
 
   const isSubmitting = useSelector(state => isCreating(state));
 
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+  const metricOptions = useMemo(getMetricOptions, []);
 
   const today = useMemo(() => moment().startOf('day'), []);
   const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
@@ -54,6 +52,8 @@ function CreateCompetition() {
   const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
+
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
   const handleTitleChanged = e => {
     setTitle(e.target.value);
@@ -155,7 +155,12 @@ function CreateCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Metric</span>
-          <Selector options={metricOptions} onSelect={onMetricSelected} />
+          <Selector
+            options={metricOptions}
+            selectedIndex={selectedMetricIndex}
+            onSelect={onMetricSelected}
+            search
+          />
         </div>
 
         <div className="form-row">
@@ -172,7 +177,6 @@ function CreateCompetition() {
             <Switch on={groupCompetition} onToggle={toggleGroupCompetition} />
             <span className="group-toggle__label">Group competition</span>
           </div>
-
           {groupCompetition ? (
             <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
           ) : (

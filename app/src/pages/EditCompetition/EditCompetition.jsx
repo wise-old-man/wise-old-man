@@ -12,21 +12,19 @@ import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from './components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import { capitalize, getSkillIcon } from '../../utils';
-import { SKILLS } from '../../config';
+import { getMetricIcon, getMetricName } from '../../utils';
+import { ALL_METRICS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import editAction from '../../redux/modules/competitions/actions/edit';
 import { getCompetition, isEditing } from '../../redux/selectors/competitions';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: getMetricIcon(metric, true),
+    value: metric
+  }));
 }
 
 function EditCompetition() {
@@ -34,7 +32,7 @@ function EditCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+  const metricOptions = useMemo(getMetricOptions, []);
 
   const today = useMemo(() => moment().startOf('day'), []);
   const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
@@ -52,10 +50,7 @@ function EditCompetition() {
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(state => isEditing(state));
 
-  const metricIndex = useMemo(() => metricOptions.findIndex(o => o.value === metric), [
-    metricOptions,
-    metric
-  ]);
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
   const fetchDetails = () => {
     dispatch(fetchDetailsAction(id));
@@ -175,7 +170,12 @@ function EditCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Metric</span>
-          <Selector options={metricOptions} onSelect={onMetricSelected} selectedIndex={metricIndex} />
+          <Selector
+            options={metricOptions}
+            onSelect={onMetricSelected}
+            selectedIndex={selectedMetricIndex}
+            search
+          />
         </div>
 
         <div className="form-row">

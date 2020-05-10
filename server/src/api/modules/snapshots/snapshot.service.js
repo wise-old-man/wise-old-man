@@ -2,7 +2,15 @@ const csv = require('csvtojson');
 const _ = require('lodash');
 const moment = require('moment');
 const { Op } = require('sequelize');
-const { SKILLS } = require('../../constants/metrics');
+const {
+  ALL_METRICS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  getRankKey,
+  getValueKey,
+  getMeasure
+} = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
 const { ServerError, BadRequestError } = require('../../errors');
@@ -20,10 +28,10 @@ function format(snapshot) {
     importedAt: snapshot.importedAt
   };
 
-  SKILLS.forEach(s => {
+  ALL_METRICS.forEach(s => {
     obj[s] = {
-      rank: snapshot[`${s}Rank`],
-      experience: snapshot[`${s}Experience`]
+      rank: snapshot[getRankKey(s)],
+      [getMeasure(s)]: snapshot[getValueKey(s)]
     };
   });
 
@@ -86,12 +94,12 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const before = moment().subtract(1, period);
 
   const result = await Snapshot.findAll({
     where: {
       playerId,
-      createdAt: { [Op.gte]: beforeDate }
+      createdAt: { [Op.gte]: before.toDate() }
     },
     order: [['createdAt', 'DESC']]
   });
@@ -119,10 +127,10 @@ async function findFirstIn(playerId, period) {
     throw new BadRequestError(`Invalid period ${period}.`);
   }
 
-  const beforeDate = moment().subtract(1, period).toDate();
+  const before = moment().subtract(1, period);
 
   const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: beforeDate } },
+    where: { playerId, createdAt: { [Op.gte]: before.toDate() } },
     order: [['createdAt', 'ASC']]
   });
   return result;
@@ -157,18 +165,17 @@ async function findAllBetween(playerIds, startDate, endDate) {
 }
 
 /**
- * Calculates the difference in ranks and experience
- * (for every skill), between two snapshots
+ * Calculates the difference in ranks and values (for every metric), between two snapshots
  */
 function diff(start, end) {
   const obj = {};
 
-  SKILLS.forEach(s => {
-    const rankKey = `${s}Rank`;
-    const experienceKey = `${s}Experience`;
+  ALL_METRICS.forEach(s => {
+    const rankKey = getRankKey(s);
+    const valueKey = getValueKey(s);
 
-    obj[rankKey] = end[rankKey] - start[rankKey];
-    obj[experienceKey] = end[experienceKey] - start[experienceKey];
+    obj[rankKey] = Math.max(0, end[rankKey] - Math.max(0, start[rankKey]));
+    obj[valueKey] = Math.max(0, end[valueKey] - Math.max(0, start[valueKey]));
   });
 
   return obj;
@@ -244,8 +251,8 @@ async function fromCML(playerId, historyRow) {
 
   // Populate the skills' values with experience and rank data
   SKILLS.forEach((s, i) => {
-    stats[`${s}Rank`] = parseInt(ranks[i], 10);
-    stats[`${s}Experience`] = parseInt(exps[i], 10);
+    stats[getRankKey(s)] = parseInt(ranks[i], 10);
+    stats[getValueKey(s)] = parseInt(exps[i], 10);
   });
 
   return { playerId, createdAt, importedAt, ...stats };
@@ -263,22 +270,33 @@ async function fromRS(playerId, csvData) {
   // Ex: for skills, each row is [rank, level, experience]
   const rows = await csv({ noheader: true, output: 'csv' }).fromString(csvData);
 
-  // TODO: when bosses and activites get added, uncomment the block below
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
-  /*
   if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
-    throw new ServerError("The OSRS Hiscores were updated. Please wait for a fix.");
+    throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
-  */
 
   const stats = {};
 
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
-    stats[`${s}Rank`] = parseInt(rank, 10);
-    stats[`${s}Experience`] = parseInt(experience, 10);
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(experience, 10);
+  });
+
+  // Populate the activities' values with the values from the csv
+  ACTIVITIES.forEach((s, i) => {
+    const [rank, score] = rows[SKILLS.length + i];
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(score, 10);
+  });
+
+  // Populate the bosses' values with the values from the csv
+  BOSSES.forEach((s, i) => {
+    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
+    stats[getRankKey(s)] = parseInt(rank, 10);
+    stats[getValueKey(s)] = parseInt(kills, 10);
   });
 
   const newSnapshot = await Snapshot.create({ playerId, ...stats });

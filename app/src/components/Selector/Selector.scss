@@ -1,10 +1,10 @@
 @import '../../variables.scss';
 @import '../../styles.scss';
 
-.selector__container {
+.selector {
   position: relative;
 
-  .selector__toggle {
+  &-toggle {
     @extend %panel;
     @extend %block-text-selection;
     position: relative;
@@ -16,6 +16,9 @@
     align-items: center;
     cursor: pointer;
     height: 40px;
+    width: 100%;
+    border: none;
+    color: white;
 
     &.-disabled {
       opacity: 0.3;
@@ -33,17 +36,19 @@
 
     .toggle__text {
       width: 100%;
+      text-align: left;
+      display: block;
+      margin-bottom: 1px;
     }
 
     .toggle__icon {
-      margin-right: 5px;
+      margin-right: 10px;
     }
   }
 
-  .selector-list {
+  &-menu {
     @extend %panel;
     @extend %block-text-selection;
-    overflow: hidden;
     margin: 0;
     margin-top: 5px;
     padding: 0;
@@ -51,46 +56,76 @@
     right: 0px;
     left: 0px;
     z-index: 200;
-    max-height: 205px;
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
 
-    &::-webkit-scrollbar {
-      width: 5px;
-
-      &-thumb {
-        background-color: $gray-17;
-      }
+    &.-closed {
+      display: none;
     }
 
-    &__item {
-      padding: 7px 10px;
-      background: $gray-05;
-      font-size: 0.9em;
-      font-family: 'Lato';
-      cursor: pointer;
+    .text-input {
+      border: 1px solid $gray-17;
       margin: 5px;
-      border-radius: $border-radius;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
 
-      .selector-item__icon {
-        margin-right: 10px;
-        margin-top: 1px;
+    .selector-list {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      max-height: 350px;
+
+      &::-webkit-scrollbar {
+        width: 5px;
+
+        &-thumb {
+          background-color: $gray-17;
+        }
+
+        &-track {
+          background-color: $gray-00;
+        }
       }
 
-      &.-selected {
-        color: $brand-color-bright;
-        background: $gray-07;
-      }
+      &__item {
+        padding: 7px 10px;
+        background: $gray-05;
+        font-size: 0.9em;
+        font-family: 'Lato';
+        cursor: pointer;
+        margin: 5px;
+        border-radius: $border-radius;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        color: white;
+        border: none;
+        text-align: left;
 
-      &:hover {
-        background: $gray-07;
-      }
+        .selector-item__icon {
+          margin-right: 10px;
+          margin-top: 1px;
+        }
 
-      &:active,
-      &:focus {
-        outline: none;
+        &.-selected {
+          color: $brand-color-bright;
+          background: $gray-07;
+        }
+
+        &.-hidden {
+          display: none;
+        }
+
+        &:hover {
+          background: $gray-07;
+        }
+
+        &:active,
+        &:focus {
+          outline: none;
+        }
       }
     }
   }

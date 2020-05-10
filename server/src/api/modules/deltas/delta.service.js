@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getRankKey, getValueKey, getMeasure } = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { durationBetween } = require('../../util/dates');
 const { Player, Delta, Snapshot, sequelize } = require('../../../database');
@@ -27,17 +27,16 @@ function format(delta, diffs) {
   };
 
   if (startSnapshot && endSnapshot && diffs) {
-    SKILLS.forEach(s => {
-      const rankKey = `${s}Rank`;
-      const expKey = `${s}Experience`;
-
+    ALL_METRICS.forEach(s => {
+      const rankKey = getRankKey(s);
+      const expKey = getValueKey(s);
       obj.data[s] = {
         rank: {
           start: startSnapshot[rankKey],
           end: endSnapshot[rankKey],
           delta: diffs[rankKey]
         },
-        experience: {
+        [getMeasure(s)]: {
           start: startSnapshot[expKey],
           end: endSnapshot[expKey],
           delta: diffs[expKey]
@@ -171,7 +170,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const metricKey = `${metric}Experience`;
+  const metricKey = getValueKey(metric);
 
   // Postgres doesn't support the use of calculated column aliases
   // in "order" clauses, so to work around it, we order by the difference
@@ -180,7 +179,10 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const deltas = await Delta.findAll({
     where: { period },
     order: [
-      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+      [
+        sequelize.literal(`"endSnapshot"."${metricKey}" - GREATEST(0, "startSnapshot"."${metricKey}")`),
+        'DESC'
+      ]
     ],
     limit: 20,
     include: [
@@ -192,7 +194,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
 
   const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
 
     return {
       playerId: player.id,
@@ -218,7 +220,10 @@ async function getMonthlyTop(playerIds) {
   const deltas = await Delta.findAll({
     where: { period: 'month' },
     order: [
-      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+      [
+        sequelize.literal(`"endSnapshot"."${metricKey}" -  GREATEST(0, "startSnapshot"."${metricKey}")`),
+        'DESC'
+      ]
     ],
     limit: 1,
     include: [
@@ -234,7 +239,7 @@ async function getMonthlyTop(playerIds) {
 
   const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
 
     return {
       playerId: player.id,

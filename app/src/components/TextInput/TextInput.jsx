@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './TextInput.scss';
 
-function TextInput({ type, value, onChange, placeholder, search }) {
+function TextInput({ id, type, value, onChange, placeholder, search }) {
   return (
     <div className="text-input">
       <input
+        id={id}
         className="text-input__input"
         type={type}
         value={value}
@@ -18,12 +19,15 @@ function TextInput({ type, value, onChange, placeholder, search }) {
 }
 
 TextInput.defaultProps = {
+  id: undefined,
   value: undefined,
   type: 'text',
   search: false
 };
 
 TextInput.propTypes = {
+  id: PropTypes.string,
+
   // The type of input (ex: text, password, etc)
   type: PropTypes.string,
 

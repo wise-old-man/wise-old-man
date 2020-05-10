@@ -4,6 +4,11 @@
 .records__container {
   @extend %page;
 
+  .records__filters {
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
   abbr {
     text-decoration: none;
   }

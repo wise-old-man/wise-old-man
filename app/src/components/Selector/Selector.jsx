@@ -1,74 +1,102 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Wrapper, Button, Menu, MenuItem } from 'react-aria-menubutton';
+import TextInput from '../TextInput';
 import './Selector.scss';
 
-function Selector({ options, defaultOption, selectedIndex, onSelect, disabled }) {
-  const initialState = selectedIndex !== undefined ? options[selectedIndex] : defaultOption;
-  const [selectedOption, setSelectedOption] = useState(initialState || null);
+const itemClass = (isSelected, isSearchMatch) =>
+  classNames('selector-list__item', { '-selected': isSelected, '-hidden': !isSearchMatch });
 
-  const toggleOption = selectedOption || defaultOption || options[0];
-  const opts = defaultOption ? [defaultOption, ...options] : options;
+const menuClass = isOpen => classNames('selector-menu', { '-closed': !isOpen });
 
-  const handleSelection = selectedValue => {
-    const option = options.find(o => o.value === selectedValue);
-    setSelectedOption(option);
+const buttonClass = isDisabled => classNames({ 'selector-toggle': true, '-disabled': isDisabled });
 
+function Selector({ options, selectedIndex, onSelect, disabled, search }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const inputId = options && `selector-search-${options[0].label}`;
+
+  function handleSelection(option) {
     if (onSelect) {
       onSelect(option);
     }
-  };
 
-  const onSelection = useCallback(handleSelection, [options, setSelectedOption, onSelect]);
+    close();
+    setSearchText('');
+  }
 
-  useEffect(() => {
-    if (selectedIndex && selectedIndex > -1) {
-      onSelection(opts[selectedIndex].value);
+  function handleSearch(e) {
+    setSearchText(e.target.value);
+  }
+
+  function handleBlur(e) {
+    // If focus was lost to an elementbesides the search bar
+    if (!e || !e.relatedTarget || e.relatedTarget.id !== inputId) {
+      close();
     }
-  }, [onSelection, opts, selectedIndex]);
+  }
 
-  const toggleClass = classNames({ selector__toggle: true, '-disabled': disabled });
+  const onSelection = useCallback(handleSelection, [options, onSelect]);
+  const onSearch = useCallback(handleSearch, [options]);
+  const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback(() => setIsOpen(o => !o), []);
+
+  const selectedOption = options && options[selectedIndex];
+
+  const label = selectedOption ? selectedOption.label : '---';
+  const icon = selectedOption && selectedOption.icon;
 
   return (
-    <Wrapper className="selector__container" onSelection={onSelection}>
-      <Button className={toggleClass}>
-        {toggleOption.icon && <img className="toggle__icon" src={toggleOption.icon} alt="" />}
-        <span className="toggle__text">{toggleOption.label}</span>
+    <div className="selector" onBlur={handleBlur}>
+      <button className={buttonClass(disabled)} type="button" onClick={toggle}>
+        {icon && <img className="toggle__icon" src={icon} alt="" />}
+        <span className="toggle__text">{disabled ? '' : label}</span>
         <img className="toggle__icon" src="/img/icons/dropdown_arrow_down.svg" alt="" />
-      </Button>
-      <Menu className="selector-list">
-        {opts.map(option => {
-          const itemClass = classNames({
-            'selector-list__item': true,
-            '-selected': selectedOption && option.label === selectedOption.label
-          });
-
-          return (
-            <MenuItem key={option.label} className={itemClass} value={option.value}>
-              {option.icon && <img className="selector-item__icon" src={option.icon} alt="" />}
-              <span className="selector-item__label">{option.label}</span>
-            </MenuItem>
-          );
-        })}
-      </Menu>
-    </Wrapper>
+      </button>
+      <div className={menuClass(isOpen)}>
+        {options && (
+          <>
+            {search && (
+              <TextInput
+                id={inputId}
+                value={searchText}
+                placeholder="Search..."
+                onChange={onSearch}
+                search
+              />
+            )}
+            <div className="selector-list">
+              {options.map((o, i) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  className={itemClass(i === selectedIndex, o.label.toLowerCase().includes(searchText))}
+                  onMouseDown={() => onSelection(o)}
+                >
+                  {o.icon && <img className="selector-item__icon" src={o.icon} alt="" />}
+                  <span className="selector-item__label">{o.label}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
 Selector.defaultProps = {
-  defaultOption: undefined,
+  options: undefined,
   onSelect: undefined,
+  selectedIndex: undefined,
   disabled: false,
-  selectedIndex: undefined
+  search: false
 };
 
 Selector.propTypes = {
   // A list of options, each of which should contain the fields (label, value) and optionally (icon)
-  options: PropTypes.arrayOf(PropTypes.shape).isRequired,
-
-  // The default option to display, usually useful for a "All" or "Any" option
-  defaultOption: PropTypes.shape(),
+  options: PropTypes.arrayOf(PropTypes.shape),
 
   // The selected index (controlled)
   selectedIndex: PropTypes.number,
@@ -77,7 +105,10 @@ Selector.propTypes = {
   onSelect: PropTypes.func,
 
   // If true, the selector will be unclickable and visually darker
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+
+  // If true, the search bar will be enabled
+  search: PropTypes.bool
 };
 
 export default React.memo(Selector);

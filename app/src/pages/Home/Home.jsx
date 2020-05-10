@@ -8,16 +8,16 @@ import './Home.scss';
 
 const FEATURES = [
   {
-    title: 'Player progress tracking',
+    title: 'Experience tracking',
     page: '/players/1057', // Lynx Titan
-    description: 'Track your progression overtime, browse your personal records and achievements.',
+    description:
+      'Track your skilling progression overtime, browse your personal records and achievements.',
     image: '/img/landing_page/features/player_tracking.png'
   },
   {
-    title: 'Efficiency metrics',
-    description: "Measure your account's progress using updated effiency metrics.",
-    image: '/img/landing_page/features/efficiency_metrics.png',
-    unavailable: true
+    title: 'Boss killcount tracking',
+    description: 'Track your boss kills and take your rightful place in the global PvM leaderboards.',
+    image: '/img/landing_page/features/boss_tracking.png'
   },
   {
     title: 'Skill competitions',
