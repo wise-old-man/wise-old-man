@@ -25,6 +25,8 @@ services:
       - '54321:80'
     depends_on:
       - db
+    logging:
+      driver: none
     networks:
       - pgadminnet
   server:

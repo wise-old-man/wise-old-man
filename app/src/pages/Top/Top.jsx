@@ -109,7 +109,7 @@ function Top() {
   return (
     <div className="top__container container">
       <Helmet>
-        <title>{`${capitalize(selectedMetric)} current top`}</title>
+        <title>{`${getMetricName(selectedMetric)} current top`}</title>
       </Helmet>
       <div className="top__header row">
         <div className="col">

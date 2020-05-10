@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { capitalize, getMetricIcon, getLevel } from '../../../../utils';
+import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
@@ -26,7 +26,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{capitalize(value)}</span>
+          <span>{getMetricName(value)}</span>
         </div>
       )
     },
@@ -67,7 +67,7 @@ function renderBossesTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{capitalize(value)}</span>
+          <span>{getMetricName(value)}</span>
         </div>
       )
     },
@@ -105,7 +105,7 @@ function renderActivitiesTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{capitalize(value)}</span>
+          <span>{getMetricName(value)}</span>
         </div>
       )
     },
