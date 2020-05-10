@@ -6,12 +6,12 @@ function buildDynamicSchema(DataTypes) {
   SKILLS.forEach(s => {
     obj[getRankKey(s)] = {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false
     };
     obj[getValueKey(s)] = {
       type: s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false,
       get() {
         // As experience (overall) can exceed the integer maximum of 2.147b,
@@ -25,12 +25,12 @@ function buildDynamicSchema(DataTypes) {
   ACTIVITIES.forEach(s => {
     obj[getRankKey(s)] = {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false
     };
     obj[getValueKey(s)] = {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false
     };
   });
@@ -38,12 +38,12 @@ function buildDynamicSchema(DataTypes) {
   BOSSES.forEach(s => {
     obj[getRankKey(s)] = {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false
     };
     obj[getValueKey(s)] = {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
+      defaultValue: -1,
       allowNull: false
     };
   });

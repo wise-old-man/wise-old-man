@@ -22,7 +22,7 @@ module.exports = {
       newColumns.map(({ name, type }) =>
         queryInterface.addColumn('snapshots', name, {
           type,
-          defaultValue: 0,
+          defaultValue: -1,
           allowNull: false
         })
       )

@@ -179,7 +179,10 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const deltas = await Delta.findAll({
     where: { period },
     order: [
-      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+      [
+        sequelize.literal(`"endSnapshot"."${metricKey}" - GREATEST(0, "startSnapshot"."${metricKey}")`),
+        'DESC'
+      ]
     ],
     limit: 20,
     include: [
@@ -191,7 +194,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
 
   const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
 
     return {
       playerId: player.id,
@@ -217,7 +220,10 @@ async function getMonthlyTop(playerIds) {
   const deltas = await Delta.findAll({
     where: { period: 'month' },
     order: [
-      [sequelize.literal(`"endSnapshot"."${metricKey}" - "startSnapshot"."${metricKey}"`), 'DESC']
+      [
+        sequelize.literal(`"endSnapshot"."${metricKey}" -  GREATEST(0, "startSnapshot"."${metricKey}")`),
+        'DESC'
+      ]
     ],
     limit: 1,
     include: [
@@ -233,7 +239,7 @@ async function getMonthlyTop(playerIds) {
 
   const formattedDeltas = deltas.map(delta => {
     const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - startSnapshot[metricKey];
+    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
 
     return {
       playerId: player.id,

@@ -174,8 +174,8 @@ function diff(start, end) {
     const rankKey = getRankKey(s);
     const valueKey = getValueKey(s);
 
-    obj[rankKey] = end[rankKey] - start[rankKey];
-    obj[valueKey] = end[valueKey] - start[valueKey];
+    obj[rankKey] = Math.max(0, end[rankKey] - Math.max(0, start[rankKey]));
+    obj[valueKey] = Math.max(0, end[valueKey] - Math.max(0, start[valueKey]));
   });
 
   return obj;

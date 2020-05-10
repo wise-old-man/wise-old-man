@@ -186,7 +186,7 @@ async function view(id) {
   // Format the participants, and sort them (by descending delta)
   const participants = participations
     .map(({ player, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? startSnapshot[metricKey] : 0;
+      const start = startSnapshot ? Math.max(0, startSnapshot[metricKey]) : 0;
       const end = endSnapshot ? endSnapshot[metricKey] : 0;
       const delta = end - start;
 
