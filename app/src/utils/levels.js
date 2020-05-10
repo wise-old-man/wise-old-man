@@ -24,7 +24,7 @@ export function getLevel(experience, virtual = false) {
 export function getExperienceAt(level) {
   let accumulated = 0;
 
-  for (let l = 1; l !== level; l++) {
+  for (let l = 1; l !== level + 1; l++) {
     accumulated += getXpDifferenceTo(l);
   }
 
