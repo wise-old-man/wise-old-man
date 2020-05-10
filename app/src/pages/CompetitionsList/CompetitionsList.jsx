@@ -12,11 +12,11 @@ import TableListPlaceholder from '../../components/TableListPlaceholder';
 import StatusDot from '../../components/StatusDot';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchAll';
 import { getCompetitions, isFetchingAll } from '../../redux/selectors/competitions';
-import { capitalize, getMetricIcon } from '../../utils';
-import { COMPETITION_SATUSES, SKILLS } from '../../config';
+import { capitalize, getMetricIcon, getMetricName } from '../../utils';
+import { COMPETITION_SATUSES, ALL_METRICS } from '../../config';
 import './CompetitionsList.scss';
 
-const DEFAULT_METRICS_OPTION = { label: 'Any skill', value: null };
+const DEFAULT_METRICS_OPTION = { label: 'Any metric', value: null };
 const DEFAULT_STATUS_OPTION = { label: 'Any status', value: null };
 
 const RESULTS_PER_PAGE = 20;
@@ -70,10 +70,10 @@ function getStatusOptions() {
 function getMetricOptions() {
   return [
     DEFAULT_METRICS_OPTION,
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getMetricIcon(skill, true),
-      value: skill
+    ...ALL_METRICS.map(metric => ({
+      label: getMetricName(metric),
+      icon: getMetricIcon(metric, true),
+      value: metric
     }))
   ];
 }

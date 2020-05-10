@@ -10,7 +10,7 @@ function TotalGainedWidget({ competition }) {
   const icon = getMetricIcon(metric);
 
   const backgroundImage = {
-    backgroundImage: `url("/img/widgets/${metric}.png")`,
+    backgroundImage: `url("/img/runescape/backgrounds/${metric}.png")`,
     backgroundSize: 'cover'
   };
 

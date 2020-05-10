@@ -1,30 +1,8 @@
 import { METRICS_CONFIG, SKILLS, ACTIVITIES, BOSSES } from '../config/metrics';
 
-function getSkillIcon(skill, smallVersion) {
-  const folder = smallVersion ? 'skill_icons_small' : 'skill_icons';
-  return `/img/runescape/${folder}/${skill}.png`;
-}
-
-function getBossIcon(boss, smallVersion) {
-  const folder = smallVersion ? 'boss_icons_small' : 'boss_icons';
-  return `/img/runescape/${folder}/${boss}.png`;
-}
-
-function getActivityIcon(ativity, smallVersion) {
-  const folder = smallVersion ? 'activity_icons_small' : 'activity_icons';
-  return `/img/runescape/${folder}/${ativity}.png`;
-}
-
 export function getMetricIcon(metric, smallVersion) {
-  if (isSkill(metric)) {
-    return getSkillIcon(metric, smallVersion);
-  }
-
-  if (isBoss(metric)) {
-    return getBossIcon(metric, smallVersion);
-  }
-
-  return getActivityIcon(metric, smallVersion);
+  const folder = smallVersion ? 'icons_small' : 'icons';
+  return `/img/runescape/${folder}/${metric}.png`;
 }
 
 export function getType(value) {
