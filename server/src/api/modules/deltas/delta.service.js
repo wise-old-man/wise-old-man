@@ -3,14 +3,14 @@ const PERIODS = require('../../constants/periods');
 const { ALL_METRICS, getRankKey, getValueKey, getMeasure } = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { durationBetween } = require('../../util/dates');
-const { Player, Delta, Snapshot, sequelize } = require('../../../database');
+const { Player, Delta, Snapshot, InitialValues, sequelize } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
 /**
  * Converts a Delta instance into a JSON friendlier format
  */
 function format(delta, diffs) {
-  const { period, updatedAt, startSnapshot, endSnapshot } = delta;
+  const { period, updatedAt, startSnapshot, endSnapshot, initialValues } = delta;
 
   const startsAt = startSnapshot && new Date(startSnapshot.createdAt);
   const endsAt = endSnapshot && new Date(endSnapshot.createdAt);
@@ -29,17 +29,21 @@ function format(delta, diffs) {
   if (startSnapshot && endSnapshot && diffs) {
     ALL_METRICS.forEach(s => {
       const rankKey = getRankKey(s);
-      const expKey = getValueKey(s);
+      const valueKey = getValueKey(s);
+
+      const initialRank = initialValues ? initialValues[rankKey] : -1;
+      const initialValue = initialValues ? initialValues[valueKey] : -1;
+
       obj.data[s] = {
         rank: {
-          start: startSnapshot[rankKey],
+          start: Math.max(startSnapshot[rankKey], initialRank),
           end: endSnapshot[rankKey],
           delta: diffs[rankKey]
         },
         [getMeasure(s)]: {
-          start: startSnapshot[expKey],
-          end: endSnapshot[expKey],
-          delta: diffs[expKey]
+          start: Math.max(startSnapshot[valueKey], initialValue),
+          end: endSnapshot[valueKey],
+          delta: diffs[valueKey]
         }
       };
     });
@@ -54,23 +58,40 @@ function format(delta, diffs) {
 async function syncDeltas(playerId) {
   const latestSnapshot = await snapshotService.findLatest(playerId);
 
+  // Find or create (if doesn't exist) the player's initial values
+  // For information on what this model is, read the documentation on initialValues.model.js
+  const [initialValues] = await InitialValues.findOrCreate({ where: { playerId } });
+
+  const newInitialValues = {};
+
+  // Find which values are known for the first time
+  _.mapValues(latestSnapshot.toJSON(), (value, key) => {
+    if (value > -1 && initialValues[key] === -1) newInitialValues[key] = value;
+  });
+
+  // Update the player's initial values, with the newly discovered fields
+  if (Object.keys(newInitialValues).length > 0) {
+    await initialValues.update(newInitialValues);
+  }
+
   await Promise.all(
     PERIODS.map(async period => {
       const start = await snapshotService.findFirstIn(playerId, period);
-      const delta = await updateDelta(playerId, period, start, latestSnapshot);
+      const delta = await updateDelta(playerId, period, start, latestSnapshot, initialValues);
 
       return delta;
     })
   );
 }
 
-async function updateDelta(playerId, period, startSnapshot, endSnapshot) {
+async function updateDelta(playerId, period, startSnapshot, endSnapshot, initialValues) {
   const [delta] = await Delta.findOrCreate({ where: { playerId, period } });
 
   const newDelta = await delta.update({
     updatedAt: new Date(),
     startSnapshotId: startSnapshot.id,
-    endSnapshotId: endSnapshot.id
+    endSnapshotId: endSnapshot.id,
+    initialValuesId: initialValues.id
   });
 
   return newDelta;
@@ -95,6 +116,7 @@ async function getAllDeltas(playerId) {
     include: [
       { model: Snapshot, as: 'startSnapshot' },
       { model: Snapshot, as: 'endSnapshot' },
+      { model: InitialValues, as: 'initialValues' },
       { model: Player }
     ]
   });
@@ -105,9 +127,10 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include the diffs and format the delta
-  return _.mapValues(_.keyBy(deltas, 'period'), delta =>
-    format(delta, snapshotService.diff(delta.startSnapshot, delta.endSnapshot))
-  );
+  return _.mapValues(_.keyBy(deltas, 'period'), delta => {
+    const { startSnapshot, endSnapshot, initialValues } = delta;
+    return format(delta, snapshotService.diff(startSnapshot, endSnapshot, initialValues));
+  });
 }
 
 /**
@@ -127,6 +150,7 @@ async function getDelta(playerId, period) {
     include: [
       { model: Snapshot, as: 'startSnapshot' },
       { model: Snapshot, as: 'endSnapshot' },
+      { model: InitialValues, as: 'initialValues' },
       { model: Player }
     ]
   });
@@ -135,9 +159,8 @@ async function getDelta(playerId, period) {
     throw new ServerError(`Couldn't find ${period} deltas for that player.`);
   }
 
-  const diffs = snapshotService.diff(delta.startSnapshot, delta.endSnapshot);
-
-  return format(delta, diffs);
+  const { startSnapshot, endSnapshot, initialValues } = delta;
+  return format(delta, snapshotService.diff(startSnapshot, endSnapshot, initialValues));
 }
 
 /**
@@ -180,27 +203,30 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     where: { period },
     order: [
       [
-        sequelize.literal(`"endSnapshot"."${metricKey}" - GREATEST(0, "startSnapshot"."${metricKey}")`),
+        sequelize.literal(
+          `"endSnapshot"."${metricKey}" - GREATEST("initialValues"."${metricKey}", "startSnapshot"."${metricKey}")`
+        ),
         'DESC'
       ]
     ],
     limit: 20,
     include: [
       { model: Player, where: playerType && { type: playerType } },
+      { model: InitialValues, as: 'initialValues', attributes: [metricKey] },
       { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
       { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
     ]
   });
 
   const formattedDeltas = deltas.map(delta => {
-    const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
+    const { player, startSnapshot, endSnapshot, initialValues } = delta;
+    const diff = snapshotService.diff(startSnapshot, endSnapshot, initialValues);
 
     return {
       playerId: player.id,
       username: player.username,
       type: player.type,
-      gained
+      gained: diff[metricKey]
     };
   });
 
@@ -218,16 +244,19 @@ async function getMonthlyTop(playerIds) {
   // of the two snapshots, and then calculate the difference again later
 
   const deltas = await Delta.findAll({
-    where: { period: 'month' },
+    where: { playerId: playerIds, period: 'month' },
     order: [
       [
-        sequelize.literal(`"endSnapshot"."${metricKey}" -  GREATEST(0, "startSnapshot"."${metricKey}")`),
+        sequelize.literal(
+          `"endSnapshot"."${metricKey}" -  GREATEST("initialValues"."${metricKey}", "startSnapshot"."${metricKey}")`
+        ),
         'DESC'
       ]
     ],
     limit: 1,
     include: [
-      { model: Player, where: { id: playerIds } },
+      { model: Player },
+      { model: InitialValues, as: 'initialValues', attributes: [metricKey] },
       { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
       { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
     ]
@@ -238,18 +267,45 @@ async function getMonthlyTop(playerIds) {
   }
 
   const formattedDeltas = deltas.map(delta => {
-    const { player, startSnapshot, endSnapshot } = delta;
-    const gained = endSnapshot[metricKey] - Math.max(0, startSnapshot[metricKey]);
+    const { player, startSnapshot, endSnapshot, initialValues } = delta;
+    const diff = snapshotService.diff(startSnapshot, endSnapshot, initialValues);
 
     return {
       playerId: player.id,
       username: player.username,
       type: player.type,
-      gained
+      gained: diff[metricKey]
     };
   });
 
   return formattedDeltas[0];
+}
+
+function processCompetitionDeltas(metricKey, participations) {
+  const deltas = participations.map(delta => {
+    const { player, startSnapshot, endSnapshot, initialValues } = delta;
+
+    if (!startSnapshot || !endSnapshot) {
+      return {
+        playerId: player.id,
+        progress: { start: 0, end: 0, delta: 0 }
+      };
+    }
+
+    const diff = snapshotService.diff(startSnapshot, endSnapshot, initialValues);
+    const initialValue = initialValues ? initialValues[metricKey] : -1;
+
+    return {
+      playerId: player.id,
+      progress: {
+        start: Math.max(startSnapshot[metricKey], initialValue),
+        end: endSnapshot[metricKey],
+        delta: diff[metricKey]
+      }
+    };
+  });
+
+  return deltas;
 }
 
 exports.syncDeltas = syncDeltas;
@@ -258,3 +314,4 @@ exports.getDelta = getDelta;
 exports.getPeriodLeaderboard = getPeriodLeaderboard;
 exports.getLeaderboard = getLeaderboard;
 exports.getMonthlyTop = getMonthlyTop;
+exports.processCompetitionDeltas = processCompetitionDeltas;

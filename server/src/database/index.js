@@ -7,6 +7,7 @@ const sequelize = new Sequelize(CONFIG.database, CONFIG.username, CONFIG.passwor
 const models = {
   Player: sequelize.import(`../api/modules/players/player.model`),
   Snapshot: sequelize.import(`../api/modules/snapshots/snapshot.model`),
+  InitialValues: sequelize.import(`../api/modules/snapshots/initialValues.model`),
   Delta: sequelize.import(`../api/modules/deltas/delta.model`),
   Record: sequelize.import(`../api/modules/records/record.model`),
   Competition: sequelize.import(`../api/modules/competitions/competition.model`),
