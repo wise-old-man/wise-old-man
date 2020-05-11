@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
         fields: ['id']
       },
       {
+        unique: true,
+        fields: ['playerId', 'period']
+      },
+      {
         fields: ['playerId']
       },
       {
