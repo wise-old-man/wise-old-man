@@ -167,15 +167,18 @@ async function findAllBetween(playerIds, startDate, endDate) {
 /**
  * Calculates the difference in ranks and values (for every metric), between two snapshots
  */
-function diff(start, end) {
+function diff(startSnapshot, endSnapshot, initialValues) {
   const obj = {};
 
   ALL_METRICS.forEach(s => {
     const rankKey = getRankKey(s);
     const valueKey = getValueKey(s);
 
-    obj[rankKey] = Math.max(0, end[rankKey] - Math.max(0, start[rankKey]));
-    obj[valueKey] = Math.max(0, end[valueKey] - Math.max(0, start[valueKey]));
+    const initialRank = initialValues ? initialValues[rankKey] : -1;
+    const initialValue = initialValues ? initialValues[valueKey] : -1;
+
+    obj[rankKey] = endSnapshot[rankKey] - Math.max(initialRank, startSnapshot[rankKey]);
+    obj[valueKey] = endSnapshot[valueKey] - Math.max(initialValue, startSnapshot[valueKey]);
   });
 
   return obj;

@@ -3,13 +3,21 @@ const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
 const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
-const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
+const {
+  Competition,
+  Participation,
+  Player,
+  Snapshot,
+  Group,
+  InitialValues
+} = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const snapshotService = require('../snapshots/snapshot.service');
 const groupService = require('../groups/group.service');
+const deltaService = require('../deltas/delta.service');
 
 function sanitizeTitle(title) {
   return title
@@ -183,22 +191,24 @@ async function view(id) {
     ]
   });
 
-  // Format the participants, and sort them (by descending delta)
-  const participants = participations
-    .map(({ player, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? Math.max(0, startSnapshot[metricKey]) : 0;
-      const end = endSnapshot ? endSnapshot[metricKey] : 0;
-      const delta = end - start;
+  const playerIds = participations.map(p => p.player.id);
+  const allInitialValues = await InitialValues.findAll({ where: { playerId: playerIds } });
+  const allInitialValuesMap = _.keyBy(allInitialValues, 'playerId');
 
-      return {
-        id: player.id,
-        username: player.username,
-        type: player.type,
-        updatedAt: player.updatedAt,
-        progress: { start, end, delta },
-        history: []
-      };
-    })
+  const deltas = participations.map(p => ({ ...p, initialValues: allInitialValuesMap[p.player.id] }));
+
+  const processedDeltas = deltaService.processCompetitionDeltas(metricKey, deltas);
+  const processedDeltasMap = _.keyBy(processedDeltas, 'playerId');
+
+  const participants = participations
+    .map(({ player }) => ({
+      id: player.id,
+      username: player.username,
+      type: player.type,
+      updatedAt: player.updatedAt,
+      history: [],
+      progress: { ...processedDeltasMap[player.id].progress }
+    }))
     .sort((a, b) => b.progress.delta - a.progress.delta);
 
   // Select the top 10 players
