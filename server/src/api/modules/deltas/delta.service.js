@@ -34,15 +34,21 @@ function format(delta, diffs) {
       const initialRank = initialValues ? initialValues[rankKey] : -1;
       const initialValue = initialValues ? initialValues[valueKey] : -1;
 
+      const endValue = endSnapshot[valueKey];
+      const endRank = endSnapshot[rankKey];
+
+      const startValue = startSnapshot[valueKey] === -1 ? initialValue : startSnapshot[valueKey];
+      const startRank = startSnapshot[rankKey] === -1 ? initialRank : startSnapshot[rankKey];
+
       obj.data[s] = {
         rank: {
-          start: Math.max(startSnapshot[rankKey], initialRank),
-          end: endSnapshot[rankKey],
+          start: startRank,
+          end: endRank,
           delta: diffs[rankKey]
         },
         [getMeasure(s)]: {
-          start: Math.max(startSnapshot[valueKey], initialValue),
-          end: endSnapshot[valueKey],
+          start: startValue,
+          end: endValue,
           delta: diffs[valueKey]
         }
       };
@@ -293,12 +299,13 @@ function processCompetitionDeltas(metricKey, participations) {
     }
 
     const diff = snapshotService.diff(startSnapshot, endSnapshot, initialValues);
+
     const initialValue = initialValues ? initialValues[metricKey] : -1;
 
     return {
       playerId: player.id,
       progress: {
-        start: Math.max(startSnapshot[metricKey], initialValue),
+        start: startSnapshot[metricKey] === -1 ? initialValue : startSnapshot[metricKey],
         end: endSnapshot[metricKey],
         delta: diff[metricKey]
       }
