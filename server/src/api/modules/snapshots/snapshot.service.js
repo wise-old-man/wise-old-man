@@ -177,8 +177,14 @@ function diff(startSnapshot, endSnapshot, initialValues) {
     const initialRank = initialValues ? initialValues[rankKey] : -1;
     const initialValue = initialValues ? initialValues[valueKey] : -1;
 
-    obj[rankKey] = endSnapshot[rankKey] - Math.max(initialRank, startSnapshot[rankKey]);
-    obj[valueKey] = endSnapshot[valueKey] - Math.max(initialValue, startSnapshot[valueKey]);
+    const endValue = endSnapshot[valueKey];
+    const endRank = endSnapshot[rankKey];
+
+    const startValue = startSnapshot[valueKey] === -1 ? initialValue : startSnapshot[valueKey];
+    const startRank = startSnapshot[rankKey] === -1 ? initialRank : startSnapshot[rankKey];
+
+    obj[rankKey] = endRank - startRank;
+    obj[valueKey] = endValue - startValue;
   });
 
   return obj;
