@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getSkillIcon } from '../../../../utils';
+import { getMetricIcon } from '../../../../utils';
 import './CompetitionWidget.scss';
 
 function CompetitionWidget({ competitions }) {
@@ -25,7 +25,7 @@ function CompetitionWidget({ competitions }) {
 
     return (
       <Link className="competition-widget -clickable" to={`/competitions/${featured.id}`}>
-        <img className="competition-icon" src={getSkillIcon(featured.metric)} alt="" />
+        <img className="competition-icon" src={getMetricIcon(featured.metric)} alt="" />
         <div className="competition-info">
           <b className="competition-info__title">{featured.title}</b>
           <span className="competition-info__time">{featured.countdown}</span>
@@ -39,7 +39,7 @@ function CompetitionWidget({ competitions }) {
 
     return (
       <Link className="competition-widget -clickable" to={`/competitions/${featured.id}`}>
-        <img className="competition-icon" src={getSkillIcon(featured.metric)} alt="" />
+        <img className="competition-icon" src={getMetricIcon(featured.metric)} alt="" />
         <div className="competition-info">
           <b className="competition-info__title">{featured.title}</b>
           <span className="competition-info__time">{featured.countdown}</span>

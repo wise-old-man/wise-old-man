@@ -1,29 +1,40 @@
-import { LEVEL_EXP } from '../config';
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../config';
 
-export function getLevel(experience) {
-  let index;
-
-  for (index = 0; index < LEVEL_EXP.length; index += 1) {
-    if (LEVEL_EXP[index + 1] > experience) {
-      break;
-    }
+export function getLevel(experience, virtual = false) {
+  // Unranked
+  if (experience === -1) {
+    return 0;
   }
 
-  return Math.min(index, 99);
-}
+  const maxlevel = virtual ? MAX_VIRTUAL_LEVEL : MAX_LEVEL;
 
-export function getVirtualLevel(experience) {
-  let index;
+  let accumulated = 0;
 
-  for (index = 0; index < LEVEL_EXP.length; index += 1) {
-    if (LEVEL_EXP[index + 1] > experience) {
-      break;
+  for (let level = 1; level < maxlevel; level++) {
+    const required = getXpDifferenceTo(level + 1);
+    if (experience >= accumulated && experience < accumulated + required) {
+      return level;
     }
+    accumulated += required;
   }
 
-  return Math.min(index, 126);
+  return maxlevel;
 }
 
 export function getExperienceAt(level) {
-  return LEVEL_EXP[Math.min(level, 99)];
+  let accumulated = 0;
+
+  for (let l = 1; l !== level + 1; l++) {
+    accumulated += getXpDifferenceTo(l);
+  }
+
+  return accumulated;
+}
+
+function getXpDifferenceTo(level) {
+  if (level < 2) {
+    return 0;
+  }
+
+  return Math.floor(level - 1 + 300 * 2 ** ((level - 1) / 7)) / 4;
 }

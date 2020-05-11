@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
-const { ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
@@ -169,7 +169,7 @@ async function view(id) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  const metricKey = `${competition.metric}Experience`;
+  const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
   const group = competition.group ? groupService.format(competition.group) : null;
 
@@ -186,7 +186,7 @@ async function view(id) {
   // Format the participants, and sort them (by descending delta)
   const participants = participations
     .map(({ player, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? startSnapshot[metricKey] : 0;
+      const start = startSnapshot ? Math.max(0, startSnapshot[metricKey]) : 0;
       const end = endSnapshot ? endSnapshot[metricKey] : 0;
       const delta = end - start;
 
@@ -368,6 +368,8 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     newValues.endsAt = endsAt;
   }
 
+  let competitionParticipants;
+
   if (participants) {
     // Check if every username in the list is valid
     const invalidUsernames = playerService.isValidUsernames(
@@ -381,18 +383,15 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
       );
     }
 
-    const newParticipants = await setParticipants(competition, participants);
-    return { ...format(competition), participants: newParticipants };
+    competitionParticipants = await setParticipants(competition, participants);
+  } else {
+    const participations = await competition.getParticipants();
+    competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
   }
 
   await competition.update(newValues);
 
-  const participations = await competition.getParticipants();
-
-  return {
-    ...format(competition),
-    participants: participations.map(p => ({ ...p.toJSON(), participations: undefined }))
-  };
+  return { ...format(competition), participants: competitionParticipants };
 }
 
 /**

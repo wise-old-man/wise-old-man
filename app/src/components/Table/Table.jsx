@@ -9,7 +9,7 @@ function getValue(row, key, get, transform) {
   return [transform ? transform(value, row) : value, value];
 }
 
-function Table({ rows, columns, onRowClicked, clickable }) {
+function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
   const tableClass = classNames({
     table: true,
     '-clickable': clickable
@@ -37,8 +37,10 @@ function Table({ rows, columns, onRowClicked, clickable }) {
             <tr key={i} onClick={() => clickable && onRowClicked && onRowClicked(i)}>
               {columns.map(({ key, transform, get, className }) => {
                 const [formatted, original] = getValue(row, key, get, transform);
+                const customClass = className ? className(original) : '';
+                const cellClass = classNames(customClass, { '-highlighted': i === highlightedIndex });
                 return (
-                  <td className={className && className(original)} key={i + key}>
+                  <td className={cellClass} key={i + key}>
                     {formatted}
                   </td>
                 );
@@ -58,7 +60,8 @@ function Table({ rows, columns, onRowClicked, clickable }) {
 Table.defaultProps = {
   rows: [],
   clickable: false,
-  onRowClicked: undefined
+  onRowClicked: undefined,
+  highlightedIndex: -1
 };
 
 Table.propTypes = {
@@ -73,6 +76,8 @@ Table.propTypes = {
   //  - transform (optional) - custom cell rendering (provide a component to render inside the cell)
   //  - get (optional) - alternate way of fetching data from the row object, by default it will fetch row[key]
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+
+  highlightedIndex: PropTypes.number,
 
   // If true, the rows will be clickable
   clickable: PropTypes.bool,

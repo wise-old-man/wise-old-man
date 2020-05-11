@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 // following format: XXX-XXX-XXX
 function generateCode() {
   let code = '';
-  for (let i = 0; i < 9; i += 1) {
+  for (let i = 0; i < 9; i++) {
     code += Math.floor(Math.random() * 10);
     if (i === 2 || i === 5) {
       code += '-';

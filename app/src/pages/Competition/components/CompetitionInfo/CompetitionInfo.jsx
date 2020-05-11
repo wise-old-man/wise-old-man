@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import InfoPanel from '../../../../components/InfoPanel';
-import { formatDate, capitalize } from '../../../../utils';
+import { formatDate, capitalize, getType, getMetricName } from '../../../../utils';
 import './CompetitionInfo.scss';
 
 function formatData(competition) {
@@ -17,7 +17,7 @@ function formatData(competition) {
 
   return [
     { key: 'Id', value: id },
-    { key: 'Skill', value: capitalize(metric) },
+    { key: capitalize(getType(metric)), value: getMetricName(metric) },
     { key: 'Status', value: capitalize(status), className: statusClass },
     { key: 'Group', value: group ? <Link to={`/groups/${group.id}`}>{group.name}</Link> : '---' },
     { key: 'Participants', value: participants ? participants.length : 'Unknown' },

@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { SKILLS, ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getMeasure } = require('../../constants/metrics');
 const { BadRequestError } = require('../../errors');
 const { Player, Record } = require('../../../database');
 const deltaService = require('../deltas/delta.service');
@@ -20,16 +20,43 @@ async function syncRecords(playerId, period) {
     throw new BadRequestError(`Invalid player.`);
   }
 
-  const delta = await deltaService.getDelta(playerId, period);
+  const allRecordDefs = ALL_METRICS.map(metric => ({ period, metric }));
+  const periodDelta = await deltaService.getDelta(playerId, period);
+  let playerRecords = await Record.findAll({ where: { playerId, period } });
+
+  // If has missing records, create them
+  if (playerRecords.length !== allRecordDefs.length) {
+    // Create a map of all metrics (ex: {"woodcutting": false, "zulrah": false})
+    const checkMap = _.mapValues(_.keyBy(allRecordDefs, 'metric'), () => false);
+
+    // Mark any found playerRecords as existant (true)
+    playerRecords.forEach(r => {
+      checkMap[r.metric] = true;
+    });
+
+    // Gather the record definitions for any missing records
+    const missingRecordDefs = Object.keys(checkMap)
+      .map(k => ({ key: k, value: checkMap[k] }))
+      .filter(m => !m.value)
+      .map(m => ({ playerId, period, metric: m.key, value: 0 }));
+
+    // Add all missing records
+    const newRecords = await Record.bulkCreate(missingRecordDefs, { ignoreDuplicates: true });
+
+    // Add newly created records to the playerRecords array, to be processed later on
+    if (newRecords && newRecords.length > 0) {
+      playerRecords = [...playerRecords, ...newRecords];
+    }
+  }
 
   await Promise.all(
-    SKILLS.map(async metric => {
-      const [record] = await Record.findOrCreate({ where: { playerId, period, metric } });
-      const newValue = delta.data[metric].experience.delta;
+    playerRecords.map(async record => {
+      const { value, metric } = record;
+      const newValue = periodDelta.data[metric][getMeasure(metric)].delta;
 
       // If the current delta is higher than the previous record,
       // update the previous record's value
-      if (record.value < newValue) {
+      if (value < newValue) {
         await record.update({ value: newValue });
       }
 

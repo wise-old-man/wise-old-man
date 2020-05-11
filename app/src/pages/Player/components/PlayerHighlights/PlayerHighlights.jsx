@@ -5,26 +5,27 @@ import CardList from '../../../../components/CardList';
 import {
   durationBetween,
   formatDate,
-  getSkillIcon,
+  getMetricIcon,
+  getMetricName,
   capitalize,
   formatNumber,
   getExperienceAt
 } from '../../../../utils';
-import { SKILLS } from '../../../../config';
+import { ALL_METRICS, SKILLS } from '../../../../config';
 import './PlayerHighlights.scss';
 
 function getAchievementIcon(type) {
-  for (let i = 0; i < SKILLS.length; i += 1) {
-    if (type.includes(SKILLS[i])) {
-      return getSkillIcon(SKILLS[i]);
+  for (let i = 0; i < ALL_METRICS.length; i++) {
+    if (type.includes(getMetricName(ALL_METRICS[i]))) {
+      return getMetricIcon(ALL_METRICS[i]);
     }
   }
 
   if (type === 'Maxed combat') {
-    return getSkillIcon('combat');
+    return getMetricIcon('combat');
   }
 
-  return getSkillIcon('overall');
+  return getMetricIcon('overall');
 }
 
 function renderOngoingCompetitions(competitions, router) {
@@ -40,7 +41,7 @@ function renderOngoingCompetitions(competitions, router) {
 
   const ongoingItems = ongoingCompetitions.map(c => ({
     title: c.title,
-    icon: getSkillIcon(c.metric),
+    icon: getMetricIcon(c.metric),
     subtitle: `Ends in ${durationBetween(new Date(), c.endsAt, 2, true)}`
   }));
 
@@ -69,7 +70,7 @@ function renderUpcomingCompetitions(competitions, router) {
 
   const upcomingItems = upcomingCompetitions.map(c => ({
     title: c.title,
-    icon: getSkillIcon(c.metric),
+    icon: getMetricIcon(c.metric),
     subtitle: `Starts in ${durationBetween(new Date(), c.startsAt, 2, true)}`
   }));
 
@@ -132,7 +133,7 @@ function renderClosestSkills(player) {
   }
 
   const diffItems = diffs.map(d => ({
-    icon: getSkillIcon(d.skill),
+    icon: getMetricIcon(d.skill),
     title: `99 ${capitalize(d.skill)}`,
     subtitle: `${formatNumber(d.expLeft)} exp left`
   }));
@@ -148,10 +149,7 @@ function renderClosestSkills(player) {
 function PlayerHighlights({ player, competitions, achievements }) {
   const router = useHistory();
 
-  const ongoing = useMemo(() => renderOngoingCompetitions(competitions, router), [
-    competitions,
-    router
-  ]);
+  const ongoing = useMemo(() => renderOngoingCompetitions(competitions, router), [competitions, router]);
 
   const upcoming = useMemo(() => renderUpcomingCompetitions(competitions, router), [
     competitions,

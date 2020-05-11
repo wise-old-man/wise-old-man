@@ -1,6 +1,6 @@
-const { SKILLS } = require('./metrics');
+const { SKILLS, BOSSES, getValueKey } = require('./metrics');
 
-const ACHIEVEMENTS = [
+const SKILL_ACHIEVEMENTS = [
   {
     name: '99 {skill}',
     validate: exp => exp >= 13034431
@@ -38,7 +38,7 @@ const ACHIEVEMENTS = [
     validate: snapshot => {
       let maxedSkills = 0;
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        if (snapshot[`${skill}Experience`] >= 13034431) {
+        if (snapshot[getValueKey(skill)] >= 13034431) {
           maxedSkills += 1;
         }
       });
@@ -53,7 +53,7 @@ const ACHIEVEMENTS = [
       let maxedSkills = 0;
 
       SKILLS.filter(s => combatSkills.includes(s)).forEach(skill => {
-        if (snapshot[`${skill}Experience`] >= 13034431) {
+        if (snapshot[getValueKey(skill)] >= 13034431) {
           maxedSkills += 1;
         }
       });
@@ -63,4 +63,54 @@ const ACHIEVEMENTS = [
   }
 ];
 
-exports.ACHIEVEMENTS = ACHIEVEMENTS;
+const ACTIVITY_ACHIEVEMENTS = [
+  {
+    name: '500 {activity} score',
+    validate: score => score >= 500
+  },
+  {
+    name: '1k {activity} score',
+    validate: score => score >= 1000
+  },
+  {
+    name: '5k {activity} score',
+    validate: score => score >= 5000
+  },
+  {
+    name: '10k {activity} score',
+    validate: score => score >= 10000
+  }
+];
+
+const BOSS_ACHIEVEMENTS = [
+  {
+    name: '500 {boss} kills',
+    validate: kills => kills >= 500
+  },
+  {
+    name: '1k {boss} kills',
+    validate: kills => kills >= 1000
+  },
+  {
+    name: '5k {boss} kills',
+    validate: kills => kills >= 5000
+  },
+  {
+    name: '10k {boss} kills',
+    validate: kills => kills >= 10000
+  },
+  {
+    name: '100 kills (all bosses)',
+    validate: snapshot => {
+      let count = 0;
+      BOSSES.forEach(skill => {
+        if (snapshot[getValueKey(skill)] >= 100) {
+          count += 1;
+        }
+      });
+      return count === BOSSES.length;
+    }
+  }
+];
+
+module.exports = { SKILL_ACHIEVEMENTS, ACTIVITY_ACHIEVEMENTS, BOSS_ACHIEVEMENTS };

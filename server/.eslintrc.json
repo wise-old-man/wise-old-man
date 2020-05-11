@@ -15,6 +15,7 @@
     "object-shorthand": "off",
     "class-methods-use-this": "off",
     "node/no-unpublished-require": 0,
-    "node/no-unsupported-features/es-syntax": ["error", { "version": ">=8.3.0", "ignores": [] }]
+    "node/no-unsupported-features/es-syntax": ["error", { "version": ">=8.3.0", "ignores": [] }],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
   }
 }

@@ -1,11 +1,11 @@
-const { SKILLS } = require('../../api/constants/metrics');
+const { SKILLS, getRankKey, getValueKey } = require('../../api/constants/metrics');
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
 
   SKILLS.forEach(s => {
-    obj[`${s}Rank`] = DataTypes.INTEGER;
-    obj[`${s}Experience`] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
+    obj[getRankKey(s)] = DataTypes.INTEGER;
+    obj[getValueKey(s)] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
   });
 
   return obj;

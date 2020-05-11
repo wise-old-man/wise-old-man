@@ -167,8 +167,14 @@ async function update(username) {
   }
 
   try {
+    // If the player is new or has an unknown player type,
+    // determine it before tracking
+    if (player.type === 'unknown') {
+      player.type = await assertType(player.username);
+    }
+
     // Load data from OSRS hiscores
-    const hiscoresCSV = await getHiscoresData(player.username);
+    const hiscoresCSV = await getHiscoresData(player.username, player.type);
 
     // Convert the csv data to a Snapshot instance (saved in the DB)
     const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
@@ -257,9 +263,9 @@ async function importCMLSince(id, username, time) {
  * Note: This is an auxilary function for the assertType function
  * and should not be used for any other situation.
  */
-async function getOverallExperience(username, hiscoresType) {
+async function getOverallExperience(username, type) {
   try {
-    const data = await getHiscoresData(username, hiscoresType);
+    const data = await getHiscoresData(username, type);
 
     if (!data || data.length === 0) {
       throw new ServerError('Failed to fetch hiscores data.');
@@ -323,27 +329,27 @@ async function assertType(username, force = false) {
     return player.type;
   }
 
-  const regularExp = await getOverallExperience(formattedUsername, 'NORMAL');
+  const regularExp = await getOverallExperience(formattedUsername, 'regular');
 
   if (regularExp === -1) {
     throw new BadRequestError(`Couldn't find player ${username} in the hiscores.`);
   }
 
-  const ironmanExp = await getOverallExperience(formattedUsername, 'IRONMAN');
+  const ironmanExp = await getOverallExperience(formattedUsername, 'ironman');
 
   if (ironmanExp < regularExp) {
     await submitType(player, 'regular');
     return 'regular';
   }
 
-  const hardcoreExp = await getOverallExperience(formattedUsername, 'HARDCORE_IRONMAN');
+  const hardcoreExp = await getOverallExperience(formattedUsername, 'hardcore');
 
   if (hardcoreExp >= ironmanExp) {
     await submitType(player, 'hardcore');
     return 'hardcore';
   }
 
-  const ultimateExp = await getOverallExperience(formattedUsername, 'ULTIMATE_IRONMAN');
+  const ultimateExp = await getOverallExperience(formattedUsername, 'ultimate');
 
   if (ultimateExp >= ironmanExp) {
     await submitType(player, 'ultimate');
@@ -409,7 +415,7 @@ async function getCMLHistory(username, time) {
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username, type = 'NORMAL') {
+async function getHiscoresData(username, type = 'regular') {
   const proxy = getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
@@ -443,5 +449,3 @@ exports.findById = findById;
 exports.findOrCreate = findOrCreate;
 exports.findAllOrCreate = findAllOrCreate;
 exports.findAll = findAll;
-exports.getCMLHistory = getCMLHistory;
-exports.getHiscoresData = getHiscoresData;

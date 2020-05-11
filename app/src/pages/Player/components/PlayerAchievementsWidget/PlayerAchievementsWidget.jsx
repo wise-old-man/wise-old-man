@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TableList from '../../../../components/TableList';
-import { capitalize, getSkillIcon, formatDate } from '../../../../utils';
-import { SKILLS } from '../../../../config';
+import { capitalize, getMetricIcon, getMetricName, formatDate } from '../../../../utils';
+import { ALL_METRICS } from '../../../../config';
 import './PlayerAchievementsWidget.scss';
 
 function getIcon(type) {
-  for (let i = 0; i < SKILLS.length; i += 1) {
-    if (type.includes(SKILLS[i])) {
-      return getSkillIcon(SKILLS[i], true);
+  for (let i = 0; i < ALL_METRICS.length; i++) {
+    if (type.includes(getMetricName(ALL_METRICS[i]))) {
+      return getMetricIcon(ALL_METRICS[i], true);
     }
   }
 
   if (type === 'Maxed combat') {
-    return getSkillIcon('combat', true);
+    return getMetricIcon('combat', true);
   }
 
-  return getSkillIcon('overall', true);
+  return getMetricIcon('overall', true);
 }
 
 function filterAchievements(achievements, type) {
@@ -41,7 +41,7 @@ const TABLE_CONFIG = {
       key: 'type',
       className: () => '-primary',
       transform: value => (
-        <div className="skill-tag">
+        <div className="metric-tag">
           <img src={getIcon(value)} alt="" />
           <span>{capitalize(value)}</span>
         </div>

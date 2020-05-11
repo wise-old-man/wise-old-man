@@ -4,6 +4,11 @@
 .top__container {
   @extend %page;
 
+  .top__filters {
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
   td {
     padding: 5px;
   }

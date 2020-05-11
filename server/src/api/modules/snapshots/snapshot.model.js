@@ -1,19 +1,50 @@
-const { SKILLS } = require('../../constants/metrics');
+const { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } = require('../../constants/metrics');
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
 
   SKILLS.forEach(s => {
-    obj[`${s}Rank`] = DataTypes.INTEGER;
-
-    obj[`${s}Experience`] = {
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+    obj[getValueKey(s)] = {
       type: s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false,
       get() {
         // As experience (overall) can exceed the integer maximum of 2.147b,
         // we have to store it into a BIGINT, however, sequelize returns bigints
         // as strings, to counter that, we convert every bigint to a JS number
-        return parseInt(this.getDataValue(`${s}Experience`), 10);
+        return parseInt(this.getDataValue(getValueKey(s)), 10);
       }
+    };
+  });
+
+  ACTIVITIES.forEach(s => {
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+    obj[getValueKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+  });
+
+  BOSSES.forEach(s => {
+    obj[getRankKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
+    };
+    obj[getValueKey(s)] = {
+      type: DataTypes.INTEGER,
+      defaultValue: -1,
+      allowNull: false
     };
   });
 

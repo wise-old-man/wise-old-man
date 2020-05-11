@@ -2,7 +2,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const { resetDatabase } = require('../utils');
 const { Player } = require('../../src/database');
-const { SKILLS } = require('../../src/api/constants/metrics');
+const { SKILLS, getRankKey, getValueKey } = require('../../src/api/constants/metrics');
 const service = require('../../src/api/modules/snapshots/snapshot.service');
 
 const HISCORES_DATA_PATH = `${__dirname}/../data/lynx_titan_hiscores.txt`;
@@ -32,8 +32,8 @@ describe('Snapshot from external sources', () => {
         expect(snapshot.overallRank).toBe(1);
         expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
       } else {
-        expect(snapshot[`${skill}Rank`]).toBeLessThan(1000);
-        expect(snapshot[`${skill}Experience`]).toBe(200000000);
+        expect(snapshot[getRankKey(skill)]).toBeLessThan(1000);
+        expect(snapshot[getValueKey(skill)]).toBe(200000000);
       }
     });
 
@@ -54,8 +54,8 @@ describe('Snapshot from external sources', () => {
           expect(snapshot.overallRank).toBe(1);
           expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
         } else {
-          expect(snapshot[`${skill}Rank`]).toBeLessThan(1000);
-          expect(snapshot[`${skill}Experience`]).toBe(200000000);
+          expect(snapshot[getRankKey(skill)]).toBeLessThan(1000);
+          expect(snapshot[getValueKey(skill)]).toBe(200000000);
         }
       });
     });

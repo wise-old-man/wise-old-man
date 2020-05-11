@@ -1,5 +1,9 @@
-const { SKILLS } = require('../../constants/metrics');
-const { ACHIEVEMENTS } = require('../../constants/achievements');
+const { SKILLS, BOSSES, ACTIVITIES, getValueKey, getFormattedName } = require('../../constants/metrics');
+const {
+  SKILL_ACHIEVEMENTS,
+  ACTIVITY_ACHIEVEMENTS,
+  BOSS_ACHIEVEMENTS
+} = require('../../constants/achievements');
 const { Achievement } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
@@ -9,11 +13,35 @@ const snapshotService = require('../snapshots/snapshot.service');
 function getAchievements(snapshot) {
   const achievements = [];
 
-  ACHIEVEMENTS.forEach(a => {
+  SKILL_ACHIEVEMENTS.forEach(a => {
     if (a.name.includes('{skill}')) {
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        if (a.validate(snapshot[`${skill}Experience`])) {
-          achievements.push(a.name.replace('{skill}', skill));
+        if (a.validate(snapshot[getValueKey(skill)])) {
+          achievements.push(a.name.replace('{skill}', getFormattedName(skill)));
+        }
+      });
+    } else if (a.validate(snapshot)) {
+      achievements.push(a.name);
+    }
+  });
+
+  ACTIVITY_ACHIEVEMENTS.forEach(a => {
+    if (a.name.includes('{activity}')) {
+      ACTIVITIES.forEach(activity => {
+        if (a.validate(snapshot[getValueKey(activity)])) {
+          achievements.push(a.name.replace('{activity}', getFormattedName(activity)));
+        }
+      });
+    } else if (a.validate(snapshot)) {
+      achievements.push(a.name);
+    }
+  });
+
+  BOSS_ACHIEVEMENTS.forEach(a => {
+    if (a.name.includes('{boss}')) {
+      BOSSES.forEach(boss => {
+        if (a.validate(snapshot[getValueKey(boss)])) {
+          achievements.push(a.name.replace('{boss}', getFormattedName(boss)));
         }
       });
     } else if (a.validate(snapshot)) {
@@ -54,10 +82,30 @@ async function syncAchievements(playerId) {
 function getAchievementTypes() {
   const types = [];
 
-  ACHIEVEMENTS.forEach(a => {
+  SKILL_ACHIEVEMENTS.forEach(a => {
     if (a.name.includes('{skill}')) {
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        types.push(a.name.replace('{skill}', skill));
+        types.push(a.name.replace('{skill}', getFormattedName(skill)));
+      });
+    } else {
+      types.push(a.name);
+    }
+  });
+
+  ACTIVITY_ACHIEVEMENTS.forEach(a => {
+    if (a.name.includes('{activity}')) {
+      ACTIVITIES.forEach(activity => {
+        types.push(a.name.replace('{activity}', getFormattedName(activity)));
+      });
+    } else {
+      types.push(a.name);
+    }
+  });
+
+  BOSS_ACHIEVEMENTS.forEach(a => {
+    if (a.name.includes('{boss}')) {
+      BOSSES.forEach(boss => {
+        types.push(a.name.replace('{boss}', getFormattedName(boss)));
       });
     } else {
       types.push(a.name);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -11,10 +11,10 @@ import Dropdown from '../../components/Dropdown';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
-import PlayerRecordsWidget from './components/PlayerRecordsWidget';
 import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
+import PlayerRecords from './components/PlayerRecords';
 import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
@@ -32,14 +32,8 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import {
-  capitalize,
-  getSkillIcon,
-  getPlayerTypeIcon,
-  getOfficialHiscoresUrl,
-  getPlayerTooltip
-} from '../../utils';
-import { SKILLS } from '../../config';
+import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import { SKILLS, ACTIVITIES, BOSSES } from '../../config';
 import './Player.scss';
 
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];
@@ -52,36 +46,20 @@ const PERIOD_SELECTOR_OPTIONS = [
 ];
 
 const LEVEL_TYPE_OPTIONS = [
-  {
-    label: 'Show Regular Levels',
-    value: 'regular'
-  },
-  {
-    label: 'Show Virtual Levels',
-    value: 'virtual'
-  }
+  { label: 'Show Regular Levels', value: 'regular' },
+  { label: 'Show Virtual Levels', value: 'virtual' }
+];
+
+const METRIC_TYPE_OPTIONS = [
+  { label: 'Skilling', value: 'skilling' },
+  { label: 'Bossing', value: 'bossing' },
+  { label: 'Activities', value: 'activities' }
 ];
 
 const MENU_OPTIONS = [
-  {
-    label: 'Open official hiscores',
-    value: 'openOsrsHiscores'
-  },
-  {
-    label: 'Reassign player type',
-    value: 'assertType'
-  }
+  { label: 'Open official hiscores', value: 'openOsrsHiscores' },
+  { label: 'Reassign player type', value: 'assertType' }
 ];
-
-function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
-}
 
 function Player() {
   const { id } = useParams();
@@ -91,7 +69,8 @@ function Player() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [selectedDeltasPeriod, setSelectedDeltasPeriod] = useState('week');
-  const [selectedDeltasSkill, setSelectedDeltasSkill] = useState(SKILLS[0]);
+  const [selectedDeltasMetric, setSelectedDeltasMetric] = useState(SKILLS[0]);
+  const [selectedMetricType, setSelectedMetricType] = useState('skilling');
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
@@ -103,12 +82,16 @@ function Player() {
   const groups = useSelector(state => getPlayerGroups(state, id));
   const isLoadingDetails = useSelector(state => isFetching(state));
 
+  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
+  const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
+  const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
+
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'experience')
+    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, getMeasure(selectedDeltasMetric))
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasSkill, 'rank')
+    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, 'rank')
   );
 
   const trackPlayer = async () => {
@@ -147,12 +130,26 @@ function Player() {
     setSelectedDeltasPeriod((e && e.value) || null);
   };
 
-  const handleDeltasSkillSelected = e => {
-    setSelectedDeltasSkill((e && e.value) || null);
+  const handleDeltasMetricSelected = metric => {
+    setSelectedDeltasMetric(metric);
   };
 
   const handleLevelTypeSelected = e => {
     setSelectedLevelType((e && e.value) || null);
+  };
+
+  const handleMetricTypeSelected = e => {
+    setSelectedMetricType((e && e.value) || null);
+  };
+
+  const resetSelectedDeltasMetric = () => {
+    if (selectedMetricType === 'skilling') {
+      setSelectedDeltasMetric(SKILLS[0]);
+    } else if (selectedMetricType === 'activities') {
+      setSelectedDeltasMetric(ACTIVITIES[0]);
+    } else {
+      setSelectedDeltasMetric(BOSSES[0]);
+    }
   };
 
   const handleOptionSelected = async option => {
@@ -165,15 +162,15 @@ function Player() {
 
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
-  const onSkillsPeriodSelected = useCallback(handleDeltasSkillSelected, [setSelectedDeltasSkill]);
+  const onDeltasMetricSelected = useCallback(handleDeltasMetricSelected, [setSelectedDeltasMetric]);
+  const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
-
-  const metricOptions = useMemo(getMetricOptions, [SKILLS]);
+  useEffect(resetSelectedDeltasMetric, [selectedMetricType]);
 
   if (!player) {
     return null;
@@ -207,10 +204,19 @@ function Player() {
         {selectedTabIndex === 0 && (
           <>
             <div className="col-md-6 col-lg-2">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
+              />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={LEVEL_TYPE_OPTIONS} selectedIndex={0} onSelect={onLevelTypeSelected} />
+              <Selector
+                options={LEVEL_TYPE_OPTIONS}
+                selectedIndex={levelTypeIndex}
+                onSelect={onLevelTypeSelected}
+                disabled={selectedMetricType !== 'skilling'}
+              />
             </div>
           </>
         )}
@@ -218,23 +224,41 @@ function Player() {
           <>
             <div className="col-md-6 col-lg-2">
               <Selector
-                options={PERIOD_SELECTOR_OPTIONS}
-                selectedIndex={1}
-                onSelect={onDeltasPeriodSelected}
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={metricOptions} onSelect={onSkillsPeriodSelected} />
+              <Selector
+                options={PERIOD_SELECTOR_OPTIONS}
+                selectedIndex={deltasPeriodIndex}
+                onSelect={onDeltasPeriodSelected}
+              />
             </div>
           </>
         )}
-        {selectedTabIndex > 1 && (
+        {selectedTabIndex === 4 && (
           <>
             <div className="col-md-6 col-lg-2">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector
+                options={METRIC_TYPE_OPTIONS}
+                selectedIndex={metricTypeIndex}
+                onSelect={onMetricTypeSelected}
+              />
             </div>
             <div className="col-md-6 col-lg-3">
-              <Selector options={[{ label: '', value: null }]} disabled />
+              <Selector disabled />
+            </div>
+          </>
+        )}
+        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 5) && (
+          <>
+            <div className="col-md-6 col-lg-2">
+              <Selector disabled />
+            </div>
+            <div className="col-md-6 col-lg-3">
+              <Selector disabled />
             </div>
           </>
         )}
@@ -260,6 +284,7 @@ function Player() {
               <PlayerStatsTable
                 player={player}
                 showVirtualLevels={selectedLevelType === 'virtual'}
+                metricType={selectedMetricType}
                 isLoading={isLoadingDetails}
               />
             </div>
@@ -272,7 +297,13 @@ function Player() {
               <LineChart datasets={rankChartData} invertYAxis />
             </div>
             <div className="col-lg-5 col-md-12">
-              <PlayerDeltasTable deltas={deltas} period={selectedDeltasPeriod} />
+              <PlayerDeltasTable
+                deltas={deltas}
+                period={selectedDeltasPeriod}
+                metricType={selectedMetricType}
+                highlightedMetric={selectedDeltasMetric}
+                onMetricSelected={onDeltasMetricSelected}
+              />
             </div>
           </>
         )}
@@ -288,13 +319,9 @@ function Player() {
           </div>
         )}
         {selectedTabIndex === 4 && (
-          <>
-            {SKILLS.map(skill => (
-              <div key={`records-widget-${skill}`} className="col-md-6 col-lg-4">
-                <PlayerRecordsWidget records={records} metric={skill} />
-              </div>
-            ))}
-          </>
+          <div className="col">
+            <PlayerRecords records={records} metricType={selectedMetricType} />
+          </div>
         )}
         {selectedTabIndex === 5 && (
           <>

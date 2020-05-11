@@ -8,6 +8,7 @@ import LineChart from '../../components/LineChart';
 import Dropdown from '../../components/Dropdown';
 import Button from '../../components/Button';
 import Tabs from '../../components/Tabs';
+import DeleteCompetitionModal from '../../modals/DeleteCompetitionModal';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import updateAllAction from '../../redux/modules/competitions/actions/updateAll';
 import updatePlayerAction from '../../redux/modules/players/actions/track';
@@ -18,7 +19,6 @@ import CompetitionInfo from './components/CompetitionInfo';
 import TotalGainedWidget from './components/TotalGainedWidget';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import CountdownWidget from './components/CountdownWidget';
-import DeleteCompetitionModal from './components/DeleteCompetitionModal';
 import './Competition.scss';
 
 const TABS = ['Progress Table', 'Top 10 progress chart'];

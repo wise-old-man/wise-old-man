@@ -12,11 +12,11 @@ import TableListPlaceholder from '../../components/TableListPlaceholder';
 import StatusDot from '../../components/StatusDot';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchAll';
 import { getCompetitions, isFetchingAll } from '../../redux/selectors/competitions';
-import { capitalize, getSkillIcon } from '../../utils';
-import { COMPETITION_SATUSES, SKILLS } from '../../config';
+import { capitalize, getMetricIcon, getMetricName } from '../../utils';
+import { COMPETITION_SATUSES, ALL_METRICS } from '../../config';
 import './CompetitionsList.scss';
 
-const DEFAULT_METRICS_OPTION = { label: 'Any skill', value: null };
+const DEFAULT_METRICS_OPTION = { label: 'Any metric', value: null };
 const DEFAULT_STATUS_OPTION = { label: 'Any status', value: null };
 
 const RESULTS_PER_PAGE = 20;
@@ -40,7 +40,7 @@ const TABLE_CONFIG = {
     {
       key: 'metric',
       width: 30,
-      transform: value => <img src={getSkillIcon(value)} alt="" />
+      transform: value => <img src={getMetricIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
     {
@@ -64,15 +64,16 @@ const TABLE_CONFIG = {
 };
 
 function getStatusOptions() {
-  return [...COMPETITION_SATUSES.map(s => ({ label: capitalize(s), value: s }))];
+  return [DEFAULT_STATUS_OPTION, ...COMPETITION_SATUSES.map(s => ({ label: capitalize(s), value: s }))];
 }
 
 function getMetricOptions() {
   return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
+    DEFAULT_METRICS_OPTION,
+    ...ALL_METRICS.map(metric => ({
+      label: getMetricName(metric),
+      icon: getMetricIcon(metric, true),
+      value: metric
     }))
   ];
 }
@@ -87,11 +88,18 @@ function CompetitionsList() {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
 
+  // Memoized variables
+  const metricOptions = useMemo(getMetricOptions, []);
+  const statusOptions = useMemo(getStatusOptions, []);
+
   // Memoized redux variables
   const competitions = useSelector(state => getCompetitions(state));
   const isLoading = useSelector(state => isFetchingAll(state));
 
   const isFullyLoaded = competitions.length < RESULTS_PER_PAGE * (pageIndex + 1);
+
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const selectedStatusIndex = statusOptions.findIndex(o => o.value === selectedStatus);
 
   const handleSubmitSearch = _.debounce(
     () => {
@@ -173,10 +181,6 @@ function CompetitionsList() {
   const onStatusSelected = useCallback(handleStatusSelected, [setSelectedStatus]);
   const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
-  // Memoized variables
-  const metricOptions = useMemo(getMetricOptions, []);
-  const statusOptions = useMemo(getStatusOptions, []);
-
   // Submit search each time any of the search variable change
   useEffect(onSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
   useEffect(onLoadMore, [pageIndex]);
@@ -202,15 +206,15 @@ function CompetitionsList() {
         <div className="col-md-4 col-sm-6">
           <Selector
             options={metricOptions}
+            selectedIndex={selectedMetricIndex}
             onSelect={onMetricSelected}
-            defaultOption={DEFAULT_METRICS_OPTION}
           />
         </div>
         <div className="col-md-4 col-sm-6">
           <Selector
             options={statusOptions}
+            selectedIndex={selectedStatusIndex}
             onSelect={onStatusSelected}
-            defaultOption={DEFAULT_STATUS_OPTION}
           />
         </div>
       </div>

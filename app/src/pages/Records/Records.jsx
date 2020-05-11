@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -8,13 +8,11 @@ import PlayerTag from '../../components/PlayerTag';
 import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
-import { PLAYER_TYPES, SKILLS } from '../../config';
-import { formatDate, getPlayerTypeIcon, getSkillIcon, capitalize } from '../../utils';
+import { PLAYER_TYPES, ALL_METRICS } from '../../config';
+import { formatDate, getPlayerTypeIcon, getMetricIcon, capitalize, getMetricName } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import { getLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
-
-const DEFAULT_TYPE_OPTIONS = { label: 'Any player', value: null };
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.username,
@@ -45,8 +43,9 @@ const TABLE_CONFIG = {
   ]
 };
 
-function getTypeOptions() {
+function getPlayerTypeOptions() {
   return [
+    { label: 'All players', value: null },
     ...PLAYER_TYPES.map(type => ({
       label: capitalize(type),
       icon: getPlayerTypeIcon(type),
@@ -56,40 +55,40 @@ function getTypeOptions() {
 }
 
 function getMetricOptions() {
-  return [
-    ...SKILLS.map(skill => ({
-      label: capitalize(skill),
-      icon: getSkillIcon(skill, true),
-      value: skill
-    }))
-  ];
+  return ALL_METRICS.map(metric => ({
+    label: getMetricName(metric),
+    icon: getMetricIcon(metric, true),
+    value: metric
+  }));
 }
 
 function Records() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // Memoized variables
-  const metricOptions = useMemo(getMetricOptions, []);
-  const typeOptions = useMemo(getTypeOptions, []);
-
   // State variables
-  const [selectedMetric, setSelectedMetric] = useState(metricOptions[0].value);
-  const [selectedType, setSelectedType] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState('overall');
+  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
+
+  const metricOptions = useMemo(() => getMetricOptions(), []);
+  const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
+
+  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
 
-  function reloadList() {
-    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedType }));
-  }
+  const reloadList = () => {
+    dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
+  };
 
   const handleMetricSelected = e => {
     setSelectedMetric((e && e.value) || null);
   };
 
-  const handleTypeSelected = e => {
-    setSelectedType((e && e.value) || null);
+  const handlePlayerTypeSelected = e => {
+    setSelectedPlayerType((e && e.value) || null);
   };
 
   const handleDayRowClicked = index => {
@@ -108,12 +107,12 @@ function Records() {
   };
 
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedType]);
+  const onTypeSelected = useCallback(handlePlayerTypeSelected, [setSelectedPlayerType]);
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
   const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
 
-  useEffect(reloadList, [selectedMetric, selectedType]);
+  useEffect(reloadList, [selectedMetric, selectedPlayerType]);
 
   return (
     <div className="records__container container">
@@ -126,13 +125,18 @@ function Records() {
         </div>
       </div>
       <div className="records__filters row">
-        <div className="col-md-3">
-          <Selector options={metricOptions} onSelect={onMetricSelected} />
-        </div>
-        <div className="col-md-3">
+        <div className="col-lg-4 col-md-6">
           <Selector
-            options={typeOptions}
-            defaultOption={DEFAULT_TYPE_OPTIONS}
+            options={metricOptions}
+            selectedIndex={selectedMetricIndex}
+            onSelect={onMetricSelected}
+            search
+          />
+        </div>
+        <div className="col-lg-2 col-md-4">
+          <Selector
+            options={playerTypeOptions}
+            selectedIndex={selectedPlayerTypeIndex}
             onSelect={onTypeSelected}
           />
         </div>

@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { capitalize, formatNumber, getSkillIcon } from '../../../../utils';
+import { formatNumber, getMetricIcon, getMetricName } from '../../../../utils';
 import './TotalGainedWidget.scss';
 
 function TotalGainedWidget({ competition }) {
   const { metric, totalGained } = competition;
 
-  const label = `${capitalize(metric)} Exp`;
-  const icon = getSkillIcon(metric);
+  const label = `${getMetricName(metric)}`;
+  const icon = getMetricIcon(metric);
 
   const backgroundImage = {
-    backgroundImage: `url("/img/widgets/${metric}.png")`,
+    backgroundImage: `url("/img/runescape/backgrounds/${metric}.png")`,
     backgroundSize: 'cover'
   };
 

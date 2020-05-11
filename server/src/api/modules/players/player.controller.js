@@ -31,7 +31,6 @@ async function track(req, res, next) {
     const player = await service.update(username);
 
     // Run secondary jobs
-    jobs.add('ConfirmPlayerType', { player });
     jobs.add('ImportPlayer', { player });
 
     // Send the http response back

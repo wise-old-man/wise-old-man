@@ -172,7 +172,7 @@ async function getMembersList(id) {
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || -1 }))
+    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => b.overallExperience - a.overallExperience);
 }
 
@@ -256,6 +256,8 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
+  let groupMembers;
+
   if (members) {
     // Check if every username in the list is valid
     const invalidUsernames = playerService.isValidUsernames(members.map(member => member.username));
@@ -267,20 +269,17 @@ async function edit(id, name, verificationCode, members) {
       );
     }
 
-    const newMembers = await setMembers(group, members);
-    return { ...format(group), members: newMembers };
+    groupMembers = await setMembers(group, members);
+  } else {
+    const memberships = await group.getMembers();
+    groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
   if (name) {
     await group.update({ name: sanitizeName(name) });
   }
 
-  const memberships = await group.getMembers();
-
-  return {
-    ...format(group),
-    members: memberships.map(p => ({ ...p.toJSON(), memberships: undefined }))
-  };
+  return { ...format(group), members: groupMembers };
 }
 
 /**

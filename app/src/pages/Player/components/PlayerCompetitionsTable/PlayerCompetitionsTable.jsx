@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import _ from 'lodash';
 import TableList from '../../../../components/TableList';
 import StatusDot from '../../../../components/StatusDot';
-import { getSkillIcon } from '../../../../utils';
+import { getMetricIcon } from '../../../../utils';
 
 function convertStatus(status) {
   switch (status) {
@@ -25,7 +25,7 @@ const TABLE_CONFIG = {
     {
       key: 'metric',
       width: 30,
-      transform: value => <img src={getSkillIcon(value)} alt="" />
+      transform: value => <img src={getMetricIcon(value)} alt="" />
     },
     { key: 'title', className: () => '-primary' },
     {
