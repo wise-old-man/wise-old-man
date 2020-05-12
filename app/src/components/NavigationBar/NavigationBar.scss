@@ -93,7 +93,7 @@
         .text-input {
           border: 1px solid $gray-12;
           padding: 6px 9px;
-          width: 135px;
+          min-width: 135px;
         }
 
         .nav-links__item {
