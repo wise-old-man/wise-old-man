@@ -194,7 +194,9 @@ async function create(name, members) {
 
   // Check if every username in the list is valid
   if (members && members.length > 0) {
-    const invalidUsernames = playerService.isValidUsernames(members.map(member => member.username));
+    const invalidUsernames = members
+      .map(({ username }) => username)
+      .filter(username => !playerService.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
@@ -258,9 +260,11 @@ async function edit(id, name, verificationCode, members) {
 
   let groupMembers;
 
+  // Check if every username in the list is valid
   if (members) {
-    // Check if every username in the list is valid
-    const invalidUsernames = playerService.isValidUsernames(members.map(member => member.username));
+    const invalidUsernames = members
+      .map(({ username }) => username)
+      .filter(username => !playerService.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(

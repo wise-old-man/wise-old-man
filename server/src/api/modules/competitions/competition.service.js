@@ -270,11 +270,9 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
     }
   }
 
+  // Check if every username in the list is valid
   if (participants && participants.length > 0) {
-    // Check if every username in the list is valid
-    const invalidUsernames = playerService.isValidUsernames(
-      participants.map(participant => participant.username)
-    );
+    const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
@@ -370,11 +368,9 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   let competitionParticipants;
 
+  // Check if every username in the list is valid
   if (participants) {
-    // Check if every username in the list is valid
-    const invalidUsernames = playerService.isValidUsernames(
-      participants.map(participant => participant.username)
-    );
+    const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(

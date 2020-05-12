@@ -27,31 +27,22 @@ function formatUsername(username) {
     .join(' ');
 }
 
-/**
- * Check an array of usernames for invalid values
- *
- * If verifying one name, pass the username in an array still
- */
-function isValidUsernames(usernames) {
-  const badNames = [];
+function isValidUsername(username) {
+  const formattedUsername = formatUsername(username);
 
-  usernames.forEach(username => {
-    const formattedUsername = formatUsername(username);
+  if (formattedUsername.length < 1 || formattedUsername.length > 12) {
+    return false;
+  }
 
-    if (formattedUsername.length < 1 || formattedUsername.length > 12) {
-      badNames.push(formattedUsername);
-    }
+  if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
+    return false;
+  }
 
-    if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
-      badNames.push(formattedUsername);
-    }
+  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
+    return false;
+  }
 
-    if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
-      badNames.push(formattedUsername);
-    }
-  });
-
-  return badNames;
+  return true;
 }
 
 function shouldUpdate(updatedAt) {
@@ -435,7 +426,7 @@ async function getHiscoresData(username, type = 'regular') {
 }
 
 exports.formatUsername = formatUsername;
-exports.isValidUsernames = isValidUsernames;
+exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
 exports.getDataById = getDataById;
