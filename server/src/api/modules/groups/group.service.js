@@ -194,10 +194,15 @@ async function create(name, members) {
 
   // Check if every username in the list is valid
   if (members && members.length > 0) {
-    for (let i = 0; i < members.length; i++) {
-      if (!playerService.isValidUsername(members[i].username)) {
-        throw new BadRequestError(`Invalid player username: ${members[i].username}`);
-      }
+    const invalidUsernames = members
+      .map(({ username }) => username)
+      .filter(username => !playerService.isValidUsername(username));
+
+    if (invalidUsernames.length > 0) {
+      throw new BadRequestError(
+        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        invalidUsernames
+      );
     }
   }
 
@@ -255,12 +260,17 @@ async function edit(id, name, verificationCode, members) {
 
   let groupMembers;
 
+  // Check if every username in the list is valid
   if (members) {
-    // Check if every username in the list is valid
-    for (let i = 0; i < members.length; i++) {
-      if (!playerService.isValidUsername(members[i].username)) {
-        throw new BadRequestError(`Invalid player username: ${members[i].username}`);
-      }
+    const invalidUsernames = members
+      .map(({ username }) => username)
+      .filter(username => !playerService.isValidUsername(username));
+
+    if (invalidUsernames.length > 0) {
+      throw new BadRequestError(
+        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        invalidUsernames
+      );
     }
 
     groupMembers = await setMembers(group, members);
