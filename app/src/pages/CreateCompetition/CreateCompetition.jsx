@@ -11,14 +11,14 @@ import TextButton from '../../components/TextButton';
 import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
+import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
-import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
-import { isCreating } from '../../redux/selectors/competitions';
+import { isCreating, getError } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
@@ -34,6 +34,7 @@ function CreateCompetition() {
   const dispatch = useDispatch();
 
   const isSubmitting = useSelector(state => isCreating(state));
+  const error = useSelector(state => getError(state));
 
   const metricOptions = useMemo(getMetricOptions, []);
 
@@ -189,6 +190,7 @@ function CreateCompetition() {
 
               <ParticipantsSelector
                 participants={participants}
+                invalidUsernames={error.data}
                 onParticipantAdded={onParticipantAdded}
                 onParticipantRemoved={onParticipantRemoved}
               />

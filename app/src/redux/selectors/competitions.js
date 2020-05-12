@@ -8,6 +8,7 @@ const competitionsSelector = state => state.competitions.competitions;
 const playerCompetitionsSelector = state => state.competitions.playerCompetitions;
 const groupCompetitionsSelector = state => state.competitions.groupCompetitions;
 
+export const getError = createSelector(rootSelector, root => root.error);
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
