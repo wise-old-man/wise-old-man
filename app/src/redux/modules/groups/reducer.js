@@ -47,7 +47,8 @@ const initialState = {
   isFetchingMonthlyTop: false,
   isFetchingPlayerGroups: false,
   groups: {},
-  playerGroups: {}
+  playerGroups: {},
+  error: { message: null, data: null }
 };
 
 export default function groupsReducer(state = initialState, action) {
@@ -63,7 +64,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case CREATE_GROUP_FAILURE:
-      return { ...state, isCreating: false, error: action.error };
+      return { ...state, isCreating: false, error: { message: action.error, data: action.data } };
 
     case EDIT_GROUP_REQUEST:
       return { ...state, isEditing: true };
@@ -76,7 +77,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case EDIT_GROUP_FAILURE:
-      return { ...state, isEditing: false, error: action.error };
+      return { ...state, isEditing: false, error: { message: action.error, data: action.data } };
 
     case FETCH_GROUPS_REQUEST:
       return { ...state, isFetchingAll: true };
@@ -91,7 +92,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case FETCH_GROUPS_FAILURE:
-      return { ...state, isFetchingAll: false, error: action.error };
+      return { ...state, isFetchingAll: false, error: { message: action.error } };
 
     case FETCH_PLAYER_GROUPS_REQUEST:
       return { ...state, isFetchingPlayerGroups: true };
@@ -105,7 +106,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case FETCH_PLAYER_GROUPS_FAILURE:
-      return { ...state, isFetchingPlayerGroups: false, error: action.error };
+      return { ...state, isFetchingPlayerGroups: false, error: { message: action.error } };
 
     case FETCH_GROUP_REQUEST:
       return { ...state, isFetchingDetails: true };
@@ -118,7 +119,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case FETCH_GROUP_FAILURE:
-      return { ...state, isFetchingDetails: false, error: action.error };
+      return { ...state, isFetchingDetails: false, error: { message: action.error } };
 
     case FETCH_GROUP_MEMBERS_REQUEST:
       return { ...state, isFetchingMembers: true };
@@ -134,7 +135,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case FETCH_GROUP_MEMBERS_FAILURE:
-      return { ...state, isFetchingMembers: false, error: action.error };
+      return { ...state, isFetchingMembers: false, error: { message: action.error } };
 
     case FETCH_GROUP_MONTHLY_TOP_REQUEST:
       return { ...state, isFetchingMonthlyTop: true };
@@ -153,7 +154,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case FETCH_GROUP_MONTHLY_TOP_FAILURE:
-      return { ...state, isFetchingMonthlyTop: false, error: action.error };
+      return { ...state, isFetchingMonthlyTop: false, error: { message: action.error } };
 
     case DELETE_GROUP_REQUEST:
       return { ...state, isDeleting: true };
@@ -166,7 +167,7 @@ export default function groupsReducer(state = initialState, action) {
       };
 
     case DELETE_GROUP_FAILURE:
-      return { ...state, isDeleting: false, error: action.error };
+      return { ...state, isDeleting: false, error: { message: action.error } };
 
     default:
       return state;

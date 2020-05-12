@@ -8,14 +8,16 @@ import { getSearchResults } from '../../redux/selectors/players';
 import searchAction from '../../redux/modules/players/actions/search';
 import './MembersSelector.scss';
 
-function getTableConfig(onRemove, onSwitchRole) {
+function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
+  const isInvalid = username => invalidUsernames && invalidUsernames.includes(username);
+
   return {
     uniqueKey: row => row.username,
     columns: [
       {
         key: 'username',
         width: 170,
-        className: () => '-primary'
+        className: val => (isInvalid(val) ? '-negative' : '-primary')
       },
       {
         key: 'role'
@@ -48,11 +50,15 @@ function getTableConfig(onRemove, onSwitchRole) {
   };
 }
 
-function mapToSuggestion(player) {
-  return { label: player.username, value: player.username };
-}
+const mapToSuggestion = player => ({ label: player.username, value: player.username });
 
-function MembersSelector({ members, onMemberAdded, onMemberRemoved, onMemberRoleSwitched }) {
+function MembersSelector({
+  members,
+  invalidUsernames,
+  onMemberAdded,
+  onMemberRemoved,
+  onMemberRoleSwitched
+}) {
   const dispatch = useDispatch();
   const searchResults = useSelector(state => getSearchResults(state));
 
@@ -83,7 +89,8 @@ function MembersSelector({ members, onMemberAdded, onMemberRemoved, onMemberRole
   const onDeselected = useCallback(handleDeselection, []);
   const onRoleSwitch = useCallback(handleRoleSwitch, []);
 
-  const tableConfig = useMemo(() => getTableConfig(onDeselected, onRoleSwitch), [
+  const tableConfig = useMemo(() => getTableConfig(invalidUsernames, onDeselected, onRoleSwitch), [
+    invalidUsernames,
     onDeselected,
     onRoleSwitch
   ]);
@@ -106,8 +113,13 @@ function MembersSelector({ members, onMemberAdded, onMemberRemoved, onMemberRole
   );
 }
 
+MembersSelector.defaultProps = {
+  invalidUsernames: []
+};
+
 MembersSelector.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  invalidUsernames: PropTypes.arrayOf(PropTypes.string),
   onMemberAdded: PropTypes.func.isRequired,
   onMemberRemoved: PropTypes.func.isRequired,
   onMemberRoleSwitched: PropTypes.func.isRequired
