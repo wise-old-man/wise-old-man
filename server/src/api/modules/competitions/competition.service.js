@@ -251,7 +251,7 @@ async function view(id) {
  * Note: if a groupId is given, the participants will be
  * the group's members, and the "participants" argument will be ignored.
  */
-async function create(title, metric, startsAt, endsAt, groupId, participants) {
+async function create(title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants) {
   if (!title) {
     throw new BadRequestError('Invalid competition title.');
   }
@@ -273,10 +273,20 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
   }
 
   if (groupId) {
+    if (!groupVerificationCode) {
+      throw new BadRequestError('Invalid verification code.');
+    }
+
     const group = await groupService.findOne(groupId);
 
     if (!group) {
       throw new BadRequestError('Invalid group id.');
+    }
+
+    const verified = await verifyCode(group.verificationHash, groupVerificationCode);
+
+    if (!verified) {
+      throw new BadRequestError('Incorrect group verification code.');
     }
   }
 

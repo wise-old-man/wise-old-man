@@ -39,6 +39,17 @@
     &__label-info {
       color: $gray-60;
       margin-left: 5px;
+
+      &.-right {
+        flex-grow: 1;
+        text-align: right;
+        font-size: 0.9em;
+      }
+
+      a {
+        color: white;
+        margin-left: 6px;
+      }
     }
   }
 

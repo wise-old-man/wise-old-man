@@ -159,7 +159,15 @@ function EditGroup() {
         </div>
 
         <div className="form-row">
-          <span className="form-row__label">Verification code</span>
+          <span className="form-row__label">
+            Verification code
+            <span className="form-row__label-info -right">
+              Lost your verification code?
+              <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+                Join our discord
+              </a>
+            </span>
+          </span>
           <TextInput type="password" placeholder="Ex: 123-456-789" onChange={onVerificationChanged} />
         </div>
 

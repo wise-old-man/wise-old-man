@@ -165,6 +165,12 @@ export default [
         content:
           'The response will contain a "verificationCode", this code must be stored \
           as it is not possible to edit or delete the competition at a later date without it.'
+      },
+      {
+        type: 'info',
+        content:
+          "Instead of an array of participants, you can also supply the values \
+          'groupId' and 'groupVerificationCode' to create a group competition"
       }
     ],
     body: {
@@ -235,6 +241,19 @@ export default [
       {
         description: "If one of the participant' usernames is invalid",
         body: { message: 'Invalid player username: Crazy@@Name' }
+      },
+      {
+        description: 'If a groupId is supplied but does not exist',
+        body: { message: 'Invalid group id.' }
+      },
+      {
+        description: 'If a groupId is supplied but groupVerificationCode is not.',
+        body: { message: 'Invalid verification code.' }
+      },
+      {
+        description:
+          "If a groupVerificationCode is supplied but does match the group's actual verification code.",
+        body: { message: 'Incorrect group verification code.' }
       }
     ]
   },

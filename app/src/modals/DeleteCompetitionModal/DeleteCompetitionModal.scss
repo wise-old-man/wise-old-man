@@ -37,14 +37,15 @@
     }
 
     .modal-title {
-      font-size: 1.3em;
+      font-size: 1.2em;
+      width: 100%;
     }
 
     .modal-warning {
       font-size: 0.9em;
       display: block;
       color: $gray-60;
-      margin-top: 5px;
+      margin-top: 10px;
     }
 
     .verification-input {
@@ -67,12 +68,26 @@
     }
 
     .button {
-      margin-top: 40px;
+      margin-top: 30px;
       width: 100%;
       background: $negative-red;
 
       &:hover {
         background: $negative-red;
+      }
+    }
+
+    .lost-code {
+      font-size: 0.8em;
+      color: $gray-60;
+      margin: auto;
+      margin-top: 25px;
+
+      a {
+        display: block;
+        color: white;
+        margin-left: 6px;
+        margin-top: 5px;
       }
     }
   }
