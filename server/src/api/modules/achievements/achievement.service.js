@@ -37,7 +37,7 @@ async function getAchievements(snapshot) {
     }
   });
 
-  const prev = await snapshotService.findFirstBefore(snapshot.createdAt);
+  const prev = await snapshotService.findFirstBefore(snapshot.playerId, snapshot.createdAt);
   if (!prev) return achievements;
 
   BOSS_ACHIEVEMENTS.forEach(a => {
