@@ -56,6 +56,27 @@ async function findAll(playerId, limit) {
 }
 
 /**
+ * Finds all snapshots for a given player.
+ */
+async function findFirstBefore(playerId, date) {
+  if (!playerId) {
+    throw new BadRequestError(`Invalid player id.`);
+  }
+
+  const result = await Snapshot.findOne({
+    where: {
+      playerId,
+      createdAt: {
+        [Op.lt]: date
+      }
+    },
+    order: [['createdAt', 'DESC']]
+  });
+
+  return result;
+}
+
+/**
  * Finds all player snapshots, grouped by period.
  *
  * Ex:
@@ -141,9 +162,10 @@ async function findFirstIn(playerId, period) {
  * Useful for finding the start snapshot for any competition participation.
  */
 async function findFirstSince(playerId, date) {
+  const queryDate = new Date(date);
   const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [['createdAt', 'ASC']]
+    where: { playerId, createdAt: { [Op.gte]: queryDate } },
+    order: [['createdAt', 'DESC']]
   });
   return result;
 }
@@ -316,6 +338,7 @@ exports.format = format;
 exports.findAll = findAll;
 exports.findAllGrouped = findAllGrouped;
 exports.findAllInPeriod = findAllInPeriod;
+exports.findFirstBefore = findFirstBefore;
 exports.findFirstIn = findFirstIn;
 exports.findFirstSince = findFirstSince;
 exports.findLatest = findLatest;

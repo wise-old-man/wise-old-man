@@ -101,10 +101,10 @@ const BOSS_ACHIEVEMENTS = [
   },
   {
     name: '100 kills (all bosses)',
-    validate: snapshot => {
+    validate: (snapshot, prev) => {
       let count = 0;
-      BOSSES.forEach(skill => {
-        if (snapshot[getValueKey(skill)] >= 100) {
+      BOSSES.forEach(type => {
+        if (snapshot[getValueKey(type)] >= 100 && prev[getValueKey(type)] !== -1) {
           count += 1;
         }
       });

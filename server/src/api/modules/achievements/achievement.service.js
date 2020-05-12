@@ -10,7 +10,7 @@ const snapshotService = require('../snapshots/snapshot.service');
 /**
  * Finds all achievements that should be attributed to a player.
  */
-function getAchievements(snapshot) {
+async function getAchievements(snapshot) {
   const achievements = [];
 
   SKILL_ACHIEVEMENTS.forEach(a => {
@@ -37,14 +37,17 @@ function getAchievements(snapshot) {
     }
   });
 
+  const prev = await snapshotService.findFirstBefore(snapshot.createdAt);
+  if (!prev) return achievements;
+
   BOSS_ACHIEVEMENTS.forEach(a => {
     if (a.name.includes('{boss}')) {
       BOSSES.forEach(boss => {
-        if (a.validate(snapshot[getValueKey(boss)])) {
+        if (a.validate(snapshot[getValueKey(boss)]) && prev[getValueKey(boss)] !== -1) {
           achievements.push(a.name.replace('{boss}', getFormattedName(boss)));
         }
       });
-    } else if (a.validate(snapshot)) {
+    } else if (a.validate(snapshot) && prev) {
       achievements.push(a.name);
     }
   });
