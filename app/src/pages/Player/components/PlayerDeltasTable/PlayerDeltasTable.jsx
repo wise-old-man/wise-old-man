@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import NumberLabel from '../../../../components/NumberLabel';
@@ -151,17 +152,32 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
     return null;
   }
 
-  const [rows, columns] = getTableData(deltas[period].data, metricType);
+  const { data } = deltas[period];
+
+  const [rows, columns] = getTableData(data, metricType);
   const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
 
+  const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.delta === 0).length > 0;
+
   return (
-    <Table
-      rows={rows}
-      columns={columns}
-      onRowClicked={onRowClicked}
-      highlightedIndex={highlightedIndex}
-      clickable
-    />
+    <>
+      {warning && (
+        <div className="deltas-warning">
+          <img src="/img/icons/warn_orange.svg" alt="" />
+          <span>
+            If your skill ranks wrongfuly show 0 gained, don&apos;t worry, this was caused by a bug and
+            it will go away on its own within a few days/weeks.
+          </span>
+        </div>
+      )}
+      <Table
+        rows={rows}
+        columns={columns}
+        onRowClicked={onRowClicked}
+        highlightedIndex={highlightedIndex}
+        clickable
+      />
+    </>
   );
 }
 

@@ -59,6 +59,25 @@
     .chart__container {
       margin-bottom: 26px;
     }
+
+    .deltas-warning {
+      background: none;
+      border-radius: $border-radius;
+      padding: 10px;
+      border: 1px dashed #f4f79e;
+      font-size: 0.8em;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      line-height: 1.6em;
+
+      img {
+        filter: brightness(4);
+        opacity: 0.6;
+        margin-right: 10px;
+      }
+    }
   }
 }
 

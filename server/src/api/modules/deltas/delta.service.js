@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
-const { ALL_METRICS, getRankKey, getValueKey, getMeasure } = require('../../constants/metrics');
+const { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { durationBetween } = require('../../util/dates');
 const { Player, Delta, Snapshot, InitialValues, sequelize } = require('../../../database');
@@ -37,17 +37,19 @@ function format(delta, diffs) {
       const endValue = endSnapshot[valueKey];
       const endRank = endSnapshot[rankKey];
 
-      const startValue = startSnapshot[valueKey] === -1 ? initialValue : startSnapshot[valueKey];
-      const startRank = startSnapshot[rankKey] === -1 ? initialRank : startSnapshot[rankKey];
+      const startValue = startSnapshot[valueKey];
+      const startRank = startSnapshot[rankKey];
 
       obj.data[s] = {
         rank: {
-          start: startRank,
+          // Do not use initial ranks for skill, to prevent -1 ranks
+          // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+          start: startRank === -1 && !isSkill(s) ? initialRank : Math.max(startRank, 0),
           end: endRank,
           delta: diffs[rankKey]
         },
         [getMeasure(s)]: {
-          start: startValue,
+          start: startValue === -1 ? initialValue : startValue,
           end: endValue,
           delta: diffs[valueKey]
         }
