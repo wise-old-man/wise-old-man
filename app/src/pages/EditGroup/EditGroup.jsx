@@ -7,12 +7,12 @@ import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
-import MembersSelector from './components/MembersSelector';
+import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import editGroupAction from '../../redux/modules/groups/actions/edit';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
-import { getGroup, isEditing } from '../../redux/selectors/groups';
+import { getGroup, isEditing, getError } from '../../redux/selectors/groups';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -26,6 +26,7 @@ function EditGroup() {
   const [verificationCode, setVerificationCode] = useState('');
 
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
+  const error = useSelector(state => getError(state));
   const isSubmitting = useSelector(state => isEditing(state));
 
   const fetchDetails = () => {
@@ -150,6 +151,7 @@ function EditGroup() {
 
           <MembersSelector
             members={members}
+            invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}
             onMemberRoleSwitched={onMemberRoleSwitched}

@@ -29,7 +29,8 @@ function createCompetitionSuccess(data) {
 function createCompetitionFailure(error) {
   return {
     type: CREATE_COMPETITION_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
+    data: error.response.data.data
   };
 }
 

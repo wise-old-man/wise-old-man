@@ -45,7 +45,8 @@ const initialState = {
   isFetchingDetails: false,
   competitions: {},
   playerCompetitions: {},
-  groupCompetitions: {}
+  groupCompetitions: {},
+  error: { message: null, data: null }
 };
 
 export default function competitionsReducer(state = initialState, action) {
@@ -66,7 +67,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case CREATE_COMPETITION_FAILURE:
-      return { ...state, isCreating: false, error: action.error };
+      return { ...state, isCreating: false, error: { message: action.error, data: action.data } };
 
     case EDIT_COMPETITION_REQUEST:
       return { ...state, isEditing: true };
@@ -79,7 +80,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case EDIT_COMPETITION_FAILURE:
-      return { ...state, isEditing: false, error: action.error };
+      return { ...state, isEditing: false, error: { message: action.error, data: action.data } };
 
     case DELETE_COMPETITION_REQUEST:
       return { ...state, isDeleting: true };
@@ -92,7 +93,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case DELETE_COMPETITION_FAILURE:
-      return { ...state, isDeleting: false, error: action.error };
+      return { ...state, isDeleting: false, error: { message: action.error } };
 
     case FETCH_COMPETITIONS_REQUEST:
       return { ...state, isFetchingAll: true };
@@ -107,7 +108,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case FETCH_COMPETITIONS_FAILURE:
-      return { ...state, isFetchingAll: false, error: action.error };
+      return { ...state, isFetchingAll: false, error: { message: action.error } };
 
     case FETCH_COMPETITION_REQUEST:
       return { ...state, isFetchingDetails: true };
@@ -120,7 +121,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case FETCH_COMPETITION_FAILURE:
-      return { ...state, isFetchingDetails: false, error: action.error };
+      return { ...state, isFetchingDetails: false, error: { message: action.error } };
 
     case FETCH_PLAYER_COMPETITIONS_REQUEST:
       return { ...state, isFetchingPlayerCompetitions: true };
@@ -134,7 +135,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case FETCH_PLAYER_COMPETITIONS_FAILURE:
-      return { ...state, isFetchingPlayerCompetitions: false, error: action.error };
+      return { ...state, isFetchingPlayerCompetitions: false, error: { message: action.error } };
 
     case FETCH_GROUP_COMPETITIONS_REQUEST:
       return { ...state, isFetchingGroupCompetitions: true };
@@ -148,7 +149,7 @@ export default function competitionsReducer(state = initialState, action) {
       };
 
     case FETCH_GROUP_COMPETITIONS_FAILURE:
-      return { ...state, isFetchingGroupCompetitions: false, error: action.error };
+      return { ...state, isFetchingGroupCompetitions: false, error: { message: action.error } };
 
     default:
       return state;

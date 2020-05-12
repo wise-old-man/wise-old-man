@@ -5,6 +5,7 @@ const rootSelector = state => state.groups;
 const groupsSelector = state => state.groups.groups;
 const playerGroupsSelector = state => state.groups.playerGroups;
 
+export const getError = createSelector(rootSelector, root => root.error);
 export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);

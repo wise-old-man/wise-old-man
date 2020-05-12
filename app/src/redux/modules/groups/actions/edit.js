@@ -25,7 +25,8 @@ function editGroupSuccess(data) {
 function editGroupFailure(error) {
   return {
     type: EDIT_GROUP_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
+    data: error.response.data.data
   };
 }
 

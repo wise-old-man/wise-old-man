@@ -286,7 +286,8 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+         contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
     }
@@ -384,7 +385,8 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+         contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
     }
