@@ -2,10 +2,10 @@ import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import AutoSuggestInput from '../../../../components/AutoSuggestInput';
-import Table from '../../../../components/Table';
-import { getSearchResults } from '../../../../redux/selectors/players';
-import searchAction from '../../../../redux/modules/players/actions/search';
+import AutoSuggestInput from '../AutoSuggestInput';
+import Table from '../Table';
+import { getSearchResults } from '../../redux/selectors/players';
+import searchAction from '../../redux/modules/players/actions/search';
 import './MembersSelector.scss';
 
 function getTableConfig(onRemove, onSwitchRole) {
@@ -14,7 +14,7 @@ function getTableConfig(onRemove, onSwitchRole) {
     columns: [
       {
         key: 'username',
-        width: 130,
+        width: 170,
         className: () => '-primary'
       },
       {

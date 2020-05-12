@@ -7,7 +7,7 @@ import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
-import MembersSelector from './components/MembersSelector';
+import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import editGroupAction from '../../redux/modules/groups/actions/edit';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
