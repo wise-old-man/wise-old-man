@@ -34,7 +34,7 @@ function DeleteGroupModal({ group, onCancel }) {
         <button className="close-btn" type="button" onClick={onCancel}>
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
-        <b className="modal-title">{`Delete ${group.name}?`}</b>
+        <b className="modal-title">Are you sure you want to delete this group?</b>
         <span className="modal-warning">This action is permanent and cannot be reversed</span>
         <input
           className="verification-input"
@@ -43,6 +43,12 @@ function DeleteGroupModal({ group, onCancel }) {
           placeholder="Verification code"
           onChange={onVerificationInput}
         />
+        <div className="lost-code">
+          Lost your verification code?
+          <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+            Join our discord for help
+          </a>
+        </div>
         <Button text="Delete" onClick={onDeleteClicked} />
       </div>
     </div>
