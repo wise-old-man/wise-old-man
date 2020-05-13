@@ -4,22 +4,22 @@ const {
   ACTIVITY_ACHIEVEMENTS,
   BOSS_ACHIEVEMENTS
 } = require('../../constants/achievements');
-const { Achievement } = require('../../../database');
+const { Achievement, sequelize } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
 /**
  * Searches through the player's snapshot history
  * to try and determine the date of a missing achievement.
  */
-async function addPastDates(playerId, missingAchievements) {
-  if (!missingAchievements || missingAchievements.length === 0) {
+async function addPastDates(playerId, achievements) {
+  if (!achievements || achievements.length === 0) {
     return [];
   }
 
   const allSnapshots = await snapshotService.findAll(playerId, 1000);
 
   if (!allSnapshots || allSnapshots.length < 2) {
-    return missingAchievements;
+    return achievements;
   }
 
   // Format: {'1k Zulrah kills': *date*, '99 Strength': *date*}
@@ -40,7 +40,7 @@ async function addPastDates(playerId, missingAchievements) {
     }
   }
 
-  return missingAchievements.map(a => {
+  return achievements.map(a => {
     return { ...a, createdAt: dateMap[a.type] || a.createdAt };
   });
 }
@@ -180,6 +180,37 @@ function getPreviousAchievements(previousSnapshot) {
 }
 
 /**
+ * Go through the player's "unknown" date achievements, and try
+ * to determine their date by searching through the player's snapshot
+ * history. (Helps when importing CML history)
+ */
+async function reevaluateAchievements(playerId) {
+  // Find all unknown date achievements
+  const unknown = await Achievement.findAll({ where: { playerId, createdAt: new Date(0) } });
+
+  // Attach dates to as many unknown achievements as possible
+  const datedUnknownAchievements = await addPastDates(
+    playerId,
+    unknown.map(u => ({ type: u.type, createdAt: u.createdAt }))
+  );
+
+  // Include only achievements with a valid (not unknown) date
+  const toUpdate = datedUnknownAchievements.filter(d => d.createdAt > 0).map(t => ({ ...t, playerId }));
+
+  if (toUpdate && toUpdate.length > 0) {
+    const transaction = await sequelize.transaction();
+
+    // Remove outdated achievements
+    await Achievement.destroy({ where: { playerId, type: toUpdate.map(t => t.type) }, transaction });
+
+    // Re-add them with the correct date
+    await Achievement.bulkCreate(toUpdate, { transaction, ignoreDuplicates: true });
+
+    await transaction.commit();
+  }
+}
+
+/**
  * Adds all missing player achievements.
  * (Since ignoreDuplicates is true, it will only insert unique achievements)
  */
@@ -290,4 +321,5 @@ async function findAll(playerId, includeMissing = false) {
 }
 
 exports.syncAchievements = syncAchievements;
+exports.reevaluateAchievements = reevaluateAchievements;
 exports.findAll = findAll;
