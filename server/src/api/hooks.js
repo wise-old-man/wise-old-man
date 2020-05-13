@@ -17,6 +17,7 @@ function setup() {
 
     jobs.add('SyncPlayerDeltas', { playerId });
     jobs.add('SyncPlayerParticipations', { playerId });
+    jobs.add('ReevaluatePlayerAchievements', { playerId });
   });
 
   Delta.afterUpdate(({ playerId, period }) => {
