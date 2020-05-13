@@ -65,10 +65,6 @@ const SKILL_ACHIEVEMENTS = [
 
 const ACTIVITY_ACHIEVEMENTS = [
   {
-    name: '500 {activity} score',
-    validate: score => score >= 500
-  },
-  {
     name: '1k {activity} score',
     validate: score => score >= 1000
   },

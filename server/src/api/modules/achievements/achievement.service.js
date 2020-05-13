@@ -8,6 +8,44 @@ const { Achievement } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
 /**
+ * Searches through the player's snapshot history
+ * to try and determine the date of a missing achievement.
+ */
+async function addPastDates(playerId, missingAchievements) {
+  if (!missingAchievements || missingAchievements.length === 0) {
+    return [];
+  }
+
+  const allSnapshots = await snapshotService.findAll(playerId, 1000);
+
+  if (!allSnapshots || allSnapshots.length < 2) {
+    return missingAchievements;
+  }
+
+  // Format: {'1k Zulrah kills': *date*, '99 Strength': *date*}
+  const dateMap = {};
+
+  for (let i = 0; i < allSnapshots.length - 1; i++) {
+    const prev = allSnapshots[i];
+    const next = allSnapshots[i + 1];
+
+    const newAchievements = getNewAchievements(prev, next);
+
+    if (newAchievements.length > 0) {
+      newAchievements.forEach(a => {
+        if (!dateMap[a.type]) {
+          dateMap[a.type] = new Date(Math.min(a.createdAt, next.createdAt));
+        }
+      });
+    }
+  }
+
+  return missingAchievements.map(a => {
+    return { ...a, createdAt: dateMap[a.type] || a.createdAt };
+  });
+}
+
+/**
  * Calculates any new achievements whose thresholds were
  * crossed in between the current and previous snapshot.
  *
@@ -166,11 +204,13 @@ async function syncAchievements(playerId) {
     a => !existingAchievements.find(e => e.type === a.type)
   );
 
+  const datedMissingAchievements = await addPastDates(playerId, missingAchievements);
+
   // Find any new achievements (only achieved since the last snapshot)
   const newAchievements = getNewAchievements(current, previous).map(a => ({ ...a, playerId }));
 
   // Combine missing and new achievements
-  const toInsert = [...missingAchievements, ...newAchievements];
+  const toInsert = [...datedMissingAchievements, ...newAchievements];
 
   if (!toInsert || !toInsert.length) {
     return;
