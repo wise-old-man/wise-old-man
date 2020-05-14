@@ -35,7 +35,7 @@ function getCombatLevel({
   // This is due to the player not being on the Hiscores
   // eslint-disable-next-line prefer-rest-params
   if (levels.some(level => level === 0)) {
-    return '-';
+    return 0;
   }
 
   const [

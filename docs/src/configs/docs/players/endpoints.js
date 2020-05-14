@@ -26,7 +26,8 @@ export default [
             type: 'ironman',
             lastImportedAt: null,
             registeredAt: '2020-04-04T21:48:19.197Z',
-            updatedAt: '2020-04-04T21:48:29.235Z'
+            updatedAt: '2020-04-04T21:48:29.235Z',
+            combatLevel: 126
           },
           {
             id: 45,
@@ -34,7 +35,8 @@ export default [
             type: 'regular',
             lastImportedAt: null,
             registeredAt: '2020-04-04T21:48:31.367Z',
-            updatedAt: '2020-04-04T21:48:39.636Z'
+            updatedAt: '2020-04-04T21:48:39.636Z',
+            combatLevel: 124
           }
         ]
       }
@@ -80,6 +82,7 @@ export default [
           lastImportedAt: '2020-04-03T21:43:21.899Z',
           registeredAt: '2020-04-03T21:43:17.574Z',
           updatedAt: '2020-04-04T16:43:36.230Z',
+          combatLevel: 125,
           latestSnapshot: {
             createdAt: '2020-04-04T16:43:36.219Z',
             importedAt: null,
@@ -147,6 +150,7 @@ export default [
           lastImportedAt: '2020-04-03T21:43:21.899Z',
           registeredAt: '2020-04-03T21:43:17.574Z',
           updatedAt: '2020-04-04T22:33:51.594Z',
+          combatLevel: 125,
           latestSnapshot: {
             createdAt: '2020-04-04T22:33:51.567Z',
             importedAt: null,

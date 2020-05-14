@@ -20,7 +20,7 @@ function formatData(player) {
     },
     {
       key: 'Combat Level',
-      value: combatLevel
+      value: combatLevel || '-'
     },
     {
       key: 'Overall Rank',
