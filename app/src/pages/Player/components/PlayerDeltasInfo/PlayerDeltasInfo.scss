@@ -1,0 +1,46 @@
+@import '../../../../styles.scss';
+
+.deltas-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 15px;
+
+  &__panel {
+    @extend %panel;
+    padding: 4px 12px 7px 12px;
+    width: calc(33.33% - 10px);
+
+    abbr {
+      text-decoration: none;
+    }
+
+    .info-label {
+      color: $gray-60;
+      font-size: 0.7em;
+    }
+
+    .info-value {
+      color: white;
+      font-size: 0.9em;
+      display: block;
+      margin-top: 3px;
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-small) {
+  .deltas-info {
+    flex-direction: column;
+
+    &__panel {
+      width: 100%;
+      margin-bottom: 10px;
+
+      .info-value {
+        display: inline-block;
+        margin-left: 15px;
+      }
+    }
+  }
+}

@@ -101,16 +101,11 @@
 @media only screen and (max-width: $breakpoint-small) {
   .player__container {
     .page-header {
-      // flex-wrap: wrap;
-
       &__icon {
         display: none;
       }
 
       &__actions {
-        // width: 100%;
-        // margin-top: 20px;
-
         .button {
           padding: 0 !important;
           min-width: unset;
