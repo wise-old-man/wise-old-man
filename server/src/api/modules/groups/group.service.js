@@ -444,7 +444,7 @@ async function addMembers(id, verificationCode, members) {
 
   const leaderUsernames = members
     .filter(m => m.role === 'leader')
-    .map(m => playerService.formatUsername(m.username));
+    .map(m => playerService.standardize(m.username));
 
   // If there's any new leaders, we have to re-add them, forcing the leader role
   if (leaderUsernames && leaderUsernames.length > 0) {
@@ -551,7 +551,7 @@ async function changeRole(id, username, role, verificationCode) {
     include: [
       {
         model: Player,
-        where: { username: playerService.formatUsername(username) }
+        where: { username: playerService.standardize(username) }
       }
     ]
   });
