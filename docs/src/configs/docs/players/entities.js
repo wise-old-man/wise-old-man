@@ -32,11 +32,6 @@ export default [
         field: 'updatedAt',
         type: 'date',
         description: "The player's last update date."
-      },
-      {
-        field: 'combatLevel',
-        type: 'integer',
-        description: "The player's combat level."
       }
     ]
   },
