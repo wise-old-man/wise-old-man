@@ -28,6 +28,25 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    displayName: {
+      type: DataTypes.STRING(20),
+      unique: true,
+      validate: {
+        len: {
+          args: [1, 12],
+          msg: 'Username must be between 1 and 12 characters long.'
+        },
+        isValid(value) {
+          if (value.startsWith(' ')) {
+            throw new Error('Username cannot start with spaces');
+          } else if (value.endsWith(' ')) {
+            throw new Error('Username cannot end with spaces');
+          } else if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(value)) {
+            throw new Error('Username cannot contain any special characters');
+          }
+        }
+      }
+    },
     type: {
       type: DataTypes.ENUM(PLAYER_TYPES),
       defaultValue: PLAYER_TYPES[0],
