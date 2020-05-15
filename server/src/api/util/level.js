@@ -46,11 +46,6 @@ function getCombatLevel(playerExperiences) {
     r[k.replace('Experience', '')] = getLevel(v);
   });
 
-  // Ensure all skills are set
-  if (Object.keys(levels).length !== 7) {
-    return 0;
-  }
-
   // If the player has at least one of the stats as level 0 the calculation becomes incorrect
   // This is due to the player not being on the Hiscores
   if (Object.values(levels).some(level => level === 0)) {
