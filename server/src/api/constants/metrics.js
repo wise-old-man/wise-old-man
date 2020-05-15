@@ -83,12 +83,19 @@ const metrics = {
     { key: 'wintertodt', name: 'Wintertodt' },
     { key: 'zalcano', name: 'Zalcano' },
     { key: 'zulrah', name: 'Zulrah' }
+  ],
+  EHP: [
+    { key: 'ehp', name: 'EHP' },
+    { key: 'lehp', name: 'Legacy EHP' },
+    { key: 'sehp', name: 'Special EHP' },
+    { key: 'lsehp', name: 'Legacy Special EHP' }
   ]
 };
 
 const SKILLS_KEYS = metrics.SKILLS.map(s => s.key);
 const ACTIVITIES_KEYS = metrics.ACTIVITIES.map(s => s.key);
 const BOSSES_KEYS = metrics.BOSSES.map(s => s.key);
+const EHP_KEYS = metrics.EHP.map(s => s.key);
 
 function isSkill(value) {
   return SKILLS_KEYS.includes(value);
@@ -102,6 +109,10 @@ function isBoss(value) {
   return BOSSES_KEYS.includes(value);
 }
 
+function isEhp(value) {
+  return EHP_KEYS.includes(value);
+}
+
 function getMeasure(value) {
   if (isSkill(value)) {
     return 'experience';
@@ -109,6 +120,10 @@ function getMeasure(value) {
 
   if (isActivity(value)) {
     return 'score';
+  }
+
+  if (isEhp(value)) {
+    return 'hours';
   }
 
   return 'kills';
@@ -125,6 +140,10 @@ function getValueKey(value) {
 
   if (isActivity(value)) {
     return `${value}Score`;
+  }
+
+  if (isEhp(value)) {
+    return `${value}`;
   }
 
   return `${value}Kills`;
@@ -149,6 +168,12 @@ function getFormattedName(value) {
     }
   }
 
+  for (let i = 0; i < metrics.EHP.length; i += 1) {
+    if (metrics.EHP[i].key === value) {
+      return metrics.EHP[i].name;
+    }
+  }
+
   return 'Invalid metric name';
 }
 
@@ -156,10 +181,12 @@ module.exports = {
   SKILLS: SKILLS_KEYS,
   ACTIVITIES: ACTIVITIES_KEYS,
   BOSSES: BOSSES_KEYS,
-  ALL_METRICS: [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS],
+  EHP: EHP_KEYS,
+  ALL_METRICS: [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS, ...EHP_KEYS],
   isSkill,
   isActivity,
   isBoss,
+  isEhp,
   getMeasure,
   getFormattedName,
   getRankKey,

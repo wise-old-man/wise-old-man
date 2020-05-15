@@ -5,10 +5,24 @@ function buildDynamicSchema(DataTypes) {
 
   ALL_METRICS.forEach(s => {
     obj[getRankKey(s)] = DataTypes.INTEGER;
-    obj[getValueKey(s)] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
+    obj[getValueKey(s)] = determineType(s, DataTypes);
   });
 
   return obj;
+}
+
+function determineType(name, DataTypes) {
+  switch (name) {
+    case 'overall':
+      return DataTypes.BIGINT;
+    case 'ehp':
+    case 'lehp':
+    case 'sehp':
+    case 'lsehp':
+      return DataTypes.FLOAT;
+    default:
+      return DataTypes.INTEGER;
+  }
 }
 
 module.exports = {
