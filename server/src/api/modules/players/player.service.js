@@ -225,9 +225,9 @@ async function importCML(username) {
     const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
     const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
 
-    importedSnapshots.push(weekSnapshots);
-    importedSnapshots.push(yearSnapshots);
-    importedSnapshots.push(decadeSnapshots);
+    importedSnapshots.push(...weekSnapshots);
+    importedSnapshots.push(...yearSnapshots);
+    importedSnapshots.push(...decadeSnapshots);
   } else {
     const recentSnapshots = await importCMLSince(player.id, player.username, seconds);
     importedSnapshots.push(recentSnapshots);
