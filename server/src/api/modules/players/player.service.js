@@ -12,23 +12,25 @@ const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
 
 /**
- * Format a username into a standardized version:
+ * Format a username into a standardized version,
+ * replacing any special characters, and forcing lower case.
  *
- * "psikoi" -> "Psikoi",
- * "Hello_world  " -> "Hello World"
+ * "Psikoi" -> "psikoi",
+ * "Hello_world  " -> "hello world"
  */
-function formatUsername(username) {
+function standardize(username) {
   return username
     .replace(/[-_\s]/g, ' ')
     .trim()
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .toLowerCase();
+}
+
+function sanitize(username) {
+  return username.replace(/[-_\s]/g, ' ').trim();
 }
 
 function isValidUsername(username) {
-  const formattedUsername = formatUsername(username);
+  const formattedUsername = standardize(username);
 
   if (formattedUsername.length < 1 || formattedUsername.length > 12) {
     return false;
@@ -86,7 +88,7 @@ async function getData(username) {
   }
 
   const player = await Player.findOne({
-    where: { username: { [Op.like]: `${formatUsername(username)}` } }
+    where: { username: { [Op.like]: `${standardize(username)}` } }
   });
 
   if (!player) {
@@ -128,7 +130,7 @@ async function search(username) {
   const players = await Player.findAll({
     where: {
       username: {
-        [Op.like]: `${formatUsername(username)}%`
+        [Op.like]: `${standardize(username)}%`
       }
     },
     limit: 20
@@ -308,7 +310,7 @@ async function assertType(username, force = false) {
     throw new BadRequestError('Invalid username.');
   }
 
-  const formattedUsername = formatUsername(username);
+  const formattedUsername = standardize(username);
 
   const player = await find(formattedUsername);
 
@@ -352,7 +354,10 @@ async function assertType(username, force = false) {
 }
 
 async function findOrCreate(username) {
-  const result = await Player.findOrCreate({ where: { username: formatUsername(username) } });
+  const result = await Player.findOrCreate({
+    where: { username: standardize(username) },
+    defaults: { displayName: sanitize(username) }
+  });
   return result;
 }
 
@@ -362,7 +367,7 @@ async function findById(id) {
 }
 
 async function find(username) {
-  const result = await Player.findOne({ where: { username: formatUsername(username) } });
+  const result = await Player.findOne({ where: { username: standardize(username) } });
   return result;
 }
 
@@ -425,7 +430,7 @@ async function getHiscoresData(username, type = 'regular') {
   }
 }
 
-exports.formatUsername = formatUsername;
+exports.standardize = standardize;
 exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
