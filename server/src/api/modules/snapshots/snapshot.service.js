@@ -231,11 +231,7 @@ async function saveAll(snapshots) {
 }
 
 /**
- * Converts a CSV row imported from the CML
- * API into a Snapshot object.
- *
- * @param {number} username The player's id.
- * @param {string} csvData The CSV row to be converted.
+ * Converts a CSV row imported from the CML API into a Snapshot object.
  */
 async function fromCML(playerId, historyRow) {
   // CML separates the data "blocks" by a space,
@@ -271,11 +267,7 @@ async function fromCML(playerId, historyRow) {
 }
 
 /**
- * Converts CSV data imported from the OSRS Hiscores
- * API into Snapshot instance.
- *
- * @param {number} playerId The player's id.
- * @param {string} csvData The CSV data to be converted.
+ * Converts CSV data imported from the OSRS Hiscores API into Snapshot instance.
  */
 async function fromRS(playerId, csvData) {
   // Convert the CSV text into an array of values

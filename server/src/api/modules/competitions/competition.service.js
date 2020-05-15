@@ -204,6 +204,7 @@ async function view(id) {
     .map(({ player }) => ({
       id: player.id,
       username: player.username,
+      displayName: player.displayName,
       type: player.type,
       updatedAt: player.updatedAt,
       history: [],

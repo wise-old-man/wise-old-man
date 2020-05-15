@@ -233,6 +233,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     return {
       playerId: player.id,
       username: player.username,
+      displayName: player.displayName,
       type: player.type,
       gained: diff[metricKey]
     };
@@ -281,6 +282,7 @@ async function getMonthlyTop(playerIds) {
     return {
       playerId: player.id,
       username: player.username,
+      displayName: player.displayName,
       type: player.type,
       gained: diff[metricKey]
     };

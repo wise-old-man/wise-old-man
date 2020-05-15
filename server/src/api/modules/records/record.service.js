@@ -139,6 +139,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   const formattedRecords = records.map(({ player, value, updatedAt }) => ({
     playerId: player.id,
     username: player.username,
+    displayName: player.displayName,
     type: player.type,
     value,
     updatedAt
