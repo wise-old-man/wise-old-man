@@ -156,7 +156,7 @@ function Competition() {
           <CompetitionInfo competition={competition} />
         </div>
         <div className="col-md-8">
-          <Tabs tabs={TABS} onChange={onTabChanged} />
+          <Tabs tabs={TABS} selectedIndex={selectedTabIndex} onChange={onTabChanged} />
           {selectedTabIndex === 0 ? (
             <CompetitionTable
               competition={competition}

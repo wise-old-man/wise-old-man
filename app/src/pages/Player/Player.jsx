@@ -205,7 +205,12 @@ function Player() {
       </div>
       <div className="player__controls row">
         <div className="col-md-12 col-lg-7">
-          <Tabs tabs={TABS} onChange={onTabChanged} align="space-between" />
+          <Tabs
+            tabs={TABS}
+            selectedIndex={selectedTabIndex}
+            onChange={onTabChanged}
+            align="space-between"
+          />
         </div>
         {selectedTabIndex === 0 && (
           <>
