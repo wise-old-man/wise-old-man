@@ -53,7 +53,7 @@ function getCombatLevel(playerExperiences) {
 
   // If the player has at least one of the stats as level 0 the calculation becomes incorrect
   // This is due to the player not being on the Hiscores
-  if (Object.keys(levels).some(level => level === 0)) {
+  if (Object.values(levels).some(level => level === 0)) {
     return 0;
   }
 
