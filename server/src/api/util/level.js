@@ -1,68 +1,71 @@
-const { LEVEL_EXP } = require('../constants/levels');
+const _ = require('lodash');
+const { MAX_LEVEL, MAX_VIRTUAL_LEVEL } = require('../constants/levels');
 
-function getLevel(experience) {
-  // `experience` needs to be defined as a `number`
-  if (!experience || typeof experience !== 'number') {
+function getLevel(experience, virtual = false) {
+  // Unranked
+  if (experience === -1) {
     return 0;
   }
 
-  let index;
+  const maxlevel = virtual ? MAX_VIRTUAL_LEVEL : MAX_LEVEL;
 
-  for (index = 0; index < LEVEL_EXP.length; index += 1) {
-    if (LEVEL_EXP[index + 1] > experience) {
-      break;
+  let accumulated = 0;
+
+  for (let level = 1; level < maxlevel; level++) {
+    const required = getXpDifferenceTo(level + 1);
+    if (experience >= accumulated && experience < accumulated + required) {
+      return level;
     }
+    accumulated += required;
   }
 
-  return Math.min(index, 99);
+  return maxlevel;
+}
+
+function getXpDifferenceTo(level) {
+  if (level < 2) {
+    return 0;
+  }
+
+  return Math.floor(level - 1 + 300 * 2 ** ((level - 1) / 7)) / 4;
 }
 
 function getCombatLevel(playerExperiences) {
-  const {
-    attackExperience,
-    strengthExperience,
-    defenceExperience,
-    hitpointsExperience,
-    rangedExperience,
-    prayerExperience,
-    magicExperience
-  } = playerExperiences || {};
+  const combatExperiences = _.pick(playerExperiences, [
+    'attackExperience',
+    'strengthExperience',
+    'defenceExperience',
+    'hitpointsExperience',
+    'rangedExperience',
+    'prayerExperience',
+    'magicExperience'
+  ]);
 
-  const levels = [
-    attackExperience,
-    strengthExperience,
-    defenceExperience,
-    hitpointsExperience,
-    rangedExperience,
-    prayerExperience,
-    magicExperience
-  ].map(experience => getLevel(experience));
+  const levels = _.transform(combatExperiences, (r, v, k) => {
+    // eslint-disable-next-line no-param-reassign
+    r[k.replace('Experience', '')] = getLevel(v);
+  });
 
-  // If the player has at least one of the stats as level 0 the calculation becomes incorrect
-  // This is due to the player not being on the Hiscores
-  if (levels.some(level => level === 0)) {
+  // Ensure all skills are set
+  if (Object.keys(levels).length !== 7) {
     return 0;
   }
 
-  const [
-    attackLevel,
-    strengthLevel,
-    defenceLevel,
-    hitpointsLevel,
-    rangedLevel,
-    prayerLevel,
-    magicLevel
-  ] = levels;
+  // If the player has at least one of the stats as level 0 the calculation becomes incorrect
+  // This is due to the player not being on the Hiscores
+  if (Object.keys(levels).some(level => level === 0)) {
+    return 0;
+  }
 
   // Formula from https://oldschool.runescape.wiki/w/Combat_level
   // Calculate the combat level
-  const baseCombat = 0.25 * (defenceLevel + hitpointsLevel + Math.floor(prayerLevel / 2));
-  const meleeCombat = 0.325 * (attackLevel + strengthLevel);
-  const rangeCombat = 0.325 * Math.floor((3 * rangedLevel) / 2);
-  const mageCombat = 0.325 * Math.floor((3 * magicLevel) / 2);
+  const baseCombat = 0.25 * (levels.defence + levels.hitpoints + Math.floor(levels.prayer / 2));
+  const meleeCombat = 0.325 * (levels.attack + levels.strength);
+  const rangeCombat = 0.325 * Math.floor((3 * levels.ranged) / 2);
+  const mageCombat = 0.325 * Math.floor((3 * levels.magic) / 2);
   const combatLevel = Math.floor(baseCombat + Math.max(meleeCombat, rangeCombat, mageCombat));
 
-  return Math.max(combatLevel, 3);
+  return combatLevel;
 }
 
 exports.getLevel = getLevel;
