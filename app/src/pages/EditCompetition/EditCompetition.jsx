@@ -10,13 +10,13 @@ import TextButton from '../../components/TextButton';
 import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
-import ParticipantsSelector from './components/ParticipantsSelector';
+import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import editAction from '../../redux/modules/competitions/actions/edit';
-import { getCompetition, isEditing } from '../../redux/selectors/competitions';
+import { getCompetition, isEditing, getError } from '../../redux/selectors/competitions';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
@@ -49,6 +49,7 @@ function EditCompetition() {
 
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(state => isEditing(state));
+  const error = useSelector(state => getError(state));
 
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
@@ -196,13 +197,22 @@ function EditCompetition() {
 
           <ParticipantsSelector
             participants={participants}
+            invalidUsernames={error.data}
             onParticipantAdded={onParticipantAdded}
             onParticipantRemoved={onParticipantRemoved}
           />
         </div>
 
         <div className="form-row">
-          <span className="form-row__label">Verification code</span>
+          <span className="form-row__label">
+            Verification code
+            <span className="form-row__label-info -right">
+              Lost your verification code?
+              <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+                Join our discord
+              </a>
+            </span>
+          </span>
           <TextInput
             type="password"
             placeholder="Ex: 123-456-789"

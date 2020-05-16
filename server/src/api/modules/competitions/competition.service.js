@@ -3,13 +3,21 @@ const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
 const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
-const { Competition, Participation, Player, Snapshot, Group } = require('../../../database');
+const {
+  Competition,
+  Participation,
+  Player,
+  Snapshot,
+  Group,
+  InitialValues
+} = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const snapshotService = require('../snapshots/snapshot.service');
 const groupService = require('../groups/group.service');
+const deltaService = require('../deltas/delta.service');
 
 function sanitizeTitle(title) {
   return title
@@ -183,22 +191,24 @@ async function view(id) {
     ]
   });
 
-  // Format the participants, and sort them (by descending delta)
-  const participants = participations
-    .map(({ player, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? Math.max(0, startSnapshot[metricKey]) : 0;
-      const end = endSnapshot ? endSnapshot[metricKey] : 0;
-      const delta = end - start;
+  const playerIds = participations.map(p => p.player.id);
+  const allInitialValues = await InitialValues.findAll({ where: { playerId: playerIds } });
+  const allInitialValuesMap = _.keyBy(allInitialValues, 'playerId');
 
-      return {
-        id: player.id,
-        username: player.username,
-        type: player.type,
-        updatedAt: player.updatedAt,
-        progress: { start, end, delta },
-        history: []
-      };
-    })
+  const deltas = participations.map(p => ({ ...p, initialValues: allInitialValuesMap[p.player.id] }));
+
+  const processedDeltas = deltaService.processCompetitionDeltas(metricKey, deltas);
+  const processedDeltasMap = _.keyBy(processedDeltas, 'playerId');
+
+  const participants = participations
+    .map(({ player }) => ({
+      id: player.id,
+      username: player.username,
+      type: player.type,
+      updatedAt: player.updatedAt,
+      history: [],
+      progress: { ...processedDeltasMap[player.id].progress }
+    }))
     .sort((a, b) => b.progress.delta - a.progress.delta);
 
   // Select the top 10 players
@@ -241,7 +251,7 @@ async function view(id) {
  * Note: if a groupId is given, the participants will be
  * the group's members, and the "participants" argument will be ignored.
  */
-async function create(title, metric, startsAt, endsAt, groupId, participants) {
+async function create(title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants) {
   if (!title) {
     throw new BadRequestError('Invalid competition title.');
   }
@@ -263,10 +273,20 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
   }
 
   if (groupId) {
+    if (!groupVerificationCode) {
+      throw new BadRequestError('Invalid verification code.');
+    }
+
     const group = await groupService.findOne(groupId);
 
     if (!group) {
       throw new BadRequestError('Invalid group id.');
+    }
+
+    const verified = await verifyCode(group.verificationHash, groupVerificationCode);
+
+    if (!verified) {
+      throw new BadRequestError('Incorrect group verification code.');
     }
   }
 
@@ -276,7 +296,8 @@ async function create(title, metric, startsAt, endsAt, groupId, participants) {
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+         contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
     }
@@ -374,7 +395,8 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        'Invalid usernames: Names must be 1-12 characters long, contain no special characters, and/or contain no space a the beginning or end of the name.',
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+         contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
     }

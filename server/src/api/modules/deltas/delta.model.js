@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    initialValuesId: {
+      type: DataTypes.INTEGER
+    },
     period: {
       type: DataTypes.ENUM(PERIODS),
       allowNull: false,
@@ -43,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
         fields: ['id']
       },
       {
+        unique: true,
+        fields: ['playerId', 'period']
+      },
+      {
         fields: ['playerId']
       },
       {
@@ -65,6 +72,10 @@ module.exports = (sequelize, DataTypes) => {
     Delta.belongsTo(models.Player, {
       foreignKey: 'playerId',
       onDelete: 'CASCADE'
+    });
+    Delta.belongsTo(models.InitialValues, {
+      as: 'initialValues',
+      foreignKey: 'initialValuesId'
     });
     Delta.belongsTo(models.Snapshot, {
       as: 'startSnapshot',

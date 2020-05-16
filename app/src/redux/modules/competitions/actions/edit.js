@@ -4,12 +4,12 @@ import { BASE_API_URL } from '../../../../config';
 import {
   EDIT_COMPETITION_REQUEST,
   EDIT_COMPETITION_SUCCESS,
-  EDIT_COMPETITION_FAILURE,
+  EDIT_COMPETITION_FAILURE
 } from '../reducer';
 
 function editCompetitionRequest() {
   return {
-    type: EDIT_COMPETITION_REQUEST,
+    type: EDIT_COMPETITION_REQUEST
   };
 }
 
@@ -17,12 +17,12 @@ function editCompetitionSuccess(data) {
   Analytics.event({
     category: 'Competition',
     action: 'Edited competition',
-    value: data.id,
+    value: data.id
   });
 
   return {
     type: EDIT_COMPETITION_SUCCESS,
-    competition: data,
+    competition: data
   };
 }
 
@@ -30,6 +30,7 @@ function editCompetitionFailure(error) {
   return {
     type: EDIT_COMPETITION_FAILURE,
     error: error.response.data.message,
+    data: error.response.data.data
   };
 }
 
@@ -45,7 +46,7 @@ export default function editCompetition(id, requestBody) {
       startsAt: requestBody.startDate,
       endsAt: requestBody.endDate,
       participants: requestBody.participants,
-      verificationCode: requestBody.verificationCode,
+      verificationCode: requestBody.verificationCode
     };
 
     return axios

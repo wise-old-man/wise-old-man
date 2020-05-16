@@ -29,11 +29,20 @@ function createCompetitionSuccess(data) {
 function createCompetitionFailure(error) {
   return {
     type: CREATE_COMPETITION_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
+    data: error.response.data.data
   };
 }
 
-export default function createCompetition({ title, metric, startDate, endDate, participants, groupId }) {
+export default function createCompetition({
+  title,
+  metric,
+  startDate,
+  endDate,
+  participants,
+  groupVerificationCode,
+  groupId
+}) {
   return dispatch => {
     dispatch(createCompetitionRequest());
 
@@ -45,6 +54,7 @@ export default function createCompetition({ title, metric, startDate, endDate, p
       startsAt: startDate,
       endsAt: endDate,
       participants,
+      groupVerificationCode,
       groupId
     };
 

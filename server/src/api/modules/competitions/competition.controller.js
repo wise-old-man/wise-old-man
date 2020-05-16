@@ -35,9 +35,18 @@ async function viewCompetition(req, res, next) {
 
 async function createCompetition(req, res, next) {
   try {
-    const { title, metric, startsAt, endsAt, participants, groupId } = req.body;
+    const { title, metric, startsAt, endsAt, participants, groupId, groupVerificationCode } = req.body;
 
-    const competition = await service.create(title, metric, startsAt, endsAt, groupId, participants);
+    const competition = await service.create(
+      title,
+      metric,
+      startsAt,
+      endsAt,
+      groupId,
+      groupVerificationCode,
+      participants
+    );
+
     res.status(201).json(competition);
   } catch (e) {
     next(e);

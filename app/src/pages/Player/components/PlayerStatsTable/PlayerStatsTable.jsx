@@ -13,7 +13,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
 
   const rows = SKILLS.map(skill => {
     const { experience, rank } = snapshot[skill];
-    const level = skill === 'overall' ? totalLevel : getLevel(experience);
+    const level = skill === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels);
     return { metric: skill, level, experience, rank, ehp: 0 };
   });
 

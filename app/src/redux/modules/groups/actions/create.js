@@ -25,7 +25,8 @@ function createGroupSuccess(data) {
 function createGroupFailure(error) {
   return {
     type: CREATE_GROUP_FAILURE,
-    error: error.response.data.message
+    error: error.response.data.message,
+    data: error.response.data.data
   };
 }
 

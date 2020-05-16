@@ -1,17 +1,22 @@
 import React, { useMemo, useCallback } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
-import AutoSuggestInput from '../../../../components/AutoSuggestInput';
-import { getSearchResults } from '../../../../redux/selectors/players';
-import searchAction from '../../../../redux/modules/players/actions/search';
+import AutoSuggestInput from '../AutoSuggestInput';
+import { getSearchResults } from '../../redux/selectors/players';
+import searchAction from '../../redux/modules/players/actions/search';
 import './ParticipantsSelector.scss';
 
-function mapToSuggestion(player) {
-  return { label: player.username, value: player.username };
-}
+const mapToSuggestion = player => ({ label: player.username, value: player.username });
+const participantClass = isInvalid => classNames('participant-btn__label', { '-invalid': isInvalid });
 
-function ParticipantsSelector({ participants, onParticipantAdded, onParticipantRemoved }) {
+function ParticipantsSelector({
+  participants,
+  invalidUsernames,
+  onParticipantAdded,
+  onParticipantRemoved
+}) {
   const dispatch = useDispatch();
   const searchResults = useSelector(state => getSearchResults(state));
 
@@ -51,7 +56,9 @@ function ParticipantsSelector({ participants, onParticipantAdded, onParticipantR
           participants.map(l => (
             <li key={l}>
               <button className="participant-btn" type="button" onClick={() => onDeselected(l)}>
-                {l}
+                <span className={participantClass(invalidUsernames && invalidUsernames.includes(l))}>
+                  {l}
+                </span>
                 <img className="participant-btn__icon" src="/img/icons/clear.svg" alt="x" />
               </button>
             </li>
@@ -64,9 +71,15 @@ function ParticipantsSelector({ participants, onParticipantAdded, onParticipantR
   );
 }
 
+ParticipantsSelector.defaultProps = {
+  invalidUsernames: []
+};
+
 ParticipantsSelector.propTypes = {
   participants: PropTypes.arrayOf(PropTypes.string).isRequired,
+  invalidUsernames: PropTypes.arrayOf(PropTypes.string),
   onParticipantAdded: PropTypes.func.isRequired,
   onParticipantRemoved: PropTypes.func.isRequired
 };
+
 export default ParticipantsSelector;

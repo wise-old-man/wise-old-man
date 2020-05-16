@@ -6,12 +6,12 @@ import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
+import MembersSelector from '../../components/MembersSelector';
 import Button from '../../components/Button';
-import MembersSelector from './components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
-import { isCreating } from '../../redux/selectors/groups';
+import { isCreating, getError } from '../../redux/selectors/groups';
 import './CreateGroup.scss';
 
 function CreateGroup() {
@@ -19,6 +19,7 @@ function CreateGroup() {
   const dispatch = useDispatch();
 
   const isSubmitting = useSelector(state => isCreating(state));
+  const error = useSelector(state => getError(state));
 
   const [name, setName] = useState('');
   const [members, setMembers] = useState([]);
@@ -129,6 +130,7 @@ function CreateGroup() {
 
           <MembersSelector
             members={members}
+            invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}
             onMemberRoleSwitched={onMemberRoleSwitched}

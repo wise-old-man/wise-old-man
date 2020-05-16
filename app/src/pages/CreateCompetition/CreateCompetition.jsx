@@ -11,14 +11,14 @@ import TextButton from '../../components/TextButton';
 import Selector from '../../components/Selector';
 import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
+import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
-import ParticipantsSelector from './components/ParticipantsSelector';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
-import { isCreating } from '../../redux/selectors/competitions';
+import { isCreating, getError } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
@@ -34,6 +34,7 @@ function CreateCompetition() {
   const dispatch = useDispatch();
 
   const isSubmitting = useSelector(state => isCreating(state));
+  const error = useSelector(state => getError(state));
 
   const metricOptions = useMemo(getMetricOptions, []);
 
@@ -47,6 +48,7 @@ function CreateCompetition() {
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [groupVerificationCode, setGroupVerificationCode] = useState('');
 
   const [groupCompetition, setGroupCompetition] = useState(false);
   const [showingImportModal, toggleImportModal] = useState(false);
@@ -66,6 +68,10 @@ function CreateCompetition() {
   const handleDateRangeChanged = dates => {
     setStartDate(dates[0]);
     setEndDate(dates[1]);
+  };
+
+  const handleGroupVerificationCodeChanged = e => {
+    setGroupVerificationCode(e.target.value);
   };
 
   const handleAddParticipant = username => {
@@ -101,6 +107,7 @@ function CreateCompetition() {
       metric,
       startDate,
       endDate,
+      groupVerificationCode,
       participants: !groupCompetition ? participants : null,
       groupId: groupCompetition && selectedGroup ? selectedGroup.id : null
     };
@@ -124,6 +131,7 @@ function CreateCompetition() {
   const onTitleChanged = useCallback(handleTitleChanged, []);
   const onMetricSelected = useCallback(handleMetricSelected, []);
   const onDateRangeChanged = useCallback(handleDateRangeChanged, []);
+  const onGroupVerificationCodeChanged = useCallback(handleGroupVerificationCodeChanged, []);
   const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onSubmitParticipantsModal = useCallback(handleImportModalSubmit, []);
@@ -136,6 +144,7 @@ function CreateCompetition() {
     endDate,
     participants,
     groupCompetition,
+    groupVerificationCode,
     selectedGroup
   ]);
 
@@ -178,7 +187,25 @@ function CreateCompetition() {
             <span className="group-toggle__label">Group competition</span>
           </div>
           {groupCompetition ? (
-            <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
+            <>
+              <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
+              <div className="form-row">
+                <span className="form-row__label">
+                  Group Verification code
+                  <span className="form-row__label-info -right">
+                    Lost your verification code?
+                    <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+                      Join our discord
+                    </a>
+                  </span>
+                </span>
+                <TextInput
+                  type="password"
+                  placeholder="Ex: 123-456-789"
+                  onChange={onGroupVerificationCodeChanged}
+                />
+              </div>
+            </>
           ) : (
             <>
               <span className="form-row__label">
@@ -189,6 +216,7 @@ function CreateCompetition() {
 
               <ParticipantsSelector
                 participants={participants}
+                invalidUsernames={error.data}
                 onParticipantAdded={onParticipantAdded}
                 onParticipantRemoved={onParticipantRemoved}
               />

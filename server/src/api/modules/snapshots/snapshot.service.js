@@ -9,7 +9,8 @@ const {
   ACTIVITIES,
   getRankKey,
   getValueKey,
-  getMeasure
+  getMeasure,
+  isSkill
 } = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
@@ -167,15 +168,26 @@ async function findAllBetween(playerIds, startDate, endDate) {
 /**
  * Calculates the difference in ranks and values (for every metric), between two snapshots
  */
-function diff(start, end) {
+function diff(start, end, initialValues) {
   const obj = {};
 
   ALL_METRICS.forEach(s => {
     const rankKey = getRankKey(s);
     const valueKey = getValueKey(s);
 
-    obj[rankKey] = Math.max(0, end[rankKey] - Math.max(0, start[rankKey]));
-    obj[valueKey] = Math.max(0, end[valueKey] - Math.max(0, start[valueKey]));
+    const initialRank = initialValues ? initialValues[rankKey] : -1;
+    const initialValue = initialValues ? initialValues[valueKey] : -1;
+
+    const endValue = end[valueKey];
+    const endRank = end[rankKey];
+
+    const startValue = start[valueKey] === -1 ? initialValue : start[valueKey];
+    const startRank = start[rankKey] === -1 && !isSkill(s) ? initialRank : start[rankKey];
+
+    // Do not use initial ranks for skill, to prevent -1 ranks
+    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    obj[rankKey] = isSkill(s) && start[rankKey] === -1 ? 0 : endRank - startRank;
+    obj[valueKey] = endValue - startValue;
   });
 
   return obj;

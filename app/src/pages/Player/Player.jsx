@@ -15,6 +15,7 @@ import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
+import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
@@ -292,11 +293,12 @@ function Player() {
         )}
         {selectedTabIndex === 1 && (
           <>
-            <div className="col-lg-7 col-md-12">
+            <div className="col-lg-6 col-md-12">
               <LineChart datasets={experienceChartData} />
               <LineChart datasets={rankChartData} invertYAxis />
             </div>
-            <div className="col-lg-5 col-md-12">
+            <div className="col-lg-6 col-md-12">
+              <PlayerDeltasInfo deltas={deltas} period={selectedDeltasPeriod} />
               <PlayerDeltasTable
                 deltas={deltas}
                 period={selectedDeltasPeriod}
