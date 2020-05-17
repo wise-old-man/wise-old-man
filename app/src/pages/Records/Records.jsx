@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
@@ -63,18 +63,18 @@ function getMetricOptions() {
 }
 
 function Records() {
+  const { metric, playerType } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // State variables
-  const [selectedMetric, setSelectedMetric] = useState('overall');
-  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
+  const selectedMetric = metric || 'overall';
+  const selectedPlayerType = playerType || null;
 
   const metricOptions = useMemo(() => getMetricOptions(), []);
   const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
 
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
+  const metricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const playerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
@@ -84,11 +84,17 @@ function Records() {
   };
 
   const handleMetricSelected = e => {
-    setSelectedMetric((e && e.value) || null);
+    if (e && e.value) {
+      router.push(`/records/${e.value}/${selectedPlayerType || ''}`);
+    }
   };
 
-  const handlePlayerTypeSelected = e => {
-    setSelectedPlayerType((e && e.value) || null);
+  const handleTypeSelected = e => {
+    if (e && e.value) {
+      router.push(`/records/${selectedMetric}/${e.value}`);
+    } else {
+      router.push(`/records/${selectedMetric}`);
+    }
   };
 
   const handleDayRowClicked = index => {
@@ -106,8 +112,9 @@ function Records() {
     router.push(`/players/${playerId}`);
   };
 
-  const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handlePlayerTypeSelected, [setSelectedPlayerType]);
+  const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric, selectedPlayerType]);
+  const onTypeSelected = useCallback(handleTypeSelected, [selectedMetric, selectedPlayerType]);
+
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
   const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
@@ -128,7 +135,7 @@ function Records() {
         <div className="col-lg-4 col-md-6">
           <Selector
             options={metricOptions}
-            selectedIndex={selectedMetricIndex}
+            selectedIndex={metricIndex}
             onSelect={onMetricSelected}
             search
           />
@@ -136,7 +143,7 @@ function Records() {
         <div className="col-lg-2 col-md-4">
           <Selector
             options={playerTypeOptions}
-            selectedIndex={selectedPlayerTypeIndex}
+            selectedIndex={playerTypeIndex}
             onSelect={onTypeSelected}
           />
         </div>
