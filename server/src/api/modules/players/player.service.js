@@ -331,7 +331,7 @@ async function assertType(username, force = false) {
   const regularExp = await getOverallExperience(formattedUsername, 'regular');
 
   if (regularExp === -1) {
-    throw new BadRequestError(`Couldn't find player ${username} in the hiscores.`);
+    throw new BadRequestError(`Failed to load hiscores for ${username}.`);
   }
 
   const ironmanExp = await getOverallExperience(formattedUsername, 'ironman');
