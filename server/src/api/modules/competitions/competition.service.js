@@ -350,20 +350,19 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   }
 
   const competition = await Competition.findOne({ where: { id } });
-  const startDate = new Date(startsAt);
 
   if (!competition) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  if (isPast(competition.startsAt) && metric && metric.toLowerCase() !== competition.metric) {
+  if (metric && metric.toLowerCase() !== competition.metric && isPast(competition.startsAt)) {
     throw new BadRequestError(`The competition has started, the metric cannot be changed.`);
   }
 
   if (
     startsAt &&
-    isPast(competition.startsAt) &&
-    startDate.getTime() !== competition.startsAt.getTime()
+    new Date(startsAt).getTime() !== competition.startsAt.getTime() &&
+    isPast(competition.startsAt)
   ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
