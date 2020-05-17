@@ -20,7 +20,7 @@ export const ROUTES = [
     component: HomePage
   },
   {
-    path: '/top',
+    path: '/top/:metric?/:playerType?',
     component: TopPage
   },
   {

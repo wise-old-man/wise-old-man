@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import PlayerTag from '../../components/PlayerTag';
@@ -55,18 +55,18 @@ function getMetricOptions() {
 }
 
 function Top() {
+  const { metric, playerType } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // State variables
-  const [selectedMetric, setSelectedMetric] = useState('overall');
-  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
+  const selectedMetric = metric || 'overall';
+  const selectedPlayerType = playerType || null;
 
   const metricOptions = useMemo(() => getMetricOptions(), []);
   const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
 
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
+  const metricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const playerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
@@ -76,11 +76,17 @@ function Top() {
   };
 
   const handleMetricSelected = e => {
-    setSelectedMetric((e && e.value) || null);
+    if (e && e.value) {
+      router.push(`/top/${e.value}/${selectedPlayerType || ''}`);
+    }
   };
 
   const handleTypeSelected = e => {
-    setSelectedPlayerType((e && e.value) || null);
+    if (e && e.value) {
+      router.push(`/top/${selectedMetric}/${e.value}`);
+    } else {
+      router.push(`/top/${selectedMetric}`);
+    }
   };
 
   const handleDayRowClicked = index => {
@@ -98,8 +104,9 @@ function Top() {
     router.push(`/players/${playerId}`);
   };
 
-  const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedPlayerType]);
+  const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric, selectedPlayerType]);
+  const onTypeSelected = useCallback(handleTypeSelected, [selectedMetric, selectedPlayerType]);
+
   const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
   const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
   const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
@@ -120,7 +127,7 @@ function Top() {
         <div className="col-lg-4 col-md-6">
           <Selector
             options={metricOptions}
-            selectedIndex={selectedMetricIndex}
+            selectedIndex={metricIndex}
             onSelect={onMetricSelected}
             search
           />
@@ -128,7 +135,7 @@ function Top() {
         <div className="col-lg-2 col-md-4">
           <Selector
             options={playerTypeOptions}
-            selectedIndex={selectedPlayerTypeIndex}
+            selectedIndex={playerTypeIndex}
             onSelect={onTypeSelected}
           />
         </div>
