@@ -40,7 +40,7 @@ export const ROUTES = [
     component: EditCompetitionPage
   },
   {
-    path: '/competitions/:id',
+    path: '/competitions/:id/:section?',
     component: CompetitionPage
   },
   {
