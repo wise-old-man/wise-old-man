@@ -11,7 +11,7 @@ import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
 import { capitalize, getPlayerTypeIcon, getMetricIcon, getMetricName } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
-import { getLeaderboard } from '../../redux/selectors/deltas';
+import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/deltas';
 import './Top.scss';
 
 const TABLE_CONFIG = {
@@ -70,6 +70,7 @@ function Top() {
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
+  const isLoading = useSelector(state => isFetchingLeaderboard(state));
 
   const reloadList = () => {
     dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
@@ -138,6 +139,9 @@ function Top() {
             selectedIndex={playerTypeIndex}
             onSelect={onTypeSelected}
           />
+        </div>
+        <div className="col-md-2">
+          {isLoading && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
         </div>
       </div>
       <div className="top__list row">
