@@ -1,3 +1,5 @@
+const {ValidationError} = require("sequelize");
+
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
@@ -307,15 +309,23 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
-  const competition = await Competition.create({
-    title: sanitizedTitle,
-    metric: metric.toLowerCase(),
-    verificationCode,
-    verificationHash,
-    startsAt,
-    endsAt,
-    groupId
-  });
+  try {
+    const competition = await Competition.create({
+      title: sanitizedTitle,
+      metric: metric.toLowerCase(),
+      verificationCode,
+      verificationHash,
+      startsAt,
+      endsAt,
+      groupId
+    });
+  } catch (e) {
+    if(e instanceof ValidationError) {
+      throw new BadRequestError(e.message);
+    }
+
+    throw e;
+  }
 
   if (!groupId && !participants) {
     return { ...format(competition), participants: [] };
