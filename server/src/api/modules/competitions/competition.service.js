@@ -363,7 +363,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   if (
     startsAt &&
     isPast(competition.startsAt) &&
-    startDate.toLocaleString() !== competition.startsAt.toLocaleString()
+    startDate.getTime() !== competition.startsAt.getTime()
   ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
