@@ -11,7 +11,7 @@ import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
 import { formatDate, getPlayerTypeIcon, getMetricIcon, capitalize, getMetricName } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
-import { getLeaderboard } from '../../redux/selectors/records';
+import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
 
 const TABLE_CONFIG = {
@@ -78,6 +78,7 @@ function Records() {
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
+  const isLoading = useSelector(state => isFetchingLeaderboard(state));
 
   const reloadList = () => {
     dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
@@ -146,6 +147,9 @@ function Records() {
             selectedIndex={playerTypeIndex}
             onSelect={onTypeSelected}
           />
+        </div>
+        <div className="col-md-2">
+          {isLoading && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
         </div>
       </div>
       <div className="records__list row">

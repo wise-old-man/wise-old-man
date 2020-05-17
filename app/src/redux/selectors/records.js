@@ -1,8 +1,11 @@
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 
+const rootSelector = state => state.records;
 const recordsSelector = state => state.records.records;
 const leaderboardSelector = state => state.records.leaderboard;
+
+export const isFetchingLeaderboard = createSelector(rootSelector, root => root.isFetchingLeaderboard);
 
 export const getLeaderboard = createSelector(leaderboardSelector, map => {
   // Add a "rank" field to each record of each period
