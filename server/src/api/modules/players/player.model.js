@@ -30,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     displayName: {
       type: DataTypes.STRING(20),
-      unique: true,
       validate: {
         len: {
           args: [1, 12],
