@@ -484,14 +484,6 @@ async function setParticipants(competition, usernames) {
  * Add all members of a group as participants of a competition.
  */
 async function addAllGroupMembers(competition, groupId) {
-  if (!competition) {
-    throw new BadRequestError('Invalid competition.');
-  }
-
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
   // Find all the group's members
   const members = await groupService.getMembers(groupId);
 
@@ -509,29 +501,7 @@ async function addAllGroupMembers(competition, groupId) {
  * Adds all the usernames as competition participants.
  */
 async function addParticipants(id, verificationCode, usernames) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
 
   // Find all existing participants
   const existingIds = (await competition.getParticipants()).map(p => p.id);
@@ -558,29 +528,7 @@ async function addParticipants(id, verificationCode, usernames) {
  * Removes all the usernames (participants) from a competition.
  */
 async function removeParticipants(id, verificationCode, usernames) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
 
   const playersToRemove = await playerService.findAll(usernames);
 
@@ -600,6 +548,34 @@ async function removeParticipants(id, verificationCode, usernames) {
   await competition.save();
 
   return removedPlayersCount;
+}
+
+async function getCompetitionForParticipantOperation(id, verificationCode, usernames) {
+  if (!id) {
+    throw new NotFoundError('Invalid competition id.');
+  }
+
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
+  if (!usernames || usernames.length === 0) {
+    throw new BadRequestError('Invalid participants list.');
+  }
+
+  const competition = await Competition.findOne({ where: { id } });
+
+  if (!competition) {
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
+  }
+
+  const verified = await verifyCode(competition.verificationHash, verificationCode);
+
+  if (!verified) {
+    throw new BadRequestError('Incorrect verification code.');
+  }
+
+  return competition;
 }
 
 /**

@@ -18,13 +18,19 @@ beforeAll(async done => {
   const player1 = await Player.create({
     id: 1000000,
     username: 'test player',
-    displayName: 'Test Player',
+    displayName: 'Test Player'
   });
 
   const player2 = await Player.create({
     id: 200000,
     username: 'alt player',
     displayName: 'Alt Player'
+  });
+
+  await Player.create({
+    id: 400001,
+    username: 'epic player',
+    displayName: 'Epic Player'
   });
 
   const startDate = new Date();
@@ -261,6 +267,17 @@ describe('Competition API', () => {
       done();
     });
 
+    test('Search competitions ( with metric )', async done => {
+      const response = await request.get(`/api/competitions?metric=OvErAlL`).send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      await response.body.map(c => expect(c.metric).toBe('overall'));
+
+      done();
+    });
+
     test('View competition', async done => {
       const response = await request.get(`/api/competitions/${TEST_ID}`).send();
 
@@ -399,6 +416,42 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('All players given are already competing.');
+
+      done();
+    });
+
+    test('Do not remove participant ( Competition not found )', async done => {
+      const response = await request.post(`/api/competitions/1234/remove`).send({
+        participants: ['new player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Competition of id 1234 was not found.');
+
+      done();
+    });
+
+    test('Do not remove participant ( No participants givens )', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
+        participants: [],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid participants list.');
+
+      done();
+    });
+
+    test('Do not remove participant ( Participants not in list )', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
+        participants: ['epic player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('None of the players given were competing.');
 
       done();
     });
