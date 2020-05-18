@@ -6,6 +6,7 @@ const { ServerError, BadRequestError } = require('../../errors');
 const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 const { getNextProxy } = require('../../proxies');
+const { getCombatLevel } = require('../../util/level');
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -94,8 +95,9 @@ async function getData(username) {
   }
 
   const latestSnapshot = await snapshotService.findLatest(player.id);
+  const combatLevel = getCombatLevel(latestSnapshot);
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot) };
+  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
 }
 
 /**
@@ -113,8 +115,9 @@ async function getDataById(id) {
   }
 
   const latestSnapshot = await snapshotService.findLatest(player.id);
+  const combatLevel = getCombatLevel(latestSnapshot);
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot) };
+  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
 }
 
 /**

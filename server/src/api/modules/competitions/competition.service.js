@@ -355,11 +355,15 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  if (isPast(competition.startsAt) && metric && metric.toLowerCase() !== competition.metric) {
+  if (metric && metric.toLowerCase() !== competition.metric && isPast(competition.startsAt)) {
     throw new BadRequestError(`The competition has started, the metric cannot be changed.`);
   }
 
-  if (isPast(competition.startsAt) && startsAt && startsAt !== competition.startsAt) {
+  if (
+    startsAt &&
+    new Date(startsAt).getTime() !== competition.startsAt.getTime() &&
+    isPast(competition.startsAt)
+  ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
 
