@@ -1,4 +1,4 @@
-const {ValidationError} = require("sequelize");
+const { ValidationError } = require('sequelize');
 
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
@@ -271,6 +271,10 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     throw new BadRequestError('Invalid end date.');
   }
 
+  if (new Date(startsAt) - new Date(endsAt) > 0) {
+    throw new BadRequestError('Start date must be before the end date.');
+  }
+
   if (isPast(startsAt) || isPast(endsAt)) {
     throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
   }
@@ -309,23 +313,15 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
-  try {
-    const competition = await Competition.create({
-      title: sanitizedTitle,
-      metric: metric.toLowerCase(),
-      verificationCode,
-      verificationHash,
-      startsAt,
-      endsAt,
-      groupId
-    });
-  } catch (e) {
-    if(e instanceof ValidationError) {
-      throw new BadRequestError(e.message);
-    }
-
-    throw e;
-  }
+  const competition = await Competition.create({
+    title: sanitizedTitle,
+    metric: metric.toLowerCase(),
+    verificationCode,
+    verificationHash,
+    startsAt,
+    endsAt,
+    groupId
+  });
 
   if (!groupId && !participants) {
     return { ...format(competition), participants: [] };
@@ -358,6 +354,10 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (startsAt && !isValidDate(startsAt)) {
     throw new BadRequestError('Invalid start date.');
+  }
+
+  if (new Date(startsAt) - new Date(endsAt) > 0) {
+    throw new BadRequestError('Start date must be before the end date.');
   }
 
   const competition = await Competition.findOne({ where: { id } });

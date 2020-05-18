@@ -68,7 +68,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Validation error: Start date must be before the end date.');
+      expect(response.body.message).toMatch('Start date must be before the end date.');
 
       done();
     });
