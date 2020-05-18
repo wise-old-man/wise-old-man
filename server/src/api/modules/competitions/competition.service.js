@@ -1,5 +1,3 @@
-const { ValidationError } = require('sequelize');
-
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
@@ -15,7 +13,7 @@ const {
 } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
-const { BadRequestError } = require('../../errors');
+const { BadRequestError, NotFoundError } = require('../../errors');
 const playerService = require('../players/player.service');
 const snapshotService = require('../snapshots/snapshot.service');
 const groupService = require('../groups/group.service');
@@ -176,7 +174,7 @@ async function view(id) {
   });
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   const metricKey = getValueKey(competition.metric);

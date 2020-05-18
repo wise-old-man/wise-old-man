@@ -30,6 +30,10 @@ function sanitize(username) {
 }
 
 function isValidUsername(username) {
+  if (typeof username !== 'string') {
+    return false;
+  }
+
   const formattedUsername = standardize(username);
 
   if (formattedUsername.length < 1 || formattedUsername.length > 12) {
