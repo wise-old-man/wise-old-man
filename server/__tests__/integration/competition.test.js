@@ -1,24 +1,27 @@
 const supertest = require('supertest');
 const api = require('../../src/api');
-const { Player, Competition } = require('../../src/database');
+const { Player, Competition, Group, Membership } = require('../../src/database');
 const { resetDatabase } = require('../utils');
 
 const TEST_DATA = {};
 const TEST_ID = 300000;
+const TEST_GROUP_ID = 9001;
+
 const TEST_VERIFICATION_CODE = '237-221-631';
+const TEST_GROUP_VERIFICATION_CODE = '021-321-025';
 
 const request = supertest(api);
 
 beforeAll(async done => {
   await resetDatabase();
 
-  await Player.create({
+  const player1 = await Player.create({
     id: 1000000,
     username: 'test player',
-    displayName: 'Test Player'
+    displayName: 'Test Player',
   });
 
-  await Player.create({
+  const player2 = await Player.create({
     id: 200000,
     username: 'alt player',
     displayName: 'Alt Player'
@@ -36,6 +39,25 @@ beforeAll(async done => {
     endsAt: endDate,
     verificationCode: TEST_VERIFICATION_CODE,
     verificationHash: '$2b$10$/gBSwiM.faftQVPIrKIG2OGLvhqoT9eTTvcge24t8qWMSCHNC9S6u'
+  });
+
+  const group = await Group.create({
+    id: TEST_GROUP_ID,
+    name: 'test-group',
+    verificationCode: TEST_VERIFICATION_CODE,
+    verificationHash: '$2b$10$IqRi3wdCEq7fb5AiRdEPaehzmS1sieygAnxVLk5sMRYDOe8CA0X6u'
+  });
+
+  await Membership.create({
+    playerId: player1.id,
+    groupId: group.id,
+    role: 'leader'
+  });
+
+  await Membership.create({
+    playerId: player2.id,
+    groupId: group.id,
+    role: 'member'
   });
 
   done();
@@ -111,6 +133,20 @@ describe('Competition API', () => {
       done();
     });
 
+    test('Do not create ( start & end date in the past )', async done => {
+      const response = await request.post('/api/competitions').send({
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2019-05-17T22:00:00.000Z',
+        endsAt: '2019-05-10T22:00:00.000Z'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Start date must be before the end date.');
+
+      done();
+    });
+
     test('Create with minimal requirements', async done => {
       const response = await request.post('/api/competitions').send({
         title: 'test',
@@ -126,6 +162,55 @@ describe('Competition API', () => {
       expect(response.body.endsAt).toMatch('2025-05-17T22:00:00.000Z');
 
       TEST_DATA.minimal = response.body;
+
+      done();
+    });
+
+    test('Create with group', async done => {
+      const response = await request.post('/api/competitions').send({
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        groupId: TEST_GROUP_ID,
+        groupVerificationCode: TEST_GROUP_VERIFICATION_CODE
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.participants.length).toBe(2);
+
+      TEST_DATA.group = response.body;
+
+      done();
+    });
+
+    test('Do not create ( invalid group Id )', async done => {
+      const response = await request.post('/api/competitions').send({
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        groupId: 1337,
+        groupVerificationCode: TEST_GROUP_VERIFICATION_CODE
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid group id.');
+
+      done();
+    });
+
+    test('Do not create ( no group verification )', async done => {
+      const response = await request.post('/api/competitions').send({
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        groupId: TEST_GROUP_ID
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid verification code.');
 
       done();
     });
@@ -149,6 +234,33 @@ describe('Competition API', () => {
   });
 
   describe('Viewing', () => {
+    test('List competitions', async done => {
+      const response = await request.get(`/api/competitions`).send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      done();
+    });
+
+    test('Search competitions ( invalid status )', async done => {
+      const response = await request.get(`/api/competitions?status=invalid-status`).send();
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid status.');
+
+      done();
+    });
+
+    test('Search competitions ( invalid metric )', async done => {
+      const response = await request.get(`/api/competitions?metric=invalid-metric`).send();
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid metric.');
+
+      done();
+    });
+
     test('View competition', async done => {
       const response = await request.get(`/api/competitions/${TEST_ID}`).send();
 
@@ -157,6 +269,15 @@ describe('Competition API', () => {
       expect(response.body.metric).toBe('overall');
       expect(response.body.duration).toBe('3 days');
       expect(response.body.verificationCode).toBe(undefined);
+
+      done();
+    });
+
+    test('View competition ( doesnt exist )', async done => {
+      const response = await request.get(`/api/competitions/9001`).send();
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Competition of id 9001 was not found.');
 
       done();
     });
@@ -253,6 +374,57 @@ describe('Competition API', () => {
       expect(response.body.title).toMatch('my competition');
       expect(response.body.participants.length).toBe(1);
       expect(response.body.participants.map(m => m.username)).toContain('test player');
+
+      done();
+    });
+
+    test('Add participant to competition', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/add`).send({
+        participants: ['new player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.newParticipants.length).toBe(1);
+      expect(response.body.newParticipants.map(m => m.username)).toContain('new player');
+
+      done();
+    });
+
+    test('Do not add participant to competition ( already a participant )', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/add`).send({
+        participants: ['new player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('All players given are already competing.');
+
+      done();
+    });
+
+    test('Remove participant', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
+        participants: ['new player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe(
+        `Successfully removed 1 participants from competition of id: ${TEST_DATA.minimal.id}.`
+      );
+
+      done();
+    });
+
+    test('Do not remove participant ( Not in participant list )', async done => {
+      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
+        participants: ['new player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('None of the players given were competing.');
 
       done();
     });
