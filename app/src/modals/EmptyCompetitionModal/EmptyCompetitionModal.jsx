@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import Button from '../../components/Button';
 import './EmptyCompetitionModal.scss';
 
-function EmptyCompetitionModal({ onConfirm, hideModal }) {
+function EmptyCompetitionModal({ onConfirm, onClose }) {
   const handleConfirm = () => {
     onConfirm();
-    hideModal();
+    onClose();
   };
 
   return (
@@ -17,7 +17,7 @@ function EmptyCompetitionModal({ onConfirm, hideModal }) {
         <span className="modal-warning">Are you sure?</span>
         <div className="modal-actions">
           <Button text="Yes" onClick={handleConfirm} />
-          <Button text="No" onClick={hideModal} />
+          <Button text="No" onClick={onClose} />
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@ function EmptyCompetitionModal({ onConfirm, hideModal }) {
 
 EmptyCompetitionModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
-  hideModal: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired
 };
 
 export default EmptyCompetitionModal;

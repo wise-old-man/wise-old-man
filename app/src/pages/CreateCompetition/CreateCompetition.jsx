@@ -152,6 +152,9 @@ function CreateCompetition() {
     selectedGroup
   ]);
 
+  const isEmpty =
+    (!groupCompetition && participants.length === 0) || (groupCompetition && !selectedGroup);
+
   return (
     <div className="create-competition__container container">
       <Helmet>
@@ -230,11 +233,7 @@ function CreateCompetition() {
         <div className="form-row form-actions">
           <Button
             text="Confirm"
-            onClick={
-              (!groupCompetition && participants.length === 0) || (groupCompetition && !selectedGroup)
-                ? showEmptyCompetitionModal
-                : onSubmit
-            }
+            onClick={isEmpty ? showEmptyCompetitionModal : onSubmit}
             loading={isSubmitting}
           />
         </div>
@@ -250,7 +249,7 @@ function CreateCompetition() {
         />
       )}
       {showingEmptyCompetitionModal && (
-        <EmptyCompetitionModal onConfirm={onSubmit} hideModal={hideEmptyCompetitionModal} />
+        <EmptyCompetitionModal onConfirm={onSubmit} onClose={hideEmptyCompetitionModal} />
       )}
     </div>
   );
