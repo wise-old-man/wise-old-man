@@ -588,52 +588,6 @@ async function removeParticipants(id, verificationCode, usernames) {
 }
 
 /**
- * Sync all participations for a given player id.
- *
- * When a player is updated, this should be executed by a job.
- * This should update all the "endSnapshotId" field in the player's participations.
- */
-async function syncParticipations(playerId) {
-  const currentDate = new Date();
-
-  const participations = await Participation.findAll({
-    attributes: ['competitionId', 'playerId'],
-    where: { playerId },
-    include: [
-      {
-        model: Competition,
-        attributes: ['startsAt', 'endsAt'],
-        where: {
-          startsAt: { [Op.lt]: currentDate },
-          endsAt: { [Op.gte]: currentDate }
-        }
-      }
-    ]
-  });
-
-  if (!participations || participations.length === 0) {
-    return;
-  }
-
-  // Get most recent snapshot
-  const latestSnapshot = await snapshotService.findLatest(playerId);
-
-  await Promise.all(
-    participations.map(async participation => {
-      const { startsAt } = participation.competition;
-      const startSnapshot = await snapshotService.findFirstSince(playerId, startsAt);
-
-      await participation.update({
-        startSnapshotId: startSnapshot.id,
-        endSnapshotId: latestSnapshot.id
-      });
-
-      return participation;
-    })
-  );
-}
-
-/**
  * Get all participants for a specific competition id.
  */
 async function getParticipants(id) {
@@ -771,7 +725,6 @@ exports.edit = edit;
 exports.destroy = destroy;
 exports.addParticipants = addParticipants;
 exports.removeParticipants = removeParticipants;
-exports.syncParticipations = syncParticipations;
 exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
