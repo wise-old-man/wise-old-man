@@ -153,7 +153,9 @@ function CreateCompetition() {
   ]);
 
   const isEmpty =
-    (!groupCompetition && participants.length === 0) || (groupCompetition && !selectedGroup);
+    (!groupCompetition && participants.length === 0) ||
+    (groupCompetition && !selectedGroup) ||
+    (selectedGroup && selectedGroup.memberCount === 0);
 
   return (
     <div className="create-competition__container container">
@@ -249,7 +251,7 @@ function CreateCompetition() {
         />
       )}
       {showingEmptyCompetitionModal && (
-        <EmptyCompetitionModal onConfirm={onSubmit} onClose={hideEmptyCompetitionModal} />
+        <EmptyCompetitionModal onClose={hideEmptyCompetitionModal} onConfirm={onSubmit} />
       )}
     </div>
   );
