@@ -8,7 +8,6 @@ module.exports = {
 
     await Promise.all(
       PERIODS.map(async period => {
-        console.log('syncing', period, playerId);
         await recordService.syncRecords(playerId, period);
       })
     );

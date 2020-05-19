@@ -33,8 +33,17 @@ async function getDelta(playerId, period, initialVals = null) {
     type: QueryTypes.SELECT
   });
 
-  if (!results || results.length < 2) {
+  if (!results) {
     throw new ServerError(`Couldn't find ${period} deltas for that player.`);
+  }
+
+  if (results.length < 2) {
+    return {
+      period,
+      startsAt: null,
+      endsAt: null,
+      data: emptyDiff()
+    };
   }
 
   const [start, end] = results;
@@ -95,9 +104,7 @@ async function getLeaderboard(metric, playerType) {
 
   const partials = await Promise.all(
     periods.map(async period => {
-      console.time(period);
       const list = await getPeriodLeaderboard(metric, period, playerType);
-      console.timeEnd(period);
       return { period, deltas: list };
     })
   );
@@ -229,6 +236,27 @@ function diff(start, end, initial) {
         start: startValue,
         end: endValue,
         gained: gainedValue
+      }
+    };
+  });
+
+  return diffObj;
+}
+
+function emptyDiff() {
+  const diffObj = {};
+
+  ALL_METRICS.forEach(metric => {
+    diffObj[metric] = {
+      rank: {
+        start: 0,
+        end: 0,
+        gained: 0
+      },
+      [getMeasure(metric)]: {
+        start: 0,
+        end: 0,
+        gained: 0
       }
     };
   });
