@@ -194,9 +194,9 @@ async function view(id) {
       updatedAt: player.updatedAt,
       history: [],
       progress: {
-        start: leaderboardMap[player.id].startValue,
-        end: leaderboardMap[player.id].endValue,
-        delta: leaderboardMap[player.id].gained
+        start: leaderboardMap[player.id] ? leaderboardMap[player.id].startValue : 0,
+        end: leaderboardMap[player.id] ? leaderboardMap[player.id].endValue : 0,
+        delta: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
       }
     }))
     .sort((a, b) => b.progress.delta - a.progress.delta);
