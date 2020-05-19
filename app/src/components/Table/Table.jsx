@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from '../../utils';
@@ -10,6 +10,23 @@ function getValue(row, key, get, transform) {
 }
 
 function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
+  const [sortedRows, setSortedRows] = useState(rows);
+  const [sortStatus, setSortStatus] = useState(0);
+  const handleSort = key => {
+    const sorted = Object.assign([], rows);
+    if (sortStatus === 0) {
+      sorted.sort((a, b) => b[key] - a[key]);
+      setSortStatus(1);
+    } else if (sortStatus === 1) {
+      sorted.sort((a, b) => a[key] - b[key]);
+      setSortStatus(2);
+    } else if (sortStatus === 2) {
+      setSortStatus(0);
+    }
+
+    setSortedRows(sorted);
+  };
+
   const tableClass = classNames({
     table: true,
     '-clickable': clickable
@@ -24,7 +41,11 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
         <tr>
           {columns.map(({ key, label, className }) => {
             return (
-              <th className={className && className()} key={`col-${key}`}>
+              <th
+                className={className && className()}
+                key={`col-${key}`}
+                onClick={() => handleSort(key)}
+              >
                 {label || label === '' ? label : capitalize(key)}
               </th>
             );
@@ -32,8 +53,8 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
         </tr>
       </thead>
       <tbody>
-        {rows && rows.length ? (
-          rows.map((row, i) => (
+        {sortedRows && sortedRows.length ? (
+          sortedRows.map((row, i) => (
             <tr key={i} onClick={() => clickable && onRowClicked && onRowClicked(i)}>
               {columns.map(({ key, transform, get, className }) => {
                 const [formatted, original] = getValue(row, key, get, transform);
