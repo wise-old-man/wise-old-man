@@ -58,16 +58,6 @@ export default [
         field: 'competitionId',
         type: 'integer',
         description: "The competition's id."
-      },
-      {
-        field: 'startSnapshotId',
-        type: 'integer',
-        description: "The participant's first snapshot in the competition's time range."
-      },
-      {
-        field: 'endSnapshotId',
-        type: 'integer',
-        description: "The participant's last snapshot in the competition's time range."
       }
     ]
   },
