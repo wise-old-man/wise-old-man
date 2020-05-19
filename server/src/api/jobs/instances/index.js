@@ -1,6 +1,5 @@
 const ImportPlayer = require('./ImportPlayer');
 const UpdatePlayer = require('./UpdatePlayer');
-const SyncPlayerDeltas = require('./SyncPlayerDeltas');
 const SyncPlayerRecords = require('./SyncPlayerRecords');
 const SyncPlayerParticipations = require('./SyncPlayerParticipations');
 const SyncPlayerAchievements = require('./SyncPlayerAchievements');
@@ -11,7 +10,6 @@ const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
 module.exports = {
   ImportPlayer,
   UpdatePlayer,
-  SyncPlayerDeltas,
   SyncPlayerRecords,
   SyncPlayerParticipations,
   SyncPlayerAchievements,

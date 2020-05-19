@@ -119,7 +119,12 @@ async function getMonthlyTopPlayer(groupId) {
   });
 
   const memberIds = memberships.map(m => m.playerId);
-  const monthlyTopPlayer = memberIds.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  if (!memberIds.length) {
+    return null;
+  }
+
+  const monthlyTopPlayer = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
 
   return monthlyTopPlayer;
 }

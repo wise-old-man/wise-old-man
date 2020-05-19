@@ -3,7 +3,6 @@ const jobs = require('./jobs');
 
 function setup() {
   Snapshot.afterCreate(({ playerId }) => {
-    jobs.add('SyncPlayerDeltas', { playerId });
     jobs.add('SyncPlayerParticipations', { playerId });
     jobs.add('SyncPlayerAchievements', { playerId });
   });
@@ -15,7 +14,6 @@ function setup() {
 
     const { playerId } = snapshots[0];
 
-    jobs.add('SyncPlayerDeltas', { playerId });
     jobs.add('SyncPlayerParticipations', { playerId });
     jobs.add('ReevaluatePlayerAchievements', { playerId });
   });
