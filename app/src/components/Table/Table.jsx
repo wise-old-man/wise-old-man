@@ -4,9 +4,11 @@ import classNames from 'classnames';
 import { capitalize } from '../../utils';
 import './Table.scss';
 
-const DEFAULT = 0;
-const ASCENDING = 1;
-const DESCENDING = 2;
+const SORT = {
+  DEFAULT: 0,
+  ASCENDING: 1,
+  DESCENDING: 2
+};
 
 function getValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
@@ -15,25 +17,38 @@ function getValue(row, key, get, transform) {
 
 function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
   const [sortedRows, setSortedRows] = useState(rows);
-  const [sortStatus, setSortStatus] = useState(DEFAULT);
+  const [sortStatus, setSortStatus] = useState(SORT.DEFAULT);
+  const [sortKey, setSortKey] = useState('default');
+  const [sortedBy, setSortedBy] = useState('');
 
   const handleSort = key => {
     const sorted = Object.assign([], rows);
-    if (sortStatus === DEFAULT) {
+    let sortNext = SORT.DEFAULT;
+    if (sortStatus === SORT.DEFAULT) {
       sorted.sort((a, b) => b[key] - a[key]);
-      setSortStatus(ASCENDING);
-    } else if (sortStatus === ASCENDING) {
+      sortNext = SORT.ASCENDING;
+    } else if (sortStatus === SORT.ASCENDING) {
       sorted.sort((a, b) => a[key] - b[key]);
-      setSortStatus(DESCENDING);
-    } else {
-      setSortStatus(DEFAULT);
+      sortNext = SORT.DESCENDING;
     }
 
     setSortedRows(sorted);
+    setSortStatus(sortNext);
+    setSortKey(
+      Object.keys(SORT)
+        .find(val => SORT[val] === sortNext)
+        .toLowerCase()
+    );
+    setSortedBy(key);
   };
 
   useEffect(() => {
     setSortedRows(rows);
+    return () => {
+      setSortStatus(SORT.DEFAULT);
+      setSortKey('default');
+      setSortedBy('');
+    };
   }, [rows]);
 
   const tableClass = classNames({
@@ -49,13 +64,12 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
       <thead>
         <tr>
           {columns.map(({ key, label, className }) => {
+            const customClass = (className && className()) || '';
+            const arrowClass = `arrow-${sortKey}`;
             return (
-              <th
-                className={className && className()}
-                key={`col-${key}`}
-                onClick={() => handleSort(key)}
-              >
+              <th className={customClass} key={`col-${key}`} onClick={() => handleSort(key)}>
                 {label || label === '' ? label : capitalize(key)}
+                {sortedBy === key && <div className={`${customClass} ${arrowClass}`} />}
               </th>
             );
           })}
