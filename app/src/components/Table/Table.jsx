@@ -69,7 +69,13 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
             return (
               <th className={customClass} key={`col-${key}`} onClick={() => handleSort(key)}>
                 {label || label === '' ? label : capitalize(key)}
-                {sortedBy === key && <div className={`${customClass} ${arrowClass}`} />}
+                <div className={`${customClass} arrow`}>
+                  {sortedBy === key ? (
+                    <div className={`${customClass} ${arrowClass}`} />
+                  ) : (
+                    <div className={`${customClass} arrow-default`} />
+                  )}
+                </div>
               </th>
             );
           })}

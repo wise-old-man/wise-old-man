@@ -51,15 +51,22 @@
       padding: 0;
     }
 
+    .arrow {
+      display: inline-block;
+      margin-left: 10px;
+      position: absolute;
+    }
+
     .arrow-ascending {
       width: 0;
       height: 0;
+
       border-left: 4px solid transparent;
       border-right: 4px solid transparent;
-
       border-bottom: 4px solid $gray-60;
       display: inline-block;
-      margin-left: 10px;
+
+      margin-bottom: 2px;
     }
 
     .arrow-descending {
@@ -67,21 +74,20 @@
       height: 0;
       border-left: 4px solid transparent;
       border-right: 4px solid transparent;
-
       border-top: 4px solid $gray-60;
       display: inline-block;
-      margin-left: 10px;
     }
 
     .arrow-default {
       width: 0;
       height: 0;
+
       border-top: 4px solid transparent;
       border-bottom: 4px solid transparent;
-
       border-left: 4px solid $gray-60;
       display: inline-block;
-      margin-left: 10px;
+
+      margin-left: 2px;
     }
   }
 
