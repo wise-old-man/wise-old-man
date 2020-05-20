@@ -170,7 +170,11 @@ export default [
           playerId: 299,
           username: 'Psikoi',
           type: 'regular',
-          gained: 63758697
+          startDate: '2020-04-18T16:20:05.000Z',
+          endDate: '2020-05-18T14:52:22.213Z',
+          endValue: 963695236,
+          startValue: 889685269,
+          delta: 74009967
         }
       }
     ],

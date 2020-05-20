@@ -3,14 +3,7 @@ const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
 const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
-const {
-  Competition,
-  Participation,
-  Player,
-  Snapshot,
-  Group,
-  InitialValues
-} = require('../../../database');
+const { Competition, Participation, Player, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -183,22 +176,15 @@ async function view(id) {
 
   // Fetch all participations, including their players and snapshots
   const participations = await Participation.findAll({
+    attributes: ['playerId'],
     where: { competitionId: id },
-    include: [
-      { model: Player },
-      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
-      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
-    ]
+    include: [{ model: Player }]
   });
 
-  const playerIds = participations.map(p => p.player.id);
-  const allInitialValues = await InitialValues.findAll({ where: { playerId: playerIds } });
-  const allInitialValuesMap = _.keyBy(allInitialValues, 'playerId');
+  const playerIds = participations.map(p => p.playerId);
 
-  const deltas = participations.map(p => ({ ...p, initialValues: allInitialValuesMap[p.player.id] }));
-
-  const processedDeltas = deltaService.processCompetitionDeltas(metricKey, deltas);
-  const processedDeltasMap = _.keyBy(processedDeltas, 'playerId');
+  const leaderboard = await deltaService.getCompetitionLeaderboard(competition, playerIds);
+  const leaderboardMap = _.keyBy(leaderboard, 'playerId');
 
   const participants = participations
     .map(({ player }) => ({
@@ -207,7 +193,11 @@ async function view(id) {
       type: player.type,
       updatedAt: player.updatedAt,
       history: [],
-      progress: { ...processedDeltasMap[player.id].progress }
+      progress: {
+        start: leaderboardMap[player.id] ? leaderboardMap[player.id].startValue : 0,
+        end: leaderboardMap[player.id] ? leaderboardMap[player.id].endValue : 0,
+        delta: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
+      }
     }))
     .sort((a, b) => b.progress.delta - a.progress.delta);
 
@@ -240,7 +230,7 @@ async function view(id) {
   const totalGained =
     participants &&
     participants.length &&
-    participants.map(p => p.progress.delta).reduce((a, c) => a + c);
+    participants.map(p => p.progress.delta).reduce((a, c) => a + Math.max(0, c));
 
   return { ...format(competition), duration, totalGained, participants, group };
 }
@@ -598,52 +588,6 @@ async function removeParticipants(id, verificationCode, usernames) {
 }
 
 /**
- * Sync all participations for a given player id.
- *
- * When a player is updated, this should be executed by a job.
- * This should update all the "endSnapshotId" field in the player's participations.
- */
-async function syncParticipations(playerId) {
-  const currentDate = new Date();
-
-  const participations = await Participation.findAll({
-    attributes: ['competitionId', 'playerId'],
-    where: { playerId },
-    include: [
-      {
-        model: Competition,
-        attributes: ['startsAt', 'endsAt'],
-        where: {
-          startsAt: { [Op.lt]: currentDate },
-          endsAt: { [Op.gte]: currentDate }
-        }
-      }
-    ]
-  });
-
-  if (!participations || participations.length === 0) {
-    return;
-  }
-
-  // Get most recent snapshot
-  const latestSnapshot = await snapshotService.findLatest(playerId);
-
-  await Promise.all(
-    participations.map(async participation => {
-      const { startsAt } = participation.competition;
-      const startSnapshot = await snapshotService.findFirstSince(playerId, startsAt);
-
-      await participation.update({
-        startSnapshotId: startSnapshot.id,
-        endSnapshotId: latestSnapshot.id
-      });
-
-      return participation;
-    })
-  );
-}
-
-/**
  * Get all participants for a specific competition id.
  */
 async function getParticipants(id) {
@@ -781,7 +725,6 @@ exports.edit = edit;
 exports.destroy = destroy;
 exports.addParticipants = addParticipants;
 exports.removeParticipants = removeParticipants;
-exports.syncParticipations = syncParticipations;
 exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;

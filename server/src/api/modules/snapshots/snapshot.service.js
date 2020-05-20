@@ -121,7 +121,6 @@ async function findLatest(playerId) {
 
 /**
  * Finds the first snapshot in the given time period for a given player.
- * Useful for finding the start snapshot of a delta.
  */
 async function findFirstIn(playerId, period) {
   if (!PERIODS.includes(period)) {
@@ -139,7 +138,6 @@ async function findFirstIn(playerId, period) {
 
 /**
  * Finds the first snapshot since the given date for a given player.
- * Useful for finding the start snapshot for any competition participation.
  */
 async function findFirstSince(playerId, date) {
   const result = await Snapshot.findOne({

@@ -244,8 +244,11 @@ async function importCMLSince(id, username, time) {
   // Convert the CML csv data to Snapshot instances
   const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
 
+  // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
+  const pastSnapshots = snapshots.filter(s => s.createdAt < new Date('2020-05-10'));
+
   // Save new snapshots to db
-  const savedSnapshots = await snapshotService.saveAll(snapshots);
+  const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
 
   return savedSnapshots;
 }

@@ -14,55 +14,47 @@ function format(record) {
  *
  * This will compare the current delta values, and if more than
  * the previous record, it will replace the record's value.
+ *
+ * Note: this method will only created records for values > 0
  */
 async function syncRecords(playerId, period) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player.`);
   }
 
-  const allRecordDefs = ALL_METRICS.map(metric => ({ period, metric }));
+  const periodRecords = await Record.findAll({ where: { playerId, period } });
   const periodDelta = await deltaService.getDelta(playerId, period);
-  let playerRecords = await Record.findAll({ where: { playerId, period } });
 
-  // If has missing records, create them
-  if (playerRecords.length !== allRecordDefs.length) {
-    // Create a map of all metrics (ex: {"woodcutting": false, "zulrah": false})
-    const checkMap = _.mapValues(_.keyBy(allRecordDefs, 'metric'), () => false);
+  const recordMap = _.keyBy(
+    periodRecords.map(r => r.toJSON()),
+    'metric'
+  );
 
-    // Mark any found playerRecords as existant (true)
-    playerRecords.forEach(r => {
-      checkMap[r.metric] = true;
-    });
+  const toCreate = [];
+  const toUpdate = [];
 
-    // Gather the record definitions for any missing records
-    const missingRecordDefs = Object.keys(checkMap)
-      .map(k => ({ key: k, value: checkMap[k] }))
-      .filter(m => !m.value)
-      .map(m => ({ playerId, period, metric: m.key, value: 0 }));
+  _.forEach(periodDelta.data, (values, metric) => {
+    const { gained } = values[getMeasure(metric)];
 
-    // Add all missing records
-    const newRecords = await Record.bulkCreate(missingRecordDefs, { ignoreDuplicates: true });
-
-    // Add newly created records to the playerRecords array, to be processed later on
-    if (newRecords && newRecords.length > 0) {
-      playerRecords = [...playerRecords, ...newRecords];
-    }
-  }
-
-  await Promise.all(
-    playerRecords.map(async record => {
-      const { value, metric } = record;
-      const newValue = periodDelta.data[metric][getMeasure(metric)].delta;
-
-      // If the current delta is higher than the previous record,
-      // update the previous record's value
-      if (value < newValue) {
-        await record.update({ value: newValue });
+    if (gained > 0) {
+      if (!recordMap[metric]) {
+        toCreate.push({ playerId, period, metric, value: gained });
+      } else if (gained > recordMap[metric].value) {
+        toUpdate.push({ playerId, period, metric, value: gained });
       }
+    }
+  });
 
-      return record;
+  // Update all "outdated records"
+  await Promise.all(
+    toUpdate.map(async r => {
+      const record = periodRecords.find(p => p.metric === r.metric);
+      await record.update({ value: r.value });
     })
   );
+
+  // Create all missing records
+  await Record.bulkCreate(toCreate, { ignoreDuplicates: true });
 }
 
 /**

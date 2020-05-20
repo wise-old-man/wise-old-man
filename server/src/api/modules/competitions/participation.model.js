@@ -8,12 +8,6 @@ module.exports = (sequelize, DataTypes) => {
     competitionId: {
       type: DataTypes.INTEGER,
       primaryKey: true
-    },
-    startSnapshotId: {
-      type: DataTypes.INTEGER
-    },
-    endSnapshotId: {
-      type: DataTypes.INTEGER
     }
   };
 
@@ -23,12 +17,6 @@ module.exports = (sequelize, DataTypes) => {
       {
         unique: true,
         fields: ['playerId', 'competitionId']
-      },
-      {
-        fields: ['startSnapshotId']
-      },
-      {
-        fields: ['endSnapshotId']
       }
     ]
   };
@@ -44,14 +32,6 @@ module.exports = (sequelize, DataTypes) => {
     Participation.belongsTo(models.Competition, {
       foreignKey: 'competitionId',
       onDelete: 'CASCADE'
-    });
-    Participation.belongsTo(models.Snapshot, {
-      as: 'startSnapshot',
-      foreignKey: 'startSnapshotId'
-    });
-    Participation.belongsTo(models.Snapshot, {
-      as: 'endSnapshot',
-      foreignKey: 'endSnapshotId'
     });
   };
 

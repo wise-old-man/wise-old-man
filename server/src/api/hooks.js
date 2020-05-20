@@ -1,11 +1,10 @@
-const { Snapshot, Delta, Membership } = require('../database');
+const { Snapshot, Membership } = require('../database');
 const jobs = require('./jobs');
 
 function setup() {
   Snapshot.afterCreate(({ playerId }) => {
-    jobs.add('SyncPlayerDeltas', { playerId });
-    jobs.add('SyncPlayerParticipations', { playerId });
     jobs.add('SyncPlayerAchievements', { playerId });
+    jobs.add('SyncPlayerRecords', { playerId });
   });
 
   Snapshot.afterBulkCreate(snapshots => {
@@ -15,13 +14,8 @@ function setup() {
 
     const { playerId } = snapshots[0];
 
-    jobs.add('SyncPlayerDeltas', { playerId });
-    jobs.add('SyncPlayerParticipations', { playerId });
+    jobs.add('SyncPlayerRecords', { playerId });
     jobs.add('ReevaluatePlayerAchievements', { playerId });
-  });
-
-  Delta.afterUpdate(({ playerId, period }) => {
-    jobs.add('SyncPlayerRecords', { playerId, period });
   });
 
   Membership.afterBulkCreate(memberships => {
