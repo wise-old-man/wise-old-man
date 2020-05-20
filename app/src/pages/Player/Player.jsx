@@ -161,6 +161,10 @@ function Player() {
     }
   };
 
+  const handleDeltasTimerEnded = () => {
+    dispatch(fetchDeltasAction({ playerId: id }));
+  };
+
   const onTabChanged = useCallback(handleTabChanged, []);
   const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
   const onDeltasMetricSelected = useCallback(handleDeltasMetricSelected, [setSelectedDeltasMetric]);
@@ -168,6 +172,7 @@ function Player() {
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
+  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [id]);
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
@@ -298,7 +303,11 @@ function Player() {
               <LineChart datasets={rankChartData} invertYAxis />
             </div>
             <div className="col-lg-6 col-md-12">
-              <PlayerDeltasInfo deltas={deltas} period={selectedDeltasPeriod} />
+              <PlayerDeltasInfo
+                deltas={deltas}
+                period={selectedDeltasPeriod}
+                onTimerEnded={onDeltasTimerEnded}
+              />
               <PlayerDeltasTable
                 deltas={deltas}
                 period={selectedDeltasPeriod}
