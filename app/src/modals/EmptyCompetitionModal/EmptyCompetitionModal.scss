@@ -18,17 +18,17 @@
   &__modal {
     @extend %panel;
     background: $gray-00;
-    width: 300px;
+    width: 270px;
     max-width: 90%;
     min-height: 100px;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
-    padding: 25px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
 
     .modal-title {
       margin: 0;
-      margin-top: 20px;
+      margin-top: 15px;
       text-align: center;
       font-size: 1.75em;
     }
@@ -37,22 +37,15 @@
       font-size: 0.8em;
       text-align: center;
       color: $gray-60;
-      padding: 10px;
+      padding: 10px 0;
       margin-bottom: 20px;
-    }
-
-    .modal-warning {
-      font-size: 0.9em;
-      display: block;
-      color: $gray-60;
-      text-align: center;
+      line-height: 1.5em;
     }
 
     .modal-actions {
-      margin-top: 15px;
       display: flex;
       flex-direction: row;
-      justify-content: center;
+      justify-content: flex-end;
 
       .button {
         margin: 5px;
@@ -62,6 +55,7 @@
 
       .text-button {
         color: $gray-60;
+        min-width: 100px;
       }
     }
   }

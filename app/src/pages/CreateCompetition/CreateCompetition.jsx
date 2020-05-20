@@ -160,7 +160,7 @@ function CreateCompetition() {
   return (
     <div className="create-competition__container container">
       <Helmet>
-        <title>Creat new competition</title>
+        <title>Create new competition</title>
       </Helmet>
 
       <div className="col">
