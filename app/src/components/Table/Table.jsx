@@ -10,7 +10,7 @@ const SORT = {
   DESCENDING: 2
 };
 
-const initSort = { type: SORT.DEFAULT, key: 'default', by: '' };
+const initSort = { type: SORT.DEFAULT, value: 'default', by: '' };
 
 function getValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
@@ -18,34 +18,39 @@ function getValue(row, key, get, transform) {
 }
 
 function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
-  const [sortedRows, setSortedRows] = useState(rows);
   const [sortData, setSortData] = useState(initSort);
 
-  const handleSort = key => {
-    const sorted = Object.assign([], rows);
+  const handleClick = key => {
     let sortNext = SORT.DEFAULT;
     if (sortData.type === SORT.DEFAULT) {
-      sorted.sort((a, b) => b[key] - a[key]);
       sortNext = SORT.ASCENDING;
     } else if (sortData.type === SORT.ASCENDING) {
-      sorted.sort((a, b) => a[key] - b[key]);
       sortNext = SORT.DESCENDING;
     }
 
     const data = {
       type: sortNext,
-      key: Object.keys(SORT)
+      value: Object.keys(SORT)
         .find(val => SORT[val] === sortNext)
         .toLowerCase(),
       by: key
     };
 
-    setSortedRows(sorted);
     setSortData(data);
   };
 
+  const handleSort = (a, b) => {
+    if (sortData.type === SORT.ASCENDING) {
+      return b[sortData.by] - a[sortData.by];
+    }
+    if (sortData.type === SORT.DESCENDING) {
+      return a[sortData.by] - b[sortData.by];
+    }
+
+    return 0;
+  };
+
   useEffect(() => {
-    setSortedRows(rows);
     return () => {
       setSortData(initSort);
     };
@@ -65,9 +70,9 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
         <tr>
           {columns.map(({ key, label, className }) => {
             const customClass = (className && className()) || '';
-            const arrowClass = `arrow-${sortData.key}`;
+            const arrowClass = `arrow-${sortData.value}`;
             return (
-              <th className={customClass} key={`col-${key}`} onClick={() => handleSort(key)}>
+              <th className={customClass} key={`col-${key}`} onClick={() => handleClick(key)}>
                 {label || label === '' ? label : capitalize(key)}
                 <div className={`${customClass} arrow`}>
                   {sortData.by === key ? (
@@ -82,8 +87,8 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
         </tr>
       </thead>
       <tbody>
-        {sortedRows && sortedRows.length ? (
-          sortedRows.map((row, i) => (
+        {rows && rows.length ? (
+          [...rows].sort(handleSort).map((row, i) => (
             <tr key={i} onClick={() => clickable && onRowClicked && onRowClicked(i)}>
               {columns.map(({ key, transform, get, className }) => {
                 const [formatted, original] = getValue(row, key, get, transform);
