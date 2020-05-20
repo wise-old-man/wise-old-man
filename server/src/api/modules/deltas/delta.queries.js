@@ -73,7 +73,7 @@ const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
         WHERE "playerId" IN (${ids})
         GROUP BY "pId"
     ) i ON player.id = i."pId"
-    WHERE NOT player.type = 'unknown' AND player.id IN (${ids})
+    WHERE player.id IN (${ids})
     ORDER BY gained DESC
 `;
 

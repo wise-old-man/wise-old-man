@@ -230,7 +230,7 @@ async function view(id) {
   const totalGained =
     participants &&
     participants.length &&
-    participants.map(p => p.progress.delta).reduce((a, c) => a + c);
+    participants.map(p => p.progress.delta).reduce((a, c) => a + Math.max(0, c));
 
   return { ...format(competition), duration, totalGained, participants, group };
 }

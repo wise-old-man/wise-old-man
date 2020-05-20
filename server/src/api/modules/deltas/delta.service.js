@@ -89,7 +89,8 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
-    delta: parseInt(r.gained, 10)
+    delta: parseInt(r.gained, 10),
+    gained: undefined
   }));
 }
 
