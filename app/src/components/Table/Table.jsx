@@ -5,12 +5,12 @@ import { capitalize } from '../../utils';
 import './Table.scss';
 
 const SORT = {
-  DEFAULT: 0,
-  ASCENDING: 1,
-  DESCENDING: 2
+  DEFAULT: 'default',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending'
 };
 
-const initSort = { type: SORT.DEFAULT, value: 'default', by: '' };
+const initSort = { type: SORT.DEFAULT, by: '' };
 
 function getValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
@@ -22,7 +22,8 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
 
   const handleClick = key => {
     let sortNext = SORT.DEFAULT;
-    if (sortData.type === SORT.DEFAULT) {
+
+    if (sortData.type === SORT.DEFAULT || sortData.by !== key) {
       sortNext = SORT.ASCENDING;
     } else if (sortData.type === SORT.ASCENDING) {
       sortNext = SORT.DESCENDING;
@@ -30,9 +31,6 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
 
     const data = {
       type: sortNext,
-      value: Object.keys(SORT)
-        .find(val => SORT[val] === sortNext)
-        .toLowerCase(),
       by: key
     };
 
@@ -72,18 +70,14 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
           {columns.map(({ key, label, className }) => {
             const customClass = (className && className()) || '';
             const arrowClass = classNames('arrow', {
-              '-ascending': sortData.value === 'ascending',
-              '-descending': sortData.value === 'descending'
+              '-default': sortData.by !== key,
+              '-ascending': sortData.type === 'ascending' && sortData.by === key,
+              '-descending': sortData.type === 'descending' && sortData.by === key
             });
             return (
               <th className={customClass} key={`col-${key}`} onClick={() => handleClick(key)}>
                 {label || label === '' ? label : capitalize(key)}
-
-                {sortData.by === key ? (
-                  <div className={arrowClass} />
-                ) : (
-                  <div className="arrow -default" />
-                )}
+                <div className={arrowClass} />
               </th>
             );
           })}
