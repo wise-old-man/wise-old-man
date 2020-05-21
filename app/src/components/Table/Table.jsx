@@ -43,6 +43,7 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
     if (sortData.type === SORT.ASCENDING) {
       return b[sortData.by] - a[sortData.by];
     }
+
     if (sortData.type === SORT.DESCENDING) {
       return a[sortData.by] - b[sortData.by];
     }
@@ -70,17 +71,19 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
         <tr>
           {columns.map(({ key, label, className }) => {
             const customClass = (className && className()) || '';
-            const arrowClass = `arrow-${sortData.value}`;
+            const arrowClass = classNames('arrow', {
+              '-ascending': sortData.value === 'ascending',
+              '-descending': sortData.value === 'descending'
+            });
             return (
               <th className={customClass} key={`col-${key}`} onClick={() => handleClick(key)}>
                 {label || label === '' ? label : capitalize(key)}
-                <div className={`${customClass} arrow`}>
-                  {sortData.by === key ? (
-                    <div className={arrowClass} />
-                  ) : (
-                    <div className="arrow-default" />
-                  )}
-                </div>
+
+                {sortData.by === key ? (
+                  <div className={arrowClass} />
+                ) : (
+                  <div className="arrow -default" />
+                )}
               </th>
             );
           })}
