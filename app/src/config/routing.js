@@ -60,7 +60,7 @@ export const ROUTES = [
     component: GroupPage
   },
   {
-    path: '/players/:id',
+    path: '/players/:id/:section?/:metricType?',
     component: PlayerPage
   },
   {

@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import _ from 'lodash';
+import queryString from 'query-string';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -34,12 +36,12 @@ import fetchAchievementsAction from '../../redux/modules/achievements/actions/fe
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
-import { SKILLS, ACTIVITIES, BOSSES } from '../../config';
+import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];
 
-const PERIOD_SELECTOR_OPTIONS = [
+const PERIOD_OPTIONS = [
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -62,16 +64,73 @@ const MENU_OPTIONS = [
   { label: 'Reassign player type', value: 'assertType' }
 ];
 
+function getSelectedTabIndex(section) {
+  const index = TABS.findIndex(t => t.toLowerCase() === section);
+  return Math.max(0, index);
+}
+
+function getSelectedMetricType(metricType) {
+  const index = METRIC_TYPE_OPTIONS.findIndex(t => t.value.toLowerCase() === metricType);
+  return METRIC_TYPE_OPTIONS[Math.max(0, index)].value;
+}
+
+function getSelectedPeriod(location) {
+  const params = queryString.parse(location.search);
+  const queryPeriod = params.period;
+
+  const index = PERIOD_OPTIONS.findIndex(t => t.value.toLowerCase() === queryPeriod);
+  return PERIOD_OPTIONS[index === -1 ? 1 : index].value;
+}
+
+function getSelectedMetric(metricType, location) {
+  const params = queryString.parse(location.search);
+  const queryMetric = params.metric;
+
+  return ALL_METRICS.includes(queryMetric) ? queryMetric : getMetricList(metricType)[0];
+}
+
+function getMetricList(metricType) {
+  switch (metricType) {
+    case 'bossing':
+      return BOSSES;
+    case 'activities':
+      return ACTIVITIES;
+    default:
+      return SKILLS;
+  }
+}
+
+function buildQuerySearch(options) {
+  const obj = {};
+
+  if (options.virtual) {
+    obj.virtual = true;
+  }
+
+  if (options.metric && options.metric !== getMetricList(options.metricType)[0]) {
+    obj.metric = options.metric;
+  }
+
+  if (options.period && options.period !== 'week') {
+    obj.period = options.period;
+  }
+
+  const str = _.map(obj, (val, key) => `${key}=${val}`).join('&');
+  return str.length > 0 ? `?${str}` : '';
+}
+
 function Player() {
-  const { id } = useParams();
+  const { id, section, metricType } = useParams();
+  const location = useLocation();
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const selectedTabIndex = getSelectedTabIndex(section);
+  const selectedMetricType = getSelectedMetricType(metricType);
+  const selectedPeriod = getSelectedPeriod(location);
+  const selectedMetric = getSelectedMetric(selectedMetricType, location);
+
   const [isTracking, setIsTracking] = useState(false);
-  const [selectedDeltasPeriod, setSelectedDeltasPeriod] = useState('week');
-  const [selectedDeltasMetric, setSelectedDeltasMetric] = useState(SKILLS[0]);
-  const [selectedMetricType, setSelectedMetricType] = useState('skilling');
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
@@ -85,14 +144,14 @@ function Player() {
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
-  const deltasPeriodIndex = PERIOD_SELECTOR_OPTIONS.findIndex(o => o.value === selectedDeltasPeriod);
+  const deltasPeriodIndex = PERIOD_OPTIONS.findIndex(o => o.value === selectedPeriod);
 
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, getMeasure(selectedDeltasMetric))
+    getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric))
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedDeltasPeriod, selectedDeltasMetric, 'rank')
+    getChartData(state, id, selectedPeriod, selectedMetric, 'rank')
   );
 
   const trackPlayer = async () => {
@@ -123,16 +182,33 @@ function Player() {
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
+  const getNextUrl = options => {
+    const newOptions = {
+      id,
+      section: TABS[selectedTabIndex].toLowerCase(),
+      metricType: selectedMetricType,
+      metric: selectedMetric,
+      period: selectedPeriod,
+      ...options
+    };
+
+    const metricList = getMetricList(newOptions.metricType);
+    newOptions.metric = metricList.includes(newOptions.metric) ? newOptions.metric : metricList[0];
+
+    const query = buildQuerySearch(newOptions);
+    return `/players/${newOptions.id}/${newOptions.section}/${newOptions.metricType}${query}`;
+  };
+
   const handleTabChanged = i => {
-    setSelectedTabIndex(i);
+    router.push(getNextUrl({ section: TABS[i].toLowerCase() }));
   };
 
-  const handleDeltasPeriodSelected = e => {
-    setSelectedDeltasPeriod((e && e.value) || null);
+  const handlePeriodSelected = e => {
+    router.push(getNextUrl({ period: e.value }));
   };
 
-  const handleDeltasMetricSelected = metric => {
-    setSelectedDeltasMetric(metric);
+  const handleMetricSelected = metric => {
+    router.push(getNextUrl({ metric }));
   };
 
   const handleLevelTypeSelected = e => {
@@ -140,17 +216,7 @@ function Player() {
   };
 
   const handleMetricTypeSelected = e => {
-    setSelectedMetricType((e && e.value) || null);
-  };
-
-  const resetSelectedDeltasMetric = () => {
-    if (selectedMetricType === 'skilling') {
-      setSelectedDeltasMetric(SKILLS[0]);
-    } else if (selectedMetricType === 'activities') {
-      setSelectedDeltasMetric(ACTIVITIES[0]);
-    } else {
-      setSelectedDeltasMetric(BOSSES[0]);
-    }
+    router.push(getNextUrl({ metricType: e.value }));
   };
 
   const handleOptionSelected = async option => {
@@ -165,10 +231,6 @@ function Player() {
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
-  const onTabChanged = useCallback(handleTabChanged, []);
-  const onDeltasPeriodSelected = useCallback(handleDeltasPeriodSelected, [setSelectedDeltasPeriod]);
-  const onDeltasMetricSelected = useCallback(handleDeltasMetricSelected, [setSelectedDeltasMetric]);
-  const onMetricTypeSelected = useCallback(handleMetricTypeSelected, [setSelectedMetricType]);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
@@ -176,7 +238,6 @@ function Player() {
 
   // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
-  useEffect(resetSelectedDeltasMetric, [selectedMetricType]);
 
   if (!player) {
     return null;
@@ -208,7 +269,7 @@ function Player() {
           <Tabs
             tabs={TABS}
             selectedIndex={selectedTabIndex}
-            onChange={onTabChanged}
+            onChange={handleTabChanged}
             align="space-between"
           />
         </div>
@@ -218,7 +279,7 @@ function Player() {
               <Selector
                 options={METRIC_TYPE_OPTIONS}
                 selectedIndex={metricTypeIndex}
-                onSelect={onMetricTypeSelected}
+                onSelect={handleMetricTypeSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
@@ -237,14 +298,14 @@ function Player() {
               <Selector
                 options={METRIC_TYPE_OPTIONS}
                 selectedIndex={metricTypeIndex}
-                onSelect={onMetricTypeSelected}
+                onSelect={handleMetricTypeSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
               <Selector
-                options={PERIOD_SELECTOR_OPTIONS}
+                options={PERIOD_OPTIONS}
                 selectedIndex={deltasPeriodIndex}
-                onSelect={onDeltasPeriodSelected}
+                onSelect={handlePeriodSelected}
               />
             </div>
           </>
@@ -255,7 +316,7 @@ function Player() {
               <Selector
                 options={METRIC_TYPE_OPTIONS}
                 selectedIndex={metricTypeIndex}
-                onSelect={onMetricTypeSelected}
+                onSelect={handleMetricTypeSelected}
               />
             </div>
             <div className="col-md-6 col-lg-3">
@@ -310,20 +371,19 @@ function Player() {
             <div className="col-lg-6 col-md-12">
               <PlayerDeltasInfo
                 deltas={deltas}
-                period={selectedDeltasPeriod}
+                period={selectedPeriod}
                 onTimerEnded={onDeltasTimerEnded}
               />
               <PlayerDeltasTable
                 deltas={deltas}
-                period={selectedDeltasPeriod}
+                period={selectedPeriod}
                 metricType={selectedMetricType}
-                highlightedMetric={selectedDeltasMetric}
-                onMetricSelected={onDeltasMetricSelected}
+                highlightedMetric={selectedMetric}
+                onMetricSelected={handleMetricSelected}
               />
             </div>
           </>
         )}
-
         {selectedTabIndex === 2 && (
           <div className="col">
             <PlayerCompetitionsTable competitions={competitions} />
