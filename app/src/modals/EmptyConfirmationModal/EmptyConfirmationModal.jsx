@@ -29,12 +29,7 @@ function EmptyConfirmationModal({ entity, onConfirm, onClose }) {
 EmptyConfirmationModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  entity: PropTypes.arrayOf(
-    PropTypes.shape({
-      type: PropTypes.string,
-      group: PropTypes.string
-    })
-  ).isRequired
+  entity: PropTypes.shape({ type: PropTypes.string, group: PropTypes.string }).isRequired
 };
 
 export default EmptyConfirmationModal;
