@@ -14,7 +14,7 @@ import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
-import EmptyCompetitionModal from '../../modals/EmptyCompetitionModal';
+import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
@@ -53,7 +53,7 @@ function CreateCompetition() {
 
   const [groupCompetition, setGroupCompetition] = useState(false);
   const [showingImportModal, toggleImportModal] = useState(false);
-  const [showingEmptyCompetitionModal, toggleEmptyCompetitionModal] = useState(false);
+  const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
@@ -128,8 +128,8 @@ function CreateCompetition() {
 
   const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
   const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
-  const hideEmptyCompetitionModal = useCallback(() => toggleEmptyCompetitionModal(false), []);
-  const showEmptyCompetitionModal = useCallback(() => toggleEmptyCompetitionModal(true), []);
+  const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
+  const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
   const toggleGroupCompetition = useCallback(handleToggleGroupCompetition, [groupCompetition]);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
@@ -235,7 +235,7 @@ function CreateCompetition() {
         <div className="form-row form-actions">
           <Button
             text="Confirm"
-            onClick={isEmpty ? showEmptyCompetitionModal : onSubmit}
+            onClick={isEmpty ? showEmptyConfirmationModal : onSubmit}
             loading={isSubmitting}
           />
         </div>
@@ -250,8 +250,12 @@ function CreateCompetition() {
           onConfirm={onConfirmVerification}
         />
       )}
-      {showingEmptyCompetitionModal && (
-        <EmptyCompetitionModal onClose={hideEmptyCompetitionModal} onConfirm={onSubmit} />
+      {showingEmptyConfirmationModal && (
+        <EmptyConfirmationModal
+          entity={{ type: 'competition', group: 'participant' }}
+          onClose={hideEmptyConfirmationModal}
+          onConfirm={onSubmit}
+        />
       )}
     </div>
   );

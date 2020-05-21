@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
-import './EmptyCompetitionModal.scss';
+import './EmptyConfirmationModal.scss';
 
-function EmptyCompetitionModal({ onConfirm, onClose }) {
+function EmptyConfirmationModal({ entity, onConfirm, onClose }) {
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -13,9 +13,9 @@ function EmptyCompetitionModal({ onConfirm, onClose }) {
   return (
     <div className="empty-competition-modal">
       <div className="empty-competition-modal__modal">
-        <h1 className="modal-title">No participants!</h1>
+        <h1 className="modal-title">{`No ${entity.group}s!`}</h1>
         <p className="modal-description">
-          You are creating a competition with no participants. Are you sure you want to continue?
+          {`You are creating a ${entity.type} with no ${entity.group}s. Are you sure you want to continue?`}
         </p>
         <div className="modal-actions">
           <TextButton text="No" onClick={onClose} />
@@ -26,9 +26,15 @@ function EmptyCompetitionModal({ onConfirm, onClose }) {
   );
 }
 
-EmptyCompetitionModal.propTypes = {
+EmptyConfirmationModal.propTypes = {
   onConfirm: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
+  entity: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.string,
+      group: PropTypes.string
+    })
+  ).isRequired
 };
 
-export default EmptyCompetitionModal;
+export default EmptyConfirmationModal;
