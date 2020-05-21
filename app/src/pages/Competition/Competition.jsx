@@ -50,14 +50,15 @@ function getMenuOptions(competition) {
 }
 
 function Competition() {
-  const { id } = useParams();
+  const { id, section } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const selectedSectionIndex = section && section === 'chart' ? 1 : 0;
 
   // State variables
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   // Memoized redux variables
   const isLoading = useSelector(state => isFetchingDetails(state));
@@ -84,7 +85,11 @@ function Competition() {
   };
 
   const handleTabChanged = i => {
-    setSelectedTabIndex(i);
+    if (i === 1) {
+      router.push(`/competitions/${id}/chart`);
+    } else {
+      router.push(`/competitions/${id}`);
+    }
   };
 
   const handleDeleteModalClosed = () => {
@@ -101,10 +106,10 @@ function Competition() {
   };
 
   // Memoized callbacks
+  const onTabChanged = useCallback(handleTabChanged, [id, section]);
   const onUpdatePlayer = useCallback(handleUpdatePlayer, [id, dispatch]);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
   const onOptionSelected = useCallback(handleOptionSelected, [router, competition]);
-  const onTabChanged = useCallback(handleTabChanged, []);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
 
   const menuOptions = useMemo(() => getMenuOptions(competition), [competition]);
@@ -156,8 +161,8 @@ function Competition() {
           <CompetitionInfo competition={competition} />
         </div>
         <div className="col-md-8">
-          <Tabs tabs={TABS} onChange={onTabChanged} />
-          {selectedTabIndex === 0 ? (
+          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} onChange={onTabChanged} />
+          {selectedSectionIndex === 0 ? (
             <CompetitionTable
               competition={competition}
               updatingUsernames={updatingUsernames}

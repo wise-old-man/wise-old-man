@@ -20,11 +20,11 @@ export const ROUTES = [
     component: HomePage
   },
   {
-    path: '/top',
+    path: '/top/:metric?/:playerType?',
     component: TopPage
   },
   {
-    path: '/records',
+    path: '/records/:metric?/:playerType?',
     component: RecordsPage
   },
   {
@@ -40,7 +40,7 @@ export const ROUTES = [
     component: EditCompetitionPage
   },
   {
-    path: '/competitions/:id',
+    path: '/competitions/:id/:section?',
     component: CompetitionPage
   },
   {
@@ -60,7 +60,7 @@ export const ROUTES = [
     component: GroupPage
   },
   {
-    path: '/players/:id',
+    path: '/players/:id/:section?/:metricType?',
     component: PlayerPage
   },
   {

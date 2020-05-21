@@ -1,11 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Tabs.scss';
 
-function Tabs({ tabs, onChange, align }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
+function Tabs({ tabs, selectedIndex, onChange, align }) {
   const handleSelection = e => {
     const index = parseInt(e.target.dataset.index, 10);
 
@@ -13,7 +11,6 @@ function Tabs({ tabs, onChange, align }) {
       return;
     }
 
-    setSelectedIndex(index);
     onChange(index);
   };
 
@@ -49,6 +46,8 @@ Tabs.defaultProps = {
 Tabs.propTypes = {
   // A list of tabs to render
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
+
+  selectedIndex: PropTypes.number.isRequired,
 
   // Event: fired on tab selected
   onChange: PropTypes.func.isRequired,

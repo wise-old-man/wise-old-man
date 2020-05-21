@@ -35,6 +35,10 @@ const TABLE_CONFIG = {
 };
 
 function getFilteredRecords(records, metricType) {
+  if (!records) {
+    return [];
+  }
+
   if (metricType === 'skilling') {
     return records.filter(r => isSkill(r.metric));
   }
