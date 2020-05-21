@@ -9,7 +9,15 @@ import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
-import { formatDate, getPlayerTypeIcon, getMetricIcon, capitalize, getMetricName } from '../../utils';
+import {
+  formatDate,
+  getPlayerTypeIcon,
+  getMetricIcon,
+  capitalize,
+  getMetricName,
+  isSkill,
+  isBoss
+} from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
@@ -62,6 +70,18 @@ function getMetricOptions() {
   }));
 }
 
+function getPlayerURL(playerId, metric) {
+  if (isSkill(metric)) {
+    return `/players/${playerId}/records/skilling`;
+  }
+
+  if (isBoss(metric)) {
+    return `/players/${playerId}/records/bossing`;
+  }
+
+  return `/players/${playerId}/records/activities`;
+}
+
 function Records() {
   const { metric, playerType } = useParams();
   const router = useHistory();
@@ -100,17 +120,17 @@ function Records() {
 
   const handleDayRowClicked = index => {
     const { playerId } = leaderboard.day[index];
-    router.push(`/players/${playerId}`);
+    router.push(getPlayerURL(playerId, selectedMetric));
   };
 
   const handleWeekRowClicked = index => {
     const { playerId } = leaderboard.week[index];
-    router.push(`/players/${playerId}`);
+    router.push(getPlayerURL(playerId, selectedMetric));
   };
 
   const handleMonthRowClicked = index => {
     const { playerId } = leaderboard.month[index];
-    router.push(`/players/${playerId}`);
+    router.push(getPlayerURL(playerId, selectedMetric));
   };
 
   const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric, selectedPlayerType]);
