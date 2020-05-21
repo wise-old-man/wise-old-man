@@ -9,6 +9,7 @@ import TextButton from '../../components/TextButton';
 import MembersSelector from '../../components/MembersSelector';
 import Button from '../../components/Button';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
+import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import VerificationModal from '../../modals/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
 import { isCreating, getError } from '../../redux/selectors/groups';
@@ -24,6 +25,7 @@ function CreateGroup() {
   const [name, setName] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
@@ -98,6 +100,8 @@ function CreateGroup() {
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
+  const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
+  const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
@@ -106,6 +110,8 @@ function CreateGroup() {
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
   const onSubmit = useCallback(handleSubmit, [name, members]);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
+
+  const isEmpty = members.length === 0;
 
   return (
     <div className="create-group__container container">
@@ -138,7 +144,11 @@ function CreateGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button
+            text="Confirm"
+            onClick={isEmpty ? showEmptyConfirmationModal : onSubmit}
+            loading={isSubmitting}
+          />
         </div>
       </div>
       {showingImportModal && (
@@ -149,6 +159,13 @@ function CreateGroup() {
           entity="group"
           verificationCode={verificationCode}
           onConfirm={onConfirmVerification}
+        />
+      )}
+      {showingEmptyConfirmationModal && (
+        <EmptyConfirmationModal
+          entity={{ type: 'group', group: 'member' }}
+          onClose={hideEmptyConfirmationModal}
+          onConfirm={onSubmit}
         />
       )}
     </div>
