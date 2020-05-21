@@ -11,8 +11,8 @@ function EmptyConfirmationModal({ entity, onConfirm, onClose }) {
   };
 
   return (
-    <div className="empty-competition-modal">
-      <div className="empty-competition-modal__modal">
+    <div className="empty-confirmation-modal">
+      <div className="empty-confirmation-modal__modal">
         <h1 className="modal-title">{`No ${entity.group}s!`}</h1>
         <p className="modal-description">
           {`You are creating a ${entity.type} with no ${entity.group}s. Are you sure you want to continue?`}
