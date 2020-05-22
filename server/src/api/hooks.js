@@ -4,7 +4,10 @@ const jobs = require('./jobs');
 function setup() {
   Snapshot.afterCreate(({ playerId }) => {
     jobs.add('SyncPlayerAchievements', { playerId });
-    jobs.add('SyncPlayerRecords', { playerId });
+    jobs.add('SyncPlayerInitialValues', { playerId });
+
+    // Delay this to ensure SyncPlayerInitialValues runs first
+    jobs.add('SyncPlayerRecords', { playerId }, { delay: 10000 });
   });
 
   Snapshot.afterBulkCreate(snapshots => {

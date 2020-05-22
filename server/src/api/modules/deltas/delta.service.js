@@ -5,12 +5,32 @@ const PLAYER_TYPES = require('../../constants/playerTypes');
 const { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } = require('../../constants/metrics');
 const { BadRequestError, ServerError } = require('../../errors');
 const { InitialValues, sequelize } = require('../../../database');
+const snapshotService = require('../snapshots/snapshot.service');
 const queries = require('./delta.queries');
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;
 const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
 const YEAR_IN_SECONDS = 31556926;
+
+async function syncInitialValues(playerId) {
+  const latestSnapshot = await snapshotService.findLatest(playerId);
+
+  // Find or create (if doesn't exist) the player's initial values
+  const [initialValues] = await InitialValues.findOrCreate({ where: { playerId } });
+
+  const newInitialValues = {};
+
+  // Find which values are known for the first time
+  _.mapValues(latestSnapshot.toJSON(), (value, key) => {
+    if (value > -1 && initialValues[key] === -1) newInitialValues[key] = value;
+  });
+
+  // Update the player's initial values, with the newly discovered fields
+  if (Object.keys(newInitialValues).length > 0) {
+    await initialValues.update(newInitialValues);
+  }
+}
 
 /**
  * Get a player delta for a specific period.
@@ -271,3 +291,4 @@ exports.getPeriodLeaderboard = getPeriodLeaderboard;
 exports.getLeaderboard = getLeaderboard;
 exports.getGroupLeaderboard = getGroupLeaderboard;
 exports.getCompetitionLeaderboard = getCompetitionLeaderboard;
+exports.syncInitialValues = syncInitialValues;
