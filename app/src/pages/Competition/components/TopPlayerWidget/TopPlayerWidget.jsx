@@ -18,7 +18,7 @@ function TopPlayerWidget({ competition }) {
   }
 
   const topPlayer = participants[0];
-  const gained = formatNumber(topPlayer && topPlayer.progress ? topPlayer.progress.delta : 0);
+  const gained = formatNumber(topPlayer && topPlayer.progress ? topPlayer.progress.gained : 0);
 
   const gainedLabel = isSkill(metric) ? 'exp gained' : getMeasure(metric);
 

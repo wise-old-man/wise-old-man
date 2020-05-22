@@ -174,7 +174,7 @@ export default [
           endDate: '2020-05-18T14:52:22.213Z',
           endValue: 963695236,
           startValue: 889685269,
-          delta: 74009967
+          gained: 74009967
         }
       }
     ],
@@ -195,6 +195,121 @@ export default [
         description: "If none of the group's members are being tracked.",
         body: {
           message: 'None of the group members are tracked.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's leaderboard",
+    url: '/groups/:id/leaderboard',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      },
+      {
+        field: 'metric',
+        type: 'string',
+        description: "The delta's metric (See accepted values above)"
+      },
+      {
+        field: 'period',
+        type: 'string',
+        description: "The delta's period (See accepted values above)"
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            playerId: 1188,
+            username: 'Unequalized',
+            type: 'regular',
+            startDate: '2020-05-15T19:05:31.000Z',
+            endDate: '2020-05-20T20:02:25.770Z',
+            endValue: 968964022,
+            startValue: 956298542,
+            gained: 12665480
+          },
+          {
+            playerId: 1191,
+            username: '8 Feb 2020',
+            type: 'regular',
+            startDate: '2020-05-15T23:49:28.825Z',
+            endDate: '2020-05-20T20:13:22.505Z',
+            endValue: 205396928,
+            startValue: 195106208,
+            gained: 10290720
+          },
+          {
+            playerId: 1179,
+            username: 'Chouji456',
+            type: 'regular',
+            startDate: '2020-05-15T18:48:32.624Z',
+            endDate: '2020-05-20T18:31:55.397Z',
+            endValue: 251402929,
+            startValue: 244009788,
+            gained: 7393141
+          },
+          {
+            playerId: 1153,
+            username: 'Mobilekingpt',
+            type: 'regular',
+            startDate: '2020-05-15T20:16:12.840Z',
+            endDate: '2020-05-20T18:36:43.587Z',
+            endValue: 198884450,
+            startValue: 191669772,
+            gained: 7214678
+          },
+          {
+            playerId: 1170,
+            username: 'Teethbreaker',
+            type: 'regular',
+            startDate: '2020-05-15T19:00:19.514Z',
+            endDate: '2020-05-20T19:43:48.792Z',
+            endValue: 152906082,
+            startValue: 147171268,
+            gained: 5734814
+          },
+          {
+            playerId: 1165,
+            username: 'B Akanan',
+            type: 'ironman',
+            startDate: '2020-05-15T19:37:35.305Z',
+            endDate: '2020-05-20T18:48:17.848Z',
+            endValue: 103563818,
+            startValue: 98364047,
+            gained: 5199771
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.'
+        }
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: 'That group has no members.'
         }
       }
     ]

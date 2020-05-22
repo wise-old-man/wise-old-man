@@ -49,7 +49,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
     {
       key: 'gained',
       transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
-      get: row => (row.progress ? row.progress.delta : 0)
+      get: row => (row.progress ? row.progress.gained : 0)
     },
     {
       key: 'updatedAt',

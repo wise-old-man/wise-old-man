@@ -35,7 +35,7 @@ const TABLE_CONFIG = {
       transform: (value, row) => <PlayerTag username={value} type={row.type} />
     },
     {
-      key: 'delta',
+      key: 'gained',
       width: 90,
       transform: val => <NumberLabel value={val} isColored />
     }

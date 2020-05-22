@@ -41,6 +41,19 @@ async function monthlyTop(req, res, next) {
   }
 }
 
+async function leaderboard(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, period } = req.query;
+
+    const results = await service.getLeaderboard(id, period, metric);
+
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function listMembers(req, res, next) {
   try {
     const { id } = req.params;
@@ -141,6 +154,7 @@ async function updateAllMembers(req, res, next) {
 exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
 exports.monthlyTop = monthlyTop;
+exports.leaderboard = leaderboard;
 exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;
