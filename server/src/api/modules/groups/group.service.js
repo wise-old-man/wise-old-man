@@ -124,7 +124,8 @@ async function getMonthlyTopPlayer(groupId) {
     return null;
   }
 
-  const monthlyTopPlayer = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
+  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
+  const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
 }

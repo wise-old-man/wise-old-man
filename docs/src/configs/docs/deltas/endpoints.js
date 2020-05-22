@@ -38,24 +38,24 @@ export default [
                 rank: {
                   start: 29626,
                   end: 30400,
-                  delta: 774
+                  gained: 774
                 },
                 experience: {
                   start: 268213747,
                   end: 269828205,
-                  delta: 1614458
+                  gained: 1614458
                 }
               },
               attack: {
                 rank: {
                   start: 12097,
                   end: 12158,
-                  delta: 61
+                  gained: 61
                 },
                 experience: {
                   start: 26994448,
                   end: 27216011,
-                  delta: 221563
+                  gained: 221563
                 }
               }
             }
@@ -69,24 +69,24 @@ export default [
                 rank: {
                   start: 25166,
                   end: 30400,
-                  delta: 5234
+                  gained: 5234
                 },
                 experience: {
                   start: 236973133,
                   end: 269828205,
-                  delta: 32855072
+                  gained: 32855072
                 }
               },
               attack: {
                 rank: {
                   start: 10989,
                   end: 12158,
-                  delta: 1169
+                  gained: 1169
                 },
                 experience: {
                   start: 25212878,
                   end: 27216011,
-                  delta: 2003133
+                  gained: 2003133
                 }
               }
             }
@@ -100,24 +100,24 @@ export default [
                 rank: {
                   start: 30353,
                   end: 30400,
-                  delta: 47
+                  gained: 47
                 },
                 experience: {
                   start: 269705120,
                   end: 269828205,
-                  delta: 123085
+                  gained: 123085
                 }
               },
               attack: {
                 rank: {
                   start: 12144,
                   end: 12158,
-                  delta: 14
+                  gained: 14
                 },
                 experience: {
                   start: 27216011,
                   end: 27216011,
-                  delta: 0
+                  gained: 0
                 }
               }
             }
@@ -131,24 +131,24 @@ export default [
                 rank: {
                   start: 30353,
                   end: 30400,
-                  delta: 47
+                  gained: 47
                 },
                 experience: {
                   start: 269705120,
                   end: 269828205,
-                  delta: 123085
+                  gained: 123085
                 }
               },
               attack: {
                 rank: {
                   start: 12144,
                   end: 12158,
-                  delta: 14
+                  gained: 14
                 },
                 experience: {
                   start: 27216011,
                   end: 27216011,
-                  delta: 0
+                  gained: 0
                 }
               }
             }
@@ -166,36 +166,36 @@ export default [
               rank: {
                 start: 29626,
                 end: 30400,
-                delta: 774
+                gained: 774
               },
               experience: {
                 start: 268213747,
                 end: 269828205,
-                delta: 1614458
+                gained: 1614458
               }
             },
             attack: {
               rank: {
                 start: 12097,
                 end: 12158,
-                delta: 61
+                gained: 61
               },
               experience: {
                 start: 26994448,
                 end: 27216011,
-                delta: 221563
+                gained: 221563
               }
             },
             defence: {
               rank: {
                 start: 16398,
                 end: 16794,
-                delta: 396
+                gained: 396
               },
               experience: {
                 start: 20370965,
                 end: 20398429,
-                delta: 27464
+                gained: 27464
               }
             }
           }
@@ -267,7 +267,7 @@ export default [
               endDate: '2020-05-18T17:23:26.612Z',
               endValue: 12698378,
               startValue: 11589252,
-              delta: 1109126
+              gained: 1109126
             },
             {
               playerId: 40,
@@ -277,7 +277,7 @@ export default [
               endDate: '2020-05-18T09:40:26.729Z',
               endValue: 70777512,
               startValue: 70149092,
-              delta: 628420
+              gained: 628420
             },
             {
               playerId: 37,
@@ -287,7 +287,7 @@ export default [
               endDate: '2020-05-18T17:47:22.186Z',
               endValue: 10292953,
               startValue: 9737168,
-              delta: 555785
+              gained: 555785
             }
           ],
           week: [
@@ -299,7 +299,7 @@ export default [
               endDate: '2020-05-18T17:01:34.448Z',
               endValue: 13053054,
               startValue: 101430,
-              delta: 12951624
+              gained: 12951624
             },
             {
               playerId: 40,
@@ -309,7 +309,7 @@ export default [
               endDate: '2020-05-18T17:50:24.727Z',
               endValue: 7802411,
               startValue: 101860,
-              delta: 7700551
+              gained: 7700551
             },
             {
               playerId: 37,
@@ -319,7 +319,7 @@ export default [
               endDate: '2020-05-18T13:19:11.926Z',
               endValue: 13061524,
               startValue: 5450161,
-              delta: 7611363
+              gained: 7611363
             }
           ],
           month: [
@@ -331,7 +331,7 @@ export default [
               endDate: '2020-05-14T00:18:03.793Z',
               endValue: 115250310,
               startValue: 90011927,
-              delta: 25238383
+              gained: 25238383
             },
             {
               playerId: 37,
@@ -341,7 +341,7 @@ export default [
               endDate: '2020-05-18T17:39:56.535Z',
               endValue: 126327104,
               startValue: 106383626,
-              delta: 19943478
+              gained: 19943478
             },
             {
               playerId: 40,
@@ -351,7 +351,7 @@ export default [
               endDate: '2020-05-15T21:06:18.440Z',
               endValue: 17676261,
               startValue: 101720,
-              delta: 17574541
+              gained: 17574541
             }
           ]
         }
@@ -367,7 +367,7 @@ export default [
             endDate: '2020-05-14T00:18:03.793Z',
             endValue: 115250310,
             startValue: 90011927,
-            delta: 25238383
+            gained: 25238383
           },
           {
             playerId: 37,
@@ -377,7 +377,7 @@ export default [
             endDate: '2020-05-18T17:39:56.535Z',
             endValue: 126327104,
             startValue: 106383626,
-            delta: 19943478
+            gained: 19943478
           },
 
           {
@@ -388,7 +388,7 @@ export default [
             endDate: '2020-05-15T21:06:18.440Z',
             endValue: 17676261,
             startValue: 101720,
-            delta: 17574541
+            gained: 17574541
           }
         ]
       }

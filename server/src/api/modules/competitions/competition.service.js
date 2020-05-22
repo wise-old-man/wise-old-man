@@ -196,10 +196,10 @@ async function view(id) {
       progress: {
         start: leaderboardMap[player.id] ? leaderboardMap[player.id].startValue : 0,
         end: leaderboardMap[player.id] ? leaderboardMap[player.id].endValue : 0,
-        delta: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
+        gained: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
       }
     }))
-    .sort((a, b) => b.progress.delta - a.progress.delta);
+    .sort((a, b) => b.progress.gained - a.progress.gained);
 
   // Select the top 10 players
   const top10Ids = participants.slice(0, 10).map(p => p.id);
@@ -230,7 +230,7 @@ async function view(id) {
   const totalGained =
     participants &&
     participants.length &&
-    participants.map(p => p.progress.delta).reduce((a, c) => a + Math.max(0, c));
+    participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c));
 
   return { ...format(competition), duration, totalGained, participants, group };
 }

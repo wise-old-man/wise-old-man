@@ -111,7 +111,7 @@ export default [
               progress: {
                 start: 5481946,
                 end: 5505921,
-                delta: 23975
+                gained: 23975
               },
               history: [
                 {

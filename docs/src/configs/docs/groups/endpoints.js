@@ -174,7 +174,7 @@ export default [
           endDate: '2020-05-18T14:52:22.213Z',
           endValue: 963695236,
           startValue: 889685269,
-          delta: 74009967
+          gained: 74009967
         }
       }
     ],

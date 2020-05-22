@@ -109,8 +109,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
-    delta: parseInt(r.gained, 10),
-    gained: undefined
+    gained: parseInt(r.gained, 10)
   }));
 }
 
@@ -179,7 +178,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
-    delta: parseInt(r.gained, 10)
+    gained: parseInt(r.gained, 10)
   }));
 }
 
@@ -203,7 +202,7 @@ async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
-    delta: parseInt(r.gained, 10)
+    gained: parseInt(r.gained, 10)
   }));
 }
 
@@ -251,12 +250,12 @@ function diff(start, end, initial) {
       rank: {
         start: startRank,
         end: endRank,
-        delta: gainedRank
+        gained: gainedRank
       },
       [getMeasure(metric)]: {
         start: startValue,
         end: endValue,
-        delta: gainedValue
+        gained: gainedValue
       }
     };
   });
@@ -272,12 +271,12 @@ function emptyDiff() {
       rank: {
         start: 0,
         end: 0,
-        delta: 0
+        gained: 0
       },
       [getMeasure(metric)]: {
         start: 0,
         end: 0,
-        delta: 0
+        gained: 0
       }
     };
   });
