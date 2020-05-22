@@ -5,6 +5,7 @@ const SyncPlayerAchievements = require('./SyncPlayerAchievements');
 const AddToGroupCompetitions = require('./AddToGroupCompetitions');
 const RemoveFromGroupCompetitions = require('./RemoveFromGroupCompetitions');
 const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
+const SyncPlayerInitialValues = require('./SyncPlayerInitialValues');
 
 module.exports = {
   ImportPlayer,
@@ -13,5 +14,6 @@ module.exports = {
   SyncPlayerAchievements,
   AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
-  ReevaluatePlayerAchievements
+  ReevaluatePlayerAchievements,
+  SyncPlayerInitialValues
 };
