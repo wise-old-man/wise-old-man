@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
 const moment = require('moment');
+const PERIODS = require('../../constants/periods');
+const { ALL_METRICS } = require('../../constants/metrics');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -128,6 +130,38 @@ async function getMonthlyTopPlayer(groupId) {
   const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
+}
+
+/**
+ * Gets the leaderboard for a specific metric,
+ * between the members of a group.
+ */
+async function getLeaderboard(groupId, period, metric) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId']
+  });
+
+  const memberIds = memberships.map(m => m.playerId);
+
+  if (!memberIds.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds);
+  return leaderboard;
 }
 
 async function getMembersList(id) {
@@ -623,6 +657,7 @@ exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
+exports.getLeaderboard = getLeaderboard;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;
