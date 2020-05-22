@@ -34,13 +34,13 @@ async function syncRecords(playerId, period) {
   const toUpdate = [];
 
   _.forEach(periodDelta.data, (values, metric) => {
-    const { gained } = values[getMeasure(metric)];
+    const { delta } = values[getMeasure(metric)];
 
-    if (gained > 0) {
+    if (delta > 0) {
       if (!recordMap[metric]) {
-        toCreate.push({ playerId, period, metric, value: gained });
-      } else if (gained > recordMap[metric].value) {
-        toUpdate.push({ playerId, period, metric, value: gained });
+        toCreate.push({ playerId, period, metric, value: delta });
+      } else if (delta > recordMap[metric].value) {
+        toUpdate.push({ playerId, period, metric, value: delta });
       }
     }
   });
