@@ -24,7 +24,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
 
   // Column config
   const columns = [
-    { key: 'rank', width: 30 },
+    { key: 'rank', width: 70 },
     {
       key: 'username',
       className: () => '-primary',
@@ -60,6 +60,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
     {
       key: 'update',
       label: '',
+      isSortable: false,
       transform: (value, row) =>
         !isFinished && (
           <TableUpdateButton

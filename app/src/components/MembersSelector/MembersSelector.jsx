@@ -25,6 +25,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
       {
         key: 'switch role',
         label: '',
+        isSortable: false,
         width: 100,
         transform: (val, row) => (
           <button
@@ -40,6 +41,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
         key: 'remove',
         label: '',
         width: 130,
+        isSortable: false,
         transform: (val, row) => (
           <button className="table-btn -remove" type="button" onClick={() => onRemove(row.username)}>
             Remove member

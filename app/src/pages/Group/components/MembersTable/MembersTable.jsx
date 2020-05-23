@@ -16,7 +16,7 @@ function MembersTable({ members, isLoading }) {
   const columns = [
     {
       key: 'rank',
-      width: 30
+      width: 70
     },
     {
       key: 'username',

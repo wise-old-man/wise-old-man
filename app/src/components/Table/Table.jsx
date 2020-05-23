@@ -57,7 +57,7 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
       </colgroup>
       <thead>
         <tr>
-          {columns.map(({ key, label, className }) => {
+          {columns.map(({ key, label, className, isSortable = true }) => {
             const customClass = (className && className()) || '';
             const arrowClass = classNames('arrow', {
               '-default': sorting.by !== key,
@@ -65,9 +65,13 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
               '-descending': sorting.type === 'descending' && sorting.by === key
             });
             return (
-              <th className={customClass} key={`col-${key}`} onClick={() => handleClick(key)}>
+              <th
+                className={customClass}
+                key={`col-${key}`}
+                onClick={() => isSortable && handleClick(key)}
+              >
                 {label || label === '' ? label : capitalize(key)}
-                <div className={arrowClass} />
+                {isSortable && <div className={arrowClass} />}
               </th>
             );
           })}
@@ -117,6 +121,7 @@ Table.propTypes = {
   //  - className (optional) - custom styling class, a couple preset classes are: [-primary, -positive, -negative, -neutral, -low-positive, -break-large, -break-small]
   //  - transform (optional) - custom cell rendering (provide a component to render inside the cell)
   //  - get (optional) - alternate way of fetching data from the row object, by default it will fetch row[key]
+  //  - isSortable (true by default) - if false, will not show the sorting arrow (or allow sorting)
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
   highlightedIndex: PropTypes.number,
