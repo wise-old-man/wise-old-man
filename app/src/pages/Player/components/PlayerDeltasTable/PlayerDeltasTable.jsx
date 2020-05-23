@@ -146,24 +146,24 @@ function getTableData(delta, metricType) {
 }
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
-  function handleRowClicked(index) {
-    if (rows && rows[index]) {
-      onMetricSelected(rows[index].metric);
-    }
-  }
-
-  const onRowClicked = useCallback(handleRowClicked, [metricType]);
-
-  if (!deltas || !period || !metricType) {
-    return null;
-  }
-
   const { data } = deltas[period];
 
   const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
   const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
 
   const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
+
+  function handleRowClicked(index) {
+    if (rows && rows[index]) {
+      onMetricSelected(rows[index].metric);
+    }
+  }
+
+  const onRowClicked = useCallback(handleRowClicked, [rows, metricType]);
+
+  if (!deltas || !period || !metricType) {
+    return null;
+  }
 
   return (
     <>

@@ -40,7 +40,7 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
 
     // Clear the timer on unmount
     return () => clearTimeout(timer);
-  });
+  }, [secondsLeft, onTimerEnded]);
 
   useEffect(() => {
     if (deltas && deltas[period]) {
@@ -54,7 +54,7 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
 
       setSecondsLeft(secsLeft);
     }
-  }, [deltas, period]);
+  }, [deltas, period, onTimerEnded]);
 
   if (!deltas || !deltas[period]) {
     return null;

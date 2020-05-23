@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from '../../utils';
@@ -32,26 +32,29 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
     setSorting({ type: sortNext, by: key });
   };
 
-  const handleSort = (a, b) => {
-    const column = columns.find(c => c.key === sorting.by);
+  const handleSort = useCallback(
+    (a, b) => {
+      const column = columns.find(c => c.key === sorting.by);
 
-    if (!column) {
+      if (!column) {
+        return 0;
+      }
+
+      const aValue = column.get ? column.get(a) : a[sorting.by];
+      const bValue = column.get ? column.get(b) : b[sorting.by];
+
+      if (sorting.type === SORT.ASCENDING) {
+        return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
+      }
+
+      if (sorting.type === SORT.DESCENDING) {
+        return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
+      }
+
       return 0;
-    }
-
-    const aValue = column.get ? column.get(a) : a[sorting.by];
-    const bValue = column.get ? column.get(b) : b[sorting.by];
-
-    if (sorting.type === SORT.ASCENDING) {
-      return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
-    }
-
-    if (sorting.type === SORT.DESCENDING) {
-      return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
-    }
-
-    return 0;
-  };
+    },
+    [columns, sorting]
+  );
 
   // When table gets unmounted, reset sorting to defualt
   useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
@@ -72,7 +75,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
   const cellClass = (rowClass, isHighlighted) => classNames(rowClass, { '-highlighted': isHighlighted });
 
   // Memoize the sorting, to avoid re-sorting on every re-render
-  const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, sorting]);
+  const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, handleSort]);
 
   return (
     <table className={tableClass} cellSpacing="0" cellPadding="0">

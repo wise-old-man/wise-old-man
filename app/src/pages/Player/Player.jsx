@@ -374,13 +374,15 @@ function Player() {
                 period={selectedPeriod}
                 onTimerEnded={onDeltasTimerEnded}
               />
-              <PlayerDeltasTable
-                deltas={deltas}
-                period={selectedPeriod}
-                metricType={selectedMetricType}
-                highlightedMetric={selectedMetric}
-                onMetricSelected={handleMetricSelected}
-              />
+              {deltas && selectedPeriod && deltas[selectedPeriod] && (
+                <PlayerDeltasTable
+                  deltas={deltas}
+                  period={selectedPeriod}
+                  metricType={selectedMetricType}
+                  highlightedMetric={selectedMetric}
+                  onMetricSelected={handleMetricSelected}
+                />
+              )}
             </div>
           </>
         )}
