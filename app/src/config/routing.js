@@ -56,7 +56,7 @@ export const ROUTES = [
     component: EditGroupPage
   },
   {
-    path: '/groups/:id',
+    path: '/groups/:id/:section?',
     component: GroupPage
   },
   {

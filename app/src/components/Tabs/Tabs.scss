@@ -3,6 +3,7 @@
 
 .tab-bar {
   @extend %panel;
+  @extend %block-text-selection;
   padding: 10px 15px;
   display: flex;
   flex-direction: row;
