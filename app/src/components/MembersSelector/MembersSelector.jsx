@@ -12,7 +12,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
   const isInvalid = username => invalidUsernames && invalidUsernames.includes(username);
 
   return {
-    uniqueKey: row => row.username,
+    uniqueKeySelector: row => row.username,
     columns: [
       {
         key: 'username',
@@ -107,7 +107,11 @@ function MembersSelector({
         clearOnSelect
       />
       {members && members.length > 0 ? (
-        <Table uniqueKeySelector={tableConfig.uniqueKey} columns={tableConfig.columns} rows={members} />
+        <Table
+          uniqueKeySelector={tableConfig.uniqueKeySelector}
+          columns={tableConfig.columns}
+          rows={members}
+        />
       ) : (
         <span className="empty-selected">No players selected</span>
       )}
