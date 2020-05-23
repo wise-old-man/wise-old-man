@@ -45,6 +45,7 @@
     font-weight: 600;
     text-align: left;
     cursor: pointer;
+    @extend %block-text-selection;
 
     &.-collapse {
       font-size: 0;
@@ -67,16 +68,14 @@
         border-top: 4px solid $gray-60;
 
         margin-left: 11px;
-        margin-top: 9px;
+        margin-top: 6px;
       }
 
       width: 0;
       height: 0;
-
-      border-top: 4px solid transparent;
+      border-top: 3px solid transparent;
       border-bottom: 4px solid transparent;
       border-left: 4px solid $gray-60;
-
       margin-left: 13px;
       margin-top: 5px;
       display: inline-block;

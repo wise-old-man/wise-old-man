@@ -10,7 +10,7 @@ const SORT = {
   DESCENDING: 'descending'
 };
 
-const initSort = { type: SORT.DEFAULT, by: '' };
+const DEFAULT_SORTING = { type: SORT.DEFAULT, by: '' };
 
 function getValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
@@ -18,47 +18,37 @@ function getValue(row, key, get, transform) {
 }
 
 function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
-  const [sortData, setSortData] = useState(initSort);
+  const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
   const handleClick = key => {
     let sortNext = SORT.DEFAULT;
 
-    if (sortData.type === SORT.DEFAULT || sortData.by !== key) {
+    if (sorting.type === SORT.DEFAULT || sorting.by !== key) {
       sortNext = SORT.ASCENDING;
-    } else if (sortData.type === SORT.ASCENDING) {
+    } else if (sorting.type === SORT.ASCENDING) {
       sortNext = SORT.DESCENDING;
     }
 
-    const data = {
-      type: sortNext,
-      by: key
-    };
-
-    setSortData(data);
+    setSorting({ type: sortNext, by: key });
   };
 
   const handleSort = (a, b) => {
-    if (sortData.type === SORT.ASCENDING) {
-      return b[sortData.by] - a[sortData.by];
+    if (sorting.type === SORT.ASCENDING) {
+      return b[sorting.by] - a[sorting.by];
     }
 
-    if (sortData.type === SORT.DESCENDING) {
-      return a[sortData.by] - b[sortData.by];
+    if (sorting.type === SORT.DESCENDING) {
+      return a[sorting.by] - b[sorting.by];
     }
 
     return 0;
   };
 
   useEffect(() => {
-    return () => {
-      setSortData(initSort);
-    };
+    return () => setSorting(DEFAULT_SORTING);
   }, [rows]);
 
-  const tableClass = classNames({
-    table: true,
-    '-clickable': clickable
-  });
+  const tableClass = classNames({ table: true, '-clickable': clickable });
 
   return (
     <table className={tableClass} cellSpacing="0" cellPadding="0">
@@ -70,9 +60,9 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
           {columns.map(({ key, label, className }) => {
             const customClass = (className && className()) || '';
             const arrowClass = classNames('arrow', {
-              '-default': sortData.by !== key,
-              '-ascending': sortData.type === 'ascending' && sortData.by === key,
-              '-descending': sortData.type === 'descending' && sortData.by === key
+              '-default': sorting.by !== key,
+              '-ascending': sorting.type === 'ascending' && sorting.by === key,
+              '-descending': sorting.type === 'descending' && sorting.by === key
             });
             return (
               <th className={customClass} key={`col-${key}`} onClick={() => handleClick(key)}>
