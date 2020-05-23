@@ -1,23 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from '../../utils';
 import './Table.scss';
 
-function getRowValue(row, key, get, transform) {
+const SORT = {
+  DEFAULT: 'default',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending'
+};
+
+const DEFAULT_SORTING = { type: SORT.DEFAULT, by: '' };
+
+function getCellValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
   return [transform ? transform(value, row) : value, value];
 }
 
 function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicked }) {
+  const [sorting, setSorting] = useState(DEFAULT_SORTING);
+
+  const handleHeaderClicked = key => {
+    let sortNext = SORT.DEFAULT;
+
+    if (sorting.type === SORT.DEFAULT || sorting.by !== key) {
+      sortNext = SORT.ASCENDING;
+    } else if (sorting.type === SORT.ASCENDING) {
+      sortNext = SORT.DESCENDING;
+    }
+
+    setSorting({ type: sortNext, by: key });
+  };
+
+  const handleSort = (a, b) => {
+    const column = columns.find(c => c.key === sorting.by);
+
+    if (!column) {
+      return 0;
+    }
+
+    const aValue = column.get ? column.get(a) : a[sorting.by];
+    const bValue = column.get ? column.get(b) : b[sorting.by];
+
+    if (sorting.type === SORT.ASCENDING) {
+      return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
+    }
+
+    if (sorting.type === SORT.DESCENDING) {
+      return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
+    }
+
+    return 0;
+  };
+
+  // When table gets unmounted, reset sorting to defualt
+  useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
+
   const clickable = !!onRowClicked;
   const tableClass = classNames('table', { '-clickable': clickable });
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
+  const columnArrowClass = key =>
+    classNames('arrow', {
+      '-default': sorting.by !== key,
+      '-ascending': sorting.type === 'ascending' && sorting.by === key,
+      '-descending': sorting.type === 'descending' && sorting.by === key
+    });
 
   const baseRowClass = (className, originalValue) => (className ? className(originalValue) : '');
   const cellClass = (rowClass, isHighlighted) => classNames(rowClass, { '-highlighted': isHighlighted });
+
+  // Memoize the sorting, to avoid re-sorting on every re-render
+  const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, sorting]);
 
   return (
     <table className={tableClass} cellSpacing="0" cellPadding="0">
@@ -28,9 +83,14 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
       <thead>
         {/* Column headers */}
         <tr>
-          {columns.map(({ key, label, className }) => (
-            <th key={`col-${key}`} className={columnClass(className)}>
+          {columns.map(({ key, label, className, isSortable = true }) => (
+            <th
+              key={`col-${key}`}
+              className={columnClass(className)}
+              onClick={() => isSortable && handleHeaderClicked(key)}
+            >
               {columnLabel(label, key)}
+              {isSortable && <div className={columnArrowClass(key)} />}
             </th>
           ))}
         </tr>
@@ -41,7 +101,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
             <td colSpan={2}>No results found</td>
           </tr>
         ) : (
-          rows.map((row, i) => {
+          sortedRows.map((row, i) => {
             /* Rows */
             const rowUniqueKey = uniqueKeySelector(row);
             const onClick = () => onRowClicked && onRowClicked(i);
@@ -51,7 +111,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
                 {columns.map(({ key, transform, get, className }) => {
                   const cellUniqueKey = `${rowUniqueKey}/${key}`;
                   const isHighlighted = i === highlightedIndex;
-                  const [formatted, original] = getRowValue(row, key, get, transform);
+                  const [formatted, original] = getCellValue(row, key, get, transform);
                   const rowClass = baseRowClass(className, original);
 
                   return (
