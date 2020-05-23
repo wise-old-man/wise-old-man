@@ -44,10 +44,42 @@
     font-size: 0.8em;
     font-weight: 600;
     text-align: left;
+    cursor: pointer;
+    @extend %block-text-selection;
 
     &.-collapse {
       font-size: 0;
       padding: 0;
+    }
+
+    .arrow {
+      &.-ascending {
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-bottom: 4px solid $gray-60;
+
+        margin-left: 9px;
+        margin-top: 2px;
+      }
+
+      &.-descending {
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid $gray-60;
+
+        margin-left: 9px;
+        margin-top: 6px;
+      }
+
+      width: 0;
+      height: 0;
+      border-top: 3px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 4px solid $gray-60;
+      margin-left: 11px;
+      margin-top: 5px;
+      display: inline-block;
+      position: absolute;
     }
   }
 
@@ -101,11 +133,18 @@
 
 @media only screen and (max-width: $breakpoint-large) {
   .table {
+    font-size: 0.9em;
+
     td,
     th {
       &.-break-large {
         padding: 0;
         font-size: 0;
+
+        * {
+          padding: 0;
+          font-size: 0;
+        }
       }
     }
   }
@@ -118,6 +157,11 @@
       &.-break-medium {
         padding: 0;
         font-size: 0;
+
+        * {
+          padding: 0;
+          font-size: 0;
+        }
       }
     }
   }
@@ -130,6 +174,7 @@
       padding: 10px;
 
       &.-break-small {
+        display: none;
         font-size: 0;
         padding: 0;
         font-size: 0;

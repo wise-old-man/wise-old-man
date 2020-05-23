@@ -19,6 +19,8 @@ function getSkillsTable(delta) {
     return { metric: skill, level, experience: experience.gained, rank: -rank.gained, ehp: 0 };
   });
 
+  const uniqueKeySelector = row => row.metric;
+
   // Column config
   const columns = [
     {
@@ -54,7 +56,7 @@ function getSkillsTable(delta) {
     }
   ];
 
-  return [rows, columns];
+  return [rows, columns, uniqueKeySelector];
 }
 
 function getBossesTable(delta) {
@@ -62,6 +64,8 @@ function getBossesTable(delta) {
     const { kills, rank } = delta[boss];
     return { metric: boss, kills: kills.gained, rank: -rank.gained, ehb: 0 };
   });
+
+  const uniqueKeySelector = row => row.metric;
 
   // Column config
   const columns = [
@@ -91,7 +95,7 @@ function getBossesTable(delta) {
     }
   ];
 
-  return [rows, columns];
+  return [rows, columns, uniqueKeySelector];
 }
 
 function getActivitiesTable(delta) {
@@ -99,6 +103,8 @@ function getActivitiesTable(delta) {
     const { score, rank } = delta[activity];
     return { metric: activity, score: score.gained, rank: -rank.gained };
   });
+
+  const uniqueKeySelector = row => row.metric;
 
   // Column config
   const columns = [
@@ -124,7 +130,7 @@ function getActivitiesTable(delta) {
     }
   ];
 
-  return [rows, columns];
+  return [rows, columns, uniqueKeySelector];
 }
 
 function getTableData(delta, metricType) {
@@ -140,24 +146,24 @@ function getTableData(delta, metricType) {
 }
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
+  const { data } = deltas[period];
+
+  const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
+  const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
+
+  const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
+
   function handleRowClicked(index) {
     if (rows && rows[index]) {
       onMetricSelected(rows[index].metric);
     }
   }
 
-  const onRowClicked = useCallback(handleRowClicked, [metricType]);
+  const onRowClicked = useCallback(handleRowClicked, [rows, metricType]);
 
   if (!deltas || !period || !metricType) {
     return null;
   }
-
-  const { data } = deltas[period];
-
-  const [rows, columns] = getTableData(data, metricType);
-  const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
-
-  const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
 
   return (
     <>
@@ -173,9 +179,9 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
       <Table
         rows={rows}
         columns={columns}
+        uniqueKeySelector={uniqueKeySelector}
         onRowClicked={onRowClicked}
         highlightedIndex={highlightedIndex}
-        clickable
       />
     </>
   );

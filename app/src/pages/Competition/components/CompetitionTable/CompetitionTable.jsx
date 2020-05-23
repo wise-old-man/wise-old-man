@@ -22,60 +22,72 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
 function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isLoading }) {
   const isFinished = competition.endsAt < new Date();
 
-  // Column config
-  const columns = [
-    { key: 'rank', width: 30 },
-    {
-      key: 'username',
-      className: () => '-primary',
-      transform: (value, row) => (
-        <Link to={`/players/${row.id}`}>
-          <PlayerTag username={value} type={row.type} />
-        </Link>
-      )
-    },
-    {
-      key: 'start',
-      transform: val => <NumberLabel value={val} />,
-      className: () => '-break-large',
-      get: row => (row.progress ? row.progress.start : 0)
-    },
-    {
-      key: 'end',
-      transform: val => <NumberLabel value={val} />,
-      className: () => '-break-large',
-      get: row => (row.progress ? row.progress.end : 0)
-    },
-    {
-      key: 'gained',
-      transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
-      get: row => (row.progress ? row.progress.gained : 0)
-    },
-    {
-      key: 'updatedAt',
-      label: 'Last updated',
-      className: () => '-break-small',
-      transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
-    },
-    {
-      key: 'update',
-      label: '',
-      transform: (value, row) =>
-        !isFinished && (
-          <TableUpdateButton
-            username={row.username}
-            isUpdating={updatingUsernames.includes(row.username)}
-            onUpdate={onUpdateClicked}
-          />
+  const TABLE_CONFIG = {
+    uniqueKeySelector: row => row.username,
+    columns: [
+      {
+        key: 'rank',
+        width: 70
+      },
+      {
+        key: 'username',
+        className: () => '-primary',
+        transform: (value, row) => (
+          <Link to={`/players/${row.id}`}>
+            <PlayerTag username={value} type={row.type} />
+          </Link>
         )
-    }
-  ];
+      },
+      {
+        key: 'start',
+        transform: val => <NumberLabel value={val} />,
+        className: () => '-break-large',
+        get: row => (row.progress ? row.progress.start : 0)
+      },
+      {
+        key: 'end',
+        transform: val => <NumberLabel value={val} />,
+        className: () => '-break-large',
+        get: row => (row.progress ? row.progress.end : 0)
+      },
+      {
+        key: 'gained',
+        transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
+        get: row => (row.progress ? row.progress.gained : 0)
+      },
+      {
+        key: 'updatedAt',
+        label: 'Last updated',
+        className: () => '-break-small',
+        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+      },
+      {
+        key: 'update',
+        label: '',
+        isSortable: false,
+        transform: (value, row) =>
+          !isFinished && (
+            <TableUpdateButton
+              username={row.username}
+              isUpdating={updatingUsernames.includes(row.username)}
+              onUpdate={onUpdateClicked}
+            />
+          )
+      }
+    ]
+  };
 
   if (isLoading) {
     return <TableListPlaceholder size={10} />;
   }
 
-  return <Table rows={competition.participants} columns={columns} />;
+  return (
+    <Table
+      rows={competition.participants}
+      columns={TABLE_CONFIG.columns}
+      uniqueKeySelector={TABLE_CONFIG.uniqueKeySelector}
+    />
+  );
 }
 
 TableUpdateButton.propTypes = {
