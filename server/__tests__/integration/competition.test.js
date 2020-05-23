@@ -250,7 +250,7 @@ describe('Competition API', () => {
     });
 
     test('Search competitions ( invalid status )', async done => {
-      const response = await request.get(`/api/competitions?status=invalid-status`).send();
+      const response = await request.get(`/api/competitions`).query({ status: 'invalid-status' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid status.');
@@ -259,7 +259,7 @@ describe('Competition API', () => {
     });
 
     test('Search competitions ( invalid metric )', async done => {
-      const response = await request.get(`/api/competitions?metric=invalid-metric`).send();
+      const response = await request.get(`/api/competitions`).query({ metric: 'invalid-metric' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid metric.');
@@ -268,12 +268,12 @@ describe('Competition API', () => {
     });
 
     test('Search competitions ( with metric )', async done => {
-      const response = await request.get(`/api/competitions?metric=OvErAlL`).send();
+      const response = await request.get(`/api/competitions`).query({ metric: 'OvErAlL' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
 
-      await response.body.map(c => expect(c.metric).toBe('overall'));
+      response.body.map(c => expect(c.metric).toBe('overall'));
 
       done();
     });
@@ -432,7 +432,7 @@ describe('Competition API', () => {
       done();
     });
 
-    test('Do not remove participant ( No participants givens )', async done => {
+    test('Do not remove participant ( No participants given )', async done => {
       const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
         participants: [],
         verificationCode: TEST_DATA.minimal.verificationCode
@@ -466,18 +466,6 @@ describe('Competition API', () => {
       expect(response.body.message).toBe(
         `Successfully removed 1 participants from competition of id: ${TEST_DATA.minimal.id}.`
       );
-
-      done();
-    });
-
-    test('Do not remove participant ( Not in participant list )', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
-        participants: ['new player'],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe('None of the players given were competing.');
 
       done();
     });
