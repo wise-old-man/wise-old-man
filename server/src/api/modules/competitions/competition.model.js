@@ -63,13 +63,6 @@ module.exports = (sequelize, DataTypes) => {
 
   // Define other table options
   const options = {
-    validate: {
-      endsAfterStart() {
-        if (this.startsAt - this.endsAt > 0) {
-          throw new Error('Start date must be before the end date.');
-        }
-      }
-    },
     indexes: [
       {
         unique: true,

@@ -236,7 +236,7 @@ export default [
       },
       {
         description: 'If startsAt OR endsAt is a past date.',
-        body: { message: 'Invalid dates: All start and end dates must be in the future.' }
+        body: { message: 'Start date must be before the end date.' }
       },
       {
         description: "If one of the participant' usernames is invalid",
