@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { getPlayerTypeIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
 
-function PlayerTag({ username, type }) {
+function PlayerTag({ name, type }) {
   const icon = getPlayerTypeIcon(type);
   const tooltip = useMemo(() => getPlayerTooltip(type), [type]);
 
@@ -14,7 +14,7 @@ function PlayerTag({ username, type }) {
           <img src={icon} alt="" />
         </abbr>
       )}
-      <span className="player-tag__username">{username}</span>
+      <span className="player-tag__name">{name}</span>
     </div>
   );
 }
@@ -24,8 +24,8 @@ PlayerTag.defaultProps = {
 };
 
 PlayerTag.propTypes = {
-  // The player's username
-  username: PropTypes.string.isRequired,
+  // The player's name
+  name: PropTypes.string.isRequired,
 
   // The player's type
   type: PropTypes.string

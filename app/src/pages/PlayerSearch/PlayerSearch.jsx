@@ -15,9 +15,9 @@ const TABLE_CONFIG = {
   uniqueKey: row => row.id,
   columns: [
     {
-      key: 'username',
+      key: 'displayName',
       className: () => '-primary',
-      transform: (value, row) => <PlayerTag username={value} type={row.type} />
+      transform: (value, row) => <PlayerTag name={value} type={row.type} />
     },
     {
       key: 'updatedAt',

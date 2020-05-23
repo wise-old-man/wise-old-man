@@ -251,7 +251,7 @@ function Player() {
       <div className="player__header row">
         <div className="col">
           <PageHeader
-            title={player.username}
+            title={player.displayName}
             icon={getPlayerTypeIcon(player.type)}
             iconTooltip={getPlayerTooltip(player.type)}
           >

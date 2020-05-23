@@ -20,11 +20,11 @@ function MembersTable({ members, isLoading }) {
         width: 70
       },
       {
-        key: 'username',
+        key: 'displayName',
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.id}`}>
-            <PlayerTag username={value} type={row.type} />
+            <PlayerTag name={value} type={row.type} />
           </Link>
         )
       },
