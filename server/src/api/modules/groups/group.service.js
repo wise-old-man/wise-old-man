@@ -213,7 +213,7 @@ async function getMembersList(id) {
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
     .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
-    .sort((a, b) => b.overallExperience - a.overallExperience);
+    .sort((a, b) => a.role.localeCompare(b.role));
 }
 
 async function create(name, members) {
