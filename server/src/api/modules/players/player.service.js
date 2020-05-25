@@ -7,6 +7,7 @@ const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 const { getNextProxy } = require('../../proxies');
 const { getCombatLevel } = require('../../util/level');
+const { getHiscoresTableNames } = require('../../util/scraping');
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -363,6 +364,39 @@ async function assertType(username, force = false) {
   return 'ironman';
 }
 
+/**
+ * Fetch the hiscores table overall to find the correct
+ * capitalization of a given username
+ */
+async function assertName(username) {
+  if (!username) {
+    throw new BadRequestError('Invalid username.');
+  }
+
+  const formattedUsername = standardize(username);
+  const player = await find(formattedUsername);
+
+  if (!player) {
+    throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
+  }
+
+  const hiscoresNames = await getHiscoresNames(username);
+  const match = hiscoresNames.find(h => standardize(h) === username);
+
+  if (!match) {
+    throw new BadRequestError(`Couldn't find a name match for ${username}`);
+  }
+
+  if (standardize(match) !== player.username) {
+    throw new BadRequestError(`Display name and username don't match for ${username}`);
+  }
+
+  const displayName = sanitize(match);
+
+  await player.update({ displayName });
+  return displayName;
+}
+
 async function findOrCreate(username) {
   const result = await Player.findOrCreate({
     where: { username: standardize(username) },
@@ -440,6 +474,30 @@ async function getHiscoresData(username, type = 'regular') {
   }
 }
 
+async function getHiscoresNames(username) {
+  const proxy = getNextProxy();
+  const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
+
+  try {
+    // Fetch the data through the API Url
+    const { data } = await axios({
+      url: proxy ? URL.replace('https', 'http') : URL,
+      proxy,
+      responseType: 'arraybuffer',
+      reponseEncoding: 'binary'
+    });
+
+    // Validate the response data
+    if (!data || !data.length || data.includes('Unavailable')) {
+      throw new ServerError('Failed to load hiscores: Service is unavailable');
+    }
+
+    return getHiscoresTableNames(data.toString('latin1'));
+  } catch (e) {
+    throw new BadRequestError('Failed to load hiscores: Invalid username.');
+  }
+}
+
 exports.standardize = standardize;
 exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
@@ -450,6 +508,7 @@ exports.search = search;
 exports.update = update;
 exports.importCML = importCML;
 exports.assertType = assertType;
+exports.assertName = assertName;
 exports.find = find;
 exports.findById = findById;
 exports.findOrCreate = findOrCreate;
