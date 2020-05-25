@@ -139,21 +139,24 @@ export default [
           day: [
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               value: 101659,
               updatedAt: '2020-04-04T16:21:50.919Z'
             },
             {
               playerId: 39,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               value: 34655,
               updatedAt: '2020-04-03T23:03:19.135Z'
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               value: 0,
               updatedAt: '2020-04-03T23:03:24.181Z'
@@ -162,21 +165,24 @@ export default [
           week: [
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               value: 101659,
               updatedAt: '2020-04-04T16:21:51.060Z'
             },
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               value: 7930,
               updatedAt: '2020-04-04T16:21:23.462Z'
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               value: 0,
               updatedAt: '2020-04-03T23:03:26.343Z'
@@ -185,21 +191,24 @@ export default [
           month: [
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               value: 290949,
               updatedAt: '2020-04-04T16:21:51.185Z'
             },
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               value: 25515,
               updatedAt: '2020-04-04T16:21:23.606Z'
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               value: 0,
               updatedAt: '2020-04-03T23:03:28.737Z'
@@ -208,21 +217,24 @@ export default [
           year: [
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               value: 3225180,
               updatedAt: '2020-04-04T16:21:51.291Z'
             },
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               value: 25515,
               updatedAt: '2020-04-04T16:21:23.746Z'
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               value: 0,
               updatedAt: '2020-04-03T23:03:30.820Z'
@@ -235,21 +247,24 @@ export default [
         body: [
           {
             playerId: 37,
-            username: 'Psikoi',
+            username: 'psikoi',
+            displayName: 'Psikoi',
             type: 'regular',
             value: 290949,
             updatedAt: '2020-04-04T16:21:51.185Z'
           },
           {
             playerId: 38,
-            username: 'Zulu',
+            username: 'zulu',
+            displayName: 'Zulu',
             type: 'regular',
             value: 25515,
             updatedAt: '2020-04-04T16:21:23.746Z'
           },
           {
             playerId: 40,
-            username: 'Porthuguese',
+            username: 'porthuguese',
+            displayName: 'Porthuguese',
             type: 'unknown',
             value: 0,
             updatedAt: '2020-04-03T23:03:28.737Z'

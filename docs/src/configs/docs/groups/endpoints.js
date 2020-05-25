@@ -116,7 +116,8 @@ export default [
         body: [
           {
             id: 352,
-            username: 'Psikoi',
+            username: 'psikoi',
+            displayName: 'Psikoi',
             type: 'regular',
             lastImportedAt: null,
             registeredAt: '2020-05-02T20:35:05.251Z',
@@ -126,7 +127,8 @@ export default [
           },
           {
             id: 416,
-            username: 'Zulu',
+            username: 'zulu',
+            displayName: 'Zulu',
             type: 'regular',
             lastImportedAt: '2020-05-03T01:27:05.764Z',
             registeredAt: '2020-05-02T20:35:06.302Z',
@@ -168,7 +170,8 @@ export default [
         description: '',
         body: {
           playerId: 299,
-          username: 'Psikoi',
+          username: 'psikoi',
+          displayName: 'Psikoi',
           type: 'regular',
           startDate: '2020-04-18T16:20:05.000Z',
           endDate: '2020-05-18T14:52:22.213Z',
@@ -226,63 +229,102 @@ export default [
         body: [
           {
             playerId: 1188,
-            username: 'Unequalized',
+            username: 'unequalized',
+            displayName: 'Unequalized',
             type: 'regular',
-            startDate: '2020-05-15T19:05:31.000Z',
-            endDate: '2020-05-20T20:02:25.770Z',
-            endValue: 968964022,
-            startValue: 956298542,
-            gained: 12665480
+            startDate: '2020-05-18T10:29:33.291Z',
+            endDate: '2020-05-24T22:43:56.955Z',
+            endValue: 977545937,
+            startValue: 963372008,
+            gained: 14173929
           },
           {
             playerId: 1191,
-            username: '8 Feb 2020',
+            username: '8 feb 2020',
+            displayName: '8 Feb 2020',
             type: 'regular',
-            startDate: '2020-05-15T23:49:28.825Z',
-            endDate: '2020-05-20T20:13:22.505Z',
-            endValue: 205396928,
-            startValue: 195106208,
-            gained: 10290720
-          },
-          {
-            playerId: 1179,
-            username: 'Chouji456',
-            type: 'regular',
-            startDate: '2020-05-15T18:48:32.624Z',
-            endDate: '2020-05-20T18:31:55.397Z',
-            endValue: 251402929,
-            startValue: 244009788,
-            gained: 7393141
-          },
-          {
-            playerId: 1153,
-            username: 'Mobilekingpt',
-            type: 'regular',
-            startDate: '2020-05-15T20:16:12.840Z',
-            endDate: '2020-05-20T18:36:43.587Z',
-            endValue: 198884450,
-            startValue: 191669772,
-            gained: 7214678
+            startDate: '2020-05-18T23:53:21.708Z',
+            endDate: '2020-05-24T02:38:49.950Z',
+            endValue: 212662135,
+            startValue: 200415405,
+            gained: 12246730
           },
           {
             playerId: 1170,
-            username: 'Teethbreaker',
+            username: 'teethbreaker',
+            displayName: 'Teethbreaker',
             type: 'regular',
-            startDate: '2020-05-15T19:00:19.514Z',
-            endDate: '2020-05-20T19:43:48.792Z',
-            endValue: 152906082,
-            startValue: 147171268,
-            gained: 5734814
+            startDate: '2020-05-18T04:47:13.127Z',
+            endDate: '2020-05-24T04:42:37.801Z',
+            endValue: 158106176,
+            startValue: 149273178,
+            gained: 8832998
           },
           {
-            playerId: 1165,
-            username: 'B Akanan',
-            type: 'ironman',
-            startDate: '2020-05-15T19:37:35.305Z',
-            endDate: '2020-05-20T18:48:17.848Z',
-            endValue: 103563818,
-            startValue: 98364047,
-            gained: 5199771
+            playerId: 1153,
+            username: 'mobilekingpt',
+            displayName: 'Mobilekingpt',
+            type: 'regular',
+            startDate: '2020-05-18T05:37:09.757Z',
+            endDate: '2020-05-24T20:55:53.915Z',
+            endValue: 204319855,
+            startValue: 195506941,
+            gained: 8812914
+          },
+          {
+            playerId: 1181,
+            username: 'idle rng',
+            displayName: 'Idle Rng',
+            type: 'regular',
+            startDate: '2020-05-18T12:10:46.190Z',
+            endDate: '2020-05-25T00:10:16.358Z',
+            endValue: 203099572,
+            startValue: 196325461,
+            gained: 6774111
+          },
+          {
+            playerId: 1179,
+            username: 'chouji456',
+            displayName: 'Chouji456',
+            type: 'regular',
+            startDate: '2020-05-18T11:35:45.657Z',
+            endDate: '2020-05-25T00:09:45.010Z',
+            endValue: 254543855,
+            startValue: 247770279,
+            gained: 6773576
+          },
+          {
+            playerId: 1151,
+            username: 'art of kappa',
+            displayName: 'Art Of Kappa',
+            type: 'regular',
+            startDate: '2020-05-18T17:48:33.348Z',
+            endDate: '2020-05-24T16:58:55.504Z',
+            endValue: 407871795,
+            startValue: 401457198,
+            gained: 6414597
+          },
+          {
+            playerId: 1163,
+            username: 'knock',
+            displayName: 'Knock',
+            type: 'regular',
+            startDate: '2020-05-18T11:52:45.623Z',
+            endDate: '2020-05-25T00:07:49.076Z',
+            endValue: 402041703,
+            startValue: 396088826,
+            gained: 5952877
+          },
+          {
+            playerId: 1201,
+            username: 'ice juice',
+            displayName: 'Ice Juice',
+            type: 'hardcore',
+            startDate: '2020-05-18T03:54:03.228Z',
+            endDate: '2020-05-25T01:14:56.107Z',
+            endValue: 46432379,
+            startValue: 40563565,
+            gained: 5868814
           }
         ]
       }
@@ -347,7 +389,8 @@ export default [
           members: [
             {
               id: 61,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               lastImportedAt: '2020-04-19T17:21:12.258Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
@@ -356,7 +399,8 @@ export default [
             },
             {
               id: 62,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
@@ -365,7 +409,8 @@ export default [
             },
             {
               id: 77,
-              username: 'Zezima',
+              username: 'zezima',
+              displayName: 'Zezima',
               type: 'regular',
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
@@ -374,7 +419,8 @@ export default [
             },
             {
               id: 298,
-              username: 'Lynx Titan',
+              username: 'lynx titan',
+              displayName: 'Lynx Titan',
               type: 'unknown',
               lastImportedAt: null,
               registeredAt: '2020-04-23T01:53:26.156Z',
@@ -437,7 +483,8 @@ export default [
           members: [
             {
               id: 61,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               lastImportedAt: '2020-04-18T02:22:49.364Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
@@ -446,7 +493,8 @@ export default [
             },
             {
               id: 77,
-              username: 'Zezima',
+              username: 'zezima',
+              displayName: 'Zezima',
               type: 'regular',
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
@@ -560,7 +608,8 @@ export default [
           members: [
             {
               id: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
@@ -569,7 +618,8 @@ export default [
             },
             {
               id: 62,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
@@ -687,7 +737,8 @@ export default [
         body: {
           player: {
             id: 61,
-            username: 'Psikoi',
+            username: 'psikoi',
+            displayName: 'Psikoi',
             type: 'regular',
             lastImportedAt: '2020-04-18T02:22:49.364Z',
             registeredAt: '2020-04-10T18:11:02.544Z',

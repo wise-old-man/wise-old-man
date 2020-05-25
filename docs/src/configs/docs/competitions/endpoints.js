@@ -105,7 +105,8 @@ export default [
           participants: [
             {
               id: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               updatedAt: '2020-04-04T22:35:31.530Z',
               progress: {
@@ -195,7 +196,8 @@ export default [
           participants: [
             {
               id: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               lastImportedAt: '2020-03-27T21:56:50.000Z',
               registeredAt: '2020-03-13T23:29:57.000Z',
@@ -203,7 +205,8 @@ export default [
             },
             {
               id: 45,
-              username: 'Zezima',
+              username: 'zezima',
+              displayName: 'Zezima',
               type: 'regular',
               lastImportedAt: '2020-03-15T02:21:49.000Z',
               registeredAt: '2020-03-15T02:21:46.000Z',
@@ -293,7 +296,8 @@ export default [
           participants: [
             {
               id: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               lastImportedAt: '2020-04-04T22:33:53.450Z',
               registeredAt: '2020-04-03T21:43:17.574Z',
@@ -301,7 +305,8 @@ export default [
             },
             {
               id: 42,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'unknown',
               lastImportedAt: null,
               registeredAt: '2020-04-03T23:48:03.561Z',
@@ -309,7 +314,8 @@ export default [
             },
             {
               id: 46,
-              username: 'Another',
+              username: 'another',
+              displayName: 'Another',
               type: 'unknown',
               lastImportedAt: null,
               registeredAt: '2020-04-04T23:44:53.755Z',
@@ -427,7 +433,8 @@ export default [
           newParticipants: [
             {
               id: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               updatedAt: '2020-04-04T23:59:58.661Z',
               registeredAt: '2020-04-04T23:59:58.661Z',

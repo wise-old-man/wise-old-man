@@ -11,7 +11,12 @@ export default [
       {
         field: 'username',
         type: 'string',
-        description: "The player's unique username."
+        description: "The player's unique username. (Always lower case)"
+      },
+      {
+        field: 'displayName',
+        type: 'string',
+        description: "The player's unique display name."
       },
       {
         field: 'type',
