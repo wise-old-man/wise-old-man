@@ -28,6 +28,7 @@ import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
 import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
+import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetch';
 import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
@@ -61,6 +62,7 @@ const METRIC_TYPE_OPTIONS = [
 
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
+  { label: 'Reset username capitalization', value: 'assertName' },
   { label: 'Reassign player type', value: 'assertType' }
 ];
 
@@ -222,6 +224,8 @@ function Player() {
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
+    } else if (option.value === 'assertName') {
+      await dispatch(assertPlayerNameAction(player.username, player.id));
     } else if (option.value === 'openOsrsHiscores') {
       window.location = getOfficialHiscoresUrl(player);
     }
