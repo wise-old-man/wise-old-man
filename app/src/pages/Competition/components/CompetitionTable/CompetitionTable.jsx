@@ -31,6 +31,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       },
       {
         key: 'displayName',
+        label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.id}`}>

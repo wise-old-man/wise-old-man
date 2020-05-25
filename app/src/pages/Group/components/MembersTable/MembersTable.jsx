@@ -21,7 +21,7 @@ function MembersTable({ members, isLoading }) {
       },
       {
         key: 'displayName',
-        label: 'Display name',
+        label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.id}`}>
