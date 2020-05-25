@@ -21,6 +21,7 @@ function MembersTable({ members, isLoading }) {
       },
       {
         key: 'displayName',
+        label: 'Display name',
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.id}`}>
@@ -41,7 +42,7 @@ function MembersTable({ members, isLoading }) {
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: () => '-break-large',
+        className: () => '-break-small',
         transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
       }
     ]
