@@ -454,12 +454,14 @@ async function setParticipants(competition, usernames) {
     throw new BadRequestError(`Invalid competition.`);
   }
 
+  const uniqueUsernames = _.uniqBy(usernames, p => p.toLowerCase());
+
   const existingParticipants = await competition.getParticipants();
   const existingUsernames = existingParticipants.map(e => e.username);
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  const usernamesToAdd = uniqueUsernames.filter(u => !existingUsernames.includes(u));
 
-  const playersToRemove = existingParticipants.filter(p => !usernames.includes(p.username));
+  const playersToRemove = existingParticipants.filter(p => !uniqueUsernames.includes(p.username));
   const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
 
   if (playersToRemove && playersToRemove.length > 0) {

@@ -369,7 +369,12 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const players = await playerService.findAllOrCreate(members.map(m => m.username));
+  const uniqueNames = _.uniqBy(
+    members.map(m => m.username),
+    m => m.toLowerCase()
+  );
+
+  const players = await playerService.findAllOrCreate(uniqueNames);
 
   const newMemberships = players.map((p, i) => ({
     playerId: p.id,
@@ -388,6 +393,8 @@ async function setMembers(group, members) {
   const formatted = allMembers.map(member =>
     _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
+
+  console.log(formatted);
 
   return formatted;
 }
