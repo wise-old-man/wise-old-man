@@ -393,6 +393,10 @@ async function assertName(username) {
 
   const displayName = sanitize(match);
 
+  if (displayName === player.displayName) {
+    throw new BadRequestError(`No change required: The current display name is correct.`);
+  }
+
   await player.update({ displayName });
   return displayName;
 }

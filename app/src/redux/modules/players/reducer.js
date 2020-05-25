@@ -8,6 +8,10 @@ export const ASSERT_TYPE_REQUEST = 'wise-old-man/players/ASSERT_TYPE_REQUEST';
 export const ASSERT_TYPE_SUCCESS = 'wise-old-man/players/ASSERT_TYPE_SUCCESS';
 export const ASSERT_TYPE_FAILURE = 'wise-old-man/players/ASSERT_TYPE_FAILURE';
 
+export const ASSERT_NAME_REQUEST = 'wise-old-man/players/ASSERT_NAME_REQUEST';
+export const ASSERT_NAME_SUCCESS = 'wise-old-man/players/ASSERT_NAME_SUCCESS';
+export const ASSERT_NAME_FAILURE = 'wise-old-man/players/ASSERT_NAME_FAILURE';
+
 export const FETCH_PLAYER_REQUEST = 'wise-old-man/players/FETCH_REQUEST';
 export const FETCH_PLAYER_SUCCESS = 'wise-old-man/players/FETCH_SUCCESS';
 export const FETCH_PLAYER_FAILURE = 'wise-old-man/players/FETCH_FAILURE';
@@ -21,6 +25,7 @@ const initialState = {
   isSearching: false,
   isTracking: false,
   isAssertingType: false,
+  isAssertingName: false,
   players: {},
   searchResults: {},
   updating: []
@@ -63,6 +68,25 @@ export default function playersReducer(state = initialState, action) {
       return {
         ...state,
         isAssertingType: false
+      };
+
+    case ASSERT_NAME_REQUEST:
+      return { ...state, isAssertingName: true };
+
+    case ASSERT_NAME_SUCCESS:
+      return {
+        ...state,
+        isAssertingName: false,
+        players: {
+          ...state.players,
+          [action.playerId]: { ...state.players[action.playerId], displayName: action.displayName }
+        }
+      };
+
+    case ASSERT_NAME_FAILURE:
+      return {
+        ...state,
+        isAssertingName: false
       };
 
     case FETCH_PLAYER_REQUEST:

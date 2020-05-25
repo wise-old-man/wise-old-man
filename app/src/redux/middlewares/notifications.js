@@ -4,7 +4,10 @@ import {
   TRACK_PLAYER_FAILURE,
   ASSERT_TYPE_SUCCESS,
   ASSERT_TYPE_FAILURE,
-  ASSERT_TYPE_REQUEST
+  ASSERT_TYPE_REQUEST,
+  ASSERT_NAME_SUCCESS,
+  ASSERT_NAME_FAILURE,
+  ASSERT_NAME_REQUEST
 } from '../modules/players/reducer';
 import {
   UPDATE_MEMBERS_SUCCESS,
@@ -72,6 +75,37 @@ const notificationsMiddleware = store => next => action => {
     }
 
     case ASSERT_TYPE_FAILURE: {
+      const notification = {
+        text: action.error,
+        type: 'error'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_NAME_REQUEST: {
+      const notification = {
+        text: `Checking player display name..`,
+        type: 'warn',
+        duration: 10000
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_NAME_SUCCESS: {
+      const notification = {
+        text: `Player name successfully changed to ${action.displayName}.`,
+        type: 'success'
+      };
+
+      store.dispatch(showNotification({ ...notification }));
+      break;
+    }
+
+    case ASSERT_NAME_FAILURE: {
       const notification = {
         text: action.error,
         type: 'error'
