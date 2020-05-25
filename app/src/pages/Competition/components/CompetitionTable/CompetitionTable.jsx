@@ -42,13 +42,13 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       {
         key: 'start',
         transform: val => <NumberLabel value={val} />,
-        className: () => '-break-large',
+        className: () => '-break-small',
         get: row => (row.progress ? row.progress.start : 0)
       },
       {
         key: 'end',
         transform: val => <NumberLabel value={val} />,
-        className: () => '-break-large',
+        className: () => '-break-small',
         get: row => (row.progress ? row.progress.end : 0)
       },
       {
