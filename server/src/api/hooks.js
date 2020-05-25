@@ -1,7 +1,11 @@
-const { Snapshot, Membership } = require('../database');
+const { Player, Snapshot, Membership } = require('../database');
 const jobs = require('./jobs');
 
 function setup() {
+  Player.afterCreate(({ username }) => {
+    jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+  });
+
   Snapshot.afterCreate(({ playerId }) => {
     jobs.add('SyncPlayerAchievements', { playerId });
     jobs.add('SyncPlayerInitialValues', { playerId });
