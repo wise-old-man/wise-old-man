@@ -37,7 +37,9 @@ function EditGroup() {
   const populate = () => {
     if (group) {
       setName(group.name);
-      setMembers(group.members.map(({ username, role }) => ({ username, role })));
+      setMembers(
+        group.members.map(({ username, displayName, role }) => ({ username, displayName, role }))
+      );
     }
   };
 
@@ -52,11 +54,11 @@ function EditGroup() {
   const handleAddMember = username => {
     setMembers(currentMembers => {
       // If username is already member
-      if (currentMembers.filter(m => m.username === username).length !== 0) {
+      if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
         return currentMembers;
       }
 
-      const newMember = { username, role: 'member' };
+      const newMember = { username, displayName: username, role: 'member' };
       return [...currentMembers, newMember];
     });
   };
@@ -87,13 +89,16 @@ function EditGroup() {
   const handleModalSubmit = (usernames, replace) => {
     setMembers(currentMembers => {
       if (replace) {
-        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+        return [..._.uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
       }
 
-      const existingUsernames = currentMembers.map(c => c.username);
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+      const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+      return [
+        ...currentMembers,
+        ..._.uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+      ];
     });
 
     toggleImportModal(false);

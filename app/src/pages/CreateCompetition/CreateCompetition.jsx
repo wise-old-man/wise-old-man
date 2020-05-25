@@ -90,8 +90,8 @@ function CreateCompetition() {
         return [..._.uniq(usernames)];
       }
 
-      const existingUsernames = currentParticipants;
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+      const existingUsernames = currentParticipants.map(e => e.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
       return [...currentParticipants, ..._.uniq(newUsernames)];
     });

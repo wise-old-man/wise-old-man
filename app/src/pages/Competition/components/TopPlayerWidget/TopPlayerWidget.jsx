@@ -11,7 +11,7 @@ function TopPlayerWidget({ competition }) {
   if (showPlaceholder) {
     return (
       <div className="top-player-widget">
-        <b className="top__username -placeholder" />
+        <b className="top__name -placeholder" />
         <span className="top__gained -placeholder" />
       </div>
     );
@@ -24,7 +24,7 @@ function TopPlayerWidget({ competition }) {
 
   return (
     <Link className="top-player-widget -clickable" to={`/players/${topPlayer.id}`}>
-      <b className="top__username">{topPlayer.username}</b>
+      <b className="top__name">{topPlayer.displayName}</b>
       <span className="top__gained">{`${gained} ${gainedLabel}`}</span>
     </Link>
   );
