@@ -8,7 +8,7 @@ function TopPlayerWidget({ group, isLoading }) {
   if (!group || isLoading) {
     return (
       <div className="top-player-widget">
-        <b className="top__username -placeholder" />
+        <b className="top__name -placeholder" />
         <span className="top__gained -placeholder" />
       </div>
     );
@@ -19,7 +19,7 @@ function TopPlayerWidget({ group, isLoading }) {
   if (!topPlayer) {
     return (
       <div className="top-player-widget">
-        <b className="top__username">---</b>
+        <b className="top__name">---</b>
         <span className="top__gained">0 exp gained</span>
       </div>
     );
@@ -29,7 +29,7 @@ function TopPlayerWidget({ group, isLoading }) {
 
   return (
     <Link className="top-player-widget -clickable" to={`/players/${topPlayer.playerId}`}>
-      <b className="top__username">{topPlayer.username}</b>
+      <b className="top__name">{topPlayer.displayName}</b>
       <span className="top__gained">{`${gained} exp gained`}</span>
     </Link>
   );

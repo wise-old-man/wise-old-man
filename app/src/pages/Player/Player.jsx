@@ -246,12 +246,12 @@ function Player() {
   return (
     <div className="player__container container">
       <Helmet>
-        <title>{player.username}</title>
+        <title>{player.displayName}</title>
       </Helmet>
       <div className="player__header row">
         <div className="col">
           <PageHeader
-            title={player.username}
+            title={player.displayName}
             icon={getPlayerTypeIcon(player.type)}
             iconTooltip={getPlayerTooltip(player.type)}
           >

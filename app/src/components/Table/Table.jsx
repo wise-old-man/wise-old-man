@@ -71,7 +71,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
       '-descending': sorting.type === 'descending' && sorting.by === key
     });
 
-  const baseRowClass = (className, originalValue) => (className ? className(originalValue) : '');
+  const baseRowClass = (className, original, row) => (className ? className(original, row) : '');
   const cellClass = (rowClass, isHighlighted) => classNames(rowClass, { '-highlighted': isHighlighted });
 
   // Memoize the sorting, to avoid re-sorting on every re-render
@@ -115,7 +115,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicke
                   const cellUniqueKey = `${rowUniqueKey}/${key}`;
                   const isHighlighted = i === highlightedIndex;
                   const [formatted, original] = getCellValue(row, key, get, transform);
-                  const rowClass = baseRowClass(className, original);
+                  const rowClass = baseRowClass(className, original, row);
 
                   return (
                     <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>

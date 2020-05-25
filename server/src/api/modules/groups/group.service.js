@@ -369,7 +369,12 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const players = await playerService.findAllOrCreate(members.map(m => m.username));
+  const uniqueNames = _.uniqBy(
+    members.map(m => m.username),
+    m => m.toLowerCase()
+  );
+
+  const players = await playerService.findAllOrCreate(uniqueNames);
 
   const newMemberships = players.map((p, i) => ({
     playerId: p.id,
@@ -388,6 +393,8 @@ async function setMembers(group, members) {
   const formatted = allMembers.map(member =>
     _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
+
+  console.log(formatted);
 
   return formatted;
 }
@@ -444,7 +451,7 @@ async function addMembers(id, verificationCode, members) {
 
   const leaderUsernames = members
     .filter(m => m.role === 'leader')
-    .map(m => playerService.formatUsername(m.username));
+    .map(m => playerService.standardize(m.username));
 
   // If there's any new leaders, we have to re-add them, forcing the leader role
   if (leaderUsernames && leaderUsernames.length > 0) {
@@ -551,7 +558,7 @@ async function changeRole(id, username, role, verificationCode) {
     include: [
       {
         model: Player,
-        where: { username: playerService.formatUsername(username) }
+        where: { username: playerService.standardize(username) }
       }
     ]
   });

@@ -6,7 +6,7 @@ const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
 const { generateVerification, verifyCode } = require('../../util/verification');
-const { BadRequestError } = require('../../errors');
+const { BadRequestError, NotFoundError } = require('../../errors');
 const playerService = require('../players/player.service');
 const snapshotService = require('../snapshots/snapshot.service');
 const groupService = require('../groups/group.service');
@@ -167,7 +167,7 @@ async function view(id) {
   });
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   const metricKey = getValueKey(competition.metric);
@@ -190,6 +190,7 @@ async function view(id) {
     .map(({ player }) => ({
       id: player.id,
       username: player.username,
+      displayName: player.displayName,
       type: player.type,
       updatedAt: player.updatedAt,
       history: [],
@@ -256,6 +257,10 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
 
   if (!endsAt || !isValidDate(endsAt)) {
     throw new BadRequestError('Invalid end date.');
+  }
+
+  if (new Date(startsAt) - new Date(endsAt) > 0) {
+    throw new BadRequestError('Start date must be before the end date.');
   }
 
   if (isPast(startsAt) || isPast(endsAt)) {
@@ -337,6 +342,10 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (startsAt && !isValidDate(startsAt)) {
     throw new BadRequestError('Invalid start date.');
+  }
+
+  if (new Date(startsAt) - new Date(endsAt) > 0) {
+    throw new BadRequestError('Start date must be before the end date.');
   }
 
   const competition = await Competition.findOne({ where: { id } });
@@ -445,12 +454,14 @@ async function setParticipants(competition, usernames) {
     throw new BadRequestError(`Invalid competition.`);
   }
 
+  const uniqueUsernames = _.uniqBy(usernames, p => p.toLowerCase());
+
   const existingParticipants = await competition.getParticipants();
   const existingUsernames = existingParticipants.map(e => e.username);
 
-  const usernamesToAdd = usernames.filter(u => !existingUsernames.includes(u));
+  const usernamesToAdd = uniqueUsernames.filter(u => !existingUsernames.includes(u));
 
-  const playersToRemove = existingParticipants.filter(p => !usernames.includes(p.username));
+  const playersToRemove = existingParticipants.filter(p => !uniqueUsernames.includes(p.username));
   const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
 
   if (playersToRemove && playersToRemove.length > 0) {
@@ -469,14 +480,6 @@ async function setParticipants(competition, usernames) {
  * Add all members of a group as participants of a competition.
  */
 async function addAllGroupMembers(competition, groupId) {
-  if (!competition) {
-    throw new BadRequestError('Invalid competition.');
-  }
-
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
   // Find all the group's members
   const members = await groupService.getMembers(groupId);
 
@@ -494,29 +497,7 @@ async function addAllGroupMembers(competition, groupId) {
  * Adds all the usernames as competition participants.
  */
 async function addParticipants(id, verificationCode, usernames) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
 
   // Find all existing participants
   const existingIds = (await competition.getParticipants()).map(p => p.id);
@@ -543,29 +524,7 @@ async function addParticipants(id, verificationCode, usernames) {
  * Removes all the usernames (participants) from a competition.
  */
 async function removeParticipants(id, verificationCode, usernames) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
 
   const playersToRemove = await playerService.findAll(usernames);
 
@@ -585,6 +544,34 @@ async function removeParticipants(id, verificationCode, usernames) {
   await competition.save();
 
   return removedPlayersCount;
+}
+
+async function getCompetitionForParticipantOperation(id, verificationCode, usernames) {
+  if (!id) {
+    throw new NotFoundError('Invalid competition id.');
+  }
+
+  if (!verificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
+  if (!usernames || usernames.length === 0) {
+    throw new BadRequestError('Invalid participants list.');
+  }
+
+  const competition = await Competition.findOne({ where: { id } });
+
+  if (!competition) {
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
+  }
+
+  const verified = await verifyCode(competition.verificationHash, verificationCode);
+
+  if (!verified) {
+    throw new BadRequestError('Incorrect verification code.');
+  }
+
+  return competition;
 }
 
 /**

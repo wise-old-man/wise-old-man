@@ -16,6 +16,7 @@ const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition) => `
     SELECT
         player.id as "playerId",
         player.username,
+        player."displayName",
         player.type,
         c."minDate" AS "startDate",
         c."maxDate" AS "endDate",
@@ -47,8 +48,6 @@ const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition) => `
 const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
     SELECT
         player.id as "playerId",
-        player.username,
-        player.type,
         c."minDate" AS "startDate",
         c."maxDate" AS "endDate",
         c."endValue",
@@ -73,7 +72,7 @@ const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
         WHERE "playerId" IN (${ids})
         GROUP BY "pId"
     ) i ON player.id = i."pId"
-    WHERE player.id IN (${ids})
+    WHERE "playerId" IN (${ids})
     ORDER BY gained DESC
 `;
 
@@ -83,6 +82,7 @@ const GET_GROUP_LEADERBOARD = (metricKey, ids) => `
     SELECT
         player.id as "playerId",
         player.username,
+        player."displayName",
         player.type,
         c."minDate" AS "startDate",
         c."maxDate" AS "endDate",

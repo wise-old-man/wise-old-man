@@ -261,7 +261,8 @@ export default [
           day: [
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               startDate: '2020-05-18T11:41:54.866Z',
               endDate: '2020-05-18T17:23:26.612Z',
@@ -271,7 +272,8 @@ export default [
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               startDate: '2020-05-18T08:20:48.485Z',
               endDate: '2020-05-18T09:40:26.729Z',
@@ -281,7 +283,8 @@ export default [
             },
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               startDate: '2020-05-18T05:45:47.023Z',
               endDate: '2020-05-18T17:47:22.186Z',
@@ -293,7 +296,8 @@ export default [
           week: [
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               startDate: '2020-05-12T13:48:01.266Z',
               endDate: '2020-05-18T17:01:34.448Z',
@@ -303,7 +307,8 @@ export default [
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               startDate: '2020-05-12T10:57:30.111Z',
               endDate: '2020-05-18T17:50:24.727Z',
@@ -313,7 +318,8 @@ export default [
             },
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               startDate: '2020-05-12T13:49:19.828Z',
               endDate: '2020-05-18T13:19:11.926Z',
@@ -325,7 +331,8 @@ export default [
           month: [
             {
               playerId: 38,
-              username: 'Zulu',
+              username: 'zulu',
+              displayName: 'Zulu',
               type: 'regular',
               startDate: '2020-05-05T18:11:54.789Z',
               endDate: '2020-05-14T00:18:03.793Z',
@@ -335,7 +342,8 @@ export default [
             },
             {
               playerId: 37,
-              username: 'Psikoi',
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               startDate: '2020-04-19T10:02:29.000Z',
               endDate: '2020-05-18T17:39:56.535Z',
@@ -345,7 +353,8 @@ export default [
             },
             {
               playerId: 40,
-              username: 'Porthuguese',
+              username: 'porthuguese',
+              displayName: 'Porthuguese',
               type: 'unknown',
               startDate: '2020-04-19T18:06:19.000Z',
               endDate: '2020-05-15T21:06:18.440Z',
@@ -361,7 +370,8 @@ export default [
         body: [
           {
             playerId: 38,
-            username: 'Zulu',
+            username: 'zulu',
+            displayName: 'Zulu',
             type: 'regular',
             startDate: '2020-05-05T18:11:54.789Z',
             endDate: '2020-05-14T00:18:03.793Z',
@@ -371,7 +381,8 @@ export default [
           },
           {
             playerId: 37,
-            username: 'Psikoi',
+            username: 'psikoi',
+            displayName: 'Psikoi',
             type: 'regular',
             startDate: '2020-04-19T10:02:29.000Z',
             endDate: '2020-05-18T17:39:56.535Z',
@@ -382,7 +393,8 @@ export default [
 
           {
             playerId: 40,
-            username: 'Porthuguese',
+            username: 'porthuguese',
+            displayName: 'Porthuguese',
             type: 'unknown',
             startDate: '2020-04-19T18:06:19.000Z',
             endDate: '2020-05-15T21:06:18.440Z',

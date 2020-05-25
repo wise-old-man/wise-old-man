@@ -30,9 +30,9 @@ const TABLE_CONFIG = {
       transform: rank => <span className="top-rank">{rank}</span>
     },
     {
-      key: 'username',
+      key: 'displayName',
       className: () => '-primary',
-      transform: (value, row) => <PlayerTag username={value} type={row.type} />
+      transform: (value, row) => <PlayerTag name={value} type={row.type} />
     },
     {
       key: 'gained',

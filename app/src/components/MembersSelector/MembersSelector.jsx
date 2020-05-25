@@ -15,9 +15,10 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
     uniqueKeySelector: row => row.username,
     columns: [
       {
-        key: 'username',
+        key: 'displayName',
+        label: 'Name',
         width: 170,
-        className: val => (isInvalid(val) ? '-negative' : '-primary')
+        className: (val, row) => (isInvalid(row ? row.username : '') ? '-negative' : '-primary')
       },
       {
         key: 'role'
@@ -52,7 +53,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
   };
 }
 
-const mapToSuggestion = player => ({ label: player.username, value: player.username });
+const mapToSuggestion = player => ({ label: player.displayName, value: player.username });
 
 function MembersSelector({
   members,
