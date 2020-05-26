@@ -23,6 +23,7 @@ function CreateGroup() {
   const error = useSelector(state => getError(state));
 
   const [name, setName] = useState('');
+  const [clanChat, setClanChat] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
@@ -31,6 +32,10 @@ function CreateGroup() {
 
   const handleNameChanged = e => {
     setName(e.target.value);
+  };
+
+  const handleClanChatChanged = e => {
+    setClanChat(e.target.value);
   };
 
   const handleAddMember = username => {
@@ -87,7 +92,7 @@ function CreateGroup() {
   };
 
   const handleSubmit = async () => {
-    const formData = { name, members };
+    const formData = { name, clanChat, members };
 
     dispatch(createGroupAction(formData)).then(a => {
       if (a && a.group) {
@@ -107,11 +112,12 @@ function CreateGroup() {
   const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
+  const onClanChatChanged = useCallback(handleClanChatChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
-  const onSubmit = useCallback(handleSubmit, [name, members]);
+  const onSubmit = useCallback(handleSubmit, [name, clanChat, members]);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
 
   const isEmpty = members.length === 0;
@@ -128,6 +134,11 @@ function CreateGroup() {
         <div className="form-row">
           <span className="form-row__label">Group name</span>
           <TextInput placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+        </div>
+
+        <div className="form-row">
+          <span className="form-row__label">Clan Chat</span>
+          <TextInput placeholder="Ex: titanZ" onChange={onClanChatChanged} />
         </div>
 
         <div className="form-row">

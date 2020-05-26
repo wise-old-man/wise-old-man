@@ -503,6 +503,7 @@ async function getHiscoresNames(username) {
 }
 
 exports.standardize = standardize;
+exports.sanitize = sanitize;
 exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;

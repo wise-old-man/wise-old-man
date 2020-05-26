@@ -20,6 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    clanChat: {
+      type: DataTypes.STRING(20)
+    },
     verificationCode: {
       type: DataTypes.VIRTUAL,
       allowNull: false

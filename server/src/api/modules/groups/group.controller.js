@@ -67,9 +67,9 @@ async function listMembers(req, res, next) {
 
 async function createGroup(req, res, next) {
   try {
-    const { name, members } = req.body;
+    const { name, clanChat, members } = req.body;
 
-    const group = await service.create(name, members);
+    const group = await service.create(name, clanChat, members);
     res.status(201).json(group);
   } catch (e) {
     next(e);
@@ -79,9 +79,9 @@ async function createGroup(req, res, next) {
 async function editGroup(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, verificationCode, members } = req.body;
+    const { name, clanChat, members, verificationCode } = req.body;
 
-    const group = await service.edit(id, name, verificationCode, members);
+    const group = await service.edit(id, name, clanChat, verificationCode, members);
     res.json(group);
   } catch (e) {
     next(e);
