@@ -40,6 +40,7 @@ export default [
           {
             id: 1,
             name: 'Hexis',
+            clanChat: null,
             createdAt: '2020-04-18T08:37:24.190Z',
             updatedAt: '2020-04-18T08:37:24.190Z',
             memberCount: 3
@@ -47,6 +48,7 @@ export default [
           {
             id: 2,
             name: 'RSPT',
+            clanChat: 'rspt',
             createdAt: '2020-04-18T08:45:28.726Z',
             updatedAt: '2020-04-18T08:47:50.870Z',
             memberCount: 21
@@ -54,6 +56,7 @@ export default [
           {
             id: 4,
             name: 'Varrock Titans',
+            clanChat: 'Vrck Titans',
             createdAt: '2020-04-18T09:01:10.630Z',
             updatedAt: '2020-04-18T09:07:00.915Z',
             memberCount: 13
@@ -79,6 +82,7 @@ export default [
         body: {
           id: 4,
           name: 'RSPT',
+          clanChat: 'rspt',
           createdAt: '2020-04-18T09:01:10.630Z',
           updatedAt: '2020-04-18T09:07:00.915Z'
         }
@@ -370,6 +374,7 @@ export default [
     ],
     body: {
       name: 'Falador Knights',
+      clanChat: 'fallyK',
       members: [
         { username: 'Psikoi', role: 'leader' },
         { username: 'Zezima', role: 'leader' },
@@ -383,6 +388,7 @@ export default [
         body: {
           id: 23,
           name: 'Falador Knights',
+          clanChat: 'fallyK',
           verificationCode: '107-719-861',
           updatedAt: '2020-04-23T01:53:26.079Z',
           createdAt: '2020-04-23T01:53:26.079Z',
@@ -469,6 +475,7 @@ export default [
     ],
     body: {
       name: 'Some new name',
+      clanChat: 'fallyK',
       verificationCode: '842-225-748',
       members: ['Psikoi', 'Zezima']
     },
@@ -478,6 +485,7 @@ export default [
         body: {
           id: 2,
           name: 'Some new name',
+          clanChat: 'fallyK',
           createdAt: '2020-04-18T08:45:28.726Z',
           updatedAt: '2020-04-18T15:30:41.380Z',
           members: [
@@ -792,9 +800,7 @@ export default [
     comments: [
       {
         type: 'warning',
-        content:
-          "This action will perform a soft-update, meaning it won't \
-          import the player from CML or determine it's type."
+        content: "This action will perform a soft-update, meaning it won't import the player from CML."
       },
       {
         type: 'warning',

@@ -1,6 +1,6 @@
 export default [
   {
-    name: 'Competition',
+    name: 'Group',
     description: '',
     structure: [
       {
@@ -12,6 +12,11 @@ export default [
         field: 'name',
         type: 'string',
         description: "The group's unique name (1-30 characters)."
+      },
+      {
+        field: 'clanChat',
+        type: 'string',
+        description: "The group's clan chat (1-20 characters) (Optional)."
       },
       {
         field: 'verificationHash',
