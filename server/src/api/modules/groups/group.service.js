@@ -216,12 +216,13 @@ async function getMembersList(id) {
     .sort((a, b) => a.role.localeCompare(b.role));
 }
 
-async function create(name, members) {
+async function create(name, clanChat, members) {
   if (!name) {
     throw new BadRequestError('Invalid group name.');
   }
 
   const sanitizedName = sanitizeName(name);
+  const sanitizedClanChat = clanChat && playerService.sanitize(clanChat);
 
   if (await Group.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
@@ -248,7 +249,13 @@ async function create(name, members) {
   }
 
   const [verificationCode, verificationHash] = await generateVerification();
-  const group = await Group.create({ name: sanitizedName, verificationCode, verificationHash });
+
+  const group = await Group.create({
+    name: sanitizedName,
+    clanChat: sanitizedClanChat,
+    verificationCode,
+    verificationHash
+  });
 
   if (!members) {
     return { ...format(group), members: [] };
@@ -264,7 +271,7 @@ async function create(name, members) {
  *
  * Note: If "members" is defined, it will replace the existing members.
  */
-async function edit(id, name, verificationCode, members) {
+async function edit(id, name, clanChat, verificationCode, members) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -273,8 +280,8 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  if (!name && !members) {
-    throw new BadRequestError('You must either include a new name or a new member list.');
+  if (!name && !members && !clanChat) {
+    throw new BadRequestError('You must either include a new name, clan chat or members list.');
   }
 
   if (name) {
@@ -321,8 +328,11 @@ async function edit(id, name, verificationCode, members) {
     groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
-  if (name) {
-    await group.update({ name: sanitizeName(name) });
+  if (name || clanChat) {
+    await group.update({
+      name: name && sanitizeName(name),
+      clanChat: clanChat && playerService.sanitize(clanChat)
+    });
   }
 
   return { ...format(group), members: groupMembers };
@@ -393,8 +403,6 @@ async function setMembers(group, members) {
   const formatted = allMembers.map(member =>
     _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
-
-  console.log(formatted);
 
   return formatted;
 }
