@@ -94,7 +94,7 @@ function renderRecentAchievements(achievements) {
   const completedAchievements = achievements
     .filter(a => a.createdAt !== null)
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 3);
+    .slice(0, 5);
 
   if (completedAchievements.length === 0) {
     return null;
