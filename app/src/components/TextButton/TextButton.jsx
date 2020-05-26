@@ -1,11 +1,10 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import ConditionalWrap from 'conditional-wrap';
 import './TextButton.scss';
 
-function TextButton({ text, onClick, redirectTo }) {
-  const router = useHistory();
-
+function TextButton({ text, onClick, url }) {
   const handleClick = () => {
     // Slightly delay the click event, to allow
     // the clicked animation to be displayed
@@ -14,23 +13,24 @@ function TextButton({ text, onClick, redirectTo }) {
       if (onClick) {
         onClick();
       }
-
-      if (redirectTo) {
-        router.push(redirectTo);
-      }
     }, 150);
   };
 
+  const isExternal = url && url.startsWith('http');
+  const link = c => (isExternal ? <a href={url}>{c}</a> : <Link to={url}>{c}</Link>);
+
   return (
-    <button className="text-button" type="button" onClick={handleClick}>
-      {text}
-    </button>
+    <ConditionalWrap condition={!!url} wrap={link}>
+      <button className="text-button" type="button" onClick={handleClick}>
+        {text}
+      </button>
+    </ConditionalWrap>
   );
 }
 
 TextButton.defaultProps = {
   onClick: undefined,
-  redirectTo: undefined
+  url: undefined
 };
 
 TextButton.propTypes = {
@@ -40,8 +40,7 @@ TextButton.propTypes = {
   // Event: fired on button click (optional)
   onClick: PropTypes.func,
 
-  // The redirect URL, will be redirect to on click
-  redirectTo: PropTypes.string
+  url: PropTypes.string
 };
 
 export default React.memo(TextButton);

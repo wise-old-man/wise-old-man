@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
@@ -22,34 +22,40 @@ import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboa
 import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/records';
 import './Records.scss';
 
-const TABLE_CONFIG = {
-  uniqueKey: row => row.username,
-  columns: [
-    {
-      key: 'rank',
-      width: '10',
-      transform: rank => <span className="record-rank">{rank}</span>
-    },
-    {
-      key: 'displayName',
-      className: () => '-primary',
-      transform: (value, row) => <PlayerTag name={value} type={row.type} />
-    },
-    {
-      key: 'updatedAt',
-      className: () => '-break-small',
-      transform: value => (
-        <abbr title={formatDate(value, 'Do MMM YYYY HH:mm')}>
-          <span className="record-date">{formatDate(value, "DD MMM 'YY")}</span>
-        </abbr>
-      )
-    },
-    {
-      key: 'value',
-      transform: val => <NumberLabel value={val} isColored />
-    }
-  ]
-};
+function getTableConfig(metric) {
+  return {
+    uniqueKey: row => row.username,
+    columns: [
+      {
+        key: 'rank',
+        width: '10',
+        transform: rank => <span className="record-rank">{rank}</span>
+      },
+      {
+        key: 'displayName',
+        className: () => '-primary',
+        transform: (value, row) => (
+          <Link to={getPlayerURL(row.playerId, metric)}>
+            <PlayerTag name={value} type={row.type} />
+          </Link>
+        )
+      },
+      {
+        key: 'updatedAt',
+        className: () => '-break-small',
+        transform: value => (
+          <abbr title={formatDate(value, 'Do MMM YYYY HH:mm')}>
+            <span className="record-date">{formatDate(value, "DD MMM 'YY")}</span>
+          </abbr>
+        )
+      },
+      {
+        key: 'value',
+        transform: val => <NumberLabel value={val} isColored />
+      }
+    ]
+  };
+}
 
 function getPlayerTypeOptions() {
   return [
@@ -118,27 +124,10 @@ function Records() {
     }
   };
 
-  const handleDayRowClicked = index => {
-    const { playerId } = leaderboard.day[index];
-    router.push(getPlayerURL(playerId, selectedMetric));
-  };
-
-  const handleWeekRowClicked = index => {
-    const { playerId } = leaderboard.week[index];
-    router.push(getPlayerURL(playerId, selectedMetric));
-  };
-
-  const handleMonthRowClicked = index => {
-    const { playerId } = leaderboard.month[index];
-    router.push(getPlayerURL(playerId, selectedMetric));
-  };
-
   const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric, selectedPlayerType]);
   const onTypeSelected = useCallback(handleTypeSelected, [selectedMetric, selectedPlayerType]);
 
-  const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
-  const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
-  const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
+  const tableConfig = useMemo(() => getTableConfig(selectedMetric), [selectedMetric]);
 
   useEffect(reloadList, [selectedMetric, selectedPlayerType]);
 
@@ -179,11 +168,9 @@ function Records() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={tableConfig.uniqueKey}
+              columns={tableConfig.columns}
               rows={leaderboard.day}
-              onRowClicked={onDayRowClicked}
-              clickable
             />
           )}
         </div>
@@ -193,11 +180,9 @@ function Records() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={tableConfig.uniqueKey}
+              columns={tableConfig.columns}
               rows={leaderboard.week}
-              onRowClicked={onWeekRowClicked}
-              clickable
             />
           )}
         </div>
@@ -207,11 +192,9 @@ function Records() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={tableConfig.uniqueKey}
+              columns={tableConfig.columns}
               rows={leaderboard.month}
-              onRowClicked={onMonthRowClicked}
-              clickable
             />
           )}
         </div>

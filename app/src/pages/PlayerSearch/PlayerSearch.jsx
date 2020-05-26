@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Button from '../../components/Button';
 import TableList from '../../components/TableList';
@@ -17,7 +17,11 @@ const TABLE_CONFIG = {
     {
       key: 'displayName',
       className: () => '-primary',
-      transform: (value, row) => <PlayerTag name={value} type={row.type} />
+      transform: (value, row) => (
+        <Link to={`/players/${row.id}`}>
+          <PlayerTag name={value} type={row.type} />
+        </Link>
+      )
     },
     {
       key: 'updatedAt',
@@ -51,12 +55,7 @@ function PlayerSearch() {
     }
   };
 
-  const handleRowClicked = index => {
-    router.push(`/players/${searchResults[index].id}`);
-  };
-
   const onButtonClicked = useCallback(trackPlayer, [username]);
-  const onRowClicked = useCallback(handleRowClicked, [router, searchResults]);
 
   useEffect(searchPlayers, [username]);
 
@@ -82,8 +81,6 @@ function PlayerSearch() {
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={searchResults}
-              onRowClicked={onRowClicked}
-              clickable
             />
           </div>
         </div>
