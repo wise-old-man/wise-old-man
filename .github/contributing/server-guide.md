@@ -63,7 +63,7 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 
 ## Environment Variables
 
-Copy the example files to configure the development server
+Copy the example files to configure the development server, by running the following command on your terminal:
 
 ```
 cp .env.example .env && cp .env.test.example .env.test
