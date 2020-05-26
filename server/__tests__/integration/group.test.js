@@ -37,10 +37,13 @@ describe('Group API', () => {
     });
 
     test('Create valid group (no members)', async done => {
-      const response = await request.post('/api/groups').send({ name: ' Some Group_' });
+      const response = await request
+        .post('/api/groups')
+        .send({ name: ' Some Group_', clanChat: ' Test ' });
 
       expect(response.status).toBe(201);
       expect(response.body.name).toMatch('Some Group');
+      expect(response.body.clanChat).toMatch('Test');
 
       TEST_DATA.noMembers = response.body;
 
@@ -209,6 +212,18 @@ describe('Group API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('WISE OLD MAN');
+
+      done();
+    });
+
+    test('Edit (clan chat)', async done => {
+      const response = await request.put(`/api/groups/${TEST_DATA.noMembers.id}`).send({
+        clanChat: 'TheBois ',
+        verificationCode: TEST_DATA.noMembers.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.clanChat).toBe('TheBois');
 
       done();
     });
