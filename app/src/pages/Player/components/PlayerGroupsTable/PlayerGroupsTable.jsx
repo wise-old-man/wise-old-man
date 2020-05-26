@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import TableList from '../../../../components/TableList';
 
 const TABLE_CONFIG = {
@@ -8,7 +8,8 @@ const TABLE_CONFIG = {
   columns: [
     {
       key: 'name',
-      className: () => '-primary'
+      className: () => '-primary',
+      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>
     },
     {
       key: 'memberCount',
@@ -19,22 +20,8 @@ const TABLE_CONFIG = {
 };
 
 function PlayerGroupsTable({ groups }) {
-  const router = useHistory();
-
-  const handleRowClicked = index => {
-    router.push(`/groups/${groups[index].id}`);
-  };
-
-  const onRowClicked = useCallback(handleRowClicked, [router, groups]);
-
   return (
-    <TableList
-      uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-      rows={groups}
-      columns={TABLE_CONFIG.columns}
-      clickable
-      onRowClicked={onRowClicked}
-    />
+    <TableList uniqueKeySelector={TABLE_CONFIG.uniqueKey} rows={groups} columns={TABLE_CONFIG.columns} />
   );
 }
 
