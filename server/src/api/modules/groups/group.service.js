@@ -222,7 +222,7 @@ async function create(name, clanChat, members) {
   }
 
   const sanitizedName = sanitizeName(name);
-  const sanitizedClanChat = clanChat && playerService.sanitize(clanChat);
+  const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
 
   if (await Group.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
@@ -329,9 +329,12 @@ async function edit(id, name, clanChat, verificationCode, members) {
   }
 
   if (name || clanChat) {
+    const sanitizedName = name && sanitizeName(name);
+    const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
+
     await group.update({
-      name: name && sanitizeName(name),
-      clanChat: clanChat && playerService.sanitize(clanChat)
+      name: sanitizedName,
+      clanChat: sanitizedClanChat
     });
   }
 

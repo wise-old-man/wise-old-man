@@ -30,13 +30,13 @@ function createGroupFailure(error) {
   };
 }
 
-export default function createGroup({ name, members }) {
+export default function createGroup({ name, clanChat, members }) {
   return dispatch => {
     dispatch(createGroupRequest());
 
     const url = `${BASE_API_URL}/groups/`;
 
-    const body = { name, members };
+    const body = { name, clanChat, members };
 
     return axios
       .post(url, body)
