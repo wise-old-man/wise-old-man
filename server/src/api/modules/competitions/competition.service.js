@@ -247,7 +247,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     throw new BadRequestError('Invalid competition title.');
   }
 
-  if (!metric) {
+  if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError('Invalid competition metric.');
   }
 
@@ -354,7 +354,11 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  if (metric && metric.toLowerCase() !== competition.metric && isPast(competition.startsAt)) {
+  if (metric && !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid competition metric.`);
+  }
+
+  if (metric && metric !== competition.metric && isPast(competition.startsAt)) {
     throw new BadRequestError(`The competition has started, the metric cannot be changed.`);
   }
 
