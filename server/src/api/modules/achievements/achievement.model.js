@@ -10,6 +10,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey: true,
       allowNull: false
+    },
+    metric: {
+      type: DataTypes.STRING
+    },
+    value: {
+      type: DataTypes.BIGINT
     }
   };
 
