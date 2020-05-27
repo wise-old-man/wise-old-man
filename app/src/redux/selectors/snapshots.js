@@ -1,7 +1,6 @@
-import _ from 'lodash';
 import { createSelector } from 'reselect';
 import { COLORS } from '../../config';
-import { capitalize } from '../../utils';
+import { capitalize, distribute } from '../../utils';
 
 const snapshotsSelector = state => state.snapshots.snapshots;
 
@@ -11,29 +10,46 @@ export const getSnapshots = createSelector(snapshotsSelector, map => Object.valu
 
 export const getPlayerSnapshots = (state, playerId) => getSnapshotsMap(state)[playerId];
 
-export const getChartData = (state, playerId, period, skill, measure) => {
+export const getChartData = (state, playerId, period, skill, measure, reducedMode) => {
   const snapshotsData = getPlayerSnapshots(state, playerId);
 
   if (!snapshotsData) {
-    return [];
+    return {
+      distribution: {
+        enabled: false,
+        before: 0,
+        after: 0
+      },
+      datasets: []
+    };
   }
 
-  const data = _.uniqBy(
-    snapshotsData[period].map(s => ({
-      x: s.createdAt,
-      y: s[skill][measure]
-    })),
-    'y'
-  );
+  const snapshots = snapshotsData[period];
 
-  return [
-    {
-      borderColor: COLORS[measure === 'experience' ? 0 : 1],
-      pointBorderWidth: 4,
-      label: capitalize(measure),
-      // If showing ranks, don't include any -1 ranks
-      data: measure === 'rank' ? data.filter(d => d.y > 0) : data,
-      fill: false
-    }
-  ];
+  // If enabled, this will evenly distribute the snapshots to a maximum of 30,
+  // to make the charts cleaner by not displaying snapshots that are too near eachother
+  const distributedSnapshots = distribute(snapshots, reducedMode ? 30 : 100000);
+
+  const data = distributedSnapshots.map(s => ({
+    x: s.createdAt,
+    y: s[skill][measure]
+  }));
+
+  return {
+    distribution: {
+      enabled: reducedMode && snapshots.length !== distributedSnapshots.length,
+      before: snapshots.length,
+      after: distributedSnapshots.length
+    },
+    datasets: [
+      {
+        borderColor: COLORS[measure === 'experience' ? 0 : 1],
+        pointBorderWidth: 4,
+        label: capitalize(measure),
+        // If showing ranks, don't include any -1 ranks
+        data: measure === 'rank' ? data.filter(d => d.y > 0) : data,
+        fill: false
+      }
+    ]
+  };
 };

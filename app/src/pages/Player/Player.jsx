@@ -132,6 +132,7 @@ function Player() {
   const selectedPeriod = getSelectedPeriod(location);
   const selectedMetric = getSelectedMetric(selectedMetricType, location);
 
+  const [isReducedChart, setIsReducedChart] = useState(true);
   const [isTracking, setIsTracking] = useState(false);
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
@@ -149,11 +150,11 @@ function Player() {
   const deltasPeriodIndex = PERIOD_OPTIONS.findIndex(o => o.value === selectedPeriod);
 
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric))
+    getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric), isReducedChart)
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, 'rank')
+    getChartData(state, id, selectedPeriod, selectedMetric, 'rank', isReducedChart)
   );
 
   const trackPlayer = async () => {
@@ -221,6 +222,10 @@ function Player() {
     router.push(getNextUrl({ metricType: e.value }));
   };
 
+  const toggleReducedChart = () => {
+    setIsReducedChart(val => !val);
+  };
+
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
@@ -235,6 +240,7 @@ function Player() {
     dispatch(fetchDeltasAction({ playerId: id }));
   };
 
+  const onToggleReducedChart = useCallback(toggleReducedChart, []);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
@@ -370,8 +376,17 @@ function Player() {
         {selectedTabIndex === 1 && (
           <>
             <div className="col-lg-6 col-md-12">
-              <LineChart datasets={experienceChartData} />
-              <LineChart datasets={rankChartData} invertYAxis />
+              <LineChart
+                datasets={experienceChartData.datasets}
+                distribution={experienceChartData.distribution}
+                onDistributionChanged={onToggleReducedChart}
+              />
+              <LineChart
+                datasets={rankChartData.datasets}
+                distribution={experienceChartData.distribution}
+                onDistributionChanged={onToggleReducedChart}
+                invertYAxis
+              />
             </div>
             <div className="col-lg-6 col-md-12">
               <PlayerDeltasInfo
