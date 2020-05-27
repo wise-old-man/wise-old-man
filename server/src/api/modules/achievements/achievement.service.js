@@ -69,11 +69,11 @@ function getNewAchievements(currentSnapshot, previousSnapshot) {
           // If the previous value was untracked, the achievement date is unknown
           const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
 
-          newAchievements.push({ type, createdAt });
+          newAchievements.push({ type, metric: skill, value: a.value, createdAt });
         }
       });
     } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
+      newAchievements.push({ type: a.name, metric: a.metric, value: a.value, createdAt: new Date() });
     }
   });
 
@@ -86,11 +86,11 @@ function getNewAchievements(currentSnapshot, previousSnapshot) {
           // If the previous value was untracked, the achievement date is unknown
           const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
 
-          newAchievements.push({ type, createdAt });
+          newAchievements.push({ type, metric: activity, value: a.value, createdAt });
         }
       });
     } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
+      newAchievements.push({ type: a.name, metric: a.metric, value: a.value, createdAt: new Date() });
     }
   });
 
@@ -103,11 +103,11 @@ function getNewAchievements(currentSnapshot, previousSnapshot) {
           // If the previous value was untracked, the achievement date is unknown
           const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
 
-          newAchievements.push({ type, createdAt });
+          newAchievements.push({ type, metric: boss, value: a.value, createdAt });
         }
       });
     } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
+      newAchievements.push({ type: a.name, metric: a.metric, value: a.value, createdAt: new Date() });
     }
   });
 
@@ -135,12 +135,19 @@ function getPreviousAchievements(previousSnapshot) {
         if (a.validate(previousSnapshot[key])) {
           previousAchievements.push({
             type: a.name.replace('{skill}', getFormattedName(skill)),
+            metric: skill,
+            value: a.value,
             createdAt: new Date(0)
           });
         }
       });
     } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
+      previousAchievements.push({
+        type: a.name,
+        metric: a.metric,
+        value: a.value,
+        createdAt: new Date(0)
+      });
     }
   });
 
@@ -151,12 +158,19 @@ function getPreviousAchievements(previousSnapshot) {
         if (a.validate(previousSnapshot[key])) {
           previousAchievements.push({
             type: a.name.replace('{activity}', getFormattedName(activity)),
+            metric: activity,
+            value: a.value,
             createdAt: new Date(0)
           });
         }
       });
     } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
+      previousAchievements.push({
+        type: a.name,
+        metric: a.metric,
+        value: a.value,
+        createdAt: new Date(0)
+      });
     }
   });
 
@@ -167,12 +181,19 @@ function getPreviousAchievements(previousSnapshot) {
         if (a.validate(previousSnapshot[key])) {
           previousAchievements.push({
             type: a.name.replace('{boss}', getFormattedName(boss)),
+            metric: boss,
+            value: a.value,
             createdAt: new Date(0)
           });
         }
       });
     } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
+      previousAchievements.push({
+        type: a.name,
+        metric: a.metric,
+        value: a.value,
+        createdAt: new Date(0)
+      });
     }
   });
 
@@ -227,7 +248,7 @@ async function syncAchievements(playerId) {
   // Find all achievements the player already has
   const existingAchievements = await Achievement.findAll({ where: { playerId } });
 
-  // Find all achievements the player should havehad (in the previous update)
+  // Find all achievements the player should have had (in the previous update)
   const previousAchievements = getPreviousAchievements(previous).map(a => ({ ...a, playerId }));
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
