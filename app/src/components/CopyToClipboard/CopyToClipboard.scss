@@ -1,0 +1,39 @@
+@import '../../variables.scss';
+
+.popup {
+  position: absolute;
+  display: block;
+  font-size: 0.4em;
+
+  background-color: $gray-05;
+  color: $gray-60;
+
+  padding: 6px;
+
+  box-shadow: rgba(0, 0, 0, 0.8) 0 0 5px;
+  border-radius: 5px;
+
+  min-width: 110px;
+
+  font-weight: normal;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: visibility 0s linear 300ms, opacity 300ms;
+
+  &.-show {
+    opacity: 1;
+    visibility: visible;
+
+    transition: visibility 0s linear 0s, opacity 300ms;
+  }
+
+  &.-success {
+    color: green;
+  }
+}
+
+.hover {
+  cursor: pointer;
+}

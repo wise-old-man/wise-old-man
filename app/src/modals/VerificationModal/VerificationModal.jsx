@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../components/Button';
+import CopyToClipboard from '../../components/CopyToClipboard';
 import './VerificationModal.scss';
 
 function VerificationModal({ verificationCode, entity, onConfirm }) {
@@ -8,7 +9,9 @@ function VerificationModal({ verificationCode, entity, onConfirm }) {
     <div className="verification-modal">
       <div className="verification-modal__modal">
         <span className="code-label">{`Your ${entity}'s verification code is:`}</span>
-        <h1 className="code-value">{verificationCode}</h1>
+        <h1 className="code-value">
+          <CopyToClipboard>{verificationCode}</CopyToClipboard>
+        </h1>
         <p className="code-description">
           {` Please save this code somewhere, without it you won't \
              be able to edit or delete this ${entity} in the future.`}
