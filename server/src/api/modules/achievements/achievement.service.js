@@ -1,4 +1,12 @@
-const { SKILLS, BOSSES, ACTIVITIES, getValueKey, getFormattedName } = require('../../constants/metrics');
+const {
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  getValueKey,
+  getFormattedName,
+  isSkill,
+  getMeasure
+} = require('../../constants/metrics');
 const {
   SKILL_ACHIEVEMENTS,
   ACTIVITY_ACHIEVEMENTS,
@@ -224,7 +232,7 @@ async function syncAchievements(playerId) {
 async function findAll(playerId, includeMissing = false) {
   const achievements = await Achievement.findAll({
     where: { playerId }
-  });
+  }).map(a => a.toJSON());
 
   if (!includeMissing) {
     return achievements;
@@ -244,7 +252,12 @@ async function findAll(playerId, includeMissing = false) {
       missing: true
     }));
 
-  return [...achievements, ...missingAchievements];
+  return [...achievements, ...missingAchievements].map(a => {
+    // Only maxed overall and maxed combat are level based
+    const isLevels = (isSkill(a.metric) && a.value < 1000000) || a.metric === 'combat';
+    const measure = isLevels ? 'levels' : getMeasure(a.metric);
+    return { ...a, measure };
+  });
 }
 
 exports.syncAchievements = syncAchievements;
