@@ -49,7 +49,7 @@ const SKILL_ACHIEVEMENTS = [
     name: 'Maxed overall',
     metric: 'overall',
     value: 2277,
-    validate: snapshot => {
+    validate: (val, snapshot) => {
       let maxedSkills = 0;
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
         if (snapshot[getValueKey(skill)] >= 13034431) {
@@ -64,7 +64,7 @@ const SKILL_ACHIEVEMENTS = [
     name: 'Maxed combat',
     metric: 'combat',
     value: 126,
-    validate: snapshot => {
+    validate: (val, snapshot) => {
       const combatSkills = ['attack', 'strength', 'defence', 'prayer', 'magic', 'ranged'];
       let maxedSkills = 0;
 
@@ -122,7 +122,7 @@ const BOSS_ACHIEVEMENTS = [
     name: '100 kills (all bosses)',
     metric: 'bossing',
     value: 100,
-    validate: snapshot => {
+    validate: (val, snapshot) => {
       let count = 0;
       BOSSES.forEach(skill => {
         if (snapshot[getValueKey(skill)] >= 100) {
