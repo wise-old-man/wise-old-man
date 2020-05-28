@@ -126,6 +126,22 @@ and adding :5000 to it.
 
 The default URL should be http://192.168.99.100:5000
 
+#### Troubleshooting
+
+If you're on Windows and get error
+
+```
+/usr/bin/env: 'bash\r': No such file or directory
+```
+
+type
+
+```
+git config core.autocrlf false
+```
+
+and run docker-compose again.
+
 <br />
 
 ## Accessing the database
