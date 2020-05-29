@@ -13,6 +13,14 @@ const CopyToClipboard = props => {
   const handleClick = () => {
     navigator.clipboard.writeText(children);
     setCopied(true);
+
+    // mobile
+    if (!hover) {
+      setHover(true);
+      setTimeout(() => {
+        setHover(false);
+      }, 1500);
+    }
   };
 
   const handleHover = event => {
