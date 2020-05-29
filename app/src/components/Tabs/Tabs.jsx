@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 import './Tabs.scss';
 
 function Tabs({ tabs, selectedIndex, align, urlSelector, specialHighlightIndex }) {
@@ -19,10 +20,10 @@ function Tabs({ tabs, selectedIndex, align, urlSelector, specialHighlightIndex }
         const url = urlSelector && urlSelector(i);
 
         return (
-          <a key={tab} href={url} className={tabClass}>
+          <Link key={tab} to={url} className={tabClass}>
             {tab}
             {i === specialHighlightIndex && <div className="new-dot" />}
-          </a>
+          </Link>
         );
       })}
     </div>
