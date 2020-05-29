@@ -1,21 +1,9 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Tabs.scss';
 
-function Tabs({ tabs, selectedIndex, onChange, align, specialHighlightIndex }) {
-  const handleSelection = e => {
-    const index = parseInt(e.target.dataset.index, 10);
-
-    if (index === selectedIndex) {
-      return;
-    }
-
-    onChange(index);
-  };
-
-  const onSelect = useCallback(handleSelection, [selectedIndex, onChange]);
-
+function Tabs({ tabs, selectedIndex, align, urlSelector, specialHighlightIndex }) {
   const barClass = classNames({
     'tab-bar': true,
     '-align-left': align === 'left',
@@ -28,12 +16,13 @@ function Tabs({ tabs, selectedIndex, onChange, align, specialHighlightIndex }) {
     <div className={barClass}>
       {tabs.map((tab, i) => {
         const tabClass = classNames({ tab: true, '-highlighted': selectedIndex === i });
+        const url = urlSelector && urlSelector(i);
 
         return (
-          <button key={tab} data-index={i} className={tabClass} type="button" onClick={onSelect}>
+          <a key={tab} href={url} className={tabClass}>
             {tab}
             {i === specialHighlightIndex && <div className="new-dot" />}
-          </button>
+          </a>
         );
       })}
     </div>
@@ -51,8 +40,7 @@ Tabs.propTypes = {
 
   selectedIndex: PropTypes.number.isRequired,
 
-  // Event: fired on tab selected
-  onChange: PropTypes.func.isRequired,
+  urlSelector: PropTypes.func.isRequired,
 
   // The alignment of the tabs (optional), must be one of (right, left, center, space-between)
   align: PropTypes.string,

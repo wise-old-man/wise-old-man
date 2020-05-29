@@ -84,12 +84,12 @@ function Competition() {
     setButtonDisabled(true);
   };
 
-  const handleTabChanged = i => {
+  const getSelectedTabUrl = i => {
     if (i === 1) {
-      router.push(`/competitions/${id}/chart`);
-    } else {
-      router.push(`/competitions/${id}`);
+      return `/competitions/${id}/chart`;
     }
+
+    return `/competitions/${id}`;
   };
 
   const handleDeleteModalClosed = () => {
@@ -106,7 +106,6 @@ function Competition() {
   };
 
   // Memoized callbacks
-  const onTabChanged = useCallback(handleTabChanged, [id, section]);
   const onUpdatePlayer = useCallback(handleUpdatePlayer, [id, dispatch]);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
   const onOptionSelected = useCallback(handleOptionSelected, [router, competition]);
@@ -161,7 +160,7 @@ function Competition() {
           <CompetitionInfo competition={competition} />
         </div>
         <div className="col-md-8">
-          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} onChange={onTabChanged} />
+          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} urlSelector={getSelectedTabUrl} />
           {selectedSectionIndex === 0 ? (
             <CompetitionTable
               competition={competition}

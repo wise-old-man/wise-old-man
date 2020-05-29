@@ -90,12 +90,12 @@ function Group() {
     }
   };
 
-  const handleTabChanged = i => {
+  const getSelectedTabUrl = i => {
     if (i === 1) {
-      router.push(`/groups/${id}/competitions`);
-    } else {
-      router.push(`/groups/${id}`);
+      return `/groups/${id}/competitions`;
     }
+
+    return `/groups/${id}`;
   };
 
   const handleUpdateAll = () => {
@@ -103,7 +103,6 @@ function Group() {
     setButtonDisabled(true);
   };
 
-  const onTabChanged = useCallback(handleTabChanged, [id]);
   const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
@@ -154,7 +153,7 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} onChange={onTabChanged} />
+          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} urlSelector={getSelectedTabUrl} />
           {selectedSectionIndex === 0 ? (
             <MembersTable members={group.members} isLoading={isLoadingMembers} />
           ) : (
