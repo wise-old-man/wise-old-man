@@ -2,23 +2,20 @@
 
 .popup {
   position: absolute;
-  display: block;
-  font-size: 0.4em;
-
-  background-color: $gray-05;
-  color: $gray-60;
-
-  padding: 6px;
-
-  box-shadow: rgba(0, 0, 0, 0.8) 0 0 5px;
-  border-radius: 5px;
 
   min-width: 110px;
-
+  padding: 6px;
+  font-size: 0.4em;
   font-weight: normal;
 
   opacity: 0;
   visibility: hidden;
+
+  background-color: $gray-05;
+  color: $gray-60;
+
+  box-shadow: rgba(0, 0, 0, 0.6) 0 0 5px;
+  border-radius: 5px;
 
   transition: visibility 0s linear 300ms, opacity 300ms;
 
@@ -30,7 +27,7 @@
   }
 
   &.-success {
-    color: green;
+    color: $positive-green;
   }
 }
 

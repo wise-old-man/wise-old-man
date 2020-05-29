@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import classNames from 'classnames';
 import './CopyToClipboard.scss';
 
@@ -6,38 +6,35 @@ const CopyToClipboard = props => {
   const { children } = props;
   const [hover, setHover] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [mousePos, setMousePos] = useState({ left: '50%', top: '50%' });
+  const [mousePos, setMousePos] = useState({});
 
   const popupClass = classNames('popup', { '-show': hover, '-success': copied });
 
   const handleClick = () => {
-    navigator.clipboard.writeText(children).then(
-      function () {
-        setCopied(true);
-      },
-      function () {
-        /* clipboard write failed */
-      }
-    );
+    navigator.clipboard.writeText(children);
+    setCopied(true);
   };
 
   const handleHover = event => {
-    const x = event.clientX;
-    const y = event.clientY;
-    setMousePos({ left: `${x}px`, top: `${y}px` });
-    setHover(true);
+    if (event.type === 'mouseenter') {
+      setMousePos({ left: `${event.clientX}px`, top: `${event.clientY}px` });
+    }
+    setHover(!hover);
   };
 
   return (
     <>
       <span style={{ left: mousePos.left, top: mousePos.top }} className={popupClass}>
-        {copied ? '✔' : 'Click to copy'}
+        {copied ? '✔ Copied!' : 'Click to copy'}
       </span>
       <span
         onClick={handleClick}
-        onMouseEnter={e => handleHover(e)}
-        onMouseLeave={() => setHover(false)}
+        onKeyDown={handleClick}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleHover}
         className="hover"
+        role="button"
+        tabIndex={0}
       >
         {children}
       </span>
@@ -45,4 +42,4 @@ const CopyToClipboard = props => {
   );
 };
 
-export default CopyToClipboard;
+export default memo(CopyToClipboard);
