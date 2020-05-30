@@ -183,7 +183,7 @@ function diff(start, end, initialValues) {
     const startRank = start[rankKey] === -1 && !isSkill(s) ? initialRank : start[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     obj[rankKey] = isSkill(s) && start[rankKey] === -1 ? 0 : endRank - startRank;
     obj[valueKey] = endValue - startValue;
   });

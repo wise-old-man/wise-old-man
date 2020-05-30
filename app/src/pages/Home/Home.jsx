@@ -67,7 +67,7 @@ function Home() {
             <p className="intro-description">
               The Open Source Old School Runescape player progress tracker.
             </p>
-            <Button text="Contribute" url="https://github.com/psikoi/wise-old-man" />
+            <Button text="Contribute" url="https://github.com/wise-old-man/wise-old-man" />
           </div>
         </div>
         <div id="illustration" className="hero__illustration">

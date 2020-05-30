@@ -242,7 +242,7 @@ function diff(start, end, initial) {
     const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
     const gainedValue = endValue - startValue;
 
