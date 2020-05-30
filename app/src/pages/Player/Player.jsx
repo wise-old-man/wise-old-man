@@ -13,7 +13,7 @@ import Dropdown from '../../components/Dropdown';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
-import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
+import PlayerAchievements from './components/PlayerAchievements';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
@@ -22,7 +22,7 @@ import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
 import { getPlayerRecords } from '../../redux/selectors/records';
-import { getPlayerAchievements } from '../../redux/selectors/achievements';
+import { getPlayerAchievementsGrouped, getPlayerAchievements } from '../../redux/selectors/achievements';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
@@ -141,6 +141,7 @@ function Player() {
   const deltas = useSelector(state => getPlayerDeltas(state, id));
   const records = useSelector(state => getPlayerRecords(state, id));
   const achievements = useSelector(state => getPlayerAchievements(state, id));
+  const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, id));
   const competitions = useSelector(state => getPlayerCompetitions(state, id));
   const groups = useSelector(state => getPlayerGroups(state, id));
   const isLoadingDetails = useSelector(state => isFetching(state));
@@ -423,14 +424,21 @@ function Player() {
         )}
         {selectedTabIndex === 5 && (
           <>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="general" />
+            <div className="col-lg-3 col-md-12">
+              {competitions && (
+                <PlayerHighlights
+                  player={player}
+                  competitions={competitions}
+                  achievements={achievements}
+                />
+              )}
             </div>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="experience" />
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="levels" />
+            <div className="col-lg-9 col-md-12">
+              <PlayerAchievements
+                player={player}
+                groupedAchievements={groupedAchievements}
+                metricType={selectedMetricType}
+              />
             </div>
           </>
         )}

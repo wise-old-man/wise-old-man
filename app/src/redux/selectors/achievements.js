@@ -19,7 +19,7 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
   }
 
   const sorted = list.sort((a, b) => {
-    return a.metric.localeCompare(b.metric) || a.measure.localeCompare(b.measure);
+    return a.metric.localeCompare(b.metric) || a.measure.localeCompare(b.measure) || a.value - b.value;
   });
 
   const groups = [];
@@ -28,9 +28,9 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
 
   sorted.forEach(s => {
     if (s.metric === previousMetric && s.measure === previousMeasure) {
-      groups[groups.length - 1].push(s);
+      groups[groups.length - 1].achievements.push(s);
     } else {
-      groups.push([s]);
+      groups.push({ metric: s.metric, measure: s.measure, achievements: [s] });
     }
 
     previousMetric = s.metric;

@@ -15,7 +15,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     value: {
-      type: DataTypes.BIGINT
+      type: DataTypes.BIGINT,
+      get() {
+        // As experience (overall) can exceed the integer maximum of 2.147b,
+        // we have to store it into a BIGINT, however, sequelize returns bigints
+        // as strings, to counter that, we convert every bigint to a JS number
+        return parseInt(this.getDataValue('value'), 10);
+      }
     }
   };
 
