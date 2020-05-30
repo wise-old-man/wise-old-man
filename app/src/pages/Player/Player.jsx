@@ -435,7 +435,6 @@ function Player() {
             </div>
             <div className="col-lg-9 col-md-12">
               <PlayerAchievements
-                player={player}
                 groupedAchievements={groupedAchievements}
                 metricType={selectedMetricType}
               />

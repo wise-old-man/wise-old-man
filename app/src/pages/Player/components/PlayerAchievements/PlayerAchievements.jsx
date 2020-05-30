@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import {
@@ -8,7 +8,7 @@ import {
   getMetricIcon,
   getMetricName,
   formatDate,
-  getTotalLevel
+  formatNumber
 } from '../../../../utils';
 import './PlayerAchievements.scss';
 
@@ -29,69 +29,19 @@ function getFilteredAchievements(groups, metricType) {
 }
 
 function formatValue(value) {
-  if (value < 1000000) {
+  if (value < 1000 || value === 2277) {
     return value;
+  }
+
+  if (value <= 10000) {
+    return `${value / 1000}k`;
   }
 
   if (value === 13034431) {
     return '99';
   }
 
-  if (value < 1000000000) {
-    return `${value / 1000000}m`;
-  }
-
-  return `${value / 1000000000}b`;
-}
-
-function attachProgress(player, group) {
-  if (!player) {
-    return group;
-  }
-
-  const { latestSnapshot } = player;
-
-  if (group.metric === 'combat') {
-    const progress = player.combatLevel / 126;
-    return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
-  }
-
-  if (group.metric === 'overall' && group.measure === 'levels') {
-    const progress = getTotalLevel(latestSnapshot) / 2277;
-    return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
-  }
-
-  if (latestSnapshot[group.metric]) {
-    const currentValue = latestSnapshot[group.metric][group.measure];
-
-    const processedAchievements = group.achievements.map((achievement, i) => {
-      if (currentValue >= achievement.value) {
-        return { ...achievement, progress: 1 };
-      }
-
-      const prevStart = i === 0 ? 0 : group.achievements[i - 1].value;
-      const currentProgress = Math.max(0, (currentValue - prevStart) / (achievement.value - prevStart));
-
-      return { ...achievement, progress: currentProgress };
-    });
-
-    return { ...group, achievements: processedAchievements };
-  }
-
-  return group;
-}
-
-function processGroups(player, groups, metricType) {
-  if (!player || !groups || !metricType) {
-    return [];
-  }
-
-  return getFilteredAchievements(
-    groups
-      .map(group => attachProgress(player, group))
-      .sort((a, b) => a.achievements.length - b.achievements.length),
-    metricType
-  );
+  return formatNumber(value, true);
 }
 
 function AchievementOrb({ achievement }) {
@@ -126,16 +76,13 @@ function ProgressBar({ progress, equalSizes }) {
   );
 }
 
-function PlayerAchievements({ player, groupedAchievements, metricType }) {
-  const groups = useMemo(() => processGroups(player, groupedAchievements, metricType), [
-    player,
-    groupedAchievements,
-    metricType
-  ]);
+function PlayerAchievements({ groupedAchievements, metricType }) {
+  const groups = getFilteredAchievements(groupedAchievements, metricType);
 
   const equalSizes = achievements =>
     achievements.length === 1 ||
-    achievements.filter(g => g.progress === 1).length === achievements.length;
+    achievements.filter(g => g.progress === 1).length === achievements.length ||
+    achievements.filter(g => g.progress === 0).length === achievements.length;
 
   return (
     <div className="player-achievements__container">
@@ -181,12 +128,10 @@ AchievementOrb.propTypes = {
 };
 
 PlayerAchievements.defaultProps = {
-  groupedAchievements: [],
-  player: undefined
+  groupedAchievements: []
 };
 
 PlayerAchievements.propTypes = {
-  player: PropTypes.shape(),
   groupedAchievements: PropTypes.arrayOf(PropTypes.arrayOf),
   metricType: PropTypes.string.isRequired
 };
