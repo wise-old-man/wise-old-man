@@ -10,6 +10,7 @@ import {
   formatDate,
   formatNumber
 } from '../../../../utils';
+import CardList from '../../../../components/CardList';
 import './PlayerAchievements.scss';
 
 function getFilteredAchievements(groups, metricType) {
@@ -81,33 +82,52 @@ function ProgressBar({ progress, equalSizes }) {
 function PlayerAchievements({ groupedAchievements, metricType }) {
   const groups = getFilteredAchievements(groupedAchievements, metricType);
 
+  const nearest = groups
+    .map(g => g.achievements)
+    .flat()
+    .filter(a => a.progress < 1 && a.measure !== 'levels')
+    .sort((a, b) => b.progress - a.progress)
+    .slice(0, 10);
+
+  const nearestItems = nearest.map(i => ({
+    icon: getMetricIcon(i.metric),
+    title: i.type,
+    subtitle: `${Math.round(i.progress * 10000) / 100}% completed`
+  }));
+
   const equalSizes = achievements =>
     achievements.length === 1 ||
     achievements.filter(g => g.progress === 1).length === achievements.length ||
     achievements.filter(g => g.progress === 0).length === achievements.length;
 
   return (
-    <div className="player-achievements__container">
-      {groups.map(({ metric, measure, achievements }) => (
-        <div key={`${metric}|${measure}`} className="achievement-group">
-          <div className="group-icon">
-            <img src={getMetricIcon(metric)} alt="" />
+    <>
+      <div className="player-nearest-achievements__container col-lg-3 col-md-12 ">
+        <span className="panel-label">{`Nearest ${metricType} achievements`}</span>
+        <CardList items={nearestItems} emptyMessage="Nothing else to achieve!" />
+      </div>
+      <div className="player-achievements__container col-lg-9 col-md-12">
+        {groups.map(({ metric, measure, achievements }) => (
+          <div key={`${metric}|${measure}`} className="achievement-group">
+            <div className="group-icon">
+              <img src={getMetricIcon(metric)} alt="" />
+            </div>
+            <b className="group-title">
+              {achievements.length > 1 ? getMetricName(metric) : achievements[0].type}
+            </b>
+            <div className="group-progress">
+              <AchievementOrb achievement={null} />
+              {achievements.map(achievement => (
+                <Fragment key={achievement.type}>
+                  <ProgressBar progress={achievement.progress} equalSizes={equalSizes(achievements)} />
+                  <AchievementOrb achievement={achievement} />
+                </Fragment>
+              ))}
+            </div>
           </div>
-          <b className="group-title">
-            {achievements.length > 1 ? getMetricName(metric) : achievements[0].type}
-          </b>
-          <div className="group-progress">
-            <AchievementOrb achievement={null} />
-            {achievements.map(achievement => (
-              <Fragment key={achievement.type}>
-                <ProgressBar progress={achievement.progress} equalSizes={equalSizes(achievements)} />
-                <AchievementOrb achievement={achievement} />
-              </Fragment>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 }
 

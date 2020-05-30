@@ -423,23 +423,10 @@ function Player() {
           </div>
         )}
         {selectedTabIndex === 5 && (
-          <>
-            <div className="col-lg-3 col-md-12">
-              {competitions && (
-                <PlayerHighlights
-                  player={player}
-                  competitions={competitions}
-                  achievements={achievements}
-                />
-              )}
-            </div>
-            <div className="col-lg-9 col-md-12">
-              <PlayerAchievements
-                groupedAchievements={groupedAchievements}
-                metricType={selectedMetricType}
-              />
-            </div>
-          </>
+          <PlayerAchievements
+            groupedAchievements={groupedAchievements}
+            metricType={selectedMetricType}
+          />
         )}
       </div>
     </div>
