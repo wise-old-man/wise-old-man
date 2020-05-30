@@ -5,7 +5,8 @@ const {
   getValueKey,
   getFormattedName,
   isSkill,
-  getMeasure
+  getMeasure,
+  getDifficultyFactor
 } = require('../../constants/metrics');
 const { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } = require('./achievement.templates');
 const { Achievement, sequelize } = require('../../../database');
@@ -48,72 +49,92 @@ function getDefinitions() {
   SKILL_TEMPLATES.forEach(template => {
     const { metric, thresholds, type, validate } = template;
 
+    // Dynamic threshold/skill templates (Ex: 99 Attack, 50m Cooking)
     if (!metric) {
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        thresholds.forEach(threshold => {
-          const newType = formatType(type, threshold, skill);
-          const newValidate = snapshot => snapshot[getValueKey(skill)] >= threshold;
+        thresholds
+          .map(t => t * getDifficultyFactor(skill))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, skill);
+            const newValidate = snapshot => snapshot[getValueKey(skill)] >= threshold;
 
-          definitions.push({ type: newType, metric: skill, threshold, validate: newValidate });
-        });
+            definitions.push({ type: newType, metric: skill, threshold, validate: newValidate });
+          });
       });
     } else if (thresholds.length > 1) {
-      thresholds.forEach(threshold => {
-        const newType = formatType(type, threshold, metric);
-        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+      // Dynamic threshold templates, fixed skill (Ex: 500m Overall, 1b Overall)
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
 
-        definitions.push({ type: newType, metric, threshold, validate: newValidate });
-      });
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
     } else {
-      definitions.push({ type, metric, threshold: thresholds[0], validate });
+      // Fixed threshold & metric (Ex: Maxed combat, Maxed overall)
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
     }
   });
 
   ACTIVITY_TEMPLATES.forEach(template => {
     const { metric, thresholds, type, validate } = template;
 
+    // Dynamic threshold/activity templates (Ex: 1k Clues (Hard), 5k Clues (Medium))
     if (!metric) {
       ACTIVITIES.forEach(activity => {
-        thresholds.forEach(threshold => {
-          const newType = formatType(type, threshold, activity);
-          const newValidate = snapshot => snapshot[getValueKey(activity)] >= threshold;
+        thresholds
+          .map(t => t * getDifficultyFactor(activity))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, activity);
+            const newValidate = snapshot => snapshot[getValueKey(activity)] >= threshold;
 
-          definitions.push({ type: newType, metric: activity, threshold, validate: newValidate });
-        });
+            definitions.push({ type: newType, metric: activity, threshold, validate: newValidate });
+          });
       });
     } else if (thresholds.length > 1) {
-      thresholds.forEach(threshold => {
-        const newType = formatType(type, threshold, metric);
-        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
 
-        definitions.push({ type: newType, metric, threshold, validate: newValidate });
-      });
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
     } else {
-      definitions.push({ type, metric, threshold: thresholds[0], validate });
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
     }
   });
 
   BOSS_TEMPLATES.forEach(template => {
     const { metric, thresholds, type, validate } = template;
 
+    // Dynamic threshold/boss templates (Ex: 500 Cerberus, 1k Zulrah)
     if (!metric) {
       BOSSES.forEach(boss => {
-        thresholds.forEach(threshold => {
-          const newType = formatType(type, threshold, boss);
-          const newValidate = snapshot => snapshot[getValueKey(boss)] >= threshold;
+        thresholds
+          .map(t => t * getDifficultyFactor(boss))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, boss);
+            const newValidate = snapshot => snapshot[getValueKey(boss)] >= threshold;
 
-          definitions.push({ type: newType, metric: boss, threshold, validate: newValidate });
-        });
+            definitions.push({ type: newType, metric: boss, threshold, validate: newValidate });
+          });
       });
     } else if (thresholds.length > 1) {
-      thresholds.forEach(threshold => {
-        const newType = formatType(type, threshold, metric);
-        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
 
-        definitions.push({ type: newType, metric, threshold, validate: newValidate });
-      });
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
     } else {
-      definitions.push({ type, metric, threshold: thresholds[0], validate });
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
     }
   });
 

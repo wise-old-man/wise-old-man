@@ -152,6 +152,28 @@ function getFormattedName(value) {
   return 'Invalid metric name';
 }
 
+function getDifficultyFactor(metric) {
+  switch (metric) {
+    case 'chambers_of_xeric':
+    case 'chambers_of_xeric_challenge_mode':
+    case 'theatre_of_blood':
+    case 'the_gauntlet':
+    case 'the_corrupted_gauntlet':
+    case 'tztok_jad':
+      return 0.2;
+    case 'bryophyta':
+    case 'obor':
+    case 'skotizo':
+    case 'hespori':
+      return 0.1;
+    case 'mimic':
+    case 'tzkal_zuk':
+      return 0.05;
+    default:
+      return 1;
+  }
+}
+
 module.exports = {
   SKILLS: SKILLS_KEYS,
   ACTIVITIES: ACTIVITIES_KEYS,
@@ -163,5 +185,6 @@ module.exports = {
   getMeasure,
   getFormattedName,
   getRankKey,
-  getValueKey
+  getValueKey,
+  getDifficultyFactor
 };
