@@ -7,50 +7,113 @@ const {
   isSkill,
   getMeasure
 } = require('../../constants/metrics');
-const {
-  SKILL_ACHIEVEMENTS,
-  ACTIVITY_ACHIEVEMENTS,
-  BOSS_ACHIEVEMENTS
-} = require('../../constants/achievements');
+const { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } = require('./achievement.templates');
 const { Achievement, sequelize } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 
+function formatThreshold(threshold) {
+  if (threshold < 1000 || threshold === 2277) {
+    return threshold;
+  }
+
+  if (threshold === 13034431) {
+    return '99';
+  }
+
+  if (threshold <= 10000) {
+    return `${Math.floor(threshold / 1000)}k`;
+  }
+
+  if (threshold < 1000000000) {
+    return `${Math.round((threshold / 1000000 + Number.EPSILON) * 100) / 100}m`;
+  }
+
+  return `${Math.round((threshold / 1000000000 + Number.EPSILON) * 100) / 100}b`;
+}
+
+function formatType(baseType, threshold, metric) {
+  return baseType
+    .replace('{threshold}', formatThreshold(threshold))
+    .replace('{skill}', getFormattedName(metric))
+    .replace('{activity}', getFormattedName(metric))
+    .replace('{boss}', getFormattedName(metric));
+}
+
 /**
- * Get all achievement definitions
+ * Get all achievement definitions (hydrated templates)
  */
 function getDefinitions() {
   const definitions = [];
 
-  SKILL_ACHIEVEMENTS.forEach(({ name, metric, value, validate }) => {
-    if (name.includes('{skill}')) {
+  SKILL_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    if (!metric) {
       SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        const type = name.replace('{skill}', getFormattedName(skill));
-        definitions.push({ type, metric: skill, value, validate });
+        thresholds.forEach(threshold => {
+          const newType = formatType(type, threshold, skill);
+          const newValidate = snapshot => snapshot[getValueKey(skill)] >= threshold;
+
+          definitions.push({ type: newType, metric: skill, threshold, validate: newValidate });
+        });
+      });
+    } else if (thresholds.length > 1) {
+      thresholds.forEach(threshold => {
+        const newType = formatType(type, threshold, metric);
+        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+        definitions.push({ type: newType, metric, threshold, validate: newValidate });
       });
     } else {
-      definitions.push({ type: name, metric, value, validate });
+      definitions.push({ type, metric, threshold: thresholds[0], validate });
     }
   });
 
-  ACTIVITY_ACHIEVEMENTS.forEach(({ name, metric, value, validate }) => {
-    if (name.includes('{activity}')) {
+  ACTIVITY_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    if (!metric) {
       ACTIVITIES.forEach(activity => {
-        const type = name.replace('{activity}', getFormattedName(activity));
-        definitions.push({ type, metric: activity, value, validate });
+        thresholds.forEach(threshold => {
+          const newType = formatType(type, threshold, activity);
+          const newValidate = snapshot => snapshot[getValueKey(activity)] >= threshold;
+
+          definitions.push({ type: newType, metric: activity, threshold, validate: newValidate });
+        });
+      });
+    } else if (thresholds.length > 1) {
+      thresholds.forEach(threshold => {
+        const newType = formatType(type, threshold, metric);
+        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+        definitions.push({ type: newType, metric, threshold, validate: newValidate });
       });
     } else {
-      definitions.push({ type: name, metric, value, validate });
+      definitions.push({ type, metric, threshold: thresholds[0], validate });
     }
   });
 
-  BOSS_ACHIEVEMENTS.forEach(({ name, metric, value, validate }) => {
-    if (name.includes('{boss}')) {
+  BOSS_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    if (!metric) {
       BOSSES.forEach(boss => {
-        const type = name.replace('{boss}', getFormattedName(boss));
-        definitions.push({ type, metric: boss, value, validate });
+        thresholds.forEach(threshold => {
+          const newType = formatType(type, threshold, boss);
+          const newValidate = snapshot => snapshot[getValueKey(boss)] >= threshold;
+
+          definitions.push({ type: newType, metric: boss, threshold, validate: newValidate });
+        });
+      });
+    } else if (thresholds.length > 1) {
+      thresholds.forEach(threshold => {
+        const newType = formatType(type, threshold, metric);
+        const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+        definitions.push({ type: newType, metric, threshold, validate: newValidate });
       });
     } else {
-      definitions.push({ type: name, metric, value, validate });
+      definitions.push({ type, metric, threshold: thresholds[0], validate });
     }
   });
 
@@ -112,7 +175,7 @@ function getNewAchievements(current, previous) {
       const { metric, validate } = def;
       const key = getValueKey(metric);
 
-      if (!validate(previous[key], previous) && validate(current[key], current)) {
+      if (!validate(previous) && validate(current)) {
         // If the previous value was untracked, the achievement date is unknown
         const createdAt = previous[key] === -1 ? new Date(0) : new Date();
         return { ...def, createdAt };
@@ -138,10 +201,7 @@ function getPreviousAchievements(previousSnapshot) {
 
   const previousAchievements = getDefinitions()
     .map(def => {
-      const { metric, validate } = def;
-      const key = getValueKey(metric);
-
-      if (validate(previousSnapshot[key], previousSnapshot)) {
+      if (def.validate(previousSnapshot)) {
         return { ...def, createdAt: new Date(0) };
       }
 
@@ -243,18 +303,18 @@ async function findAll(playerId, includeMissing = false) {
 
   const missingAchievements = definitions
     .filter(d => !achievedTypes.includes(d.type))
-    .map(({ type, metric, value }) => ({
+    .map(({ type, metric, threshold }) => ({
       playerId: parseInt(playerId, 10),
       type,
       metric,
-      value,
+      threshold,
       createdAt: null,
       missing: true
     }));
 
   return [...achievements, ...missingAchievements].map(a => {
     // Only maxed overall and maxed combat are level based
-    const isLevels = (isSkill(a.metric) && a.value < 1000000) || a.metric === 'combat';
+    const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
     return { ...a, measure };
   });

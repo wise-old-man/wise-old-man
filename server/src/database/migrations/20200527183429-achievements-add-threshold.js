@@ -1,11 +1,11 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('achievements', 'value', {
+    return queryInterface.addColumn('achievements', 'threshold', {
       type: Sequelize.BIGINT
     });
   },
 
   down: queryInterface => {
-    return queryInterface.removeColumn('achievements', 'value');
+    return queryInterface.removeColumn('achievements', 'threshold');
   }
 };
