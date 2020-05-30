@@ -62,7 +62,7 @@ const METRIC_TYPE_OPTIONS = [
 
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
-  { label: '[NEW] Reset username capitalization', value: 'assertName' },
+  { label: 'Reset username capitalization', value: 'assertName' },
   { label: 'Reassign player type', value: 'assertType' }
 ];
 
@@ -271,7 +271,6 @@ function Player() {
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
               </button>
-              <div className="new-dot" />
             </Dropdown>
           </PageHeader>
         </div>
@@ -283,6 +282,7 @@ function Player() {
             selectedIndex={selectedTabIndex}
             onChange={handleTabChanged}
             align="space-between"
+            specialHighlightIndex={5}
           />
         </div>
         {selectedTabIndex === 0 && (
