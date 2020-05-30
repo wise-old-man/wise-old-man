@@ -58,6 +58,10 @@ export function getValueKey(value) {
 }
 
 export function getMetricName(value) {
+  if (value === 'combat') {
+    return 'Combat';
+  }
+
   for (let i = 0; i < METRICS_CONFIG.SKILLS.length; i += 1) {
     if (METRICS_CONFIG.SKILLS[i].key === value) {
       return METRICS_CONFIG.SKILLS[i].name;

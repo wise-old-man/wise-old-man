@@ -1,4 +1,4 @@
-import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../config';
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL, SKILLS } from '../config';
 
 export function getLevel(experience, virtual = false) {
   // Unranked
@@ -29,6 +29,12 @@ export function getExperienceAt(level) {
   }
 
   return accumulated;
+}
+
+export function getTotalLevel(snapshot) {
+  return SKILLS.filter(skill => skill !== 'overall')
+    .map(s => getLevel(snapshot[s].experience))
+    .reduce((acc, cur) => acc + cur);
 }
 
 function getXpDifferenceTo(level) {

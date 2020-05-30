@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { SKILLS, getValueKey } = require('../constants/metrics');
 const { MAX_LEVEL, MAX_VIRTUAL_LEVEL } = require('../constants/levels');
 
 function getLevel(experience, virtual = false) {
@@ -63,5 +64,12 @@ function getCombatLevel(playerExperiences) {
   return combatLevel;
 }
 
+function getTotalLevel(snapshot) {
+  return SKILLS.filter(skill => skill !== 'overall')
+    .map(s => getLevel(snapshot[getValueKey(s)]))
+    .reduce((acc, cur) => acc + cur);
+}
+
 exports.getLevel = getLevel;
 exports.getCombatLevel = getCombatLevel;
+exports.getTotalLevel = getTotalLevel;

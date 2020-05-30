@@ -13,7 +13,7 @@ import Dropdown from '../../components/Dropdown';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
-import PlayerAchievementsWidget from './components/PlayerAchievementsWidget';
+import PlayerAchievements from './components/PlayerAchievements';
 import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
 import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
@@ -22,7 +22,7 @@ import PlayerHighlights from './components/PlayerHighlights';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
 import { getPlayerRecords } from '../../redux/selectors/records';
-import { getPlayerAchievements } from '../../redux/selectors/achievements';
+import { getPlayerAchievementsGrouped, getPlayerAchievements } from '../../redux/selectors/achievements';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
@@ -62,7 +62,7 @@ const METRIC_TYPE_OPTIONS = [
 
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
-  { label: '[NEW] Reset username capitalization', value: 'assertName' },
+  { label: 'Reset username capitalization', value: 'assertName' },
   { label: 'Reassign player type', value: 'assertType' }
 ];
 
@@ -141,6 +141,7 @@ function Player() {
   const deltas = useSelector(state => getPlayerDeltas(state, id));
   const records = useSelector(state => getPlayerRecords(state, id));
   const achievements = useSelector(state => getPlayerAchievements(state, id));
+  const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, id));
   const competitions = useSelector(state => getPlayerCompetitions(state, id));
   const groups = useSelector(state => getPlayerGroups(state, id));
   const isLoadingDetails = useSelector(state => isFetching(state));
@@ -270,7 +271,6 @@ function Player() {
               <button className="header__options-btn" type="button">
                 <img src="/img/icons/options.svg" alt="" />
               </button>
-              <div className="new-dot" />
             </Dropdown>
           </PageHeader>
         </div>
@@ -282,6 +282,7 @@ function Player() {
             selectedIndex={selectedTabIndex}
             onChange={handleTabChanged}
             align="space-between"
+            specialHighlightIndex={5}
           />
         </div>
         {selectedTabIndex === 0 && (
@@ -321,7 +322,7 @@ function Player() {
             </div>
           </>
         )}
-        {selectedTabIndex === 4 && (
+        {(selectedTabIndex === 4 || selectedTabIndex === 5) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector
@@ -335,7 +336,7 @@ function Player() {
             </div>
           </>
         )}
-        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 5) && (
+        {(selectedTabIndex === 2 || selectedTabIndex === 3) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector disabled />
@@ -422,17 +423,10 @@ function Player() {
           </div>
         )}
         {selectedTabIndex === 5 && (
-          <>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="general" />
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="experience" />
-            </div>
-            <div className="col-md-6 col-lg-4">
-              <PlayerAchievementsWidget achievements={achievements} type="levels" />
-            </div>
-          </>
+          <PlayerAchievements
+            groupedAchievements={groupedAchievements}
+            metricType={selectedMetricType}
+          />
         )}
       </div>
     </div>

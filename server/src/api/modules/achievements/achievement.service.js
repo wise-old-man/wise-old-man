@@ -1,11 +1,145 @@
-const { SKILLS, BOSSES, ACTIVITIES, getValueKey, getFormattedName } = require('../../constants/metrics');
 const {
-  SKILL_ACHIEVEMENTS,
-  ACTIVITY_ACHIEVEMENTS,
-  BOSS_ACHIEVEMENTS
-} = require('../../constants/achievements');
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  getValueKey,
+  getFormattedName,
+  isSkill,
+  getMeasure,
+  getDifficultyFactor
+} = require('../../constants/metrics');
+const { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } = require('./achievement.templates');
 const { Achievement, sequelize } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
+
+function formatThreshold(threshold) {
+  if (threshold < 1000 || threshold === 2277) {
+    return threshold;
+  }
+
+  if (threshold === 13034431) {
+    return '99';
+  }
+
+  if (threshold <= 10000) {
+    return `${Math.floor(threshold / 1000)}k`;
+  }
+
+  if (threshold < 1000000000) {
+    return `${Math.round((threshold / 1000000 + Number.EPSILON) * 100) / 100}m`;
+  }
+
+  return `${Math.round((threshold / 1000000000 + Number.EPSILON) * 100) / 100}b`;
+}
+
+function formatType(baseType, threshold, metric) {
+  return baseType
+    .replace('{threshold}', formatThreshold(threshold))
+    .replace('{skill}', getFormattedName(metric))
+    .replace('{activity}', getFormattedName(metric))
+    .replace('{boss}', getFormattedName(metric));
+}
+
+/**
+ * Get all achievement definitions (hydrated templates)
+ */
+function getDefinitions() {
+  const definitions = [];
+
+  SKILL_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    // Dynamic threshold/skill templates (Ex: 99 Attack, 50m Cooking)
+    if (!metric) {
+      SKILLS.filter(s => s !== 'overall').forEach(skill => {
+        thresholds
+          .map(t => t * getDifficultyFactor(skill))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, skill);
+            const newValidate = snapshot => snapshot[getValueKey(skill)] >= threshold;
+
+            definitions.push({ type: newType, metric: skill, threshold, validate: newValidate });
+          });
+      });
+    } else if (thresholds.length > 1) {
+      // Dynamic threshold templates, fixed skill (Ex: 500m Overall, 1b Overall)
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
+    } else {
+      // Fixed threshold & metric (Ex: Maxed combat, Maxed overall)
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
+    }
+  });
+
+  ACTIVITY_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    // Dynamic threshold/activity templates (Ex: 1k Clues (Hard), 5k Clues (Medium))
+    if (!metric) {
+      ACTIVITIES.forEach(activity => {
+        thresholds
+          .map(t => t * getDifficultyFactor(activity))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, activity);
+            const newValidate = snapshot => snapshot[getValueKey(activity)] >= threshold;
+
+            definitions.push({ type: newType, metric: activity, threshold, validate: newValidate });
+          });
+      });
+    } else if (thresholds.length > 1) {
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
+    } else {
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
+    }
+  });
+
+  BOSS_TEMPLATES.forEach(template => {
+    const { metric, thresholds, type, validate } = template;
+
+    // Dynamic threshold/boss templates (Ex: 500 Cerberus, 1k Zulrah)
+    if (!metric) {
+      BOSSES.forEach(boss => {
+        thresholds
+          .map(t => t * getDifficultyFactor(boss))
+          .forEach(threshold => {
+            const newType = formatType(type, threshold, boss);
+            const newValidate = snapshot => snapshot[getValueKey(boss)] >= threshold;
+
+            definitions.push({ type: newType, metric: boss, threshold, validate: newValidate });
+          });
+      });
+    } else if (thresholds.length > 1) {
+      thresholds
+        .map(t => t * getDifficultyFactor(metric))
+        .forEach(threshold => {
+          const newType = formatType(type, threshold, metric);
+          const newValidate = snapshot => snapshot[getValueKey(metric)] >= threshold;
+
+          definitions.push({ type: newType, metric, threshold, validate: newValidate });
+        });
+    } else {
+      const threshold = thresholds[0] * getDifficultyFactor(metric);
+      definitions.push({ type, metric, threshold, validate });
+    }
+  });
+
+  return definitions;
+}
 
 /**
  * Searches through the player's snapshot history
@@ -52,64 +186,25 @@ async function addPastDates(playerId, achievements) {
  * Ex: previous had 965 zulrah kills, now I have 1018, so I
  * should be awarded with the "1k Zulrah kills" achievement
  */
-function getNewAchievements(currentSnapshot, previousSnapshot) {
-  if (!currentSnapshot || !previousSnapshot) {
+function getNewAchievements(current, previous) {
+  if (!current || !previous) {
     return [];
   }
 
-  const newAchievements = [];
+  const newAchievements = getDefinitions()
+    .map(def => {
+      const { metric, validate } = def;
+      const key = getValueKey(metric);
 
-  SKILL_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{skill}')) {
-      SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        const key = getValueKey(skill);
+      if (!validate(previous) && validate(current)) {
+        // If the previous value was untracked, the achievement date is unknown
+        const createdAt = previous[key] === -1 ? new Date(0) : new Date();
+        return { ...def, createdAt };
+      }
 
-        if (!a.validate(previousSnapshot[key]) && a.validate(currentSnapshot[key])) {
-          const type = a.name.replace('{skill}', getFormattedName(skill));
-          // If the previous value was untracked, the achievement date is unknown
-          const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
-
-          newAchievements.push({ type, createdAt });
-        }
-      });
-    } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
-    }
-  });
-
-  ACTIVITY_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{activity}')) {
-      ACTIVITIES.forEach(activity => {
-        const key = getValueKey(activity);
-        if (!a.validate(previousSnapshot[key]) && a.validate(currentSnapshot[key])) {
-          const type = a.name.replace('{activity}', getFormattedName(activity));
-          // If the previous value was untracked, the achievement date is unknown
-          const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
-
-          newAchievements.push({ type, createdAt });
-        }
-      });
-    } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
-    }
-  });
-
-  BOSS_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{boss}')) {
-      BOSSES.forEach(boss => {
-        const key = getValueKey(boss);
-        if (!a.validate(previousSnapshot[key]) && a.validate(currentSnapshot[key])) {
-          const type = a.name.replace('{boss}', getFormattedName(boss));
-          // If the previous value was untracked, the achievement date is unknown
-          const createdAt = previousSnapshot[key] === -1 ? new Date(0) : new Date();
-
-          newAchievements.push({ type, createdAt });
-        }
-      });
-    } else if (!a.validate(previousSnapshot) && a.validate(currentSnapshot)) {
-      newAchievements.push({ type: a.name, createdAt: new Date() });
-    }
-  });
+      return null;
+    })
+    .filter(a => a);
 
   return newAchievements;
 }
@@ -125,56 +220,15 @@ function getPreviousAchievements(previousSnapshot) {
     return [];
   }
 
-  const previousAchievements = [];
+  const previousAchievements = getDefinitions()
+    .map(def => {
+      if (def.validate(previousSnapshot)) {
+        return { ...def, createdAt: new Date(0) };
+      }
 
-  SKILL_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{skill}')) {
-      SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        const key = getValueKey(skill);
-
-        if (a.validate(previousSnapshot[key])) {
-          previousAchievements.push({
-            type: a.name.replace('{skill}', getFormattedName(skill)),
-            createdAt: new Date(0)
-          });
-        }
-      });
-    } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
-    }
-  });
-
-  ACTIVITY_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{activity}')) {
-      ACTIVITIES.forEach(activity => {
-        const key = getValueKey(activity);
-        if (a.validate(previousSnapshot[key])) {
-          previousAchievements.push({
-            type: a.name.replace('{activity}', getFormattedName(activity)),
-            createdAt: new Date(0)
-          });
-        }
-      });
-    } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
-    }
-  });
-
-  BOSS_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{boss}')) {
-      BOSSES.forEach(boss => {
-        const key = getValueKey(boss);
-        if (a.validate(previousSnapshot[key])) {
-          previousAchievements.push({
-            type: a.name.replace('{boss}', getFormattedName(boss)),
-            createdAt: new Date(0)
-          });
-        }
-      });
-    } else if (a.validate(previousSnapshot)) {
-      previousAchievements.push({ type: a.name, createdAt: new Date(0) });
-    }
-  });
+      return null;
+    })
+    .filter(a => a);
 
   return previousAchievements;
 }
@@ -227,7 +281,7 @@ async function syncAchievements(playerId) {
   // Find all achievements the player already has
   const existingAchievements = await Achievement.findAll({ where: { playerId } });
 
-  // Find all achievements the player should havehad (in the previous update)
+  // Find all achievements the player should have had (in the previous update)
   const previousAchievements = getPreviousAchievements(previous).map(a => ({ ...a, playerId }));
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
@@ -251,46 +305,6 @@ async function syncAchievements(playerId) {
 }
 
 /**
- * Gives a complete list of all achievement types, replacing dynamic values.
- * Ex: 99 {skill} is converted into [99 attack, 99 magic, 99 cooking, etc].
- */
-function getAchievementTypes() {
-  const types = [];
-
-  SKILL_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{skill}')) {
-      SKILLS.filter(s => s !== 'overall').forEach(skill => {
-        types.push(a.name.replace('{skill}', getFormattedName(skill)));
-      });
-    } else {
-      types.push(a.name);
-    }
-  });
-
-  ACTIVITY_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{activity}')) {
-      ACTIVITIES.forEach(activity => {
-        types.push(a.name.replace('{activity}', getFormattedName(activity)));
-      });
-    } else {
-      types.push(a.name);
-    }
-  });
-
-  BOSS_ACHIEVEMENTS.forEach(a => {
-    if (a.name.includes('{boss}')) {
-      BOSSES.forEach(boss => {
-        types.push(a.name.replace('{boss}', getFormattedName(boss)));
-      });
-    } else {
-      types.push(a.name);
-    }
-  });
-
-  return types;
-}
-
-/**
  * Find all achievements for a given player id.
  *
  * If includeMissing, it will also include the missing
@@ -299,25 +313,32 @@ function getAchievementTypes() {
 async function findAll(playerId, includeMissing = false) {
   const achievements = await Achievement.findAll({
     where: { playerId }
-  });
+  }).map(a => a.toJSON());
 
   if (!includeMissing) {
     return achievements;
   }
 
   const achievedTypes = achievements.map(a => a.type);
-  const allTypes = getAchievementTypes();
+  const definitions = getDefinitions();
 
-  const missingAchievements = allTypes
-    .filter(t => !achievedTypes.includes(t))
-    .map(type => ({
+  const missingAchievements = definitions
+    .filter(d => !achievedTypes.includes(d.type))
+    .map(({ type, metric, threshold }) => ({
       playerId: parseInt(playerId, 10),
       type,
+      metric,
+      threshold,
       createdAt: null,
       missing: true
     }));
 
-  return [...achievements, ...missingAchievements];
+  return [...achievements, ...missingAchievements].map(a => {
+    // Only maxed overall and maxed combat are level based
+    const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
+    const measure = isLevels ? 'levels' : getMeasure(a.metric);
+    return { ...a, measure };
+  });
 }
 
 exports.syncAchievements = syncAchievements;
