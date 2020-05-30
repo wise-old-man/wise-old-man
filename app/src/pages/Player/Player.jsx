@@ -322,7 +322,7 @@ function Player() {
             </div>
           </>
         )}
-        {selectedTabIndex === 4 && (
+        {(selectedTabIndex === 4 || selectedTabIndex === 5) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector
@@ -336,7 +336,7 @@ function Player() {
             </div>
           </>
         )}
-        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 5) && (
+        {(selectedTabIndex === 2 || selectedTabIndex === 3) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector disabled />

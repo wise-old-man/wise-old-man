@@ -28,20 +28,20 @@ function getFilteredAchievements(groups, metricType) {
   return groups.filter(r => isBoss(r.metric) || r.metric === 'bossing');
 }
 
-function formatValue(value) {
-  if (value < 1000 || value === 2277) {
-    return value;
+function formatThreshold(threshold) {
+  if (threshold < 1000 || threshold === 2277) {
+    return threshold;
   }
 
-  if (value <= 10000) {
-    return `${value / 1000}k`;
+  if (threshold <= 10000) {
+    return `${threshold / 1000}k`;
   }
 
-  if (value === 13034431) {
+  if (threshold === 13034431) {
     return '99';
   }
 
-  return formatNumber(value, true);
+  return formatNumber(threshold, true);
 }
 
 function AchievementOrb({ achievement }) {
@@ -49,17 +49,17 @@ function AchievementOrb({ achievement }) {
     return <div className="achievement-orb -zero">0</div>;
   }
 
-  const { createdAt, progress, type, value, unknownDate } = achievement;
+  const { createdAt, progress, type, threshold, unknownDate } = achievement;
 
   const isCompleted = progress === 1;
 
-  const formattedValue = formatValue(value);
+  const formattedThreshold = formatThreshold(threshold);
   const className = classNames('achievement-orb', { '-completed': isCompleted });
   const info = `${type} - ${unknownDate ? 'Unknown date ' : formatDate(createdAt)}`;
 
   return (
     <abbr className={className} title={info}>
-      {formattedValue}
+      {formattedThreshold}
     </abbr>
   );
 }
@@ -69,10 +69,12 @@ function ProgressBar({ progress, equalSizes }) {
     '-full': equalSizes || (progress > 0 && progress < 1)
   });
 
+  const progressInt = Math.floor(progress * 100);
+
   return (
-    <div className={className}>
-      <div className="achievement-progress__fill" style={{ width: `${progress * 100}%` }} />
-    </div>
+    <abbr className={className} title={`${progressInt} %`}>
+      <div className="achievement-progress__fill" style={{ width: `${progressInt}%` }} />
+    </abbr>
   );
 }
 

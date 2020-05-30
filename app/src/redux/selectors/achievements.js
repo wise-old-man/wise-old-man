@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { getPlayer } from './players';
 import { getTotalLevel } from '../../utils';
+import { ALL_METRICS } from '../../config';
 
 const achievementsSelector = state => state.achievements.achievements;
 
@@ -21,9 +22,10 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
     return [];
   }
 
-  const sorted = list.sort((a, b) => {
-    return a.metric.localeCompare(b.metric) || a.measure.localeCompare(b.measure) || a.value - b.value;
-  });
+  const sorted = list.sort(
+    (a, b) =>
+      a.metric.localeCompare(b.metric) || a.measure.localeCompare(b.measure) || a.threshold - b.threshold
+  );
 
   const groups = [];
   let previousMetric = '';
@@ -42,6 +44,7 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
 
   const processed = groups
     .map(group => processGroup(player, group))
+    .sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric))
     .sort((a, b) => a.achievements.length - b.achievements.length);
 
   return processed;
@@ -68,12 +71,15 @@ function processGroup(player, group) {
     const currentValue = latestSnapshot[group.metric][group.measure];
 
     const processedAchievements = group.achievements.map((achievement, i) => {
-      if (currentValue >= achievement.value) {
+      if (currentValue >= achievement.threshold) {
         return { ...achievement, progress: 1 };
       }
 
-      const prevStart = i === 0 ? 0 : group.achievements[i - 1].value;
-      const currentProgress = Math.max(0, (currentValue - prevStart) / (achievement.value - prevStart));
+      const prevStart = i === 0 ? 0 : group.achievements[i - 1].threshold;
+      const currentProgress = Math.max(
+        0,
+        (currentValue - prevStart) / (achievement.threshold - prevStart)
+      );
 
       return { ...achievement, progress: currentProgress };
     });

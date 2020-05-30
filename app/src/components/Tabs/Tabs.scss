@@ -4,7 +4,7 @@
 .tab-bar {
   @extend %panel;
   @extend %block-text-selection;
-  padding: 10px 15px;
+  padding: 8px 15px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
