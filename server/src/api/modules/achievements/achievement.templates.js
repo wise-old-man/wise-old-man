@@ -31,7 +31,7 @@ const SKILL_TEMPLATES = [
 
 const ACTIVITY_TEMPLATES = [
   {
-    type: '{threshold} {activity}',
+    type: '{threshold} {activity} score',
     measure: 'score',
     thresholds: [1000, 5000, 10000]
   }
@@ -39,7 +39,7 @@ const ACTIVITY_TEMPLATES = [
 
 const BOSS_TEMPLATES = [
   {
-    type: '{threshold} {boss}',
+    type: '{threshold} {boss} kills',
     measure: 'kills',
     thresholds: [500, 1000, 5000, 10000]
   }

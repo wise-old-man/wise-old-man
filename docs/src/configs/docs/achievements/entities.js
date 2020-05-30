@@ -19,7 +19,7 @@ export default [
         description: 'The achievement metric (See accepted values below).'
       },
       {
-        field: 'value',
+        field: 'threshold',
         type: 'number',
         description: 'The achievement threshold value (ex: 50m exp would be 50000000)'
       },
@@ -36,80 +36,37 @@ export default [
       'All the possible values for the "type" field. Note: {skill} is replaced by every skill\'s name.',
     structure: [
       {
-        name: '99 {skill}',
-        condition: '{skill} experience >= 13034431'
+        type: '{threshold} {skill}',
+        measure: 'experience',
+        thresholds: [13034431, 50000000, 100000000, 200000000]
       },
       {
-        name: '200m {skill}',
-        condition: '{skill} experience >= 200000000'
+        type: '{threshold} Overall Exp.',
+        metric: 'overall',
+        measure: 'experience',
+        thresholds: [500000000, 1000000000, 2000000000, 4600000000]
       },
       {
-        name: '100m {skill}',
-        condition: '{skill} experience >= 100000000'
+        type: 'Maxed Overall',
+        metric: 'overall',
+        measure: 'levels',
+        thresholds: [2277]
       },
       {
-        name: '50m {skill}',
-        condition: '{skill} experience >= 50000000'
+        type: 'Maxed combat',
+        metric: 'combat',
+        measure: 'levels',
+        thresholds: [126]
       },
       {
-        name: '500m overall experience',
-        condition: 'overall experience >= 500000000'
+        type: '{threshold} {activity}',
+        measure: 'score',
+        thresholds: [1000, 5000, 10000]
       },
       {
-        name: '1b overall experience',
-        condition: 'overall experience >= 1000000000'
-      },
-      {
-        name: '2b overall experience',
-        condition: 'overall experience >= 2000000000'
-      },
-      {
-        name: '200m all',
-        condition: "every skill's experience >= 200000000"
-      },
-      {
-        name: 'Maxed total',
-        condition: "every skill's experience >= 13034431"
-      },
-      {
-        name: 'Maxed combat',
-        condition: "every combat skill's experience >= 13034431"
-      },
-      {
-        name: '500 {activity} score',
-        condition: '{activity} score >= 500'
-      },
-      {
-        name: '1k {activity} score',
-        condition: '{activity} score >= 1000'
-      },
-      {
-        name: '5k {activity} score',
-        condition: '{activity} score >= 5000'
-      },
-      {
-        name: '10k {activity} score',
-        condition: '{activity} score >= 10000'
-      },
-      {
-        name: '500 {boss} kills',
-        condition: '{boss} kills >= 500'
-      },
-      {
-        name: '1k {boss} kills',
-        condition: '{boss} kills >= 1000'
-      },
-      {
-        name: '5k {boss} kills',
-        condition: '{boss} kills >= 5000'
-      },
-      {
-        name: '10k {boss} kills',
-        condition: '{boss} kills >= 10000'
-      },
-      {
-        name: '100 kills (all bosses)',
-        condition: "every boss's killcount >= 100"
+        type: '{threshold} {boss}',
+        measure: 'kills',
+        thresholds: [500, 1000, 5000, 10000]
       }
     ]
   },
