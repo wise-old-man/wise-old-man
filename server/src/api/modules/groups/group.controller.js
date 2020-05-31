@@ -89,6 +89,17 @@ async function hiscores(req, res, next) {
   }
 }
 
+async function statistics(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const results = await service.getStatistics(id);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function listMembers(req, res, next) {
   try {
     const { id } = req.params;
@@ -193,6 +204,7 @@ exports.leaderboard = leaderboard;
 exports.achievements = achievements;
 exports.records = records;
 exports.hiscores = hiscores;
+exports.statistics = statistics;
 exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;

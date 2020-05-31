@@ -191,6 +191,24 @@ function diff(start, end, initialValues) {
   return obj;
 }
 
+function average(snapshots) {
+  if (!snapshots && snapshots.length === 0) {
+    throw new ServerError('Invalid snapshots list. Failed to find average.');
+  }
+
+  const accumulator = {};
+  const invalidKeys = ['id', 'createdAt', 'importedAt', 'playerId'];
+  const keys = Object.keys(snapshots[0]).filter(k => !invalidKeys.includes(k));
+
+  keys.forEach(key => {
+    const sum = snapshots.map(s => s[key]).reduce((acc, cur) => acc + parseInt(cur, 10), 0);
+    const avg = Math.round(sum / snapshots.length);
+    accumulator[key] = avg;
+  });
+
+  return accumulator;
+}
+
 /**
  * Saves all supplied snapshots, ignoring any
  * duplicates by playerId and createdAt.
@@ -314,6 +332,7 @@ exports.findFirstSince = findFirstSince;
 exports.findLatest = findLatest;
 exports.findAllBetween = findAllBetween;
 exports.diff = diff;
+exports.average = average;
 exports.saveAll = saveAll;
 exports.fromCML = fromCML;
 exports.fromRS = fromRS;
