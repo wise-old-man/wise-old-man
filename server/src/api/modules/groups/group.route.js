@@ -9,6 +9,7 @@ api.get('/:id/monthly-top', controller.monthlyTop);
 api.get('/:id/leaderboard', controller.leaderboard);
 api.get('/:id/achievements', controller.achievements);
 api.get('/:id/records', controller.records);
+api.get('/:id/hiscores', controller.hiscores);
 api.get('/:id/members', controller.listMembers);
 api.post('/', controller.createGroup);
 api.put('/:id', controller.editGroup);

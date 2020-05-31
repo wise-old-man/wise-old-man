@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
 const moment = require('moment');
 const PERIODS = require('../../constants/periods');
-const { ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey, getRankKey, getMeasure } = require('../../constants/metrics');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -249,16 +249,15 @@ async function getMembersList(id) {
   }
 
   const query = `
-        SELECT s."playerId", s."overallExperience"
-        FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-              FROM public.snapshots q
-              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
-              GROUP BY q."playerId"
-              ) r
-        JOIN public.snapshots s
-          ON s."playerId" = r."playerId"  
-          AND s."createdAt"   = r.max_date
-        ORDER BY s."playerId"
+    SELECT s."playerId", s."overallExperience"
+    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+          FROM public.snapshots q
+          WHERE q."playerId" IN (${memberships.map(m => m.player.id).join(',')})
+          GROUP BY q."playerId"
+          ) r
+    JOIN public.snapshots s
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+    ORDER BY s."playerId"
   `;
 
   // Execute the query above, which returns the latest snapshot for each member,
@@ -271,11 +270,74 @@ async function getMembersList(id) {
     parseInt(d.overallExperience, 10)
   );
 
-  // Format all the members, add each experience to its respective player, and sort them by exp
+  // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
     .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => a.role.localeCompare(b.role));
+}
+
+/**
+ * Gets the group hiscores for a specific metric.
+ * All members which HAVE SNAPSHOTS will included and sorted by rank.
+ */
+async function getHiscores(id, metric) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const group = await Group.findOne({ where: { id } });
+
+  if (!group) {
+    throw new BadRequestError(`Group of id ${id} was not found.`);
+  }
+
+  // Fetch all memberships for the group
+  const memberships = await Membership.findAll({
+    attributes: ['playerId'],
+    where: { groupId: id },
+    include: [{ model: Player }]
+  });
+
+  if (!memberships || memberships.length === 0) {
+    return [];
+  }
+
+  const valueKey = getValueKey(metric);
+  const rankKey = getRankKey(metric);
+  const measure = getMeasure(metric);
+  const memberIds = memberships.map(m => m.player.id);
+
+  const query = `
+    SELECT s."playerId", s."${valueKey}", s."${rankKey}"
+    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+          FROM public.snapshots q
+          WHERE q."playerId" IN (${memberIds.join(',')})
+          GROUP BY q."playerId"
+          ) r
+    JOIN public.snapshots s
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+  `;
+
+  // Execute the query above, which returns the latest snapshot for each member
+  const latestSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+  // Formats the experience snapshots to a key:value map.
+  // Example: { '1623': { rank: 350567, experience: 6412215 } }
+  const experienceMap = _.mapValues(_.keyBy(latestSnapshots, 'playerId'), d => ({
+    rank: parseInt(d[rankKey], 10),
+    [measure]: parseInt(d[valueKey], 10)
+  }));
+
+  // Format all the members, add each experience to its respective player, and sort them by exp
+  return memberships
+    .filter(({ playerId }) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
+    .map(({ player }) => ({ ...player.toJSON(), ...experienceMap[player.id] }))
+    .sort((a, b) => b[measure] - a[measure]);
 }
 
 async function create(name, clanChat, members) {
@@ -740,6 +802,7 @@ exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
 exports.getLeaderboard = getLeaderboard;
 exports.getAchievements = getAchievements;
 exports.getRecords = getRecords;
+exports.getHiscores = getHiscores;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;

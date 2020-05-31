@@ -77,6 +77,18 @@ async function records(req, res, next) {
   }
 }
 
+async function hiscores(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric } = req.query;
+
+    const results = await service.getHiscores(id, metric);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function listMembers(req, res, next) {
   try {
     const { id } = req.params;
@@ -180,6 +192,7 @@ exports.monthlyTop = monthlyTop;
 exports.leaderboard = leaderboard;
 exports.achievements = achievements;
 exports.records = records;
+exports.hiscores = hiscores;
 exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;
