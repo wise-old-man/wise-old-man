@@ -1,4 +1,4 @@
-const { BadRequestError } = require('../errors');
+import { BadRequestError } from '../errors';
 
 function getPaginationConfig(limit, offset) {
   if (limit <= 0) {
@@ -12,4 +12,4 @@ function getPaginationConfig(limit, offset) {
   return { limit: parseInt(limit, 10) || 20, offset: parseInt(offset, 10) || 0 };
 }
 
-exports.getPaginationConfig = getPaginationConfig;
+export { getPaginationConfig };

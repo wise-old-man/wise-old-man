@@ -1,16 +1,12 @@
-// const axios = require('axios');
-// const { Op } = require('sequelize');
-const { isValidDate } = require('../../util/dates');
-const { CML, OSRS_HISCORES } = require('../../constants/services');
-const { ServerError, BadRequestError } = require('../../errors');
-const { Player } = require('../../../database');
-const snapshotService = require('../snapshots/snapshot.service');
-const { getNextProxy } = require('../../proxies');
-const { getCombatLevel } = require('../../util/level');
-const { getHiscoresTableNames } = require('../../util/scraping');
-
-import * as axios from 'axios'
-import { Op } from 'sequelize'
+import * as axios from 'axios';
+import { Op } from 'sequelize';
+import { isValidDate } from '../../util/dates';
+import { CML, OSRS_HISCORES } from '../../constants/services';
+import { ServerError, BadRequestError } from '../../errors';
+import { Player } from '../../../database';
+import snapshotService from '../snapshots/snapshot.service'
+import { getNextProxy, getCombatLevel } from '../../proxies';
+import { getHiscoresTableNames } from '../../util/scraping';
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;

@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
 // Generates a random numeric code with the
 // following format: XXX-XXX-XXX
@@ -42,5 +42,5 @@ async function verifyCode(verificationHash, verificationCode) {
   return verified;
 }
 
-exports.generateVerification = generateVerification;
-exports.verifyCode = verifyCode;
+
+export { generateVerification, verifyCode };

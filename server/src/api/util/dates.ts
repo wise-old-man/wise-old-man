@@ -1,4 +1,4 @@
-const moment = require('moment');
+import * as moment from 'moment'
 
 function castToDate(date) {
   return date instanceof Date ? date : new Date(date);
@@ -75,9 +75,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-exports.isValidDate = isValidDate;
-exports.isPast = isPast;
-exports.isFuture = isFuture;
-exports.isAfter = isAfter;
-exports.isBefore = isBefore;
-exports.durationBetween = durationBetween;
+export { isValidDate, isPast, isFuture, isAfter, isBefore, durationBetween }

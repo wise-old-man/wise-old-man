@@ -1,5 +1,5 @@
-const { Player, Snapshot, Membership } = require('../database');
-const jobs = require('./jobs');
+import * as jobs from './jobs';
+import { Player, Snapshot, Membership } from '../database';
 
 function setup() {
   Player.afterCreate(({ username }) => {
@@ -46,4 +46,4 @@ function setup() {
   });
 }
 
-exports.setup = setup;
+export { setup };

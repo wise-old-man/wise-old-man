@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const { SKILLS, getValueKey } = require('../constants/metrics');
-const { MAX_LEVEL, MAX_VIRTUAL_LEVEL } = require('../constants/levels');
+import { pick, transform } from 'lodash'
+import { SKILLS, getValueKey } from '../constants/metrics'
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../constants/levels'
 
 function getLevel(experience, virtual = false) {
   // Unranked
@@ -32,7 +32,7 @@ function getXpDifferenceTo(level) {
 }
 
 function getCombatLevel(playerExperiences) {
-  const combatExperiences = _.pick(playerExperiences, [
+  const combatExperiences = pick(playerExperiences, [
     'attackExperience',
     'strengthExperience',
     'defenceExperience',
@@ -42,7 +42,7 @@ function getCombatLevel(playerExperiences) {
     'magicExperience'
   ]);
 
-  const levels = _.transform(combatExperiences, (r, v, k) => {
+  const levels = transform(combatExperiences, (r, v, k) => {
     // eslint-disable-next-line no-param-reassign
     r[k.replace('Experience', '')] = getLevel(v);
   });
@@ -70,6 +70,4 @@ function getTotalLevel(snapshot) {
     .reduce((acc, cur) => acc + cur);
 }
 
-exports.getLevel = getLevel;
-exports.getCombatLevel = getCombatLevel;
-exports.getTotalLevel = getTotalLevel;
+export { getLevel, getCombatLevel, getTotalLevel }

@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const CONFIG = require('./config');
+import { Sequelize } from 'sequelize';
+import CONFIG from './config';
 
 const sequelize = new Sequelize(CONFIG.database, CONFIG.username, CONFIG.password, CONFIG);
 
@@ -23,4 +23,4 @@ Object.keys(models).forEach(modelName => {
   }
 });
 
-module.exports = { sequelize, ...models };
+export default { sequelize, ...models };

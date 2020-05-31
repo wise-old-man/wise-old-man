@@ -1,5 +1,6 @@
-const cheerio = require('cheerio');
-const tableParser = require('cheerio-tableparser');
+import cheerio from 'cheerio';
+import tableParser from 'cheerio-tableparser';
+
 
 function getHiscoresTableNames(data) {
   const $ = cheerio.load(data);
@@ -14,4 +15,4 @@ function getHiscoresTableNames(data) {
   return tableData[1];
 }
 
-exports.getHiscoresTableNames = getHiscoresTableNames;
+export { getHiscoresTableNames };

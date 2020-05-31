@@ -1,5 +1,5 @@
 const express = require('express');
-const { NotFoundError } = require('./errors');
+import { NotFoundError } from './errors';
 const playerRoutes = require('./modules/players/player.route');
 const deltaRoutes = require('./modules/deltas/delta.route');
 const snapshotRoutes = require('./modules/snapshots/snapshot.route');
