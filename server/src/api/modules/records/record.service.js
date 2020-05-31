@@ -140,7 +140,39 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   return formattedRecords;
 }
 
+/**
+ * Gets the best records for a specific metric, period and list of players.
+ */
+async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const records = await Record.findAll({
+    where: { playerId: playerIds, period, metric },
+    order: [['value', 'DESC']],
+    limit,
+    include: [{ model: Player }]
+  });
+
+  const formattedRecords = records.map(({ player, value, updatedAt }) => ({
+    playerId: player.id,
+    username: player.username,
+    displayName: player.displayName,
+    type: player.type,
+    value,
+    updatedAt
+  }));
+
+  return formattedRecords;
+}
+
 exports.syncRecords = syncRecords;
 exports.findAll = findAll;
-exports.getPeriodLeaderboard = getPeriodLeaderboard;
 exports.getLeaderboard = getLeaderboard;
+exports.getPeriodLeaderboard = getPeriodLeaderboard;
+exports.getGroupLeaderboard = getGroupLeaderboard;

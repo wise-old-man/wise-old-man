@@ -9,6 +9,7 @@ const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const deltaService = require('../deltas/delta.service');
 const achievementService = require('../achievements/achievement.service');
+const recordService = require('../records/record.service');
 
 function sanitizeName(name) {
   return name
@@ -134,7 +135,7 @@ async function getMonthlyTopPlayer(groupId) {
 }
 
 /**
- * Gets the leaderboard for a specific metric,
+ * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
 async function getLeaderboard(groupId, period, metric) {
@@ -191,6 +192,38 @@ async function getAchievements(groupId) {
   const formatted = achievements.map(a => ({ ...a.toJSON(), player: memberMap[a.playerId] }));
 
   return formatted;
+}
+
+/**
+ * Gets the top records for a specific metric and period,
+ * between the members of a group.
+ */
+async function getRecords(groupId, metric, period) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId']
+  });
+
+  if (!memberships.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const memberIds = memberships.map(m => m.playerId);
+  const records = await recordService.getGroupLeaderboard(metric, period, memberIds);
+
+  return records;
 }
 
 async function getMembersList(id) {
@@ -706,6 +739,7 @@ exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
 exports.getLeaderboard = getLeaderboard;
 exports.getAchievements = getAchievements;
+exports.getRecords = getRecords;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;
