@@ -1,5 +1,5 @@
-const express = require('express');
-const controller = require('./group.controller');
+import express from 'express';
+import * as controller from './group.controller');
 
 const api = express.Router();
 
@@ -16,4 +16,4 @@ api.post('/:id/remove', controller.removeMembers);
 api.put('/:id/roles', controller.changeRole);
 api.post('/:id/update-all', controller.updateAllMembers);
 
-module.exports = api;
+export default api;

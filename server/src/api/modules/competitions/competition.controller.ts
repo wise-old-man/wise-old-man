@@ -1,6 +1,6 @@
-const service = require('./competition.service');
-const pagination = require('../../util/pagination');
-const jobs = require('../../jobs');
+import * as service from './competition.service';
+import * as pagination from '../../util/pagination';
+import * as jobs from '../../jobs';
 
 async function listCompetitions(req, res, next) {
   try {
@@ -126,11 +126,13 @@ async function updateAllParticipants(req, res, next) {
   }
 }
 
-exports.viewCompetition = viewCompetition;
-exports.createCompetition = createCompetition;
-exports.editCompetition = editCompetition;
-exports.deleteCompetition = deleteCompetition;
-exports.listCompetitions = listCompetitions;
-exports.addParticipants = addParticipants;
-exports.removeParticipants = removeParticipants;
-exports.updateAllParticipants = updateAllParticipants;
+export {
+  viewCompetition,
+  createCompetition,
+  editCompetition,
+  deleteCompetition,
+  listCompetitions,
+  addParticipants,
+  removeParticipants,
+  updateAllParticipants
+}

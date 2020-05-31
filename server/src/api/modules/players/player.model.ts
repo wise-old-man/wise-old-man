@@ -1,4 +1,4 @@
-const PLAYER_TYPES = require('../../constants/playerTypes');
+import PLAYER_TYPES from '../../constants/playerTypes.json';
 
 module.exports = (sequelize, DataTypes) => {
   // Define the player schema

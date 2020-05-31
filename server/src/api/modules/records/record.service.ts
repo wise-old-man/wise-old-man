@@ -1,3 +1,8 @@
+import { omit, keyBy, forEach, mapValues } from 'lodash';
+import * as PERIODS from '../../constants/periods';
+import { ALL_METRICS, getMeasure } from '../../constants/metrics';
+import { BadRequestError } from '../../errors';
+
 const _ = require('lodash');
 const PERIODS = require('../../constants/periods');
 const { ALL_METRICS, getMeasure } = require('../../constants/metrics');
@@ -6,7 +11,7 @@ const { Player, Record } = require('../../../database');
 const deltaService = require('../deltas/delta.service');
 
 function format(record) {
-  return _.omit(record.toJSON(), ['id', 'playerId']);
+  return omit(record.toJSON(), ['id', 'playerId']);
 }
 
 /**
@@ -25,7 +30,7 @@ async function syncRecords(playerId, period) {
   const periodRecords = await Record.findAll({ where: { playerId, period } });
   const periodDelta = await deltaService.getDelta(playerId, period);
 
-  const recordMap = _.keyBy(
+  const recordMap = keyBy(
     periodRecords.map(r => r.toJSON()),
     'metric'
   );
@@ -33,7 +38,7 @@ async function syncRecords(playerId, period) {
   const toCreate = [];
   const toUpdate = [];
 
-  _.forEach(periodDelta.data, (values, metric) => {
+  forEach(periodDelta.data, (values, metric) => {
     const { gained } = values[getMeasure(metric)];
 
     if (gained > 0) {
@@ -105,7 +110,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of records, into an object, using the period as a key,
   // then include only the records array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.records);
+  return mapValues(keyBy(partials, 'period'), p => p.records);
 }
 
 /**
@@ -140,7 +145,9 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   return formattedRecords;
 }
 
-exports.syncRecords = syncRecords;
-exports.findAll = findAll;
-exports.getPeriodLeaderboard = getPeriodLeaderboard;
-exports.getLeaderboard = getLeaderboard;
+export {
+  syncRecords,
+  findAll,
+  getPeriodLeaderboard,
+  getLeaderboard
+}

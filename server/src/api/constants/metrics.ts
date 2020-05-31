@@ -89,6 +89,7 @@ const metrics = {
 const SKILLS_KEYS = metrics.SKILLS.map(s => s.key);
 const ACTIVITIES_KEYS = metrics.ACTIVITIES.map(s => s.key);
 const BOSSES_KEYS = metrics.BOSSES.map(s => s.key);
+const ALL_METRICS = [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS];
 
 function isSkill(value: string) {
   return SKILLS_KEYS.includes(value);
@@ -175,16 +176,16 @@ function getDifficultyFactor(metric) {
 }
 
 export {
-  SKILLS: SKILLS_KEYS,
-  ACTIVITIES: ACTIVITIES_KEYS,
-  BOSSES: BOSSES_KEYS,
-  ALL_METRICS: [...SKILLS_KEYS, ...ACTIVITIES_KEYS, ...BOSSES_KEYS],
-    isSkill,
-    isActivity,
-    isBoss,
-    getMeasure,
-    getFormattedName,
-    getRankKey,
-    getValueKey,
-    getDifficultyFactor
+  SKILLS_KEYS as SKILLS,
+  ACTIVITIES_KEYS as ACTIVITIES,
+  BOSSES_KEYS as BOSSES,
+  ALL_METRICS,
+  isSkill,
+  isActivity,
+  isBoss,
+  getMeasure,
+  getFormattedName,
+  getRankKey,
+  getValueKey,
+  getDifficultyFactor
 };

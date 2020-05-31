@@ -1,9 +1,9 @@
-const express = require('express');
-const controller = require('./record.controller');
+import express from 'express';
+import * as controller from './record.controller';
 
 const api = express.Router();
 
 api.get('/', controller.get);
 api.get('/leaderboard', controller.leaderboard);
 
-module.exports = api;
+export default api;

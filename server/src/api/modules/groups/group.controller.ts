@@ -1,6 +1,6 @@
-const service = require('./group.service');
-const pagination = require('../../util/pagination');
-const jobs = require('../../jobs');
+import * as service from './group.service';
+import * as pagination from '../../util/pagination';
+import * as jobs from '../../jobs';
 
 async function listGroups(req, res, next) {
   try {
@@ -151,15 +151,17 @@ async function updateAllMembers(req, res, next) {
   }
 }
 
-exports.listGroups = listGroups;
-exports.viewGroup = viewGroup;
-exports.monthlyTop = monthlyTop;
-exports.leaderboard = leaderboard;
-exports.listMembers = listMembers;
-exports.createGroup = createGroup;
-exports.editGroup = editGroup;
-exports.deleteGroup = deleteGroup;
-exports.addMembers = addMembers;
-exports.removeMembers = removeMembers;
-exports.changeRole = changeRole;
-exports.updateAllMembers = updateAllMembers;
+export {
+  listGroups,
+  viewGroup,
+  monthlyTop,
+  leaderboard,
+  listMembers,
+  createGroup,
+  editGroup,
+  deleteGroup,
+  addMembers,
+  removeMembers,
+  changeRole,
+  updateAllMembers
+}

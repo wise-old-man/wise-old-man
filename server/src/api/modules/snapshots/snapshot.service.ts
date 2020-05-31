@@ -1,8 +1,8 @@
-const csv = require('csvtojson');
-const _ = require('lodash');
-const moment = require('moment');
-const { Op } = require('sequelize');
-const {
+import csv from 'csvtojson';
+import { mapValues, keyBy } from 'lodash';
+import * as moment from 'moment';
+import { Op } from 'sequelize';
+import {
   ALL_METRICS,
   SKILLS,
   BOSSES,
@@ -11,10 +11,10 @@ const {
   getValueKey,
   getMeasure,
   isSkill
-} = require('../../constants/metrics');
-const PERIODS = require('../../constants/periods');
-const { Snapshot } = require('../../../database');
-const { ServerError, BadRequestError } = require('../../errors');
+} from '../../constants/metrics';
+import * as PERIODS from '../../constants/periods';
+import { Snapshot } from '../../../database';
+import { ServerError, BadRequestError } from '../../errors';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
@@ -305,15 +305,17 @@ async function fromRS(playerId, csvData) {
   return newSnapshot;
 }
 
-exports.format = format;
-exports.findAll = findAll;
-exports.findAllGrouped = findAllGrouped;
-exports.findAllInPeriod = findAllInPeriod;
-exports.findFirstIn = findFirstIn;
-exports.findFirstSince = findFirstSince;
-exports.findLatest = findLatest;
-exports.findAllBetween = findAllBetween;
-exports.diff = diff;
-exports.saveAll = saveAll;
-exports.fromCML = fromCML;
-exports.fromRS = fromRS;
+export {
+  format,
+  findAll,
+  findAllGrouped,
+  findAllInPeriod,
+  findFirstIn,
+  findFirstSince,
+  findLatest,
+  findAllBetween,
+  diff,
+  saveAll,
+  fromCML,
+  fromRS
+};

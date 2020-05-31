@@ -1,5 +1,5 @@
-const PERIODS = require('../../constants/periods');
-const { ALL_METRICS } = require('../../constants/metrics');
+import * as PERIODS from '../../constants/periods';
+import { ALL_METRICS } from '../../constants/metrics';
 
 module.exports = (sequelize, DataTypes) => {
   // Define the record schema

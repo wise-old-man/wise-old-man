@@ -1,8 +1,8 @@
-const express = require('express');
-const controller = require('./snapshot.controller');
+import express from 'express';
+import get from './snapshot.controller';
 
 const api = express.Router();
 
-api.get('/', controller.get);
+api.get('/', get);
 
 module.exports = api;

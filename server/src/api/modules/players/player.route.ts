@@ -1,5 +1,5 @@
-const express = require('express');
-const controller = require('./player.controller');
+import express from 'express';
+import * as controller from './player.controller';
 
 const api = express.Router();
 

@@ -1,4 +1,4 @@
-const { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } = require('../../constants/metrics');
+import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../constants/metrics';
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};

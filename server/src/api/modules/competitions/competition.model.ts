@@ -1,4 +1,4 @@
-const { ALL_METRICS } = require('../../constants/metrics');
+import { ALL_METRICS } from '../../constants/metrics';
 
 module.exports = (sequelize, DataTypes) => {
   // Define the competition schema

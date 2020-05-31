@@ -1,4 +1,4 @@
-const ROLES = require('../../constants/roles');
+import ROLES from '../../constants/roles.json';
 
 module.exports = (sequelize, DataTypes) => {
   // Define the membership schema

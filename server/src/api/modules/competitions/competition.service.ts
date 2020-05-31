@@ -1,16 +1,16 @@
-const _ = require('lodash');
-const { Op, Sequelize } = require('sequelize');
-const moment = require('moment');
-const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
-const STATUSES = require('../../constants/statuses.json');
-const { Competition, Participation, Player, Group } = require('../../../database');
-const { durationBetween, isValidDate, isPast } = require('../../util/dates');
-const { generateVerification, verifyCode } = require('../../util/verification');
-const { BadRequestError, NotFoundError } = require('../../errors');
-const playerService = require('../players/player.service');
-const snapshotService = require('../snapshots/snapshot.service');
-const groupService = require('../groups/group.service');
-const deltaService = require('../deltas/delta.service');
+import { omit, mapValues, keyBy, uniqBy } from 'lodash';
+import { Op, Sequelize } from 'sequelize';
+import * as moment from 'moment';
+import { ALL_METRICS, getValueKey } from '../../constants/metrics';
+import STATUS from '../..constants/statuses.json';
+import { Competition, Participation, Player, Group } from '../../../database';
+import { durationBetween, isValidDate, isPast } from '../../util/dates';
+import { generateVerification, verifyCode } from '../../util/verification';
+import { BadRequestError, NotFoundError } from '../../errors';
+import * as playerService from '../players/player.service';
+import * as snapshotService from '../snapshots/snapshot.service';
+import * as groupService from '../groups/group.service';
+import * as deltaService from '../deltas/delta.service';
 
 function sanitizeTitle(title) {
   return title
@@ -21,7 +21,7 @@ function sanitizeTitle(title) {
 }
 
 function format(competition) {
-  return _.omit(competition.toJSON(), ['verificationHash']);
+  return omit(competition.toJSON(), ['verificationHash']);
 }
 
 /**
@@ -139,8 +139,8 @@ async function attachParticipantCount(competitions) {
    * Convert the counts fetched above, into a key:value format:
    * { 35: 4, 41: 31 }
    */
-  const countMap = _.mapValues(
-    _.keyBy(
+  const countMap = mapValues(
+    keyBy(
       participantCount.map(c => ({
         competitionId: c.competitionId,
         count: parseInt(c.toJSON().count, 10)
@@ -184,7 +184,7 @@ async function view(id) {
   const playerIds = participations.map(p => p.playerId);
 
   const leaderboard = await deltaService.getCompetitionLeaderboard(competition, playerIds);
-  const leaderboardMap = _.keyBy(leaderboard, 'playerId');
+  const leaderboardMap = keyBy(leaderboard, 'playerId');
 
   const participants = participations
     .map(({ player }) => ({
@@ -291,7 +291,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -402,7 +402,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -458,7 +458,7 @@ async function setParticipants(competition, usernames) {
     throw new BadRequestError(`Invalid competition.`);
   }
 
-  const uniqueUsernames = _.uniqBy(usernames, p => p.toLowerCase());
+  const uniqueUsernames = uniqBy(usernames, p => p.toLowerCase());
 
   const existingParticipants = await competition.getParticipants();
   const existingUsernames = existingParticipants.map(e => e.username);
@@ -707,16 +707,18 @@ async function updateAllParticipants(id, updateAction) {
   return participants;
 }
 
-exports.list = list;
-exports.findForGroup = findForGroup;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
-exports.create = create;
-exports.edit = edit;
-exports.destroy = destroy;
-exports.addParticipants = addParticipants;
-exports.removeParticipants = removeParticipants;
-exports.getParticipants = getParticipants;
-exports.addToGroupCompetitions = addToGroupCompetitions;
-exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
-exports.updateAllParticipants = updateAllParticipants;
+export {
+  list,
+  findForGroup,
+  findForPlayer,
+  view,
+  create,
+  edit,
+  destroy,
+  addParticipants,
+  removeParticipants,
+  getParticipants,
+  addToGroupCompetitions,
+  removeFromGroupCompetitions,
+  updateAllParticipants
+}

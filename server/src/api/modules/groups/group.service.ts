@@ -1,13 +1,13 @@
-const _ = require('lodash');
-const { Op, Sequelize, QueryTypes } = require('sequelize');
-const moment = require('moment');
-const PERIODS = require('../../constants/periods');
-const { ALL_METRICS } = require('../../constants/metrics');
-const { Group, Membership, Player, sequelize } = require('../../../database');
-const { generateVerification, verifyCode } = require('../../util/verification');
-const { BadRequestError } = require('../../errors');
-const playerService = require('../players/player.service');
-const deltaService = require('../deltas/delta.service');
+import { omit, uniqBy, mapValues, keyBy } from 'lodash';
+import { Op, Sequelize, QueryTypes } from 'sequelize';
+import * as moment from 'moment';
+import PERIODS from '../../constants/periods.json';
+import { ALL_METRICS } from '../../constants/metrics';
+import { Group, Membership, Player, sequelize } from '../../../database';
+import { generateVerification, verifyCode } from '../../util/verification';
+import { BadRequestError } from '../../errors';
+import * as playerService from '../players/player.service';
+import * as deltaService from '../deltas/delta.service';
 
 function sanitizeName(name) {
   return name
@@ -18,7 +18,7 @@ function sanitizeName(name) {
 }
 
 function format(group) {
-  return _.omit(group.toJSON(), ['verificationHash']);
+  return omit(group.toJSON(), ['verificationHash']);
 }
 
 /**
@@ -53,7 +53,7 @@ async function findForPlayer(playerId, pagination) {
   });
 
   // Extract all the unique groups from the memberships, and format them.
-  const groups = _.uniqBy(memberships, m => m.group.id)
+  const groups = uniqBy(memberships, m => m.group.id)
     .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(p => p.group)
     .map(format);
@@ -82,8 +82,8 @@ async function attachMembersCount(groups) {
    * Convert the counts fetched above, into a key:value format:
    * { 35: 4, 41: 31 }
    */
-  const countMap = _.mapValues(
-    _.keyBy(
+  const countMap = mapValues(
+    keyBy(
       membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
       c => c.groupId
     ),
@@ -205,7 +205,7 @@ async function getMembersList(id) {
   const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
 
   // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
-  const experienceMap = _.mapValues(_.keyBy(experienceSnapshots, 'playerId'), d =>
+  const experienceMap = mapValues(keyBy(experienceSnapshots, 'playerId'), d =>
     parseInt(d.overallExperience, 10)
   );
 
@@ -382,7 +382,7 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const uniqueNames = _.uniqBy(
+  const uniqueNames = uniqBy(
     members.map(m => m.username),
     m => m.toLowerCase()
   );
@@ -404,7 +404,7 @@ async function setMembers(group, members) {
   const allMembers = await group.getMembers();
 
   const formatted = allMembers.map(member =>
-    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+    omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
 
   return formatted;
@@ -478,7 +478,7 @@ async function addMembers(id, verificationCode, members) {
   const allMembers = await group.getMembers();
 
   const formatted = allMembers.map(member =>
-    _.omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
+    omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
 
   return formatted;
@@ -670,19 +670,21 @@ async function getOutdatedMembers(groupId) {
   return membersToUpdate.map(({ player }) => player);
 }
 
-exports.format = format;
-exports.list = list;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
-exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
-exports.getLeaderboard = getLeaderboard;
-exports.getMembersList = getMembersList;
-exports.create = create;
-exports.edit = edit;
-exports.destroy = destroy;
-exports.addMembers = addMembers;
-exports.removeMembers = removeMembers;
-exports.changeRole = changeRole;
-exports.getMembers = getMembers;
-exports.findOne = findOne;
-exports.updateAllMembers = updateAllMembers;
+export {
+  format,
+  list,
+  findForPlayer,
+  view,
+  getMonthlyTopPlayer,
+  getLeaderboard,
+  getMembersList,
+  create,
+  edit,
+  destroy,
+  addMembers,
+  removeMembers,
+  changeRole,
+  getMembers,
+  findOne,
+  updateAllMembers
+}

@@ -1,4 +1,4 @@
-const service = require('./record.service');
+import service from './record.service';
 
 async function get(req, res, next) {
   try {
@@ -25,5 +25,4 @@ async function leaderboard(req, res, next) {
   }
 }
 
-exports.get = get;
-exports.leaderboard = leaderboard;
+export { get, leaderboard };

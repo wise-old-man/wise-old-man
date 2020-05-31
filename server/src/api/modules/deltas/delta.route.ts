@@ -1,9 +1,9 @@
-const express = require('express');
-const controller = require('./delta.controller');
+import express from 'express';
+import * as controller from './delta.controller';
 
 const api = express.Router();
 
 api.get('/', controller.get);
 api.get('/leaderboard', controller.leaderboard);
 
-module.exports = api;
+export default api;

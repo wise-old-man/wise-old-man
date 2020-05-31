@@ -4,7 +4,7 @@ import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
 import { Player } from '../../../database';
-import snapshotService from '../snapshots/snapshot.service'
+import * as snapshotService from '../snapshots/snapshot.service'
 import { getNextProxy, getCombatLevel } from '../../proxies';
 import { getHiscoresTableNames } from '../../util/scraping';
 
@@ -501,20 +501,22 @@ async function getHiscoresNames(username) {
   }
 }
 
-exports.standardize = standardize;
-exports.sanitize = sanitize;
-exports.isValidUsername = isValidUsername;
-exports.shouldUpdate = shouldUpdate;
-exports.shouldImport = shouldImport;
-exports.getDataById = getDataById;
-exports.getData = getData;
-exports.search = search;
-exports.update = update;
-exports.importCML = importCML;
-exports.assertType = assertType;
-exports.assertName = assertName;
-exports.find = find;
-exports.findById = findById;
-exports.findOrCreate = findOrCreate;
-exports.findAllOrCreate = findAllOrCreate;
-exports.findAll = findAll;
+export {
+  standardize,
+  sanitize,
+  isValidUsername,
+  shouldUpdate,
+  shouldImport,
+  getDataById,
+  getData,
+  search,
+  update,
+  importCML,
+  assertType,
+  assertName,
+  find,
+  findById,
+  findOrCreate,
+  findAllOrCreate,
+  findAll
+}

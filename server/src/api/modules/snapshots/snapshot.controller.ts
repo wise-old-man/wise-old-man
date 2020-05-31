@@ -1,4 +1,4 @@
-const service = require('./snapshot.service');
+import service from './snapshot.service';
 
 async function get(req, res, next) {
   try {
@@ -14,4 +14,4 @@ async function get(req, res, next) {
   }
 }
 
-exports.get = get;
+export default get;

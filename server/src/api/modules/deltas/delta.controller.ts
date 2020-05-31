@@ -1,4 +1,4 @@
-const service = require('./delta.service');
+import * as service from './delta.service';
 
 async function get(req, res, next) {
   try {
@@ -28,5 +28,4 @@ async function leaderboard(req, res, next) {
   }
 }
 
-exports.get = get;
-exports.leaderboard = leaderboard;
+export { get, leaderboard };

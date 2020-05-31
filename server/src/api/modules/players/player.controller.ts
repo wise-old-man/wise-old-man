@@ -1,5 +1,5 @@
-const jobs = require('../../jobs');
-const service = require('./player.service');
+import * as jobs from '../../jobs';
+import * as service from './player.service';
 
 async function get(req, res, next) {
   try {
@@ -75,9 +75,4 @@ async function importPlayer(req, res, next) {
   }
 }
 
-exports.get = get;
-exports.search = search;
-exports.track = track;
-exports.assertType = assertType;
-exports.assertName = assertName;
-exports.importPlayer = importPlayer;
+export { get, search, track, assertType, assertName, importPlayer };

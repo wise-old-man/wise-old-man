@@ -17,6 +17,7 @@
   "author": "Psikoi",
   "license": "ISC",
   "dependencies": {
+    "@types/lodash": "^4.14.154",
     "axios": "^0.19.2",
     "bcrypt": "^4.0.0",
     "bull": "^3.13.0",

@@ -1,5 +1,5 @@
-const express = require('express');
-const controller = require('./competition.controller');
+import express from 'express';
+import * as controller from './competition.controller';
 
 const api = express.Router();
 
@@ -13,3 +13,5 @@ api.post('/:id/remove', controller.removeParticipants);
 api.post('/:id/update-all', controller.updateAllParticipants);
 
 module.exports = api;
+
+export default api;

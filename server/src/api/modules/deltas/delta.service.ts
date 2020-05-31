@@ -1,12 +1,12 @@
-const _ = require('lodash');
-const { QueryTypes } = require('sequelize');
-const PERIODS = require('../../constants/periods');
-const PLAYER_TYPES = require('../../constants/playerTypes');
-const { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } = require('../../constants/metrics');
-const { BadRequestError, ServerError } = require('../../errors');
-const { InitialValues, sequelize } = require('../../../database');
-const snapshotService = require('../snapshots/snapshot.service');
-const queries = require('./delta.queries');
+import { mapValues, keyBy } from 'lodash';
+import { QueryTypes } from 'seqeulize';
+import PERIODS from '../../constants/periods.json';
+import PLAYER_TYPES from '../../constants/playerTypes.json';
+import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
+import { BadRequestError, ServerError } from '../../errors';
+import { InitialValues, sequelize } from '../../../database';
+import * as snapshotService from '../snapshots/snapshot.service';
+import * as queries from './delta.queries';
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;
@@ -131,7 +131,7 @@ async function getLeaderboard(metric, playerType) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.deltas);
+  return mapValues(keyBy(partials, 'period'), p => p.deltas);
 }
 
 /**
@@ -149,7 +149,7 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.deltas);
+  return mapValues(keyBy(partials, 'period'), p => p.deltas);
 }
 
 async function getCompetitionLeaderboard(competition, playerIds) {
@@ -284,10 +284,12 @@ function emptyDiff() {
   return diffObj;
 }
 
-exports.getAllDeltas = getAllDeltas;
-exports.getDelta = getDelta;
-exports.getPeriodLeaderboard = getPeriodLeaderboard;
-exports.getLeaderboard = getLeaderboard;
-exports.getGroupLeaderboard = getGroupLeaderboard;
-exports.getCompetitionLeaderboard = getCompetitionLeaderboard;
-exports.syncInitialValues = syncInitialValues;
+export {
+  getAllDeltas,
+  getDelta,
+  getPeriodLeaderboard,
+  getLeaderboard,
+  getGroupLeaderboard,
+  getCompetitionLeaderboard,
+  syncInitialValues
+}

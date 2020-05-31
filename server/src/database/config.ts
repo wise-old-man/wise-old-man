@@ -10,4 +10,4 @@ export default {
   logging: false,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
   retry: { max: 10 }
-};
+}

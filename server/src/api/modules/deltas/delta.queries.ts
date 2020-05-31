@@ -68,7 +68,7 @@ const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
     ) c ON player.id = c."playerId"
     JOIN (
         SELECT "playerId" AS "pId", MAX("${metricKey}") AS "initialValue"
-        FROM "initialValues" 
+        FROM "initialValues"
         WHERE "playerId" IN (${ids})
         GROUP BY "pId"
     ) i ON player.id = i."pId"
@@ -102,7 +102,7 @@ const GET_GROUP_LEADERBOARD = (metricKey, ids) => `
     ) c ON player.id = c."playerId"
     JOIN (
         SELECT "playerId" AS "pId", MAX("${metricKey}") AS "initialValue"
-        FROM "initialValues" 
+        FROM "initialValues"
         WHERE "playerId" IN (${ids})
         GROUP BY "pId"
     ) i ON player.id = i."pId"
@@ -110,7 +110,9 @@ const GET_GROUP_LEADERBOARD = (metricKey, ids) => `
     ORDER BY gained DESC
     LIMIT :limit`;
 
-exports.GET_PLAYER_DELTA = GET_PLAYER_DELTA;
-exports.GET_PERIOD_LEADERBOARD = GET_PERIOD_LEADERBOARD;
-exports.GET_COMPETITION_LEADERBOARD = GET_COMPETITION_LEADERBOARD;
-exports.GET_GROUP_LEADERBOARD = GET_GROUP_LEADERBOARD;
+export {
+    GET_PLAYER_DELTA,
+    GET_PERIOD_LEADERBOARD,
+    GET_COMPETITION_LEADERBOARD,
+    GET_GROUP_LEADERBOARD
+}

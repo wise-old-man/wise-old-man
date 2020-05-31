@@ -1,13 +1,13 @@
 require('dotenv').config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const api = require('./routing');
-const jobs = require('./jobs');
-const hooks = require('./hooks');
-const proxies = require('./proxies');
-
 import express from 'express'
+import cors from 'cors';
+import * as rateLimit from 'express-rate-limit';
+import * as api from './routing';
+import * as jobs from './jobs';
+import * as hooks from './hooks';
+import * as proxies from './proxies';
+
 
 const RATE_LIMIT_MINUTES = 5;
 const RATE_LIMIT_REQUESTS = 500;
