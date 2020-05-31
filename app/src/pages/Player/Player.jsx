@@ -203,10 +203,6 @@ function Player() {
     return `/players/${newOptions.id}/${newOptions.section}/${newOptions.metricType}${query}`;
   };
 
-  const handleTabChanged = i => {
-    router.push(getNextUrl({ section: TABS[i].toLowerCase() }));
-  };
-
   const handlePeriodSelected = e => {
     router.push(getNextUrl({ period: e.value }));
   };
@@ -280,7 +276,7 @@ function Player() {
           <Tabs
             tabs={TABS}
             selectedIndex={selectedTabIndex}
-            onChange={handleTabChanged}
+            urlSelector={i => getNextUrl({ section: TABS[i].toLowerCase() })}
             align="space-between"
             specialHighlightIndex={5}
           />
