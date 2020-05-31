@@ -2,8 +2,7 @@ import React, { useState, memo } from 'react';
 import classNames from 'classnames';
 import './CopyToClipboard.scss';
 
-const CopyToClipboard = props => {
-  const { children } = props;
+const CopyToClipboard = ({ children }) => {
   const [hover, setHover] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mousePos, setMousePos] = useState({});
@@ -17,9 +16,7 @@ const CopyToClipboard = props => {
     // mobile
     if (!hover) {
       setHover(true);
-      setTimeout(() => {
-        setHover(false);
-      }, 1500);
+      setTimeout(() => setHover(false), 1500);
     }
   };
 
@@ -27,6 +24,7 @@ const CopyToClipboard = props => {
     if (event.type === 'mouseenter') {
       setMousePos({ left: `${event.clientX}px`, top: `${event.clientY}px` });
     }
+
     setHover(!hover);
   };
 

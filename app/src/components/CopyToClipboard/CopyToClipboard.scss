@@ -33,4 +33,15 @@
 
 .hover {
   cursor: pointer;
+
+  &:active {
+    outline: none;
+    border: none;
+    opacity: 0.1;
+  }
+
+  &:focus {
+    outline: none;
+    border: none;
+  }
 }
