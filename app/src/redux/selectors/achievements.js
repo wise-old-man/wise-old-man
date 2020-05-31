@@ -58,12 +58,24 @@ function processGroup(player, group) {
   const { latestSnapshot } = player;
 
   if (group.metric === 'combat') {
-    const progress = player.combatLevel / 126;
+    const progress = {
+      start: 0,
+      end: 126,
+      current: player.combatLevel,
+      percentToNextTier: player.combatLevel / 126,
+      absolutePercent: player.combatLevel / 126
+    };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
   if (group.metric === 'overall' && group.measure === 'levels') {
-    const progress = getTotalLevel(latestSnapshot) / 2277;
+    const progress = {
+      start: 36,
+      end: 2277,
+      current: getTotalLevel(latestSnapshot),
+      percentToNextTier: getTotalLevel(latestSnapshot) / 2277,
+      absolutePercent: getTotalLevel(latestSnapshot) / 2277
+    };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
@@ -72,16 +84,34 @@ function processGroup(player, group) {
 
     const processedAchievements = group.achievements.map((achievement, i) => {
       if (currentValue >= achievement.threshold) {
-        return { ...achievement, progress: 1 };
+        return {
+          ...achievement,
+          progress: {
+            start: 0,
+            end: achievement.threshold,
+            current: currentValue,
+            percentToNextTier: 1,
+            absolutePercent: 1
+          }
+        };
       }
 
       const prevStart = i === 0 ? 0 : group.achievements[i - 1].threshold;
-      const currentProgress = Math.max(
+      const nextTierProgress = Math.max(
         0,
         (currentValue - prevStart) / (achievement.threshold - prevStart)
       );
 
-      return { ...achievement, progress: currentProgress };
+      return {
+        ...achievement,
+        progress: {
+          start: 0,
+          end: achievement.threshold,
+          current: currentValue,
+          percentToNextTier: nextTierProgress,
+          absolutePercent: currentValue / achievement.threshold
+        }
+      };
     });
 
     return { ...group, achievements: processedAchievements };
