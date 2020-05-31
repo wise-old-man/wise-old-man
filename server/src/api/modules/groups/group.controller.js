@@ -54,6 +54,17 @@ async function leaderboard(req, res, next) {
   }
 }
 
+async function achievements(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const results = await service.getAchievements(id);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function listMembers(req, res, next) {
   try {
     const { id } = req.params;
@@ -155,6 +166,7 @@ exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
 exports.monthlyTop = monthlyTop;
 exports.leaderboard = leaderboard;
+exports.achievements = achievements;
 exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;

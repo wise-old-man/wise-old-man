@@ -8,6 +8,7 @@ const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const deltaService = require('../deltas/delta.service');
+const achievementService = require('../achievements/achievement.service');
 
 function sanitizeName(name) {
   return name
@@ -162,6 +163,34 @@ async function getLeaderboard(groupId, period, metric) {
 
   const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds);
   return leaderboard;
+}
+
+/**
+ * Get the 10 most recent player achievements for a given group.
+ */
+async function getAchievements(groupId) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId'],
+    include: [{ model: Player }]
+  });
+
+  if (!memberships.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const members = memberships.map(m => m.player);
+  const memberMap = _.keyBy(members, 'id');
+  const memberIds = members.map(m => m.id);
+
+  const achievements = await achievementService.findAllForGroup(memberIds, 10);
+  const formatted = achievements.map(a => ({ ...a.toJSON(), player: memberMap[a.playerId] }));
+
+  return formatted;
 }
 
 async function getMembersList(id) {
@@ -676,6 +705,7 @@ exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
 exports.getLeaderboard = getLeaderboard;
+exports.getAchievements = getAchievements;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;
