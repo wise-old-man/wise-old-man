@@ -8,7 +8,7 @@ const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
 const SyncPlayerInitialValues = require('./SyncPlayerInitialValues');
 const AssertPlayerName = require('./AssertPlayerName');
 
-module.exports = {
+export {
   ImportPlayer,
   UpdatePlayer,
   SyncPlayerRecords,

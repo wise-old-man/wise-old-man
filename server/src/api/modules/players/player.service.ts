@@ -1,5 +1,5 @@
-const axios = require('axios');
-const { Op } = require('sequelize');
+// const axios = require('axios');
+// const { Op } = require('sequelize');
 const { isValidDate } = require('../../util/dates');
 const { CML, OSRS_HISCORES } = require('../../constants/services');
 const { ServerError, BadRequestError } = require('../../errors');
@@ -8,6 +8,9 @@ const snapshotService = require('../snapshots/snapshot.service');
 const { getNextProxy } = require('../../proxies');
 const { getCombatLevel } = require('../../util/level');
 const { getHiscoresTableNames } = require('../../util/scraping');
+
+import * as axios from 'axios'
+import { Op } from 'sequelize'
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;

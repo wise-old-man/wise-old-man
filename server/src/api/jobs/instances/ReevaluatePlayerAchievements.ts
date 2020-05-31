@@ -1,5 +1,7 @@
 const achievementService = require('../../modules/achievements/achievement.service');
 
+import achievementService from '../../modules/achievements/achievement.service'
+
 module.exports = {
   key: 'ReevaluatePlayerAchievements',
   async handle({ data }) {
