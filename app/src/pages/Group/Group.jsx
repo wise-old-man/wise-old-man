@@ -6,10 +6,12 @@ import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Dropdown from '../../components/Dropdown';
 import Button from '../../components/Button';
+import Tabs from '../../components/Tabs';
 import DeleteGroupModal from '../../modals/DeleteGroupModal';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
+import GroupCompetitionsTable from './components/GroupCompetitionsTable';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
@@ -20,6 +22,8 @@ import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonth
 import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import './Group.scss';
+
+const TABS = ['Members', 'Competitions'];
 
 const MENU_OPTIONS = [
   {
@@ -32,10 +36,17 @@ const MENU_OPTIONS = [
   }
 ];
 
+function getSelectedTabIndex(section) {
+  const index = TABS.findIndex(t => section && section === t.toLowerCase());
+  return Math.max(0, index);
+}
+
 function Group() {
-  const { id } = useParams();
+  const { id, section } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const selectedSectionIndex = getSelectedTabIndex(section);
 
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
@@ -79,11 +90,20 @@ function Group() {
     }
   };
 
+  const handleTabChanged = i => {
+    if (i === 1) {
+      router.push(`/groups/${id}/competitions`);
+    } else {
+      router.push(`/groups/${id}`);
+    }
+  };
+
   const handleUpdateAll = () => {
     dispatch(updateAllAction(id));
     setButtonDisabled(true);
   };
 
+  const onTabChanged = useCallback(handleTabChanged, [id]);
   const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
@@ -134,7 +154,12 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <MembersTable members={group.members} isLoading={isLoadingMembers} />
+          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} onChange={onTabChanged} />
+          {selectedSectionIndex === 0 ? (
+            <MembersTable members={group.members} isLoading={isLoadingMembers} />
+          ) : (
+            <GroupCompetitionsTable competitions={competitions} />
+          )}
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}

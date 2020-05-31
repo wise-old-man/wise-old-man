@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import PageTitle from '../../components/PageTitle';
@@ -19,7 +19,8 @@ const TABLE_CONFIG = {
   columns: [
     {
       key: 'name',
-      className: () => '-primary'
+      className: () => '-primary',
+      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>
     },
     {
       key: 'memberCount',
@@ -30,7 +31,6 @@ const TABLE_CONFIG = {
 };
 
 function GroupsList() {
-  const router = useHistory();
   const dispatch = useDispatch();
 
   // State variables
@@ -68,10 +68,6 @@ function GroupsList() {
     setNameSearch(e.target.value);
   };
 
-  const handleRowClicked = index => {
-    router.push(`/groups/${groups[index].id}`);
-  };
-
   const handleScrolling = () => {
     const margin = 300;
 
@@ -98,7 +94,6 @@ function GroupsList() {
   const onSubmitSearch = useCallback(handleSubmitSearch, [nameSearch]);
   const onLoadMore = useCallback(handleLoadMore, [pageIndex]);
   const onNameSearchInput = useCallback(handleNameSearchInput, [setNameSearch]);
-  const onRowClicked = useCallback(handleRowClicked, [router, groups]);
 
   // Submit search each time any of the search variable change
   useEffect(onLoadMore, [pageIndex]);
@@ -115,7 +110,7 @@ function GroupsList() {
           <PageTitle title="Groups" />
         </div>
         <div className="col">
-          <TextButton text="Create new" redirectTo="/groups/create" />
+          <TextButton text="Create new" url="/groups/create" />
         </div>
       </div>
       <div className="groups__options row">
@@ -132,8 +127,6 @@ function GroupsList() {
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={groups}
-              onRowClicked={onRowClicked}
-              clickable
             />
           )}
         </div>

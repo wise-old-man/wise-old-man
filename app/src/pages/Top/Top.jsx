@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import PlayerTag from '../../components/PlayerTag';
@@ -9,31 +9,44 @@ import TableList from '../../components/TableList';
 import NumberLabel from '../../components/NumberLabel';
 import TableListPlaceholder from '../../components/TableListPlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
-import { capitalize, getPlayerTypeIcon, getMetricIcon, getMetricName } from '../../utils';
+import {
+  capitalize,
+  getPlayerTypeIcon,
+  getMetricIcon,
+  getMetricName,
+  isSkill,
+  isBoss
+} from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
-import { getLeaderboard } from '../../redux/selectors/deltas';
+import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/deltas';
 import './Top.scss';
 
-const TABLE_CONFIG = {
-  uniqueKey: row => row.username,
-  columns: [
-    {
-      key: 'rank',
-      width: '30',
-      transform: rank => <span className="top-rank">{rank}</span>
-    },
-    {
-      key: 'username',
-      className: () => '-primary',
-      transform: (value, row) => <PlayerTag username={value} type={row.type} />
-    },
-    {
-      key: 'gained',
-      width: 90,
-      transform: val => <NumberLabel value={val} isColored />
-    }
-  ]
-};
+function getTableConfig(metric, period) {
+  return {
+    uniqueKey: row => row.username,
+    columns: [
+      {
+        key: 'rank',
+        width: '30',
+        transform: rank => <span className="top-rank">{rank}</span>
+      },
+      {
+        key: 'displayName',
+        className: () => '-primary',
+        transform: (value, row) => (
+          <Link to={getPlayerURL(row.playerId, metric, period)}>
+            <PlayerTag name={value} type={row.type} />
+          </Link>
+        )
+      },
+      {
+        key: 'gained',
+        width: 90,
+        transform: val => <NumberLabel value={val} isColored />
+      }
+    ]
+  };
+}
 
 function getPlayerTypeOptions() {
   return [
@@ -54,55 +67,60 @@ function getMetricOptions() {
   }));
 }
 
+function getPlayerURL(playerId, metric, period) {
+  if (isSkill(metric)) {
+    return `/players/${playerId}/gained/skilling/?metric=${metric}&period=${period}`;
+  }
+
+  if (isBoss(metric)) {
+    return `/players/${playerId}/gained/bossing/?metric=${metric}&period=${period}`;
+  }
+
+  return `/players/${playerId}/gained/activities/?metric=${metric}&period=${period}`;
+}
+
 function Top() {
+  const { metric, playerType } = useParams();
   const router = useHistory();
   const dispatch = useDispatch();
 
-  // State variables
-  const [selectedMetric, setSelectedMetric] = useState('overall');
-  const [selectedPlayerType, setSelectedPlayerType] = useState(null);
+  const selectedMetric = metric || 'overall';
+  const selectedPlayerType = playerType || null;
 
   const metricOptions = useMemo(() => getMetricOptions(), []);
   const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
 
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const selectedPlayerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
+  const metricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
+  const playerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
 
   // Memoized redux variables
   const leaderboard = useSelector(state => getLeaderboard(state));
+  const isLoading = useSelector(state => isFetchingLeaderboard(state));
 
   const reloadList = () => {
     dispatch(fetchLeaderboard({ metric: selectedMetric, playerType: selectedPlayerType }));
   };
 
   const handleMetricSelected = e => {
-    setSelectedMetric((e && e.value) || null);
+    if (e && e.value) {
+      router.push(`/top/${e.value}/${selectedPlayerType || ''}`);
+    }
   };
 
   const handleTypeSelected = e => {
-    setSelectedPlayerType((e && e.value) || null);
+    if (e && e.value) {
+      router.push(`/top/${selectedMetric}/${e.value}`);
+    } else {
+      router.push(`/top/${selectedMetric}`);
+    }
   };
 
-  const handleDayRowClicked = index => {
-    const { playerId } = leaderboard.day[index];
-    router.push(`/players/${playerId}`);
-  };
+  const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric, selectedPlayerType]);
+  const onTypeSelected = useCallback(handleTypeSelected, [selectedMetric, selectedPlayerType]);
 
-  const handleWeekRowClicked = index => {
-    const { playerId } = leaderboard.week[index];
-    router.push(`/players/${playerId}`);
-  };
-
-  const handleMonthRowClicked = index => {
-    const { playerId } = leaderboard.month[index];
-    router.push(`/players/${playerId}`);
-  };
-
-  const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onTypeSelected = useCallback(handleTypeSelected, [setSelectedPlayerType]);
-  const onDayRowClicked = useCallback(handleDayRowClicked, [leaderboard]);
-  const onWeekRowClicked = useCallback(handleWeekRowClicked, [leaderboard]);
-  const onMonthRowClicked = useCallback(handleMonthRowClicked, [leaderboard]);
+  const dayTableConfig = useMemo(() => getTableConfig(selectedMetric, 'day'), [selectedMetric]);
+  const weekTableConfig = useMemo(() => getTableConfig(selectedMetric, 'week'), [selectedMetric]);
+  const monthTableConfig = useMemo(() => getTableConfig(selectedMetric, 'month'), [selectedMetric]);
 
   useEffect(reloadList, [selectedMetric, selectedPlayerType]);
 
@@ -120,7 +138,7 @@ function Top() {
         <div className="col-lg-4 col-md-6">
           <Selector
             options={metricOptions}
-            selectedIndex={selectedMetricIndex}
+            selectedIndex={metricIndex}
             onSelect={onMetricSelected}
             search
           />
@@ -128,9 +146,12 @@ function Top() {
         <div className="col-lg-2 col-md-4">
           <Selector
             options={playerTypeOptions}
-            selectedIndex={selectedPlayerTypeIndex}
+            selectedIndex={playerTypeIndex}
             onSelect={onTypeSelected}
           />
+        </div>
+        <div className="col-md-2">
+          {isLoading && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
         </div>
       </div>
       <div className="top__list row">
@@ -140,11 +161,9 @@ function Top() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={dayTableConfig.uniqueKey}
+              columns={dayTableConfig.columns}
               rows={leaderboard.day}
-              onRowClicked={onDayRowClicked}
-              clickable
             />
           )}
         </div>
@@ -154,11 +173,9 @@ function Top() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={weekTableConfig.uniqueKey}
+              columns={weekTableConfig.columns}
               rows={leaderboard.week}
-              onRowClicked={onWeekRowClicked}
-              clickable
             />
           )}
         </div>
@@ -168,11 +185,9 @@ function Top() {
             <TableListPlaceholder size={20} />
           ) : (
             <TableList
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
+              uniqueKeySelector={monthTableConfig.uniqueKey}
+              columns={monthTableConfig.columns}
               rows={leaderboard.month}
-              onRowClicked={onMonthRowClicked}
-              clickable
             />
           )}
         </div>

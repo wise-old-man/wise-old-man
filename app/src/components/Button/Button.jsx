@@ -1,13 +1,12 @@
 /* eslint react/button-has-type: 0 */
 import React from 'react';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import classNames from 'classnames';
+import ConditionalWrap from 'conditional-wrap';
 import './Button.scss';
 
 function Button({ text, className, icon, type, url, onClick, disabled, loading }) {
-  const router = useHistory();
-
   const handleClick = () => {
     // Slightly delay the click event, to allow
     // the clicked animation to be displayed
@@ -16,28 +15,25 @@ function Button({ text, className, icon, type, url, onClick, disabled, loading }
       if (onClick) {
         onClick();
       }
-
-      if (url) {
-        if (url.startsWith('http')) {
-          window.location.href = url;
-        } else {
-          router.push(url);
-        }
-      }
     }, 150);
   };
 
+  const isExternal = url && url.startsWith('http');
+  const link = c => (isExternal ? <a href={url}>{c}</a> : <Link to={url}>{c}</Link>);
+
   return (
-    <button
-      className={classNames({ button: true, [className]: true, '-loading': loading })}
-      type={type}
-      onClick={handleClick}
-      disabled={disabled}
-    >
-      {icon && !loading && <img className="button__icon" src={icon} alt="" />}
-      {loading && <img className="button__icon -loading" src="/img/icons/sync.svg" alt="" />}
-      {loading ? 'Loading...' : text}
-    </button>
+    <ConditionalWrap condition={!!url} wrap={link}>
+      <button
+        className={classNames({ button: true, [className]: true, '-loading': loading })}
+        type={type}
+        onClick={handleClick}
+        disabled={disabled}
+      >
+        {icon && !loading && <img className="button__icon" src={icon} alt="" />}
+        {loading && <img className="button__icon -loading" src="/img/icons/sync.svg" alt="" />}
+        {loading ? 'Loading...' : text}
+      </button>
+    </ConditionalWrap>
   );
 }
 
@@ -48,7 +44,7 @@ Button.defaultProps = {
   url: undefined,
   onClick: undefined,
   disabled: false,
-  loading: false,
+  loading: false
 };
 
 Button.propTypes = {
@@ -74,7 +70,7 @@ Button.propTypes = {
   disabled: PropTypes.bool,
 
   // If true, the button will be disabled and present a loading icon and text
-  loading: PropTypes.bool,
+  loading: PropTypes.bool
 };
 
 export default React.memo(Button);

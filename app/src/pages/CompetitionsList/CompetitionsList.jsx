@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
@@ -42,7 +42,11 @@ const TABLE_CONFIG = {
       width: 30,
       transform: value => <img src={getMetricIcon(value)} alt="" />
     },
-    { key: 'title', className: () => '-primary' },
+    {
+      key: 'title',
+      className: () => '-primary',
+      transform: (val, row) => <Link to={`/competitions/${row.id}`}>{val}</Link>
+    },
     {
       key: 'status',
       className: () => '-break-small',
@@ -79,7 +83,6 @@ function getMetricOptions() {
 }
 
 function CompetitionsList() {
-  const router = useHistory();
   const dispatch = useDispatch();
 
   // State variables
@@ -147,10 +150,6 @@ function CompetitionsList() {
     setSelectedStatus((e && e.value) || null);
   };
 
-  const handleRowClicked = index => {
-    router.push(`/competitions/${competitions[index].id}`);
-  };
-
   const handleScrolling = () => {
     const margin = 300;
 
@@ -179,7 +178,6 @@ function CompetitionsList() {
   const onSearchInput = useCallback(handleSearchInput, [setTitleSearch]);
   const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
   const onStatusSelected = useCallback(handleStatusSelected, [setSelectedStatus]);
-  const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
   // Submit search each time any of the search variable change
   useEffect(onSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
@@ -196,7 +194,7 @@ function CompetitionsList() {
           <PageTitle title="Competitions" />
         </div>
         <div className="col">
-          <TextButton text="Create new" redirectTo="/competitions/create" />
+          <TextButton text="Create new" url="/competitions/create" />
         </div>
       </div>
       <div className="competitions__options row">
@@ -227,8 +225,6 @@ function CompetitionsList() {
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={competitions}
-              onRowClicked={onRowClicked}
-              clickable
             />
           )}
         </div>

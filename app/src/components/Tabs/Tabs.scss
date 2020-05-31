@@ -3,7 +3,8 @@
 
 .tab-bar {
   @extend %panel;
-  padding: 10px 15px;
+  @extend %block-text-selection;
+  padding: 8px 15px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -33,10 +34,19 @@
     padding: 5px 10px;
     color: $gray-60;
     min-width: 50px;
+    display: flex;
+    flex-direction: row;
 
     &:hover {
       opacity: 0.7;
       cursor: pointer;
+    }
+
+    .new-dot {
+      width: 5px;
+      height: 5px;
+      background: #ed2a1c;
+      border-radius: 50px;
     }
 
     &.-highlighted {

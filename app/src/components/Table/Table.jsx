@@ -1,56 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from '../../utils';
 import './Table.scss';
 
-function getValue(row, key, get, transform) {
+const SORT = {
+  DEFAULT: 'default',
+  ASCENDING: 'ascending',
+  DESCENDING: 'descending'
+};
+
+const DEFAULT_SORTING = { type: SORT.DEFAULT, by: '' };
+
+function getCellValue(row, key, get, transform) {
   const value = get ? get(row) : row[key];
   return [transform ? transform(value, row) : value, value];
 }
 
-function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
-  const tableClass = classNames({
-    table: true,
-    '-clickable': clickable
-  });
+function Table({ rows, columns, uniqueKeySelector, highlightedIndex, onRowClicked }) {
+  const [sorting, setSorting] = useState(DEFAULT_SORTING);
+
+  const handleHeaderClicked = key => {
+    let sortNext = SORT.DEFAULT;
+
+    if (sorting.type === SORT.DEFAULT || sorting.by !== key) {
+      sortNext = SORT.ASCENDING;
+    } else if (sorting.type === SORT.ASCENDING) {
+      sortNext = SORT.DESCENDING;
+    }
+
+    setSorting({ type: sortNext, by: key });
+  };
+
+  const handleSort = useCallback(
+    (a, b) => {
+      const column = columns.find(c => c.key === sorting.by);
+
+      if (!column) {
+        return 0;
+      }
+
+      const aValue = column.get ? column.get(a) : a[sorting.by];
+      const bValue = column.get ? column.get(b) : b[sorting.by];
+
+      if (sorting.type === SORT.ASCENDING) {
+        return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
+      }
+
+      if (sorting.type === SORT.DESCENDING) {
+        return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
+      }
+
+      return 0;
+    },
+    [columns, sorting]
+  );
+
+  // When table gets unmounted, reset sorting to defualt
+  useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
+
+  const clickable = !!onRowClicked;
+  const tableClass = classNames('table', { '-clickable': clickable });
+
+  const columnClass = className => (className && className()) || '';
+  const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
+  const columnArrowClass = key =>
+    classNames('arrow', {
+      '-default': sorting.by !== key,
+      '-ascending': sorting.type === 'ascending' && sorting.by === key,
+      '-descending': sorting.type === 'descending' && sorting.by === key
+    });
+
+  const baseRowClass = (className, original, row) => (className ? className(original, row) : '');
+  const cellClass = (rowClass, isHighlighted) => classNames(rowClass, { '-highlighted': isHighlighted });
+
+  // Memoize the sorting, to avoid re-sorting on every re-render
+  const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, handleSort]);
 
   return (
     <table className={tableClass} cellSpacing="0" cellPadding="0">
+      {/* Colgroups */}
       <colgroup>
         {columns && columns.map(({ key, width }) => <col key={`colgroup-${key}`} width={width} />)}
       </colgroup>
       <thead>
+        {/* Column headers */}
         <tr>
-          {columns.map(({ key, label, className }) => {
-            return (
-              <th className={className && className()} key={`col-${key}`}>
-                {label || label === '' ? label : capitalize(key)}
-              </th>
-            );
-          })}
+          {columns.map(({ key, label, className, isSortable = true }) => (
+            <th
+              key={`col-${key}`}
+              className={columnClass(className)}
+              onClick={() => isSortable && handleHeaderClicked(key)}
+            >
+              {columnLabel(label, key)}
+              {isSortable && <div className={columnArrowClass(key)} />}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        {rows && rows.length ? (
-          rows.map((row, i) => (
-            <tr key={i} onClick={() => clickable && onRowClicked && onRowClicked(i)}>
-              {columns.map(({ key, transform, get, className }) => {
-                const [formatted, original] = getValue(row, key, get, transform);
-                const customClass = className ? className(original) : '';
-                const cellClass = classNames(customClass, { '-highlighted': i === highlightedIndex });
-                return (
-                  <td className={cellClass} key={i + key}>
-                    {formatted}
-                  </td>
-                );
-              })}
-            </tr>
-          ))
-        ) : (
+        {!rows || rows.length === 0 ? (
           <tr className="-empty">
             <td colSpan={2}>No results found</td>
           </tr>
+        ) : (
+          sortedRows.map((row, i) => {
+            /* Rows */
+            const rowUniqueKey = uniqueKeySelector(row);
+            const onClick = () => onRowClicked && onRowClicked(i);
+
+            return (
+              <tr key={rowUniqueKey} onClick={onClick}>
+                {columns.map(({ key, transform, get, className }) => {
+                  const cellUniqueKey = `${rowUniqueKey}/${key}`;
+                  const isHighlighted = i === highlightedIndex;
+                  const [formatted, original] = getCellValue(row, key, get, transform);
+                  const rowClass = baseRowClass(className, original, row);
+
+                  return (
+                    <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
+                      {formatted}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })
         )}
       </tbody>
     </table>
@@ -59,7 +134,6 @@ function Table({ rows, columns, highlightedIndex, onRowClicked, clickable }) {
 
 Table.defaultProps = {
   rows: [],
-  clickable: false,
   onRowClicked: undefined,
   highlightedIndex: -1
 };
@@ -75,12 +149,13 @@ Table.propTypes = {
   //  - className (optional) - custom styling class, a couple preset classes are: [-primary, -positive, -negative, -neutral, -low-positive, -break-large, -break-small]
   //  - transform (optional) - custom cell rendering (provide a component to render inside the cell)
   //  - get (optional) - alternate way of fetching data from the row object, by default it will fetch row[key]
+  //  - isSortable (true by default) - if false, will not show the sorting arrow (or allow sorting)
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
-  highlightedIndex: PropTypes.number,
+  // Since not all rows have an "id" field, the unique identifier must be defined
+  uniqueKeySelector: PropTypes.func.isRequired,
 
-  // If true, the rows will be clickable
-  clickable: PropTypes.bool,
+  highlightedIndex: PropTypes.number,
 
   // Event: fired when a row is clicked (if clickable)
   onRowClicked: PropTypes.func

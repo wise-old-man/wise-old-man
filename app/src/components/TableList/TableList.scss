@@ -6,6 +6,10 @@
   border-collapse: separate;
   border-spacing: 0 10px;
 
+  a:hover {
+    opacity: 0.7;
+  }
+
   &.-clickable {
     td {
       cursor: pointer;

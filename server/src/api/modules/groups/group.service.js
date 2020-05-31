@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
 const moment = require('moment');
+const PERIODS = require('../../constants/periods');
+const { ALL_METRICS } = require('../../constants/metrics');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
 const { BadRequestError } = require('../../errors');
@@ -119,9 +121,47 @@ async function getMonthlyTopPlayer(groupId) {
   });
 
   const memberIds = memberships.map(m => m.playerId);
-  const monthlyTopPlayer = memberIds.length ? await deltaService.getMonthlyTop(memberIds) : null;
+
+  if (!memberIds.length) {
+    return null;
+  }
+
+  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
+  const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
+}
+
+/**
+ * Gets the leaderboard for a specific metric,
+ * between the members of a group.
+ */
+async function getLeaderboard(groupId, period, metric) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId']
+  });
+
+  const memberIds = memberships.map(m => m.playerId);
+
+  if (!memberIds.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds);
+  return leaderboard;
 }
 
 async function getMembersList(id) {
@@ -173,15 +213,16 @@ async function getMembersList(id) {
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
     .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
-    .sort((a, b) => b.overallExperience - a.overallExperience);
+    .sort((a, b) => a.role.localeCompare(b.role));
 }
 
-async function create(name, members) {
+async function create(name, clanChat, members) {
   if (!name) {
     throw new BadRequestError('Invalid group name.');
   }
 
   const sanitizedName = sanitizeName(name);
+  const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
 
   if (await Group.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
@@ -208,7 +249,13 @@ async function create(name, members) {
   }
 
   const [verificationCode, verificationHash] = await generateVerification();
-  const group = await Group.create({ name: sanitizedName, verificationCode, verificationHash });
+
+  const group = await Group.create({
+    name: sanitizedName,
+    clanChat: sanitizedClanChat,
+    verificationCode,
+    verificationHash
+  });
 
   if (!members) {
     return { ...format(group), members: [] };
@@ -224,7 +271,7 @@ async function create(name, members) {
  *
  * Note: If "members" is defined, it will replace the existing members.
  */
-async function edit(id, name, verificationCode, members) {
+async function edit(id, name, clanChat, verificationCode, members) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -233,8 +280,8 @@ async function edit(id, name, verificationCode, members) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  if (!name && !members) {
-    throw new BadRequestError('You must either include a new name or a new member list.');
+  if (!name && !members && !clanChat) {
+    throw new BadRequestError('You must either include a new name, clan chat or members list.');
   }
 
   if (name) {
@@ -281,8 +328,14 @@ async function edit(id, name, verificationCode, members) {
     groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
-  if (name) {
-    await group.update({ name: sanitizeName(name) });
+  if (name || clanChat) {
+    const sanitizedName = name && sanitizeName(name);
+    const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
+
+    await group.update({
+      name: sanitizedName,
+      clanChat: sanitizedClanChat
+    });
   }
 
   return { ...format(group), members: groupMembers };
@@ -329,7 +382,12 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const players = await playerService.findAllOrCreate(members.map(m => m.username));
+  const uniqueNames = _.uniqBy(
+    members.map(m => m.username),
+    m => m.toLowerCase()
+  );
+
+  const players = await playerService.findAllOrCreate(uniqueNames);
 
   const newMemberships = players.map((p, i) => ({
     playerId: p.id,
@@ -404,7 +462,7 @@ async function addMembers(id, verificationCode, members) {
 
   const leaderUsernames = members
     .filter(m => m.role === 'leader')
-    .map(m => playerService.formatUsername(m.username));
+    .map(m => playerService.standardize(m.username));
 
   // If there's any new leaders, we have to re-add them, forcing the leader role
   if (leaderUsernames && leaderUsernames.length > 0) {
@@ -511,7 +569,7 @@ async function changeRole(id, username, role, verificationCode) {
     include: [
       {
         model: Player,
-        where: { username: playerService.formatUsername(username) }
+        where: { username: playerService.standardize(username) }
       }
     ]
   });
@@ -617,6 +675,7 @@ exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
+exports.getLeaderboard = getLeaderboard;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;

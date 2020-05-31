@@ -63,7 +63,7 @@ function EditCompetition() {
       setMetric(competition.metric);
       setStartDate(competition.startsAt);
       setEndDate(competition.endsAt);
-      setParticipants(competition.participants.map(p => p.username));
+      setParticipants(competition.participants.map(p => p.displayName));
     }
   };
 
@@ -81,7 +81,9 @@ function EditCompetition() {
   };
 
   const handleAddParticipant = username => {
-    setParticipants(p => (p.includes(username) ? p : [...p, username]));
+    setParticipants(p =>
+      p.map(f => f.toLowerCase()).includes(username.toLowerCase()) ? p : [...p, username]
+    );
   };
 
   const handleRemoveParticipant = username => {
@@ -115,8 +117,8 @@ function EditCompetition() {
         return [..._.uniq(usernames)];
       }
 
-      const existingUsernames = currentParticipants;
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+      const existingUsernames = currentParticipants.map(e => e.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
       return [...currentParticipants, ..._.uniq(newUsernames)];
     });

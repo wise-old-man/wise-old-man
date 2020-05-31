@@ -1,11 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './Tabs.scss';
 
-function Tabs({ tabs, onChange, align }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
+function Tabs({ tabs, selectedIndex, onChange, align, specialHighlightIndex }) {
   const handleSelection = e => {
     const index = parseInt(e.target.dataset.index, 10);
 
@@ -13,7 +11,6 @@ function Tabs({ tabs, onChange, align }) {
       return;
     }
 
-    setSelectedIndex(index);
     onChange(index);
   };
 
@@ -35,6 +32,7 @@ function Tabs({ tabs, onChange, align }) {
         return (
           <button key={tab} data-index={i} className={tabClass} type="button" onClick={onSelect}>
             {tab}
+            {i === specialHighlightIndex && <div className="new-dot" />}
           </button>
         );
       })}
@@ -43,18 +41,23 @@ function Tabs({ tabs, onChange, align }) {
 }
 
 Tabs.defaultProps = {
-  align: 'left'
+  align: 'left',
+  specialHighlightIndex: -1
 };
 
 Tabs.propTypes = {
   // A list of tabs to render
   tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
 
+  selectedIndex: PropTypes.number.isRequired,
+
   // Event: fired on tab selected
   onChange: PropTypes.func.isRequired,
 
   // The alignment of the tabs (optional), must be one of (right, left, center, space-between)
-  align: PropTypes.string
+  align: PropTypes.string,
+
+  specialHighlightIndex: PropTypes.number
 };
 
 export default React.memo(Tabs);

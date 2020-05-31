@@ -11,20 +11,20 @@ function TopPlayerWidget({ competition }) {
   if (showPlaceholder) {
     return (
       <div className="top-player-widget">
-        <b className="top__username -placeholder" />
+        <b className="top__name -placeholder" />
         <span className="top__gained -placeholder" />
       </div>
     );
   }
 
   const topPlayer = participants[0];
-  const gained = formatNumber(topPlayer && topPlayer.progress ? topPlayer.progress.delta : 0);
+  const gained = formatNumber(topPlayer && topPlayer.progress ? topPlayer.progress.gained : 0);
 
   const gainedLabel = isSkill(metric) ? 'exp gained' : getMeasure(metric);
 
   return (
     <Link className="top-player-widget -clickable" to={`/players/${topPlayer.id}`}>
-      <b className="top__username">{topPlayer.username}</b>
+      <b className="top__name">{topPlayer.displayName}</b>
       <span className="top__gained">{`${gained} ${gainedLabel}`}</span>
     </Link>
   );

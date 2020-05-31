@@ -9,6 +9,7 @@ import TextButton from '../../components/TextButton';
 import MembersSelector from '../../components/MembersSelector';
 import Button from '../../components/Button';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
+import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import VerificationModal from '../../modals/VerificationModal';
 import createGroupAction from '../../redux/modules/groups/actions/create';
 import { isCreating, getError } from '../../redux/selectors/groups';
@@ -22,8 +23,10 @@ function CreateGroup() {
   const error = useSelector(state => getError(state));
 
   const [name, setName] = useState('');
+  const [clanChat, setClanChat] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
@@ -31,14 +34,18 @@ function CreateGroup() {
     setName(e.target.value);
   };
 
+  const handleClanChatChanged = e => {
+    setClanChat(e.target.value);
+  };
+
   const handleAddMember = username => {
     setMembers(currentMembers => {
       // If username is already member
-      if (currentMembers.filter(m => m.username === username).length !== 0) {
+      if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
         return currentMembers;
       }
 
-      const newMember = { username, role: 'member' };
+      const newMember = { username, displayName: username, role: 'member' };
       return [...currentMembers, newMember];
     });
   };
@@ -69,20 +76,23 @@ function CreateGroup() {
   const handleModalSubmit = (usernames, replace) => {
     setMembers(currentMembers => {
       if (replace) {
-        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+        return [..._.uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
       }
 
-      const existingUsernames = currentMembers.map(c => c.username);
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+      const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+      return [
+        ...currentMembers,
+        ..._.uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+      ];
     });
 
     toggleImportModal(false);
   };
 
   const handleSubmit = async () => {
-    const formData = { name, members };
+    const formData = { name, clanChat, members };
 
     dispatch(createGroupAction(formData)).then(a => {
       if (a && a.group) {
@@ -98,14 +108,19 @@ function CreateGroup() {
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
+  const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
+  const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
+  const onClanChatChanged = useCallback(handleClanChatChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
-  const onSubmit = useCallback(handleSubmit, [name, members]);
+  const onSubmit = useCallback(handleSubmit, [name, clanChat, members]);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
+
+  const isEmpty = members.length === 0;
 
   return (
     <div className="create-group__container container">
@@ -119,6 +134,11 @@ function CreateGroup() {
         <div className="form-row">
           <span className="form-row__label">Group name</span>
           <TextInput placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+        </div>
+
+        <div className="form-row">
+          <span className="form-row__label">Clan Chat</span>
+          <TextInput placeholder="Ex: titanZ" onChange={onClanChatChanged} />
         </div>
 
         <div className="form-row">
@@ -138,7 +158,11 @@ function CreateGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button
+            text="Confirm"
+            onClick={isEmpty ? showEmptyConfirmationModal : onSubmit}
+            loading={isSubmitting}
+          />
         </div>
       </div>
       {showingImportModal && (
@@ -149,6 +173,13 @@ function CreateGroup() {
           entity="group"
           verificationCode={verificationCode}
           onConfirm={onConfirmVerification}
+        />
+      )}
+      {showingEmptyConfirmationModal && (
+        <EmptyConfirmationModal
+          entity={{ type: 'group', group: 'member' }}
+          onClose={hideEmptyConfirmationModal}
+          onConfirm={onSubmit}
         />
       )}
     </div>

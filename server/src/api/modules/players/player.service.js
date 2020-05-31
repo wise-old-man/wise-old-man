@@ -7,29 +7,36 @@ const { Player } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
 const { getNextProxy } = require('../../proxies');
 const { getCombatLevel } = require('../../util/level');
+const { getHiscoresTableNames } = require('../../util/scraping');
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
 
 /**
- * Format a username into a standardized version:
+ * Format a username into a standardized version,
+ * replacing any special characters, and forcing lower case.
  *
- * "psikoi" -> "Psikoi",
- * "Hello_world  " -> "Hello World"
+ * "Psikoi" -> "psikoi",
+ * "Hello_world  " -> "hello world"
  */
-function formatUsername(username) {
+function standardize(username) {
   return username
     .replace(/[-_\s]/g, ' ')
     .trim()
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .toLowerCase();
+}
+
+function sanitize(username) {
+  return username.replace(/[-_\s]/g, ' ').trim();
 }
 
 function isValidUsername(username) {
-  const formattedUsername = formatUsername(username);
+  if (typeof username !== 'string') {
+    return false;
+  }
+
+  const formattedUsername = standardize(username);
 
   if (formattedUsername.length < 1 || formattedUsername.length > 12) {
     return false;
@@ -87,7 +94,7 @@ async function getData(username) {
   }
 
   const player = await Player.findOne({
-    where: { username: { [Op.like]: `${formatUsername(username)}` } }
+    where: { username: { [Op.like]: `${standardize(username)}` } }
   });
 
   if (!player) {
@@ -131,7 +138,7 @@ async function search(username) {
   const players = await Player.findAll({
     where: {
       username: {
-        [Op.like]: `${formatUsername(username)}%`
+        [Op.like]: `${standardize(username)}%`
       }
     },
     limit: 20
@@ -223,9 +230,9 @@ async function importCML(username) {
     const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
     const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
 
-    importedSnapshots.push(weekSnapshots);
-    importedSnapshots.push(yearSnapshots);
-    importedSnapshots.push(decadeSnapshots);
+    importedSnapshots.push(...weekSnapshots);
+    importedSnapshots.push(...yearSnapshots);
+    importedSnapshots.push(...decadeSnapshots);
   } else {
     const recentSnapshots = await importCMLSince(player.id, player.username, seconds);
     importedSnapshots.push(recentSnapshots);
@@ -244,8 +251,11 @@ async function importCMLSince(id, username, time) {
   // Convert the CML csv data to Snapshot instances
   const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
 
+  // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
+  const pastSnapshots = snapshots.filter(s => s.createdAt < new Date('2020-05-10'));
+
   // Save new snapshots to db
-  const savedSnapshots = await snapshotService.saveAll(snapshots);
+  const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
 
   return savedSnapshots;
 }
@@ -311,7 +321,7 @@ async function assertType(username, force = false) {
     throw new BadRequestError('Invalid username.');
   }
 
-  const formattedUsername = formatUsername(username);
+  const formattedUsername = standardize(username);
 
   const player = await find(formattedUsername);
 
@@ -326,7 +336,7 @@ async function assertType(username, force = false) {
   const regularExp = await getOverallExperience(formattedUsername, 'regular');
 
   if (regularExp === -1) {
-    throw new BadRequestError(`Couldn't find player ${username} in the hiscores.`);
+    throw new BadRequestError(`Failed to load hiscores for ${username}.`);
   }
 
   const ironmanExp = await getOverallExperience(formattedUsername, 'ironman');
@@ -354,8 +364,48 @@ async function assertType(username, force = false) {
   return 'ironman';
 }
 
+/**
+ * Fetch the hiscores table overall to find the correct
+ * capitalization of a given username
+ */
+async function assertName(username) {
+  if (!username) {
+    throw new BadRequestError('Invalid username.');
+  }
+
+  const formattedUsername = standardize(username);
+  const player = await find(formattedUsername);
+
+  if (!player) {
+    throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
+  }
+
+  const hiscoresNames = await getHiscoresNames(username);
+  const match = hiscoresNames.find(h => standardize(h) === username);
+
+  if (!match) {
+    throw new BadRequestError(`Couldn't find a name match for ${username}`);
+  }
+
+  if (standardize(match) !== player.username) {
+    throw new BadRequestError(`Display name and username don't match for ${username}`);
+  }
+
+  const displayName = sanitize(match);
+
+  if (displayName === player.displayName) {
+    throw new BadRequestError(`No change required: The current display name is correct.`);
+  }
+
+  await player.update({ displayName });
+  return displayName;
+}
+
 async function findOrCreate(username) {
-  const result = await Player.findOrCreate({ where: { username: formatUsername(username) } });
+  const result = await Player.findOrCreate({
+    where: { username: standardize(username) },
+    defaults: { displayName: sanitize(username) }
+  });
   return result;
 }
 
@@ -365,7 +415,7 @@ async function findById(id) {
 }
 
 async function find(username) {
-  const result = await Player.findOne({ where: { username: formatUsername(username) } });
+  const result = await Player.findOne({ where: { username: standardize(username) } });
   return result;
 }
 
@@ -428,7 +478,32 @@ async function getHiscoresData(username, type = 'regular') {
   }
 }
 
-exports.formatUsername = formatUsername;
+async function getHiscoresNames(username) {
+  const proxy = getNextProxy();
+  const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
+
+  try {
+    // Fetch the data through the API Url
+    const { data } = await axios({
+      url: proxy ? URL.replace('https', 'http') : URL,
+      proxy,
+      responseType: 'arraybuffer',
+      reponseEncoding: 'binary'
+    });
+
+    // Validate the response data
+    if (!data || !data.length || data.includes('Unavailable')) {
+      throw new ServerError('Failed to load hiscores: Service is unavailable');
+    }
+
+    return getHiscoresTableNames(data.toString('latin1'));
+  } catch (e) {
+    throw new BadRequestError('Failed to load hiscores: Invalid username.');
+  }
+}
+
+exports.standardize = standardize;
+exports.sanitize = sanitize;
 exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
@@ -438,6 +513,7 @@ exports.search = search;
 exports.update = update;
 exports.importCML = importCML;
 exports.assertType = assertType;
+exports.assertName = assertName;
 exports.find = find;
 exports.findById = findById;
 exports.findOrCreate = findOrCreate;

@@ -8,8 +8,8 @@ const request = supertest(api);
 beforeAll(async done => {
   await resetDatabase();
 
-  await Player.create({ id: 1000000, username: 'Test Player' });
-  await Player.create({ id: 200000, username: 'Alt Player' });
+  await Player.create({ id: 1000000, username: 'test player', displayName: 'Test Player' });
+  await Player.create({ id: 200000, username: 'alt player', displayName: 'Alt Player' });
 
   done();
 });
@@ -56,7 +56,8 @@ describe('Player API', () => {
       const response = await request.post('/api/players/track').send({ username: 'Psikoi' });
 
       if (response.status === 200) {
-        expect(response.body.username).toBe('Psikoi');
+        expect(response.body.username).toBe('psikoi');
+        expect(response.body.displayName).toBe('Psikoi');
       } else {
         expect(response.body.message).toMatch('Failed to load hiscores: Invalid username');
       }
@@ -65,12 +66,13 @@ describe('Player API', () => {
     }, 90000);
 
     test('Track unformatted username', async done => {
-      const response = await request.post('/api/players/track').send({ username: ' iron_mammal ' });
+      const response = await request.post('/api/players/track').send({ username: ' iron_Mammal ' });
 
       if (response.status === 200) {
-        expect(response.body.username).toBe('Iron Mammal');
+        expect(response.body.username).toBe('iron mammal');
+        expect(response.body.displayName).toBe('iron Mammal');
       } else {
-        expect(response.body.message).toMatch('Failed to load hiscores: Invalid username');
+        expect(response.body.message).toMatch('Failed to load hiscores');
       }
 
       done();
@@ -131,7 +133,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
-      expect(response.body[0].username).toBe('Test Player');
+      expect(response.body[0].username).toBe('test player');
+      expect(response.body[0].displayName).toBe('Test Player');
 
       done();
     });
@@ -187,7 +190,8 @@ describe('Player API', () => {
       const response = await request.get('/api/players').query({ username: 'Test Player' });
 
       expect(response.status).toBe(200);
-      expect(response.body.username).toBe('Test Player');
+      expect(response.body.username).toBe('test player');
+      expect(response.body.displayName).toBe('Test Player');
 
       done();
     });
@@ -196,7 +200,8 @@ describe('Player API', () => {
       const response = await request.get('/api/players').query({ username: ' alt_player' });
 
       expect(response.status).toBe(200);
-      expect(response.body.username).toBe('Alt Player');
+      expect(response.body.username).toBe('alt player');
+      expect(response.body.displayName).toBe('Alt Player');
 
       done();
     });

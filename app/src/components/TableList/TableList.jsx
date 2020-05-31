@@ -33,7 +33,7 @@ function TableList({ uniqueKeySelector, rows, columns, onRowClicked, clickable }
           })
         ) : (
           <tr className="-empty">
-            <td>No results found</td>
+            <td colSpan={columns.length}>No results found</td>
           </tr>
         )}
       </tbody>

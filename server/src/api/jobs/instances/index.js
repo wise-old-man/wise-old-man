@@ -1,21 +1,21 @@
 const ImportPlayer = require('./ImportPlayer');
 const UpdatePlayer = require('./UpdatePlayer');
-const SyncPlayerDeltas = require('./SyncPlayerDeltas');
 const SyncPlayerRecords = require('./SyncPlayerRecords');
-const SyncPlayerParticipations = require('./SyncPlayerParticipations');
 const SyncPlayerAchievements = require('./SyncPlayerAchievements');
 const AddToGroupCompetitions = require('./AddToGroupCompetitions');
 const RemoveFromGroupCompetitions = require('./RemoveFromGroupCompetitions');
 const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
+const SyncPlayerInitialValues = require('./SyncPlayerInitialValues');
+const AssertPlayerName = require('./AssertPlayerName');
 
 module.exports = {
   ImportPlayer,
   UpdatePlayer,
-  SyncPlayerDeltas,
   SyncPlayerRecords,
-  SyncPlayerParticipations,
   SyncPlayerAchievements,
   AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
-  ReevaluatePlayerAchievements
+  ReevaluatePlayerAchievements,
+  SyncPlayerInitialValues,
+  AssertPlayerName
 };

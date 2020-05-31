@@ -73,7 +73,35 @@ function getConfig(datasets, invertYAxis) {
   };
 }
 
-function LineChart({ datasets, invertYAxis }) {
+function renderDistributionLabel(distribution, callback) {
+  if (!distribution || distribution.before <= 30) {
+    return null;
+  }
+
+  const { enabled, after, before } = distribution;
+
+  if (enabled) {
+    return (
+      <span className="distribution-label">
+        {`Showing only ${after} out of ${before} snapshots for easier viewing.`}
+        <button type="button" onClick={callback}>
+          Show all
+        </button>
+      </span>
+    );
+  }
+
+  return (
+    <span className="distribution-label">
+      {`Showing ${before} snapshots. Are these hard to read?`}
+      <button type="button" onClick={callback}>
+        Click to smoothen the chart
+      </button>
+    </span>
+  );
+}
+
+function LineChart({ datasets, distribution, onDistributionChanged, invertYAxis }) {
   const hasEnoughData = datasets.filter(d => d.data.length > 1).length > 0;
 
   const chartObjectRef = useRef(null);
@@ -106,18 +134,25 @@ function LineChart({ datasets, invertYAxis }) {
 
   return (
     <div className="chart__container">
+      {renderDistributionLabel(distribution, onDistributionChanged)}
       <canvas id="line-chart" ref={chartRef} />
     </div>
   );
 }
 
 LineChart.defaultProps = {
-  invertYAxis: false
+  invertYAxis: false,
+  distribution: undefined,
+  onDistributionChanged: undefined
 };
 
 LineChart.propTypes = {
   // The datasets to display, each set will be a line in the graph
   datasets: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+
+  distribution: PropTypes.shape(PropTypes.shape()),
+
+  onDistributionChanged: PropTypes.func,
 
   // If true, the Y axis will be inverted (Useful for displaying rank progress)
   invertYAxis: PropTypes.bool

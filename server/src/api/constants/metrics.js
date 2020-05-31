@@ -31,11 +31,11 @@ const metrics = {
     { key: 'bounty_hunter_rogue', name: 'Bounty Hunter (Rogue)' },
     { key: 'clue_scrolls_all', name: 'Clue Scrolls (All)' },
     { key: 'clue_scrolls_beginner', name: 'Clue Scrolls (Beginner)' },
-    { key: 'clue_scrolls_easy', name: 'Clue Scroll (Easy)' },
-    { key: 'clue_scrolls_medium', name: 'Clue Scroll (Medium)' },
-    { key: 'clue_scrolls_hard', name: 'Clue Scroll (Hard)' },
-    { key: 'clue_scrolls_elite', name: 'Clue Scroll (Elite)' },
-    { key: 'clue_scrolls_master', name: 'Clue Scroll (Master)' },
+    { key: 'clue_scrolls_easy', name: 'Clue Scrolls (Easy)' },
+    { key: 'clue_scrolls_medium', name: 'Clue Scrolls (Medium)' },
+    { key: 'clue_scrolls_hard', name: 'Clue Scrolls (Hard)' },
+    { key: 'clue_scrolls_elite', name: 'Clue Scrolls (Elite)' },
+    { key: 'clue_scrolls_master', name: 'Clue Scrolls (Master)' },
     { key: 'last_man_standing', name: 'Last Man Standing' }
   ],
   BOSSES: [
@@ -152,6 +152,28 @@ function getFormattedName(value) {
   return 'Invalid metric name';
 }
 
+function getDifficultyFactor(metric) {
+  switch (metric) {
+    case 'chambers_of_xeric':
+    case 'chambers_of_xeric_challenge_mode':
+    case 'theatre_of_blood':
+    case 'the_gauntlet':
+    case 'the_corrupted_gauntlet':
+    case 'tztok_jad':
+      return 0.2;
+    case 'bryophyta':
+    case 'obor':
+    case 'skotizo':
+    case 'hespori':
+      return 0.1;
+    case 'mimic':
+    case 'tzkal_zuk':
+      return 0.05;
+    default:
+      return 1;
+  }
+}
+
 module.exports = {
   SKILLS: SKILLS_KEYS,
   ACTIVITIES: ACTIVITIES_KEYS,
@@ -163,5 +185,6 @@ module.exports = {
   getMeasure,
   getFormattedName,
   getRankKey,
-  getValueKey
+  getValueKey,
+  getDifficultyFactor
 };

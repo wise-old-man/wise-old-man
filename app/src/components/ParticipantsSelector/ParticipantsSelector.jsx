@@ -8,7 +8,7 @@ import { getSearchResults } from '../../redux/selectors/players';
 import searchAction from '../../redux/modules/players/actions/search';
 import './ParticipantsSelector.scss';
 
-const mapToSuggestion = player => ({ label: player.username, value: player.username });
+const mapToSuggestion = player => ({ label: player.displayName, value: player.username });
 const participantClass = isInvalid => classNames('participant-btn__label', { '-invalid': isInvalid });
 
 function ParticipantsSelector({

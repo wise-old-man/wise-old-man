@@ -12,44 +12,53 @@ function MembersTable({ members, isLoading }) {
     return null;
   }
 
-  // Column config
-  const columns = [
-    {
-      key: 'rank',
-      width: 30
-    },
-    {
-      key: 'username',
-      className: () => '-primary',
-      transform: (value, row) => (
-        <Link to={`/players/${row.id}`}>
-          <PlayerTag username={value} type={row.type} />
-        </Link>
-      )
-    },
-    {
-      key: 'role',
-      transform: value => capitalize(value)
-    },
-    {
-      key: 'overallExperience',
-      label: 'Overall exp.',
-      className: () => '-break-small',
-      transform: val => <NumberLabel value={val} />
-    },
-    {
-      key: 'updatedAt',
-      label: 'Last updated',
-      className: () => '-break-large',
-      transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
-    }
-  ];
+  const TABLE_CONFIG = {
+    uniqueKeySelector: row => row.username,
+    columns: [
+      {
+        key: 'rank',
+        width: 70
+      },
+      {
+        key: 'displayName',
+        label: 'Name',
+        className: () => '-primary',
+        transform: (value, row) => (
+          <Link to={`/players/${row.id}`}>
+            <PlayerTag name={value} type={row.type} />
+          </Link>
+        )
+      },
+      {
+        key: 'role',
+        transform: value => capitalize(value)
+      },
+      {
+        key: 'overallExperience',
+        label: 'Overall exp.',
+        className: () => '-break-small',
+        transform: val => <NumberLabel value={val} />
+      },
+      {
+        key: 'updatedAt',
+        label: 'Last updated',
+        className: () => '-break-small',
+        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+      }
+    ]
+  };
 
   if (isLoading) {
     return <TableListPlaceholder size={10} />;
   }
 
-  return <Table rows={members} columns={columns} />;
+  return (
+    <Table
+      rows={members}
+      columns={TABLE_CONFIG.columns}
+      uniqueKeySelector={TABLE_CONFIG.uniqueKeySelector}
+    />
+  );
 }
 
 MembersTable.propTypes = {

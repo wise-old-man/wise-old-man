@@ -10,6 +10,10 @@
   &__item {
     padding: 10px 15px;
     border-bottom: 1px solid $gray-09;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
 
     &.-clickable {
       cursor: pointer;
@@ -28,25 +32,13 @@
       }
     }
 
-    button {
-      width: 100%;
-      border: 0;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-      background: none;
-      font-size: 1em;
-    }
-
     &:last-child {
       border: 0;
     }
 
     .list-item__icon {
       min-width: 25px;
+      margin-right: 15px;
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -57,7 +49,6 @@
     }
 
     .list-item__text {
-      margin-left: 15px;
       flex-grow: 1;
       display: flex;
       flex-direction: column;

@@ -21,6 +21,7 @@ function EditGroup() {
   const dispatch = useDispatch();
 
   const [name, setName] = useState('');
+  const [clanChat, setClanChat] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
@@ -37,12 +38,19 @@ function EditGroup() {
   const populate = () => {
     if (group) {
       setName(group.name);
-      setMembers(group.members.map(({ username, role }) => ({ username, role })));
+      setClanChat(group.clanChat || '');
+      setMembers(
+        group.members.map(({ username, displayName, role }) => ({ username, displayName, role }))
+      );
     }
   };
 
   const handleNameChanged = e => {
     setName(e.target.value);
+  };
+
+  const handleClanChatChanged = e => {
+    setClanChat(e.target.value);
   };
 
   const handleVerificationChanged = e => {
@@ -52,11 +60,11 @@ function EditGroup() {
   const handleAddMember = username => {
     setMembers(currentMembers => {
       // If username is already member
-      if (currentMembers.filter(m => m.username === username).length !== 0) {
+      if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
         return currentMembers;
       }
 
-      const newMember = { username, role: 'member' };
+      const newMember = { username, displayName: username, role: 'member' };
       return [...currentMembers, newMember];
     });
   };
@@ -87,20 +95,23 @@ function EditGroup() {
   const handleModalSubmit = (usernames, replace) => {
     setMembers(currentMembers => {
       if (replace) {
-        return [..._.uniq(usernames).map(u => ({ username: u, role: 'member' }))];
+        return [..._.uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
       }
 
-      const existingUsernames = currentMembers.map(c => c.username);
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u));
+      const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentMembers, ..._.uniq(newUsernames).map(u => ({ username: u, role: 'member' }))];
+      return [
+        ...currentMembers,
+        ..._.uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+      ];
     });
 
     toggleImportModal(false);
   };
 
   const handleSubmit = async () => {
-    const formData = { name, members, verificationCode };
+    const formData = { name, members, clanChat, verificationCode };
 
     dispatch(editGroupAction(group.id, formData)).then(a => {
       if (a && a.group) {
@@ -113,12 +124,13 @@ function EditGroup() {
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
+  const onClanChatChanged = useCallback(handleClanChatChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
-  const onSubmit = useCallback(handleSubmit, [name, members, verificationCode]);
+  const onSubmit = useCallback(handleSubmit, [name, clanChat, members, verificationCode]);
 
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -140,6 +152,11 @@ function EditGroup() {
         <div className="form-row">
           <span className="form-row__label">Group name</span>
           <TextInput value={name} placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+        </div>
+
+        <div className="form-row">
+          <span className="form-row__label">Clan chat</span>
+          <TextInput placeholder="Ex: titanZ" value={clanChat} onChange={onClanChatChanged} />
         </div>
 
         <div className="form-row">

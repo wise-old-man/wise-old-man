@@ -12,12 +12,13 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
   const isInvalid = username => invalidUsernames && invalidUsernames.includes(username);
 
   return {
-    uniqueKey: row => row.username,
+    uniqueKeySelector: row => row.username,
     columns: [
       {
-        key: 'username',
+        key: 'displayName',
+        label: 'Name',
         width: 170,
-        className: val => (isInvalid(val) ? '-negative' : '-primary')
+        className: (val, row) => (isInvalid(row ? row.username : '') ? '-negative' : '-primary')
       },
       {
         key: 'role'
@@ -25,6 +26,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
       {
         key: 'switch role',
         label: '',
+        isSortable: false,
         width: 100,
         transform: (val, row) => (
           <button
@@ -40,6 +42,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
         key: 'remove',
         label: '',
         width: 130,
+        isSortable: false,
         transform: (val, row) => (
           <button className="table-btn -remove" type="button" onClick={() => onRemove(row.username)}>
             Remove member
@@ -50,7 +53,7 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
   };
 }
 
-const mapToSuggestion = player => ({ label: player.username, value: player.username });
+const mapToSuggestion = player => ({ label: player.displayName, value: player.username });
 
 function MembersSelector({
   members,
@@ -105,7 +108,11 @@ function MembersSelector({
         clearOnSelect
       />
       {members && members.length > 0 ? (
-        <Table uniqueKeySelector={tableConfig.uniqueKey} columns={tableConfig.columns} rows={members} />
+        <Table
+          uniqueKeySelector={tableConfig.uniqueKeySelector}
+          columns={tableConfig.columns}
+          rows={members}
+        />
       ) : (
         <span className="empty-selected">No players selected</span>
       )}

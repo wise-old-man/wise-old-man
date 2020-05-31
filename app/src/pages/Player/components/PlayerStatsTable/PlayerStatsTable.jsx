@@ -17,6 +17,8 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     return { metric: skill, level, experience, rank, ehp: 0 };
   });
 
+  const uniqueKeySelector = row => row.metric;
+
   // Column config
   const columns = [
     {
@@ -49,7 +51,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} />;
+  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
 
 function renderBossesTable(snapshot) {
@@ -57,6 +59,8 @@ function renderBossesTable(snapshot) {
     const { kills, rank } = snapshot[boss];
     return { metric: boss, kills, rank, ehb: 0 };
   });
+
+  const uniqueKeySelector = row => row.metric;
 
   // Column config
   const columns = [
@@ -87,7 +91,7 @@ function renderBossesTable(snapshot) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} />;
+  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
 
 function renderActivitiesTable(snapshot) {
@@ -95,6 +99,8 @@ function renderActivitiesTable(snapshot) {
     const { score, rank } = snapshot[activity];
     return { metric: activity, score, rank };
   });
+
+  const uniqueKeySelector = row => row.metric;
 
   // Column config
   const columns = [
@@ -120,7 +126,7 @@ function renderActivitiesTable(snapshot) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} />;
+  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) {

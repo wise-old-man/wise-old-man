@@ -225,6 +225,42 @@ export default [
     ]
   },
   {
+    title: 'Assert player display name (correct capitalization)',
+    url: '/players/assert-name',
+    method: 'POST',
+    body: {
+      username: 'thelotto'
+    },
+    successResponses: [
+      {
+        description: '',
+        body: {
+          displayName: 'TheLotto'
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no username is given.',
+        body: {
+          message: 'Invalid username.'
+        }
+      },
+      {
+        description: 'If the username is not tracked.',
+        body: {
+          message: 'Invalid player: thelotto is not being tracked yet.'
+        }
+      },
+      {
+        description: 'If the API fails to fetch hiscores data.',
+        body: {
+          message: "Couldn't find a name match for thelotto."
+        }
+      }
+    ]
+  },
+  {
     title: 'Import player',
     url: '/players/import',
     method: 'POST',

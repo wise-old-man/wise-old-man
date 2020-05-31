@@ -38,6 +38,7 @@ export default function editGroup(id, requestBody) {
 
     const body = {
       name: requestBody.name,
+      clanChat: requestBody.clanChat,
       members: requestBody.members,
       verificationCode: requestBody.verificationCode
     };
