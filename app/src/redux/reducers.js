@@ -8,6 +8,7 @@ import snapshots from './modules/snapshots/reducer';
 import players from './modules/players/reducer';
 import achievements from './modules/achievements/reducer';
 import groups from './modules/groups/reducer';
+import hiscores from './modules/hiscores/reducer';
 
 export default combineReducers({
   notifications,
@@ -17,5 +18,6 @@ export default combineReducers({
   snapshots,
   players,
   achievements,
-  groups
+  groups,
+  hiscores
 });

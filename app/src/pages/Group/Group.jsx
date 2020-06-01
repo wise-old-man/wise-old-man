@@ -11,10 +11,11 @@ import DeleteGroupModal from '../../modals/DeleteGroupModal';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
-import GroupCompetitionsTable from './components/GroupCompetitionsTable';
+import GroupCompetitions from './components/GroupCompetitions';
 import GroupAchievements from './components/GroupAchievements';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
+import { ALL_METRICS } from '../../config';
 import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import { getGroupAchievements } from '../../redux/selectors/achievements';
@@ -23,6 +24,7 @@ import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers'
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchGroupAchievements';
+import fetchHiscoresAction from '../../redux/modules/hiscores/actions/fetchGroupHiscores';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import './Group.scss';
 
@@ -51,6 +53,7 @@ function Group() {
 
   const selectedSectionIndex = getSelectedTabIndex(section);
 
+  const [selectedMetric, setSelectedMetric] = useState(ALL_METRICS[0]);
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 
@@ -79,6 +82,10 @@ function Group() {
 
   const fetchAchievements = () => {
     dispatch(fetchAchievementsAction(id));
+  };
+
+  const fetchHiscores = () => {
+    dispatch(fetchHiscoresAction(id, selectedMetric));
   };
 
   const fetchMonthlyTop = () => {
@@ -117,6 +124,7 @@ function Group() {
   useEffect(fetchMembers, [dispatch, id]);
   useEffect(fetchMonthlyTop, [dispatch, id]);
   useEffect(fetchAchievements, [dispatch, id]);
+  useEffect(fetchHiscores, [dispatch, id, selectedMetric]);
 
   if (!group) {
     return <Loading />;
@@ -158,11 +166,16 @@ function Group() {
           <GroupInfo group={group} />
         </div>
         <div className="col-md-8">
-          <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} urlSelector={getSelectedTabUrl} />
+          <Tabs
+            tabs={TABS}
+            selectedIndex={selectedSectionIndex}
+            urlSelector={getSelectedTabUrl}
+            align="space-between"
+          />
           {selectedSectionIndex === 0 && (
             <MembersTable members={group.members} isLoading={isLoadingMembers} />
           )}
-          {selectedSectionIndex === 1 && <GroupCompetitionsTable competitions={competitions} />}
+          {selectedSectionIndex === 1 && <GroupCompetitions competitions={competitions} />}
           {selectedSectionIndex === 5 && <GroupAchievements achievements={achievements} />}
         </div>
       </div>

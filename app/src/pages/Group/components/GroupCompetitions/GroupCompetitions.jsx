@@ -46,7 +46,7 @@ const TABLE_CONFIG = {
   ]
 };
 
-function GroupCompetitionsTable({ competitions }) {
+function GroupCompetitions({ competitions }) {
   const router = useHistory();
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? _.sortBy(competitions, c => _.indexOf(order, c.status)) : [];
@@ -69,8 +69,8 @@ function GroupCompetitionsTable({ competitions }) {
   );
 }
 
-GroupCompetitionsTable.propTypes = {
+GroupCompetitions.propTypes = {
   competitions: PropTypes.arrayOf(PropTypes.shape).isRequired
 };
 
-export default React.memo(GroupCompetitionsTable);
+export default React.memo(GroupCompetitions);
