@@ -4,6 +4,13 @@
 .group__container {
   @extend %page;
 
+  .widget-label {
+    display: block;
+    font-size: 0.8em;
+    color: $gray-60;
+    margin-bottom: 10px;
+  }
+
   .group__header {
     .button {
       margin-right: 15px;
@@ -36,12 +43,5 @@
 
   .group__widgets {
     margin-top: 10px;
-
-    .widget-label {
-      display: block;
-      font-size: 0.8em;
-      color: $gray-60;
-      margin-bottom: 10px;
-    }
   }
 }

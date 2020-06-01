@@ -20,7 +20,7 @@
   &.-list {
     background: none;
     box-shadow: none;
-    margin-top: -5px;
+    margin-top: -10px;
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 10px;
@@ -166,6 +166,10 @@
     &.-primary {
       color: white;
       font-weight: 700;
+    }
+
+    &.-no-padding {
+      padding: 0;
     }
   }
 

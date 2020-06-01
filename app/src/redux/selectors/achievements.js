@@ -4,15 +4,21 @@ import { getPlayer } from './players';
 import { getTotalLevel } from '../../utils';
 import { ALL_METRICS } from '../../config';
 
-const achievementsSelector = state => state.achievements.achievements;
+const playerAchievementsSelector = state => state.achievements.playerAchievements;
+const groupAchievementsSelector = state => state.achievements.groupAchievements;
 
-export const getAchievementsMap = createSelector(achievementsSelector, map => {
+export const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
   return _.mapValues(map, p => p.map(a => formatAchievement(a)));
 });
 
-export const getAchievements = createSelector(achievementsSelector, map => Object.values(map));
+export const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
+  return _.mapValues(map, p => p.map(a => formatAchievement(a)));
+});
 
-export const getPlayerAchievements = (state, playerId) => getAchievementsMap(state)[playerId];
+export const getAchievements = createSelector(playerAchievementsSelector, map => Object.values(map));
+
+export const getPlayerAchievements = (state, playerId) => getPlayerAchievementsMap(state)[playerId];
+export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
 
 export const getPlayerAchievementsGrouped = (state, playerId) => {
   const player = getPlayer(state, playerId);

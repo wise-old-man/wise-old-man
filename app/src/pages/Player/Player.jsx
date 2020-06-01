@@ -33,7 +33,7 @@ import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetch';
 import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
 import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
-import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
+import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';

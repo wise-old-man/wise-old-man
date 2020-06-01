@@ -12,18 +12,21 @@ import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
 import GroupCompetitionsTable from './components/GroupCompetitionsTable';
+import GroupAchievements from './components/GroupAchievements';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
+import { getGroupAchievements } from '../../redux/selectors/achievements';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
-import fetchGroupCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
+import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
+import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchGroupAchievements';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import './Group.scss';
 
-const TABS = ['Members', 'Competitions'];
+const TABS = ['Members', 'Competitions', 'Hiscores', 'Gained', 'Records', 'Achievements', 'Statistics'];
 
 const MENU_OPTIONS = [
   {
@@ -55,6 +58,7 @@ function Group() {
   const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
+  const achievements = useSelector(state => getGroupAchievements(state, parseInt(id, 10)));
 
   const fetchDetails = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
@@ -66,11 +70,15 @@ function Group() {
   };
 
   const fetchCompetitions = () => {
-    dispatch(fetchGroupCompetitionsAction(id));
+    dispatch(fetchCompetitionsAction(id));
   };
 
   const fetchMembers = () => {
     dispatch(fetchMembersAction(id));
+  };
+
+  const fetchAchievements = () => {
+    dispatch(fetchAchievementsAction(id));
   };
 
   const fetchMonthlyTop = () => {
@@ -85,17 +93,13 @@ function Group() {
     if (option.value === 'delete') {
       setShowingDeleteModal(true);
     } else {
-      const URL = `/groups/${group.id}/${option.value}`;
-      router.push(URL);
+      router.push(`/groups/${group.id}/${option.value}`);
     }
   };
 
   const getSelectedTabUrl = i => {
-    if (i === 1) {
-      return `/groups/${id}/competitions`;
-    }
-
-    return `/groups/${id}`;
+    const nextSection = TABS[i].toLowerCase();
+    return `/groups/${id}/${nextSection}`;
   };
 
   const handleUpdateAll = () => {
@@ -112,6 +116,7 @@ function Group() {
   useEffect(fetchCompetitions, [dispatch, id]);
   useEffect(fetchMembers, [dispatch, id]);
   useEffect(fetchMonthlyTop, [dispatch, id]);
+  useEffect(fetchAchievements, [dispatch, id]);
 
   if (!group) {
     return <Loading />;
@@ -154,11 +159,11 @@ function Group() {
         </div>
         <div className="col-md-8">
           <Tabs tabs={TABS} selectedIndex={selectedSectionIndex} urlSelector={getSelectedTabUrl} />
-          {selectedSectionIndex === 0 ? (
+          {selectedSectionIndex === 0 && (
             <MembersTable members={group.members} isLoading={isLoadingMembers} />
-          ) : (
-            <GroupCompetitionsTable competitions={competitions} />
           )}
+          {selectedSectionIndex === 1 && <GroupCompetitionsTable competitions={competitions} />}
+          {selectedSectionIndex === 5 && <GroupAchievements achievements={achievements} />}
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}
