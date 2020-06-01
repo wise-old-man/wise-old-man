@@ -1,16 +1,16 @@
-export const FETCH_LEADERBOARD_REQUEST = 'wise-old-man/deltas/FETCH_REQUEST';
-export const FETCH_LEADERBOARD_SUCCESS = 'wise-old-man/deltas/FETCH_SUCCESS';
-export const FETCH_LEADERBOARD_FAILURE = 'wise-old-man/deltas/FETCH_FAILURE';
+export const FETCH_LEADERBOARD_REQUEST = 'deltas/FETCH_DELTAS_LEADERBOARDS_REQUEST';
+export const FETCH_LEADERBOARD_SUCCESS = 'deltas/FETCH_DELTAS_LEADERBOARDS_SUCCESS';
+export const FETCH_LEADERBOARD_FAILURE = 'deltas/FETCH_DELTAS_LEADERBOARDS_FAILURE';
 
-export const FETCH_PLAYER_DELTAS_REQUEST = 'wise-old-man/deltas/FETCH_PLAYER_DELTAS_REQUEST';
-export const FETCH_PLAYER_DELTAS_SUCCESS = 'wise-old-man/deltas/FETCH_PLAYER_DELTAS_SUCCESS';
-export const FETCH_PLAYER_DELTAS_FAILURE = 'wise-old-man/deltas/FETCH_PLAYER_DELTAS_FAILURE';
+export const FETCH_PLAYER_DELTAS_REQUEST = 'deltas/FETCH_PLAYER_DELTAS_REQUEST';
+export const FETCH_PLAYER_DELTAS_SUCCESS = 'deltas/FETCH_PLAYER_DELTAS_SUCCESS';
+export const FETCH_PLAYER_DELTAS_FAILURE = 'deltas/FETCH_PLAYER_DELTAS_FAILURE';
 
 const initialState = {
   isFetchingLeaderboard: false,
   isFetchingPlayerDeltas: false,
   deltas: {},
-  leaderboard: {},
+  leaderboard: {}
 };
 
 export default function deltasReducer(state = initialState, action) {
@@ -31,7 +31,7 @@ export default function deltasReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerDeltas: false,
-        deltas: { ...state.deltas, [action.playerId]: action.deltas },
+        deltas: { ...state.deltas, [action.playerId]: action.deltas }
       };
 
     case FETCH_PLAYER_DELTAS_FAILURE:

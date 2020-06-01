@@ -1,24 +1,24 @@
 import { toMap } from '../../utils';
 
-export const TRACK_PLAYER_REQUEST = 'wise-old-man/players/TRACK_REQUEST';
-export const TRACK_PLAYER_SUCCESS = 'wise-old-man/players/TRACK_SUCCESS';
-export const TRACK_PLAYER_FAILURE = 'wise-old-man/players/TRACK_FAILURE';
+export const TRACK_PLAYER_REQUEST = 'players/TRACK_PLAYER_REQUEST';
+export const TRACK_PLAYER_SUCCESS = 'players/TRACK_PLAYER_SUCCESS';
+export const TRACK_PLAYER_FAILURE = 'players/TRACK_PLAYER_FAILURE';
 
-export const ASSERT_TYPE_REQUEST = 'wise-old-man/players/ASSERT_TYPE_REQUEST';
-export const ASSERT_TYPE_SUCCESS = 'wise-old-man/players/ASSERT_TYPE_SUCCESS';
-export const ASSERT_TYPE_FAILURE = 'wise-old-man/players/ASSERT_TYPE_FAILURE';
+export const ASSERT_TYPE_REQUEST = 'players/ASSERT_PLAYER_TYPE_REQUEST';
+export const ASSERT_TYPE_SUCCESS = 'players/ASSERT_PLAYER_TYPE_SUCCESS';
+export const ASSERT_TYPE_FAILURE = 'players/ASSERT_PLAYER_TYPE_FAILURE';
 
-export const ASSERT_NAME_REQUEST = 'wise-old-man/players/ASSERT_NAME_REQUEST';
-export const ASSERT_NAME_SUCCESS = 'wise-old-man/players/ASSERT_NAME_SUCCESS';
-export const ASSERT_NAME_FAILURE = 'wise-old-man/players/ASSERT_NAME_FAILURE';
+export const ASSERT_NAME_REQUEST = 'players/ASSERT_PLAYER_NAME_REQUEST';
+export const ASSERT_NAME_SUCCESS = 'players/ASSERT_PLAYER_NAME_SUCCESS';
+export const ASSERT_NAME_FAILURE = 'players/ASSERT_PLAYER_NAME_FAILURE';
 
-export const FETCH_PLAYER_REQUEST = 'wise-old-man/players/FETCH_REQUEST';
-export const FETCH_PLAYER_SUCCESS = 'wise-old-man/players/FETCH_SUCCESS';
-export const FETCH_PLAYER_FAILURE = 'wise-old-man/players/FETCH_FAILURE';
+export const FETCH_PLAYER_REQUEST = 'players/FETCH_PLAYER_REQUEST';
+export const FETCH_PLAYER_SUCCESS = 'players/FETCH_PLAYER_SUCCESS';
+export const FETCH_PLAYER_FAILURE = 'players/FETCH_PLAYER_FAILURE';
 
-export const SEARCH_PLAYERS_REQUEST = 'wise-old-man/players/SEARCH_REQUEST';
-export const SEARCH_PLAYERS_SUCCESS = 'wise-old-man/players/SEARCH_SUCCESS';
-export const SEARCH_PLAYERS_FAILURE = 'wise-old-man/players/SEARCH_FAILURE';
+export const SEARCH_PLAYERS_REQUEST = 'players/SEARCH_PLAYERS_REQUEST';
+export const SEARCH_PLAYERS_SUCCESS = 'players/SEARCH_PLAYERS_SUCCESS';
+export const SEARCH_PLAYERS_FAILURE = 'players/SEARCH_PLAYERS_FAILURE';
 
 const initialState = {
   isFetching: false,

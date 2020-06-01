@@ -1,6 +1,6 @@
-export const FETCH_GROUP_HISCORES_REQUEST = 'wise-old-man/hiscores/FETCH_GROUP_HISCORES_REQUEST';
-export const FETCH_GROUP_HISCORES_SUCCESS = 'wise-old-man/hiscores/FETCH_GROUP_HISCORES_SUCCESS';
-export const FETCH_GROUP_HISCORES_FAILURE = 'wise-old-man/hiscores/FETCH_GROUP_HISCORES_FAILURE';
+export const FETCH_GROUP_HISCORES_REQUEST = 'hiscores/FETCH_GROUP_HISCORES_REQUEST';
+export const FETCH_GROUP_HISCORES_SUCCESS = 'hiscores/FETCH_GROUP_HISCORES_SUCCESS';
+export const FETCH_GROUP_HISCORES_FAILURE = 'hiscores/FETCH_GROUP_HISCORES_FAILURE';
 
 const initialState = {
   isFetchingGroupHiscores: false,

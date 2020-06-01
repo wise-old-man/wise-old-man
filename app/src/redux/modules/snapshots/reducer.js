@@ -1,10 +1,10 @@
-export const FETCH_SNAPSHOTS_REQUEST = 'wise-old-man/snapshots/FETCH_SNAPSHOTS_REQUEST';
-export const FETCH_SNAPSHOTS_SUCCESS = 'wise-old-man/snapshots/FETCH_SNAPSHOTS_SUCCESS';
-export const FETCH_SNAPSHOTS_FAILURE = 'wise-old-man/snapshots/FETCH_SNAPSHOTS_FAILURE';
+export const FETCH_SNAPSHOTS_REQUEST = 'snapshots/FETCH_SNAPSHOTS_REQUEST';
+export const FETCH_SNAPSHOTS_SUCCESS = 'snapshots/FETCH_SNAPSHOTS_SUCCESS';
+export const FETCH_SNAPSHOTS_FAILURE = 'snapshots/FETCH_SNAPSHOTS_FAILURE';
 
 const initialState = {
   isFetchingSnapshots: false,
-  snapshots: {},
+  snapshots: {}
 };
 
 export default function snapshotsReducer(state = initialState, action) {
@@ -16,7 +16,7 @@ export default function snapshotsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingSnapshots: false,
-        snapshots: { ...state.snapshots, [action.playerId]: action.snapshotData },
+        snapshots: { ...state.snapshots, [action.playerId]: action.snapshotData }
       };
 
     case FETCH_SNAPSHOTS_FAILURE:
