@@ -1,4 +1,4 @@
-import * as jobs from '../../jobs';
+import jobs from '../../jobs';
 import * as service from './player.service';
 
 async function get(req, res, next) {

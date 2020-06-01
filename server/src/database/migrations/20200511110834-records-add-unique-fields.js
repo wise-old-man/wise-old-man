@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   up: queryInterface => {
     return queryInterface.addIndex('records', ['playerId', 'period', 'metric'], {
       indexName: 'records_playerId_period_metric',

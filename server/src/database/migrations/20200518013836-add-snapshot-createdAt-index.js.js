@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   up: queryInterface => {
     return queryInterface.addIndex('snapshots', ['createdAt'], {
       indexName: 'snapshots_createdAt'

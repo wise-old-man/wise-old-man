@@ -1,4 +1,4 @@
-import service from './record.service';
+import * as service from './record.service';
 
 async function get(req, res, next) {
   try {

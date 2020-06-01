@@ -1,6 +1,6 @@
-const deltaService = require('../../modules/deltas/delta.service');
+import * as deltaService from '../../modules/deltas/delta.service';
 
-module.exports = {
+export default {
   key: 'SyncPlayerInitialValues',
   async handle({ data }) {
     const { playerId } = data;

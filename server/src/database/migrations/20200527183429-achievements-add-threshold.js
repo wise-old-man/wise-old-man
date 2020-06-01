@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('achievements', 'threshold', {
       type: Sequelize.BIGINT

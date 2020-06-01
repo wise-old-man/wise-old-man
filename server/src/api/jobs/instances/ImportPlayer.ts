@@ -1,10 +1,10 @@
-const playerService = require('../../modules/players/player.service');
+import * as playerService from '../../modules/players/player.service';
 
-module.exports = {
+export default {
   key: 'ImportPlayer',
   async handle({ data }) {
     const { player } = data;
     await playerService.importCML(player.username);
   },
-  onFail() {}
+  onFail() { }
 };

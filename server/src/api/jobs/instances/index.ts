@@ -1,12 +1,12 @@
-const ImportPlayer = require('./ImportPlayer');
-const UpdatePlayer = require('./UpdatePlayer');
-const SyncPlayerRecords = require('./SyncPlayerRecords');
-const SyncPlayerAchievements = require('./SyncPlayerAchievements');
-const AddToGroupCompetitions = require('./AddToGroupCompetitions');
-const RemoveFromGroupCompetitions = require('./RemoveFromGroupCompetitions');
-const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
-const SyncPlayerInitialValues = require('./SyncPlayerInitialValues');
-const AssertPlayerName = require('./AssertPlayerName');
+import ImportPlayer from './ImportPlayer';
+import UpdatePlayer from './UpdatePlayer';
+import SyncPlayerRecords from './SyncPlayerRecords';
+import SyncPlayerAchievements from './SyncPlayerAchievements';
+import AddToGroupCompetitions from './AddToGroupCompetitions';
+import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
+import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
+import SyncPlayerInitialValues from './SyncPlayerInitialValues';
+import AssertPlayerName from './AssertPlayerNames';
 
 export {
   ImportPlayer,

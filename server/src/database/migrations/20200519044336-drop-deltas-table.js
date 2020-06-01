@@ -1,6 +1,6 @@
-const PERIODS = require('../../api/constants/periods');
+import PERIODS from '../../api/constants/periods.json';
 
-module.exports = {
+export default {
   up: queryInterface => {
     return queryInterface.dropTable('deltas');
   },

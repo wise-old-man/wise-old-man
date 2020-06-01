@@ -1,12 +1,13 @@
-import * as axios from 'axios';
+const axios = require('axios');
 import { Op } from 'sequelize';
 import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
 import { Player } from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service'
-import { getNextProxy, getCombatLevel } from '../../proxies';
+import proxies from '../../proxies';
 import { getHiscoresTableNames } from '../../util/scraping';
+import { getCombatLevel } from '../../util/level';
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -216,7 +217,7 @@ async function importCML(username) {
   // If the player hasn't imported in over 24h,
   // attempt to import its history from CML
   if (!should) {
-    const minsTilImport = Math.floor((24 * 3600 - seconds) / 60);
+    const minsTilImport = Math.floor((24 * 3600 - (seconds as number)) / 60);
     throw new BadRequestError(`Imported too soon, please wait another ${minsTilImport} minutes.`);
   }
 
@@ -251,7 +252,7 @@ async function importCMLSince(id, username, time) {
   const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
-  const pastSnapshots = snapshots.filter(s => s.createdAt < new Date('2020-05-10'));
+  const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
 
   // Save new snapshots to db
   const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
@@ -459,7 +460,7 @@ async function getCMLHistory(username, time) {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username, type = 'regular') {
-  const proxy = getNextProxy();
+  const proxy = proxies.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
@@ -478,7 +479,7 @@ async function getHiscoresData(username, type = 'regular') {
 }
 
 async function getHiscoresNames(username) {
-  const proxy = getNextProxy();
+  const proxy = proxies.getNextProxy();
   const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
 
   try {

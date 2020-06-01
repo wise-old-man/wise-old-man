@@ -75,4 +75,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-export { isValidDate, isPast, isFuture, isAfter, isBefore, durationBetween }
+export { isValidDate, isPast, isFuture, isAfter, isBefore, durationBetween };

@@ -1,4 +1,4 @@
-const { ACTIVITIES, BOSSES, getRankKey, getValueKey } = require('../../api/constants/metrics');
+import { ACTIVITIES, BOSSES, getRankKey, getValueKey } from '../../api/constants/metrics';
 
 function getActivityColumns(Sequelize) {
   return ACTIVITIES.map(activity => [
@@ -14,7 +14,7 @@ function getBossColumns(Sequelize) {
   ]).flat();
 }
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     const newColumns = [...getActivityColumns(Sequelize), ...getBossColumns(Sequelize)];
 

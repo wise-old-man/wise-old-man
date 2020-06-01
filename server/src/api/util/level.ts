@@ -1,6 +1,6 @@
-import { pick, transform } from 'lodash'
-import { SKILLS, getValueKey } from '../constants/metrics'
-import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../constants/levels'
+import { pick, transform } from 'lodash';
+import { SKILLS, getValueKey } from '../constants/metrics';
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../constants/levels';
 
 function getLevel(experience, virtual = false) {
   // Unranked
@@ -42,7 +42,7 @@ function getCombatLevel(playerExperiences) {
     'magicExperience'
   ]);
 
-  const levels = transform(combatExperiences, (r, v, k) => {
+  const levels: any = transform(combatExperiences, (r, v, k) => {
     // eslint-disable-next-line no-param-reassign
     r[k.replace('Experience', '')] = getLevel(v);
   });

@@ -1,7 +1,6 @@
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
 
-
 function getHiscoresTableNames(data) {
   const $ = cheerio.load(data);
   tableParser($);

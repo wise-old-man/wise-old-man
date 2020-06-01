@@ -1,6 +1,6 @@
-const competitionService = require('../../modules/competitions/competition.service');
+import * as competitionService from '../../modules/competitions/competition.service';
 
-module.exports = {
+export default {
   key: 'RemoveFromGroupCompetitions',
   async handle({ data }) {
     const { groupId, playerIds } = data;

@@ -1,6 +1,6 @@
-import ROLES from '../../constants/roles.json';
+import ROLES from '../../constants/roles';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   // Define the membership schema
   const membershipSchema = {
     playerId: {

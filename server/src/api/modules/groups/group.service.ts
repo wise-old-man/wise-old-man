@@ -1,7 +1,7 @@
 import { omit, uniqBy, mapValues, keyBy } from 'lodash';
 import { Op, Sequelize, QueryTypes } from 'sequelize';
 import * as moment from 'moment';
-import PERIODS from '../../constants/periods.json';
+import PERIODS from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
 import { Group, Membership, Player, sequelize } from '../../../database';
 import { generateVerification, verifyCode } from '../../util/verification';
@@ -53,7 +53,7 @@ async function findForPlayer(playerId, pagination) {
   });
 
   // Extract all the unique groups from the memberships, and format them.
-  const groups = uniqBy(memberships, m => m.group.id)
+  const groups = uniqBy(memberships, (m: any) => m.group.id)
     .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(p => p.group)
     .map(format);
@@ -194,7 +194,7 @@ async function getMembersList(id) {
               GROUP BY q."playerId"
               ) r
         JOIN public.snapshots s
-          ON s."playerId" = r."playerId"  
+          ON s."playerId" = r."playerId"
           AND s."createdAt"   = r.max_date
         ORDER BY s."playerId"
   `;
@@ -384,7 +384,7 @@ async function setMembers(group, members) {
 
   const uniqueNames = uniqBy(
     members.map(m => m.username),
-    m => m.toLowerCase()
+    (m: string) => m.toLowerCase()
   );
 
   const players = await playerService.findAllOrCreate(uniqueNames);

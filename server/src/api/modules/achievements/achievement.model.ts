@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   // Define the achievement schema
   const achievementSchema = {
     playerId: {

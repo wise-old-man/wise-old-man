@@ -1,6 +1,5 @@
-const service = require('./achievement.service');
-
-import BadRequestError from '../../errors'
+import * as service from './achievement.service';
+import { BadRequestError } from '../../errors'
 
 async function get(req, res, next) {
   try {
@@ -18,4 +17,4 @@ async function get(req, res, next) {
 }
 
 
-export default get;
+export { get };

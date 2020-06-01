@@ -1,8 +1,8 @@
-const express = require('express');
-const controller = require('./achievement.controller');
+import express from 'express';
+import * as controller from './achievement.controller';
 
 const api = express.Router();
 
 api.get('/', controller.get);
 
-module.exports = api;
+export default api;

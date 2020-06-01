@@ -1,4 +1,4 @@
-const { getCombatLevel, getTotalLevel } = require('../../util/level');
+import { getCombatLevel, getTotalLevel } from '../../util/level';
 
 const SKILL_TEMPLATES = [
   {
@@ -45,4 +45,8 @@ const BOSS_TEMPLATES = [
   }
 ];
 
-module.exports = { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES };
+export {
+  SKILL_TEMPLATES,
+  ACTIVITY_TEMPLATES,
+  BOSS_TEMPLATES
+};

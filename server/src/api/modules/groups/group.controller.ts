@@ -1,6 +1,6 @@
 import * as service from './group.service';
 import * as pagination from '../../util/pagination';
-import * as jobs from '../../jobs';
+import jobs from '../../jobs';
 
 async function listGroups(req, res, next) {
   try {

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   up: queryInterface => {
     return queryInterface.addIndex('achievements', ['playerId', 'type'], {
       indexName: 'achievements_playerId_type',

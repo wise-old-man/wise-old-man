@@ -1,6 +1,6 @@
-const ROLES = require('../../api/constants/roles');
+import ROLES from '../../api/constants/roles';
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('memberships', {
       playerId: {

@@ -1,10 +1,9 @@
-const Queue = require('bull');
-const redisConfig = require('./redis');
-
-const jobs = require('./instances');
+import { Queue } from 'bull';
+import redisConfig from './redis';
+import * as jobs from './instances';
 
 function instance() {
-  const queues = Object.values(jobs).map(job => ({
+  const queues = Object.values(jobs).map((job: any) => ({
     bull: new Queue(job.key, redisConfig),
     name: job.key,
     handle: job.handle,
@@ -13,7 +12,7 @@ function instance() {
   }));
 
   // Supports cronjobs { repeat: { cron: "* * * * *" } }
-  function add(name, data, options) {
+  function add(name, data, options?) {
     const queue = queues.find(q => q.name === name);
 
     if (!queue) {
@@ -24,7 +23,7 @@ function instance() {
   }
 
   function schedule(name, data, date) {
-    const secondsTill = date - new Date();
+    const secondsTill = date - (new Date() as any);
 
     // Don't allow scheduling for past dates
     if (secondsTill >= 0) {
@@ -61,4 +60,4 @@ function instance() {
   };
 }
 
-module.exports = process.env.NODE_ENV === 'test' ? { add: () => {} } : instance();
+export default instance();

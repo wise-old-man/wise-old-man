@@ -2,7 +2,7 @@ import { omit, mapValues, keyBy, uniqBy } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
 import * as moment from 'moment';
 import { ALL_METRICS, getValueKey } from '../../constants/metrics';
-import STATUS from '../..constants/statuses.json';
+import STATUSES from '../../constants/statuses';
 import { Competition, Participation, Player, Group } from '../../../database';
 import { durationBetween, isValidDate, isPast } from '../../util/dates';
 import { generateVerification, verifyCode } from '../../util/verification';
@@ -39,7 +39,7 @@ async function list(title, status, metric, pagination) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
-  const query = {};
+  const query: any = {};
 
   if (title) {
     query.title = { [Op.iLike]: `%${sanitizeTitle(title)}%` };
@@ -259,7 +259,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     throw new BadRequestError('Invalid end date.');
   }
 
-  if (new Date(startsAt) - new Date(endsAt) > 0) {
+  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
@@ -344,7 +344,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError('Invalid start date.');
   }
 
-  if (new Date(startsAt) - new Date(endsAt) > 0) {
+  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
@@ -376,7 +376,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  const newValues = {};
+  const newValues: any = {};
 
   if (title) {
     newValues.title = sanitizeTitle(title);
@@ -458,7 +458,7 @@ async function setParticipants(competition, usernames) {
     throw new BadRequestError(`Invalid competition.`);
   }
 
-  const uniqueUsernames = uniqBy(usernames, p => p.toLowerCase());
+  const uniqueUsernames = uniqBy(usernames, (p: any) => p.toLowerCase());
 
   const existingParticipants = await competition.getParticipants();
   const existingUsernames = existingParticipants.map(e => e.username);

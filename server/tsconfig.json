@@ -1,16 +1,27 @@
 {
     "compilerOptions": {
-        "module": "commonJS",
-        "outDir": "./dist",
-        "target": "esnext",
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
-        "baseUrl": "."
+        "module": "commonjs",
+        "declaration": true,
+        "target": "es6",
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "outDir": "dist",
+        "importHelpers": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./",
+        "types": [
+            "node"
+        ],
+        "lib": [
+            "esnext"
+        ]
     },
     "include": [
-        "./src/**/*"
+        "src/**/*.ts",
+        "tests/**/*.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "dist"
     ]
 }

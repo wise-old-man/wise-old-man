@@ -1,6 +1,6 @@
 import * as service from './competition.service';
 import * as pagination from '../../util/pagination';
-import * as jobs from '../../jobs';
+import jobs from '../../jobs';
 
 async function listCompetitions(req, res, next) {
   try {

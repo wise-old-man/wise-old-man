@@ -1,6 +1,4 @@
-const playerService = require('../../modules/players/player.service');
-
-import 
+import * as playerService from '../../modules/players/player.service';
 
 export default {
   key: 'UpdatePlayer',

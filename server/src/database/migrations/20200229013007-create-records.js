@@ -1,7 +1,7 @@
-const PERIODS = require('../../api/constants/periods');
-const { ALL_METRICS } = require('../../api/constants/metrics');
+import PERIODS from '../../api/constants/periods';
+import { ALL_METRICS } from '../../api/constants/metrics';
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('records', {
       id: {

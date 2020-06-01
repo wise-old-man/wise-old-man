@@ -1,7 +1,7 @@
-import * as PERIODS from '../../constants/periods';
+import PERIODS from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   // Define the record schema
   const recordSchema = {
     id: {

@@ -1,4 +1,4 @@
-const {
+import {
   SKILLS,
   BOSSES,
   ACTIVITIES,
@@ -7,10 +7,11 @@ const {
   isSkill,
   getMeasure,
   getDifficultyFactor
-} = require('../../constants/metrics');
-const { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } = require('./achievement.templates');
-const { Achievement, sequelize } = require('../../../database');
-const snapshotService = require('../snapshots/snapshot.service');
+} from '../../constants/metrics';
+import { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } from './achievement.templates';
+import { Achievement, sequelize } from '../../../database';
+import database from '../../../database';
+import * as snapshotService from '../snapshots/snapshot.service';
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {
@@ -46,7 +47,7 @@ function formatType(baseType, threshold, metric) {
 function getDefinitions() {
   const definitions = [];
 
-  SKILL_TEMPLATES.forEach(template => {
+  SKILL_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/skill templates (Ex: 99 Attack, 50m Cooking)
@@ -78,7 +79,7 @@ function getDefinitions() {
     }
   });
 
-  ACTIVITY_TEMPLATES.forEach(template => {
+  ACTIVITY_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/activity templates (Ex: 1k Clues (Hard), 5k Clues (Medium))
@@ -108,7 +109,7 @@ function getDefinitions() {
     }
   });
 
-  BOSS_TEMPLATES.forEach(template => {
+  BOSS_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/boss templates (Ex: 500 Cerberus, 1k Zulrah)
@@ -341,6 +342,8 @@ async function findAll(playerId, includeMissing = false) {
   });
 }
 
-exports.syncAchievements = syncAchievements;
-exports.reevaluateAchievements = reevaluateAchievements;
-exports.findAll = findAll;
+export {
+  syncAchievements,
+  reevaluateAchievements,
+  findAll
+}

@@ -1,4 +1,4 @@
-const { SKILLS, getRankKey, getValueKey } = require('../../api/constants/metrics');
+import { SKILLS, getRankKey, getValueKey } from '../../api/constants/metrics';
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
@@ -11,7 +11,7 @@ function buildDynamicSchema(DataTypes) {
   return obj;
 }
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('snapshots', {
       id: {

@@ -1,11 +1,11 @@
 function instance() {
-  const config = {};
+  const config: any = {};
   let cursor = 0;
 
   function setup() {
     const hostList = process.env.PROXY_LIST;
-    const cpuCount = process.env.CPU_COUNT || 1;
-    const cpuIndex = process.env.pm_id || 0;
+    const cpuCount: any = process.env.CPU_COUNT || '1';
+    const cpuIndex: any = process.env.pm_id || 0;
 
     if (!hostList) {
       return;
@@ -52,4 +52,4 @@ function instance() {
   return { setup, getNextProxy };
 }
 
-module.exports = instance();
+export default instance();

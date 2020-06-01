@@ -51,7 +51,7 @@ function buildDynamicSchema(DataTypes) {
   return obj;
 }
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   // Define the snapshot schema
   const snapshotSchema = {
     id: {

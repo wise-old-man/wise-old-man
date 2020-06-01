@@ -1,7 +1,7 @@
-const recordService = require('../../modules/records/record.service');
-const PERIODS = require('../../constants/periods');
+import * as recordService from '../../modules/records/record.service';
+import PERIODS from '../../constants/periods';
 
-module.exports = {
+export default {
   key: 'SyncPlayerRecords',
   async handle({ data }) {
     const { playerId } = data;

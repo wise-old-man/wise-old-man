@@ -1,7 +1,7 @@
 import { mapValues, keyBy } from 'lodash';
-import { QueryTypes } from 'seqeulize';
-import PERIODS from '../../constants/periods.json';
-import PLAYER_TYPES from '../../constants/playerTypes.json';
+import { QueryTypes } from 'sequelize';
+import PERIODS from '../../constants/periods';
+import PLAYER_TYPES from '../../constants/playerTypes';
 import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
 import { BadRequestError, ServerError } from '../../errors';
 import { InitialValues, sequelize } from '../../../database';
@@ -22,7 +22,7 @@ async function syncInitialValues(playerId) {
   const newInitialValues = {};
 
   // Find which values are known for the first time
-  _.mapValues(latestSnapshot.toJSON(), (value, key) => {
+  mapValues(latestSnapshot.toJSON(), (value, key) => {
     if (value > -1 && initialValues[key] === -1) newInitialValues[key] = value;
   });
 
@@ -149,7 +149,7 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), p => p.deltas);
+  return mapValues(keyBy(partials, 'period'), (p: any) => p.deltas);
 }
 
 async function getCompetitionLeaderboard(competition, playerIds) {

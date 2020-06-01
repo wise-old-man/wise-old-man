@@ -1,4 +1,4 @@
-import csv from 'csvtojson';
+import * as csv from 'csvtojson';
 import { mapValues, keyBy } from 'lodash';
 import * as moment from 'moment';
 import { Op } from 'sequelize';
@@ -12,7 +12,7 @@ import {
   getMeasure,
   isSkill
 } from '../../constants/metrics';
-import * as PERIODS from '../../constants/periods';
+import PERIODS from '../../constants/periods';
 import { Snapshot } from '../../../database';
 import { ServerError, BadRequestError } from '../../errors';
 
@@ -80,7 +80,7 @@ async function findAllGrouped(playerId) {
 
   // Turn an array of snapshots, into an object, using the period as a key,
   // then include only the snapshots array in the final object, not the period fields
-  return _.mapValues(_.keyBy(partials, 'period'), p => p.snapshots);
+  return mapValues(keyBy(partials, 'period'), p => p.snapshots);
 }
 
 /**

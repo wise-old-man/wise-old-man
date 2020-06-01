@@ -1,6 +1,6 @@
-const PLAYER_TYPES = require('../../api/constants/playerTypes');
+import PLAYER_TYPES from '../../api/constants/playerTypes.json';
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('players', {
       id: {

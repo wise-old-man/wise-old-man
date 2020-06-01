@@ -1,4 +1,4 @@
-import service from './snapshot.service';
+import * as service from './snapshot.service';
 
 async function get(req, res, next) {
   try {

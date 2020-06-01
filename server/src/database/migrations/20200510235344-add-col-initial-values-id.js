@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('deltas', 'initialValuesId', {
       type: Sequelize.INTEGER,

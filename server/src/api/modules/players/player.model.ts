@@ -1,6 +1,6 @@
-import PLAYER_TYPES from '../../constants/playerTypes.json';
+import PLAYER_TYPES from '../../constants/playerTypes';
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   // Define the player schema
   const playerSchema = {
     id: {

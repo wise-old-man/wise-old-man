@@ -1,14 +1,9 @@
 import { omit, keyBy, forEach, mapValues } from 'lodash';
-import * as PERIODS from '../../constants/periods';
+import PERIODS from '../../constants/periods';
 import { ALL_METRICS, getMeasure } from '../../constants/metrics';
 import { BadRequestError } from '../../errors';
-
-const _ = require('lodash');
-const PERIODS = require('../../constants/periods');
-const { ALL_METRICS, getMeasure } = require('../../constants/metrics');
-const { BadRequestError } = require('../../errors');
-const { Player, Record } = require('../../../database');
-const deltaService = require('../deltas/delta.service');
+import { Player, Record } from '../../../database';
+import * as deltaService from '../deltas/delta.service';
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);
@@ -79,7 +74,7 @@ async function findAll(playerId, period, metric) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const query = {
+  const query: any = {
     playerId
   };
 

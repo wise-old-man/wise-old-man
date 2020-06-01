@@ -1,6 +1,6 @@
-const PERIODS = require('../../api/constants/periods');
+import PERIODS from '../../api/constants/periods';
 
-module.exports = {
+export default {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('deltas', {
       id: {

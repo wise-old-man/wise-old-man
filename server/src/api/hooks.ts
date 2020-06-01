@@ -1,4 +1,4 @@
-import * as jobs from './jobs';
+import jobs from './jobs';
 import { Player, Snapshot, Membership } from '../database';
 
 function setup() {
@@ -46,4 +46,4 @@ function setup() {
   });
 }
 
-export { setup };
+export default { setup };
