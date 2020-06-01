@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import _ from 'lodash';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 import StatusDot from '../../../../components/StatusDot';
 import { getMetricIcon } from '../../../../utils';
 
@@ -58,12 +58,13 @@ function GroupCompetitionsTable({ competitions }) {
   const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
   return (
-    <TableList
+    <Table
       uniqueKeySelector={TABLE_CONFIG.uniqueKey}
       rows={rows}
       columns={TABLE_CONFIG.columns}
-      clickable
       onRowClicked={onRowClicked}
+      clickable
+      listStyle
     />
   );
 }

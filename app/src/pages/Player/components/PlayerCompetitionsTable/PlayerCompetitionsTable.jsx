@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 import StatusDot from '../../../../components/StatusDot';
 import { getMetricIcon } from '../../../../utils';
 
@@ -60,7 +60,12 @@ function PlayerCompetitionsTable({ competitions }) {
   const rows = competitions ? _.sortBy(competitions, c => _.indexOf(order, c.status)) : [];
 
   return (
-    <TableList uniqueKeySelector={TABLE_CONFIG.uniqueKey} rows={rows} columns={TABLE_CONFIG.columns} />
+    <Table
+      uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+      rows={rows}
+      columns={TABLE_CONFIG.columns}
+      listStyle
+    />
   );
 }
 

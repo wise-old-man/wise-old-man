@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
-import TableListPlaceholder from '../../../../components/TableListPlaceholder';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import { durationBetween, capitalize } from '../../../../utils';
 
 function MembersTable({ members, isLoading }) {
@@ -49,7 +49,7 @@ function MembersTable({ members, isLoading }) {
   };
 
   if (isLoading) {
-    return <TableListPlaceholder size={10} />;
+    return <TablePlaceholder size={10} />;
   }
 
   return (

@@ -5,9 +5,9 @@ import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import PlayerTag from '../../components/PlayerTag';
 import Selector from '../../components/Selector';
-import TableList from '../../components/TableList';
+import Table from '../../components/Table';
 import NumberLabel from '../../components/NumberLabel';
-import TableListPlaceholder from '../../components/TableListPlaceholder';
+import TablePlaceholder from '../../components/TablePlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
 import {
   capitalize,
@@ -158,36 +158,39 @@ function Top() {
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Day</h3>
           {!leaderboard || !leaderboard.day ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={dayTableConfig.uniqueKey}
               columns={dayTableConfig.columns}
               rows={leaderboard.day}
+              listStyle
             />
           )}
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Week</h3>
           {!leaderboard || !leaderboard.week ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={weekTableConfig.uniqueKey}
               columns={weekTableConfig.columns}
               rows={leaderboard.week}
+              listStyle
             />
           )}
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Month</h3>
           {!leaderboard || !leaderboard.month ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={monthTableConfig.uniqueKey}
               columns={monthTableConfig.columns}
               rows={leaderboard.month}
+              listStyle
             />
           )}
         </div>
