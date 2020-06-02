@@ -14,6 +14,7 @@ import TotalExperienceWidget from './components/TotalExperienceWidget';
 import CompetitionWidget from './components/CompetitionWidget';
 import GroupCompetitions from './components/GroupCompetitions';
 import GroupHiscores from './components/GroupHiscores';
+import GroupDeltas from './components/GroupDeltas';
 import GroupAchievements from './components/GroupAchievements';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
@@ -21,6 +22,7 @@ import { ALL_METRICS } from '../../config';
 import { getGroup, isFetchingMembers, isFetchingMonthlyTop } from '../../redux/selectors/groups';
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import { getGroupAchievements } from '../../redux/selectors/achievements';
+import { getGroupDeltas } from '../../redux/selectors/deltas';
 import { getGroupHiscores } from '../../redux/selectors/hiscores';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
@@ -28,9 +30,17 @@ import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonth
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchGroupAchievements';
 import fetchHiscoresAction from '../../redux/modules/hiscores/actions/fetchGroupHiscores';
+import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchGroupDeltas';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
-import './Group.scss';
 import { getMetricName, getMetricIcon } from '../../utils';
+import './Group.scss';
+
+const PERIOD_OPTIONS = [
+  { label: 'Day', value: 'day' },
+  { label: 'Week', value: 'week' },
+  { label: 'Month', value: 'month' },
+  { label: 'Year', value: 'year' }
+];
 
 const TABS = ['Members', 'Competitions', 'Hiscores', 'Gained', 'Records', 'Achievements', 'Statistics'];
 
@@ -66,10 +76,12 @@ function Group() {
   const selectedSectionIndex = getSelectedTabIndex(section);
 
   const [selectedMetric, setSelectedMetric] = useState(ALL_METRICS[0]);
+  const [selectedPeriod, setSelectedPeriod] = useState(PERIOD_OPTIONS[1].value);
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   const selectedMetricIndex = ALL_METRICS.indexOf(selectedMetric);
+  const selectedPeriodIndex = PERIOD_OPTIONS.findIndex(p => p.value === selectedPeriod);
 
   const isLoadingMembers = useSelector(state => isFetchingMembers(state));
   const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
@@ -77,6 +89,7 @@ function Group() {
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
   const achievements = useSelector(state => getGroupAchievements(state, parseInt(id, 10)));
   const hiscores = useSelector(state => getGroupHiscores(state, parseInt(id, 10)));
+  const deltas = useSelector(state => getGroupDeltas(state, parseInt(id, 10)));
 
   const fetchAll = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
@@ -86,14 +99,18 @@ function Group() {
       })
       .catch(() => router.push('/404'));
 
-    dispatch(fetchCompetitionsAction(id));
     dispatch(fetchMembersAction(id));
-    dispatch(fetchAchievementsAction(id));
     dispatch(fetchMonthlyTopAction(id));
+    dispatch(fetchCompetitionsAction(id));
+    dispatch(fetchAchievementsAction(id));
   };
 
   const fetchHiscores = () => {
     dispatch(fetchHiscoresAction(id, selectedMetric));
+  };
+
+  const fetchDeltas = () => {
+    dispatch(fetchDeltasAction(id, selectedMetric, selectedPeriod));
   };
 
   const handleDeleteModalClosed = () => {
@@ -119,6 +136,12 @@ function Group() {
     }
   };
 
+  const handlePeriodSelected = e => {
+    if (e && e.value) {
+      setSelectedPeriod(e.value);
+    }
+  };
+
   const handleUpdateAll = () => {
     dispatch(updateAllAction(id));
     setButtonDisabled(true);
@@ -126,13 +149,15 @@ function Group() {
 
   const metricOptions = useMemo(() => getMetricOptions(), []);
 
-  const onMetricSelected = useCallback(handleMetricSelected, [selectedMetric]);
+  const onMetricSelected = useCallback(handleMetricSelected, []);
+  const onPeriodSelected = useCallback(handlePeriodSelected, []);
   const onOptionSelected = useCallback(handleOptionSelected, [router, group]);
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
 
   useEffect(fetchAll, [dispatch, id]);
   useEffect(fetchHiscores, [dispatch, id, selectedMetric]);
+  useEffect(fetchDeltas, [dispatch, id, selectedMetric, selectedPeriod]);
 
   if (!group) {
     return <Loading />;
@@ -193,6 +218,24 @@ function Group() {
                 search
               />
               <GroupHiscores hiscores={hiscores} metric={selectedMetric} />
+            </>
+          )}
+          {selectedSectionIndex === 3 && (
+            <>
+              <div className="options-bar">
+                <Selector
+                  options={metricOptions}
+                  selectedIndex={selectedMetricIndex}
+                  onSelect={onMetricSelected}
+                  search
+                />
+                <Selector
+                  options={PERIOD_OPTIONS}
+                  selectedIndex={selectedPeriodIndex}
+                  onSelect={onPeriodSelected}
+                />
+              </div>
+              <GroupDeltas deltas={deltas} />
             </>
           )}
           {selectedSectionIndex === 5 && <GroupAchievements achievements={achievements} />}

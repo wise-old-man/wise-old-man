@@ -43,9 +43,36 @@
     .selector {
       margin-bottom: 12px;
     }
+
+    .options-bar {
+      display: flex;
+      flex-direction: row;
+
+      .selector {
+        flex-grow: 1;
+
+        &:first-child {
+          margin-right: 10px;
+        }
+      }
+    }
   }
 
   .group__widgets {
     margin-top: 10px;
+  }
+}
+
+@media only screen and (max-width: $breakpoint-small) {
+  .group__container {
+    .group__content {
+      .options-bar {
+        flex-direction: column;
+
+        .selector {
+          width: 100%;
+        }
+      }
+    }
   }
 }
