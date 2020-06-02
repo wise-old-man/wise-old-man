@@ -1,0 +1,27 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.text-label-btn {
+  position: relative;
+  background: transparent;
+  padding: 0;
+  border: none;
+
+  .text-label-popup {
+    @extend %panel;
+    background: $gray-12;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    margin-bottom: 5px;
+    color: white;
+  }
+
+  .text-label {
+    text-decoration: none;
+    color: $gray-60;
+    cursor: default;
+  }
+}
