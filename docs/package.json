@@ -16,7 +16,7 @@
     "@zeit/next-sass": "^1.0.1",
     "classnames": "^2.2.6",
     "next": "^9.3.3",
-    "next-fonts": "^1.0.3",
+    "next-fonts": "^1.1.0",
     "node-sass": "^4.13.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
