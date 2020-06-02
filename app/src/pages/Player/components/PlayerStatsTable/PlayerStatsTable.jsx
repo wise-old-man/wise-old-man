@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import TableListPlaceholder from '../../../../components/TableListPlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
+import TextLabel from '../../../../components/TextLabel';
+import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
@@ -77,12 +78,27 @@ function renderBossesTable(snapshot) {
     },
     {
       key: 'kills',
-      transform: val => <NumberLabel value={val} />
+      transform: (val, row) => {
+        if (val === -1) {
+          return (
+            <TextLabel
+              value={`< ${getMinimumBossKc(row.metric)}`}
+              popupValue={`The Hiscores only start tracking ${getMetricName(row.metric)} kills after ${getMinimumBossKc(row.metric)} kc`}
+            />
+          );
+        }
+        return <NumberLabel value={val} />;
+      }
     },
     {
       key: 'rank',
       className: () => '-break-small',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        if (val === -1) {
+          return <TextLabel value="---" popupValue="Unranked" />;
+        }
+        return <NumberLabel value={val} />;
+      }
     },
     {
       key: 'EHB',
