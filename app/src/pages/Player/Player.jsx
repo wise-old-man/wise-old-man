@@ -243,7 +243,6 @@ function Player() {
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
   const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [id]);
 
-  // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
 
   if (!player) {
