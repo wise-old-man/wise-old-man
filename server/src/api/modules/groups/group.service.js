@@ -2,10 +2,10 @@ const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
 const moment = require('moment');
 const PERIODS = require('../../constants/periods');
-const { ALL_METRICS, getValueKey, getRankKey, getMeasure } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey, getRankKey, getMeasure, isSkill } = require('../../constants/metrics');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
-const { getCombatLevel, getTotalLevel, get200msCount } = require('../../util/level');
+const { getCombatLevel, getTotalLevel, get200msCount, getLevel } = require('../../util/level');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const deltaService = require('../deltas/delta.service');
@@ -315,7 +315,7 @@ async function getHiscores(id, metric) {
   const memberIds = memberships.map(m => m.player.id);
 
   const query = `
-    SELECT s."playerId", s."${valueKey}", s."${rankKey}"
+    SELECT s.*
     FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
           FROM public.snapshots q
           WHERE q."playerId" IN (${memberIds.join(',')})
@@ -330,10 +330,18 @@ async function getHiscores(id, metric) {
 
   // Formats the experience snapshots to a key:value map.
   // Example: { '1623': { rank: 350567, experience: 6412215 } }
-  const experienceMap = _.mapValues(_.keyBy(latestSnapshots, 'playerId'), d => ({
-    rank: parseInt(d[rankKey], 10),
-    [measure]: parseInt(d[valueKey], 10)
-  }));
+  const experienceMap = _.mapValues(_.keyBy(latestSnapshots, 'playerId'), d => {
+    const data = {
+      rank: parseInt(d[rankKey], 10),
+      [measure]: parseInt(d[valueKey], 10)
+    };
+
+    if (isSkill(metric)) {
+      data.level = metric === 'overall' ? getTotalLevel(d) : getLevel(data.experience);
+    }
+
+    return data;
+  });
 
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
