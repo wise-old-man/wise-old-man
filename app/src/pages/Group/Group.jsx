@@ -89,8 +89,11 @@ function Group() {
     dispatch(fetchCompetitionsAction(id));
     dispatch(fetchMembersAction(id));
     dispatch(fetchAchievementsAction(id));
-    dispatch(fetchHiscoresAction(id, selectedMetric));
     dispatch(fetchMonthlyTopAction(id));
+  };
+
+  const fetchHiscores = () => {
+    dispatch(fetchHiscoresAction(id, selectedMetric));
   };
 
   const handleDeleteModalClosed = () => {
@@ -128,7 +131,8 @@ function Group() {
   const onDeleteModalClosed = useCallback(handleDeleteModalClosed, []);
   const onUpdateAllClicked = useCallback(handleUpdateAll, [id, dispatch]);
 
-  useEffect(fetchAll, [dispatch, id, selectedMetric]);
+  useEffect(fetchAll, [dispatch, id]);
+  useEffect(fetchHiscores, [dispatch, id, selectedMetric]);
 
   if (!group) {
     return <Loading />;

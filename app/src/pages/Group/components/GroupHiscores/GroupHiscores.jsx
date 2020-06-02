@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
-import { isSkill, getLevel, getMeasure } from '../../../../utils';
+import { isSkill, durationBetween, getMeasure } from '../../../../utils';
 
 function getTableConfig(metric) {
   const TABLE_CONFIG = {
@@ -28,17 +28,19 @@ function getTableConfig(metric) {
       {
         key: getMeasure(metric),
         transform: val => <NumberLabel value={val} />
+      },
+      {
+        key: 'updatedAt',
+        label: 'Last updated',
+        className: () => '-break-small',
+        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
       }
     ]
   };
 
-  // Oops, there's no way to get the overall level from the exp,
-  // we need to change the API to get the levels from there instead
-  if (isSkill(metric) && metric !== 'overall') {
-    TABLE_CONFIG.columns.push({
-      key: 'virtualLevel',
-      label: 'Virtual Level',
-      get: row => getLevel(row.experience, true)
+  if (isSkill(metric)) {
+    TABLE_CONFIG.columns.splice(3, 0, {
+      key: 'level'
     });
   }
 
