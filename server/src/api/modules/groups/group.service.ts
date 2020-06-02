@@ -1,7 +1,7 @@
 import { omit, uniqBy, mapValues, keyBy } from 'lodash';
 import { Op, Sequelize, QueryTypes } from 'sequelize';
 import * as moment from 'moment';
-import PERIODS from '../../constants/periods';
+import { periods } from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
 import { Group, Membership, Player, sequelize } from '../../../database';
 import { generateVerification, verifyCode } from '../../util/verification';
@@ -141,7 +141,7 @@ async function getLeaderboard(groupId, period, metric) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

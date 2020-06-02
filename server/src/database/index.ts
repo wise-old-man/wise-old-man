@@ -1,19 +1,19 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Model } from 'sequelize';
 import CONFIG from './config';
 
-const seq = new Sequelize(CONFIG.database, CONFIG.username, CONFIG.password, CONFIG as any);
+const sequelize = new Sequelize(CONFIG.database, CONFIG.username, CONFIG.password, CONFIG as any);
 
 // Import and define all models
 const models = {
-  Player: seq.import(`../api/modules/players/player.model`),
-  Snapshot: seq.import(`../api/modules/snapshots/snapshot.model`),
-  InitialValues: seq.import(`../api/modules/snapshots/initialValues.model`),
-  Record: seq.import(`../api/modules/records/record.model`),
-  Competition: seq.import(`../api/modules/competitions/competition.model`),
-  Participation: seq.import(`../api/modules/competitions/participation.model`),
-  Group: seq.import(`../api/modules/groups/group.model`),
-  Membership: seq.import(`../api/modules/groups/membership.model`),
-  Achievement: seq.import(`../api/modules/achievements/achievement.model`)
+  Player: sequelize.import(`../api/modules/players/player.model`),
+  Snapshot: sequelize.import(`../api/modules/snapshots/snapshot.model`),
+  InitialValues: sequelize.import(`../api/modules/snapshots/initialValues.model`),
+  Record: sequelize.import(`../api/modules/records/record.model`),
+  Competition: sequelize.import(`../api/modules/competitions/competition.model`),
+  Participation: sequelize.import(`../api/modules/competitions/participation.model`),
+  Group: sequelize.import(`../api/modules/groups/group.model`),
+  Membership: sequelize.import(`../api/modules/groups/membership.model`),
+  Achievement: sequelize.import(`../api/modules/achievements/achievement.model`)
 };
 
 // Setup all model associations
@@ -23,4 +23,7 @@ Object.keys(models).forEach(modelName => {
   }
 });
 
-module.exports = { seq, ...models };
+export default {
+  sequelize,
+  ...models
+}

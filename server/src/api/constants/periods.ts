@@ -1,1 +1,5 @@
-export default ["day", "week", "month", "year"]
+const periods = ["day", "week", "month", "year"];
+
+export {
+    periods
+};

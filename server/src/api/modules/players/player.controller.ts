@@ -1,4 +1,4 @@
-import jobs from '../../jobs';
+import { add } from '../../jobs';
 import * as service from './player.service';
 
 async function get(req, res, next) {
@@ -31,7 +31,7 @@ async function track(req, res, next) {
     const player = await service.update(username);
 
     // Run secondary jobs
-    jobs.add('ImportPlayer', { player });
+    add('ImportPlayer', { player });
 
     // Send the http response back
     res.status(200).json(player);

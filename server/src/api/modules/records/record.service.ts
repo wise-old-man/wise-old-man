@@ -1,5 +1,5 @@
 import { omit, keyBy, forEach, mapValues } from 'lodash';
-import PERIODS from '../../constants/periods';
+import { periods } from '../../constants/periods';
 import { ALL_METRICS, getMeasure } from '../../constants/metrics';
 import { BadRequestError } from '../../errors';
 import { Player, Record } from '../../../database';
@@ -66,7 +66,7 @@ async function findAll(playerId, period, metric) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  if (period && !PERIODS.includes(period)) {
+  if (period && !periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -97,7 +97,7 @@ async function findAll(playerId, period, metric) {
  */
 async function getLeaderboard(metric, playerType) {
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    periods.map(async period => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, records: list };
     })
@@ -113,7 +113,7 @@ async function getLeaderboard(metric, playerType) {
  * Optionally, the records can be filtered by the playerType.
  */
 async function getPeriodLeaderboard(metric, period, playerType) {
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

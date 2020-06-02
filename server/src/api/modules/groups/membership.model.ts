@@ -1,4 +1,4 @@
-import ROLES from '../../constants/roles';
+import { roles } from '../../constants/roles';
 
 export default (sequelize, DataTypes) => {
   // Define the membership schema
@@ -12,12 +12,12 @@ export default (sequelize, DataTypes) => {
       primaryKey: true
     },
     role: {
-      type: DataTypes.ENUM(ROLES),
+      type: DataTypes.ENUM(roles),
       allowNull: false,
-      defaultValue: ROLES[0],
+      defaultValue: roles[0],
       validate: {
         isIn: {
-          args: [ROLES],
+          args: [roles],
           msg: 'Invalid role'
         }
       }

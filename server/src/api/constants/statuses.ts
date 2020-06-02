@@ -1,1 +1,5 @@
-export default ["upcoming", "ongoing", "finished"]
+const statuses = ["upcoming", "ongoing", "finished"];
+
+export {
+    statuses
+}

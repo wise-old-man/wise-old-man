@@ -1,5 +1,5 @@
 import * as recordService from '../../modules/records/record.service';
-import PERIODS from '../../constants/periods';
+import { periods } from '../../constants/periods';
 
 export default {
   key: 'SyncPlayerRecords',
@@ -7,7 +7,7 @@ export default {
     const { playerId } = data;
 
     await Promise.all(
-      PERIODS.map(async period => {
+      periods.map(async period => {
         await recordService.syncRecords(playerId, period);
       })
     );

@@ -1,1 +1,5 @@
-export default ["member", "leader"]
+const roles = ["member", "leader"];
+
+export {
+    roles
+}

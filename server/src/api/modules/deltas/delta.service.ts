@@ -1,7 +1,7 @@
 import { mapValues, keyBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import PERIODS from '../../constants/periods';
-import PLAYER_TYPES from '../../constants/playerTypes';
+import { periods } from '../../constants/periods';
+import { playerTypes } from '../../constants/playerTypes';
 import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
 import { BadRequestError, ServerError } from '../../errors';
 import { InitialValues, sequelize } from '../../../database';
@@ -41,7 +41,7 @@ async function getDelta(playerId, period, initialVals = null) {
     throw new BadRequestError('Invalid player id.');
   }
 
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -82,7 +82,7 @@ async function getDelta(playerId, period, initialVals = null) {
  * Optionally, the deltas can be filtered by the playerType.
  */
 async function getPeriodLeaderboard(metric, period, playerType) {
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -90,7 +90,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+  if (playerType && !playerTypes.includes(playerType)) {
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
@@ -141,7 +141,7 @@ async function getAllDeltas(playerId) {
   const initialValues = await InitialValues.findOne({ where: { playerId } });
 
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    periods.map(async period => {
       const list = await getDelta(playerId, period, initialValues);
       return { period, deltas: list };
     })
@@ -149,7 +149,7 @@ async function getAllDeltas(playerId) {
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), (p: any) => p.deltas);
+  return mapValues(keyBy(partials, 'period'), p => p.deltas);
 }
 
 async function getCompetitionLeaderboard(competition, playerIds) {

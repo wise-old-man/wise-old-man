@@ -1,4 +1,4 @@
-import PLAYER_TYPES from '../../constants/playerTypes';
+import { playerTypes } from '../../constants/playerTypes';
 
 export default (sequelize, DataTypes) => {
   // Define the player schema
@@ -47,12 +47,12 @@ export default (sequelize, DataTypes) => {
       }
     },
     type: {
-      type: DataTypes.ENUM(PLAYER_TYPES),
-      defaultValue: PLAYER_TYPES[0],
+      type: DataTypes.ENUM(playerTypes),
+      defaultValue: playerTypes[0],
       allowNull: false,
       validate: {
         isIn: {
-          args: [PLAYER_TYPES],
+          args: [playerTypes],
           msg: 'Invalid player type.'
         }
       }

@@ -1,17 +1,17 @@
-import jobs from './jobs';
+import { add } from './jobs';
 import { Player, Snapshot, Membership } from '../database';
 
 function setup() {
   Player.afterCreate(({ username }) => {
-    jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+    add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
   });
 
   Snapshot.afterCreate(({ playerId }) => {
-    jobs.add('SyncPlayerAchievements', { playerId });
-    jobs.add('SyncPlayerInitialValues', { playerId });
+    add('SyncPlayerAchievements', { playerId });
+    add('SyncPlayerInitialValues', { playerId });
 
     // Delay this to ensure SyncPlayerInitialValues runs first
-    jobs.add('SyncPlayerRecords', { playerId }, { delay: 10000 });
+    add('SyncPlayerRecords', { playerId }, { delay: 10000 });
   });
 
   Snapshot.afterBulkCreate(snapshots => {
@@ -21,8 +21,8 @@ function setup() {
 
     const { playerId } = snapshots[0];
 
-    jobs.add('SyncPlayerRecords', { playerId });
-    jobs.add('ReevaluatePlayerAchievements', { playerId });
+    add('SyncPlayerRecords', { playerId });
+    add('ReevaluatePlayerAchievements', { playerId });
   });
 
   Membership.afterBulkCreate(memberships => {
@@ -33,7 +33,7 @@ function setup() {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
+    add('AddToGroupCompetitions', { groupId, playerIds });
   });
 
   Membership.afterBulkDestroy(info => {
@@ -42,8 +42,8 @@ function setup() {
     }
 
     const { groupId, playerId } = info.where;
-    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
+    add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
   });
 }
 
-export default { setup };
+export { setup };

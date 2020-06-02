@@ -10,7 +10,6 @@ import {
 } from '../../constants/metrics';
 import { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } from './achievement.templates';
 import { Achievement, sequelize } from '../../../database';
-import database from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service';
 
 function formatThreshold(threshold) {

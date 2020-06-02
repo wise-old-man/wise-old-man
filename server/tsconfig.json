@@ -1,25 +1,20 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "declaration": true,
         "target": "es6",
         "sourceMap": true,
         "moduleResolution": "node",
         "outDir": "dist",
         "importHelpers": true,
-        "allowSyntheticDefaultImports": true,
         "baseUrl": "./",
         "types": [
             "node"
         ],
         "lib": [
-            "esnext"
+            "es6",
+            "es2017"
         ]
     },
-    "include": [
-        "src/**/*.ts",
-        "tests/**/*.ts"
-    ],
     "exclude": [
         "node_modules",
         "dist"

@@ -1,4 +1,4 @@
-import PERIODS from '../../constants/periods';
+import { periods } from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
 
 export default (sequelize, DataTypes) => {
@@ -14,11 +14,11 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     period: {
-      type: DataTypes.ENUM(PERIODS),
+      type: DataTypes.ENUM(periods),
       allowNull: false,
       validate: {
         isIn: {
-          args: [PERIODS],
+          args: [periods],
           msg: 'Invalid period'
         }
       }

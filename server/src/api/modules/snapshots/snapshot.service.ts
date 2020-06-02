@@ -12,7 +12,7 @@ import {
   getMeasure,
   isSkill
 } from '../../constants/metrics';
-import PERIODS from '../../constants/periods';
+import { periods } from '../../constants/periods';
 import { Snapshot } from '../../../database';
 import { ServerError, BadRequestError } from '../../errors';
 
@@ -72,7 +72,7 @@ async function findAllGrouped(playerId) {
   }
 
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    periods.map(async period => {
       const list = await findAllInPeriod(playerId, period);
       return { period, snapshots: list };
     })
@@ -91,7 +91,7 @@ async function findAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  if (!PERIODS.includes(period)) {
+  if (!periods.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -123,7 +123,7 @@ async function findLatest(playerId) {
  * Finds the first snapshot in the given time period for a given player.
  */
 async function findFirstIn(playerId, period) {
-  if (!PERIODS.includes(period)) {
+  if (!periods.includes(period)) {
     throw new BadRequestError(`Invalid period ${period}.`);
   }
 

@@ -1,6 +1,6 @@
 import * as service from './competition.service';
 import * as pagination from '../../util/pagination';
-import jobs from '../../jobs';
+import { add } from '../../jobs';
 
 async function listCompetitions(req, res, next) {
   try {
@@ -116,7 +116,7 @@ async function updateAllParticipants(req, res, next) {
 
     const participants = await service.updateAllParticipants(id, player => {
       // Attempt this 5 times per player, waiting 65 seconds in between
-      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+      add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
     });
 
     const message = `${participants.length} players are being updated. This can take up to a few minutes.`;
