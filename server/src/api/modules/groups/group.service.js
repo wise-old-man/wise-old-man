@@ -164,7 +164,7 @@ async function getLeaderboard(groupId, period, metric) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds);
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, 20);
   return leaderboard;
 }
 
@@ -223,7 +223,7 @@ async function getRecords(groupId, metric, period) {
   }
 
   const memberIds = memberships.map(m => m.playerId);
-  const records = await recordService.getGroupLeaderboard(metric, period, memberIds);
+  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, 20);
 
   return records;
 }
@@ -323,6 +323,8 @@ async function getHiscores(id, metric) {
           ) r
     JOIN public.snapshots s
       ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+    ORDER BY s."${valueKey}" DESC
+    LIMIT 20
   `;
 
   // Execute the query above, which returns the latest snapshot for each member
