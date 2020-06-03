@@ -15,6 +15,7 @@ import CompetitionWidget from './components/CompetitionWidget';
 import GroupCompetitions from './components/GroupCompetitions';
 import GroupHiscores from './components/GroupHiscores';
 import GroupDeltas from './components/GroupDeltas';
+import GroupRecords from './components/GroupRecords';
 import GroupAchievements from './components/GroupAchievements';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
@@ -24,6 +25,7 @@ import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import { getGroupAchievements } from '../../redux/selectors/achievements';
 import { getGroupDeltas } from '../../redux/selectors/deltas';
 import { getGroupHiscores } from '../../redux/selectors/hiscores';
+import { getGroupRecords } from '../../redux/selectors/records';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
@@ -31,6 +33,7 @@ import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fe
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchGroupAchievements';
 import fetchHiscoresAction from '../../redux/modules/hiscores/actions/fetchGroupHiscores';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchGroupDeltas';
+import fetchRecordsAction from '../../redux/modules/records/actions/fetchGroupRecords';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import { getMetricName, getMetricIcon } from '../../utils';
 import './Group.scss';
@@ -90,6 +93,7 @@ function Group() {
   const achievements = useSelector(state => getGroupAchievements(state, parseInt(id, 10)));
   const hiscores = useSelector(state => getGroupHiscores(state, parseInt(id, 10)));
   const deltas = useSelector(state => getGroupDeltas(state, parseInt(id, 10)));
+  const records = useSelector(state => getGroupRecords(state, parseInt(id, 10)));
 
   const fetchAll = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
@@ -111,6 +115,10 @@ function Group() {
 
   const fetchDeltas = () => {
     dispatch(fetchDeltasAction(id, selectedMetric, selectedPeriod));
+  };
+
+  const fetchRecords = () => {
+    dispatch(fetchRecordsAction(id, selectedMetric, selectedPeriod));
   };
 
   const handleDeleteModalClosed = () => {
@@ -158,6 +166,7 @@ function Group() {
   useEffect(fetchAll, [dispatch, id]);
   useEffect(fetchHiscores, [dispatch, id, selectedMetric]);
   useEffect(fetchDeltas, [dispatch, id, selectedMetric, selectedPeriod]);
+  useEffect(fetchRecords, [dispatch, id, selectedMetric, selectedPeriod]);
 
   if (!group) {
     return <Loading />;
@@ -236,6 +245,24 @@ function Group() {
                 />
               </div>
               <GroupDeltas deltas={deltas} />
+            </>
+          )}
+          {selectedSectionIndex === 4 && (
+            <>
+              <div className="options-bar">
+                <Selector
+                  options={metricOptions}
+                  selectedIndex={selectedMetricIndex}
+                  onSelect={onMetricSelected}
+                  search
+                />
+                <Selector
+                  options={PERIOD_OPTIONS}
+                  selectedIndex={selectedPeriodIndex}
+                  onSelect={onPeriodSelected}
+                />
+              </div>
+              <GroupRecords records={records} />
             </>
           )}
           {selectedSectionIndex === 5 && <GroupAchievements achievements={achievements} />}
