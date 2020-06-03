@@ -49,7 +49,7 @@ function getTableConfig(metric) {
 }
 
 function GroupHiscores({ hiscores, metric, isLoading }) {
-  const { uniqueKey, columns } = useMemo(() => getTableConfig(metric), [hiscores, metric]);
+  const { uniqueKey, columns } = useMemo(() => getTableConfig(metric), [metric]);
 
   return isLoading ? (
     <TablePlaceholder size={20} />
