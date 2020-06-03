@@ -4,8 +4,14 @@ import { getPlayer } from './players';
 import { getTotalLevel } from '../../utils';
 import { ALL_METRICS } from '../../config';
 
+const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
 const groupAchievementsSelector = state => state.achievements.groupAchievements;
+
+export const isFetchingGroupAchievements = createSelector(
+  rootSelector,
+  root => root.isFetchingGroupAchievements
+);
 
 export const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
   return _.mapValues(map, p => p.map(a => formatAchievement(a)));

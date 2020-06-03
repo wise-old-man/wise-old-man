@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
@@ -73,37 +74,46 @@ function renderTable(snapshot) {
   return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
 
-function GroupStatistics({ statistics }) {
-  if (!statistics) {
-    return null;
-  }
+function GroupStatistics({ statistics, isLoading }) {
+  const showPlaceholder = isLoading || !statistics;
 
   return (
     <div className="group-statistics">
       <div className="statistics-block__container">
         <div className="statistics-block">
           <span className="statistic-label">Maxed overall players</span>
-          <b className="statistic-value">{statistics.maxedTotalCount}</b>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxedTotalCount}
+          </b>
         </div>
         <div className="statistics-block">
           <span className="statistic-label">Maxed combat players</span>
-          <b className="statistic-value">{statistics.maxedCombatCount}</b>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxedCombatCount}
+          </b>
         </div>
         <div className="statistics-block">
           <span className="statistic-label">Number of 200ms</span>
-          <b className="statistic-value">{statistics.maxed200msCount}</b>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxed200msCount}
+          </b>
         </div>
       </div>
       <div className="statistics-table">
         <span className="widget-label">Average member stats</span>
-        {renderTable(statistics.averageStats)}
+        {showPlaceholder ? <TablePlaceholder size={20} /> : renderTable(statistics.averageStats)}
       </div>
     </div>
   );
 }
 
+GroupStatistics.defaultProps = {
+  statistics: undefined
+};
+
 GroupStatistics.propTypes = {
-  statistics: PropTypes.shape().isRequired
+  statistics: PropTypes.shape(),
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default React.memo(GroupStatistics);

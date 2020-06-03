@@ -14,6 +14,7 @@ const getGroupRecordsMap = createSelector(groupRecordsSelector, map => {
 });
 
 export const isFetchingLeaderboard = createSelector(rootSelector, root => root.isFetchingLeaderboard);
+export const isFetchingGroupRecords = createSelector(rootSelector, root => root.isFetchingGroupRecords);
 
 export const getLeaderboard = createSelector(leaderboardSelector, map => {
   // Add a "rank" field to each record of each period

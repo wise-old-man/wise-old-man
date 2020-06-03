@@ -18,6 +18,7 @@ const getGroupDeltasMap = createSelector(groupDeltasSelector, map => {
 });
 
 export const isFetchingLeaderboard = createSelector(rootSelector, root => root.isFetchingLeaderboard);
+export const isFetchingGroupDeltas = createSelector(rootSelector, root => root.isFetchingGroupDeltas);
 
 export const getLeaderboard = createSelector(leaderboardSelector, map => {
   // Add a "rank" field to each delta of each period

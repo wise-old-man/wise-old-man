@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import PlayerTag from '../../../../components/PlayerTag';
 import Table from '../../../../components/Table';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import { getMetricIcon, formatDate } from '../../../../utils';
 
 const TABLE_CONFIG = {
@@ -35,16 +36,20 @@ const TABLE_CONFIG = {
   ]
 };
 
-function GroupAchievements({ achievements }) {
+function GroupAchievements({ achievements, isLoading }) {
   return (
     <>
       <span className="widget-label">Most recent achievements</span>
-      <Table
-        uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-        rows={achievements}
-        columns={TABLE_CONFIG.columns}
-        listStyle
-      />
+      {isLoading ? (
+        <TablePlaceholder size={20} />
+      ) : (
+        <Table
+          uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+          rows={achievements}
+          columns={TABLE_CONFIG.columns}
+          listStyle
+        />
+      )}
     </>
   );
 }
@@ -54,7 +59,8 @@ GroupAchievements.defaultProps = {
 };
 
 GroupAchievements.propTypes = {
-  achievements: PropTypes.arrayOf(PropTypes.shape())
+  achievements: PropTypes.arrayOf(PropTypes.shape()),
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default GroupAchievements;

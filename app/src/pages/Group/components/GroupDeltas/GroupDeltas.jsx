@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Table from '../../../../components/Table';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
 import { durationBetween } from '../../../../utils';
@@ -41,8 +42,10 @@ const TABLE_CONFIG = {
     }
   ]
 };
-function GroupDeltas({ deltas }) {
-  return (
+function GroupDeltas({ deltas, isLoading }) {
+  return isLoading ? (
+    <TablePlaceholder size={20} />
+  ) : (
     <Table uniqueKeySelector={TABLE_CONFIG.uniqueKey} rows={deltas} columns={TABLE_CONFIG.columns} />
   );
 }
@@ -52,7 +55,8 @@ GroupDeltas.defaultProps = {
 };
 
 GroupDeltas.propTypes = {
-  deltas: PropTypes.arrayOf(PropTypes.shape)
+  deltas: PropTypes.arrayOf(PropTypes.shape),
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default GroupDeltas;

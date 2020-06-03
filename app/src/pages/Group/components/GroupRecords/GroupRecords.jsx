@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Table from '../../../../components/Table';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
 import { formatDate } from '../../../../utils';
@@ -34,8 +35,10 @@ const TABLE_CONFIG = {
     }
   ]
 };
-function GroupRecords({ records }) {
-  return (
+function GroupRecords({ records, isLoading }) {
+  return isLoading ? (
+    <TablePlaceholder size={20} />
+  ) : (
     <Table uniqueKeySelector={TABLE_CONFIG.uniqueKey} rows={records} columns={TABLE_CONFIG.columns} />
   );
 }
@@ -45,7 +48,8 @@ GroupRecords.defaultProps = {
 };
 
 GroupRecords.propTypes = {
-  records: PropTypes.arrayOf(PropTypes.shape)
+  records: PropTypes.arrayOf(PropTypes.shape),
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default GroupRecords;

@@ -5,6 +5,7 @@ import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
 import { isSkill, durationBetween, getMeasure } from '../../../../utils';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 
 function getTableConfig(metric) {
   const TABLE_CONFIG = {
@@ -47,10 +48,14 @@ function getTableConfig(metric) {
   return TABLE_CONFIG;
 }
 
-function GroupHiscores({ hiscores, metric }) {
+function GroupHiscores({ hiscores, metric, isLoading }) {
   const { uniqueKey, columns } = useMemo(() => getTableConfig(metric), [hiscores, metric]);
 
-  return <Table uniqueKeySelector={uniqueKey} rows={hiscores} columns={columns} />;
+  return isLoading ? (
+    <TablePlaceholder size={20} />
+  ) : (
+    <Table uniqueKeySelector={uniqueKey} rows={hiscores} columns={columns} />
+  );
 }
 
 GroupHiscores.defaultProps = {
@@ -59,7 +64,8 @@ GroupHiscores.defaultProps = {
 
 GroupHiscores.propTypes = {
   hiscores: PropTypes.arrayOf(PropTypes.shape),
-  metric: PropTypes.string.isRequired
+  metric: PropTypes.string.isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 export default GroupHiscores;
