@@ -5,9 +5,9 @@ import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
 import { Player } from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service'
-import proxies from '../../proxies';
 import { getHiscoresTableNames } from '../../util/scraping';
 import { getCombatLevel } from '../../util/level';
+import { getNextProxy } from '../../proxies';
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -460,7 +460,7 @@ async function getCMLHistory(username, time) {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username, type = 'regular') {
-  const proxy = proxies.getNextProxy();
+  const proxy = getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
@@ -479,7 +479,7 @@ async function getHiscoresData(username, type = 'regular') {
 }
 
 async function getHiscoresNames(username) {
-  const proxy = proxies.getNextProxy();
+  const proxy = getNextProxy();
   const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
 
   try {

@@ -14,4 +14,6 @@ async function get(req, res, next) {
   }
 }
 
-export default get;
+export {
+  get
+};
