@@ -6,7 +6,7 @@ import { durationBetween } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
-import TableListPlaceholder from '../../../../components/TableListPlaceholder';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
   const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });
@@ -79,7 +79,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
   };
 
   if (isLoading) {
-    return <TableListPlaceholder size={10} />;
+    return <TablePlaceholder size={10} />;
   }
 
   return (

@@ -1,16 +1,22 @@
-export const FETCH_LEADERBOARD_REQUEST = 'wise-old-man/records/FETCH_LEADERBOARD_REQUEST';
-export const FETCH_LEADERBOARD_SUCCESS = 'wise-old-man/records/FETCH_LEADERBOARD_SUCCESS';
-export const FETCH_LEADERBOARD_FAILURE = 'wise-old-man/records/FETCH_LEADERBOARD_FAILURE';
+export const FETCH_LEADERBOARD_REQUEST = 'records/FETCH_RECORDS_LEADERBOARD_REQUEST';
+export const FETCH_LEADERBOARD_SUCCESS = 'records/FETCH_RECORDS_LEADERBOARD_SUCCESS';
+export const FETCH_LEADERBOARD_FAILURE = 'records/FETCH_RECORDS_LEADERBOARD_FAILURE';
 
-export const FETCH_PLAYER_RECORDS_REQUEST = 'wise-old-man/records/FETCH_PLAYER_RECORDS_REQUEST';
-export const FETCH_PLAYER_RECORDS_SUCCESS = 'wise-old-man/records/FETCH_PLAYER_RECORDS_SUCCESS';
-export const FETCH_PLAYER_RECORDS_FAILURE = 'wise-old-man/records/FETCH_PLAYER_RECORDS_FAILURE';
+export const FETCH_PLAYER_RECORDS_REQUEST = 'records/FETCH_PLAYER_RECORDS_REQUEST';
+export const FETCH_PLAYER_RECORDS_SUCCESS = 'records/FETCH_PLAYER_RECORDS_SUCCESS';
+export const FETCH_PLAYER_RECORDS_FAILURE = 'records/FETCH_PLAYER_RECORDS_FAILURE';
+
+export const FETCH_GROUP_RECORDS_REQUEST = 'records/FETCH_GROUP_RECORDS_REQUEST';
+export const FETCH_GROUP_RECORDS_SUCCESS = 'records/FETCH_GROUP_RECORDS_SUCCESS';
+export const FETCH_GROUP_RECORDS_FAILURE = 'records/FETCH_GROUP_RECORDS_FAILURE';
 
 const initialState = {
   isFetchingLeaderboard: false,
   isFetchingPlayerRecords: false,
-  records: {},
-  leaderboard: {},
+  isFetchingGroupRecords: false,
+  playerRecords: {},
+  groupRecords: {},
+  leaderboard: {}
 };
 
 export default function recordsReducer(state = initialState, action) {
@@ -31,11 +37,24 @@ export default function recordsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerRecords: false,
-        records: { ...state.records, [action.playerId]: action.records },
+        playerRecords: { ...state.playerRecords, [action.playerId]: action.records }
       };
 
     case FETCH_PLAYER_RECORDS_FAILURE:
       return { ...state, isFetchingPlayerRecords: false, error: action.error };
+
+    case FETCH_GROUP_RECORDS_REQUEST:
+      return { ...state, isFetchingGroupRecords: true };
+
+    case FETCH_GROUP_RECORDS_SUCCESS:
+      return {
+        ...state,
+        isFetchingGroupRecords: false,
+        groupRecords: { ...state.groupRecords, [action.groupId]: action.records }
+      };
+
+    case FETCH_GROUP_RECORDS_FAILURE:
+      return { ...state, isFetchingGroupRecords: false, error: action.error };
 
     default:
       return state;

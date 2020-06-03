@@ -46,7 +46,7 @@ const metrics = {
     { key: 'callisto', name: 'Callisto' },
     { key: 'cerberus', name: 'Cerberus' },
     { key: 'chambers_of_xeric', name: 'Chambers Of Xeric' },
-    { key: 'chambers_of_xeric_challenge_mode', name: 'Chambers Of Xeric (Challenge)' },
+    { key: 'chambers_of_xeric_challenge_mode', name: 'Chambers Of Xeric (CM)' },
     { key: 'chaos_elemental', name: 'Chaos Elemental' },
     { key: 'chaos_fanatic', name: 'Chaos Fanatic' },
     { key: 'commander_zilyana', name: 'Commander Zilyana' },

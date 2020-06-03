@@ -7,8 +7,8 @@ import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Selector from '../../components/Selector';
 import TextButton from '../../components/TextButton';
-import TableList from '../../components/TableList';
-import TableListPlaceholder from '../../components/TableListPlaceholder';
+import Table from '../../components/Table';
+import TablePlaceholder from '../../components/TablePlaceholder';
 import StatusDot from '../../components/StatusDot';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchAll';
 import { getCompetitions, isFetchingAll } from '../../redux/selectors/competitions';
@@ -219,12 +219,13 @@ function CompetitionsList() {
       <div className="competitions__list row">
         <div className="col">
           {isLoading && (!competitions || competitions.length === 0) ? (
-            <TableListPlaceholder size={5} />
+            <TablePlaceholder size={5} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={competitions}
+              listStyle
             />
           )}
         </div>

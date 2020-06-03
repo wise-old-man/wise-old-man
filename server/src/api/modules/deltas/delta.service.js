@@ -186,7 +186,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
+async function getGroupLeaderboard(metric, period, playerIds, pagination) {
   const metricKey = getValueKey(metric);
   const seconds = getSeconds(period);
   const ids = playerIds.join(',');
@@ -194,7 +194,7 @@ async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
   const query = queries.GET_GROUP_LEADERBOARD(metricKey, ids);
 
   const results = await sequelize.query(query, {
-    replacements: { seconds, limit },
+    replacements: { seconds, ...pagination },
     type: QueryTypes.SELECT
   });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -21,7 +21,12 @@ const TABLE_CONFIG = {
 
 function PlayerGroupsTable({ groups }) {
   return (
-    <TableList uniqueKeySelector={TABLE_CONFIG.uniqueKey} rows={groups} columns={TABLE_CONFIG.columns} />
+    <Table
+      uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+      rows={groups}
+      columns={TABLE_CONFIG.columns}
+      listStyle
+    />
   );
 }
 

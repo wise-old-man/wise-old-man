@@ -41,13 +41,64 @@ async function monthlyTop(req, res, next) {
   }
 }
 
-async function leaderboard(req, res, next) {
+async function deltas(req, res, next) {
   try {
     const { id } = req.params;
-    const { metric, period } = req.query;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const results = await service.getLeaderboard(id, period, metric);
+    const results = await service.getDeltas(id, period, metric, paginationConfig);
 
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function achievements(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+
+    const results = await service.getAchievements(id, paginationConfig);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function records(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+
+    const results = await service.getRecords(id, metric, period, paginationConfig);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function hiscores(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+
+    const results = await service.getHiscores(id, metric, paginationConfig);
+    res.status(200).json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+async function statistics(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const results = await service.getStatistics(id);
     res.status(200).json(results);
   } catch (e) {
     next(e);
@@ -154,7 +205,11 @@ async function updateAllMembers(req, res, next) {
 exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
 exports.monthlyTop = monthlyTop;
-exports.leaderboard = leaderboard;
+exports.deltas = deltas;
+exports.achievements = achievements;
+exports.records = records;
+exports.hiscores = hiscores;
+exports.statistics = statistics;
 exports.listMembers = listMembers;
 exports.createGroup = createGroup;
 exports.editGroup = editGroup;

@@ -6,8 +6,8 @@ import _ from 'lodash';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
-import TableList from '../../components/TableList';
-import TableListPlaceholder from '../../components/TableListPlaceholder';
+import Table from '../../components/Table';
+import TablePlaceholder from '../../components/TablePlaceholder';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchAll';
 import { getGroups, isFetchingAll } from '../../redux/selectors/groups';
 import './GroupsList.scss';
@@ -121,12 +121,13 @@ function GroupsList() {
       <div className="groups__list row">
         <div className="col">
           {isLoading && (!groups || groups.length === 0) ? (
-            <TableListPlaceholder size={5} />
+            <TablePlaceholder size={5} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={groups}
+              listStyle
             />
           )}
         </div>

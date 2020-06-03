@@ -2,12 +2,16 @@ const _ = require('lodash');
 const { Op, Sequelize, QueryTypes } = require('sequelize');
 const moment = require('moment');
 const PERIODS = require('../../constants/periods');
-const { ALL_METRICS } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey, getRankKey, getMeasure, isSkill } = require('../../constants/metrics');
 const { Group, Membership, Player, sequelize } = require('../../../database');
 const { generateVerification, verifyCode } = require('../../util/verification');
+const { getCombatLevel, getTotalLevel, get200msCount, getLevel } = require('../../util/level');
 const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const deltaService = require('../deltas/delta.service');
+const achievementService = require('../achievements/achievement.service');
+const recordService = require('../records/record.service');
+const snapshotService = require('../snapshots/snapshot.service');
 
 function sanitizeName(name) {
   return name
@@ -126,17 +130,19 @@ async function getMonthlyTopPlayer(groupId) {
     return null;
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
+  const pagination = { limit: 1, offset: 0 };
+  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, pagination);
+
   const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
 }
 
 /**
- * Gets the leaderboard for a specific metric,
+ * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getLeaderboard(groupId, period, metric) {
+async function getDeltas(groupId, period, metric, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -160,8 +166,75 @@ async function getLeaderboard(groupId, period, metric) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds);
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, pagination);
   return leaderboard;
+}
+
+/**
+ * Get the 10 most recent player achievements for a given group.
+ */
+async function getAchievements(groupId, pagination) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId'],
+    include: [{ model: Player }]
+  });
+
+  if (!memberships.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const members = memberships.map(m => m.player);
+  const memberMap = _.keyBy(members, 'id');
+  const memberIds = members.map(m => m.id);
+
+  const achievements = await achievementService.findAllForGroup(memberIds, pagination);
+
+  const formatted = achievements.map(a => {
+    const { id, username, displayName, type } = memberMap[a.playerId];
+    return {
+      ...a.toJSON(),
+      player: { id, username, displayName, type }
+    };
+  });
+
+  return formatted;
+}
+
+/**
+ * Gets the top records for a specific metric and period,
+ * between the members of a group.
+ */
+async function getRecords(groupId, metric, period, pagination) {
+  if (!groupId) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId']
+  });
+
+  if (!memberships.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const memberIds = memberships.map(m => m.playerId);
+  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, pagination);
+
+  return records;
 }
 
 async function getMembersList(id) {
@@ -187,16 +260,15 @@ async function getMembersList(id) {
   }
 
   const query = `
-        SELECT s."playerId", s."overallExperience"
-        FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-              FROM public.snapshots q
-              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
-              GROUP BY q."playerId"
-              ) r
-        JOIN public.snapshots s
-          ON s."playerId" = r."playerId"  
-          AND s."createdAt"   = r.max_date
-        ORDER BY s."playerId"
+    SELECT s."playerId", s."overallExperience"
+    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+          FROM public.snapshots q
+          WHERE q."playerId" IN (${memberships.map(m => m.player.id).join(',')})
+          GROUP BY q."playerId"
+          ) r
+    JOIN public.snapshots s
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+    ORDER BY s."playerId"
   `;
 
   // Execute the query above, which returns the latest snapshot for each member,
@@ -209,11 +281,156 @@ async function getMembersList(id) {
     parseInt(d.overallExperience, 10)
   );
 
-  // Format all the members, add each experience to its respective player, and sort them by exp
+  // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
     .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => a.role.localeCompare(b.role));
+}
+
+/**
+ * Gets the group hiscores for a specific metric.
+ * All members which HAVE SNAPSHOTS will included and sorted by rank.
+ */
+async function getHiscores(id, metric, pagination) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const group = await Group.findOne({ where: { id } });
+
+  if (!group) {
+    throw new BadRequestError(`Group of id ${id} was not found.`);
+  }
+
+  // Fetch all memberships for the group
+  const memberships = await Membership.findAll({
+    attributes: ['playerId'],
+    where: { groupId: id },
+    include: [{ model: Player }]
+  });
+
+  if (!memberships || memberships.length === 0) {
+    return [];
+  }
+
+  const valueKey = getValueKey(metric);
+  const rankKey = getRankKey(metric);
+  const measure = getMeasure(metric);
+  const memberIds = memberships.map(m => m.player.id);
+
+  const query = `
+    SELECT s.*
+    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+          FROM public.snapshots q
+          WHERE q."playerId" IN (${memberIds.join(',')})
+          GROUP BY q."playerId"
+          ) r
+    JOIN public.snapshots s
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+    ORDER BY s."${valueKey}" DESC
+    LIMIT :limit
+    OFFSET :offset
+  `;
+
+  // Execute the query above, which returns the latest snapshot for each member
+  const latestSnapshots = await sequelize.query(query, {
+    type: QueryTypes.SELECT,
+    replacements: { ...pagination }
+  });
+
+  // Formats the experience snapshots to a key:value map.
+  // Example: { '1623': { rank: 350567, experience: 6412215 } }
+  const experienceMap = _.mapValues(_.keyBy(latestSnapshots, 'playerId'), d => {
+    const data = {
+      rank: parseInt(d[rankKey], 10),
+      [measure]: parseInt(d[valueKey], 10)
+    };
+
+    if (isSkill(metric)) {
+      data.level = metric === 'overall' ? getTotalLevel(d) : getLevel(data.experience);
+    }
+
+    return data;
+  });
+
+  // Format all the members, add each experience to its respective player, and sort them by exp
+  return memberships
+    .filter(({ playerId }) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
+    .map(({ player }) => ({ ...player.toJSON(), ...experienceMap[player.id] }))
+    .sort((a, b) => b[measure] - a[measure]);
+}
+
+/**
+ * Gets the stats for every member of a group (latest snapshot)
+ */
+async function getMemberStats(id) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const group = await Group.findOne({ where: { id } });
+
+  if (!group) {
+    throw new BadRequestError(`Group of id ${id} was not found.`);
+  }
+
+  // Fetch all memberships for the group
+  const memberships = await Membership.findAll({
+    attributes: ['playerId'],
+    where: { groupId: id }
+  });
+
+  if (!memberships || memberships.length === 0) {
+    return [];
+  }
+
+  const memberIds = memberships.map(m => m.playerId);
+
+  const query = `
+    SELECT s.*
+    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
+          FROM public.snapshots q
+          WHERE q."playerId" IN (${memberIds.join(',')})
+          GROUP BY q."playerId"
+          ) r
+    JOIN public.snapshots s
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+  `;
+
+  // Execute the query above, which returns the latest snapshot for each member
+  const latestSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+  // Formats the snapshots to a playerId:snapshot map, for easier lookup
+  const snapshotMap = _.mapValues(_.keyBy(latestSnapshots, 'playerId'));
+
+  // Format all the members, add each experience to its respective player, and sort them by exp
+  return memberships
+    .filter(({ playerId }) => snapshotMap[playerId])
+    .map(({ playerId }) => ({ ...snapshotMap[playerId] }));
+}
+
+async function getStatistics(id) {
+  if (!id) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const stats = await getMemberStats(id);
+
+  if (!stats || stats.length === 0) {
+    throw new BadRequestError("Couldn't find any stats for this group.");
+  }
+
+  const maxedCombatCount = stats.filter(s => getCombatLevel(s) === 126).length;
+  const maxedTotalCount = stats.filter(s => getTotalLevel(s) === 2277).length;
+  const maxed200msCount = stats.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
+  const averageStats = snapshotService.format(snapshotService.average(stats));
+
+  return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }
 
 async function create(name, clanChat, members) {
@@ -675,7 +892,11 @@ exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
-exports.getLeaderboard = getLeaderboard;
+exports.getDeltas = getDeltas;
+exports.getAchievements = getAchievements;
+exports.getRecords = getRecords;
+exports.getHiscores = getHiscores;
+exports.getStatistics = getStatistics;
 exports.getMembersList = getMembersList;
 exports.create = create;
 exports.edit = edit;

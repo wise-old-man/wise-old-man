@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import './TableListPlaceholder.scss';
+import './TablePlaceholder.scss';
 
 function Row() {
   const randomWidth = 50 + Math.floor(Math.random() * 250);
 
   return (
-    <li className="table-list-placeholder__item">
+    <li className="table-placeholder__item">
       <div className="placeholder-text" style={{ width: randomWidth }} />
     </li>
   );
 }
 
-function TableListPlaceholder({ size }) {
+function TablePlaceholder({ size }) {
   return (
-    <ul className="table-list-placeholder">
+    <ul className="table-placeholder">
       {_.times(size, i => (
         <Row key={i} />
       ))}
@@ -23,9 +23,9 @@ function TableListPlaceholder({ size }) {
   );
 }
 
-TableListPlaceholder.propTypes = {
+TablePlaceholder.propTypes = {
   // The amount of fake rows to render
   size: PropTypes.number.isRequired
 };
 
-export default React.memo(TableListPlaceholder);
+export default React.memo(TablePlaceholder);

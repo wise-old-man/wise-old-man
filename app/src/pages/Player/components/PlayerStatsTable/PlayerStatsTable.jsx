@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
-import TableListPlaceholder from '../../../../components/TableListPlaceholder';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
@@ -131,7 +131,7 @@ function renderActivitiesTable(snapshot) {
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) {
   if (isLoading) {
-    return <TableListPlaceholder size={20} />;
+    return <TablePlaceholder size={20} />;
   }
 
   const { latestSnapshot } = player;

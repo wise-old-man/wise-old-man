@@ -4,6 +4,13 @@
 .group__container {
   @extend %page;
 
+  .widget-label {
+    display: block;
+    font-size: 0.8em;
+    color: $gray-60;
+    margin-bottom: 10px;
+  }
+
   .group__header {
     .button {
       margin-right: 15px;
@@ -33,19 +40,45 @@
       margin-bottom: 24px;
     }
 
-    .table-list {
-      margin-top: -10px;
+    .selector {
+      margin-bottom: 12px;
+    }
+
+    .options-bar {
+      display: flex;
+      flex-direction: row;
+
+      .selector {
+        flex-grow: 1;
+
+        &:first-child {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .metric-tag {
+      img {
+        margin-right: 10px;
+      }
     }
   }
 
   .group__widgets {
     margin-top: 10px;
+  }
+}
 
-    .widget-label {
-      display: block;
-      font-size: 0.8em;
-      color: $gray-60;
-      margin-bottom: 10px;
+@media only screen and (max-width: $breakpoint-small) {
+  .group__container {
+    .group__content {
+      .options-bar {
+        flex-direction: column;
+
+        .selector {
+          width: 100%;
+        }
+      }
     }
   }
 }
