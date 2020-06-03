@@ -29,6 +29,10 @@ export const FETCH_GROUP_MONTHLY_TOP_REQUEST = 'groups/FETCH_GROUP_MONTHLY_TOP_R
 export const FETCH_GROUP_MONTHLY_TOP_SUCCESS = 'groups/FETCH_GROUP_MONTHLY_TOP_SUCCESS';
 export const FETCH_GROUP_MONTHLY_TOP_FAILURE = 'groups/FETCH_GROUP_MONTHLY_TOP_FAILURE';
 
+export const FETCH_GROUP_STATISTICS_REQUEST = 'groups/FETCH_GROUP_STATISTICS_REQUEST';
+export const FETCH_GROUP_STATISTICS_SUCCESS = 'groups/FETCH_GROUP_STATISTICS_SUCCESS';
+export const FETCH_GROUP_STATISTICS_FAILURE = 'groups/FETCH_GROUP_STATISTICS_FAILURE';
+
 export const FETCH_PLAYER_GROUPS_REQUEST = 'groups/FETCH_PLAYER_GROUPS_REQUEST';
 export const FETCH_PLAYER_GROUPS_SUCCESS = 'groups/FETCH_PLAYER_GROUPS_SUCCESS';
 export const FETCH_PLAYER_GROUPS_FAILURE = 'groups/FETCH_PLAYER_GROUPS_FAILURE';
@@ -45,6 +49,7 @@ const initialState = {
   isFetchingDetails: false,
   isFetchingMembers: false,
   isFetchingMonthlyTop: false,
+  isFetchingStatistics: false,
   isFetchingPlayerGroups: false,
   groups: {},
   playerGroups: {},
@@ -155,6 +160,22 @@ export default function groupsReducer(state = initialState, action) {
 
     case FETCH_GROUP_MONTHLY_TOP_FAILURE:
       return { ...state, isFetchingMonthlyTop: false, error: { message: action.error } };
+
+    case FETCH_GROUP_STATISTICS_REQUEST:
+      return { ...state, isFetchingStatistics: true };
+
+    case FETCH_GROUP_STATISTICS_SUCCESS:
+      return {
+        ...state,
+        isFetchingStatistics: false,
+        groups: {
+          ...state.groups,
+          [action.groupId]: { ...state.groups[action.groupId], statistics: action.statistics }
+        }
+      };
+
+    case FETCH_GROUP_STATISTICS_FAILURE:
+      return { ...state, isFetchingStatistics: false, error: { message: action.error } };
 
     case DELETE_GROUP_REQUEST:
       return { ...state, isDeleting: true };

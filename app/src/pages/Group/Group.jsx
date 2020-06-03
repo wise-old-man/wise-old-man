@@ -17,6 +17,7 @@ import GroupHiscores from './components/GroupHiscores';
 import GroupDeltas from './components/GroupDeltas';
 import GroupRecords from './components/GroupRecords';
 import GroupAchievements from './components/GroupAchievements';
+import GroupStatistics from './components/GroupStatistics';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import { ALL_METRICS } from '../../config';
@@ -34,6 +35,7 @@ import fetchAchievementsAction from '../../redux/modules/achievements/actions/fe
 import fetchHiscoresAction from '../../redux/modules/hiscores/actions/fetchGroupHiscores';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchGroupDeltas';
 import fetchRecordsAction from '../../redux/modules/records/actions/fetchGroupRecords';
+import fetchStatisticsAction from '../../redux/modules/groups/actions/fetchStatistics';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import { getMetricName, getMetricIcon } from '../../utils';
 import './Group.scss';
@@ -107,6 +109,7 @@ function Group() {
     dispatch(fetchMonthlyTopAction(id));
     dispatch(fetchCompetitionsAction(id));
     dispatch(fetchAchievementsAction(id));
+    dispatch(fetchStatisticsAction(id));
   };
 
   const fetchHiscores = () => {
@@ -266,6 +269,9 @@ function Group() {
             </>
           )}
           {selectedSectionIndex === 5 && <GroupAchievements achievements={achievements} />}
+          {selectedSectionIndex === 6 && (
+            <GroupStatistics statistics={group ? group.statistics : null} />
+          )}
         </div>
       </div>
       {showingDeleteModal && group && <DeleteGroupModal group={group} onCancel={onDeleteModalClosed} />}
