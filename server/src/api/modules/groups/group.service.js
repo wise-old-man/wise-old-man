@@ -130,7 +130,9 @@ async function getMonthlyTopPlayer(groupId) {
     return null;
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, 1);
+  const pagination = { limit: 1, offset: 0 };
+  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, pagination);
+
   const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
@@ -140,7 +142,7 @@ async function getMonthlyTopPlayer(groupId) {
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getLeaderboard(groupId, period, metric) {
+async function getDeltas(groupId, period, metric, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -164,14 +166,14 @@ async function getLeaderboard(groupId, period, metric) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, 20);
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, pagination);
   return leaderboard;
 }
 
 /**
  * Get the 10 most recent player achievements for a given group.
  */
-async function getAchievements(groupId) {
+async function getAchievements(groupId, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -190,7 +192,7 @@ async function getAchievements(groupId) {
   const memberMap = _.keyBy(members, 'id');
   const memberIds = members.map(m => m.id);
 
-  const achievements = await achievementService.findAllForGroup(memberIds, 10);
+  const achievements = await achievementService.findAllForGroup(memberIds, pagination);
   const formatted = achievements.map(a => ({ ...a.toJSON(), player: memberMap[a.playerId] }));
 
   return formatted;
@@ -200,7 +202,7 @@ async function getAchievements(groupId) {
  * Gets the top records for a specific metric and period,
  * between the members of a group.
  */
-async function getRecords(groupId, metric, period) {
+async function getRecords(groupId, metric, period, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -223,7 +225,7 @@ async function getRecords(groupId, metric, period) {
   }
 
   const memberIds = memberships.map(m => m.playerId);
-  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, 20);
+  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, pagination);
 
   return records;
 }
@@ -283,7 +285,7 @@ async function getMembersList(id) {
  * Gets the group hiscores for a specific metric.
  * All members which HAVE SNAPSHOTS will included and sorted by rank.
  */
-async function getHiscores(id, metric) {
+async function getHiscores(id, metric, pagination) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -324,11 +326,15 @@ async function getHiscores(id, metric) {
     JOIN public.snapshots s
       ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
     ORDER BY s."${valueKey}" DESC
-    LIMIT 20
+    LIMIT :limit
+    OFFSET :offset
   `;
 
   // Execute the query above, which returns the latest snapshot for each member
-  const latestSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+  const latestSnapshots = await sequelize.query(query, {
+    type: QueryTypes.SELECT,
+    replacements: { ...pagination }
+  });
 
   // Formats the experience snapshots to a key:value map.
   // Example: { '1623': { rank: 350567, experience: 6412215 } }
@@ -879,7 +885,7 @@ exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
-exports.getLeaderboard = getLeaderboard;
+exports.getDeltas = getDeltas;
 exports.getAchievements = getAchievements;
 exports.getRecords = getRecords;
 exports.getHiscores = getHiscores;
