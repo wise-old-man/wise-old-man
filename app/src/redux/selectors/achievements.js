@@ -51,7 +51,7 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
 };
 
 function processGroup(player, group) {
-  if (!player) {
+  if (!player || !player.latestSnapshot) {
     return group;
   }
 
