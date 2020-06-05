@@ -29,6 +29,24 @@ export function isBoss(value) {
   return BOSSES.includes(value);
 }
 
+export function getMinimumBossKc(value) {
+  switch (value) {
+    case 'mimic':
+    case 'tzkal_zuk':
+      return 2;
+    case 'bryophyta':
+    case 'chambers_of_xeric_challenge_mode':
+    case 'hespori':
+    case 'obor':
+    case 'skotizo':
+    case 'the_corrupted_gauntlet':
+    case 'tztok_jad':
+      return 10;
+    default:
+      return 50;
+  }
+}
+
 export function getMeasure(value) {
   if (isSkill(value)) {
     return 'experience';
