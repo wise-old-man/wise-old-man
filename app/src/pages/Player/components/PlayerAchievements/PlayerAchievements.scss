@@ -20,6 +20,14 @@
     .group-title {
       font-size: 0.9em;
       min-width: 130px;
+
+      &.-bossing {
+        min-width: 181px;
+      }
+
+      &.-activities {
+        min-width: 154px;
+      }
     }
 
     .group-progress {
