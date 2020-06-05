@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './TextLabel.scss';
 
-
 function TextLabel({ value, popupValue }) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const popupText = popupValue || value;
-  
+
   const togglePopup = e => {
     e.stopPropagation();
     setIsPopupVisible(!isPopupVisible);
@@ -34,4 +33,4 @@ TextLabel.propTypes = {
   popupValue: PropTypes.string
 };
 
-export default TextLabel;
+export default React.memo(TextLabel);

@@ -79,25 +79,28 @@ function renderBossesTable(snapshot) {
     {
       key: 'kills',
       transform: (val, row) => {
-        if (val === -1) {
-          return (
-            <TextLabel
-              value={`< ${getMinimumBossKc(row.metric)}`}
-              popupValue={`The Hiscores only start tracking ${getMetricName(row.metric)} kills after ${getMinimumBossKc(row.metric)} kc`}
-            />
-          );
-        }
-        return <NumberLabel value={val} />;
+        const minKc = getMinimumBossKc(row.metric);
+        const metricName = getMetricName(row.metric);
+
+        return val === -1 ? (
+          <TextLabel
+            value={`< ${minKc}`}
+            popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+          />
+        ) : (
+          <NumberLabel value={val} />
+        );
       }
     },
     {
       key: 'rank',
       className: () => '-break-small',
       transform: val => {
-        if (val === -1) {
-          return <TextLabel value="---" popupValue="Unranked" />;
-        }
-        return <NumberLabel value={val} />;
+        return val === -1 ? (
+          <TextLabel value="---" popupValue="Unranked" />
+        ) : (
+          <NumberLabel value={val} />
+        );
       }
     },
     {
