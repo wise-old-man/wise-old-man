@@ -69,12 +69,13 @@ function processGroup(player, group) {
   }
 
   if (group.metric === 'overall' && group.measure === 'levels') {
+    const totalLevel = getTotalLevel(latestSnapshot);
     const progress = {
       start: 36,
       end: 2277,
-      current: getTotalLevel(latestSnapshot),
-      percentToNextTier: getTotalLevel(latestSnapshot) / 2277,
-      absolutePercent: getTotalLevel(latestSnapshot) / 2277
+      current: totalLevel,
+      percentToNextTier: totalLevel / 2277,
+      absolutePercent: totalLevel / 2277
     };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
@@ -97,10 +98,7 @@ function processGroup(player, group) {
       }
 
       const prevStart = i === 0 ? 0 : group.achievements[i - 1].threshold;
-      const nextTierProgress = Math.max(
-        0,
-        (currentValue - prevStart) / (achievement.threshold - prevStart)
-      );
+      const nextTierProgress = (currentValue - prevStart) / (achievement.threshold - prevStart);
 
       return {
         ...achievement,
@@ -108,7 +106,7 @@ function processGroup(player, group) {
           start: 0,
           end: achievement.threshold,
           current: currentValue,
-          percentToNextTier: nextTierProgress,
+          percentToNextTier: Math.max(0, nextTierProgress),
           absolutePercent: currentValue / achievement.threshold
         }
       };
