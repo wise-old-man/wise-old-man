@@ -6,6 +6,8 @@
         "moduleResolution": "node",
         "outDir": "dist",
         "importHelpers": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "baseUrl": "./",
         "types": [
             "node"
