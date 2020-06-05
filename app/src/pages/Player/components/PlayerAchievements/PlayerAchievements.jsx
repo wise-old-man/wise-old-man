@@ -112,7 +112,7 @@ function PlayerAchievements({ groupedAchievements, metricType }) {
             <div className="group-icon">
               <img src={getMetricIcon(metric)} alt="" />
             </div>
-            <b className="group-title">
+            <b className={`group-title -${metricType}`}>
               {achievements.length > 1 ? getMetricName(metric) : achievements[0].type}
             </b>
             <div className="group-progress">
