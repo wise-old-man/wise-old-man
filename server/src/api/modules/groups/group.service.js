@@ -892,7 +892,6 @@ async function getOutdatedMembers(groupId) {
 
 async function refreshScores() {
   const allGroups = await Group.findAll();
-  console.log(allGroups.length);
 
   await Promise.all(
     allGroups.map(async group => {
@@ -923,18 +922,24 @@ async function calculateScore(group) {
     score += 30;
   }
 
-  // If has atleast 50 or 20  players
-  if (members.length >= 50) {
-    score += 40;
-  } else if (members.length >= 20) {
+  // If has atleast 10 players
+  if (members.length >= 10) {
     score += 20;
   }
 
-  // If average member overall exp > 100m or > 30m
+  // If has atleast 50 players
+  if (members.length >= 50) {
+    score += 40;
+  }
+
+  // If average member overall exp > 30m
+  if (averageOverallExp >= 30000000) {
+    score += 30;
+  }
+
+  // If average member overall exp > 100m
   if (averageOverallExp >= 100000000) {
     score += 60;
-  } else if (averageOverallExp >= 30000000) {
-    score += 30;
   }
 
   // If has valid clan chat
