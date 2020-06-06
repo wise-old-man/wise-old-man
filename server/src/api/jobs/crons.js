@@ -1,6 +1,6 @@
 module.exports = [
   {
     jobName: 'RefreshRankings',
-    cronConfig: '0 */6 * * *' // every 6 hours
+    cronConfig: '* * * * *' // every 6 hours
   }
 ];
