@@ -10,6 +10,7 @@ const { BadRequestError } = require('../../errors');
 const playerService = require('../players/player.service');
 const deltaService = require('../deltas/delta.service');
 const achievementService = require('../achievements/achievement.service');
+const competitionService = require('../competitions/competition.service');
 const recordService = require('../records/record.service');
 const snapshotService = require('../snapshots/snapshot.service');
 
@@ -32,6 +33,10 @@ async function list(name, pagination) {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
+    order: [
+      ['score', 'DESC'],
+      ['id', 'ASC']
+    ],
     limit: pagination.limit,
     offset: pagination.offset
   });
@@ -60,6 +65,7 @@ async function findForPlayer(playerId, pagination) {
   const groups = _.uniqBy(memberships, m => m.group.id)
     .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(p => p.group)
+    .sort((a, b) => b.score - a.score)
     .map(format);
 
   const completeGroups = await attachMembersCount(groups);
@@ -887,6 +893,81 @@ async function getOutdatedMembers(groupId) {
   return membersToUpdate.map(({ player }) => player);
 }
 
+async function refreshScores() {
+  const allGroups = await Group.findAll();
+
+  await Promise.all(
+    allGroups.map(async group => {
+      const currentScore = group.score;
+      const newScore = await calculateScore(group);
+
+      if (newScore !== currentScore) {
+        await group.update({ score: newScore });
+      }
+    })
+  );
+}
+
+async function calculateScore(group) {
+  let score = 0;
+
+  const now = new Date();
+  const members = await getMembersList(group.id);
+  const competitions = await competitionService.findForGroup(group.id, { limit: 10000, offset: 0 });
+  const averageOverallExp = members.reduce((acc, cur) => acc + cur, 0) / members.length;
+
+  if (!members || members.length === 0) {
+    return score;
+  }
+
+  // If has atleast one leader
+  if (members.filter(m => m.role === 'leader').length >= 1) {
+    score += 30;
+  }
+
+  // If has atleast 10 players
+  if (members.length >= 10) {
+    score += 20;
+  }
+
+  // If has atleast 50 players
+  if (members.length >= 50) {
+    score += 40;
+  }
+
+  // If average member overall exp > 30m
+  if (averageOverallExp >= 30000000) {
+    score += 30;
+  }
+
+  // If average member overall exp > 100m
+  if (averageOverallExp >= 100000000) {
+    score += 60;
+  }
+
+  // If has valid clan chat
+  if (group.clanChat && group.clanChat.length > 0) {
+    score += 50;
+  }
+
+  // If is verified (clan leader is in our discord)
+  if (group.verified) {
+    score += 100;
+  }
+
+  // If has atleast one ongoing competition
+  if (competitions.filter(c => c.startsAt <= now && c.endsAt >= now).length >= 1) {
+    score += 50;
+  }
+
+  // If has atleast one upcoming competition
+  if (competitions.filter(c => c.startsAt >= now).length >= 1) {
+    score += 30;
+  }
+
+  return score;
+}
+
 exports.format = format;
 exports.list = list;
 exports.findForPlayer = findForPlayer;
@@ -907,3 +988,4 @@ exports.changeRole = changeRole;
 exports.getMembers = getMembers;
 exports.findOne = findOne;
 exports.updateAllMembers = updateAllMembers;
+exports.refreshScores = refreshScores;

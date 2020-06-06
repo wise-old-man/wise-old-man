@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    score: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
     verificationCode: {
       type: DataTypes.VIRTUAL,
       allowNull: false

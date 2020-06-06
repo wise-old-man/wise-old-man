@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import PageTitle from '../../components/PageTitle';
+import VerifiedBadge from '../../components/VerifiedBadge';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Table from '../../components/Table';
@@ -20,7 +21,18 @@ const TABLE_CONFIG = {
     {
       key: 'name',
       className: () => '-primary',
-      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>
+      transform: (val, row) => {
+        if (row.verified) {
+          return (
+            <Link to={`/groups/${row.id}`}>
+              {val}
+              <VerifiedBadge />
+            </Link>
+          );
+        }
+
+        return <Link to={`/groups/${row.id}`}>{val}</Link>;
+      }
     },
     {
       key: 'memberCount',

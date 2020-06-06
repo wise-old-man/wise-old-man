@@ -1,0 +1,11 @@
+@import '../../variables.scss';
+
+.verified-badge {
+  display: inline-block;
+  text-decoration: none;
+  color: $positive-green;
+  border: 1px solid $positive-green;
+  border-radius: 5px;
+  font-size: 0.7em;
+  padding: 3px 5px;
+}

@@ -23,7 +23,9 @@ export const getPlayerGroupsMap = createSelector(playerGroupsSelector, map => {
 });
 
 export const getGroups = createSelector(groupsSelector, map => {
-  return Object.values(map).map(g => formatGroup(g));
+  return Object.values(map)
+    .map(g => formatGroup(g))
+    .sort((a, b) => b.score - a.score || a.id - b.id);
 });
 
 export const getGroup = (state, id) => getGroupsMap(state)[id];

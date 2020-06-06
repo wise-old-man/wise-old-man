@@ -2,63 +2,91 @@ const Queue = require('bull');
 const redisConfig = require('./redis');
 
 const jobs = require('./instances');
+const crons = require('./crons');
+
+const PRIORITY_HIGH = 1;
+const PRIORITY_MEDIUM = 2;
+const PRIORITY_LOW = 3;
 
 function instance() {
-  const queues = Object.values(jobs).map(job => ({
-    bull: new Queue(job.key, redisConfig),
-    name: job.key,
-    handle: job.handle,
-    onFail: job.onFail,
-    onSuccess: job.onSuccess
-  }));
+  // Initialize all job queues
+  const queues = [];
 
-  // Supports cronjobs { repeat: { cron: "* * * * *" } }
+  /**
+   * Adds a new job to the queue, to be executed ASAP.
+   */
   function add(name, data, options) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const queue = queues.find(q => q.name === name);
 
     if (!queue) {
       throw new Error(`No job found for name ${name}`);
     }
 
-    return queue.bull.add(data, options);
+    const priority = (options && options.priority) || PRIORITY_MEDIUM;
+    queue.bull.add(data, { ...options, priority });
   }
 
+  /**
+   * Adds new scheduled job, to be executed at the specified date.
+   */
   function schedule(name, data, date) {
     const secondsTill = date - new Date();
 
     // Don't allow scheduling for past dates
     if (secondsTill >= 0) {
-      add(name, data, { delay: secondsTill });
+      add(name, data, { delay: secondsTill, priority: PRIORITY_MEDIUM });
     }
   }
 
-  function setup() {
-    return queues.forEach(queue => {
+  async function setup() {
+    queues.push(
+      ...Object.values(jobs).map(job => ({
+        bull: new Queue(job.name, redisConfig),
+        ...job
+      }))
+    );
+
+    // Initialize all queue processing
+    queues.forEach(queue => {
       queue.bull.process(queue.handle);
-
-      queue.bull.on('completed', job => {
-        if (queue.onSuccess) {
-          queue.onSuccess(job.data);
-        }
-      });
-
-      queue.bull.on('failed', (job, err) => {
-        if (queue.onFail) {
-          queue.onFail(job.data, err);
-        } else {
-          console.log(`Job failed`, queue.name, job.data);
-          console.log(err);
-        }
-      });
+      // On Success callback
+      queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));
+      // On Failure callback
+      queue.bull.on('failed', (job, err) => queue.onFail && queue.onFail(job.data, err));
     });
+
+    // If running through pm2 (production), only run cronjobs on the first CPU core.
+    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
+    if (!process.env.pm_id || process.env.pm_id === 0) {
+      // Remove any active cron jobs
+      queues.forEach(async ({ bull }) => {
+        const activeQueues = await bull.getRepeatableJobs();
+        activeQueues.forEach(async job => bull.removeRepeatable({ cron: job.cron, jobId: job.id }));
+      });
+
+      // Start all cron jobs (with a 10 second delay, to wait for old jobs to be removed)
+      // TODO: this can be improved to await for the removal above, instead of the hacky 10sec wait
+      setTimeout(() => {
+        crons.forEach(cron =>
+          add(cron.jobName, null, { repeat: { cron: cron.cronConfig }, priority: PRIORITY_LOW })
+        );
+      }, 10000);
+    }
   }
 
   return {
     queues,
     add,
     setup,
-    schedule
+    schedule,
+    PRIORITY_MEDIUM,
+    PRIORITY_LOW,
+    PRIORITY_HIGH
   };
 }
 
-module.exports = process.env.NODE_ENV === 'test' ? { add: () => {} } : instance();
+module.exports = instance();
