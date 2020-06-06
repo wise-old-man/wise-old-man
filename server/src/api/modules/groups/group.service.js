@@ -33,7 +33,10 @@ async function list(name, pagination) {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
-    order: [['score', 'DESC']],
+    order: [
+      ['score', 'DESC'],
+      ['id', 'ASC']
+    ],
     limit: pagination.limit,
     offset: pagination.offset
   });

@@ -65,7 +65,10 @@ async function list(title, status, metric, pagination) {
 
   const competitions = await Competition.findAll({
     where: query,
-    order: [['score', 'DESC']],
+    order: [
+      ['score', 'DESC'],
+      ['createdAt', 'DESC']
+    ],
     limit: pagination.limit,
     offset: pagination.offset
   });

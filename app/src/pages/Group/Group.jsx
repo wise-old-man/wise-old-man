@@ -193,7 +193,7 @@ function Group() {
       </Helmet>
       <div className="group__header row">
         <div className="col">
-          <PageHeader title={group.name}>
+          <PageHeader title={group.name} verified={group.verified}>
             <Button text="Update all" onClick={onUpdateAllClicked} disabled={isButtonDisabled} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">
