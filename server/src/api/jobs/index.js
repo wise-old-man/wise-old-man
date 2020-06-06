@@ -10,15 +10,16 @@ const PRIORITY_LOW = 3;
 
 function instance() {
   // Initialize all job queues
-  const queues = Object.values(jobs).map(job => ({
-    bull: new Queue(job.name, redisConfig),
-    ...job
-  }));
+  const queues = [];
 
   /**
    * Adds a new job to the queue, to be executed ASAP.
    */
   function add(name, data, options) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     const queue = queues.find(q => q.name === name);
 
     if (!queue) {
@@ -26,7 +27,7 @@ function instance() {
     }
 
     const priority = (options && options.priority) || PRIORITY_MEDIUM;
-    return queue.bull.add(data, { ...options, priority });
+    queue.bull.add(data, { ...options, priority });
   }
 
   /**
@@ -42,6 +43,13 @@ function instance() {
   }
 
   async function setup() {
+    queues.push(
+      ...Object.values(jobs).map(job => ({
+        bull: new Queue(job.name, redisConfig),
+        ...job
+      }))
+    );
+
     // Initialize all queue processing
     queues.forEach(queue => {
       queue.bull.process(queue.handle);
