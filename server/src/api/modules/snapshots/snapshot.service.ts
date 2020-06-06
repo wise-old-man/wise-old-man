@@ -13,9 +13,11 @@ import {
   isSkill
 } from '../../constants/metrics';
 import { periods } from '../../constants/periods';
-import { Snapshot } from '../../../database';
-// import * as db from '../../../database';
 import { ServerError, BadRequestError } from '../../errors';
+import { Snapshot } from '../../../database/models'
+import { getRepository, MoreThanOrEqual, LessThanOrEqual, In, Raw } from 'typeorm';
+
+const snapshotRepository = getRepository(Snapshot);
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
@@ -48,13 +50,21 @@ async function findAll(playerId, limit) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  const result = await Snapshot.findAll({
+  const snapshot = await snapshotRepository.find({
     where: { playerId },
-    order: [['createdAt', 'DESC']],
-    limit
-  });
+    order: {
+      createdAt: 'DESC'
+    },
+    take: limit
+  })
 
-  return result;
+  // const result = await Snapshot.findAll({
+  //   where: { playerId },
+  //   order: [['createdAt', 'DESC']],
+  //   limit
+  // });
+
+  return snapshot;
 }
 
 /**
@@ -98,26 +108,45 @@ async function findAllInPeriod(playerId, period) {
 
   const before = moment().subtract(1, period);
 
-  const result = await Snapshot.findAll({
+  const snapshot = await snapshotRepository.find({
     where: {
       playerId,
-      createdAt: { [Op.gte]: before.toDate() }
+      createdAt: MoreThanOrEqual(before.toDate())
     },
-    order: [['createdAt', 'DESC']]
-  });
+    order: {
+      createdAt: 'DESC'
+    }
+  })
 
-  return result.map(r => format(r));
+  // const result = await Snapshot.findAll({
+  //   where: {
+  //     playerId,
+  //     createdAt: { [Op.gte]: before.toDate() }
+  //   },
+  //   order: [['createdAt', 'DESC']]
+  // });
+
+  return snapshot.map(r => format(r));
 }
 
 /**
  * Finds the latest snapshot for a given player.
  */
 async function findLatest(playerId) {
-  const result = await Snapshot.findOne({
-    where: { playerId },
-    order: [['createdAt', 'DESC']]
-  });
-  return result;
+  const snapshot = await snapshotRepository.findOne({
+    where: {
+      playerId
+    },
+    order: {
+      createdAt: 'DESC'
+    }
+  })
+
+  // const result = await Snapshot.findOne({
+  //   where: { playerId },
+  //   order: [['createdAt', 'DESC']]
+  // });
+  return snapshot;
 }
 
 /**
@@ -130,21 +159,40 @@ async function findFirstIn(playerId, period) {
 
   const before = moment().subtract(1, period);
 
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: before.toDate() } },
-    order: [['createdAt', 'ASC']]
-  });
-  return result;
+  const snapshot = await snapshotRepository.findOne({
+    where: {
+      playerId,
+      createdAt: MoreThanOrEqual(before.toDate())
+    },
+    order: {
+      createdAt: 'ASC'
+    }
+  })
+
+  // const result = await Snapshot.findOne({
+  //   where: { playerId, createdAt: { [Op.gte]: before.toDate() } },
+  //   order: [['createdAt', 'ASC']]
+  // });
+  return snapshot;
 }
 
 /**
  * Finds the first snapshot since the given date for a given player.
  */
 async function findFirstSince(playerId, date) {
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [['createdAt', 'ASC']]
-  });
+  const result = await snapshotRepository.findOne({
+    where: {
+      playerId,
+      createdAt: MoreThanOrEqual(date)
+    },
+    order: {
+      createdAt: 'ASC'
+    }
+  })
+  // const result = await Snapshot.findOne({
+  //   where: { playerId, createdAt: { [Op.gte]: date } },
+  //   order: [['createdAt', 'ASC']]
+  // });
   return result;
 }
 
@@ -154,14 +202,23 @@ async function findFirstSince(playerId, date) {
  * Useful for tracking the evolution of every player in a competition.
  */
 async function findAllBetween(playerIds, startDate, endDate) {
-  const results = await Snapshot.findAll({
+  const snapshot = await snapshotRepository.find({
     where: {
-      playerId: playerIds,
-      createdAt: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] }
+      playerId: In(playerIds),
+      createdAt: Raw(alias => `${alias} >= ${startDate} AND ${alias} <= ${endDate}`)
     },
-    order: [['createdAt', 'ASC']]
-  });
-  return results;
+    order: {
+      createdAt: 'ASC'
+    }
+  })
+  // const results = await Snapshot.findAll({
+  //   where: {
+  //     playerId: playerIds,
+  //     createdAt: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] }
+  //   },
+  //   order: [['createdAt', 'ASC']]
+  // });
+  return snapshot;
 }
 
 /**
@@ -202,7 +259,9 @@ function diff(start, end, initialValues) {
 async function saveAll(snapshots) {
   const { playerId } = snapshots[0];
 
-  const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
+  const existingSnapshots = await snapshotRepository.find({ playerId });
+
+  // const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
 
   const existingVals = existingSnapshots.map(s =>
     JSON.stringify({
@@ -225,8 +284,10 @@ async function saveAll(snapshots) {
     return [];
   }
 
-  const results = await Snapshot.bulkCreate(newVals);
-  return results;
+  const snapshot = await snapshotRepository.save(newVals)
+
+  // const results = await Snapshot.bulkCreate(newVals);
+  return snapshot;
 }
 
 /**
@@ -302,7 +363,9 @@ async function fromRS(playerId, csvData) {
     stats[getValueKey(s)] = parseInt(kills, 10);
   });
 
-  const newSnapshot = await Snapshot.create({ playerId, ...stats });
+  const newSnapshot = await snapshotRepository.create({ playerId, ...stats });
+
+  // const newSnapshot = await Snapshot.create({ playerId, ...stats });
   return newSnapshot;
 }
 

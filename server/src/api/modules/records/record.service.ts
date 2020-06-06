@@ -2,8 +2,12 @@ import { omit, keyBy, forEach, mapValues } from 'lodash';
 import { periods } from '../../constants/periods';
 import { ALL_METRICS, getMeasure } from '../../constants/metrics';
 import { BadRequestError } from '../../errors';
-import { Player, Record } from '../../../database';
+import { Player, Record } from '../../../database/models';
 import * as deltaService from '../deltas/delta.service';
+import { getRepository } from 'typeorm';
+
+const playerRepository = getRepository(Player);
+const recordRepository = getRepository(Record);
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);
@@ -22,11 +26,15 @@ async function syncRecords(playerId, period) {
     throw new BadRequestError(`Invalid player.`);
   }
 
-  const periodRecords = await Record.findAll({ where: { playerId, period } });
+  const periodRecords = await recordRepository.find({
+    where: { playerId, period }
+  })
+
+  // const periodRecords = await Record.findAll({ where: { playerId, period } });
   const periodDelta = await deltaService.getDelta(playerId, period);
 
   const recordMap = keyBy(
-    periodRecords.map(r => r.toJSON()),
+    periodRecords.map((r: any) => r.toJSON()),
     'metric'
   );
 
@@ -49,7 +57,7 @@ async function syncRecords(playerId, period) {
   await Promise.all(
     toUpdate.map(async r => {
       const record = periodRecords.find(p => p.metric === r.metric);
-      await record.update({ value: r.value });
+      await recordRepository.save({ value: r.value });
     })
   );
 

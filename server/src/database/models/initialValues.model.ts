@@ -1,5 +1,5 @@
-import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../api/constants/metrics';
-import { Entity, PrimaryGeneratedColumn, Column, EntitySchema } from 'typeorm';
+import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../api/constants/metrics';
+import { EntitySchema } from 'typeorm';
 
 function buildDynamicSchema() {
   const obj = {};
@@ -52,8 +52,8 @@ function buildDynamicSchema() {
   return obj;
 }
 
-export const SnapshotEntity = new EntitySchema({
-  name: 'snapshots',
+export const InitialValues = new EntitySchema({
+  name: 'initialValues',
   columns: {
     id: {
       type: Number,
@@ -72,26 +72,22 @@ export const SnapshotEntity = new EntitySchema({
 })
 
 // export default (sequelize, DataTypes) => {
-//   // Define the snapshot schema
-//   const snapshotSchema = {
+//   const schema = {
 //     id: {
-//       type: DataTypes.INTEGER,
+//       type: Number,
 //       primaryKey: true,
 //       autoIncrement: true
 //     },
 //     playerId: {
-//       type: DataTypes.INTEGER,
+//       type: Number,
 //       nullable: false
-//     },
-//     importedAt: {
-//       type: DataTypes.DATE
 //     },
 //     ...buildDynamicSchema(DataTypes)
 //   };
 
 //   // Define other table options
 //   const options = {
-//     updatedAt: false,
+//     createdAt: false,
 //     indexes: [
 //       {
 //         unique: true,
@@ -99,23 +95,20 @@ export const SnapshotEntity = new EntitySchema({
 //       },
 //       {
 //         fields: ['playerId']
-//       },
-//       {
-//         fields: ['createdAt']
 //       }
 //     ]
 //   };
 
 //   // Create the model
-//   const Snapshot = sequelize.define('snapshots', snapshotSchema, options);
+//   const InitialValues = sequelize.define('initialValues', schema, options);
 
 //   // Define all model associations
-//   Snapshot.associate = models => {
-//     Snapshot.belongsTo(models.Player, {
+//   InitialValues.associate = models => {
+//     InitialValues.belongsTo(models.Player, {
 //       foreignKey: 'playerId',
 //       onDelete: 'CASCADE'
 //     });
 //   };
 
-//   return Snapshot;
+//   return InitialValues;
 // };
