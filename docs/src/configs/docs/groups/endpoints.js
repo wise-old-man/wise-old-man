@@ -40,6 +40,8 @@ export default [
           {
             id: 1,
             name: 'Hexis',
+            score: 120,
+            verified: true,
             clanChat: null,
             createdAt: '2020-04-18T08:37:24.190Z',
             updatedAt: '2020-04-18T08:37:24.190Z',
@@ -48,6 +50,8 @@ export default [
           {
             id: 2,
             name: 'RSPT',
+            score: 100,
+            verified: true,
             clanChat: 'rspt',
             createdAt: '2020-04-18T08:45:28.726Z',
             updatedAt: '2020-04-18T08:47:50.870Z',
@@ -56,6 +60,8 @@ export default [
           {
             id: 4,
             name: 'Varrock Titans',
+            score: 90,
+            verified: false,
             clanChat: 'Vrck Titans',
             createdAt: '2020-04-18T09:01:10.630Z',
             updatedAt: '2020-04-18T09:07:00.915Z',
@@ -82,6 +88,8 @@ export default [
         body: {
           id: 4,
           name: 'RSPT',
+          score: 120,
+          verified: true,
           clanChat: 'rspt',
           createdAt: '2020-04-18T09:01:10.630Z',
           updatedAt: '2020-04-18T09:07:00.915Z'
@@ -678,6 +686,8 @@ export default [
         body: {
           id: 23,
           name: 'Falador Knights',
+          score: 0,
+          verified: false,
           clanChat: 'fallyK',
           verificationCode: '107-719-861',
           updatedAt: '2020-04-23T01:53:26.079Z',
@@ -775,6 +785,8 @@ export default [
         body: {
           id: 2,
           name: 'Some new name',
+          score: 0,
+          verified: false,
           clanChat: 'fallyK',
           createdAt: '2020-04-18T08:45:28.726Z',
           updatedAt: '2020-04-18T15:30:41.380Z',

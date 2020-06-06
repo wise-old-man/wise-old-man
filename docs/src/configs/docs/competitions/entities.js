@@ -19,6 +19,12 @@ export default [
         description: "The competition's metric. (See accepted values below)"
       },
       {
+        field: 'score',
+        type: 'integer',
+        description:
+          "The competition's ranking score (Essentially this competition's relevance on searches)."
+      },
+      {
         field: 'verificationHash',
         type: 'string',
         description: "The competition's verification code. Used for authorization."
