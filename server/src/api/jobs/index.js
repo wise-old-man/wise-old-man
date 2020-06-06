@@ -61,7 +61,8 @@ function instance() {
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (!process.env.pm_id || process.env.pm_id === 0) {
+    // Note: This will also run in development environments
+    if (!process.env.pm_id || parseInt(process.env.pm_id, 10) === 0) {
       // Remove any active cron jobs
       queues.forEach(async ({ bull }) => {
         const activeQueues = await bull.getRepeatableJobs();
