@@ -71,6 +71,12 @@
 
 @media only screen and (max-width: $breakpoint-small) {
   .group__container {
+    .page-header {
+      .verified-badge {
+        display: none;
+      }
+    }
+
     .group__content {
       .options-bar {
         flex-direction: column;

@@ -21,7 +21,7 @@ function Tabs({ tabs, selectedIndex, align, urlSelector, specialHighlightIndex }
 
         return (
           <Link key={tab} to={url} className={tabClass}>
-            {tab}
+            <span>{tab}</span>
             {i === specialHighlightIndex && <div className="new-dot" />}
           </Link>
         );

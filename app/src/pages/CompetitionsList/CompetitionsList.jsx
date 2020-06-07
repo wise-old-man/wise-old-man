@@ -206,6 +206,7 @@ function CompetitionsList() {
             options={metricOptions}
             selectedIndex={selectedMetricIndex}
             onSelect={onMetricSelected}
+            search
           />
         </div>
         <div className="col-md-4 col-sm-6">
