@@ -25,8 +25,8 @@ const TABLE_CONFIG = {
         if (row.verified) {
           return (
             <Link to={`/groups/${row.id}`}>
-              {val}
               <VerifiedBadge />
+              {val}
             </Link>
           );
         }

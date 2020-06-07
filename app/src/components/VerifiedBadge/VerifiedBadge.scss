@@ -3,9 +3,22 @@
 .verified-badge {
   display: inline-block;
   text-decoration: none;
-  color: $positive-green;
-  border: 1px solid $positive-green;
-  border-radius: 5px;
-  font-size: 0.7em;
-  padding: 3px 5px;
+
+  &.-full {
+    color: $brand-color-bright;
+    border: 1px solid $brand-color-bright;
+    border-radius: 5px;
+    font-size: 0.7em;
+    padding: 3px 5px;
+  }
+
+  &.-icon {
+    width: 15px;
+    height: 15px;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
