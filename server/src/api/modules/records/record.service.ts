@@ -62,7 +62,7 @@ async function syncRecords(playerId, period) {
   );
 
   // Create all missing records
-  await Record.bulkCreate(toCreate, { ignoreDuplicates: true });
+  await recordRepository.create(toCreate);
 }
 
 /**
@@ -94,7 +94,11 @@ async function findAll(playerId, period, metric) {
     query.metric = metric;
   }
 
-  const records = await Record.findAll({ where: query });
+  // const records = await Record.findAll({ where: query });
+
+  const records = await recordRepository.find({
+    where: query
+  })
 
   return records.map(r => format(r));
 }
@@ -129,12 +133,26 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const records = await Record.findAll({
+  const records: any = await recordRepository.find({
     where: { period, metric },
-    order: [['value', 'DESC']],
-    limit: 20,
-    include: [{ model: Player, where: playerType && { type: playerType } }]
-  });
+    order: {
+      value: 'DESC'
+    },
+    take: 20,
+    join: {
+      alias: 'player',
+      leftJoin: {
+        type: playerType
+      }
+    }
+  })
+
+  // const records = await Record.findAll({
+  //   where: { period, metric },
+  //   order: [['value', 'DESC']],
+  //   limit: 20,
+  //   include: [{ model: Player, where: playerType && { type: playerType } }]
+  // });
 
   const formattedRecords = records.map(({ player, value, updatedAt }) => ({
     playerId: player.id,

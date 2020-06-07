@@ -3,11 +3,16 @@ import { Op, Sequelize, QueryTypes } from 'sequelize';
 import * as moment from 'moment';
 import { periods } from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
-import { Group, Membership, Player, sequelize } from '../../../database';
+import { Group, Membership, Player } from '../../../database/models';
 import { generateVerification, verifyCode } from '../../util/verification';
 import { BadRequestError } from '../../errors';
 import * as playerService from '../players/player.service';
 import * as deltaService from '../deltas/delta.service';
+import { getRepository, Like } from 'typeorm';
+
+const groupRepository = getRepository(Group);
+const membershipRepository = getRepository(Membership);
+const playerRepository = getRepository(Player);
 
 function sanitizeName(name) {
   return name
@@ -26,11 +31,18 @@ function format(group) {
  */
 async function list(name, pagination) {
   // Fetch all groups that match the name
-  const groups = await Group.findAll({
-    where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
-    limit: pagination.limit,
-    offset: pagination.offset
-  });
+  const groups = await groupRepository.find({
+    where: {
+      name: Like(`%${sanitizeName(name)}%`)
+    },
+    take: pagination.limit,
+    skip: pagination.skip
+  })
+  // const groups = await Group.findAll({
+  //   where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
+  //   limit: pagination.limit,
+  //   offset: pagination.offset
+  // });
 
   // Fetch and attach member counts for each group
   const completeGroups = await attachMembersCount(groups.map(format));
@@ -47,10 +59,14 @@ async function findForPlayer(playerId, pagination) {
   }
 
   // Find all memberships for the player
-  const memberships = await Membership.findAll({
+  const memberships = await membershipRepository.find({
     where: { playerId },
-    include: [{ model: Group }]
-  });
+    relations: ['Group']
+  })
+  // const memberships = await Membership.findAll({
+  //   where: { playerId },
+  //   include: [{ model: Group }]
+  // });
 
   // Extract all the unique groups from the memberships, and format them.
   const groups = uniqBy(memberships, (m: any) => m.group.id)
@@ -101,7 +117,8 @@ async function view(id) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
+  // const group = await Group.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);

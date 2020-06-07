@@ -3,15 +3,18 @@ import { Op } from 'sequelize';
 import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
-import { Player } from '../../../database';
+import { Player } from '../../../database/models';
 import * as snapshotService from '../snapshots/snapshot.service'
 import { getHiscoresTableNames } from '../../util/scraping';
 import { getCombatLevel } from '../../util/level';
 import { getNextProxy } from '../../proxies';
+import { getRepository, Like } from 'typeorm';
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
+
+const playerRepository = getRepository(Player);
 
 /**
  * Format a username into a standardized version,
@@ -93,9 +96,15 @@ async function getData(username) {
     throw new BadRequestError('Invalid username.');
   }
 
-  const player = await Player.findOne({
-    where: { username: { [Op.like]: `${standardize(username)}` } }
-  });
+  const player: any = await playerRepository.findOne({
+    where: {
+      username: Like(`${standardize(username)}`)
+    }
+  })
+
+  // const player = await Player.findOne({
+  //   where: { username: { [Op.like]: `${standardize(username)}` } }
+  // });
 
   if (!player) {
     throw new BadRequestError(`${username} is not being tracked yet.`);
@@ -115,7 +124,9 @@ async function getDataById(id) {
     throw new BadRequestError('Invalid player id.');
   }
 
-  const player = await Player.findOne({ where: { id } });
+  const player: any = await playerRepository.findOne({ where: { id } });
+
+  // const player = await Player.findOne({ where: { id } });
 
   if (!player) {
     throw new BadRequestError(`Player of id ${id} is not being tracked yet.`);
@@ -135,14 +146,21 @@ async function search(username) {
     throw new BadRequestError('Invalid username.');
   }
 
-  const players = await Player.findAll({
+  const players = await playerRepository.find({
     where: {
-      username: {
-        [Op.like]: `${standardize(username)}%`
-      }
+      username: Like(`${standardize(username)}`)
     },
-    limit: 20
-  });
+    take: 20
+  })
+
+  // const players = await Player.findAll({
+  //   where: {
+  //     username: {
+  //       [Op.like]: `${standardize(username)}%`
+  //     }
+  //   },
+  //   limit: 20
+  // });
 
   return players;
 }
@@ -158,7 +176,7 @@ async function update(username) {
 
   // Find a player with the given username,
   // or create a new one if none are found
-  const [player, created] = await findOrCreate(username);
+  const [player, created]: any = await findOrCreate(username);
   const [should, seconds] = await shouldUpdate(player.updatedAt);
 
   // If the player already existed and was updated recently,
@@ -191,7 +209,8 @@ async function update(username) {
     if (created) {
       // Doing this with the model method (Player.update) because the
       // instance method (instance.update) doesn't seem to work.
-      await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
+      await playerRepository.save({ id: player.id })
+      // await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
     }
 
     throw e;
@@ -211,7 +230,7 @@ async function importCML(username) {
 
   // Find a player with the given username,
   // or create a new one if none are found
-  const [player] = await findOrCreate(username);
+  const [player]: any = await findOrCreate(username);
   const [should, seconds] = shouldImport(player.lastImportedAt);
 
   // If the player hasn't imported in over 24h,
@@ -397,25 +416,32 @@ async function assertName(username) {
     throw new BadRequestError(`No change required: The current display name is correct.`);
   }
 
-  await player.update({ displayName });
+  await playerRepository.update({ displayName }, { displayName });
   return displayName;
 }
 
 async function findOrCreate(username) {
-  const result = await Player.findOrCreate({
-    where: { username: standardize(username) },
-    defaults: { displayName: sanitize(username) }
-  });
-  return result;
+  const player = await playerRepository.findOne({ username: standardize(username) });
+  if (player) {
+    return player;
+  } else {
+    const newPlayer = await playerRepository.save({ username: standardize(username), displayName: sanitize(username) });
+    return newPlayer;
+  }
+  // const result = await Player.findOrCreate({
+  //   where: { username: standardize(username) },
+  //   defaults: { displayName: sanitize(username) }
+  // });
+  // return result;
 }
 
 async function findById(id) {
-  const result = await Player.findOne({ where: { id } });
+  const result = await playerRepository.findOne({ where: { id } });
   return result;
 }
 
 async function find(username) {
-  const result = await Player.findOne({ where: { username: standardize(username) } });
+  const result = await playerRepository.findOne({ where: { username: standardize(username) } });
   return result;
 }
 
