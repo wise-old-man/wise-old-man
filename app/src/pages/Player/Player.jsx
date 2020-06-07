@@ -277,7 +277,6 @@ function Player() {
             selectedIndex={selectedTabIndex}
             urlSelector={i => getNextUrl({ section: TABS[i].toLowerCase() })}
             align="space-between"
-            specialHighlightIndex={5}
           />
         </div>
         {selectedTabIndex === 0 && (

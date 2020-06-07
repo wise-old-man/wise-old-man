@@ -134,7 +134,7 @@ function Records() {
   return (
     <div className="records__container container">
       <Helmet>
-        <title>{`${capitalize(selectedMetric)} global records`}</title>
+        <title>{`${getMetricName(selectedMetric)} global records`}</title>
       </Helmet>
       <div className="records__header row">
         <div className="col">

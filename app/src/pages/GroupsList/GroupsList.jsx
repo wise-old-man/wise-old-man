@@ -36,6 +36,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'memberCount',
+      className: () => '-break-small',
       transform: val => `${val} members`,
       width: 130
     }
