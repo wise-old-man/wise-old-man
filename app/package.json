@@ -25,7 +25,6 @@
     "react-nice-dates": "^3.0.4",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
-    "react-router-scroll-top": "^0.2.1",
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",

@@ -1,3 +1,4 @@
+import { matchPath } from 'react-router-dom';
 import HomePage from '../pages/Home';
 import TopPage from '../pages/Top';
 import RecordsPage from '../pages/Records';
@@ -68,3 +69,17 @@ export const ROUTES = [
     component: PlayerPage
   }
 ];
+
+/**
+ * Finds the matching route from a given pathname:
+ *
+ * Ex: getRoute("/top/agility") -> "/top/:metric?/:playerType?"
+ */
+export function getRoute(pathname) {
+  const route = ROUTES.find(({ path }) => {
+    const match = matchPath(pathname, path);
+    return match ? match.isExact : false;
+  });
+
+  return route ? route.path : null;
+}
