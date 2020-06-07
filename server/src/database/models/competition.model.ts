@@ -1,4 +1,4 @@
-import { ALL_METRICS } from '../api/constants/metrics';
+import { ALL_METRICS } from '../../api/constants/metrics';
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { Length, IsDate } from 'class-validator';
 

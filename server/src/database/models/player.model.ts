@@ -1,4 +1,4 @@
-import { playerTypes } from '../api/constants/playerTypes';
+import { playerTypes } from '../../api/constants/playerTypes';
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 import { Length } from 'class-validator';
 

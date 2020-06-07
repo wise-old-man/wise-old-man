@@ -4,9 +4,12 @@ import { periods } from '../../constants/periods';
 import { playerTypes } from '../../constants/playerTypes';
 import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
 import { BadRequestError, ServerError } from '../../errors';
-import { InitialValues, sequelize } from '../../../database';
+import { InitialValues } from '../../../database/models';
 import * as snapshotService from '../snapshots/snapshot.service';
 import * as queries from './delta.queries';
+import { getRepository, getConnection } from 'typeorm';
+
+const initialValuesRepository = getRepository(InitialValues);
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;
@@ -17,7 +20,7 @@ async function syncInitialValues(playerId) {
   const latestSnapshot = await snapshotService.findLatest(playerId);
 
   // Find or create (if doesn't exist) the player's initial values
-  const [initialValues] = await InitialValues.findOrCreate({ where: { playerId } });
+  const [initialValues] = await initialValuesRepository.save({ where: { playerId } });
 
   const newInitialValues = {};
 
@@ -45,10 +48,10 @@ async function getDelta(playerId, period, initialVals = null) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const initialValues = initialVals || (await InitialValues.findOne({ where: { playerId } }));
+  const initialValues = initialVals || (await initialValuesRepository.findOne({ where: { playerId } }));
   const seconds = getSeconds(period);
 
-  const results = await sequelize.query(queries.GET_PLAYER_DELTA, {
+  const results = await getConnection().query(queries.GET_PLAYER_DELTA, {
     replacements: { seconds, playerId },
     type: QueryTypes.SELECT
   });
@@ -100,7 +103,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
 
   const query = queries.GET_PERIOD_LEADERBOARD(metricKey, typeCondition);
 
-  const results = await sequelize.query(query, {
+  const results = await getConnection().query(query, {
     replacements: { seconds },
     type: QueryTypes.SELECT
   });
@@ -138,7 +141,7 @@ async function getLeaderboard(metric, playerType) {
  * Gets the all the deltas for a specific playerId.
  */
 async function getAllDeltas(playerId) {
-  const initialValues = await InitialValues.findOne({ where: { playerId } });
+  const initialValues = await initialValuesRepository.findOne({ where: { playerId } });
 
   const partials = await Promise.all(
     periods.map(async period => {
@@ -166,7 +169,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
 
   const query = queries.GET_COMPETITION_LEADERBOARD(metricKey, ids);
 
-  const results = await sequelize.query(query, {
+  const results = await getConnection().query(query, {
     replacements: {
       startsAt: competition.startsAt.toISOString(),
       endsAt: competition.endsAt.toISOString()
@@ -193,7 +196,7 @@ async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
 
   const query = queries.GET_GROUP_LEADERBOARD(metricKey, ids);
 
-  const results = await sequelize.query(query, {
+  const results = await getConnection().query(query, {
     replacements: { seconds, limit },
     type: QueryTypes.SELECT
   });

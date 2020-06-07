@@ -9,8 +9,11 @@ import {
   getDifficultyFactor
 } from '../../constants/metrics';
 import { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } from './achievement.templates';
-import { Achievement, sequelize } from '../../../database';
+import { Achievement } from '../../../database/models';
 import * as snapshotService from '../snapshots/snapshot.service';
+import { getRepository, getConnection } from 'typeorm';
+
+const achievementRepository = getRepository(Achievement);
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {
@@ -240,27 +243,46 @@ function getPreviousAchievements(previousSnapshot) {
  */
 async function reevaluateAchievements(playerId) {
   // Find all unknown date achievements
-  const unknown = await Achievement.findAll({ where: { playerId, createdAt: new Date(0) } });
+  const unknown = await achievementRepository.find({ where: { playerId, createdAt: new Date(0) } });
 
   // Attach dates to as many unknown achievements as possible
   const datedUnknownAchievements = await addPastDates(
     playerId,
-    unknown.map(u => ({ type: u.type, createdAt: u.createdAt }))
+    unknown.map((u: any) => ({ type: u.type, createdAt: u.createdAt }))
   );
 
   // Include only achievements with a valid (not unknown) date
   const toUpdate = datedUnknownAchievements.filter(d => d.createdAt > 0).map(t => ({ ...t, playerId }));
 
   if (toUpdate && toUpdate.length > 0) {
-    const transaction = await sequelize.transaction();
+    const connection = getConnection();
+    const queryRunner = connection.createQueryRunner();
 
-    // Remove outdated achievements
-    await Achievement.destroy({ where: { playerId, type: toUpdate.map(t => t.type) }, transaction });
+    await queryRunner.connect();
 
-    // Re-add them with the correct date
-    await Achievement.bulkCreate(toUpdate, { transaction, ignoreDuplicates: true });
+    const achievements = await queryRunner.manager.find(Achievement);
 
-    await transaction.commit();
+    await queryRunner.startTransaction();
+
+    try {
+
+      // execute some operations on this transaction:
+      await queryRunner.manager.delete(Achievement, { playerId, type: toUpdate.map(t => t.type) });
+      await queryRunner.manager.save(toUpdate);
+
+      // commit transaction now:
+      await queryRunner.commitTransaction();
+
+    } catch (err) {
+
+      // since we have errors let's rollback changes we made
+      await queryRunner.rollbackTransaction();
+
+    } finally {
+
+      // you need to release query runner which is manually created:
+      await queryRunner.release();
+    }
   }
 }
 
@@ -279,7 +301,7 @@ async function syncAchievements(playerId) {
   const previous = snapshots[1];
 
   // Find all achievements the player already has
-  const existingAchievements = await Achievement.findAll({ where: { playerId } });
+  const existingAchievements = await achievementRepository.find({ where: { playerId } });
 
   // Find all achievements the player should have had (in the previous update)
   const previousAchievements = getPreviousAchievements(previous).map(a => ({ ...a, playerId }));
@@ -301,7 +323,7 @@ async function syncAchievements(playerId) {
     return;
   }
 
-  await Achievement.bulkCreate(toInsert, { ignoreDuplicates: true });
+  await achievementRepository.save(toInsert);
 }
 
 /**
@@ -311,9 +333,11 @@ async function syncAchievements(playerId) {
  * achievements, with a "missing" field set to true.
  */
 async function findAll(playerId, includeMissing = false) {
-  const achievements = await Achievement.findAll({
+  const achievements: any = await achievementRepository.find({
     where: { playerId }
-  }).map(a => a.toJSON());
+  })
+
+  const mappedAchievements = achievements.map(a => a.toJSON());
 
   if (!includeMissing) {
     return achievements;

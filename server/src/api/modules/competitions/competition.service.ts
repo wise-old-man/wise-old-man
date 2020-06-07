@@ -3,7 +3,7 @@ import { Op, Sequelize } from 'sequelize';
 import * as moment from 'moment';
 import { ALL_METRICS, getValueKey } from '../../constants/metrics';
 import { statuses } from '../../constants/statuses';
-import { Competition, Participation, Player, Group } from '../../../database';
+import { Competition, Participation, Player, Group } from '../../../database/models';
 import { durationBetween, isValidDate, isPast } from '../../util/dates';
 import { generateVerification, verifyCode } from '../../util/verification';
 import { BadRequestError, NotFoundError } from '../../errors';
@@ -11,6 +11,12 @@ import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
 import * as groupService from '../groups/group.service';
 import * as deltaService from '../deltas/delta.service';
+import { getRepository, LessThan, MoreThan } from 'typeorm';
+
+const competitionRepository = getRepository(Competition);
+const participationRepository = getRepository(Participation);
+const playerRepository = getRepository(Player);
+const groupRepository = getRepository(Group);
 
 function sanitizeTitle(title) {
   return title
@@ -63,10 +69,10 @@ async function list(title, status, metric, pagination) {
     }
   }
 
-  const competitions = await Competition.findAll({
+  const competitions = await competitionRepository.find({
     where: query,
-    limit: pagination.limit,
-    offset: pagination.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   const formattedCompetitions = competitions.map(c => {
@@ -81,10 +87,10 @@ async function list(title, status, metric, pagination) {
  * Returns a list of all competitions for a specific group.
  */
 async function findForGroup(groupId, pagination) {
-  const competitions = await Competition.findAll({
+  const competitions = await competitionRepository.find({
     where: { groupId },
-    limit: pagination.limit,
-    offset: pagination.offset
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   const formattedCompetitions = competitions.map(c => {
@@ -103,15 +109,14 @@ async function findForPlayer(playerId, pagination) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  const participations = await Participation.findAll({
+  const participations = await participationRepository.find({
     where: { playerId },
-    attributes: [],
-    include: [{ model: Competition }]
+    relations: ['competition']
   });
 
   const formattedCompetitions = participations
     .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(({ competition }) => ({
+    .map(({ competition }: any) => ({
       ...format(competition),
       duration: durationBetween(competition.startsAt, competition.endsAt)
     }));
@@ -129,7 +134,7 @@ async function attachParticipantCount(competitions) {
    * Will return a participant count for every competition, with the format:
    * [ {competitionId: 35, count: "4"}, {competitionId: 41, count: "31"} ]
    */
-  const participantCount = await Participation.findAll({
+  const participantCount = await participationRepository.find({
     where: { competitionId: competitions.map(countMap => countMap.id) },
     attributes: ['competitionId', [Sequelize.fn('COUNT', Sequelize.col('competitionId')), 'count']],
     group: ['competitionId']
@@ -161,9 +166,9 @@ async function view(id) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const competition = await Competition.findOne({
+  const competition: any = await competitionRepository.findOne({
     where: { id },
-    include: [{ model: Group }]
+    relations: ['group']
   });
 
   if (!competition) {
@@ -175,10 +180,10 @@ async function view(id) {
   const group = competition.group ? groupService.format(competition.group) : null;
 
   // Fetch all participations, including their players and snapshots
-  const participations = await Participation.findAll({
-    attributes: ['playerId'],
+  const participations = await participationRepository.find({
+    select: ['playerId'],
     where: { competitionId: id },
-    include: [{ model: Player }]
+    relations: ['player']
   });
 
   const playerIds = participations.map(p => p.playerId);
@@ -187,7 +192,7 @@ async function view(id) {
   const leaderboardMap = keyBy(leaderboard, 'playerId');
 
   const participants = participations
-    .map(({ player }) => ({
+    .map(({ player }: any) => ({
       id: player.id,
       username: player.username,
       displayName: player.displayName,
@@ -301,7 +306,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
   const [verificationCode, verificationHash] = await generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
-  const competition = await Competition.create({
+  const competition = await competitionRepository.create({
     title: sanitizedTitle,
     metric: metric.toLowerCase(),
     verificationCode,
@@ -348,7 +353,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError('Start date must be before the end date.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await competitionRepository.findOne({ where: { id } });
 
   if (!competition) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
@@ -414,7 +419,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
   }
 
-  await competition.update(newValues);
+  await competitionRepository.update(newValues, newValues);
 
   return { ...format(competition), participants: competitionParticipants };
 }
@@ -431,7 +436,7 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await competitionRepository.findOne({ where: { id } });
   const { title } = competition;
 
   if (!competition) {
@@ -444,7 +449,7 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  await competition.destroy();
+  await competitionRepository.remove(competition);
   return title;
 }
 
@@ -488,7 +493,7 @@ async function addAllGroupMembers(competition, groupId) {
   const members = await groupService.getMembers(groupId);
 
   // Manually create participations for all these players
-  await Participation.bulkCreate(members.map(p => ({ competitionId: competition.id, playerId: p.id })));
+  await participationRepository.save(members.map(p => ({ competitionId: competition.id, playerId: p.id })));
 
   // Update the "updatedAt" timestamp on the competition model
   await competition.changed('updatedAt', true);
@@ -563,7 +568,7 @@ async function getCompetitionForParticipantOperation(id, verificationCode, usern
     throw new BadRequestError('Invalid participants list.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await competitionRepository.findOne({ where: { id } });
 
   if (!competition) {
     throw new NotFoundError(`Competition of id ${id} was not found.`);
@@ -586,7 +591,7 @@ async function getParticipants(id) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await competitionRepository.findOne({ where: { id } });
 
   if (!competition) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
@@ -608,17 +613,15 @@ async function getOutdatedParticipants(competitionId) {
 
   const tenMinsAgo = moment().subtract(10, 'minute');
 
-  const participantsToUpdate = await Participation.findAll({
-    attributes: ['competitionId', 'playerId'],
+  const participantsToUpdate = await participationRepository.find({
+    select: ['competitionId', 'playerId'],
     where: { competitionId },
-    include: [
-      {
-        model: Player,
-        where: {
-          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
-        }
+    join: {
+      alias: 'player',
+      leftJoinAndSelect: {
+        updatedAt: LessThan(tenMinsAgo.toDate())
       }
-    ]
+    }
   });
 
   return participantsToUpdate.map(({ player }) => player);
@@ -632,11 +635,11 @@ async function getOutdatedParticipants(competitionId) {
  */
 async function addToGroupCompetitions(groupId, playerIds) {
   // Find all upcoming/ongoing competitions for the group
-  const competitions = await Competition.findAll({
-    attributes: ['id'],
+  const competitions = await competitionRepository.find({
+    select: ['id'],
     where: {
       groupId,
-      endsAt: { [Op.gt]: new Date() }
+      endsAt: MoreThan(new Date())
     }
   });
 
@@ -650,7 +653,7 @@ async function addToGroupCompetitions(groupId, playerIds) {
   });
 
   // Bulk create all the participations, ignoring any duplicates
-  await Participation.bulkCreate(participations, { ignoreDuplicates: true });
+  await participationRepository.save(participations);
 }
 
 /**
@@ -662,16 +665,16 @@ async function addToGroupCompetitions(groupId, playerIds) {
 async function removeFromGroupCompetitions(groupId, playerIds) {
   // Find all upcoming/ongoing competitions for the group
   const competitionIds = (
-    await Competition.findAll({
-      attributes: ['id'],
+    await competitionRepository.find({
+      select: ['id'],
       where: {
         groupId,
-        endsAt: { [Op.gt]: new Date() }
+        endsAt: MoreThan(new Date())
       }
     })
   ).map(c => c.id);
 
-  await Participation.destroy({ where: { competitionId: competitionIds, playerId: playerIds } });
+  await participationRepository.delete({ competitionId: competitionIds, playerId: playerIds });
 }
 
 /**
@@ -689,7 +692,7 @@ async function updateAllParticipants(id, updateAction) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
+  const competition = await competitionRepository.findOne({ where: { id } });
 
   if (!competition) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);

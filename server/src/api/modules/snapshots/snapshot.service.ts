@@ -263,7 +263,7 @@ async function saveAll(snapshots) {
 
   // const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
 
-  const existingVals = existingSnapshots.map(s =>
+  const existingVals = existingSnapshots.map((s: any) =>
     JSON.stringify({
       playerId: s.playerId,
       timestamp: s.createdAt.getTime()

@@ -1,5 +1,5 @@
-import { periods } from '../api/constants/periods';
-import { ALL_METRICS } from '../api/constants/metrics';
+import { periods } from '../../api/constants/periods';
+import { ALL_METRICS } from '../../api/constants/metrics';
 
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 

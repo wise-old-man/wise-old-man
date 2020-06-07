@@ -8,7 +8,7 @@ import { generateVerification, verifyCode } from '../../util/verification';
 import { BadRequestError } from '../../errors';
 import * as playerService from '../players/player.service';
 import * as deltaService from '../deltas/delta.service';
-import { getRepository, Like } from 'typeorm';
+import { getRepository, Like, getConnection, LessThan } from 'typeorm';
 
 const groupRepository = getRepository(Group);
 const membershipRepository = getRepository(Membership);
@@ -132,10 +132,15 @@ async function getMonthlyTopPlayer(groupId) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const memberships = await Membership.findAll({
+  const memberships = await membershipRepository.find({
     where: { groupId },
-    attributes: ['playerId']
-  });
+    select: ['playerId']
+  })
+
+  // const memberships = await Membership.findAll({
+  //   where: { groupId },
+  //   attributes: ['playerId']
+  // });
 
   const memberIds = memberships.map(m => m.playerId);
 
@@ -166,10 +171,15 @@ async function getLeaderboard(groupId, period, metric) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const memberships = await Membership.findAll({
+  const memberships = await membershipRepository.find({
     where: { groupId },
-    attributes: ['playerId']
-  });
+    select: ['playerId']
+  })
+
+  // const memberships = await Membership.findAll({
+  //   where: { groupId },
+  //   attributes: ['playerId']
+  // });
 
   const memberIds = memberships.map(m => m.playerId);
 
@@ -186,18 +196,25 @@ async function getMembersList(id) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
+  // const group = await Group.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  // Fetch all memberships for the group
-  const memberships = await Membership.findAll({
-    attributes: ['groupId', 'playerId', 'role'],
+  const memberships = await membershipRepository.find({
+    select: ['groupId', 'playerId', 'role'],
     where: { groupId: id },
-    include: [{ model: Player }]
-  });
+    relations: ['player']
+  })
+
+  // Fetch all memberships for the group
+  // const memberships = await Membership.findAll({
+  //   attributes: ['groupId', 'playerId', 'role'],
+  //   where: { groupId: id },
+  //   include: [{ model: Player }]
+  // });
 
   if (!memberships || memberships.length === 0) {
     return [];
@@ -207,7 +224,7 @@ async function getMembersList(id) {
         SELECT s."playerId", s."overallExperience"
         FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
               FROM public.snapshots q
-              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
+              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.playerId).join(',')}])
               GROUP BY q."playerId"
               ) r
         JOIN public.snapshots s
@@ -219,7 +236,8 @@ async function getMembersList(id) {
   // Execute the query above, which returns the latest snapshot for each member,
   // in the following format: [{playerId: 61, overallExerience: "4465456"}]
   // Note: this used to be a sequelize query, but it was very slow for large groups
-  const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+  const experienceSnapshots = await getConnection().query(query)
+  // const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
 
   // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
   const experienceMap = mapValues(keyBy(experienceSnapshots, 'playerId'), d =>
@@ -228,7 +246,7 @@ async function getMembersList(id) {
 
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
-    .map(({ player, role }) => ({ ...player.toJSON(), role }))
+    .map(({ player, role }: any) => ({ ...player.toJSON(), role }))
     .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => a.role.localeCompare(b.role));
 }
@@ -241,7 +259,7 @@ async function create(name, clanChat, members) {
   const sanitizedName = sanitizeName(name);
   const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
 
-  if (await Group.findOne({ where: { name: sanitizedName } })) {
+  if (await groupRepository.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
   }
 
@@ -258,7 +276,7 @@ async function create(name, clanChat, members) {
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -267,7 +285,7 @@ async function create(name, clanChat, members) {
 
   const [verificationCode, verificationHash] = await generateVerification();
 
-  const group = await Group.create({
+  const group = await groupRepository.create({
     name: sanitizedName,
     clanChat: sanitizedClanChat,
     verificationCode,
@@ -303,7 +321,7 @@ async function edit(id, name, clanChat, verificationCode, members) {
 
   if (name) {
     const sanitizedName = sanitizeName(name);
-    const matchingGroup = await Group.findOne({ where: { name: sanitizedName } });
+    const matchingGroup = await groupRepository.findOne({ where: { name: sanitizedName } });
 
     // If attempting to change to some other group's name.
     if (matchingGroup && matchingGroup.id !== parseInt(id, 10)) {
@@ -311,7 +329,7 @@ async function edit(id, name, clanChat, verificationCode, members) {
     }
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -333,7 +351,7 @@ async function edit(id, name, clanChat, verificationCode, members) {
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long, 
+        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -349,10 +367,13 @@ async function edit(id, name, clanChat, verificationCode, members) {
     const sanitizedName = name && sanitizeName(name);
     const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
 
-    await group.update({
+    await groupRepository.update({
       name: sanitizedName,
       clanChat: sanitizedClanChat
-    });
+    }, {
+        name: sanitizedName,
+        clanChat: sanitizedClanChat
+      });
   }
 
   return { ...format(group), members: groupMembers };
@@ -370,7 +391,7 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -383,7 +404,7 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  await group.destroy();
+  await groupRepository.remove(group);
   return name;
 }
 
@@ -413,10 +434,10 @@ async function setMembers(group, members) {
   }));
 
   // Remove all existing memberships
-  await Membership.destroy({ where: { groupId: group.id } });
+  await membershipRepository.delete({ groupId: group.id });
 
   // Add all the new memberships
-  await Membership.bulkCreate(newMemberships, { ignoreDuplicates: true });
+  await membershipRepository.save(newMemberships);
 
   const allMembers = await group.getMembers();
 
@@ -451,7 +472,7 @@ async function addMembers(id, verificationCode, members) {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -517,7 +538,7 @@ async function removeMembers(id, verificationCode, usernames) {
     throw new BadRequestError('Invalid members list.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -569,7 +590,7 @@ async function changeRole(id, username, role, verificationCode) {
     throw new BadRequestError('Invalid verification code.');
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await groupRepository.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -581,14 +602,14 @@ async function changeRole(id, username, role, verificationCode) {
     throw new BadRequestError('Incorrect verification code.');
   }
 
-  const membership = await Membership.findOne({
+  const membership: any = await membershipRepository.findOne({
     where: { groupId: id },
-    include: [
-      {
-        model: Player,
-        where: { username: playerService.standardize(username) }
+    join: {
+      alias: 'player',
+      leftJoin: {
+        username: playerService.standardize(username)
       }
-    ]
+    }
   });
 
   if (!membership) {
@@ -601,7 +622,7 @@ async function changeRole(id, username, role, verificationCode) {
     throw new BadRequestError(`'${username}' already has the role of ${role}.`);
   }
 
-  await membership.update({ role });
+  await membershipRepository.update({ role }, { role });
 
   // Update the "updatedAt" timestamp on the group model
   await group.changed('updatedAt', true);
@@ -615,13 +636,13 @@ async function changeRole(id, username, role, verificationCode) {
  */
 async function getMembers(groupId) {
   // Fetch all members
-  const memberships = await Membership.findAll({
+  const memberships = await membershipRepository.find({
     where: { groupId },
-    include: [{ model: Player }]
+    relations: ['player']
   });
 
   // Format the members
-  const members = memberships.map(({ player, role }) => {
+  const members = memberships.map(({ player, role }: any) => {
     return { ...player.toJSON(), role };
   });
 
@@ -629,7 +650,7 @@ async function getMembers(groupId) {
 }
 
 async function findOne(groupId) {
-  const group = await Group.findOne({ where: { id: groupId } });
+  const group = await groupRepository.findOne({ where: { id: groupId } });
   return group;
 }
 
@@ -671,17 +692,15 @@ async function getOutdatedMembers(groupId) {
 
   const tenMinsAgo = moment().subtract(10, 'minute');
 
-  const membersToUpdate = await Membership.findAll({
-    attributes: ['groupId', 'playerId'],
+  const membersToUpdate = await membershipRepository.find({
     where: { groupId },
-    include: [
-      {
-        model: Player,
-        where: {
-          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
-        }
+    select: ['groupId', 'playerId'],
+    join: {
+      alias: 'player',
+      leftJoin: {
+        updatedAt: LessThan(tenMinsAgo.toDate())
       }
-    ]
+    }
   });
 
   return membersToUpdate.map(({ player }) => player);

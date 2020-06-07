@@ -1,4 +1,4 @@
-import { roles } from '../api/constants/roles';
+import { roles } from '../../api/constants/roles';
 
 import { Entity, PrimaryColumn, Column } from "typeorm";
 import { Length } from 'class-validator';
