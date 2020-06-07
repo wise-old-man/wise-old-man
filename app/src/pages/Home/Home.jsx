@@ -20,9 +20,9 @@ const FEATURES = [
     image: '/img/landing_page/features/boss_tracking.png'
   },
   {
-    title: 'Skill competitions',
+    title: 'Group competitions',
     page: '/competitions',
-    description: 'Compete against all your friends in any skill of your choosing.',
+    description: 'Compete against all your friends in any skill, boss or activity of your choosing.',
     image: '/img/landing_page/features/team_competitions.png'
   },
   {
