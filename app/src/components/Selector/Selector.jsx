@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import TextInput from '../TextInput';
@@ -37,10 +37,23 @@ function Selector({ options, selectedIndex, onSelect, disabled, search }) {
     }
   }
 
+  function handleOnToggle() {
+    if (!isOpen || !inputId || !search) {
+      return;
+    }
+
+    const input = document.getElementById(inputId);
+
+    // When the selector (with search) is opened, focus on the input
+    if (input) input.focus();
+  }
+
   const onSelection = useCallback(handleSelection, [options, onSelect]);
   const onSearch = useCallback(handleSearch, [options]);
   const close = useCallback(() => setIsOpen(false), []);
   const toggle = useCallback(() => setIsOpen(o => !o), []);
+
+  useEffect(handleOnToggle, [isOpen]);
 
   const selectedOption = options && options[selectedIndex];
 
