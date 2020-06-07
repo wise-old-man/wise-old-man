@@ -12,7 +12,7 @@ function PageHeader({ title, icon, iconTooltip, children, verified }) {
         </abbr>
       )}
       <h1 className="page-header__title">{title}</h1>
-      {verified && <VerifiedBadge />}
+      {verified && <VerifiedBadge version="full" />}
       <div className="page-header__actions">{children}</div>
     </div>
   );

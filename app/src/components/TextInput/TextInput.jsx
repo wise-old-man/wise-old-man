@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './TextInput.scss';
 
-function TextInput({ id, type, value, onChange, placeholder, search }) {
+function TextInput({ id, type, value, onChange, placeholder, search, disableAutocomplete }) {
   return (
     <div className="text-input">
       <input
@@ -12,6 +12,7 @@ function TextInput({ id, type, value, onChange, placeholder, search }) {
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        autoComplete={disableAutocomplete ? 'off' : 'on'}
       />
       {search && <img className="text-input__icon" src="/img/icons/search.svg" alt="" />}
     </div>
@@ -22,7 +23,8 @@ TextInput.defaultProps = {
   id: undefined,
   value: undefined,
   type: 'text',
-  search: false
+  search: false,
+  disableAutocomplete: true
 };
 
 TextInput.propTypes = {
@@ -41,7 +43,10 @@ TextInput.propTypes = {
   search: PropTypes.bool,
 
   // Event: fired when the input's value is changed
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
+
+  // If enabled, no autofill/autocomplete will be used
+  disableAutocomplete: PropTypes.bool
 };
 
 export default React.memo(TextInput);
