@@ -81,11 +81,3 @@
     }
   }
 }
-
-@media only screen and (max-width: $breakpoint-medium) {
-  .competition__container {
-    .tab-bar {
-      flex-wrap: unset;
-    }
-  }
-}

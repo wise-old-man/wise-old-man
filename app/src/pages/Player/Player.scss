@@ -76,20 +76,3 @@
     }
   }
 }
-
-@media only screen and (max-width: $breakpoint-medium) {
-  .player__container {
-    .tab-bar {
-      flex-wrap: unset;
-      overflow-x: scroll;
-
-      .tab {
-        min-width: 100px;
-      }
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-  }
-}

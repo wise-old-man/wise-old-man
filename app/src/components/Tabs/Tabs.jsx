@@ -1,38 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import './Tabs.scss';
 
-function Tabs({ tabs, selectedIndex, align, urlSelector, specialHighlightIndex }) {
-  const barClass = classNames({
-    'tab-bar': true,
+function Tabs({ tabs, selectedIndex, align, urlSelector }) {
+  const wrapperClass = classNames({
+    'tab-bar__wrapper': true,
     '-align-left': align === 'left',
     '-align-center': align === 'center',
     '-align-right': align === 'right',
     '-align-space-between': align === 'space-between'
   });
 
-  return (
-    <div className={barClass}>
-      {tabs.map((tab, i) => {
-        const tabClass = classNames({ tab: true, '-highlighted': selectedIndex === i });
-        const url = urlSelector && urlSelector(i);
+  // When the tab changes, scroll it to the center of the tab bar
+  useEffect(() => {
+    const parent = document.getElementById('tab-bar__wrapper');
+    const selectedTab = document.getElementById(`tab-${selectedIndex}`);
 
-        return (
-          <Link key={tab} to={url} className={tabClass}>
-            <span>{tab}</span>
-            {i === specialHighlightIndex && <div className="new-dot" />}
-          </Link>
-        );
-      })}
+    parent.scrollTo(selectedTab.offsetLeft - 80, 0);
+  }, [selectedIndex]);
+
+  return (
+    <div className="tab-bar">
+      <div id="tab-bar__wrapper" className={wrapperClass}>
+        {tabs.map((tab, i) => {
+          const tabClass = classNames({ tab: true, '-highlighted': selectedIndex === i });
+          const url = urlSelector && urlSelector(i);
+
+          return (
+            <Link key={tab} id={`tab-${i}`} to={url} className={tabClass}>
+              <span>{tab}</span>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 Tabs.defaultProps = {
-  align: 'left',
-  specialHighlightIndex: -1
+  align: 'left'
 };
 
 Tabs.propTypes = {
@@ -44,9 +52,7 @@ Tabs.propTypes = {
   urlSelector: PropTypes.func.isRequired,
 
   // The alignment of the tabs (optional), must be one of (right, left, center, space-between)
-  align: PropTypes.string,
-
-  specialHighlightIndex: PropTypes.number
+  align: PropTypes.string
 };
 
 export default React.memo(Tabs);
