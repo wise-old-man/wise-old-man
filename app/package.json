@@ -21,7 +21,7 @@
     "react-aria-menubutton": "^6.3.0",
     "react-dom": "^16.13.0",
     "react-ga": "^2.7.0",
-    "react-helmet": "^6.0.0",
+    "react-helmet": "^6.1.0",
     "react-nice-dates": "^3.0.4",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
