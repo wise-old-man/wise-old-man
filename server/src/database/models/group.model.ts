@@ -1,3 +1,56 @@
+import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+
+// Define other table options
+const options = {
+  indexes: [
+    {
+      unique: true,
+      fields: ['id']
+    },
+    {
+      unique: true,
+      fields: ['name']
+    }
+  ]
+};
+
+@Table(options)
+class Group {
+
+  @Column
+  @PrimaryKey
+  @AutoIncrement
+  id: Number;
+
+  @Column({
+    type: DataType.STRING(30),
+    allowNull: false,
+    unique: {
+      msg: 'This group name is already taken.',
+      name: 'name'
+    },
+    validate: {
+      len: {
+        args: [1, 30],
+        msg: 'Group title must be between 1 and 30 characters long.'
+      }
+    }
+  })
+  name: String;
+
+  @Column({ type: DataType.STRING(20) })
+  clanChat: String;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    allowNull: false
+  })
+  verificationCode: any;
+
+  @Column({ allowNull: false })
+  verificationHash: String;
+}
+
 export default (sequelize, DataTypes) => {
   // Define the group schema
   const groupSchema = {

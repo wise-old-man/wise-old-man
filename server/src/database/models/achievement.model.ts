@@ -1,3 +1,46 @@
+import { Table, Column, DataType, PrimaryKey, Index, Unique } from 'sequelize-typescript';
+
+// Define other table options
+const options = {
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['playerId', 'type']
+    },
+    {
+      fields: ['playerId']
+    },
+    {
+      fields: ['type']
+    }
+  ]
+};
+
+@Table(options)
+class Achievement {
+
+  @Column({ allowNull: false })
+  @PrimaryKey
+  playerId: Number;
+
+  @Column({ allowNull: false })
+  @PrimaryKey
+  type: String;
+
+  @Column
+  metric: String;
+
+  @Column({
+    type: DataType.BIGINT,
+    get() {
+      return parseInt(this.getDataValue('threshold', 10));
+    }
+  })
+  threshold: Number;
+
+}
+
 export default (sequelize, DataTypes) => {
   // Define the achievement schema
   const achievementSchema = {

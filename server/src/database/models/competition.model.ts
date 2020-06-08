@@ -1,4 +1,96 @@
-import { ALL_METRICS } from '../../constants/metrics';
+import { ALL_METRICS } from '../../api/constants/metrics';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+
+// Define other table options
+const options = {
+  indexes: [
+    {
+      unique: true,
+      fields: ['id']
+    },
+    {
+      fields: ['title']
+    },
+    {
+      fields: ['metric']
+    },
+    {
+      fields: ['startsAt']
+    },
+    {
+      fields: ['endsAt']
+    }
+  ]
+};
+
+@Table(options)
+class Competition {
+
+  @Column
+  @PrimaryKey
+  @AutoIncrement
+  id: Number;
+
+  @Column({
+    type: DataType.STRING(30),
+    allowNull: false,
+    validate: {
+      len: {
+        args: [1, 30],
+        msg: 'Competition title must be between 1 and 30 characters long.'
+      }
+    }
+  })
+  title: String;
+
+  @Column({
+    type: DataType.ENUM(...ALL_METRICS),
+    allowNull: false,
+    validate: {
+      isIn: {
+        args: [ALL_METRICS],
+        msg: 'Invalid metric'
+      }
+    }
+  })
+  metric: String;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    allowNull: false
+  })
+  verificationCode: any;
+
+  @Column({ allowNull: false })
+  verificationHash: String;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    validate: {
+      isDate: {
+        args: true,
+        msg: 'Start date must be a valid date'
+      }
+    }
+  })
+  startsAt: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    validate: {
+      isDate: {
+        args: true,
+        msg: 'End date must be a valid date'
+      }
+    }
+  })
+  endsAt: Date;
+
+  @Column
+  groupId: Number;
+}
 
 export default (sequelize, DataTypes) => {
   // Define the competition schema

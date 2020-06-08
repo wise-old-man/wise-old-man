@@ -1,4 +1,38 @@
-import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../constants/metrics';
+import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../api/constants/metrics';
+
+import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { HiscoreValues } from './hiscoreValues.model';
+
+// Define other table options
+const options = {
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['id']
+    },
+    {
+      fields: ['playerId']
+    },
+    {
+      fields: ['createdAt']
+    }
+  ]
+};
+
+@Table(options)
+class Snapshot extends HiscoreValues {
+  @Column
+  @PrimaryKey
+  @AutoIncrement
+  id: Number;
+
+  @Column({ allowNull: false })
+  playerId: Number;
+
+  @Column
+  importedAt: Date;
+}
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};

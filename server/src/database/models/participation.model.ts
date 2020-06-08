@@ -1,3 +1,27 @@
+import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+
+// Define other table options
+const options = {
+  indexes: [
+    {
+      unique: true,
+      fields: ['playerId', 'competitionId']
+    }
+  ]
+};
+
+@Table(options)
+class Participation {
+
+  @Column
+  @PrimaryKey
+  playerId: Number;
+
+  @Column
+  @PrimaryKey
+  competitionId: Number;
+}
+
 export default (sequelize, DataTypes) => {
   // Define the participation schema
   const participationSchema = {

@@ -1,4 +1,39 @@
-import { roles } from '../../constants/roles';
+import { roles } from '../../api/constants/roles';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+
+// Define other table options
+const options = {
+  indexes: [
+    {
+      unique: true,
+      fields: ['playerId', 'groupId']
+    }
+  ]
+};
+
+@Table(options)
+class Membership {
+  @Column
+  @PrimaryKey
+  playerId: Number;
+
+  @Column
+  @PrimaryKey
+  groupId: Number;
+
+  @Column({
+    type: DataType.ENUM(...roles),
+    allowNull: false,
+    defaultValue: roles[0],
+    validate: {
+      isIn: {
+        args: [roles],
+        msg: 'Invalid role'
+      }
+    }
+  })
+  role: String;
+}
 
 export default (sequelize, DataTypes) => {
   // Define the membership schema
