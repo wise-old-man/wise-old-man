@@ -224,13 +224,11 @@ async function importCML(username) {
   const importedSnapshots = [];
 
   // If the player hasn't imported in over a year
-  // import the last week, year and decade.
+  // import the last year and decade.
   if (seconds >= YEAR_IN_SECONDS) {
-    const weekSnapshots = await importCMLSince(player.id, player.username, WEEK_IN_SECONDS);
     const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
     const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
 
-    importedSnapshots.push(...weekSnapshots);
     importedSnapshots.push(...yearSnapshots);
     importedSnapshots.push(...decadeSnapshots);
   } else {
