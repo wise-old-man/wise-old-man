@@ -1,5 +1,7 @@
 import { roles } from '../../api/constants/roles';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
+import { Player } from './player.model';
+import { Group } from './group.model';
 
 // Define other table options
 const options = {
@@ -12,13 +14,16 @@ const options = {
 };
 
 @Table(options)
-class Membership {
-  @Column
+export class Membership extends Model<Membership> {
+
+  @ForeignKey(() => Player)
   @PrimaryKey
+  @Column({ onDelete: 'CASCADE' })
   playerId: Number;
 
-  @Column
+  @ForeignKey(() => Group)
   @PrimaryKey
+  @Column({ onDelete: 'CASCADE' })
   groupId: Number;
 
   @Column({

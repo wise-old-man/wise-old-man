@@ -1,7 +1,8 @@
 import { periods } from '../../api/constants/periods';
 import { ALL_METRICS } from '../../api/constants/metrics';
 
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
+import { Player } from './player.model';
 
 // Define other table options
 const options = {
@@ -28,14 +29,15 @@ const options = {
 };
 
 @Table(options)
-class Record {
+export class Record extends Model<Record> {
 
-  @Column
   @PrimaryKey
   @AutoIncrement
+  @Column
   id: Number;
 
-  @Column({ allowNull: false })
+  @ForeignKey(() => Player)
+  @Column({ allowNull: false, onDelete: 'CASCADE' })
   playerId: Number;
 
   @Column({

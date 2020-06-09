@@ -1,5 +1,7 @@
 import { ALL_METRICS } from '../../api/constants/metrics';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey, BelongsToMany } from 'sequelize-typescript';
+import { Group } from './group.model';
+import { Player } from './player.model';
 
 // Define other table options
 const options = {
@@ -24,11 +26,19 @@ const options = {
 };
 
 @Table(options)
-class Competition {
+export class Competition extends Model<Competition> {
 
-  @Column
+  // Competition.associate = models => {
+  //   Competition.belongsToMany(models.Player, {
+  //     as: 'participants',
+  //     through: 'participations',
+  //     foreignKey: 'competitionId'
+  //   });
+
   @PrimaryKey
   @AutoIncrement
+  @BelongsToMany(() => Player, 'participations', 'competitionId')
+  @Column
   id: Number;
 
   @Column({
@@ -88,7 +98,8 @@ class Competition {
   })
   endsAt: Date;
 
-  @Column
+  @ForeignKey(() => Group)
+  @Column({ onDelete: 'SET NULL' })
   groupId: Number;
 }
 

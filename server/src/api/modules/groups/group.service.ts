@@ -3,11 +3,12 @@ import { Op, Sequelize, QueryTypes } from 'sequelize';
 import * as moment from 'moment';
 import { periods } from '../../constants/periods';
 import { ALL_METRICS } from '../../constants/metrics';
-import { Group, Membership, Player, sequelize } from '../../../database';
+import { sequelize } from '../../../database';
 import { generateVerification, verifyCode } from '../../util/verification';
 import { BadRequestError } from '../../errors';
 import * as playerService from '../players/player.service';
 import * as deltaService from '../deltas/delta.service';
+import { Group, Membership, Player } from '../../../database/models';
 
 function sanitizeName(name) {
   return name

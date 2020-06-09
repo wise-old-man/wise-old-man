@@ -1,4 +1,5 @@
-import { Table, Column, DataType, PrimaryKey, Index, Unique } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, Index, Unique, Model, ForeignKey } from 'sequelize-typescript';
+import { Player } from './player.model';
 
 // Define other table options
 const options = {
@@ -18,14 +19,15 @@ const options = {
 };
 
 @Table(options)
-class Achievement {
+export class Achievement extends Model<Achievement> {
 
-  @Column({ allowNull: false })
+  @ForeignKey(() => Player)
   @PrimaryKey
+  @Column({ allowNull: false, onDelete: 'CASCADE' })
   playerId: Number;
 
-  @Column({ allowNull: false })
   @PrimaryKey
+  @Column({ allowNull: false })
   type: String;
 
   @Column

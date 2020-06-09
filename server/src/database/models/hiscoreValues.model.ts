@@ -1,6 +1,6 @@
-import { Column, DataType } from 'sequelize-typescript';
+import { Column, DataType, Model } from 'sequelize-typescript';
 
-export class HiscoreValues {
+export class HiscoreValues extends Model<HiscoreValues> {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
@@ -31,13 +31,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('attackExperience'), 10);
-        }
+        allowNull: false
     })
     attackExperience: Number;
 
@@ -51,13 +45,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('defenceExperience'), 10);
-        }
+        allowNull: false
     })
     defenceExperience: Number;
 
@@ -71,13 +59,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('strengthExperience'), 10);
-        }
+        allowNull: false
     })
     strengthExperience: Number;
 
@@ -91,13 +73,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('hitpointsExperience'), 10);
-        }
+        allowNull: false
     })
     hitpointsExperience: Number;
 
@@ -111,13 +87,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('rangedExperience'), 10);
-        }
+        allowNull: false
     })
     rangedExperience: Number;
 
@@ -131,13 +101,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('prayerExperience'), 10);
-        }
+        allowNull: false
     })
     prayerExperience: Number;
 
@@ -151,13 +115,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('magicExperience'), 10);
-        }
+        allowNull: false
     })
     magicExperience: Number;
 
@@ -171,13 +129,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('cookingExperience'), 10);
-        }
+        allowNull: false
     })
     cookingExperience: Number;
 
@@ -191,13 +143,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('woodcuttingExperience'), 10);
-        }
+        allowNull: false
     })
     woodcuttingExperience: Number;
 
@@ -211,13 +157,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('fletchingExperience'), 10);
-        }
+        allowNull: false
     })
     fletchingExperience: Number;
 
@@ -231,13 +171,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('fishingExperience'), 10);
-        }
+        allowNull: false
     })
     fishingExperience: Number;
 
@@ -251,13 +185,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('firemakingExperience'), 10);
-        }
+        allowNull: false
     })
     firemakingExperience: Number;
 
@@ -271,13 +199,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('craftingExperience'), 10);
-        }
+        allowNull: false
     })
     craftingExperience: Number;
 
@@ -291,13 +213,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('smithingExperience'), 10);
-        }
+        allowNull: false
     })
     smithingExperience: Number;
 
@@ -311,13 +227,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('miningExperience'), 10);
-        }
+        allowNull: false
     })
     miningExperience: Number;
 
@@ -331,13 +241,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('herbloreExperience'), 10);
-        }
+        allowNull: false
     })
     herbloreExperience: Number;
     @Column({
@@ -350,13 +254,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('agilityExperience'), 10);
-        }
+        allowNull: false
     })
     agilityExperience: Number;
 
@@ -370,13 +268,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('thievingExperience'), 10);
-        }
+        allowNull: false
     })
     thievingExperience: Number;
 
@@ -390,13 +282,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('slayerExperience'), 10);
-        }
+        allowNull: false
     })
     slayerExperience: Number;
 
@@ -410,13 +296,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('farmingExperience'), 10);
-        }
+        allowNull: false
     })
     farmingExperience: Number;
     @Column({
@@ -429,13 +309,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('runecraftingExperience'), 10);
-        }
+        allowNull: false
     })
     runecraftingExperience: Number;
 
@@ -449,13 +323,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('hunterExperience'), 10);
-        }
+        allowNull: false
     })
     hunterExperience: Number;
 
@@ -469,13 +337,7 @@ export class HiscoreValues {
     @Column({
         type: DataType.INTEGER,
         defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('constructionExperience'), 10);
-        }
+        allowNull: false
     })
     constructionExperience: Number;
 

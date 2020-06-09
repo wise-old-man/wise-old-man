@@ -13,8 +13,7 @@ import {
   isSkill
 } from '../../constants/metrics';
 import { periods } from '../../constants/periods';
-import { Snapshot } from '../../../database';
-// import * as db from '../../../database';
+import { Snapshot } from '../../../database/models';
 import { ServerError, BadRequestError } from '../../errors';
 
 /**

@@ -2,7 +2,7 @@ import { omit, keyBy, forEach, mapValues } from 'lodash';
 import { periods } from '../../constants/periods';
 import { ALL_METRICS, getMeasure } from '../../constants/metrics';
 import { BadRequestError } from '../../errors';
-import { Player, Record } from '../../../database';
+import { Player, Record } from '../../../database/models';
 import * as deltaService from '../deltas/delta.service';
 
 function format(record) {

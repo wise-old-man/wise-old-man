@@ -1,8 +1,28 @@
-import CONFIG from './config';
+require('dotenv').config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 import { Sequelize } from 'sequelize-typescript';
 
-const sequelize = new Sequelize(CONFIG.database, CONFIG.username, CONFIG.password, CONFIG as any);
-sequelize.addModels([__dirname + '/**/*.model.ts']);
+const options = {
+  host: process.env.DB_HOST,
+  dialect: process.env.DB_DIALECT,
+  storage: process.env.DB_STORAGE,
+  logging: false,
+  repositoryMode: true,
+  pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
+  retry: { max: 10 }
+}
+
+const sequelize = new Sequelize({
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
+  host: process.env.DB_HOST,
+  dialect: 'postgres',
+  storage: process.env.DB_STORAGE,
+  logging: false,
+  pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
+  retry: { max: 10 }
+});
+sequelize.addModels([`${__dirname}/**/*.model.ts`]);
 
 // Import and define all models
 // const models = {

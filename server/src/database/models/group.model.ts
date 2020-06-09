@@ -1,4 +1,4 @@
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model } from 'sequelize-typescript';
 
 // Define other table options
 const options = {
@@ -15,11 +15,11 @@ const options = {
 };
 
 @Table(options)
-class Group {
+export class Group extends Model<Group> {
 
-  @Column
   @PrimaryKey
   @AutoIncrement
+  @Column
   id: Number;
 
   @Column({

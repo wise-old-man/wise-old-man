@@ -5,9 +5,10 @@ export default {
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  dialect: process.env.DB_DIALECT,
+  dialect: 'postgres',
   storage: process.env.DB_STORAGE,
   logging: false,
+  repositoryMode: true,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
   retry: { max: 10 }
 }

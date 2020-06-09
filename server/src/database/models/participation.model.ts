@@ -1,4 +1,6 @@
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, PrimaryKey, ForeignKey, Model } from 'sequelize-typescript';
+import { Player } from './player.model';
+import { Competition } from './competition.model';
 
 // Define other table options
 const options = {
@@ -11,14 +13,16 @@ const options = {
 };
 
 @Table(options)
-class Participation {
+export class Participation extends Model<Participation> {
 
-  @Column
+  @ForeignKey(() => Player)
   @PrimaryKey
+  @Column({ onDelete: 'CASCADE' })
   playerId: Number;
 
-  @Column
+  @ForeignKey(() => Competition)
   @PrimaryKey
+  @Column({ onDelete: 'CASCADE' })
   competitionId: Number;
 }
 

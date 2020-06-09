@@ -1,5 +1,5 @@
 import { add } from './jobs';
-import { Player, Snapshot, Membership } from '../database';
+import { Player, Snapshot, Membership } from '../database/models';
 
 function setup() {
   Player.afterCreate(({ username }) => {
@@ -36,7 +36,7 @@ function setup() {
     add('AddToGroupCompetitions', { groupId, playerIds });
   });
 
-  Membership.afterBulkDestroy(info => {
+  Membership.afterBulkDestroy((info: any) => {
     if (!info || !info.where) {
       return;
     }

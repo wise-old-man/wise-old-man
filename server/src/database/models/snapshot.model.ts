@@ -1,7 +1,8 @@
 import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../api/constants/metrics';
 
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, ForeignKey } from 'sequelize-typescript';
 import { HiscoreValues } from './hiscoreValues.model';
+import { Player } from './player.model';
 
 // Define other table options
 const options = {
@@ -21,13 +22,15 @@ const options = {
 };
 
 @Table(options)
-class Snapshot extends HiscoreValues {
-  @Column
+export class Snapshot extends HiscoreValues {
+
   @PrimaryKey
   @AutoIncrement
+  @Column
   id: Number;
 
-  @Column({ allowNull: false })
+  @ForeignKey(() => Player)
+  @Column({ allowNull: false, onDelete: 'CASCADE' })
   playerId: Number;
 
   @Column

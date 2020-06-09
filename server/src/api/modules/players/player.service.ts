@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
-import { Player } from '../../../database';
+import { Player } from '../../../database/models';
 import * as snapshotService from '../snapshots/snapshot.service'
 import { getHiscoresTableNames } from '../../util/scraping';
 import { getCombatLevel } from '../../util/level';

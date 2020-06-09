@@ -1,5 +1,5 @@
 import { playerTypes } from '../../api/constants/playerTypes';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model } from 'sequelize-typescript';
 
 // Define other table options
 const options = {
@@ -17,10 +17,11 @@ const options = {
 };
 
 @Table(options)
-class Player {
-  @Column({ type: DataType.INTEGER, allowNull: false })
+export class Player extends Model<Player> {
+
   @PrimaryKey
   @AutoIncrement
+  @Column({ type: DataType.INTEGER, allowNull: false })
   id: Number;
 
   @Column({

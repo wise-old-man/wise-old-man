@@ -4,9 +4,10 @@ import { periods } from '../../constants/periods';
 import { playerTypes } from '../../constants/playerTypes';
 import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
 import { BadRequestError, ServerError } from '../../errors';
-import { InitialValues, sequelize } from '../../../database';
+import { sequelize } from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service';
 import * as queries from './delta.queries';
+import { InitialValues } from '../../../database/models';
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;

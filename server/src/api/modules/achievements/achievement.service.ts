@@ -9,8 +9,9 @@ import {
   getDifficultyFactor
 } from '../../constants/metrics';
 import { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } from './achievement.templates';
-import { Achievement, sequelize } from '../../../database';
+import { sequelize } from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service';
+import { Achievement } from '../../../database/models';
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {
