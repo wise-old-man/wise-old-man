@@ -217,6 +217,10 @@ function average(snapshots) {
  * are from a single player.
  */
 async function saveAll(snapshots) {
+  if (snapshots.length === 0) {
+    return [];
+  }
+
   const { playerId } = snapshots[0];
 
   const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
