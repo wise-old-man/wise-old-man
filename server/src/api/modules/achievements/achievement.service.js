@@ -245,7 +245,7 @@ async function reevaluateAchievements(playerId) {
   // Attach dates to as many unknown achievements as possible
   const datedUnknownAchievements = await addPastDates(
     playerId,
-    unknown.map(u => ({ type: u.type, createdAt: u.createdAt }))
+    unknown.map(u => u.toJSON())
   );
 
   // Include only achievements with a valid (not unknown) date
