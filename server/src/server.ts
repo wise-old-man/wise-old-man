@@ -5,7 +5,11 @@ import { sequelize } from './database';
 
 
 (async () => {
-  await sequelize.sync({ force: true });
+  await sequelize.sync();
+
+  console.log(process.env.PORT);
+
+  console.log(app);
 
   app.listen(process.env.PORT || 5000, () => {
     console.log(`Server running on port ${process.env.PORT || 5000}`);

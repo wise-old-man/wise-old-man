@@ -156,10 +156,15 @@ async function update(username) {
     throw new BadRequestError('Invalid username.');
   }
 
+  console.log(username)
+
   // Find a player with the given username,
   // or create a new one if none are found
   const [player, created] = await findOrCreate(username);
   const [should, seconds] = await shouldUpdate(player.updatedAt);
+
+  console.log(player, created)
+  console.log(should, seconds);
 
   // If the player already existed and was updated recently,
   // don't allow the api to update it
@@ -183,6 +188,8 @@ async function update(username) {
     // Update the "updatedAt" timestamp on the player model
     await player.changed('updatedAt', true);
     await player.save();
+
+    console.log(player);
 
     return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
   } catch (e) {

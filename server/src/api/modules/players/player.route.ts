@@ -1,7 +1,8 @@
-import express from 'express';
+import { Router } from 'express';
 import * as controller from './player.controller';
 
-const api = express.Router();
+const api = Router();
+
 
 api.get('/', controller.get);
 api.get('/search', controller.search);

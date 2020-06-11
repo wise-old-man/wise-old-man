@@ -1,15 +1,6 @@
 require('dotenv').config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 import { Sequelize } from 'sequelize-typescript';
-
-const options = {
-  host: process.env.DB_HOST,
-  dialect: process.env.DB_DIALECT,
-  storage: process.env.DB_STORAGE,
-  logging: false,
-  repositoryMode: true,
-  pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
-  retry: { max: 10 }
-}
+import { Achievement, Competition, Group, InitialValues, Membership, Participation, Player, Record, Snapshot } from './models'
 
 const sequelize = new Sequelize({
   username: process.env.POSTGRES_USER,
@@ -20,9 +11,9 @@ const sequelize = new Sequelize({
   storage: process.env.DB_STORAGE,
   logging: false,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
-  retry: { max: 10 }
+  retry: { max: 10 },
+  models: [Achievement, Competition, Group, InitialValues, Membership, Participation, Player, Record, Snapshot]
 });
-sequelize.addModels([`${__dirname}/**/*.model.ts`]);
 
 // Import and define all models
 // const models = {

@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import * as controller from './snapshot.controller';
 
-const api = express.Router();
+const api = Router();
 
 api.get('/', controller.get);
 

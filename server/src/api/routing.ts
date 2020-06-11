@@ -1,12 +1,12 @@
-import express from 'express';
+import * as express from 'express';
 import { NotFoundError } from './errors';
-import * as playerRoutes from './modules/players/player.route'
-import * as deltaRoutes from './modules/deltas/delta.route'
-import * as snapshotRoutes from './modules/snapshots/snapshot.route'
-import * as recordRoutes from './modules/records/record.route'
-import * as competitionRoutes from './modules/competitions/competition.route'
-import * as achievementRoutes from './modules/achievements/achievement.route'
-import * as groupRoutes from './modules/groups/group.route'
+import playerRoutes from './modules/players/player.route'
+import deltaRoutes from './modules/deltas/delta.route'
+import snapshotRoutes from './modules/snapshots/snapshot.route'
+import recordRoutes from './modules/records/record.route'
+import competitionRoutes from './modules/competitions/competition.route'
+import achievementRoutes from './modules/achievements/achievement.route'
+import groupRoutes from './modules/groups/group.route'
 
 const router = express.Router();
 
@@ -33,4 +33,6 @@ router.use((error, req, res, next) => {
   res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
 });
 
-export default router;
+export {
+  router
+};

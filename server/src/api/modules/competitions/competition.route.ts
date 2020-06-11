@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import * as controller from './competition.controller';
 
-const api = express.Router();
+const api = Router();
 
 api.get('/:id', controller.viewCompetition);
 api.post('/', controller.createCompetition);

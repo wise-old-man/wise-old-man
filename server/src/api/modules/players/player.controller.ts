@@ -24,6 +24,7 @@ async function search(req, res, next) {
 }
 
 async function track(req, res, next) {
+  console.log(req.body);
   try {
     const { username } = req.body;
 
