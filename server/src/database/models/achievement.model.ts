@@ -1,5 +1,5 @@
 import { Table, Column, DataType, PrimaryKey, Index, Unique, Model, ForeignKey } from 'sequelize-typescript';
-import { Player } from './player.model';
+import Player from './player.model';
 
 // Define other table options
 const options = {
@@ -19,7 +19,7 @@ const options = {
 };
 
 @Table(options)
-export class Achievement extends Model<Achievement> {
+export default class Achievement extends Model<Achievement> {
 
   @ForeignKey(() => Player)
   @PrimaryKey

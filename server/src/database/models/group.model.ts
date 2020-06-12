@@ -15,7 +15,7 @@ const options = {
 };
 
 @Table(options)
-export class Group extends Model<Group> {
+export default class Group extends Model<Group> {
 
   @PrimaryKey
   @AutoIncrement

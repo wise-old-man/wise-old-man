@@ -6,4 +6,4 @@ const api = Router();
 api.get('/', controller.get);
 api.get('/leaderboard', controller.leaderboard);
 
-export default api;
+export { api };

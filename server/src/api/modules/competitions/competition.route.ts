@@ -12,4 +12,4 @@ api.post('/:id/add', controller.addParticipants);
 api.post('/:id/remove', controller.removeParticipants);
 api.post('/:id/update-all', controller.updateAllParticipants);
 
-export default api;
+export { api };

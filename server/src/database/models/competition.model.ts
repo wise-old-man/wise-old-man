@@ -1,7 +1,7 @@
 import { ALL_METRICS } from '../../api/constants/metrics';
 import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey, BelongsToMany } from 'sequelize-typescript';
-import { Group } from './group.model';
-import { Player } from './player.model';
+import Group from './group.model';
+import Player from './player.model';
 
 // Define other table options
 const options = {
@@ -26,7 +26,7 @@ const options = {
 };
 
 @Table(options)
-export class Competition extends Model<Competition> {
+export default class Competition extends Model<Competition> {
 
   // Competition.associate = models => {
   //   Competition.belongsToMany(models.Player, {

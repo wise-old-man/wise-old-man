@@ -2,7 +2,7 @@ import { periods } from '../../api/constants/periods';
 import { ALL_METRICS } from '../../api/constants/metrics';
 
 import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
-import { Player } from './player.model';
+import Player from './player.model';
 
 // Define other table options
 const options = {
@@ -29,7 +29,7 @@ const options = {
 };
 
 @Table(options)
-export class Record extends Model<Record> {
+export default class Record extends Model<Record> {
 
   @PrimaryKey
   @AutoIncrement

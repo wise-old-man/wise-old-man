@@ -17,7 +17,7 @@ const options = {
 };
 
 @Table(options)
-export class Player extends Model<Player> {
+export default class Player extends Model<Player> {
 
   @PrimaryKey
   @AutoIncrement

@@ -1,7 +1,7 @@
 import { roles } from '../../api/constants/roles';
 import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
-import { Player } from './player.model';
-import { Group } from './group.model';
+import Player from './player.model';
+import Group from './group.model';
 
 // Define other table options
 const options = {
@@ -14,7 +14,7 @@ const options = {
 };
 
 @Table(options)
-export class Membership extends Model<Membership> {
+export default class Membership extends Model<Membership> {
 
   @ForeignKey(() => Player)
   @PrimaryKey

@@ -16,4 +16,4 @@ api.post('/:id/remove', controller.removeMembers);
 api.put('/:id/roles', controller.changeRole);
 api.post('/:id/update-all', controller.updateAllMembers);
 
-export default api;
+export { api };

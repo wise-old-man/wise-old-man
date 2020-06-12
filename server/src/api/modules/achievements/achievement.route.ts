@@ -5,4 +5,4 @@ const api = Router();
 
 api.get('/', controller.get);
 
-export default api;
+export { api };

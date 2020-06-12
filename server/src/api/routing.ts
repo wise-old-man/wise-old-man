@@ -1,12 +1,12 @@
 import * as express from 'express';
 import { NotFoundError } from './errors';
-import playerRoutes from './modules/players/player.route'
-import deltaRoutes from './modules/deltas/delta.route'
-import snapshotRoutes from './modules/snapshots/snapshot.route'
-import recordRoutes from './modules/records/record.route'
-import competitionRoutes from './modules/competitions/competition.route'
-import achievementRoutes from './modules/achievements/achievement.route'
-import groupRoutes from './modules/groups/group.route'
+import { api as playerRoutes } from './modules/players/player.route'
+import { api as deltaRoutes } from './modules/deltas/delta.route'
+import { api as snapshotRoutes } from './modules/snapshots/snapshot.route'
+import { api as recordRoutes } from './modules/records/record.route'
+import { api as competitionRoutes } from './modules/competitions/competition.route'
+import { api as achievementRoutes } from './modules/achievements/achievement.route'
+import { api as groupRoutes } from './modules/groups/group.route'
 
 const router = express.Router();
 

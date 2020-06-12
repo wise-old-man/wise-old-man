@@ -1,6 +1,6 @@
 import { Table, Column, PrimaryKey, ForeignKey, Model } from 'sequelize-typescript';
-import { Player } from './player.model';
-import { Competition } from './competition.model';
+import Player from './player.model';
+import Competition from './competition.model';
 
 // Define other table options
 const options = {
@@ -13,7 +13,7 @@ const options = {
 };
 
 @Table(options)
-export class Participation extends Model<Participation> {
+export default class Participation extends Model<Participation> {
 
   @ForeignKey(() => Player)
   @PrimaryKey
