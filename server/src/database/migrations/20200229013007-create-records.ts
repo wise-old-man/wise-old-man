@@ -1,8 +1,9 @@
-import PERIODS from '../../api/constants/periods';
+import { periods } from '../../api/constants/periods';
+import { ALL_METRICS } from '../../api/constants/metrics';
 
 export default {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('deltas', {
+    return queryInterface.createTable('records', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -18,22 +19,16 @@ export default {
         }
       },
       period: {
-        type: Sequelize.ENUM(PERIODS),
+        type: Sequelize.ENUM(periods),
         allowNull: false
       },
-      startSnapshotId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'snapshots',
-          key: 'id'
-        }
+      metric: {
+        type: Sequelize.ENUM(ALL_METRICS),
+        allowNull: false
       },
-      endSnapshotId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'snapshots',
-          key: 'id'
-        }
+      value: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
       },
       updatedAt: {
         type: Sequelize.DATE
@@ -42,6 +37,6 @@ export default {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable('deltas');
+    return queryInterface.dropTable('records');
   }
 };

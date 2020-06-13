@@ -1,11 +1,7 @@
-import PERIODS from '../../api/constants/periods.json';
+import { periods } from '../../api/constants/periods';
 
 export default {
-  up: queryInterface => {
-    return queryInterface.dropTable('deltas');
-  },
-
-  down: (queryInterface, Sequelize) => {
+  up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('deltas', {
       id: {
         type: Sequelize.INTEGER,
@@ -22,7 +18,7 @@ export default {
         }
       },
       period: {
-        type: Sequelize.ENUM(PERIODS),
+        type: Sequelize.ENUM(periods),
         allowNull: false
       },
       startSnapshotId: {
@@ -43,5 +39,9 @@ export default {
         type: Sequelize.DATE
       }
     });
+  },
+
+  down: queryInterface => {
+    return queryInterface.dropTable('deltas');
   }
 };

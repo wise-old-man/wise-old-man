@@ -1,4 +1,4 @@
-import PLAYER_TYPES from '../../api/constants/playerTypes.json';
+import { playerTypes } from '../../api/constants/playerTypes';
 
 export default {
   up: (queryInterface, Sequelize) => {
@@ -14,8 +14,8 @@ export default {
         allowNull: false
       },
       type: {
-        type: Sequelize.ENUM(PLAYER_TYPES),
-        defaultValue: PLAYER_TYPES[0]
+        type: Sequelize.ENUM(playerTypes),
+        defaultValue: playerTypes[0]
       },
       lastImportedAt: {
         type: Sequelize.DATE

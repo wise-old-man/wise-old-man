@@ -1,4 +1,4 @@
-import ROLES from '../../api/constants/roles';
+import { roles } from '../../api/constants/roles';
 
 export default {
   up: (queryInterface, Sequelize) => {
@@ -24,7 +24,7 @@ export default {
         }
       },
       role: {
-        type: Sequelize.ENUM(ROLES),
+        type: Sequelize.ENUM(roles),
         allowNull: false
       },
       createdAt: {
