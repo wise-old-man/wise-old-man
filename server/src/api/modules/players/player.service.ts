@@ -4,10 +4,10 @@ import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
 import { ServerError, BadRequestError } from '../../errors';
 import { Player } from '../../../database/models';
-import * as snapshotService from '../snapshots/snapshot.service'
 import { getHiscoresTableNames } from '../../util/scraping';
-import { getCombatLevel } from '../../util/level';
 import { getNextProxy } from '../../proxies';
+import { getCombatLevel } from 'src/api/util/level';
+import * as snapshotService from '../snapshots/snapshot.service';
 
 const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
@@ -156,14 +156,14 @@ async function update(username) {
     throw new BadRequestError('Invalid username.');
   }
 
-  console.log(username)
+  console.log(username);
 
   // Find a player with the given username,
   // or create a new one if none are found
   const [player, created] = await findOrCreate(username);
   const [should, seconds] = await shouldUpdate(player.updatedAt);
 
-  console.log(player, created)
+  console.log(player, created);
   console.log(should, seconds);
 
   // If the player already existed and was updated recently,
@@ -231,13 +231,11 @@ async function importCML(username) {
   const importedSnapshots = [];
 
   // If the player hasn't imported in over a year
-  // import the last week, year and decade.
+  // import the last year and decade.
   if (seconds >= YEAR_IN_SECONDS) {
-    const weekSnapshots = await importCMLSince(player.id, player.username, WEEK_IN_SECONDS);
     const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
     const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
 
-    importedSnapshots.push(...weekSnapshots);
     importedSnapshots.push(...yearSnapshots);
     importedSnapshots.push(...decadeSnapshots);
   } else {
@@ -526,5 +524,8 @@ export {
   findById,
   findOrCreate,
   findAllOrCreate,
-  findAll
-}
+  findAll,
+  getCMLHistory,
+  getHiscoresData,
+  getHiscoresNames
+};

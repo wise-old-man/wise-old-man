@@ -7,6 +7,7 @@ import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
 import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
 import SyncPlayerInitialValues from './SyncPlayerInitialValues';
 import AssertPlayerName from './AssertPlayerNames';
+import RefreshRankings from './RefreshRankings';
 
 export {
   ImportPlayer,
@@ -17,5 +18,6 @@ export {
   RemoveFromGroupCompetitions,
   ReevaluatePlayerAchievements,
   SyncPlayerInitialValues,
-  AssertPlayerName
+  AssertPlayerName,
+  RefreshRankings
 };

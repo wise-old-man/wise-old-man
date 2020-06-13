@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
-import TableListPlaceholder from '../../../../components/TableListPlaceholder';
+import TablePlaceholder from '../../../../components/TablePlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
-import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
+import TextLabel from '../../../../components/TextLabel';
+import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
@@ -77,12 +78,30 @@ function renderBossesTable(snapshot) {
     },
     {
       key: 'kills',
-      transform: val => <NumberLabel value={val} />
+      transform: (val, row) => {
+        const minKc = getMinimumBossKc(row.metric);
+        const metricName = getMetricName(row.metric);
+
+        return val === -1 ? (
+          <TextLabel
+            value={`< ${minKc}`}
+            popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+          />
+        ) : (
+          <NumberLabel value={val} />
+        );
+      }
     },
     {
       key: 'rank',
       className: () => '-break-small',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+          <TextLabel value="---" popupValue="Unranked" />
+        ) : (
+          <NumberLabel value={val} />
+        );
+      }
     },
     {
       key: 'EHB',
@@ -131,7 +150,7 @@ function renderActivitiesTable(snapshot) {
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) {
   if (isLoading) {
-    return <TableListPlaceholder size={20} />;
+    return <TablePlaceholder size={20} />;
   }
 
   const { latestSnapshot } = player;

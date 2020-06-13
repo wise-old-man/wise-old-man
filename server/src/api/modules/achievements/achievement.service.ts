@@ -342,8 +342,15 @@ async function findAll(playerId, includeMissing = false) {
   });
 }
 
-export {
-  syncAchievements,
-  reevaluateAchievements,
-  findAll
+async function findAllForGroup(playerIds, pagination) {
+  const achievements = await Achievement.findAll({
+    where: { playerId: playerIds },
+    order: [['createdAt', 'DESC']],
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
+
+  return achievements;
 }
+
+export { syncAchievements, reevaluateAchievements, findAll, findAllForGroup };

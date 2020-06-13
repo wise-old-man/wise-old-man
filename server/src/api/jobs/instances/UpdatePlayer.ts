@@ -6,4 +6,4 @@ export default {
     const { player } = data;
     await playerService.update(player.username);
   }
-}
+};

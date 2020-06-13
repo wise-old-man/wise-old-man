@@ -20,6 +20,10 @@
     }
 
     &__body {
+      .table {
+        margin-top: 10px;
+      }
+
       td {
         background: $gray-12;
       }

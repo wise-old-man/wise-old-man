@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import _ from 'lodash';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 import StatusDot from '../../../../components/StatusDot';
 import { getMetricIcon } from '../../../../utils';
 
@@ -46,7 +46,7 @@ const TABLE_CONFIG = {
   ]
 };
 
-function GroupCompetitionsTable({ competitions }) {
+function GroupCompetitions({ competitions }) {
   const router = useHistory();
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? _.sortBy(competitions, c => _.indexOf(order, c.status)) : [];
@@ -58,18 +58,19 @@ function GroupCompetitionsTable({ competitions }) {
   const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
   return (
-    <TableList
+    <Table
       uniqueKeySelector={TABLE_CONFIG.uniqueKey}
       rows={rows}
       columns={TABLE_CONFIG.columns}
-      clickable
       onRowClicked={onRowClicked}
+      clickable
+      listStyle
     />
   );
 }
 
-GroupCompetitionsTable.propTypes = {
+GroupCompetitions.propTypes = {
   competitions: PropTypes.arrayOf(PropTypes.shape).isRequired
 };
 
-export default React.memo(GroupCompetitionsTable);
+export default React.memo(GroupCompetitions);

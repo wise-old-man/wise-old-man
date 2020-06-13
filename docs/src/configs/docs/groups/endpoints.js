@@ -40,6 +40,8 @@ export default [
           {
             id: 1,
             name: 'Hexis',
+            score: 120,
+            verified: true,
             clanChat: null,
             createdAt: '2020-04-18T08:37:24.190Z',
             updatedAt: '2020-04-18T08:37:24.190Z',
@@ -48,6 +50,8 @@ export default [
           {
             id: 2,
             name: 'RSPT',
+            score: 100,
+            verified: true,
             clanChat: 'rspt',
             createdAt: '2020-04-18T08:45:28.726Z',
             updatedAt: '2020-04-18T08:47:50.870Z',
@@ -56,6 +60,8 @@ export default [
           {
             id: 4,
             name: 'Varrock Titans',
+            score: 90,
+            verified: false,
             clanChat: 'Vrck Titans',
             createdAt: '2020-04-18T09:01:10.630Z',
             updatedAt: '2020-04-18T09:07:00.915Z',
@@ -82,6 +88,8 @@ export default [
         body: {
           id: 4,
           name: 'RSPT',
+          score: 120,
+          verified: true,
           clanChat: 'rspt',
           createdAt: '2020-04-18T09:01:10.630Z',
           updatedAt: '2020-04-18T09:07:00.915Z'
@@ -207,8 +215,8 @@ export default [
     ]
   },
   {
-    title: "Get a group's leaderboard",
-    url: '/groups/:id/leaderboard',
+    title: "Get a group's deltas leaderboards",
+    url: '/groups/:id/deltas',
     method: 'GET',
     params: [
       {
@@ -225,6 +233,16 @@ export default [
         field: 'period',
         type: 'string',
         description: "The delta's period (See accepted values above)"
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
       }
     ],
     successResponses: [
@@ -274,61 +292,6 @@ export default [
             endValue: 204319855,
             startValue: 195506941,
             gained: 8812914
-          },
-          {
-            playerId: 1181,
-            username: 'idle rng',
-            displayName: 'Idle Rng',
-            type: 'regular',
-            startDate: '2020-05-18T12:10:46.190Z',
-            endDate: '2020-05-25T00:10:16.358Z',
-            endValue: 203099572,
-            startValue: 196325461,
-            gained: 6774111
-          },
-          {
-            playerId: 1179,
-            username: 'chouji456',
-            displayName: 'Chouji456',
-            type: 'regular',
-            startDate: '2020-05-18T11:35:45.657Z',
-            endDate: '2020-05-25T00:09:45.010Z',
-            endValue: 254543855,
-            startValue: 247770279,
-            gained: 6773576
-          },
-          {
-            playerId: 1151,
-            username: 'art of kappa',
-            displayName: 'Art Of Kappa',
-            type: 'regular',
-            startDate: '2020-05-18T17:48:33.348Z',
-            endDate: '2020-05-24T16:58:55.504Z',
-            endValue: 407871795,
-            startValue: 401457198,
-            gained: 6414597
-          },
-          {
-            playerId: 1163,
-            username: 'knock',
-            displayName: 'Knock',
-            type: 'regular',
-            startDate: '2020-05-18T11:52:45.623Z',
-            endDate: '2020-05-25T00:07:49.076Z',
-            endValue: 402041703,
-            startValue: 396088826,
-            gained: 5952877
-          },
-          {
-            playerId: 1201,
-            username: 'ice juice',
-            displayName: 'Ice Juice',
-            type: 'hardcore',
-            startDate: '2020-05-18T03:54:03.228Z',
-            endDate: '2020-05-25T01:14:56.107Z',
-            endValue: 46432379,
-            startValue: 40563565,
-            gained: 5868814
           }
         ]
       }
@@ -361,6 +324,341 @@ export default [
     ]
   },
   {
+    title: "Get a group's hiscores",
+    url: '/groups/:id/hiscores',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      },
+      {
+        field: 'metric',
+        type: 'string',
+        description: "The delta's metric (See accepted values above)"
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 125,
+            username: 'windows10',
+            displayName: 'Windows10',
+            type: 'regular',
+            lastImportedAt: '2020-05-14T00:21:28.251Z',
+            registeredAt: '2020-04-15T13:03:28.396Z',
+            updatedAt: '2020-06-02T23:37:26.348Z',
+            rank: 171,
+            experience: 76257923,
+            level: 99
+          },
+          {
+            id: 1161,
+            username: 'ze punheteir',
+            displayName: 'Ze Punheteir',
+            type: 'regular',
+            lastImportedAt: '2020-05-13T23:14:52.828Z',
+            registeredAt: '2020-04-28T17:56:45.960Z',
+            updatedAt: '2020-06-02T23:41:18.937Z',
+            rank: 888,
+            experience: 39924786,
+            level: 99
+          },
+          {
+            id: 1286,
+            username: 'melisma',
+            displayName: 'Melisma',
+            type: 'regular',
+            lastImportedAt: null,
+            registeredAt: '2020-04-28T22:00:09.281Z',
+            updatedAt: '2020-06-03T00:58:50.838Z',
+            rank: 1141,
+            experience: 36893876,
+            level: 99
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: 'That group has no members.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's record leaderboards",
+    url: '/groups/:id/records',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      },
+      {
+        field: 'metric',
+        type: 'string',
+        description: "The delta's metric (See accepted values above)"
+      },
+      {
+        field: 'period',
+        type: 'string',
+        description: "The delta's period (See accepted values above)"
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            playerId: 1188,
+            username: 'unequalized',
+            displayName: 'Unequalized',
+            type: 'regular',
+            value: 76566869,
+            updatedAt: '2020-06-02T23:38:37.203Z'
+          },
+          {
+            playerId: 1191,
+            username: '8 feb 2020',
+            displayName: '8 Feb 2020',
+            type: 'regular',
+            value: 57448742,
+            updatedAt: '2020-04-29T10:20:34.052Z'
+          },
+          {
+            playerId: 125,
+            username: 'windows10',
+            displayName: 'Windows10',
+            type: 'regular',
+            value: 54337702,
+            updatedAt: '2020-05-13T23:08:14.112Z'
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.'
+        }
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: 'That group has no members.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's recent achievements",
+    url: '/groups/:id/achievements',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            threshold: 13034431,
+            playerId: 1236,
+            type: '99 Strength',
+            metric: 'strength',
+            createdAt: '2020-06-03T00:58:57.019Z',
+            player: {
+              id: 1236,
+              username: 'j onys',
+              displayName: 'J Onys',
+              type: 'regular'
+            }
+          },
+          {
+            threshold: 13034431,
+            playerId: 1177,
+            type: '99 Hitpoints',
+            metric: 'hitpoints',
+            createdAt: '2020-06-03T00:57:47.202Z',
+            player: {
+              id: 1177,
+              username: 'o joao',
+              displayName: 'O Joao',
+              type: 'regular'
+            }
+          },
+          {
+            threshold: 1000000000,
+            playerId: 1188,
+            type: '1b Overall Exp.',
+            metric: 'overall',
+            createdAt: '2020-06-02T23:38:27.305Z',
+            player: {
+              id: 1188,
+              username: 'unequalized',
+              displayName: 'Unequalized',
+              type: 'regular'
+            }
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: 'That group has no members.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's statistics",
+    url: '/groups/:id/statistics',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          maxedCombatCount: 25,
+          maxedTotalCount: 14,
+          maxed200msCount: 12,
+          averageStats: {
+            overall: {
+              rank: 279828,
+              experience: 163384710
+            },
+            attack: {
+              rank: 331434,
+              experience: 10254244
+            },
+            defence: {
+              rank: 310463,
+              experience: 8164334
+            },
+            clue_scrolls_easy: {
+              rank: 265551,
+              score: 25
+            },
+            clue_scrolls_medium: {
+              rank: 195706,
+              score: 58
+            },
+            clue_scrolls_hard: {
+              rank: 138079,
+              score: 68
+            },
+            chambers_of_xeric_challenge_mode: {
+              rank: 166,
+              kills: 2
+            },
+            chaos_elemental: {
+              rank: 897,
+              kills: 23
+            },
+            chaos_fanatic: {
+              rank: 2492,
+              kills: 28
+            }
+          }
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: "Couldn't find any stats for this group."
+        }
+      }
+    ]
+  },
+  {
     title: 'Create group',
     url: '/groups',
     method: 'POST',
@@ -388,6 +686,8 @@ export default [
         body: {
           id: 23,
           name: 'Falador Knights',
+          score: 0,
+          verified: false,
           clanChat: 'fallyK',
           verificationCode: '107-719-861',
           updatedAt: '2020-04-23T01:53:26.079Z',
@@ -485,6 +785,8 @@ export default [
         body: {
           id: 2,
           name: 'Some new name',
+          score: 0,
+          verified: false,
           clanChat: 'fallyK',
           createdAt: '2020-04-18T08:45:28.726Z',
           updatedAt: '2020-04-18T15:30:41.380Z',

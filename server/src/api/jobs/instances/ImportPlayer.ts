@@ -6,5 +6,5 @@ export default {
     const { player } = data;
     await playerService.importCML(player.username);
   },
-  onFail() { }
+  onFail() {}
 };

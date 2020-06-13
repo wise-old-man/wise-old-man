@@ -19,6 +19,17 @@ export default [
         description: "The group's clan chat (1-20 characters) (Optional)."
       },
       {
+        field: 'score',
+        type: 'integer',
+        description: "The groups's ranking score (Essentially this group's relevance on searches)."
+      },
+      {
+        field: 'verified',
+        type: 'boolean',
+        description:
+          'Verified groups have higher scores, groups can be verified by contacting us on Discord.'
+      },
+      {
         field: 'verificationHash',
         type: 'string',
         description: "The group's verification code. (Used for authorization)"

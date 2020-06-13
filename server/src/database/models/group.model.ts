@@ -16,7 +16,6 @@ const options = {
 
 @Table(options)
 export default class Group extends Model<Group> {
-
   @PrimaryKey
   @AutoIncrement
   @Column
@@ -40,6 +39,9 @@ export default class Group extends Model<Group> {
 
   @Column({ type: DataType.STRING(20) })
   clanChat: String;
+
+  @Column({ defaultValue: 0 })
+  score: Number;
 
   @Column({
     type: DataType.VIRTUAL,

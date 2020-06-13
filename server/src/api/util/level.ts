@@ -31,8 +31,8 @@ function getXpDifferenceTo(level) {
   return Math.floor(level - 1 + 300 * 2 ** ((level - 1) / 7)) / 4;
 }
 
-function getCombatLevel(playerExperiences) {
-  const combatExperiences = pick(playerExperiences, [
+function getCombatLevel(snapshot: any) {
+  const combatExperiences = pick(snapshot, [
     'attackExperience',
     'strengthExperience',
     'defenceExperience',
@@ -70,4 +70,9 @@ function getTotalLevel(snapshot) {
     .reduce((acc, cur) => acc + cur);
 }
 
-export { getLevel, getCombatLevel, getTotalLevel }
+function get200msCount(snapshot: any) {
+  const validSkills = SKILLS.filter(skill => skill !== 'overall');
+  return validSkills.filter(skill => snapshot[getValueKey(skill)] === 200000000).length;
+}
+
+export { getLevel, getCombatLevel, getTotalLevel, get200msCount };

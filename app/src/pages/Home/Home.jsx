@@ -20,9 +20,9 @@ const FEATURES = [
     image: '/img/landing_page/features/boss_tracking.png'
   },
   {
-    title: 'Skill competitions',
+    title: 'Group competitions',
     page: '/competitions',
-    description: 'Compete against all your friends in any skill of your choosing.',
+    description: 'Compete against all your friends in any skill, boss or activity of your choosing.',
     image: '/img/landing_page/features/team_competitions.png'
   },
   {
@@ -67,7 +67,7 @@ function Home() {
             <p className="intro-description">
               The Open Source Old School Runescape player progress tracker.
             </p>
-            <Button text="Contribute" url="https://github.com/psikoi/wise-old-man" />
+            <Button text="Contribute" url="https://github.com/wise-old-man/wise-old-man" />
           </div>
         </div>
         <div id="illustration" className="hero__illustration">

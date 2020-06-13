@@ -1,5 +1,14 @@
 import { ALL_METRICS } from '../../api/constants/metrics';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey, BelongsToMany } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  ForeignKey,
+  BelongsToMany
+} from 'sequelize-typescript';
 import Group from './group.model';
 import Player from './player.model';
 
@@ -27,7 +36,6 @@ const options = {
 
 @Table(options)
 export default class Competition extends Model<Competition> {
-
   // Competition.associate = models => {
   //   Competition.belongsToMany(models.Player, {
   //     as: 'participants',
@@ -64,6 +72,9 @@ export default class Competition extends Model<Competition> {
     }
   })
   metric: String;
+
+  @Column({ defaultValue: 0 })
+  score: Number;
 
   @Column({
     type: DataType.VIRTUAL,

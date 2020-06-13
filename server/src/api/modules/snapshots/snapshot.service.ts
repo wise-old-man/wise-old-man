@@ -183,12 +183,30 @@ function diff(start, end, initialValues) {
     const startRank = start[rankKey] === -1 && !isSkill(s) ? initialRank : start[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     obj[rankKey] = isSkill(s) && start[rankKey] === -1 ? 0 : endRank - startRank;
     obj[valueKey] = endValue - startValue;
   });
 
   return obj;
+}
+
+function average(snapshots) {
+  if (!snapshots && snapshots.length === 0) {
+    throw new ServerError('Invalid snapshots list. Failed to find average.');
+  }
+
+  const accumulator = {};
+  const invalidKeys = ['id', 'createdAt', 'importedAt', 'playerId'];
+  const keys = Object.keys(snapshots[0]).filter(k => !invalidKeys.includes(k));
+
+  keys.forEach(key => {
+    const sum = snapshots.map(s => s[key]).reduce((acc, cur) => acc + parseInt(cur, 10), 0);
+    const avg = Math.round(sum / snapshots.length);
+    accumulator[key] = avg;
+  });
+
+  return accumulator;
 }
 
 /**
@@ -199,6 +217,10 @@ function diff(start, end, initialValues) {
  * are from a single player.
  */
 async function saveAll(snapshots) {
+  if (snapshots.length === 0) {
+    return [];
+  }
+
   const { playerId } = snapshots[0];
 
   const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
@@ -315,6 +337,7 @@ export {
   findLatest,
   findAllBetween,
   diff,
+  average,
   saveAll,
   fromCML,
   fromRS

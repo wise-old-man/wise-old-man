@@ -187,7 +187,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
+async function getGroupLeaderboard(metric, period, playerIds, pagination) {
   const metricKey = getValueKey(metric);
   const seconds = getSeconds(period);
   const ids = playerIds.join(',');
@@ -195,7 +195,7 @@ async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
   const query = queries.GET_GROUP_LEADERBOARD(metricKey, ids);
 
   const results = await sequelize.query(query, {
-    replacements: { seconds, limit },
+    replacements: { seconds, ...pagination },
     type: QueryTypes.SELECT
   });
 
@@ -243,7 +243,7 @@ function diff(start, end, initial) {
     const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
     const gainedValue = endValue - startValue;
 
@@ -293,4 +293,4 @@ export {
   getGroupLeaderboard,
   getCompetitionLeaderboard,
   syncInitialValues
-}
+};

@@ -10,6 +10,7 @@ export const isFetchingAll = createSelector(rootSelector, root => root.isFetchin
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);
 export const isFetchingMonthlyTop = createSelector(rootSelector, root => root.isFetchingMonthlyTop);
+export const isFetchingStatistics = createSelector(rootSelector, root => root.isFetchingStatistics);
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
 export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
@@ -22,7 +23,9 @@ export const getPlayerGroupsMap = createSelector(playerGroupsSelector, map => {
 });
 
 export const getGroups = createSelector(groupsSelector, map => {
-  return Object.values(map).map(g => formatGroup(g));
+  return Object.values(map)
+    .map(g => formatGroup(g))
+    .sort((a, b) => b.score - a.score || a.id - b.id);
 });
 
 export const getGroup = (state, id) => getGroupsMap(state)[id];

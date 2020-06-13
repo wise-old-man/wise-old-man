@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 import NumberLabel from '../../../../components/NumberLabel';
 import {
   capitalize,
@@ -68,10 +68,11 @@ function PlayerRecord({ metricRecords, metric }) {
         <b className="record__title">{getMetricName(metric)}</b>
       </div>
       <div className="record__body">
-        <TableList
+        <Table
           rows={filteredRecords}
           uniqueKeySelector={TABLE_CONFIG.uniqueKey}
           columns={TABLE_CONFIG.columns}
+          listStyle
         />
       </div>
     </div>

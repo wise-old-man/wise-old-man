@@ -42,6 +42,7 @@ function DeleteCompetitionModal({ competition, onCancel }) {
           type="text"
           placeholder="Verification code"
           onChange={onVerificationInput}
+          autoComplete="off"
         />
         <div className="lost-code">
           Lost your verification code?
