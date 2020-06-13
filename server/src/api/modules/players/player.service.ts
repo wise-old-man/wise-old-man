@@ -6,7 +6,7 @@ import { ServerError, BadRequestError } from '../../errors';
 import { Player } from '../../../database/models';
 import { getHiscoresTableNames } from '../../util/scraping';
 import { getNextProxy } from '../../proxies';
-import { getCombatLevel } from 'src/api/util/level';
+import { getCombatLevel } from '../../../api/util/level';
 import * as snapshotService from '../snapshots/snapshot.service';
 
 const WEEK_IN_SECONDS = 604800;

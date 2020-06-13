@@ -13,7 +13,7 @@ import * as recordService from '../records/record.service';
 import * as snapshotService from '../snapshots/snapshot.service';
 import * as competitionService from '../competitions/competition.service';
 import { Group, Membership, Player } from '../../../database/models';
-import { getTotalLevel, getLevel, getCombatLevel, get200msCount } from 'src/api/util/level';
+import { getTotalLevel, getLevel, getCombatLevel, get200msCount } from '../../../api/util/level';
 
 function sanitizeName(name) {
   return name
