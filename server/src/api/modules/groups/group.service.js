@@ -117,7 +117,10 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  return format(group);
+  // Format, and calculate the "memberCount" property
+  const formattedGroup = await attachMembersCount([format(group)]);
+
+  return formattedGroup;
 }
 
 async function getMonthlyTopPlayer(groupId) {
