@@ -4,7 +4,7 @@ import { FETCH_SNAPSHOTS_REQUEST, FETCH_SNAPSHOTS_SUCCESS, FETCH_SNAPSHOTS_FAILU
 
 function fetchPlayerSnapshotsRequest() {
   return {
-    type: FETCH_SNAPSHOTS_REQUEST,
+    type: FETCH_SNAPSHOTS_REQUEST
   };
 }
 
@@ -12,14 +12,14 @@ function fetchPlayerSnapshotsSuccess(playerId, data) {
   return {
     type: FETCH_SNAPSHOTS_SUCCESS,
     playerId,
-    snapshotData: data,
+    snapshotData: data
   };
 }
 
 function fetchPlayerSnapshotsFailure(error) {
   return {
     type: FETCH_SNAPSHOTS_FAILURE,
-    error,
+    error
   };
 }
 
@@ -27,8 +27,8 @@ export default function fetchPlayerSnapshots({ playerId, period }) {
   return dispatch => {
     dispatch(fetchPlayerSnapshotsRequest());
 
-    const url = `${BASE_API_URL}/snapshots/`;
-    const params = { playerId, period };
+    const url = `${BASE_API_URL}/players/${playerId}/snapshots/`;
+    const params = { period };
 
     return axios
       .get(url, { params })
