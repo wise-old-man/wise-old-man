@@ -1,16 +1,6 @@
 const service = require('./record.service');
 
-async function get(req, res, next) {
-  try {
-    const { playerId, period, metric } = req.query;
-
-    const records = await service.findAll(playerId, period, metric);
-    res.json(records);
-  } catch (e) {
-    next(e);
-  }
-}
-
+// GET /records/leaderboard
 async function leaderboard(req, res, next) {
   try {
     const { metric, period, playerType } = req.query;
@@ -25,5 +15,4 @@ async function leaderboard(req, res, next) {
   }
 }
 
-exports.get = get;
 exports.leaderboard = leaderboard;
