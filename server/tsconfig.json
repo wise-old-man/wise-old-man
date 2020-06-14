@@ -6,7 +6,6 @@
     "target": "es6",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
     "outDir": "dist",
     "importHelpers": true,
     "baseUrl": ".",

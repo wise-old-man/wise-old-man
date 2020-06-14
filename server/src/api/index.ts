@@ -1,6 +1,6 @@
-require('dotenv').config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
-
-import * as express from 'express'
+import * as dotenv from 'dotenv';
+dotenv.config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
+import * as express from 'express';
 import * as cors from 'cors';
 import * as rateLimit from 'express-rate-limit';
 import { router } from './routing';
@@ -31,6 +31,4 @@ if (process.env.NODE_ENV !== 'test') {
 
 app.use('/api', router);
 
-export {
-  app
-};
+export { app };

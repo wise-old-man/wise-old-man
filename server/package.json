@@ -9,8 +9,8 @@
     "lint": "npx eslint .",
     "prestart": "sequelize db:migrate",
     "start": "pm2-runtime dist/server.js -i 4",
+    "predev": "sequelize db:migrate",
     "dev": "nodemon -L dist/server.js --ignore __tests__",
-    "dev-start": "node dist/server.js",
     "pretest": "NODE_ENV=test sequelize db:migrate",
     "test": "NODE_ENV=test jest --detectOpenHandles --verbose",
     "posttest": "NODE_ENV=test sequelize db:migrate:undo:all"
