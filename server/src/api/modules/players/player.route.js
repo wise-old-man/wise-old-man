@@ -13,5 +13,6 @@ api.get('/username/:username', controller.details);
 
 api.get('/:id', controller.details);
 api.get('/:id/achievements', controller.achievements);
+api.get('/:id/competitions', controller.competitions);
 
 module.exports = api;

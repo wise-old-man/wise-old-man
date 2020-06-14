@@ -1,6 +1,7 @@
 const jobs = require('../../jobs');
 const playerService = require('./player.service');
 const achievementService = require('../achievements/achievement.service');
+const competitionService = require('../competitions/competition.service');
 
 // GET /players/search?username={username}
 async function search(req, res, next) {
@@ -107,6 +108,20 @@ async function achievements(req, res, next) {
   }
 }
 
+// GET /players/:id/competitions
+async function competitions(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // Get all player competitions (by player id)
+    const playerCompetitions = await competitionService.getPlayerCompetitions(id);
+
+    res.json(playerCompetitions);
+  } catch (e) {
+    next(e);
+  }
+}
+
 exports.search = search;
 exports.track = track;
 exports.assertType = assertType;
@@ -114,3 +129,4 @@ exports.assertName = assertName;
 exports.importPlayer = importPlayer;
 exports.details = details;
 exports.achievements = achievements;
+exports.competitions = competitions;

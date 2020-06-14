@@ -396,10 +396,12 @@ describe('Competition API', () => {
     });
 
     test('Add participant to competition', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/add`).send({
-        participants: ['new player'],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/add-participants`)
+        .send({
+          participants: ['new player'],
+          verificationCode: TEST_DATA.minimal.verificationCode
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.newParticipants.length).toBe(1);
@@ -409,10 +411,12 @@ describe('Competition API', () => {
     });
 
     test('Do not add participant to competition ( already a participant )', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/add`).send({
-        participants: ['new player'],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/add-participants`)
+        .send({
+          participants: ['new player'],
+          verificationCode: TEST_DATA.minimal.verificationCode
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('All players given are already competing.');
@@ -421,7 +425,7 @@ describe('Competition API', () => {
     });
 
     test('Do not remove participant ( Competition not found )', async done => {
-      const response = await request.post(`/api/competitions/1234/remove`).send({
+      const response = await request.post(`/api/competitions/1234/remove-participants`).send({
         participants: ['new player'],
         verificationCode: TEST_DATA.minimal.verificationCode
       });
@@ -433,10 +437,12 @@ describe('Competition API', () => {
     });
 
     test('Do not remove participant ( No participants given )', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
-        participants: [],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/remove-participants`)
+        .send({
+          participants: [],
+          verificationCode: TEST_DATA.minimal.verificationCode
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid participants list.');
@@ -445,10 +451,12 @@ describe('Competition API', () => {
     });
 
     test('Do not remove participant ( Participants not in list )', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
-        participants: ['epic player'],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/remove-participants`)
+        .send({
+          participants: ['epic player'],
+          verificationCode: TEST_DATA.minimal.verificationCode
+        });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('None of the players given were competing.');
@@ -457,10 +465,12 @@ describe('Competition API', () => {
     });
 
     test('Remove participant', async done => {
-      const response = await request.post(`/api/competitions/${TEST_DATA.minimal.id}/remove`).send({
-        participants: ['new player'],
-        verificationCode: TEST_DATA.minimal.verificationCode
-      });
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/remove-participants`)
+        .send({
+          participants: ['new player'],
+          verificationCode: TEST_DATA.minimal.verificationCode
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe(

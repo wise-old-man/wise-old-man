@@ -409,11 +409,6 @@ async function findOrCreate(username) {
   return result;
 }
 
-async function findById(id) {
-  const result = await Player.findOne({ where: { id } });
-  return result;
-}
-
 async function find(username) {
   const result = await Player.findOne({ where: { username: standardize(username) } });
   return result;
@@ -506,15 +501,10 @@ async function getHiscoresNames(username) {
 exports.standardize = standardize;
 exports.sanitize = sanitize;
 exports.isValidUsername = isValidUsername;
-exports.shouldUpdate = shouldUpdate;
-exports.shouldImport = shouldImport;
-exports.find = find;
-exports.findById = findById;
-exports.findOrCreate = findOrCreate;
 exports.findAllOrCreate = findAllOrCreate;
 exports.findAll = findAll;
 
-// Endpoints
+// Handlers
 exports.getDetailsById = getDetailsById;
 exports.getDetails = getDetails;
 exports.search = search;

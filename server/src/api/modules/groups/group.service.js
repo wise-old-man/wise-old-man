@@ -916,7 +916,7 @@ async function calculateScore(group) {
 
   const now = new Date();
   const members = await getMembersList(group.id);
-  const competitions = await competitionService.findForGroup(group.id, { limit: 10000, offset: 0 });
+  const competitions = await competitionService.getGroupCompetitions(group.id);
   const averageOverallExp = members.reduce((acc, cur) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {
