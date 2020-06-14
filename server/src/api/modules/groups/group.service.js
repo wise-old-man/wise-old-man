@@ -118,7 +118,7 @@ async function getDetails(id) {
   }
 
   // Format, and calculate the "memberCount" property
-  const formattedGroup = await attachMembersCount([format(group)]);
+  const formattedGroup = (await attachMembersCount([format(group)]))[0];
 
   return formattedGroup;
 }
