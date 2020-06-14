@@ -18,11 +18,6 @@ export default [
         description: 'A partial name match. - Optional'
       },
       {
-        field: 'playerId',
-        type: 'number',
-        description: "A player's unique id."
-      },
-      {
         field: 'limit',
         type: 'integer',
         description: 'The maximum amount of results to return - Optional (Default is 20)'
@@ -91,6 +86,7 @@ export default [
           score: 120,
           verified: true,
           clanChat: 'rspt',
+          memberCount: 178,
           createdAt: '2020-04-18T09:01:10.630Z',
           updatedAt: '2020-04-18T09:07:00.915Z'
         }
@@ -167,6 +163,39 @@ export default [
     ]
   },
   {
+    title: "Get a group's competitions",
+    url: '/group/:id/competitions',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 1,
+            title: 'SOTW 52 - Firemaking',
+            metric: 'firemaking',
+            score: 150,
+            startsAt: '2020-03-20T23:00:00.000Z',
+            endsAt: '2020-04-16T23:00:00.000Z',
+            groupId: 51,
+            createdAt: '2020-04-03T23:00:27.184Z',
+            updatedAt: '2020-04-03T23:48:03.502Z',
+            participantCount: 21,
+            duration: '27 days'
+          }
+        ]
+      }
+    ],
+    errorResponses: []
+  },
+  {
     title: "Get a group's monthly top member",
     url: '/groups/:id/monthly-top',
     method: 'GET',
@@ -215,15 +244,17 @@ export default [
     ]
   },
   {
-    title: "Get a group's deltas leaderboards",
-    url: '/groups/:id/deltas',
+    title: "Get a group's gained leaderboards",
+    url: '/groups/:id/gained',
     method: 'GET',
     params: [
       {
         field: 'id',
         type: 'integer',
         description: "The group's id."
-      },
+      }
+    ],
+    query: [
       {
         field: 'metric',
         type: 'string',
@@ -895,7 +926,7 @@ export default [
   },
   {
     title: 'Add members',
-    url: '/groups/:id/add',
+    url: '/groups/:id/add-members',
     method: 'POST',
     params: [
       {
@@ -973,7 +1004,7 @@ export default [
   },
   {
     title: 'Remove members',
-    url: '/groups/:id/remove',
+    url: '/groups/:id/remove-members',
     method: 'POST',
     params: [
       {
@@ -1027,7 +1058,7 @@ export default [
   },
   {
     title: 'Change member role',
-    url: '/groups/:id/roles',
+    url: '/groups/:id/change-role',
     method: 'PUT',
     params: [
       {

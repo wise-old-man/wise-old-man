@@ -51,21 +51,62 @@ export default [
     ]
   },
   {
-    title: 'View player',
-    url: '/players',
+    title: 'View player details (by id)',
+    url: '/players/:id',
     method: 'GET',
-    comments: [
-      {
-        type: 'warning',
-        content: 'If both "username" and "id" are given in the query params, "id" will be ignored.'
-      }
-    ],
-    query: [
+    params: [
       {
         field: 'id',
         type: 'integer',
         description: "The player's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: 'Note: parts of the response were ommitted for demo purposes.',
+        body: {
+          id: 37,
+          username: 'Psikoi',
+          type: 'regular',
+          lastImportedAt: '2020-04-03T21:43:21.899Z',
+          registeredAt: '2020-04-03T21:43:17.574Z',
+          updatedAt: '2020-04-04T16:43:36.230Z',
+          combatLevel: 125,
+          latestSnapshot: {
+            createdAt: '2020-04-04T16:43:36.219Z',
+            importedAt: null,
+            overall: {
+              rank: 30400,
+              experience: 269828205
+            },
+            attack: {
+              rank: 12158,
+              experience: 27216011
+            }
+          }
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid player id.'
+        }
       },
+      {
+        description: 'If an id is given but does not exist.',
+        body: {
+          message: 'Player of id 5767 is not being tracked yet.'
+        }
+      }
+    ]
+  },
+  {
+    title: 'View player details (by username)',
+    url: '/players/username/:username',
+    method: 'GET',
+    params: [
       {
         field: 'username',
         type: 'string',
@@ -100,15 +141,9 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If no id or username are given.',
+        description: 'If no username is given.',
         body: {
-          message: 'Invalid player id.'
-        }
-      },
-      {
-        description: 'If an id is given but does not exist.',
-        body: {
-          message: 'Player of id 5767 is not being tracked yet.'
+          message: 'Invalid username.'
         }
       },
       {
@@ -300,6 +335,877 @@ export default [
         description: 'If the username does not exist (in CML) OR failed to fetch from CML.',
         body: {
           message: 'Failed to load history from CML.'
+        }
+      }
+    ]
+  },
+  {
+    title: 'View player competitions',
+    url: '/players/:id/competitions',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id."
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 1,
+            title: 'SOTW 52 - Firemaking',
+            metric: 'firemaking',
+            score: 150,
+            startsAt: '2020-03-20T23:00:00.000Z',
+            endsAt: '2020-04-16T23:00:00.000Z',
+            groupId: null,
+            createdAt: '2020-04-03T23:00:27.184Z',
+            updatedAt: '2020-04-03T23:48:03.502Z',
+            participantCount: 21,
+            duration: '27 days'
+          }
+        ]
+      }
+    ],
+    errorResponses: []
+  },
+  {
+    title: 'View player achievements',
+    url: '/players/:id/achievements',
+    method: 'GET',
+    comments: [
+      {
+        type: 'warning',
+        content: 'If the achievement date is unknown, this will return it as "1970-01-01T00:00:00.000Z".'
+      },
+      {
+        type: 'warning',
+        content:
+          'If includeMissing is true, any unachieved achievements will have "createdAt: null" and "missing: true"'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id."
+      }
+    ],
+    query: [
+      {
+        field: 'includeMissing',
+        type: 'boolean',
+        description: 'If true, it will return every achievement, even the unachieved - Optional'
+      }
+    ],
+    successResponses: [
+      {
+        description: 'With includeMissing param set to false (Not showing the whole response)',
+        body: [
+          {
+            playerId: 2,
+            type: "500 K'ril Tsutsaroth kills",
+            metric: 'kril_tsutsaroth',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Strength',
+            metric: 'strength',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Hitpoints',
+            metric: 'hitpoints',
+            threshold: 13034431,
+            createdAt: '2015-06-24T15:57:40.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Ranged',
+            metric: 'ranged',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Attack',
+            metric: 'attack',
+            threshold: 13034431,
+            createdAt: '2015-06-24T15:57:40.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Defence',
+            metric: 'defence',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Magic',
+            metric: 'magic',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Woodcutting',
+            metric: 'woodcutting',
+            threshold: 13034431,
+            createdAt: '2020-05-27T23:49:34.529Z'
+          },
+          {
+            playerId: 2,
+            type: '5k Zulrah kills',
+            metric: 'zulrah',
+            threshold: 5000,
+            createdAt: '2020-05-27T23:49:34.532Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Slayer',
+            metric: 'slayer',
+            threshold: 13034431,
+            createdAt: '2018-01-21T18:02:52.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Farming',
+            metric: 'farming',
+            threshold: 13034431,
+            createdAt: '2019-10-15T23:37:08.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Abyssal Sire kills',
+            metric: 'abyssal_sire',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Cerberus kills',
+            metric: 'cerberus',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Commander Zilyana kills',
+            metric: 'commander_zilyana',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 General Graardor kills',
+            metric: 'general_graardor',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Zulrah kills',
+            metric: 'zulrah',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Abyssal Sire kills',
+            metric: 'abyssal_sire',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Cerberus kills',
+            metric: 'cerberus',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Commander Zilyana kills',
+            metric: 'commander_zilyana',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Zulrah kills',
+            metric: 'zulrah',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          }
+        ]
+      },
+      {
+        description: 'With includeMissing param set to true (Not showing the whole response)',
+        body: [
+          {
+            playerId: 2,
+            type: "500 K'ril Tsutsaroth kills",
+            metric: 'kril_tsutsaroth',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Strength',
+            metric: 'strength',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Hitpoints',
+            metric: 'hitpoints',
+            threshold: 13034431,
+            createdAt: '2015-06-24T15:57:40.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Ranged',
+            metric: 'ranged',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Attack',
+            metric: 'attack',
+            threshold: 13034431,
+            createdAt: '2015-06-24T15:57:40.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Defence',
+            metric: 'defence',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Magic',
+            metric: 'magic',
+            threshold: 13034431,
+            createdAt: '2015-12-14T04:15:36.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Woodcutting',
+            metric: 'woodcutting',
+            threshold: 13034431,
+            createdAt: '2020-05-27T23:49:34.529Z'
+          },
+          {
+            playerId: 2,
+            type: '5k Zulrah kills',
+            metric: 'zulrah',
+            threshold: 5000,
+            createdAt: '2020-05-27T23:49:34.532Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Slayer',
+            metric: 'slayer',
+            threshold: 13034431,
+            createdAt: '2018-01-21T18:02:52.000Z'
+          },
+          {
+            playerId: 2,
+            type: '99 Farming',
+            metric: 'farming',
+            threshold: 13034431,
+            createdAt: '2019-10-15T23:37:08.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Abyssal Sire kills',
+            metric: 'abyssal_sire',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Cerberus kills',
+            metric: 'cerberus',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Commander Zilyana kills',
+            metric: 'commander_zilyana',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 General Graardor kills',
+            metric: 'general_graardor',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '500 Zulrah kills',
+            metric: 'zulrah',
+            threshold: 500,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Abyssal Sire kills',
+            metric: 'abyssal_sire',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Cerberus kills',
+            metric: 'cerberus',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Commander Zilyana kills',
+            metric: 'commander_zilyana',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '1k Zulrah kills',
+            metric: 'zulrah',
+            threshold: 1000,
+            createdAt: '1970-01-01T00:00:00.000Z'
+          },
+          {
+            playerId: 2,
+            type: '50m Fletching',
+            metric: 'fletching',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Fishing',
+            metric: 'fishing',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Firemaking',
+            metric: 'firemaking',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Crafting',
+            metric: 'crafting',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Smithing',
+            metric: 'smithing',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Mining',
+            metric: 'mining',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Herblore',
+            metric: 'herblore',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Agility',
+            metric: 'agility',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Thieving',
+            metric: 'thieving',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          },
+          {
+            playerId: 2,
+            type: '50m Slayer',
+            metric: 'slayer',
+            threshold: 50000000,
+            createdAt: null,
+            missing: true,
+            measure: 'experience'
+          }
+        ]
+      }
+    ],
+    errorResponses: []
+  },
+  {
+    title: 'View player snapshots',
+    url: '/players/:id/snapshots',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id."
+      }
+    ],
+    query: [
+      {
+        field: 'period',
+        type: 'string',
+        description: 'The time period to filter the snapshots by (See accepted values above) - Optional'
+      }
+    ],
+    successResponses: [
+      {
+        description: 'Without any period filtering (Not showing the whole response)',
+        body: {
+          day: [
+            {
+              createdAt: '2020-04-04T16:43:36.219Z',
+              importedAt: null,
+              overall: {
+                rank: 30400,
+                experience: 269828205
+              },
+              attack: {
+                rank: 12158,
+                experience: 27216011
+              }
+            }
+          ],
+          week: [
+            {
+              createdAt: '2020-04-04T16:43:36.219Z',
+              importedAt: null,
+              overall: {
+                rank: 30400,
+                experience: 269828205
+              },
+              attack: {
+                rank: 12158,
+                experience: 27216011
+              }
+            }
+          ],
+          month: [
+            {
+              createdAt: '2020-04-04T16:43:36.219Z',
+              importedAt: null,
+              overall: {
+                rank: 30400,
+                experience: 269828205
+              },
+              attack: {
+                rank: 12158,
+                experience: 27216011
+              }
+            }
+          ],
+          year: [
+            {
+              createdAt: '2020-04-04T16:43:36.219Z',
+              importedAt: null,
+              overall: {
+                rank: 30400,
+                experience: 269828205
+              },
+              attack: {
+                rank: 12158,
+                experience: 27216011
+              }
+            }
+          ]
+        }
+      },
+      {
+        description: 'Filtered by the period field (day) (Not showing the whole response)',
+        body: [
+          {
+            createdAt: '2020-04-04T16:43:36.219Z',
+            importedAt: null,
+            overall: {
+              rank: 30400,
+              experience: 269828205
+            },
+            attack: {
+              rank: 12158,
+              experience: 27216011
+            }
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If period is given but is invalid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod'
+        }
+      }
+    ]
+  },
+  {
+    title: 'View player deltas (gained)',
+    url: '/players/:id/gained',
+    method: 'GET',
+    comments: [
+      {
+        type: 'warning',
+        content: 'The response will be formatted into a json-friendlier format. See example below.'
+      },
+      {
+        type: 'warning',
+        content: 'If the "period" param is not supplied, it will return the deltas for all periods.'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id."
+      }
+    ],
+    query: [
+      {
+        field: 'period',
+        type: 'string',
+        description: "The delta's period (See accepted values above) - Optional"
+      }
+    ],
+    successResponses: [
+      {
+        description: 'Without any period filtering (Not showing the whole response)',
+        body: {
+          month: {
+            period: 'month',
+            startsAt: '2020-03-05T03:19:24.000Z',
+            endsAt: '2020-04-04T16:43:36.219Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 29626,
+                  end: 30400,
+                  gained: 774
+                },
+                experience: {
+                  start: 268213747,
+                  end: 269828205,
+                  gained: 1614458
+                }
+              },
+              attack: {
+                rank: {
+                  start: 12097,
+                  end: 12158,
+                  gained: 61
+                },
+                experience: {
+                  start: 26994448,
+                  end: 27216011,
+                  gained: 221563
+                }
+              }
+            }
+          },
+          year: {
+            period: 'year',
+            startsAt: '2019-04-04T23:42:16.000Z',
+            endsAt: '2020-04-04T16:43:36.219Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 25166,
+                  end: 30400,
+                  gained: 5234
+                },
+                experience: {
+                  start: 236973133,
+                  end: 269828205,
+                  gained: 32855072
+                }
+              },
+              attack: {
+                rank: {
+                  start: 10989,
+                  end: 12158,
+                  gained: 1169
+                },
+                experience: {
+                  start: 25212878,
+                  end: 27216011,
+                  gained: 2003133
+                }
+              }
+            }
+          },
+          day: {
+            period: 'day',
+            startsAt: '2020-04-03T21:43:19.856Z',
+            endsAt: '2020-04-04T16:43:36.219Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 30353,
+                  end: 30400,
+                  gained: 47
+                },
+                experience: {
+                  start: 269705120,
+                  end: 269828205,
+                  gained: 123085
+                }
+              },
+              attack: {
+                rank: {
+                  start: 12144,
+                  end: 12158,
+                  gained: 14
+                },
+                experience: {
+                  start: 27216011,
+                  end: 27216011,
+                  gained: 0
+                }
+              }
+            }
+          },
+          week: {
+            period: 'week',
+            startsAt: '2020-04-03T21:43:19.856Z',
+            endsAt: '2020-04-04T16:43:36.219Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 30353,
+                  end: 30400,
+                  gained: 47
+                },
+                experience: {
+                  start: 269705120,
+                  end: 269828205,
+                  gained: 123085
+                }
+              },
+              attack: {
+                rank: {
+                  start: 12144,
+                  end: 12158,
+                  gained: 14
+                },
+                experience: {
+                  start: 27216011,
+                  end: 27216011,
+                  gained: 0
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        description: 'Filtered by the period field (month)',
+        body: {
+          period: 'month',
+          startsAt: '2020-03-05T03:19:24.000Z',
+          endsAt: '2020-04-04T16:43:36.219Z',
+          data: {
+            overall: {
+              rank: {
+                start: 29626,
+                end: 30400,
+                gained: 774
+              },
+              experience: {
+                start: 268213747,
+                end: 269828205,
+                gained: 1614458
+              }
+            },
+            attack: {
+              rank: {
+                start: 12097,
+                end: 12158,
+                gained: 61
+              },
+              experience: {
+                start: 26994448,
+                end: 27216011,
+                gained: 221563
+              }
+            },
+            defence: {
+              rank: {
+                start: 16398,
+                end: 16794,
+                gained: 396
+              },
+              experience: {
+                start: 20370965,
+                end: 20398429,
+                gained: 27464
+              }
+            }
+          }
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the player does not have any associated deltas in a period.',
+        body: {
+          message: "Couldn't find month deltas for that player."
+        }
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.'
+        }
+      }
+    ]
+  },
+  {
+    title: 'View player records',
+    url: '/players/:id/records',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id."
+      }
+    ],
+    query: [
+      {
+        field: 'period',
+        type: 'string',
+        description: "The record's period (See accepted values above) - Optional"
+      },
+      {
+        field: 'metric',
+        type: 'string',
+        description: "The record's metric (See accepted values above) - Optional"
+      }
+    ],
+    successResponses: [
+      {
+        description: 'Without any period or metric filtering (Not showing the whole response)',
+        body: [
+          {
+            period: 'day',
+            metric: 'firemaking',
+            value: 16450,
+            updatedAt: '2020-04-04T16:21:50.974Z'
+          },
+          {
+            period: 'month',
+            metric: 'magic',
+            value: 57662,
+            updatedAt: '2020-04-03T23:58:29.522Z'
+          },
+          {
+            period: 'day',
+            metric: 'fletching',
+            value: 4795,
+            updatedAt: '2020-04-04T16:21:50.974Z'
+          },
+          {
+            period: 'day',
+            metric: 'overall',
+            value: 123085,
+            updatedAt: '2020-04-04T16:21:50.907Z'
+          }
+        ]
+      },
+      {
+        description: 'Filtered by the metric field (Woodcutting)',
+        body: [
+          {
+            period: 'week',
+            metric: 'woodcutting',
+            value: 101659,
+            updatedAt: '2020-04-04T16:21:51.060Z'
+          },
+          {
+            period: 'year',
+            metric: 'woodcutting',
+            value: 3225180,
+            updatedAt: '2020-04-04T16:21:51.291Z'
+          },
+          {
+            period: 'month',
+            metric: 'woodcutting',
+            value: 290949,
+            updatedAt: '2020-04-04T16:21:51.185Z'
+          },
+          {
+            period: 'day',
+            metric: 'woodcutting',
+            value: 101659,
+            updatedAt: '2020-04-04T16:21:50.919Z'
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.'
+        }
+      },
+      {
+        description: 'If metric is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidMetric.'
         }
       }
     ]
