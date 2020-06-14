@@ -15,5 +15,6 @@ api.get('/:id', controller.details);
 api.get('/:id/achievements', controller.achievements);
 api.get('/:id/competitions', controller.competitions);
 api.get('/:id/gained', controller.gained);
+api.get('/:id/snapshots', controller.snapshots);
 
 module.exports = api;

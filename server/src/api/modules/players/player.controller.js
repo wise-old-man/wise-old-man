@@ -3,6 +3,7 @@ const playerService = require('./player.service');
 const achievementService = require('../achievements/achievement.service');
 const competitionService = require('../competitions/competition.service');
 const deltaService = require('../deltas/delta.service');
+const snapshotService = require('../snapshots/snapshot.service');
 
 // GET /players/search?username={username}
 async function search(req, res, next) {
@@ -139,6 +140,22 @@ async function gained(req, res, next) {
   }
 }
 
+// GET /players/:id/snapshots
+async function snapshots(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { period } = req.query;
+
+    const playerSnapshots = period
+      ? await snapshotService.getAllInPeriod(id, period)
+      : await snapshotService.getAllGrouped(id);
+
+    res.json(playerSnapshots);
+  } catch (e) {
+    next(e);
+  }
+}
+
 exports.search = search;
 exports.track = track;
 exports.assertType = assertType;
@@ -148,3 +165,4 @@ exports.details = details;
 exports.achievements = achievements;
 exports.competitions = competitions;
 exports.gained = gained;
+exports.snapshots = snapshots;
