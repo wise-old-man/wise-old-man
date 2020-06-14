@@ -1,4 +1,4 @@
-export default {
+export = {
   up: queryInterface => {
     return queryInterface.removeColumn('participations', 'startSnapshotId');
   },

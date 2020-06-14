@@ -14,7 +14,7 @@ function getBossColumns(Sequelize) {
   ]).flat();
 }
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     const newColumns = [...getActivityColumns(Sequelize), ...getBossColumns(Sequelize)];
 

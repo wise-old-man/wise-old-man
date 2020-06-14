@@ -1,6 +1,6 @@
 import { periods } from '../../api/constants/periods';
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('deltas', {
       id: {

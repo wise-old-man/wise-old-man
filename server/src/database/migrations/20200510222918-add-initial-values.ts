@@ -11,7 +11,7 @@ function buildDynamicSchema(DataTypes) {
   return obj;
 }
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('initialValues', {
       id: {

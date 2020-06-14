@@ -1,4 +1,4 @@
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('players', 'displayName', {
       type: Sequelize.STRING(20)

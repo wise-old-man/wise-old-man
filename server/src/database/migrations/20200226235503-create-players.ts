@@ -1,6 +1,6 @@
 import { playerTypes } from '../../api/constants/playerTypes';
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('players', {
       id: {

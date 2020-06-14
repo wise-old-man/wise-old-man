@@ -1,4 +1,4 @@
-export default {
+export = {
   up: queryInterface => {
     return queryInterface.addIndex('deltas', ['playerId', 'period'], {
       indexName: 'deltas_playerId_period',

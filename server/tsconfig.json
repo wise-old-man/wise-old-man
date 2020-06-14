@@ -1,25 +1,17 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "sourceMap": true,
-        "moduleResolution": "node",
-        "target": "es6",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "outDir": "dist",
-        "importHelpers": true,
-        "baseUrl": ".",
-        "types": [
-            "node"
-        ],
-        "lib": [
-            "es6",
-            "es2017",
-            "esnext"
-        ]
-    },
-    "exclude": [
-        "node_modules",
-        "dist"
-    ]
+  "compilerOptions": {
+    "module": "commonjs",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "target": "es6",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "importHelpers": true,
+    "baseUrl": ".",
+    "types": ["node"],
+    "lib": ["es6", "es2017", "esnext"]
+  },
+  "exclude": ["node_modules", "dist"]
 }

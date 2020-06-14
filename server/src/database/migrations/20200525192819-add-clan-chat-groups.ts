@@ -1,4 +1,4 @@
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('groups', 'clanChat', {
       type: Sequelize.STRING(20)

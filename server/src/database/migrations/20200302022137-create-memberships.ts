@@ -1,6 +1,6 @@
 import { roles } from '../../api/constants/roles';
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('memberships', {
       playerId: {

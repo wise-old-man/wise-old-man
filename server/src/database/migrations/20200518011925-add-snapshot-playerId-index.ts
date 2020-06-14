@@ -1,4 +1,4 @@
-export default {
+export = {
   up: queryInterface => {
     return queryInterface.addIndex('snapshots', ['playerId'], {
       indexName: 'snapshots_playerId'

@@ -1,6 +1,6 @@
 import { periods } from '../../api/constants/periods';
 
-export default {
+export = {
   up: queryInterface => {
     return queryInterface.dropTable('deltas');
   },

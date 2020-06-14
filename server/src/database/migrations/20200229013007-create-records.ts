@@ -1,7 +1,7 @@
 import { periods } from '../../api/constants/periods';
 import { ALL_METRICS } from '../../api/constants/metrics';
 
-export default {
+export = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('records', {
       id: {
