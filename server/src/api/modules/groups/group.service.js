@@ -29,7 +29,7 @@ function format(group) {
 /**
  * Returns a list of all groups that partially match the given name.
  */
-async function list(name, pagination) {
+async function getList(name, pagination) {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
@@ -50,7 +50,7 @@ async function list(name, pagination) {
 /**
  * Returns a list of all groups of which a given player is a member.
  */
-async function findForPlayer(playerId, pagination) {
+async function getPlayerGroups(playerId, pagination = { limit: 10000, offset: 0 }) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -106,7 +106,7 @@ async function attachMembersCount(groups) {
 /**
  * Get all the data on a given group. (Info and members)
  */
-async function view(id) {
+async function getDetails(id) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -971,10 +971,15 @@ async function calculateScore(group) {
   return score;
 }
 
+// Utils
 exports.format = format;
-exports.list = list;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
+exports.getMembers = getMembers;
+exports.findOne = findOne;
+
+// Handlers
+exports.getList = getList;
+exports.getDetails = getDetails;
+exports.getPlayerGroups = getPlayerGroups;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
 exports.getGained = getGained;
 exports.getAchievements = getAchievements;
@@ -988,7 +993,5 @@ exports.destroy = destroy;
 exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
-exports.getMembers = getMembers;
-exports.findOne = findOne;
 exports.updateAllMembers = updateAllMembers;
 exports.refreshScores = refreshScores;

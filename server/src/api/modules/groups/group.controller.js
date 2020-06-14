@@ -3,104 +3,150 @@ const pagination = require('../../util/pagination');
 const groupService = require('./group.service');
 const competitionService = require('../competitions/competition.service');
 
-async function listGroups(req, res, next) {
+// GET /groups
+async function index(req, res, next) {
   try {
-    const { name, playerId, limit, offset } = req.query;
+    const { name, limit, offset } = req.query;
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
+    /*
     if (playerId) {
       const results = await groupService.findForPlayer(playerId, paginationConfig);
       res.json(results);
     } else {
-      const results = await groupService.list(name, paginationConfig);
-      res.json(results);
-    }
+      */
+    const results = await groupService.getList(name, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function viewGroup(req, res, next) {
+// POST /groups
+async function create(req, res, next) {
+  try {
+    const { name, clanChat, members } = req.body;
+
+    // Create a new group, with the given params
+    const group = await groupService.create(name, clanChat, members);
+
+    res.status(201).json(group);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id
+async function details(req, res, next) {
   try {
     const { id } = req.params;
+    const group = await groupService.getDetails(id);
 
-    const group = await groupService.view(id);
     res.json(group);
   } catch (e) {
     next(e);
   }
 }
 
-async function monthlyTop(req, res, next) {
+// PUT /groups/:id
+async function edit(req, res, next) {
   try {
     const { id } = req.params;
+    const { name, clanChat, members, verificationCode } = req.body;
 
-    const topPlayer = await groupService.getMonthlyTopPlayer(id);
-    res.json(topPlayer);
+    // Edit the group with the given params (these will override any existing properties)
+    const group = await groupService.edit(id, name, clanChat, verificationCode, members);
+
+    res.json(group);
   } catch (e) {
     next(e);
   }
 }
 
-async function gained(req, res, next) {
+// DELETE /groups/:id
+async function remove(req, res, next) {
   try {
     const { id } = req.params;
-    const { metric, period, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+    const { verificationCode } = req.body;
 
-    const results = await groupService.getGained(id, period, metric, paginationConfig);
+    const groupName = await groupService.destroy(id, verificationCode);
+    const message = `Successfully deleted group '${groupName}'. (id: ${id})`;
 
-    res.json(results);
+    res.json({ message });
   } catch (e) {
     next(e);
   }
 }
 
-async function achievements(req, res, next) {
+// PUT /groups/:id/change-role
+async function changeRole(req, res, next) {
   try {
     const { id } = req.params;
-    const { limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+    const { username, role, verificationCode } = req.body;
 
-    const results = await groupService.getAchievements(id, paginationConfig);
-    res.json(results);
+    const result = await groupService.changeRole(id, username, role, verificationCode);
+
+    res.json(result);
   } catch (e) {
     next(e);
   }
 }
 
-async function records(req, res, next) {
+// POST /groups/:id/update-all
+async function updateAll(req, res, next) {
   try {
     const { id } = req.params;
-    const { metric, period, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const results = await groupService.getRecords(id, metric, period, paginationConfig);
-    res.json(results);
+    const members = await groupService.updateAllMembers(id, player => {
+      // Attempt this 5 times per player, waiting 65 seconds in between
+      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+    });
+
+    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
+
+    res.json({ message });
   } catch (e) {
     next(e);
   }
 }
 
-async function hiscores(req, res, next) {
+// POST /groups/:id/add-members
+async function addMembers(req, res, next) {
   try {
     const { id } = req.params;
-    const { metric, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+    const { verificationCode, members } = req.body;
 
-    const results = await groupService.getHiscores(id, metric, paginationConfig);
-    res.json(results);
+    const result = await groupService.addMembers(id, verificationCode, members);
+
+    res.json({ members: result });
   } catch (e) {
     next(e);
   }
 }
 
-async function statistics(req, res, next) {
+// POST /groups/:id/remove-members
+async function removeMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { verificationCode, members } = req.body;
+
+    const count = await groupService.removeMembers(id, verificationCode, members);
+    const message = `Successfully removed ${count} members from group of id: ${id}`;
+
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/members
+async function listMembers(req, res, next) {
   try {
     const { id } = req.params;
 
-    const results = await groupService.getStatistics(id);
-    res.json(results);
+    const membersList = await groupService.getMembersList(id);
+    res.json(membersList);
   } catch (e) {
     next(e);
   }
@@ -120,105 +166,100 @@ async function competitions(req, res, next) {
   }
 }
 
-async function listMembers(req, res, next) {
+// GET /groups/:id/monthly-top
+async function monthlyTop(req, res, next) {
   try {
     const { id } = req.params;
 
-    const membersList = await groupService.getMembersList(id);
-    res.json(membersList);
+    // Get the member with the most monthly overall gains
+    const topPlayer = await groupService.getMonthlyTopPlayer(id);
+
+    res.json(topPlayer);
   } catch (e) {
     next(e);
   }
 }
 
-async function createGroup(req, res, next) {
-  try {
-    const { name, clanChat, members } = req.body;
-
-    const group = await groupService.create(name, clanChat, members);
-    res.status(201).json(group);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function editGroup(req, res, next) {
+// GET /groups/:id/gained
+async function gained(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, clanChat, members, verificationCode } = req.body;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const group = await groupService.edit(id, name, clanChat, verificationCode, members);
-    res.json(group);
+    const results = await groupService.getGained(id, period, metric, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function deleteGroup(req, res, next) {
+// GET /groups/:id/achievements
+async function achievements(req, res, next) {
   try {
     const { id } = req.params;
-    const { verificationCode } = req.body;
+    const { limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const groupName = await groupService.destroy(id, verificationCode);
-    res.json({ message: `Successfully deleted group '${groupName}'. (id: ${id})` });
+    const results = await groupService.getAchievements(id, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function addMembers(req, res, next) {
+// GET /groups/:id/records
+async function records(req, res, next) {
   try {
     const { id } = req.params;
-    const { verificationCode, members } = req.body;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const result = await groupService.addMembers(id, verificationCode, members);
-    res.json({ members: result });
+    const results = await groupService.getRecords(id, metric, period, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function removeMembers(req, res, next) {
+// GET /groups/:id/hiscores
+async function hiscores(req, res, next) {
   try {
     const { id } = req.params;
-    const { verificationCode, members } = req.body;
+    const { metric, limit, offset } = req.query;
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const count = await groupService.removeMembers(id, verificationCode, members);
-    res.json({ message: `Successfully removed ${count} members from group of id: ${id}` });
+    const results = await groupService.getHiscores(id, metric, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function changeRole(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { username, role, verificationCode } = req.body;
-
-    const result = await groupService.changeRole(id, username, role, verificationCode);
-    res.json(result);
-  } catch (e) {
-    next(e);
-  }
-}
-async function updateAllMembers(req, res, next) {
+// GET /groups/:id/statistics
+async function statistics(req, res, next) {
   try {
     const { id } = req.params;
 
-    const members = await groupService.updateAllMembers(id, player => {
-      // Attempt this 5 times per player, waiting 65 seconds in between
-      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
-    });
+    const results = await groupService.getStatistics(id);
 
-    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
-    res.json({ message });
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-exports.listGroups = listGroups;
-exports.viewGroup = viewGroup;
+exports.index = index;
+exports.create = create;
+exports.edit = edit;
+exports.remove = remove;
+exports.changeRole = changeRole;
+exports.updateAll = updateAll;
+exports.details = details;
 exports.monthlyTop = monthlyTop;
 exports.gained = gained;
 exports.achievements = achievements;
@@ -227,10 +268,5 @@ exports.hiscores = hiscores;
 exports.statistics = statistics;
 exports.competitions = competitions;
 exports.listMembers = listMembers;
-exports.createGroup = createGroup;
-exports.editGroup = editGroup;
-exports.deleteGroup = deleteGroup;
 exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
-exports.changeRole = changeRole;
-exports.updateAllMembers = updateAllMembers;

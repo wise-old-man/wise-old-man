@@ -2,6 +2,7 @@ const jobs = require('../../jobs');
 const playerService = require('./player.service');
 const achievementService = require('../achievements/achievement.service');
 const competitionService = require('../competitions/competition.service');
+const groupService = require('../groups/group.service');
 const deltaService = require('../deltas/delta.service');
 const snapshotService = require('../snapshots/snapshot.service');
 const recordService = require('../records/record.service');
@@ -125,6 +126,20 @@ async function competitions(req, res, next) {
   }
 }
 
+// GET /players/:id/groups
+async function groups(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // Get all player groups (by player id)
+    const playerGroups = await groupService.getPlayerGroups(id);
+
+    res.json(playerGroups);
+  } catch (e) {
+    next(e);
+  }
+}
+
 // GET /players/:id/gained
 async function gained(req, res, next) {
   try {
@@ -179,6 +194,7 @@ exports.importPlayer = importPlayer;
 exports.details = details;
 exports.achievements = achievements;
 exports.competitions = competitions;
+exports.groups = groups;
 exports.gained = gained;
 exports.records = records;
 exports.snapshots = snapshots;
