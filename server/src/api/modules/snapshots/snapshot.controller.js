@@ -8,7 +8,7 @@ async function get(req, res, next) {
       ? await service.findAllInPeriod(playerId, period)
       : await service.findAllGrouped(playerId);
 
-    res.status(200).json(snapshots);
+    res.json(snapshots);
   } catch (e) {
     next(e);
   }

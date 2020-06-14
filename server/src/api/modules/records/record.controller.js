@@ -19,7 +19,7 @@ async function leaderboard(req, res, next) {
       ? await service.getPeriodLeaderboard(metric, period, playerType)
       : await service.getLeaderboard(metric, playerType);
 
-    res.status(200).json(result);
+    res.json(result);
   } catch (e) {
     next(e);
   }

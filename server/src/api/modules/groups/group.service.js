@@ -151,7 +151,7 @@ async function getMonthlyTopPlayer(groupId) {
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getDeltas(groupId, period, metric, pagination) {
+async function getGained(groupId, period, metric, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -976,7 +976,7 @@ exports.list = list;
 exports.findForPlayer = findForPlayer;
 exports.view = view;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
-exports.getDeltas = getDeltas;
+exports.getGained = getGained;
 exports.getAchievements = getAchievements;
 exports.getRecords = getRecords;
 exports.getHiscores = getHiscores;

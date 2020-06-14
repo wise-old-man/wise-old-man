@@ -16,7 +16,7 @@ api.post('/:id/update-all', controller.updateAllMembers);
 api.get('/:id', controller.viewGroup);
 api.get('/:id/monthly-top', controller.monthlyTop);
 api.get('/:id/competitions', controller.competitions);
-api.get('/:id/deltas', controller.deltas);
+api.get('/:id/gained', controller.gained);
 api.get('/:id/achievements', controller.achievements);
 api.get('/:id/records', controller.records);
 api.get('/:id/hiscores', controller.hiscores);

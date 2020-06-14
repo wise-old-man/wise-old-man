@@ -42,15 +42,15 @@ async function monthlyTop(req, res, next) {
   }
 }
 
-async function deltas(req, res, next) {
+async function gained(req, res, next) {
   try {
     const { id } = req.params;
     const { metric, period, limit, offset } = req.query;
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const results = await groupService.getDeltas(id, period, metric, paginationConfig);
+    const results = await groupService.getGained(id, period, metric, paginationConfig);
 
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -63,7 +63,7 @@ async function achievements(req, res, next) {
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     const results = await groupService.getAchievements(id, paginationConfig);
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -76,7 +76,7 @@ async function records(req, res, next) {
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     const results = await groupService.getRecords(id, metric, period, paginationConfig);
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -89,7 +89,7 @@ async function hiscores(req, res, next) {
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     const results = await groupService.getHiscores(id, metric, paginationConfig);
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -100,7 +100,7 @@ async function statistics(req, res, next) {
     const { id } = req.params;
 
     const results = await groupService.getStatistics(id);
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -220,7 +220,7 @@ async function updateAllMembers(req, res, next) {
 exports.listGroups = listGroups;
 exports.viewGroup = viewGroup;
 exports.monthlyTop = monthlyTop;
-exports.deltas = deltas;
+exports.gained = gained;
 exports.achievements = achievements;
 exports.records = records;
 exports.hiscores = hiscores;
