@@ -9,7 +9,6 @@ const { getNextProxy } = require('../../proxies');
 const { getCombatLevel } = require('../../util/level');
 const { getHiscoresTableNames } = require('../../util/scraping');
 
-const WEEK_IN_SECONDS = 604800;
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
 
@@ -88,7 +87,7 @@ function shouldImport(lastImportedAt) {
 /**
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getData(username) {
+async function getDetails(username) {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -110,7 +109,7 @@ async function getData(username) {
 /**
  * Get the latest date on a given player id. (Player info and latest snapshot)
  */
-async function getDataById(id) {
+async function getDetailsById(id) {
   if (!id) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -179,12 +178,15 @@ async function update(username) {
 
     // Convert the csv data to a Snapshot instance (saved in the DB)
     const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+    const formattedSnapshot = snapshotService.format(currentSnapshot);
 
     // Update the "updatedAt" timestamp on the player model
     await player.changed('updatedAt', true);
     await player.save();
 
-    return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
+    const formatted = { ...player.toJSON(), latestSnapshot: formattedSnapshot };
+
+    return [formatted, created];
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
@@ -320,7 +322,6 @@ async function assertType(username, force = false) {
   }
 
   const formattedUsername = standardize(username);
-
   const player = await find(formattedUsername);
 
   if (!player) {
@@ -404,6 +405,7 @@ async function findOrCreate(username) {
     where: { username: standardize(username) },
     defaults: { displayName: sanitize(username) }
   });
+
   return result;
 }
 
@@ -500,20 +502,23 @@ async function getHiscoresNames(username) {
   }
 }
 
+// Utils
 exports.standardize = standardize;
 exports.sanitize = sanitize;
 exports.isValidUsername = isValidUsername;
 exports.shouldUpdate = shouldUpdate;
 exports.shouldImport = shouldImport;
-exports.getDataById = getDataById;
-exports.getData = getData;
-exports.search = search;
-exports.update = update;
-exports.importCML = importCML;
-exports.assertType = assertType;
-exports.assertName = assertName;
 exports.find = find;
 exports.findById = findById;
 exports.findOrCreate = findOrCreate;
 exports.findAllOrCreate = findAllOrCreate;
 exports.findAll = findAll;
+
+// Endpoints
+exports.getDetailsById = getDetailsById;
+exports.getDetails = getDetails;
+exports.search = search;
+exports.update = update;
+exports.importCML = importCML;
+exports.assertType = assertType;
+exports.assertName = assertName;

@@ -1,81 +1,97 @@
 const jobs = require('../../jobs');
-const service = require('./player.service');
+const playerService = require('./player.service');
 
-async function get(req, res, next) {
+// GET /players/:id
+// GET /players/username/:username
+async function details(req, res, next) {
   try {
-    const { id, username } = req.query;
+    const { id, username } = req.params;
 
-    const player = username ? await service.getData(username) : await service.getDataById(id);
+    // Get player details, by id or username
+    const player = username
+      ? await playerService.getDetails(username)
+      : await playerService.getDetailsById(id);
+
     res.json(player);
   } catch (e) {
     next(e);
   }
 }
 
+// GET /players/search?username={username}
 async function search(req, res, next) {
   try {
     const { username } = req.query;
 
-    const player = await service.search(username);
-    res.json(player);
+    // Search for players with a partial username match
+    const players = await playerService.search(username);
+
+    res.json(players);
   } catch (e) {
     next(e);
   }
 }
 
+// POST /players/track/
 async function track(req, res, next) {
   try {
     const { username } = req.body;
 
     // Update the player, by creating a new snapshot
-    const player = await service.update(username);
+    const [player, isNew] = await playerService.update(username);
 
-    // Run secondary jobs
+    // Run secondary job
     jobs.add('ImportPlayer', { player });
 
-    // Send the http response back
-    res.status(200).json(player);
+    res.status(isNew ? 201 : 200).json(player);
   } catch (e) {
     next(e);
   }
 }
 
+// POST /players/assert-type
 async function assertType(req, res, next) {
   try {
     const { username } = req.body;
 
-    const type = await service.assertType(username, true);
-    res.status(200).json({ type });
+    // (Forcefully) Assert the player's account type
+    const type = await playerService.assertType(username, true);
+
+    res.json({ type });
   } catch (e) {
     next(e);
   }
 }
 
+// POST /players/assert-name
 async function assertName(req, res, next) {
   try {
     const { username } = req.body;
 
-    const name = await service.assertName(username);
-    res.status(200).json({ displayName: name });
+    // Assert the player's displayName (via hiscores lookup)
+    const name = await playerService.assertName(username);
+
+    res.json({ displayName: name });
   } catch (e) {
     next(e);
   }
 }
 
+// POST /players/import
 async function importPlayer(req, res, next) {
   try {
     const { username } = req.body;
 
-    const history = await service.importCML(username);
-    const message = `${history.length} snapshots imported from CML`;
+    // Attempt to import the player's history from CML
+    const history = await playerService.importCML(username);
 
-    res.status(200).json({ message });
+    res.json({ message: `${history.length} snapshots imported from CML` });
   } catch (e) {
     next(e);
   }
 }
 
-exports.get = get;
+exports.details = details;
 exports.search = search;
 exports.track = track;
 exports.assertType = assertType;

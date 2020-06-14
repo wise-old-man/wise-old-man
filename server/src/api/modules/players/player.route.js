@@ -3,11 +3,13 @@ const controller = require('./player.controller');
 
 const api = express.Router();
 
-api.get('/', controller.get);
 api.get('/search', controller.search);
 api.post('/track', controller.track);
 api.post('/import', controller.importPlayer);
 api.post('/assert-type', controller.assertType);
 api.post('/assert-name', controller.assertName);
+
+api.get('/username/:username', controller.details);
+api.get('/:id', controller.details);
 
 module.exports = api;
