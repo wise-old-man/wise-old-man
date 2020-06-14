@@ -28,7 +28,7 @@ function format(competition) {
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function list(title, status, metric, pagination) {
+async function getList(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
   if (status && !STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -84,7 +84,7 @@ async function list(title, status, metric, pagination) {
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function findForGroup(groupId, pagination) {
+async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset: 0 }) {
   const competitions = await Competition.findAll({
     where: { groupId },
     order: [['score', 'DESC']],
@@ -103,7 +103,7 @@ async function findForGroup(groupId, pagination) {
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function findForPlayer(playerId, pagination) {
+async function getPlayerCompetitions(playerId, pagination = { limit: 10000, offset: 0 }) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -162,7 +162,7 @@ async function attachParticipantCount(competitions) {
 /**
  * Get all the data on a given competition.
  */
-async function view(id) {
+async function getDetails(id) {
   if (!id) {
     throw new BadRequestError('Invalid competition id.');
   }
@@ -739,7 +739,7 @@ async function calculateScore(competition) {
     return score;
   }
 
-  const data = await view(competition.id);
+  const data = await getDetails(competition.id);
   const activeParticipants = data.participants.filter(p => p.progress.gained > 0);
   const averageGained = data.totalGained / activeParticipants.length;
 
@@ -828,16 +828,16 @@ async function calculateScore(competition) {
   return score;
 }
 
-exports.list = list;
-exports.findForGroup = findForGroup;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
+exports.getList = getList;
+exports.getGroupCompetitions = getGroupCompetitions;
+exports.getPlayerCompetitions = getPlayerCompetitions;
+exports.getDetails = getDetails;
+exports.getParticipants = getParticipants;
 exports.create = create;
 exports.edit = edit;
 exports.destroy = destroy;
 exports.addParticipants = addParticipants;
 exports.removeParticipants = removeParticipants;
-exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
 exports.updateAllParticipants = updateAllParticipants;

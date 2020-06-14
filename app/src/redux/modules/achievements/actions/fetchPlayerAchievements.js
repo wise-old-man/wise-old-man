@@ -31,8 +31,8 @@ export default function fetchAchievements({ playerId }) {
   return dispatch => {
     dispatch(fetchAchievementsRequest());
 
-    const url = `${BASE_API_URL}/achievements/`;
-    const params = { playerId, includeMissing: true };
+    const url = `${BASE_API_URL}/players/${playerId}/achievements`;
+    const params = { includeMissing: true };
 
     return axios
       .get(url, { params })

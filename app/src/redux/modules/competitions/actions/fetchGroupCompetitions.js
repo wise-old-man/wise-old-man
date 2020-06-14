@@ -31,11 +31,10 @@ export default function fetchCompetitions(groupId) {
   return dispatch => {
     dispatch(fetchCompetitionsRequest());
 
-    const url = `${BASE_API_URL}/competitions/`;
-    const params = { groupId };
+    const url = `${BASE_API_URL}/groups/${groupId}/competitions/`;
 
     return axios
-      .get(url, { params })
+      .get(url)
       .then(result => dispatch(fetchCompetitionsSuccess(result.data, groupId)))
       .catch(error => dispatch(fetchCompetitionsFailure(error)));
   };

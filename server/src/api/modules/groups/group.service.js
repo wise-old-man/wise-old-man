@@ -29,7 +29,7 @@ function format(group) {
 /**
  * Returns a list of all groups that partially match the given name.
  */
-async function list(name, pagination) {
+async function getList(name, pagination) {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
     where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
@@ -50,7 +50,7 @@ async function list(name, pagination) {
 /**
  * Returns a list of all groups of which a given player is a member.
  */
-async function findForPlayer(playerId, pagination) {
+async function getPlayerGroups(playerId, pagination = { limit: 10000, offset: 0 }) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -106,7 +106,7 @@ async function attachMembersCount(groups) {
 /**
  * Get all the data on a given group. (Info and members)
  */
-async function view(id) {
+async function getDetails(id) {
   if (!id) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -117,7 +117,10 @@ async function view(id) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  return format(group);
+  // Format, and calculate the "memberCount" property
+  const formattedGroup = await attachMembersCount([format(group)]);
+
+  return formattedGroup;
 }
 
 async function getMonthlyTopPlayer(groupId) {
@@ -148,7 +151,7 @@ async function getMonthlyTopPlayer(groupId) {
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getDeltas(groupId, period, metric, pagination) {
+async function getGained(groupId, period, metric, pagination) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
@@ -913,7 +916,7 @@ async function calculateScore(group) {
 
   const now = new Date();
   const members = await getMembersList(group.id);
-  const competitions = await competitionService.findForGroup(group.id, { limit: 10000, offset: 0 });
+  const competitions = await competitionService.getGroupCompetitions(group.id);
   const averageOverallExp = members.reduce((acc, cur) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {
@@ -968,12 +971,17 @@ async function calculateScore(group) {
   return score;
 }
 
+// Utils
 exports.format = format;
-exports.list = list;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
+exports.getMembers = getMembers;
+exports.findOne = findOne;
+
+// Handlers
+exports.getList = getList;
+exports.getDetails = getDetails;
+exports.getPlayerGroups = getPlayerGroups;
 exports.getMonthlyTopPlayer = getMonthlyTopPlayer;
-exports.getDeltas = getDeltas;
+exports.getGained = getGained;
 exports.getAchievements = getAchievements;
 exports.getRecords = getRecords;
 exports.getHiscores = getHiscores;
@@ -985,7 +993,5 @@ exports.destroy = destroy;
 exports.addMembers = addMembers;
 exports.removeMembers = removeMembers;
 exports.changeRole = changeRole;
-exports.getMembers = getMembers;
-exports.findOne = findOne;
 exports.updateAllMembers = updateAllMembers;
 exports.refreshScores = refreshScores;

@@ -31,11 +31,10 @@ export default function fetchPlayerRecords({ playerId }) {
   return dispatch => {
     dispatch(fetchPlayerRecordsRequest());
 
-    const url = `${BASE_API_URL}/records/`;
-    const params = { playerId };
+    const url = `${BASE_API_URL}/players/${playerId}/records/`;
 
     return axios
-      .get(url, { params })
+      .get(url)
       .then(result => dispatch(fetchPlayerRecordsSuccess(playerId, result.data)))
       .catch(error => dispatch(fetchPlayerRecordsFailure(error)));
   };
