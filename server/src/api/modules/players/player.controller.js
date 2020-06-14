@@ -1,22 +1,6 @@
 const jobs = require('../../jobs');
 const playerService = require('./player.service');
-
-// GET /players/:id
-// GET /players/username/:username
-async function details(req, res, next) {
-  try {
-    const { id, username } = req.params;
-
-    // Get player details, by id or username
-    const player = username
-      ? await playerService.getDetails(username)
-      : await playerService.getDetailsById(id);
-
-    res.json(player);
-  } catch (e) {
-    next(e);
-  }
-}
+const achievementService = require('../achievements/achievement.service');
 
 // GET /players/search?username={username}
 async function search(req, res, next) {
@@ -91,9 +75,42 @@ async function importPlayer(req, res, next) {
   }
 }
 
-exports.details = details;
+// GET /players/:id
+// GET /players/username/:username
+async function details(req, res, next) {
+  try {
+    const { id, username } = req.params;
+
+    // Get player details, by id or username
+    const player = username
+      ? await playerService.getDetails(username)
+      : await playerService.getDetailsById(id);
+
+    res.json(player);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /players/:id/achievements
+async function achievements(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { includeMissing } = req.query;
+
+    // Get all player achievements (by player id)
+    const playerAchievements = await achievementService.getPlayerAchievements(id, includeMissing);
+
+    res.json(playerAchievements);
+  } catch (e) {
+    next(e);
+  }
+}
+
 exports.search = search;
 exports.track = track;
 exports.assertType = assertType;
 exports.assertName = assertName;
 exports.importPlayer = importPlayer;
+exports.details = details;
+exports.achievements = achievements;

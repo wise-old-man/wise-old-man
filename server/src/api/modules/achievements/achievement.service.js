@@ -8,6 +8,7 @@ const {
   getMeasure,
   getDifficultyFactor
 } = require('../../constants/metrics');
+const { BadRequestError } = require('../../errors');
 const { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } = require('./achievement.templates');
 const { Achievement, sequelize } = require('../../../database');
 const snapshotService = require('../snapshots/snapshot.service');
@@ -310,10 +311,16 @@ async function syncAchievements(playerId) {
  * If includeMissing, it will also include the missing
  * achievements, with a "missing" field set to true.
  */
-async function findAll(playerId, includeMissing = false) {
-  const achievements = await Achievement.findAll({
-    where: { playerId }
-  }).map(a => a.toJSON());
+async function getPlayerAchievements(playerId, includeMissing = false) {
+  if (!playerId) {
+    throw new BadRequestError('Invalid player id.');
+  }
+
+  const achievements = (
+    await Achievement.findAll({
+      where: { playerId }
+    })
+  ).map(a => a.toJSON());
 
   if (!includeMissing) {
     return achievements;
@@ -354,5 +361,5 @@ async function findAllForGroup(playerIds, pagination) {
 
 exports.syncAchievements = syncAchievements;
 exports.reevaluateAchievements = reevaluateAchievements;
-exports.findAll = findAll;
+exports.getPlayerAchievements = getPlayerAchievements;
 exports.findAllForGroup = findAllForGroup;

@@ -10,6 +10,8 @@ api.post('/assert-type', controller.assertType);
 api.post('/assert-name', controller.assertName);
 
 api.get('/username/:username', controller.details);
+
 api.get('/:id', controller.details);
+api.get('/:id/achievements', controller.achievements);
 
 module.exports = api;
