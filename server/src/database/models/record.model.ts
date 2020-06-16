@@ -9,7 +9,9 @@ import {
   AutoIncrement,
   Model,
   ForeignKey,
-  BelongsTo
+  BelongsTo,
+  AllowNull,
+  Default
 } from 'sequelize-typescript';
 import { Player } from '.';
 
@@ -45,12 +47,13 @@ export default class Record extends Model<Record> {
   id: number;
 
   @ForeignKey(() => Player)
-  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
+  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
+  @AllowNull(false)
   @Column({
     type: DataType.ENUM(...periods),
-    allowNull: false,
     validate: {
       args: [periods],
       msg: 'Invalid period'
@@ -58,9 +61,9 @@ export default class Record extends Model<Record> {
   })
   period: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.ENUM(...ALL_METRICS),
-    allowNull: false,
     validate: {
       isIn: {
         args: [ALL_METRICS],
@@ -70,9 +73,9 @@ export default class Record extends Model<Record> {
   })
   metric: string;
 
+  @Default(0)
   @Column({
     type: DataType.BIGINT,
-    defaultValue: 0,
     get() {
       // As experience (overall) can exceed the integer maximum of 2.147b,
       // we have to store it into a BIGINT, however, sequelize returns bigints
@@ -82,7 +85,7 @@ export default class Record extends Model<Record> {
   })
   value: number;
 
-  @BelongsTo(() => Player, 'playerId')
+  @BelongsTo(() => Player)
   player: Player;
 }
 

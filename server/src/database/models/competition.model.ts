@@ -8,9 +8,11 @@ import {
   Model,
   ForeignKey,
   BelongsToMany,
-  BelongsTo
+  BelongsTo,
+  AllowNull,
+  Default
 } from 'sequelize-typescript';
-import { Group, Player } from '.';
+import { Group, Player, Participation } from '.';
 
 // Define other table options
 const options = {
@@ -41,9 +43,9 @@ export default class Competition extends Model<Competition> {
   @Column({ type: DataType.INTEGER })
   id: number;
 
+  @AllowNull(false)
   @Column({
     type: DataType.STRING(30),
-    allowNull: false,
     validate: {
       len: {
         args: [1, 30],
@@ -53,9 +55,9 @@ export default class Competition extends Model<Competition> {
   })
   title: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.ENUM(...ALL_METRICS),
-    allowNull: false,
     validate: {
       isIn: {
         args: [ALL_METRICS],
@@ -65,21 +67,21 @@ export default class Competition extends Model<Competition> {
   })
   metric: string;
 
-  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  @Default(0)
+  @Column({ type: DataType.INTEGER })
   score: number;
 
-  @Column({
-    type: DataType.VIRTUAL,
-    allowNull: false
-  })
+  @AllowNull(false)
+  @Column({ type: DataType.VIRTUAL })
   verificationCode: any;
 
-  @Column({ type: DataType.STRING, allowNull: false })
+  @AllowNull(false)
+  @Column({ type: DataType.STRING })
   verificationHash: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
-    allowNull: false,
     validate: {
       isDate: {
         args: true,
@@ -89,6 +91,7 @@ export default class Competition extends Model<Competition> {
   })
   startsAt: Date;
 
+  @AllowNull(false)
   @Column({
     type: DataType.DATE,
     allowNull: false,
@@ -105,12 +108,12 @@ export default class Competition extends Model<Competition> {
   @Column({ type: DataType.INTEGER, onDelete: 'SET NULL' })
   groupId: number;
 
-  @BelongsTo(() => Group, 'groupId')
+  @BelongsTo(() => Group)
   group: Group;
 
   @BelongsToMany(() => Player, {
     as: 'participants',
-    through: 'participations',
+    through: () => Participation,
     foreignKey: 'competitionId'
   })
   participants: Player[];

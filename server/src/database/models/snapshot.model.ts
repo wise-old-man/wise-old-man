@@ -7,7 +7,8 @@ import {
   PrimaryKey,
   AutoIncrement,
   ForeignKey,
-  BelongsTo
+  BelongsTo,
+  AllowNull
 } from 'sequelize-typescript';
 import { Player } from '.';
 import HiscoreValues from './hiscoreValues.model';
@@ -37,13 +38,14 @@ export default class Snapshot extends HiscoreValues {
   id: number;
 
   @ForeignKey(() => Player)
-  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
+  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
   @Column({ type: DataType.DATE })
   importedAt: Date;
 
-  @BelongsTo(() => Player, 'playerId')
+  @BelongsTo(() => Player)
   player: Player;
 }
 

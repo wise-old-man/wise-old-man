@@ -5,9 +5,11 @@ import {
   PrimaryKey,
   AutoIncrement,
   Model,
-  BelongsToMany
+  BelongsToMany,
+  AllowNull,
+  Default
 } from 'sequelize-typescript';
-import { Player } from '.';
+import { Player, Membership } from '.';
 
 // Define other table options
 const options = {
@@ -30,9 +32,9 @@ export default class Group extends Model<Group> {
   @Column({ type: DataType.INTEGER })
   id: number;
 
+  @AllowNull(false)
   @Column({
     type: DataType.STRING(30),
-    allowNull: false,
     unique: {
       msg: 'This group name is already taken.',
       name: 'name'
@@ -49,21 +51,21 @@ export default class Group extends Model<Group> {
   @Column({ type: DataType.STRING(20) })
   clanChat: string;
 
-  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  @Default(0)
+  @Column({ type: DataType.INTEGER })
   score: number;
 
-  @Column({
-    type: DataType.VIRTUAL,
-    allowNull: false
-  })
+  @AllowNull(false)
+  @Column({ type: DataType.VIRTUAL })
   verificationCode: any;
 
-  @Column({ type: DataType.STRING, allowNull: false })
+  @AllowNull(false)
+  @Column({ type: DataType.STRING })
   verificationHash: string;
 
   @BelongsToMany(() => Player, {
     as: 'members',
-    through: 'memberships',
+    through: () => Membership,
     otherKey: 'groupId'
   })
   members: Player[];

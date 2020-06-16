@@ -7,9 +7,11 @@ import {
   AutoIncrement,
   Model,
   BelongsToMany,
-  HasMany
+  HasMany,
+  AllowNull,
+  Default
 } from 'sequelize-typescript';
-import { Competition, Group, Snapshot } from '.';
+import { Competition, Group, Snapshot, Participation, Membership } from '.';
 
 // Define other table options
 const options = {
@@ -30,12 +32,13 @@ const options = {
 export default class Player extends Model<Player> {
   @PrimaryKey
   @AutoIncrement
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @AllowNull(false)
+  @Column({ type: DataType.INTEGER })
   id: number;
 
+  @AllowNull(false)
   @Column({
     type: DataType.STRING(20),
-    allowNull: false,
     validate: {
       len: {
         args: [1, 12],
@@ -74,10 +77,10 @@ export default class Player extends Model<Player> {
   })
   displayName: string;
 
+  @AllowNull(false)
+  @Default(playerTypes[0])
   @Column({
     type: DataType.ENUM(...playerTypes),
-    defaultValue: playerTypes[0],
-    allowNull: false,
     validate: {
       isIn: {
         args: [playerTypes],
@@ -90,12 +93,16 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.DATE })
   lastImportedAt: Date;
 
-  @BelongsToMany(() => Competition, 'participantions', 'playerId')
+  @BelongsToMany(() => Competition, {
+    as: 'participants',
+    through: () => Participation,
+    foreignKey: 'playerId'
+  })
   participants: Competition;
 
   @BelongsToMany(() => Group, {
     as: 'members',
-    through: 'memberships',
+    through: () => Membership,
     otherKey: 'playerId'
   })
   memberships: Group;

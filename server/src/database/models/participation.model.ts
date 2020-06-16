@@ -23,10 +23,10 @@ export default class Participation extends Model<Participation> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   competitionId: number;
 
-  @BelongsTo(() => Player, 'playerId')
+  @BelongsTo(() => Player)
   player: Player;
 
-  @BelongsTo(() => Competition, 'competitionId')
+  @BelongsTo(() => Competition)
   competition: Competition;
 }
 

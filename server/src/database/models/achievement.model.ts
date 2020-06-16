@@ -1,4 +1,13 @@
-import { Table, Column, DataType, PrimaryKey, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  Model,
+  ForeignKey,
+  BelongsTo,
+  AllowNull
+} from 'sequelize-typescript';
 import { Player } from '.';
 
 // Define other table options
@@ -22,11 +31,16 @@ const options = {
 export default class Achievement extends Model<Achievement> {
   @PrimaryKey
   @ForeignKey(() => Player)
-  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
+  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
+  @BelongsTo(() => Player)
+  player: Player;
+
   @PrimaryKey
-  @Column({ type: DataType.STRING, allowNull: false })
+  @AllowNull(false)
+  @Column({ type: DataType.STRING })
   type: string;
 
   @Column({ type: DataType.STRING })
@@ -39,9 +53,6 @@ export default class Achievement extends Model<Achievement> {
     }
   })
   threshold: Number;
-
-  @BelongsTo(() => Player, 'playerId')
-  player: Player;
 }
 
 // export default (sequelize, DataTypes) => {
