@@ -20,10 +20,10 @@ function Dropdown({ options, align, onSelect, children }) {
             return (
               <MenuItem
                 key={option.label}
-                className="dropdown-list__item"
-                onClick={() => onSelect(option)}
+                className={classNames({ 'dropdown-list__item': true, 'dropdown-url': option.url })}
+                onClick={!option.url ? () => onSelect(option) : undefined}
               >
-                {option.label}
+                {option.url ? <a href={option.url}>{option.label}</a> : option.label}
               </MenuItem>
             );
           })}
