@@ -1,7 +1,16 @@
 import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../api/constants/metrics';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  ForeignKey,
+  BelongsTo
+} from 'sequelize-typescript';
+import { Player } from '.';
 import HiscoreValues from './hiscoreValues.model';
-import Player from './player.model';
 
 // Define other table options
 const options = {
@@ -19,15 +28,17 @@ const options = {
 
 @Table(options)
 export default class InitialValues extends HiscoreValues {
-
   @PrimaryKey
   @AutoIncrement
-  @Column
-  id: Number;
+  @Column({ type: DataType.INTEGER })
+  id: number;
 
   @ForeignKey(() => Player)
-  @Column({ allowNull: false, onDelete: 'CASCADE' })
-  playerId: Number;
+  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
+  playerId: number;
+
+  @BelongsTo(() => Player, 'playerId')
+  player: Player;
 }
 
 function buildDynamicSchema(DataTypes) {

@@ -95,10 +95,10 @@ async function attachMembersCount(groups) {
    */
   const countMap = mapValues(
     keyBy(
-      membersCount.map(c => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
+      membersCount.map((c: any) => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
       c => c.groupId
     ),
-    c => c.count
+    (c: any) => c.count
   );
 
   return groups.map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
@@ -282,7 +282,7 @@ async function getMembersList(id) {
   // Execute the query above, which returns the latest snapshot for each member,
   // in the following format: [{playerId: 61, overallExerience: "4465456"}]
   // Note: this used to be a sequelize query, but it was very slow for large groups
-  const experienceSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
+  const experienceSnapshots: any = await sequelize.query(query, { type: QueryTypes.SELECT });
 
   // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
   const experienceMap = mapValues(keyBy(experienceSnapshots, 'playerId'), d =>
@@ -292,7 +292,7 @@ async function getMembersList(id) {
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .map(member => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
+    .map((member: any) => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
     .sort((a, b) => a.role.localeCompare(b.role));
 }
 
@@ -309,7 +309,7 @@ async function getHiscores(id, metric, pagination) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const group = await Group.findOne({ where: { id } });
+  const group = await sequelize.models.Group.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
@@ -368,8 +368,8 @@ async function getHiscores(id, metric, pagination) {
 
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
-    .filter(({ playerId }) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
-    .map(({ player }) => ({ ...player.toJSON(), ...experienceMap[player.id] }))
+    .filter(({ playerId }: any) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
+    .map(({ player }: any) => ({ ...player.toJSON(), ...experienceMap[player.id] }))
     .sort((a, b) => b[measure] - a[measure]);
 }
 
@@ -549,7 +549,7 @@ async function edit(id, name, clanChat, verificationCode, members) {
 
     groupMembers = await setMembers(group, members);
   } else {
-    const memberships = await group.getMembers();
+    const memberships = await group.$get('members');
     groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
   }
 
@@ -672,7 +672,7 @@ async function addMembers(id, verificationCode, members) {
   }
 
   // Find all existing members
-  const existingIds = (await group.getMembers()).map(p => p.id);
+  const existingIds = (await group.$get('members')).map(p => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(members.map(m => m.username));
@@ -683,7 +683,7 @@ async function addMembers(id, verificationCode, members) {
     throw new BadRequestError('All players given are already members.');
   }
 
-  await group.addMembers(newPlayers);
+  await group.$add('members', newPlayers);
 
   const leaderUsernames = members
     .filter(m => m.role === 'leader')
@@ -691,18 +691,18 @@ async function addMembers(id, verificationCode, members) {
 
   // If there's any new leaders, we have to re-add them, forcing the leader role
   if (leaderUsernames && leaderUsernames.length > 0) {
-    const allMembers = await group.getMembers();
+    const allMembers = await group.$get('members');
     const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
-    await group.addMembers(leaders, { through: { role: 'leader' } });
+    await group.$add('members', leaders, { through: { role: 'leader' } });
   }
 
   // Update the "updatedAt" timestamp on the group model
   await group.changed('updatedAt', true);
   await group.save();
 
-  const allMembers = await group.getMembers();
+  const allMembers = await group.$get('members');
 
-  const formatted = allMembers.map(member =>
+  const formatted = allMembers.map((member: any) =>
     omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
   );
 
@@ -744,7 +744,7 @@ async function removeMembers(id, verificationCode, usernames) {
   }
 
   // Remove all specific players, and return the removed count
-  const removedPlayersCount = await group.removeMembers(playersToRemove);
+  const removedPlayersCount = await group.$remove('members', playersToRemove);
 
   if (!removedPlayersCount) {
     throw new BadRequestError('None of the players given were members of that group.');
@@ -916,7 +916,8 @@ async function calculateScore(group) {
   const now = new Date();
   const members = await getMembersList(group.id);
   const competitions = await competitionService.findForGroup(group.id, { limit: 10000, offset: 0 });
-  const averageOverallExp = members.reduce((acc, cur) => acc + cur, 0) / members.length;
+  const averageOverallExp =
+    members.reduce((acc, cur) => acc + cur.overallExperience, 0) / members.length;
 
   if (!members || members.length === 0) {
     return score;

@@ -1,8 +1,17 @@
 import { periods } from '../../api/constants/periods';
 import { ALL_METRICS } from '../../api/constants/metrics';
 
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
-import Player from './player.model';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  ForeignKey,
+  BelongsTo
+} from 'sequelize-typescript';
+import { Player } from '.';
 
 // Define other table options
 const options = {
@@ -30,15 +39,14 @@ const options = {
 
 @Table(options)
 export default class Record extends Model<Record> {
-
   @PrimaryKey
   @AutoIncrement
-  @Column
-  id: Number;
+  @Column({ type: DataType.INTEGER })
+  id: number;
 
   @ForeignKey(() => Player)
-  @Column({ allowNull: false, onDelete: 'CASCADE' })
-  playerId: Number;
+  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
+  playerId: number;
 
   @Column({
     type: DataType.ENUM(...periods),
@@ -48,7 +56,7 @@ export default class Record extends Model<Record> {
       msg: 'Invalid period'
     }
   })
-  period: String;
+  period: string;
 
   @Column({
     type: DataType.ENUM(...ALL_METRICS),
@@ -60,7 +68,7 @@ export default class Record extends Model<Record> {
       }
     }
   })
-  metric: String;
+  metric: string;
 
   @Column({
     type: DataType.BIGINT,
@@ -72,7 +80,10 @@ export default class Record extends Model<Record> {
       return parseInt(this.getDataValue('value'), 10);
     }
   })
-  value: Number;
+  value: number;
+
+  @BelongsTo(() => Player, 'playerId')
+  player: Player;
 }
 
 // export default (sequelize, DataTypes) => {

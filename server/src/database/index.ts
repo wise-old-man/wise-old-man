@@ -22,19 +22,19 @@ const sequelize = new Sequelize({
   dialect: 'postgres',
   logging: false,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
-  retry: { max: 10 },
-  models: [
-    Achievement,
-    Competition,
-    Group,
-    InitialValues,
-    Membership,
-    Participation,
-    Player,
-    Record,
-    Snapshot
-  ]
+  retry: { max: 10 }
 });
+sequelize.addModels([
+  Achievement,
+  Competition,
+  Group,
+  InitialValues,
+  Membership,
+  Participation,
+  Player,
+  Record,
+  Snapshot
+]);
 
 // Import and define all models
 // const models = {

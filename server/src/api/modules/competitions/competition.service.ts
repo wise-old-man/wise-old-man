@@ -116,10 +116,13 @@ async function findForPlayer(playerId, pagination) {
 
   const formattedCompetitions = participations
     .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(({ competition }) => ({
-      ...format(competition),
-      duration: durationBetween(competition.startsAt, competition.endsAt)
-    }))
+    .map(
+      ({ competition }) =>
+        ({
+          ...format(competition),
+          duration: durationBetween(competition.startsAt, competition.endsAt)
+        } as any)
+    )
     .sort((a, b) => b.score - a.score);
 
   const completeCompetitions = await attachParticipantCount(formattedCompetitions);
@@ -147,13 +150,13 @@ async function attachParticipantCount(competitions) {
    */
   const countMap = mapValues(
     keyBy(
-      participantCount.map(c => ({
+      participantCount.map((c: any) => ({
         competitionId: c.competitionId,
         count: parseInt(c.toJSON().count, 10)
       })),
       c => c.competitionId
     ),
-    c => c.count
+    (c: any) => c.count
   );
 
   return competitions.map(g => ({ ...g, participantCount: countMap[g.id] || 0 }));
@@ -416,7 +419,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
     competitionParticipants = await setParticipants(competition, participants);
   } else {
-    const participations = await competition.getParticipants();
+    const participations = await competition.$get('participants');
     competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
   }
 
@@ -494,7 +497,9 @@ async function addAllGroupMembers(competition, groupId) {
   const members = await groupService.getMembers(groupId);
 
   // Manually create participations for all these players
-  await Participation.bulkCreate(members.map(p => ({ competitionId: competition.id, playerId: p.id })));
+  await Participation.bulkCreate(
+    members.map((p: any) => ({ competitionId: competition.id, playerId: p.id }))
+  );
 
   // Update the "updatedAt" timestamp on the competition model
   await competition.changed('updatedAt', true);
@@ -510,7 +515,7 @@ async function addParticipants(id, verificationCode, usernames) {
   const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
 
   // Find all existing participants
-  const existingIds = (await competition.getParticipants()).map(p => p.id);
+  const existingIds = (await competition.$get('participants')).map(p => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(usernames);
@@ -521,7 +526,7 @@ async function addParticipants(id, verificationCode, usernames) {
     throw new BadRequestError('All players given are already competing.');
   }
 
-  await competition.addParticipants(newPlayers);
+  await competition.$add('participants', newPlayers);
 
   // Update the "updatedAt" timestamp on the competition model
   await competition.changed('updatedAt', true);
@@ -543,7 +548,7 @@ async function removeParticipants(id, verificationCode, usernames) {
   }
 
   // Remove all specific players, and return the removed count
-  const removedPlayersCount = await competition.removeParticipants(playersToRemove);
+  const removedPlayersCount = await competition.$remove('participants', playersToRemove);
 
   if (!removedPlayersCount) {
     throw new BadRequestError('None of the players given were competing.');
@@ -598,7 +603,7 @@ async function getParticipants(id) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  const participants = await competition.getParticipants();
+  const participants = await competition.$get('participants');
 
   return participants;
 }

@@ -25,7 +25,7 @@ async function syncRecords(playerId, period) {
   const periodRecords = await Record.findAll({ where: { playerId, period } });
   const periodDelta = await deltaService.getDelta(playerId, period);
 
-  const recordMap = keyBy(
+  const recordMap: any = keyBy(
     periodRecords.map(r => r.toJSON()),
     'metric'
   );

@@ -9,13 +9,13 @@ import Record from './record.model';
 import Snapshot from './snapshot.model';
 
 export {
-    Achievement,
-    Competition,
-    Group,
-    InitialValues,
-    Membership,
-    Participation,
-    Player,
-    Record,
-    Snapshot
+  Achievement,
+  Competition,
+  Group,
+  InitialValues,
+  Membership,
+  Participation,
+  Player,
+  Record,
+  Snapshot
 };

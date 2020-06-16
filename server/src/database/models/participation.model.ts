@@ -1,6 +1,5 @@
-import { Table, Column, PrimaryKey, ForeignKey, Model } from 'sequelize-typescript';
-import Player from './player.model';
-import Competition from './competition.model';
+import { Table, Column, PrimaryKey, ForeignKey, Model, BelongsTo, DataType } from 'sequelize-typescript';
+import { Player, Competition } from '.';
 
 // Define other table options
 const options = {
@@ -14,16 +13,21 @@ const options = {
 
 @Table(options)
 export default class Participation extends Model<Participation> {
-
+  @PrimaryKey
   @ForeignKey(() => Player)
-  @PrimaryKey
-  @Column({ onDelete: 'CASCADE' })
-  playerId: Number;
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  playerId: number;
 
-  @ForeignKey(() => Competition)
   @PrimaryKey
-  @Column({ onDelete: 'CASCADE' })
-  competitionId: Number;
+  @ForeignKey(() => Competition)
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  competitionId: number;
+
+  @BelongsTo(() => Player, 'playerId')
+  player: Player;
+
+  @BelongsTo(() => Competition, 'competitionId')
+  competition: Competition;
 }
 
 // export default (sequelize, DataTypes) => {

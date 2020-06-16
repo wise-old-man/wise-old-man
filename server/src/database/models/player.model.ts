@@ -1,5 +1,15 @@
 import { playerTypes } from '../../api/constants/playerTypes';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  BelongsToMany,
+  HasMany
+} from 'sequelize-typescript';
+import { Competition, Group, Snapshot } from '.';
 
 // Define other table options
 const options = {
@@ -18,11 +28,10 @@ const options = {
 
 @Table(options)
 export default class Player extends Model<Player> {
-
   @PrimaryKey
   @AutoIncrement
   @Column({ type: DataType.INTEGER, allowNull: false })
-  id: Number;
+  id: number;
 
   @Column({
     type: DataType.STRING(20),
@@ -43,7 +52,7 @@ export default class Player extends Model<Player> {
       }
     }
   })
-  username: String;
+  username: string;
 
   @Column({
     type: DataType.STRING(20),
@@ -63,7 +72,7 @@ export default class Player extends Model<Player> {
       }
     }
   })
-  displayName: String;
+  displayName: string;
 
   @Column({
     type: DataType.ENUM(...playerTypes),
@@ -76,10 +85,23 @@ export default class Player extends Model<Player> {
       }
     }
   })
-  type: String;
+  type: string;
 
-  @Column
+  @Column({ type: DataType.DATE })
   lastImportedAt: Date;
+
+  @BelongsToMany(() => Competition, 'participantions', 'playerId')
+  participants: Competition;
+
+  @BelongsToMany(() => Group, {
+    as: 'members',
+    through: 'memberships',
+    otherKey: 'playerId'
+  })
+  memberships: Group;
+
+  @HasMany(() => Snapshot, 'playerId')
+  snapshots: Snapshot[];
 }
 
 // export default (sequelize, DataTypes) => {

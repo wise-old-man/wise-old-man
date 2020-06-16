@@ -67,7 +67,7 @@ async function getDelta(playerId, period, initialVals = null) {
     };
   }
 
-  const [start, end] = results;
+  const [start, end]: any = results;
   const diffs = diff(start, end, initialValues);
 
   return {
@@ -106,7 +106,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     type: QueryTypes.SELECT
   });
 
-  return results.map(r => ({
+  return results.map((r: any) => ({
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
@@ -175,7 +175,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
     type: QueryTypes.SELECT
   });
 
-  return results.map(r => ({
+  return results.map((r: any) => ({
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),
@@ -199,7 +199,7 @@ async function getGroupLeaderboard(metric, period, playerIds, pagination) {
     type: QueryTypes.SELECT
   });
 
-  return results.map(r => ({
+  return results.map((r: any) => ({
     ...r,
     endValue: parseInt(r.endValue, 10),
     startValue: parseInt(r.startValue, 10),

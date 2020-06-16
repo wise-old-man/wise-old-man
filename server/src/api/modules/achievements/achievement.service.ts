@@ -312,7 +312,7 @@ async function syncAchievements(playerId) {
  * achievements, with a "missing" field set to true.
  */
 async function findAll(playerId, includeMissing = false) {
-  const achievements = await Achievement.findAll({
+  const achievements: any = await Achievement.findAll({
     where: { playerId }
   }).map(a => a.toJSON());
 

@@ -1,1113 +1,1113 @@
 import { Column, DataType, Model } from 'sequelize-typescript';
 
 export default class HiscoreValues extends Model<HiscoreValues> {
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    overallRank: Number;
-
-    @Column({
-        type: DataType.BIGINT,
-        defaultValue: -1,
-        allowNull: false,
-        get() {
-            // As experience (overall) can exceed the integer maximum of 2.147b,
-            // we have to store it into a BIGINT, however, sequelize returns bigints
-            // as strings, to counter that, we convert every bigint to a JS number
-            return parseInt(this.getDataValue('overallExperience'), 10);
-        }
-    })
-    overallExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    attackRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    attackExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    defenceRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    defenceExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    strengthRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    strengthExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hitpointsRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hitpointsExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    rangedRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    rangedExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    prayerRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    prayerExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    magicRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    magicExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    cookingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    cookingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    woodcuttingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    woodcuttingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    fletchingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    fletchingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    fishingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    fishingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    firemakingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    firemakingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    craftingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    craftingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    smithingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    smithingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    miningRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    miningExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    herbloreRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    herbloreExperience: Number;
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    agilityRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    agilityExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    thievingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    thievingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    slayerRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    slayerExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    farmingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    farmingExperience: Number;
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    runecraftingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    runecraftingExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hunterRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hunterExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    constructionRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    constructionExperience: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    league_pointsRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    league_pointsScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bounty_hunter_hunterRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bounty_hunter_hunterScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bounty_hunter_rogueRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bounty_hunter_rogueScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_allRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_allScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_beginnerRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_beginnerScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_easyRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_easyScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_mediumRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_mediumScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_hardRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_hardScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_eliteRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_eliteScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_masterRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    clue_scrolls_masterScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    last_man_standingRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    last_man_standingScore: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    abyssal_sireRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    abyssal_sireKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    alchemical_hydraRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    alchemical_hydraKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    barrows_chestsRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    barrows_chestsKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bryophytaRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    bryophytaKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    callistoRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    callistoKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    cerberusRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    cerberusKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chambers_of_xericRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chambers_of_xericKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chambers_of_xeric_challenge_modeRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chambers_of_xeric_challenge_modeKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chaos_elementalRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chaos_elementalKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chaos_fanaticRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    chaos_fanaticKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    commander_zilyanaRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    commander_zilyanaKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    corporeal_beastRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    corporeal_beastKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    crazy_archaeologistRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    crazy_archaeologistKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_primeRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_primeKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_rexRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_rexKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_supremeRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    dagannoth_supremeKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    deranged_archaeologistRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    deranged_archaeologistKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    general_graardorRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    general_graardorKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    giant_moleRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    giant_moleKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    grotesque_guardiansRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    grotesque_guardiansKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hesporiRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    hesporiKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kalphite_queenRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kalphite_queenKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    king_black_dragonRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    king_black_dragonKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    krakenRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    krakenKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kreearraRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kreearraKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kril_tsutsarothRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    kril_tsutsarothKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    mimicRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    mimicKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    nightmareRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    nightmareKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    oborRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    oborKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    sarachnisRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    sarachnisKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    scorpiaRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    scorpiaKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    skotizoRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    skotizoKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    the_gauntletRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    the_gauntletKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    the_corrupted_gauntletRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    the_corrupted_gauntletKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    theatre_of_bloodRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    theatre_of_bloodKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    thermonuclear_smoke_devilRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    thermonuclear_smoke_devilKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    tzkal_zukRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    tzkal_zukKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    tztok_jadRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    tztok_jadKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    venenatisRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    venenatisKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    vetionRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    vetionKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    vorkathRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    vorkathKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    wintertodtRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    wintertodtKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    zalcanoRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    zalcanoKills: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    zulrahRank: Number;
-
-    @Column({
-        type: DataType.INTEGER,
-        defaultValue: -1,
-        allowNull: false
-    })
-    zulrahKills: Number;
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  overallRank: number;
+
+  @Column({
+    type: DataType.BIGINT,
+    defaultValue: -1,
+    allowNull: false,
+    get() {
+      // As experience (overall) can exceed the integer maximum of 2.147b,
+      // we have to store it into a BIGINT, however, sequelize returns bigints
+      // as strings, to counter that, we convert every bigint to a JS number
+      return parseInt(this.getDataValue('overallExperience'), 10);
+    }
+  })
+  overallExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  attackRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  attackExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  defenceRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  defenceExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  strengthRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  strengthExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hitpointsRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hitpointsExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  rangedRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  rangedExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  prayerRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  prayerExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  magicRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  magicExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  cookingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  cookingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  woodcuttingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  woodcuttingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  fletchingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  fletchingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  fishingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  fishingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  firemakingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  firemakingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  craftingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  craftingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  smithingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  smithingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  miningRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  miningExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  herbloreRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  herbloreExperience: number;
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  agilityRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  agilityExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  thievingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  thievingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  slayerRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  slayerExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  farmingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  farmingExperience: number;
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  runecraftingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  runecraftingExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hunterRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hunterExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  constructionRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  constructionExperience: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  league_pointsRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  league_pointsScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bounty_hunter_hunterRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bounty_hunter_hunterScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bounty_hunter_rogueRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bounty_hunter_rogueScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_allRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_allScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_beginnerRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_beginnerScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_easyRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_easyScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_mediumRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_mediumScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_hardRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_hardScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_eliteRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_eliteScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_masterRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  clue_scrolls_masterScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  last_man_standingRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  last_man_standingScore: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  abyssal_sireRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  abyssal_sireKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  alchemical_hydraRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  alchemical_hydraKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  barrows_chestsRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  barrows_chestsKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bryophytaRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  bryophytaKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  callistoRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  callistoKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  cerberusRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  cerberusKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chambers_of_xericRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chambers_of_xericKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chambers_of_xeric_challenge_modeRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chambers_of_xeric_challenge_modeKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chaos_elementalRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chaos_elementalKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chaos_fanaticRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  chaos_fanaticKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  commander_zilyanaRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  commander_zilyanaKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  corporeal_beastRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  corporeal_beastKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  crazy_archaeologistRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  crazy_archaeologistKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_primeRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_primeKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_rexRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_rexKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_supremeRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  dagannoth_supremeKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  deranged_archaeologistRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  deranged_archaeologistKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  general_graardorRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  general_graardorKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  giant_moleRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  giant_moleKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  grotesque_guardiansRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  grotesque_guardiansKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hesporiRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  hesporiKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kalphite_queenRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kalphite_queenKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  king_black_dragonRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  king_black_dragonKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  krakenRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  krakenKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kreearraRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kreearraKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kril_tsutsarothRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  kril_tsutsarothKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  mimicRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  mimicKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  nightmareRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  nightmareKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  oborRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  oborKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  sarachnisRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  sarachnisKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  scorpiaRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  scorpiaKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  skotizoRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  skotizoKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  the_gauntletRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  the_gauntletKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  the_corrupted_gauntletRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  the_corrupted_gauntletKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  theatre_of_bloodRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  theatre_of_bloodKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  thermonuclear_smoke_devilRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  thermonuclear_smoke_devilKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  tzkal_zukRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  tzkal_zukKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  tztok_jadRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  tztok_jadKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  venenatisRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  venenatisKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  vetionRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  vetionKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  vorkathRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  vorkathKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  wintertodtRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  wintertodtKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  zalcanoRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  zalcanoKills: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  zulrahRank: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: -1,
+    allowNull: false
+  })
+  zulrahKills: number;
 }

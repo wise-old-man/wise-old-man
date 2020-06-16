@@ -1,4 +1,13 @@
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  BelongsToMany
+} from 'sequelize-typescript';
+import { Player } from '.';
 
 // Define other table options
 const options = {
@@ -18,8 +27,8 @@ const options = {
 export default class Group extends Model<Group> {
   @PrimaryKey
   @AutoIncrement
-  @Column
-  id: Number;
+  @Column({ type: DataType.INTEGER })
+  id: number;
 
   @Column({
     type: DataType.STRING(30),
@@ -35,13 +44,13 @@ export default class Group extends Model<Group> {
       }
     }
   })
-  name: String;
+  name: string;
 
   @Column({ type: DataType.STRING(20) })
-  clanChat: String;
+  clanChat: string;
 
-  @Column({ defaultValue: 0 })
-  score: Number;
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  score: number;
 
   @Column({
     type: DataType.VIRTUAL,
@@ -49,8 +58,15 @@ export default class Group extends Model<Group> {
   })
   verificationCode: any;
 
-  @Column({ allowNull: false })
-  verificationHash: String;
+  @Column({ type: DataType.STRING, allowNull: false })
+  verificationHash: string;
+
+  @BelongsToMany(() => Player, {
+    as: 'members',
+    through: 'memberships',
+    otherKey: 'groupId'
+  })
+  members: Player[];
 }
 
 // export default (sequelize, DataTypes) => {

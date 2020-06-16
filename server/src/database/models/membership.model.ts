@@ -1,7 +1,6 @@
 import { roles } from '../../api/constants/roles';
-import { Table, Column, DataType, PrimaryKey, AutoIncrement, Model, ForeignKey } from 'sequelize-typescript';
-import Player from './player.model';
-import Group from './group.model';
+import { Table, Column, DataType, PrimaryKey, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Player, Group } from '.';
 
 // Define other table options
 const options = {
@@ -15,16 +14,15 @@ const options = {
 
 @Table(options)
 export default class Membership extends Model<Membership> {
-
+  @PrimaryKey
   @ForeignKey(() => Player)
-  @PrimaryKey
-  @Column({ onDelete: 'CASCADE' })
-  playerId: Number;
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  playerId: number;
 
-  @ForeignKey(() => Group)
   @PrimaryKey
-  @Column({ onDelete: 'CASCADE' })
-  groupId: Number;
+  @ForeignKey(() => Group)
+  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  groupId: number;
 
   @Column({
     type: DataType.ENUM(...roles),
@@ -37,7 +35,13 @@ export default class Membership extends Model<Membership> {
       }
     }
   })
-  role: String;
+  role: string;
+
+  @BelongsTo(() => Player, 'playerId')
+  player: Player;
+
+  @BelongsTo(() => Group, 'groupId')
+  group: Group;
 }
 
 // export default (sequelize, DataTypes) => {

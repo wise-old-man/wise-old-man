@@ -7,10 +7,10 @@ import {
   AutoIncrement,
   Model,
   ForeignKey,
-  BelongsToMany
+  BelongsToMany,
+  BelongsTo
 } from 'sequelize-typescript';
-import Group from './group.model';
-import Player from './player.model';
+import { Group, Player } from '.';
 
 // Define other table options
 const options = {
@@ -36,18 +36,10 @@ const options = {
 
 @Table(options)
 export default class Competition extends Model<Competition> {
-  // Competition.associate = models => {
-  //   Competition.belongsToMany(models.Player, {
-  //     as: 'participants',
-  //     through: 'participations',
-  //     foreignKey: 'competitionId'
-  //   });
-
   @PrimaryKey
   @AutoIncrement
-  // @BelongsToMany(() => Player, 'participations', 'competitionId')
-  @Column
-  id: Number;
+  @Column({ type: DataType.INTEGER })
+  id: number;
 
   @Column({
     type: DataType.STRING(30),
@@ -59,7 +51,7 @@ export default class Competition extends Model<Competition> {
       }
     }
   })
-  title: String;
+  title: string;
 
   @Column({
     type: DataType.ENUM(...ALL_METRICS),
@@ -71,10 +63,10 @@ export default class Competition extends Model<Competition> {
       }
     }
   })
-  metric: String;
+  metric: string;
 
-  @Column({ defaultValue: 0 })
-  score: Number;
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  score: number;
 
   @Column({
     type: DataType.VIRTUAL,
@@ -82,8 +74,8 @@ export default class Competition extends Model<Competition> {
   })
   verificationCode: any;
 
-  @Column({ allowNull: false })
-  verificationHash: String;
+  @Column({ type: DataType.STRING, allowNull: false })
+  verificationHash: string;
 
   @Column({
     type: DataType.DATE,
@@ -110,8 +102,18 @@ export default class Competition extends Model<Competition> {
   endsAt: Date;
 
   @ForeignKey(() => Group)
-  @Column({ onDelete: 'SET NULL' })
-  groupId: Number;
+  @Column({ type: DataType.INTEGER, onDelete: 'SET NULL' })
+  groupId: number;
+
+  @BelongsTo(() => Group, 'groupId')
+  group: Group;
+
+  @BelongsToMany(() => Player, {
+    as: 'participants',
+    through: 'participations',
+    foreignKey: 'competitionId'
+  })
+  participants: Player[];
 }
 
 // export default (sequelize, DataTypes) => {
