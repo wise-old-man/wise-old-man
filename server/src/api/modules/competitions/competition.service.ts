@@ -726,8 +726,6 @@ async function refreshScores() {
       const currentScore = competition.score;
       const newScore = await calculateScore(competition);
 
-      console.log(competition.title, newScore);
-
       if (newScore !== currentScore) {
         await competition.update({ score: newScore });
       }

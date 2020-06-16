@@ -7,7 +7,8 @@ import {
   Model,
   BelongsToMany,
   AllowNull,
-  Default
+  Default,
+  HasMany
 } from 'sequelize-typescript';
 import { Player, Membership } from '.';
 

@@ -10,7 +10,8 @@ import {
   BelongsToMany,
   BelongsTo,
   AllowNull,
-  Default
+  Default,
+  HasMany
 } from 'sequelize-typescript';
 import { Group, Player, Participation } from '.';
 

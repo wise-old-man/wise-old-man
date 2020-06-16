@@ -184,8 +184,6 @@ async function update(username) {
     await player.changed('updatedAt', true);
     await player.save();
 
-    console.log(player);
-
     return { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
