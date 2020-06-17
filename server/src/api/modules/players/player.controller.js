@@ -98,13 +98,16 @@ async function details(req, res, next) {
 }
 
 // GET /players/:id/achievements
+// GET /players/username/:username/achievements
 async function achievements(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
     const { includeMissing } = req.query;
 
+    const playerId = await getPlayerId(id, username);
+
     // Get all player achievements (by player id)
-    const playerAchievements = await achievementService.getPlayerAchievements(id, includeMissing);
+    const playerAchievements = await achievementService.getPlayerAchievements(playerId, includeMissing);
 
     res.json(playerAchievements);
   } catch (e) {
@@ -113,12 +116,15 @@ async function achievements(req, res, next) {
 }
 
 // GET /players/:id/competitions
+// GET /players/username/:username/competitions
 async function competitions(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
+
+    const playerId = await getPlayerId(id, username);
 
     // Get all player competitions (by player id)
-    const playerCompetitions = await competitionService.getPlayerCompetitions(id);
+    const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
 
     res.json(playerCompetitions);
   } catch (e) {
@@ -127,12 +133,15 @@ async function competitions(req, res, next) {
 }
 
 // GET /players/:id/groups
+// GET /players/username/:username/groups
 async function groups(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
+
+    const playerId = await getPlayerId(id, username);
 
     // Get all player groups (by player id)
-    const playerGroups = await groupService.getPlayerGroups(id);
+    const playerGroups = await groupService.getPlayerGroups(playerId);
 
     res.json(playerGroups);
   } catch (e) {
@@ -141,14 +150,17 @@ async function groups(req, res, next) {
 }
 
 // GET /players/:id/gained
+// GET /players/username/:username/gained
 async function gained(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
     const { period } = req.query;
 
+    const playerId = await getPlayerId(id, username);
+
     const playerDeltas = period
-      ? await deltaService.getPlayerPeriodDeltas(id, period)
-      : await deltaService.getPlayerDeltas(id);
+      ? await deltaService.getPlayerPeriodDeltas(playerId, period)
+      : await deltaService.getPlayerDeltas(playerId);
 
     res.json(playerDeltas);
   } catch (e) {
@@ -157,12 +169,16 @@ async function gained(req, res, next) {
 }
 
 // GET /players/:id/records
+// GET /players/username/:username/records
 async function records(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
     const { period, metric } = req.query;
 
-    const playerRecords = await recordService.getPlayerRecords(id, period, metric);
+    const playerId = await getPlayerId(id, username);
+
+    // Fetch all player records for the given period and metric
+    const playerRecords = await recordService.getPlayerRecords(playerId, period, metric);
 
     res.json(playerRecords);
   } catch (e) {
@@ -171,19 +187,40 @@ async function records(req, res, next) {
 }
 
 // GET /players/:id/snapshots
+// GET /players/username/:username/snapshots
 async function snapshots(req, res, next) {
   try {
-    const { id } = req.params;
+    const { id, username } = req.params;
     const { period } = req.query;
 
+    const playerId = await getPlayerId(id, username);
+
     const playerSnapshots = period
-      ? await snapshotService.getAllInPeriod(id, period)
-      : await snapshotService.getAllGrouped(id);
+      ? await snapshotService.getAllInPeriod(playerId, period)
+      : await snapshotService.getAllGrouped(playerId);
 
     res.json(playerSnapshots);
   } catch (e) {
     next(e);
   }
+}
+
+/**
+ * To support /username endpoints, we should evaluate wether
+ * we can use the id given to us via url param, or we need
+ * to find that id by doing a username search.
+ */
+async function getPlayerId(idParam, usernameParam) {
+  if (idParam) {
+    return idParam;
+  }
+
+  if (usernameParam) {
+    const player = await playerService.find(usernameParam);
+    if (player) return player.id;
+  }
+
+  return null;
 }
 
 exports.search = search;
