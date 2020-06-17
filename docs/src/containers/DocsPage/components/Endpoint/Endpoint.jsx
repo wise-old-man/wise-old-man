@@ -6,13 +6,28 @@ import { dynamicClass } from '../../../../utils/styling';
 import './Endpoint.scss';
 
 function Endpoint({ endpoint }) {
+  const paths = [];
+
+  if (endpoint.url) {
+    paths.push(endpoint.url);
+  }
+
+  if (endpoint.urls) {
+    paths.push(...endpoint.urls);
+  }
+
   return (
     <div className="endpoint section">
       <h3 className="endpoint__title">{endpoint.title}</h3>
-      <b className={dynamicClass('endpoint__method', endpoint.method.toLowerCase())}>
-        {endpoint.method}
-      </b>
-      <span className="endpoint__url">{endpoint.url}</span>
+
+      {paths.map(url => (
+        <div key={url} className="endpoint__path">
+          <b className={dynamicClass('endpoint__method', endpoint.method.toLowerCase())}>
+            {endpoint.method}
+          </b>
+          <span className="endpoint__url">{url}</span>
+        </div>
+      ))}
 
       {endpoint.comments &&
         endpoint.comments.map((comment, i) => (
@@ -62,7 +77,7 @@ function Endpoint({ endpoint }) {
 }
 
 Endpoint.propTypes = {
-  endpoint: PropTypes.shape().isRequired,
+  endpoint: PropTypes.shape().isRequired
 };
 
 export default Endpoint;
