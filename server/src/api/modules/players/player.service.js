@@ -503,6 +503,7 @@ exports.sanitize = sanitize;
 exports.isValidUsername = isValidUsername;
 exports.findAllOrCreate = findAllOrCreate;
 exports.findAll = findAll;
+exports.find = find;
 
 // Handlers
 exports.getDetailsById = getDetailsById;
