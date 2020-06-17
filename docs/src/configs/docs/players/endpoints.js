@@ -51,110 +51,6 @@ export default [
     ]
   },
   {
-    title: 'View player details (by id)',
-    url: '/players/:id',
-    method: 'GET',
-    params: [
-      {
-        field: 'id',
-        type: 'integer',
-        description: "The player's id."
-      }
-    ],
-    successResponses: [
-      {
-        description: 'Note: parts of the response were ommitted for demo purposes.',
-        body: {
-          id: 37,
-          username: 'Psikoi',
-          type: 'regular',
-          lastImportedAt: '2020-04-03T21:43:21.899Z',
-          registeredAt: '2020-04-03T21:43:17.574Z',
-          updatedAt: '2020-04-04T16:43:36.230Z',
-          combatLevel: 125,
-          latestSnapshot: {
-            createdAt: '2020-04-04T16:43:36.219Z',
-            importedAt: null,
-            overall: {
-              rank: 30400,
-              experience: 269828205
-            },
-            attack: {
-              rank: 12158,
-              experience: 27216011
-            }
-          }
-        }
-      }
-    ],
-    errorResponses: [
-      {
-        description: 'If no id is given.',
-        body: {
-          message: 'Invalid player id.'
-        }
-      },
-      {
-        description: 'If an id is given but does not exist.',
-        body: {
-          message: 'Player of id 5767 is not being tracked yet.'
-        }
-      }
-    ]
-  },
-  {
-    title: 'View player details (by username)',
-    url: '/players/username/:username',
-    method: 'GET',
-    params: [
-      {
-        field: 'username',
-        type: 'string',
-        description: "The player's username."
-      }
-    ],
-    successResponses: [
-      {
-        description: 'Note: parts of the response were ommitted for demo purposes.',
-        body: {
-          id: 37,
-          username: 'Psikoi',
-          type: 'regular',
-          lastImportedAt: '2020-04-03T21:43:21.899Z',
-          registeredAt: '2020-04-03T21:43:17.574Z',
-          updatedAt: '2020-04-04T16:43:36.230Z',
-          combatLevel: 125,
-          latestSnapshot: {
-            createdAt: '2020-04-04T16:43:36.219Z',
-            importedAt: null,
-            overall: {
-              rank: 30400,
-              experience: 269828205
-            },
-            attack: {
-              rank: 12158,
-              experience: 27216011
-            }
-          }
-        }
-      }
-    ],
-    errorResponses: [
-      {
-        description: 'If no username is given.',
-        body: {
-          message: 'Invalid username.'
-        }
-      },
-      {
-        description: 'If an username is given but does not exist.',
-        body: {
-          message: 'someUsername is not being tracked yet.'
-        }
-      }
-    ]
-  },
-  {
     title: 'Track player',
     url: '/players/track',
     method: 'POST',
@@ -340,14 +236,88 @@ export default [
     ]
   },
   {
-    title: 'View player competitions',
-    url: '/players/:id/competitions',
+    title: 'View player details',
+    urls: ['/players/:id', '/players/username/:username'],
     method: 'GET',
+    comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      }
+    ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The player's id."
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
+      }
+    ],
+    successResponses: [
+      {
+        description: 'Note: parts of the response were ommitted for demo purposes.',
+        body: {
+          id: 37,
+          username: 'Psikoi',
+          type: 'regular',
+          lastImportedAt: '2020-04-03T21:43:21.899Z',
+          registeredAt: '2020-04-03T21:43:17.574Z',
+          updatedAt: '2020-04-04T16:43:36.230Z',
+          combatLevel: 125,
+          latestSnapshot: {
+            createdAt: '2020-04-04T16:43:36.219Z',
+            importedAt: null,
+            overall: {
+              rank: 30400,
+              experience: 269828205
+            },
+            attack: {
+              rank: 12158,
+              experience: 27216011
+            }
+          }
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid player id.'
+        }
+      },
+      {
+        description: 'If an id is given but does not exist.',
+        body: {
+          message: 'Player of id 5767 is not being tracked yet.'
+        }
+      }
+    ]
+  },
+  {
+    title: 'View player competitions',
+    urls: ['/players/:id/competitions', '/players/username/:username/competitions'],
+    method: 'GET',
+    comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
       }
     ],
     successResponses: [
@@ -374,9 +344,13 @@ export default [
   },
   {
     title: 'View player achievements',
-    url: '/players/:id/achievements',
+    urls: ['/players/:id/achievements', '/players/username/:username/achievements'],
     method: 'GET',
     comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      },
       {
         type: 'warning',
         content: 'If the achievement date is unknown, this will return it as "1970-01-01T00:00:00.000Z".'
@@ -391,7 +365,12 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: "The player's id."
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
       }
     ],
     query: [
@@ -787,13 +766,24 @@ export default [
   },
   {
     title: 'View player snapshots',
-    url: '/players/:id/snapshots',
+    urls: ['/players/:id/snapshots', '/players/username/:username/snapshots'],
     method: 'GET',
+    comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      }
+    ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The player's id."
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
       }
     ],
     query: [
@@ -894,9 +884,13 @@ export default [
   },
   {
     title: 'View player deltas (gained)',
-    url: '/players/:id/gained',
+    urls: ['/players/:id/gained', '/players/username/:username/gained'],
     method: 'GET',
     comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      },
       {
         type: 'warning',
         content: 'The response will be formatted into a json-friendlier format. See example below.'
@@ -910,7 +904,12 @@ export default [
       {
         field: 'id',
         type: 'integer',
-        description: "The player's id."
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
       }
     ],
     query: [
@@ -1114,13 +1113,24 @@ export default [
   },
   {
     title: 'View player records',
-    url: '/players/:id/records',
+    urls: ['/players/:id/records', '/players/username/:username/records'],
     method: 'GET',
+    comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      }
+    ],
     params: [
       {
         field: 'id',
         type: 'integer',
-        description: "The player's id."
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
       }
     ],
     query: [
