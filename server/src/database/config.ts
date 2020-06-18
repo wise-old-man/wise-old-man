@@ -9,7 +9,6 @@ export = {
   storage: process.env.DB_STORAGE,
   dialect: process.env.DB_DIALECT,
   logging: false,
-  repositoryMode: true,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
   retry: { max: 10 }
 };

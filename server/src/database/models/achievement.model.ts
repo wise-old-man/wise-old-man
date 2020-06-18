@@ -49,7 +49,7 @@ export default class Achievement extends Model<Achievement> {
 
   @Column({
     type: DataType.BIGINT,
-    get() {
+    get(this: any) {
       return parseInt(this.getDataValue('threshold', 10));
     }
   })

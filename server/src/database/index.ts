@@ -19,7 +19,7 @@ const sequelize = new Sequelize({
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   storage: process.env.DB_STORAGE,
-  dialect: 'postgres',
+  dialect: getDialect(),
   logging: false,
   pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
   retry: { max: 10 }
@@ -35,6 +35,15 @@ sequelize.addModels([
   Record,
   Snapshot
 ]);
+
+function getDialect() {
+  switch (process.env.DB_DIALECT) {
+    case 'sqlite':
+      return 'sqlite';
+    default:
+      return 'postgres';
+  }
+}
 
 // Import and define all models
 // const models = {
