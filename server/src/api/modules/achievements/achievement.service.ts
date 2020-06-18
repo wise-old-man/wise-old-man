@@ -12,6 +12,7 @@ import { SKILL_TEMPLATES, ACTIVITY_TEMPLATES, BOSS_TEMPLATES } from './achieveme
 import { sequelize } from '../../../database';
 import * as snapshotService from '../snapshots/snapshot.service';
 import { Achievement } from '../../../database/models';
+import { BadRequestError } from '../../errors';
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {
@@ -246,7 +247,7 @@ async function reevaluateAchievements(playerId) {
   // Attach dates to as many unknown achievements as possible
   const datedUnknownAchievements = await addPastDates(
     playerId,
-    unknown.map(u => ({ type: u.type, createdAt: u.createdAt }))
+    unknown.map(u => u.toJSON())
   );
 
   // Include only achievements with a valid (not unknown) date
@@ -311,16 +312,22 @@ async function syncAchievements(playerId) {
  * If includeMissing, it will also include the missing
  * achievements, with a "missing" field set to true.
  */
-async function findAll(playerId, includeMissing = false) {
-  const achievements: any = await Achievement.findAll({
-    where: { playerId }
-  }).map(a => a.toJSON());
+async function getPlayerAchievements(playerId, includeMissing = false) {
+  if (!playerId) {
+    throw new BadRequestError('Invalid player id.');
+  }
+
+  const achievements = (
+    await Achievement.findAll({
+      where: { playerId }
+    })
+  ).map(a => a.toJSON());
 
   if (!includeMissing) {
     return achievements;
   }
 
-  const achievedTypes = achievements.map(a => a.type);
+  const achievedTypes = achievements.map((a: any) => a.type);
   const definitions = getDefinitions();
 
   const missingAchievements = definitions
@@ -334,7 +341,7 @@ async function findAll(playerId, includeMissing = false) {
       missing: true
     }));
 
-  return [...achievements, ...missingAchievements].map(a => {
+  return [...achievements, ...missingAchievements].map((a: any) => {
     // Only maxed overall and maxed combat are level based
     const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
@@ -353,4 +360,4 @@ async function findAllForGroup(playerIds, pagination) {
   return achievements;
 }
 
-export { syncAchievements, reevaluateAchievements, findAll, findAllForGroup };
+export { syncAchievements, reevaluateAchievements, getPlayerAchievements, findAllForGroup };

@@ -31,7 +31,7 @@ export default function fetchGroupDeltas(groupId, metric, period) {
   return dispatch => {
     dispatch(fetchGroupDeltasRequest());
 
-    const url = `${BASE_API_URL}/groups/${groupId}/deltas`;
+    const url = `${BASE_API_URL}/groups/${groupId}/gained`;
     const params = { metric, period };
 
     return axios

@@ -53,7 +53,7 @@ export default class Achievement extends Model<Achievement> {
       return parseInt(this.getDataValue('threshold', 10));
     }
   })
-  threshold: Number;
+  threshold: number;
 }
 
 // export default (sequelize, DataTypes) => {

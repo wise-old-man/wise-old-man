@@ -55,7 +55,7 @@ describe('Player API', () => {
     test('Track valid username', async done => {
       const response = await request.post('/api/players/track').send({ username: 'Psikoi' });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         expect(response.body.username).toBe('psikoi');
         expect(response.body.displayName).toBe('Psikoi');
       } else {
@@ -68,7 +68,7 @@ describe('Player API', () => {
     test('Track unformatted username', async done => {
       const response = await request.post('/api/players/track').send({ username: ' iron_Mammal ' });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         expect(response.body.username).toBe('iron mammal');
         expect(response.body.displayName).toBe('iron Mammal');
       } else {
@@ -92,7 +92,7 @@ describe('Player API', () => {
     test('Import existing username', async done => {
       const response = await request.post('/api/players/import').send({ username: 'Test Player' });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         expect(response.body.message).toMatch('snapshots imported from CML');
       } else {
         expect(response.body.message).toMatch('Failed to load history from CML.');
@@ -150,17 +150,8 @@ describe('Player API', () => {
   });
 
   describe('Viewing', () => {
-    test('View undefined username and id', async done => {
-      const response = await request.get('/api/players').query({});
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid player id.');
-
-      done();
-    });
-
     test('View non-existing id', async done => {
-      const response = await request.get('/api/players').query({ id: 9999 });
+      const response = await request.get('/api/players/9999');
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Player of id 9999 is not being tracked yet.');
@@ -169,7 +160,7 @@ describe('Player API', () => {
     });
 
     test('View non-existing username', async done => {
-      const response = await request.get('/api/players').query({ username: 'playerViewTest' });
+      const response = await request.get('/api/players/username/playerViewTest');
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('playerViewTest is not being tracked yet.');
@@ -178,7 +169,7 @@ describe('Player API', () => {
     });
 
     test('View valid id', async done => {
-      const response = await request.get('/api/players').query({ id: 1000000 });
+      const response = await request.get('/api/players/1000000');
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(1000000);
@@ -187,7 +178,7 @@ describe('Player API', () => {
     });
 
     test('View valid username', async done => {
-      const response = await request.get('/api/players').query({ username: 'Test Player' });
+      const response = await request.get('/api/players/username/Test Player');
 
       expect(response.status).toBe(200);
       expect(response.body.username).toBe('test player');
@@ -197,7 +188,7 @@ describe('Player API', () => {
     });
 
     test('View valid unformatted username', async done => {
-      const response = await request.get('/api/players').query({ username: ' alt_player' });
+      const response = await request.get('/api/players/username/ alt_player');
 
       expect(response.status).toBe(200);
       expect(response.body.username).toBe('alt player');

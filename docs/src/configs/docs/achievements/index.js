@@ -1,5 +1,4 @@
 import entities from './entities';
-import endpoints from './endpoints';
 
 export default {
   title: 'Achievements',
@@ -11,5 +10,5 @@ export default {
     \n\nExample: the attack level was previously 98, but is now 99, so the player\
     just achieved the "99 attack" achievement.',
   entities,
-  endpoints,
+  endpoints: []
 };

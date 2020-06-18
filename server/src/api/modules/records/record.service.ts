@@ -23,7 +23,7 @@ async function syncRecords(playerId, period) {
   }
 
   const periodRecords = await Record.findAll({ where: { playerId, period } });
-  const periodDelta = await deltaService.getDelta(playerId, period);
+  const periodDelta = await deltaService.getPlayerPeriodDeltas(playerId, period);
 
   const recordMap: any = keyBy(
     periodRecords.map(r => r.toJSON()),
@@ -61,7 +61,7 @@ async function syncRecords(playerId, period) {
  * Finds all records for a given player id.
  * These records can be optionally filtered by period and metric.
  */
-async function findAll(playerId, period, metric) {
+async function getPlayerRecords(playerId, period, metric) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -172,4 +172,4 @@ async function getGroupLeaderboard(metric, period, playerIds, pagination) {
   return formattedRecords;
 }
 
-export { syncRecords, findAll, getPeriodLeaderboard, getLeaderboard, getGroupLeaderboard };
+export { syncRecords, getPlayerRecords, getPeriodLeaderboard, getLeaderboard, getGroupLeaderboard };

@@ -67,7 +67,7 @@ function AchievementOrb({ achievement }) {
 
 function ProgressBar({ progress, equalSizes }) {
   const className = classNames('achievement-progress', {
-    '-full': equalSizes || (progress > 0 && progress < 1)
+    '-full': equalSizes || (progress >= 0 && progress < 1)
   });
 
   const progressInt = Math.floor(progress * 100);

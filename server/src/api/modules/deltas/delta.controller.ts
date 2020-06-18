@@ -1,19 +1,6 @@
 import * as service from './delta.service';
 
-async function get(req, res, next) {
-  try {
-    const { playerId, period } = req.query;
-
-    const delta = period
-      ? await service.getDelta(playerId, period)
-      : await service.getAllDeltas(playerId);
-
-    res.status(200).json(delta);
-  } catch (e) {
-    next(e);
-  }
-}
-
+// GET /deltas/leaderboard
 async function leaderboard(req, res, next) {
   try {
     const { metric, period, playerType } = req.query;
@@ -22,10 +9,10 @@ async function leaderboard(req, res, next) {
       ? await service.getPeriodLeaderboard(metric, period, playerType)
       : await service.getLeaderboard(metric, playerType);
 
-    res.status(200).json(results);
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-export { get, leaderboard };
+export { leaderboard };

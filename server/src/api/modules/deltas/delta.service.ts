@@ -37,7 +37,7 @@ async function syncInitialValues(playerId) {
  * Get a player delta for a specific period.
  * Note: if initialVals is undefined, this method will force-fetch it.
  */
-async function getDelta(playerId, period, initialVals = null) {
+async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
   if (!playerId) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -138,12 +138,12 @@ async function getLeaderboard(metric, playerType) {
 /**
  * Gets the all the deltas for a specific playerId.
  */
-async function getAllDeltas(playerId) {
+async function getPlayerDeltas(playerId) {
   const initialValues = await InitialValues.findOne({ where: { playerId } });
 
   const partials = await Promise.all(
     periods.map(async period => {
-      const list = await getDelta(playerId, period, initialValues);
+      const list = await getPlayerPeriodDeltas(playerId, period, initialValues);
       return { period, deltas: list };
     })
   );
@@ -269,16 +269,8 @@ function emptyDiff() {
 
   ALL_METRICS.forEach(metric => {
     diffObj[metric] = {
-      rank: {
-        start: 0,
-        end: 0,
-        gained: 0
-      },
-      [getMeasure(metric)]: {
-        start: 0,
-        end: 0,
-        gained: 0
-      }
+      rank: { start: 0, end: 0, gained: 0 },
+      [getMeasure(metric)]: { start: 0, end: 0, gained: 0 }
     };
   });
 
@@ -286,8 +278,8 @@ function emptyDiff() {
 }
 
 export {
-  getAllDeltas,
-  getDelta,
+  getPlayerDeltas,
+  getPlayerPeriodDeltas,
   getPeriodLeaderboard,
   getLeaderboard,
   getGroupLeaderboard,

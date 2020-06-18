@@ -28,11 +28,6 @@ export default [
         description: 'The status to filter the list by. (See accepted values above) - Optional'
       },
       {
-        field: 'playerId',
-        type: 'string',
-        description: 'The playerId to filter the list by. (See comment above) - Optional'
-      },
-      {
         field: 'limit',
         type: 'integer',
         description: 'The maximum amount of results to return - Optional (Default is 20)'
@@ -417,7 +412,7 @@ export default [
   },
   {
     title: 'Add participants',
-    url: '/competitions/:id/add',
+    url: '/competitions/:id/add-participants',
     method: 'POST',
     params: [
       {
@@ -477,7 +472,7 @@ export default [
   },
   {
     title: 'Remove participants',
-    url: '/competitions/:id/remove',
+    url: '/competitions/:id/remove-participants',
     method: 'POST',
     params: [
       {

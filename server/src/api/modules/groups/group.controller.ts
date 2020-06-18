@@ -1,222 +1,274 @@
-import * as service from './group.service';
-import * as pagination from '../../util/pagination';
+import * as groupService from './group.service';
+import * as competitionService from '../competitions/competition.service';
 import { addJob } from '../../jobs';
+import { getPaginationConfig } from '../../util/pagination';
 
-async function listGroups(req, res, next) {
+// GET /groups
+async function index(req, res, next) {
   try {
-    const { name, playerId, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+    const { name, limit, offset } = req.query;
+    const paginationConfig = getPaginationConfig(limit, offset);
 
+    /*
     if (playerId) {
-      const results = await service.findForPlayer(playerId, paginationConfig);
+      const results = await groupService.findForPlayer(playerId, paginationConfig);
       res.json(results);
     } else {
-      const results = await service.list(name, paginationConfig);
-      res.json(results);
-    }
+      */
+    const results = await groupService.getList(name, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }
 }
 
-async function viewGroup(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const group = await service.view(id);
-    res.json(group);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function monthlyTop(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const topPlayer = await service.getMonthlyTopPlayer(id);
-    res.json(topPlayer);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function deltas(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { metric, period, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getDeltas(id, period, metric, paginationConfig);
-
-    res.status(200).json(results);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function achievements(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getAchievements(id, paginationConfig);
-    res.status(200).json(results);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function records(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { metric, period, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getRecords(id, metric, period, paginationConfig);
-    res.status(200).json(results);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function hiscores(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { metric, limit, offset } = req.query;
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getHiscores(id, metric, paginationConfig);
-    res.status(200).json(results);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function statistics(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const results = await service.getStatistics(id);
-    res.status(200).json(results);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function listMembers(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const membersList = await service.getMembersList(id);
-    res.json(membersList);
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function createGroup(req, res, next) {
+// POST /groups
+async function create(req, res, next) {
   try {
     const { name, clanChat, members } = req.body;
 
-    const group = await service.create(name, clanChat, members);
+    // Create a new group, with the given params
+    const group = await groupService.create(name, clanChat, members);
+
     res.status(201).json(group);
   } catch (e) {
     next(e);
   }
 }
 
-async function editGroup(req, res, next) {
+// GET /groups/:id
+async function details(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, clanChat, members, verificationCode } = req.body;
+    const group = await groupService.getDetails(id);
 
-    const group = await service.edit(id, name, clanChat, verificationCode, members);
     res.json(group);
   } catch (e) {
     next(e);
   }
 }
 
-async function deleteGroup(req, res, next) {
+// PUT /groups/:id
+async function edit(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { name, clanChat, members, verificationCode } = req.body;
+
+    // Edit the group with the given params (these will override any existing properties)
+    const group = await groupService.edit(id, name, clanChat, verificationCode, members);
+
+    res.json(group);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// DELETE /groups/:id
+async function remove(req, res, next) {
   try {
     const { id } = req.params;
     const { verificationCode } = req.body;
 
-    const groupName = await service.destroy(id, verificationCode);
-    res.json({ message: `Successfully deleted group '${groupName}'. (id: ${id})` });
-  } catch (e) {
-    next(e);
-  }
-}
+    const groupName = await groupService.destroy(id, verificationCode);
+    const message = `Successfully deleted group '${groupName}'. (id: ${id})`;
 
-async function addMembers(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { verificationCode, members } = req.body;
-
-    const result = await service.addMembers(id, verificationCode, members);
-    res.json({ members: result });
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function removeMembers(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { verificationCode, members } = req.body;
-
-    const count = await service.removeMembers(id, verificationCode, members);
-    res.json({ message: `Successfully removed ${count} members from group of id: ${id}` });
-  } catch (e) {
-    next(e);
-  }
-}
-
-async function changeRole(req, res, next) {
-  try {
-    const { id } = req.params;
-    const { username, role, verificationCode } = req.body;
-
-    const result = await service.changeRole(id, username, role, verificationCode);
-    res.json(result);
-  } catch (e) {
-    next(e);
-  }
-}
-async function updateAllMembers(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const members = await service.updateAllMembers(id, player => {
-      // Attempt this 5 times per player, waiting 65 seconds in between
-      addJob('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
-    });
-
-    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
     res.json({ message });
   } catch (e) {
     next(e);
   }
 }
 
+// PUT /groups/:id/change-role
+async function changeRole(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { username, role, verificationCode } = req.body;
+
+    const result = await groupService.changeRole(id, username, role, verificationCode);
+
+    res.json(result);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /groups/:id/update-all
+async function updateAll(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const members = await groupService.updateAllMembers(id, player => {
+      // Attempt this 5 times per player, waiting 65 seconds in between
+      addJob('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+    });
+
+    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
+
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /groups/:id/add-members
+async function addMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { verificationCode, members } = req.body;
+
+    const result = await groupService.addMembers(id, verificationCode, members);
+
+    res.json({ members: result });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /groups/:id/remove-members
+async function removeMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { verificationCode, members } = req.body;
+
+    const count = await groupService.removeMembers(id, verificationCode, members);
+    const message = `Successfully removed ${count} members from group of id: ${id}`;
+
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/members
+async function listMembers(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const membersList = await groupService.getMembersList(id);
+    res.json(membersList);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/competitions
+async function competitions(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // Get all group competitions (by group id)
+    const groupCompetitions = await competitionService.getGroupCompetitions(id);
+
+    res.json(groupCompetitions);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/monthly-top
+async function monthlyTop(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    // Get the member with the most monthly overall gains
+    const topPlayer = await groupService.getMonthlyTopPlayer(id);
+
+    res.json(topPlayer);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/gained
+async function gained(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = getPaginationConfig(limit, offset);
+
+    const results = await groupService.getGained(id, period, metric, paginationConfig);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/achievements
+async function achievements(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { limit, offset } = req.query;
+    const paginationConfig = getPaginationConfig(limit, offset);
+
+    const results = await groupService.getAchievements(id, paginationConfig);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/records
+async function records(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, period, limit, offset } = req.query;
+    const paginationConfig = getPaginationConfig(limit, offset);
+
+    const results = await groupService.getRecords(id, metric, period, paginationConfig);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/hiscores
+async function hiscores(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { metric, limit, offset } = req.query;
+    const paginationConfig = getPaginationConfig(limit, offset);
+
+    const results = await groupService.getHiscores(id, metric, paginationConfig);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/:id/statistics
+async function statistics(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const results = await groupService.getStatistics(id);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
-  listGroups,
-  viewGroup,
-  monthlyTop,
-  listMembers,
-  createGroup,
-  editGroup,
-  deleteGroup,
-  addMembers,
-  removeMembers,
+  index,
+  create,
+  edit,
+  remove,
   changeRole,
-  updateAllMembers,
-  deltas,
-  statistics,
-  hiscores,
+  updateAll,
+  details,
+  monthlyTop,
+  gained,
+  achievements,
   records,
-  achievements
+  hiscores,
+  statistics,
+  competitions,
+  listMembers,
+  addMembers,
+  removeMembers
 };
