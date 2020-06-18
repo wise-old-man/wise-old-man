@@ -17,8 +17,17 @@ function getCellValue(row, key, get, transform) {
   return [transform ? transform(value, row) : value, value];
 }
 
-function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, onRowClicked }) {
+function Table({
+  rows,
+  columns,
+  uniqueKeySelector,
+  highlightedIndex,
+  listStyle,
+  onRowClicked,
+  metricType
+}) {
   const [sorting, setSorting] = useState(DEFAULT_SORTING);
+  const [metric, setMetric] = useState(metricType);
 
   const handleHeaderClicked = key => {
     let sortNext = SORT.DEFAULT;
@@ -56,11 +65,18 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
     [columns, sorting]
   );
 
-  // When table gets unmounted, reset sorting to defualt
-  useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
-
   const clickable = !!onRowClicked;
   const tableClass = classNames('table', { '-clickable': clickable, '-list': listStyle });
+
+  const resetSort = () => {
+    setMetric(metricType);
+    if (!clickable || metric !== metricType) setSorting(DEFAULT_SORTING);
+  };
+
+  // When rows changes, reset sorting
+  useEffect(() => {
+    resetSort();
+  }, [rows]);
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
@@ -138,7 +154,8 @@ Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
   listStyle: false,
-  highlightedIndex: -1
+  highlightedIndex: -1,
+  metricType: undefined
 };
 
 Table.propTypes = {
@@ -165,7 +182,10 @@ Table.propTypes = {
   listStyle: PropTypes.bool,
 
   // Event: fired when a row is clicked (if clickable)
-  onRowClicked: PropTypes.func
+  onRowClicked: PropTypes.func,
+
+  // Using this with useState we can determine if user went from metric to another
+  metricType: PropTypes.string
 };
 
 export default React.memo(Table);

@@ -182,6 +182,7 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
         uniqueKeySelector={uniqueKeySelector}
         onRowClicked={onRowClicked}
         highlightedIndex={highlightedIndex}
+        metricType={metricType}
       />
     </>
   );
