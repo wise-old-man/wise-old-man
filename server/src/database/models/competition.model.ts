@@ -17,6 +17,7 @@ import { Group, Player, Participation } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'competitions',
   indexes: [
     {
       unique: true,
@@ -114,8 +115,7 @@ export default class Competition extends Model<Competition> {
 
   @BelongsToMany(() => Player, {
     as: 'participants',
-    through: () => Participation,
-    foreignKey: 'competitionId'
+    through: () => Participation
   })
   participants: Player[];
 }

@@ -15,6 +15,7 @@ import HiscoreValues from './hiscoreValues.model';
 
 // Define other table options
 const options = {
+  modelName: 'initialValues',
   createdAt: false,
   indexes: [
     {

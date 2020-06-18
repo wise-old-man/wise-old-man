@@ -4,6 +4,7 @@ import { Player, Group } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'memberships',
   indexes: [
     {
       unique: true,
@@ -19,10 +20,16 @@ export default class Membership extends Model<Membership> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
+  @BelongsTo(() => Player)
+  player: Player;
+
   @PrimaryKey
   @ForeignKey(() => Group)
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   groupId: number;
+
+  @BelongsTo(() => Group)
+  group: Group;
 
   @Column({
     type: DataType.ENUM(...roles),
@@ -36,12 +43,6 @@ export default class Membership extends Model<Membership> {
     }
   })
   role: string;
-
-  @BelongsTo(() => Player, 'playerId')
-  player: Player;
-
-  @BelongsTo(() => Group, 'groupId')
-  group: Group;
 }
 
 // export default (sequelize, DataTypes) => {

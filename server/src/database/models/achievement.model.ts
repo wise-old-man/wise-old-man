@@ -12,6 +12,7 @@ import { Player } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'achievements',
   updatedAt: false,
   indexes: [
     {

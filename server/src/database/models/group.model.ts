@@ -7,13 +7,13 @@ import {
   Model,
   BelongsToMany,
   AllowNull,
-  Default,
-  HasMany
+  Default
 } from 'sequelize-typescript';
 import { Player, Membership } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'groups',
   indexes: [
     {
       unique: true,
@@ -66,8 +66,7 @@ export default class Group extends Model<Group> {
 
   @BelongsToMany(() => Player, {
     as: 'members',
-    through: () => Membership,
-    otherKey: 'groupId'
+    through: () => Membership
   })
   members: Player[];
 }

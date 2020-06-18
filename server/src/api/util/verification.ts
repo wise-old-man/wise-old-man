@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 
 // Generates a random numeric code with the
 // following format: XXX-XXX-XXX
@@ -23,7 +23,7 @@ async function generateVerification() {
   // This hashed code is to be stored on the database
   // for later authentication (sorta)
   const hashedCode = await new Promise((resolve, reject) => {
-    bcrypt.hash(code, saltRounds, (err, hash) => {
+    hash(code, saltRounds, (err, hash) => {
       if (err) reject(err);
       resolve(hash);
     });
@@ -34,13 +34,12 @@ async function generateVerification() {
 
 async function verifyCode(verificationHash, verificationCode) {
   const verified = await new Promise((resolve, reject) => {
-    bcrypt.compare(verificationCode, verificationHash, (err, result) => {
+    compare(verificationCode, verificationHash, (err, result) => {
       if (err) reject(err);
       resolve(result);
     });
   });
   return verified;
 }
-
 
 export { generateVerification, verifyCode };

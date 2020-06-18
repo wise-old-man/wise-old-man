@@ -3,6 +3,7 @@ import { Player, Competition } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'participations',
   indexes: [
     {
       unique: true,
@@ -18,13 +19,13 @@ export default class Participation extends Model<Participation> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
+  @BelongsTo(() => Player)
+  player: Player;
+
   @PrimaryKey
   @ForeignKey(() => Competition)
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   competitionId: number;
-
-  @BelongsTo(() => Player)
-  player: Player;
 
   @BelongsTo(() => Competition)
   competition: Competition;

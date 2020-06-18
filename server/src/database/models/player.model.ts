@@ -9,12 +9,14 @@ import {
   BelongsToMany,
   HasMany,
   AllowNull,
-  Default
+  Default,
+  BelongsTo
 } from 'sequelize-typescript';
 import { Competition, Group, Snapshot, Participation, Membership } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'players',
   createdAt: 'registeredAt',
   indexes: [
     {
@@ -95,17 +97,15 @@ export default class Player extends Model<Player> {
 
   @BelongsToMany(() => Competition, {
     as: 'participants',
-    through: () => Participation,
-    foreignKey: 'playerId'
+    through: () => Participation
   })
   participants: Competition;
 
   @BelongsToMany(() => Group, {
     as: 'members',
-    through: () => Membership,
-    otherKey: 'playerId'
+    through: () => Membership
   })
-  memberships: Group;
+  members: Group;
 
   @HasMany(() => Snapshot, 'playerId')
   snapshots: Snapshot[];

@@ -17,6 +17,7 @@ import { Player } from '.';
 
 // Define other table options
 const options = {
+  modelName: 'records',
   createdAt: false,
   indexes: [
     {
@@ -51,6 +52,9 @@ export default class Record extends Model<Record> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
+  @BelongsTo(() => Player)
+  player: Player;
+
   @AllowNull(false)
   @Column({
     type: DataType.ENUM(...periods),
@@ -84,9 +88,6 @@ export default class Record extends Model<Record> {
     }
   })
   value: number;
-
-  @BelongsTo(() => Player)
-  player: Player;
 }
 
 // export default (sequelize, DataTypes) => {
