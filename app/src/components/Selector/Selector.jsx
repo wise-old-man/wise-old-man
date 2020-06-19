@@ -84,7 +84,10 @@ function Selector({ options, selectedIndex, onSelect, disabled, search }) {
                 <button
                   key={o.value}
                   type="button"
-                  className={itemClass(i === selectedIndex, o.label.toLowerCase().includes(searchText))}
+                  className={itemClass(
+                    i === selectedIndex,
+                    o.label.toLowerCase().includes(searchText.toLowerCase())
+                  )}
                   onMouseDown={() => onSelection(o)}
                 >
                   {o.icon && <img className="selector-item__icon" src={o.icon} alt="" />}
