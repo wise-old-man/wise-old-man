@@ -7,7 +7,7 @@ import TextLabel from '../../../../components/TextLabel';
 import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
-function renderSkillsTable(snapshot, showVirtualLevels) {
+function renderSkillsTable(snapshot, showVirtualLevels, metricType) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
     .map(s => getLevel(snapshot[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
@@ -52,10 +52,12 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
+  return (
+    <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} metricType={metricType} />
+  );
 }
 
-function renderBossesTable(snapshot) {
+function renderBossesTable(snapshot, metricType) {
   const rows = BOSSES.map(boss => {
     const { kills, rank } = snapshot[boss];
     return { metric: boss, kills, rank, ehb: 0 };
@@ -110,10 +112,12 @@ function renderBossesTable(snapshot) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
+  return (
+    <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} metricType={metricType} />
+  );
 }
 
-function renderActivitiesTable(snapshot) {
+function renderActivitiesTable(snapshot, metricType) {
   const rows = ACTIVITIES.map(activity => {
     const { score, rank } = snapshot[activity];
     return { metric: activity, score, rank };
@@ -145,7 +149,9 @@ function renderActivitiesTable(snapshot) {
     }
   ];
 
-  return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
+  return (
+    <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} metricType={metricType} />
+  );
 }
 
 function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) {
@@ -160,14 +166,14 @@ function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) 
   }
 
   if (metricType === 'skilling') {
-    return renderSkillsTable(latestSnapshot, showVirtualLevels);
+    return renderSkillsTable(latestSnapshot, showVirtualLevels, metricType);
   }
 
   if (metricType === 'activities') {
-    return renderActivitiesTable(latestSnapshot);
+    return renderActivitiesTable(latestSnapshot, metricType);
   }
 
-  return renderBossesTable(latestSnapshot);
+  return renderBossesTable(latestSnapshot, metricType);
 }
 
 PlayerStatsTable.propTypes = {

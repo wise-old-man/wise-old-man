@@ -27,7 +27,6 @@ function Table({
   metricType
 }) {
   const [sorting, setSorting] = useState(DEFAULT_SORTING);
-  const [metric, setMetric] = useState(metricType);
 
   const handleHeaderClicked = key => {
     let sortNext = SORT.DEFAULT;
@@ -69,14 +68,11 @@ function Table({
   const tableClass = classNames('table', { '-clickable': clickable, '-list': listStyle });
 
   const resetSort = () => {
-    setMetric(metricType);
-    if (!clickable || metric !== metricType) setSorting(DEFAULT_SORTING);
+    setSorting(DEFAULT_SORTING);
   };
 
-  // When rows changes, reset sorting
-  useEffect(() => {
-    resetSort();
-  }, [rows]);
+  // When metricType changes, reset sorting on unmount
+  useEffect(() => () => resetSort(), [metricType]);
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
