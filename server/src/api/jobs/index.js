@@ -1,6 +1,6 @@
 const Queue = require('bull');
 const redisConfig = require('./redis');
-
+const logger = require('../logger');
 const jobs = require('./instances');
 const crons = require('./crons');
 
@@ -56,7 +56,13 @@ function instance() {
       // On Success callback
       queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));
       // On Failure callback
-      queue.bull.on('failed', (job, err) => queue.onFail && queue.onFail(job.data, err));
+      queue.bull.on('failed', (job, error) => {
+        if (queue.onFail) {
+          queue.onFail(job.data, error);
+        }
+
+        logger.error(`Failed job (${job.queue.name})`, { data: job.data, error });
+      });
     });
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
