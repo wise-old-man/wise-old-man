@@ -53,15 +53,20 @@ function instance() {
     // Initialize all queue processing
     queues.forEach(queue => {
       queue.bull.process(queue.handle);
+
       // On Success callback
       queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));
+
       // On Failure callback
       queue.bull.on('failed', (job, error) => {
         if (queue.onFail) {
           queue.onFail(job.data, error);
         }
 
-        logger.error(`Failed job (${job.queue.name})`, { data: job.data, error });
+        logger.error(`Failed job (${job.queue.name})`, {
+          data: job.data,
+          error: { ...error, message: error.message || '' }
+        });
       });
     });
 
