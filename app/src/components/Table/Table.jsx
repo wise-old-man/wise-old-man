@@ -67,12 +67,8 @@ function Table({
   const clickable = !!onRowClicked;
   const tableClass = classNames('table', { '-clickable': clickable, '-list': listStyle });
 
-  const resetSort = () => {
-    setSorting(DEFAULT_SORTING);
-  };
-
   // When metricType changes, reset sorting on unmount
-  useEffect(() => () => resetSort(), [metricType]);
+  useEffect(() => () => setSorting(DEFAULT_SORTING), [metricType]);
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
