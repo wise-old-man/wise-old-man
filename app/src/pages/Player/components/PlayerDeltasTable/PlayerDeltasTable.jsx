@@ -149,7 +149,6 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
   const { data } = deltas[period];
 
   const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
-  const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
 
   const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
 
@@ -181,7 +180,7 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
         columns={columns}
         uniqueKeySelector={uniqueKeySelector}
         onRowClicked={onRowClicked}
-        highlightedIndex={highlightedIndex}
+        highlightedMetric={highlightedMetric}
         metricType={metricType}
       />
     </>

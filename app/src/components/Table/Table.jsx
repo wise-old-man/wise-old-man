@@ -21,7 +21,7 @@ function Table({
   rows,
   columns,
   uniqueKeySelector,
-  highlightedIndex,
+  highlightedMetric,
   listStyle,
   onRowClicked,
   metricType
@@ -85,6 +85,8 @@ function Table({
   // Memoize the sorting, to avoid re-sorting on every re-render
   const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, handleSort]);
 
+  const highlightedIndex = sortedRows.map(r => r.metric).indexOf(highlightedMetric);
+
   return (
     <table className={tableClass} cellSpacing="0" cellPadding="0">
       {/* Colgroups */}
@@ -146,7 +148,7 @@ Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
   listStyle: false,
-  highlightedIndex: -1,
+  highlightedMetric: undefined,
   metricType: undefined
 };
 
@@ -168,7 +170,7 @@ Table.propTypes = {
   uniqueKeySelector: PropTypes.func.isRequired,
 
   // The row to be displayed as highlighted (lighter color)
-  highlightedIndex: PropTypes.number,
+  highlightedMetric: PropTypes.string,
 
   // If enabled, the table will be displayed as a list (no headers, seperate rows)
   listStyle: PropTypes.bool,
