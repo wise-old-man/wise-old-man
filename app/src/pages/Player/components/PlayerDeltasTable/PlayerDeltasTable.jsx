@@ -153,9 +153,9 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
 
   const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
 
-  function handleRowClicked(index) {
-    if (rows && rows[index]) {
-      onMetricSelected(rows[index].metric);
+  function handleRowClicked(index, sortedRows) {
+    if (sortedRows && sortedRows[index]) {
+      onMetricSelected(sortedRows[index].metric);
     }
   }
 
