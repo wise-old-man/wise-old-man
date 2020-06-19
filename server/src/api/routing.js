@@ -1,5 +1,6 @@
 const express = require('express');
 const { NotFoundError } = require('./errors');
+const logger = require('./logger');
 const playerRoutes = require('./modules/players/player.route');
 const deltaRoutes = require('./modules/deltas/delta.route');
 const recordRoutes = require('./modules/records/record.route');
@@ -26,6 +27,13 @@ router.use((req, res, next) => {
 
 // Handle errors
 router.use((error, req, res, next) => {
+  const { query, params, body, originalUrl } = req;
+
+  logger.error(`Failed endpoint (${originalUrl})`, {
+    data: { query, params, body },
+    error
+  });
+
   res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
 });
 
