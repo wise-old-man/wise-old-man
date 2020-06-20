@@ -4,7 +4,6 @@ import {
   DataType,
   PrimaryKey,
   AutoIncrement,
-  Model,
   ForeignKey,
   BelongsTo,
   AllowNull
@@ -94,45 +93,3 @@ function buildDynamicSchema(DataTypes) {
 
   return obj;
 }
-
-// export default (sequelize, DataTypes) => {
-//   const schema = {
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//       autoIncrement: true
-//     },
-//     playerId: {
-//       type: DataTypes.INTEGER,
-//       allowNull: false
-//     },
-//     ...buildDynamicSchema(DataTypes)
-//   };
-
-//   // Define other table options
-//   const options = {
-//     createdAt: false,
-//     indexes: [
-//       {
-//         unique: true,
-//         fields: ['id']
-//       },
-//       {
-//         fields: ['playerId']
-//       }
-//     ]
-//   };
-
-//   // Create the model
-//   const InitialValues = sequelize.define('initialValues', schema, options);
-
-//   // Define all model associations
-//   InitialValues.associate = models => {
-//     InitialValues.belongsTo(models.Player, {
-//       foreignKey: 'playerId',
-//       onDelete: 'CASCADE'
-//     });
-//   };
-
-//   return InitialValues;
-// };

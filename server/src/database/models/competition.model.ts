@@ -9,8 +9,7 @@ import {
   BelongsToMany,
   BelongsTo,
   AllowNull,
-  Default,
-  HasMany
+  Default
 } from 'sequelize-typescript';
 import { ALL_METRICS } from '../../api/constants/metrics';
 import { Group, Player, Participation } from '.';
