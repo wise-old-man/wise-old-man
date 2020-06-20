@@ -5,9 +5,9 @@ import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import PlayerTag from '../../components/PlayerTag';
-import TableList from '../../components/TableList';
+import Table from '../../components/Table';
 import NumberLabel from '../../components/NumberLabel';
-import TableListPlaceholder from '../../components/TableListPlaceholder';
+import TablePlaceholder from '../../components/TablePlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
 import {
   formatDate,
@@ -134,7 +134,7 @@ function Records() {
   return (
     <div className="records__container container">
       <Helmet>
-        <title>{`${capitalize(selectedMetric)} global records`}</title>
+        <title>{`${getMetricName(selectedMetric)} global records`}</title>
       </Helmet>
       <div className="records__header row">
         <div className="col">
@@ -165,36 +165,39 @@ function Records() {
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Day</h3>
           {!leaderboard || !leaderboard.day ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={tableConfig.uniqueKey}
               columns={tableConfig.columns}
               rows={leaderboard.day}
+              listStyle
             />
           )}
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Week</h3>
           {!leaderboard || !leaderboard.week ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={tableConfig.uniqueKey}
               columns={tableConfig.columns}
               rows={leaderboard.week}
+              listStyle
             />
           )}
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Month</h3>
           {!leaderboard || !leaderboard.month ? (
-            <TableListPlaceholder size={20} />
+            <TablePlaceholder size={20} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={tableConfig.uniqueKey}
               columns={tableConfig.columns}
               rows={leaderboard.month}
+              listStyle
             />
           )}
         </div>

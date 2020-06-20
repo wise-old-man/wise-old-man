@@ -30,10 +30,10 @@ import trackPlayerAction from '../../redux/modules/players/actions/track';
 import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
 import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
-import fetchDeltasAction from '../../redux/modules/deltas/actions/fetch';
+import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
 import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
-import fetchRecordsAction from '../../redux/modules/records/actions/fetch';
-import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetch';
+import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerRecords';
+import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
@@ -203,10 +203,6 @@ function Player() {
     return `/players/${newOptions.id}/${newOptions.section}/${newOptions.metricType}${query}`;
   };
 
-  const handleTabChanged = i => {
-    router.push(getNextUrl({ section: TABS[i].toLowerCase() }));
-  };
-
   const handlePeriodSelected = e => {
     router.push(getNextUrl({ period: e.value }));
   };
@@ -247,7 +243,6 @@ function Player() {
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
   const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [id]);
 
-  // Fetch all player info on mount
   useEffect(fetchAll, [dispatch, id]);
 
   if (!player) {
@@ -280,9 +275,8 @@ function Player() {
           <Tabs
             tabs={TABS}
             selectedIndex={selectedTabIndex}
-            onChange={handleTabChanged}
+            urlSelector={i => getNextUrl({ section: TABS[i].toLowerCase() })}
             align="space-between"
-            specialHighlightIndex={5}
           />
         </div>
         {selectedTabIndex === 0 && (

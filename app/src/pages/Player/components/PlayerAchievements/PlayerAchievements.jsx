@@ -52,7 +52,7 @@ function AchievementOrb({ achievement }) {
 
   const { createdAt, progress, type, threshold, unknownDate } = achievement;
 
-  const isCompleted = progress === 1;
+  const isCompleted = progress.absolutePercent === 1;
 
   const formattedThreshold = formatThreshold(threshold);
   const className = classNames('achievement-orb', { '-completed': isCompleted });
@@ -67,7 +67,7 @@ function AchievementOrb({ achievement }) {
 
 function ProgressBar({ progress, equalSizes }) {
   const className = classNames('achievement-progress', {
-    '-full': equalSizes || (progress > 0 && progress < 1)
+    '-full': equalSizes || (progress >= 0 && progress < 1)
   });
 
   const progressInt = Math.floor(progress * 100);
@@ -85,20 +85,20 @@ function PlayerAchievements({ groupedAchievements, metricType }) {
   const nearest = groups
     .map(g => g.achievements)
     .flat()
-    .filter(a => a.progress < 1 && a.measure !== 'levels')
-    .sort((a, b) => b.progress - a.progress)
+    .filter(a => a.progress.absolutePercent < 1 && a.measure !== 'levels')
+    .sort((a, b) => b.progress.absolutePercent - a.progress.absolutePercent)
     .slice(0, 10);
 
   const nearestItems = nearest.map(i => ({
     icon: getMetricIcon(i.metric),
     title: i.type,
-    subtitle: `${Math.round(i.progress * 10000) / 100}% completed`
+    subtitle: `${Math.round(i.progress.absolutePercent * 10000) / 100}% completed`
   }));
 
   const equalSizes = achievements =>
     achievements.length === 1 ||
-    achievements.filter(g => g.progress === 1).length === achievements.length ||
-    achievements.filter(g => g.progress === 0).length === achievements.length;
+    achievements.filter(g => g.progress.percentToNextTier === 1).length === achievements.length ||
+    achievements.filter(g => g.progress.percentToNextTier === 0).length === achievements.length;
 
   return (
     <>
@@ -112,14 +112,17 @@ function PlayerAchievements({ groupedAchievements, metricType }) {
             <div className="group-icon">
               <img src={getMetricIcon(metric)} alt="" />
             </div>
-            <b className="group-title">
+            <b className={`group-title -${metricType}`}>
               {achievements.length > 1 ? getMetricName(metric) : achievements[0].type}
             </b>
             <div className="group-progress">
               <AchievementOrb achievement={null} />
               {achievements.map(achievement => (
                 <Fragment key={achievement.type}>
-                  <ProgressBar progress={achievement.progress} equalSizes={equalSizes(achievements)} />
+                  <ProgressBar
+                    progress={achievement.progress.percentToNextTier}
+                    equalSizes={equalSizes(achievements)}
+                  />
                   <AchievementOrb achievement={achievement} />
                 </Fragment>
               ))}

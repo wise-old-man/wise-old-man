@@ -4,15 +4,27 @@ import { getPlayer } from './players';
 import { getTotalLevel } from '../../utils';
 import { ALL_METRICS } from '../../config';
 
-const achievementsSelector = state => state.achievements.achievements;
+const rootSelector = state => state.achievements;
+const playerAchievementsSelector = state => state.achievements.playerAchievements;
+const groupAchievementsSelector = state => state.achievements.groupAchievements;
 
-export const getAchievementsMap = createSelector(achievementsSelector, map => {
+export const isFetchingGroupAchievements = createSelector(
+  rootSelector,
+  root => root.isFetchingGroupAchievements
+);
+
+export const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
   return _.mapValues(map, p => p.map(a => formatAchievement(a)));
 });
 
-export const getAchievements = createSelector(achievementsSelector, map => Object.values(map));
+export const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
+  return _.mapValues(map, p => p.map(a => formatAchievement(a)));
+});
 
-export const getPlayerAchievements = (state, playerId) => getAchievementsMap(state)[playerId];
+export const getAchievements = createSelector(playerAchievementsSelector, map => Object.values(map));
+
+export const getPlayerAchievements = (state, playerId) => getPlayerAchievementsMap(state)[playerId];
+export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
 
 export const getPlayerAchievementsGrouped = (state, playerId) => {
   const player = getPlayer(state, playerId);
@@ -51,19 +63,32 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
 };
 
 function processGroup(player, group) {
-  if (!player) {
+  if (!player || !player.latestSnapshot) {
     return group;
   }
 
   const { latestSnapshot } = player;
 
   if (group.metric === 'combat') {
-    const progress = player.combatLevel / 126;
+    const progress = {
+      start: 0,
+      end: 126,
+      current: player.combatLevel,
+      percentToNextTier: player.combatLevel / 126,
+      absolutePercent: player.combatLevel / 126
+    };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
   if (group.metric === 'overall' && group.measure === 'levels') {
-    const progress = getTotalLevel(latestSnapshot) / 2277;
+    const totalLevel = getTotalLevel(latestSnapshot);
+    const progress = {
+      start: 36,
+      end: 2277,
+      current: totalLevel,
+      percentToNextTier: totalLevel / 2277,
+      absolutePercent: totalLevel / 2277
+    };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
@@ -72,16 +97,31 @@ function processGroup(player, group) {
 
     const processedAchievements = group.achievements.map((achievement, i) => {
       if (currentValue >= achievement.threshold) {
-        return { ...achievement, progress: 1 };
+        return {
+          ...achievement,
+          progress: {
+            start: 0,
+            end: achievement.threshold,
+            current: currentValue,
+            percentToNextTier: 1,
+            absolutePercent: 1
+          }
+        };
       }
 
       const prevStart = i === 0 ? 0 : group.achievements[i - 1].threshold;
-      const currentProgress = Math.max(
-        0,
-        (currentValue - prevStart) / (achievement.threshold - prevStart)
-      );
+      const nextTierProgress = (currentValue - prevStart) / (achievement.threshold - prevStart);
 
-      return { ...achievement, progress: currentProgress };
+      return {
+        ...achievement,
+        progress: {
+          start: 0,
+          end: achievement.threshold,
+          current: currentValue,
+          percentToNextTier: Math.max(0, nextTierProgress),
+          absolutePercent: currentValue / achievement.threshold
+        }
+      };
     });
 
     return { ...group, achievements: processedAchievements };

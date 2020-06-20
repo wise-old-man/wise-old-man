@@ -85,6 +85,7 @@ function AutoSuggestInput({ suggestions, onInput, onSelected, clearOnSelect, pla
         placeholder={placeholder}
         onChange={onChange}
         onKeyUp={onKeyUp}
+        autoComplete="off"
       />
       {isShowing && suggestions && suggestions.length > 0 && (
         <ul className="auto-suggest__list">

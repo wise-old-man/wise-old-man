@@ -69,7 +69,7 @@ function NavigationBar() {
           <ul className={menuClass}>
             <li className="nav-links__item">
               <form onSubmit={onSearchSubmit}>
-                <TextInput placeholder="Search player" onChange={onSearchChanged} search />
+                <TextInput placeholder="Search player" onChange={onSearchChanged} />
                 <button type="submit" style={{ display: 'none' }} />
               </form>
             </li>

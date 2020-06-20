@@ -108,7 +108,8 @@ const GET_GROUP_LEADERBOARD = (metricKey, ids) => `
     ) i ON player.id = i."pId"
     WHERE NOT player.type = 'unknown' AND player.id IN (${ids})
     ORDER BY gained DESC
-    LIMIT :limit`;
+    LIMIT :limit
+    OFFSET :offset`;
 
 exports.GET_PLAYER_DELTA = GET_PLAYER_DELTA;
 exports.GET_PERIOD_LEADERBOARD = GET_PERIOD_LEADERBOARD;

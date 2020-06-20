@@ -9,8 +9,7 @@ const {
   ACTIVITIES,
   getRankKey,
   getValueKey,
-  getMeasure,
-  isSkill
+  getMeasure
 } = require('../../constants/metrics');
 const PERIODS = require('../../constants/periods');
 const { Snapshot } = require('../../../database');
@@ -66,14 +65,14 @@ async function findAll(playerId, limit) {
  *    etc
  * }
  */
-async function findAllGrouped(playerId) {
+async function getAllGrouped(playerId) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
   const partials = await Promise.all(
     PERIODS.map(async period => {
-      const list = await findAllInPeriod(playerId, period);
+      const list = await getAllInPeriod(playerId, period);
       return { period, snapshots: list };
     })
   );
@@ -86,7 +85,7 @@ async function findAllGrouped(playerId) {
 /**
  * Finds all snapshots within a time period, for a given player.
  */
-async function findAllInPeriod(playerId, period) {
+async function getAllInPeriod(playerId, period) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -120,34 +119,6 @@ async function findLatest(playerId) {
 }
 
 /**
- * Finds the first snapshot in the given time period for a given player.
- */
-async function findFirstIn(playerId, period) {
-  if (!PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period ${period}.`);
-  }
-
-  const before = moment().subtract(1, period);
-
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: before.toDate() } },
-    order: [['createdAt', 'ASC']]
-  });
-  return result;
-}
-
-/**
- * Finds the first snapshot since the given date for a given player.
- */
-async function findFirstSince(playerId, date) {
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [['createdAt', 'ASC']]
-  });
-  return result;
-}
-
-/**
  * Finds all snapshots between the two given dates,
  * for any of the given player ids.
  * Useful for tracking the evolution of every player in a competition.
@@ -163,32 +134,22 @@ async function findAllBetween(playerIds, startDate, endDate) {
   return results;
 }
 
-/**
- * Calculates the difference in ranks and values (for every metric), between two snapshots
- */
-function diff(start, end, initialValues) {
-  const obj = {};
+function average(snapshots) {
+  if (!snapshots && snapshots.length === 0) {
+    throw new ServerError('Invalid snapshots list. Failed to find average.');
+  }
 
-  ALL_METRICS.forEach(s => {
-    const rankKey = getRankKey(s);
-    const valueKey = getValueKey(s);
+  const accumulator = {};
+  const invalidKeys = ['id', 'createdAt', 'importedAt', 'playerId'];
+  const keys = Object.keys(snapshots[0]).filter(k => !invalidKeys.includes(k));
 
-    const initialRank = initialValues ? initialValues[rankKey] : -1;
-    const initialValue = initialValues ? initialValues[valueKey] : -1;
-
-    const endValue = end[valueKey];
-    const endRank = end[rankKey];
-
-    const startValue = start[valueKey] === -1 ? initialValue : start[valueKey];
-    const startRank = start[rankKey] === -1 && !isSkill(s) ? initialRank : start[rankKey];
-
-    // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
-    obj[rankKey] = isSkill(s) && start[rankKey] === -1 ? 0 : endRank - startRank;
-    obj[valueKey] = endValue - startValue;
+  keys.forEach(key => {
+    const sum = snapshots.map(s => s[key]).reduce((acc, cur) => acc + parseInt(cur, 10), 0);
+    const avg = Math.round(sum / snapshots.length);
+    accumulator[key] = avg;
   });
 
-  return obj;
+  return accumulator;
 }
 
 /**
@@ -199,6 +160,10 @@ function diff(start, end, initialValues) {
  * are from a single player.
  */
 async function saveAll(snapshots) {
+  if (snapshots.length === 0) {
+    return [];
+  }
+
   const { playerId } = snapshots[0];
 
   const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
@@ -305,15 +270,16 @@ async function fromRS(playerId, csvData) {
   return newSnapshot;
 }
 
+// Utils
 exports.format = format;
 exports.findAll = findAll;
-exports.findAllGrouped = findAllGrouped;
-exports.findAllInPeriod = findAllInPeriod;
-exports.findFirstIn = findFirstIn;
-exports.findFirstSince = findFirstSince;
 exports.findLatest = findLatest;
 exports.findAllBetween = findAllBetween;
-exports.diff = diff;
+exports.average = average;
 exports.saveAll = saveAll;
 exports.fromCML = fromCML;
 exports.fromRS = fromRS;
+
+// Handlers
+exports.getAllGrouped = getAllGrouped;
+exports.getAllInPeriod = getAllInPeriod;

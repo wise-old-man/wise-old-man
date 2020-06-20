@@ -1,5 +1,4 @@
 import entities from './entities';
-import endpoints from './endpoints';
 
 export default {
   title: 'Snapshots',
@@ -8,5 +7,5 @@ export default {
     "A snapshot represents a player's account stats at any given point in time,\
     this currently includes the experience/score/kills and ranks of all the metrics.",
   entities,
-  endpoints
+  endpoints: []
 };

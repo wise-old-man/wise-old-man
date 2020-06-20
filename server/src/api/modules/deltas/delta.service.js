@@ -36,7 +36,7 @@ async function syncInitialValues(playerId) {
  * Get a player delta for a specific period.
  * Note: if initialVals is undefined, this method will force-fetch it.
  */
-async function getDelta(playerId, period, initialVals = null) {
+async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
   if (!playerId) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -137,12 +137,12 @@ async function getLeaderboard(metric, playerType) {
 /**
  * Gets the all the deltas for a specific playerId.
  */
-async function getAllDeltas(playerId) {
+async function getPlayerDeltas(playerId) {
   const initialValues = await InitialValues.findOne({ where: { playerId } });
 
   const partials = await Promise.all(
     PERIODS.map(async period => {
-      const list = await getDelta(playerId, period, initialValues);
+      const list = await getPlayerPeriodDeltas(playerId, period, initialValues);
       return { period, deltas: list };
     })
   );
@@ -186,7 +186,7 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
+async function getGroupLeaderboard(metric, period, playerIds, pagination) {
   const metricKey = getValueKey(metric);
   const seconds = getSeconds(period);
   const ids = playerIds.join(',');
@@ -194,7 +194,7 @@ async function getGroupLeaderboard(metric, period, playerIds, limit = 10000) {
   const query = queries.GET_GROUP_LEADERBOARD(metricKey, ids);
 
   const results = await sequelize.query(query, {
-    replacements: { seconds, limit },
+    replacements: { seconds, ...pagination },
     type: QueryTypes.SELECT
   });
 
@@ -242,7 +242,7 @@ function diff(start, end, initial) {
     const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/psikoi/wise-old-man/pull/93 from creating crazy diffs
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
     const gainedValue = endValue - startValue;
 
@@ -268,26 +268,18 @@ function emptyDiff() {
 
   ALL_METRICS.forEach(metric => {
     diffObj[metric] = {
-      rank: {
-        start: 0,
-        end: 0,
-        gained: 0
-      },
-      [getMeasure(metric)]: {
-        start: 0,
-        end: 0,
-        gained: 0
-      }
+      rank: { start: 0, end: 0, gained: 0 },
+      [getMeasure(metric)]: { start: 0, end: 0, gained: 0 }
     };
   });
 
   return diffObj;
 }
 
-exports.getAllDeltas = getAllDeltas;
-exports.getDelta = getDelta;
-exports.getPeriodLeaderboard = getPeriodLeaderboard;
+exports.getPlayerDeltas = getPlayerDeltas;
+exports.getPlayerPeriodDeltas = getPlayerPeriodDeltas;
 exports.getLeaderboard = getLeaderboard;
+exports.getPeriodLeaderboard = getPeriodLeaderboard;
 exports.getGroupLeaderboard = getGroupLeaderboard;
 exports.getCompetitionLeaderboard = getCompetitionLeaderboard;
 exports.syncInitialValues = syncInitialValues;

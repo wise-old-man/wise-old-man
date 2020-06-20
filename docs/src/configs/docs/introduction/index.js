@@ -8,7 +8,7 @@ export default {
     {
       type: 'link',
       label: 'Contribute to this project on github:',
-      url: 'https://github.com/psikoi/wise-old-man'
+      url: 'https://github.com/wise-old-man/wise-old-man'
     },
     {
       type: 'link',
@@ -24,7 +24,7 @@ export default {
       label:
         'Have a suggestion or a bug to report? Please use Github \
         issues for that, through the link below',
-      url: 'https://github.com/psikoi/wise-old-man/issues'
+      url: 'https://github.com/wise-old-man/wise-old-man/issues'
     },
 
     {

@@ -1,0 +1,47 @@
+@import '../../variables.scss';
+
+.popup {
+  position: absolute;
+
+  min-width: 110px;
+  padding: 6px;
+  font-size: 0.4em;
+  font-weight: normal;
+
+  opacity: 0;
+  visibility: hidden;
+
+  background-color: $gray-05;
+  color: $gray-60;
+
+  box-shadow: rgba(0, 0, 0, 0.6) 0 0 5px;
+  border-radius: 5px;
+
+  transition: visibility 0s linear 300ms, opacity 300ms;
+
+  &.-show {
+    opacity: 1;
+    visibility: visible;
+
+    transition: visibility 0s linear 0s, opacity 300ms;
+  }
+
+  &.-success {
+    color: $positive-green;
+  }
+}
+
+.hover {
+  cursor: pointer;
+
+  &:active {
+    outline: none;
+    border: none;
+    opacity: 0.1;
+  }
+
+  &:focus {
+    outline: none;
+    border: none;
+  }
+}

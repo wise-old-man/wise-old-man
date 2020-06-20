@@ -7,3 +7,11 @@
   font-weight: 900;
   font-family: 'Lato';
 }
+
+// Small or lower
+@media only screen and (max-width: $breakpoint-medium) {
+  .page__title {
+    font-size: 1.4em;
+    margin-top: 5px;
+  }
+}

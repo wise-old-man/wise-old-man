@@ -2,10 +2,8 @@ const express = require('express');
 const { NotFoundError } = require('./errors');
 const playerRoutes = require('./modules/players/player.route');
 const deltaRoutes = require('./modules/deltas/delta.route');
-const snapshotRoutes = require('./modules/snapshots/snapshot.route');
 const recordRoutes = require('./modules/records/record.route');
 const competitionRoutes = require('./modules/competitions/competition.route');
-const achievementRoutes = require('./modules/achievements/achievement.route');
 const groupRoutes = require('./modules/groups/group.route');
 
 const router = express.Router();
@@ -16,11 +14,9 @@ router.get('/', (req, res) => {
 
 // Register all the modules to the router
 router.use('/players', playerRoutes);
-router.use('/snapshots', snapshotRoutes);
 router.use('/deltas', deltaRoutes);
 router.use('/records', recordRoutes);
 router.use('/competitions', competitionRoutes);
-router.use('/achievements', achievementRoutes);
 router.use('/groups', groupRoutes);
 
 // Handle endpoint not found

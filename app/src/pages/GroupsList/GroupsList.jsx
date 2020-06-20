@@ -4,10 +4,11 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import PageTitle from '../../components/PageTitle';
+import VerifiedBadge from '../../components/VerifiedBadge';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
-import TableList from '../../components/TableList';
-import TableListPlaceholder from '../../components/TableListPlaceholder';
+import Table from '../../components/Table';
+import TablePlaceholder from '../../components/TablePlaceholder';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchAll';
 import { getGroups, isFetchingAll } from '../../redux/selectors/groups';
 import './GroupsList.scss';
@@ -20,10 +21,22 @@ const TABLE_CONFIG = {
     {
       key: 'name',
       className: () => '-primary',
-      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>
+      transform: (val, row) => {
+        if (row.verified) {
+          return (
+            <Link to={`/groups/${row.id}`}>
+              <VerifiedBadge />
+              {val}
+            </Link>
+          );
+        }
+
+        return <Link to={`/groups/${row.id}`}>{val}</Link>;
+      }
     },
     {
       key: 'memberCount',
+      className: () => '-break-small',
       transform: val => `${val} members`,
       width: 130
     }
@@ -121,12 +134,13 @@ function GroupsList() {
       <div className="groups__list row">
         <div className="col">
           {isLoading && (!groups || groups.length === 0) ? (
-            <TableListPlaceholder size={5} />
+            <TablePlaceholder size={5} />
           ) : (
-            <TableList
+            <Table
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={groups}
+              listStyle
             />
           )}
         </div>

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import AutoSuggestInput from '../../../../components/AutoSuggestInput';
-import TableList from '../../../../components/TableList';
+import Table from '../../../../components/Table';
 import { getGroups } from '../../../../redux/selectors/groups';
 import fetchAction from '../../../../redux/modules/groups/actions/fetchAll';
 import './GroupSelector.scss';
@@ -64,10 +64,11 @@ function GroupSelector({ group, onGroupChanged }) {
       {group ? (
         <>
           <span className="form-row__label">Selected group</span>
-          <TableList
+          <Table
             uniqueKeySelector={TABLE_CONFIG.uniqueKey}
             columns={TABLE_CONFIG.columns}
             rows={[group]}
+            listStyle
           />
         </>
       ) : (

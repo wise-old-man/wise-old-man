@@ -4,7 +4,7 @@
 
 The Open Source Old School Runescape progress tracker.
 
-![API Integration Testing](https://github.com/psikoi/wise-old-man/workflows/API%20Integration%20Testing/badge.svg)
+![API Integration Testing](https://github.com/wise-old-man/wise-old-man/workflows/API%20Integration%20Testing/badge.svg)
 
 The Wise Old Man is an Open source project, meaning anyone in the community can contribute code or ideas to add new functionality.
 
@@ -48,7 +48,7 @@ The project is currently divided into 3 components:
 
 ## Suggestions and bugs
 
-Have a suggestion or a bug to report? [Click here to create a issue](https://github.com/psikoi/wise-old-man/issues)
+Have a suggestion or a bug to report? [Click here to create a issue](https://github.com/wise-old-man/wise-old-man/issues)
 
 Have something else you'd like to discuss? [Join us on discord](https://discord.gg/Ky5vNt2)
 
@@ -58,8 +58,8 @@ Have something else you'd like to discuss? [Join us on discord](https://discord.
 
 Each component of the project has it's own build and development process, check the documentation for each one below:
 
-**Help expand and improve the Wise Old Man API:** [Server / API Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/server-guide.md)
+**Help expand and improve the Wise Old Man API:** [Server / API Development Guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md)
 
-**Help expand and improve the Wise Old Man Web App:** [App Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/app-guide.md)
+**Help expand and improve the Wise Old Man Web App:** [App Development Guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/app-guide.md)
 
-**Help update or improve the Wise Old Man API Docs:** [Docs Development Guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/docs-guide.md)
+**Help update or improve the Wise Old Man API Docs:** [Docs Development Guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/docs-guide.md)

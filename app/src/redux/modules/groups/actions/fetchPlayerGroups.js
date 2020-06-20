@@ -31,11 +31,10 @@ export default function fetchGroups({ playerId }) {
   return dispatch => {
     dispatch(fetchGroupsRequest());
 
-    const url = `${BASE_API_URL}/groups/`;
-    const params = { playerId };
+    const url = `${BASE_API_URL}/players/${playerId}/groups/`;
 
     return axios
-      .get(url, { params })
+      .get(url)
       .then(result => dispatch(fetchGroupsSuccess(result.data, playerId)))
       .catch(error => dispatch(fetchGroupsFailure(error)));
   };

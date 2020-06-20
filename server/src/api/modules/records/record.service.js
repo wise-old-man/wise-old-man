@@ -23,7 +23,7 @@ async function syncRecords(playerId, period) {
   }
 
   const periodRecords = await Record.findAll({ where: { playerId, period } });
-  const periodDelta = await deltaService.getDelta(playerId, period);
+  const periodDelta = await deltaService.getPlayerPeriodDeltas(playerId, period);
 
   const recordMap = _.keyBy(
     periodRecords.map(r => r.toJSON()),
@@ -61,7 +61,7 @@ async function syncRecords(playerId, period) {
  * Finds all records for a given player id.
  * These records can be optionally filtered by period and metric.
  */
-async function findAll(playerId, period, metric) {
+async function getPlayerRecords(playerId, period, metric) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -74,9 +74,7 @@ async function findAll(playerId, period, metric) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const query = {
-    playerId
-  };
+  const query = { playerId };
 
   if (period) {
     query.period = period;
@@ -140,7 +138,40 @@ async function getPeriodLeaderboard(metric, period, playerType) {
   return formattedRecords;
 }
 
+/**
+ * Gets the best records for a specific metric, period and list of players.
+ */
+async function getGroupLeaderboard(metric, period, playerIds, pagination) {
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  if (!metric || !ALL_METRICS.includes(metric)) {
+    throw new BadRequestError(`Invalid metric: ${metric}.`);
+  }
+
+  const records = await Record.findAll({
+    where: { playerId: playerIds, period, metric },
+    include: [{ model: Player }],
+    order: [['value', 'DESC']],
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
+
+  const formattedRecords = records.map(({ player, value, updatedAt }) => ({
+    playerId: player.id,
+    username: player.username,
+    displayName: player.displayName,
+    type: player.type,
+    value,
+    updatedAt
+  }));
+
+  return formattedRecords;
+}
+
 exports.syncRecords = syncRecords;
-exports.findAll = findAll;
-exports.getPeriodLeaderboard = getPeriodLeaderboard;
+exports.getPlayerRecords = getPlayerRecords;
 exports.getLeaderboard = getLeaderboard;
+exports.getPeriodLeaderboard = getPeriodLeaderboard;
+exports.getGroupLeaderboard = getGroupLeaderboard;

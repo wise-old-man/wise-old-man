@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Op, Sequelize } = require('sequelize');
 const moment = require('moment');
-const { ALL_METRICS, getValueKey } = require('../../constants/metrics');
+const { ALL_METRICS, getValueKey, isSkill, isBoss, isActivity } = require('../../constants/metrics');
 const STATUSES = require('../../constants/statuses.json');
 const { Competition, Participation, Player, Group } = require('../../../database');
 const { durationBetween, isValidDate, isPast } = require('../../util/dates');
@@ -28,7 +28,7 @@ function format(competition) {
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function list(title, status, metric, pagination) {
+async function getList(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
   if (status && !STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -65,6 +65,10 @@ async function list(title, status, metric, pagination) {
 
   const competitions = await Competition.findAll({
     where: query,
+    order: [
+      ['score', 'DESC'],
+      ['createdAt', 'DESC']
+    ],
     limit: pagination.limit,
     offset: pagination.offset
   });
@@ -80,9 +84,10 @@ async function list(title, status, metric, pagination) {
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function findForGroup(groupId, pagination) {
+async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset: 0 }) {
   const competitions = await Competition.findAll({
     where: { groupId },
+    order: [['score', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset
   });
@@ -98,7 +103,7 @@ async function findForGroup(groupId, pagination) {
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function findForPlayer(playerId, pagination) {
+async function getPlayerCompetitions(playerId, pagination = { limit: 10000, offset: 0 }) {
   if (!playerId) {
     throw new BadRequestError(`Invalid player id.`);
   }
@@ -114,7 +119,8 @@ async function findForPlayer(playerId, pagination) {
     .map(({ competition }) => ({
       ...format(competition),
       duration: durationBetween(competition.startsAt, competition.endsAt)
-    }));
+    }))
+    .sort((a, b) => b.score - a.score);
 
   const completeCompetitions = await attachParticipantCount(formattedCompetitions);
   return completeCompetitions;
@@ -156,7 +162,7 @@ async function attachParticipantCount(competitions) {
 /**
  * Get all the data on a given competition.
  */
-async function view(id) {
+async function getDetails(id) {
   if (!id) {
     throw new BadRequestError('Invalid competition id.');
   }
@@ -707,16 +713,132 @@ async function updateAllParticipants(id, updateAction) {
   return participants;
 }
 
-exports.list = list;
-exports.findForGroup = findForGroup;
-exports.findForPlayer = findForPlayer;
-exports.view = view;
+async function refreshScores() {
+  const allCompetitions = await Competition.findAll();
+
+  await Promise.all(
+    allCompetitions.map(async competition => {
+      const currentScore = competition.score;
+      const newScore = await calculateScore(competition);
+
+      console.log(competition.title, newScore);
+
+      if (newScore !== currentScore) {
+        await competition.update({ score: newScore });
+      }
+    })
+  );
+}
+
+async function calculateScore(competition) {
+  const now = new Date();
+  let score = 0;
+
+  // If has ended
+  if (competition.endsAt < now) {
+    return score;
+  }
+
+  const data = await getDetails(competition.id);
+  const activeParticipants = data.participants.filter(p => p.progress.gained > 0);
+  const averageGained = data.totalGained / activeParticipants.length;
+
+  // If is ongoing
+  if (competition.startsAt <= now && competition.endsAt >= now) {
+    score += 100;
+  }
+
+  // If is upcoming
+  if (competition.startsAt > now) {
+    const daysLeft = (competition.startsAt - now) / 1000 / 3600 / 24;
+
+    if (daysLeft > 7) {
+      score += 60;
+    } else {
+      score += 80;
+    }
+  }
+
+  // If is group competition
+  if (data.group) {
+    // The highest of 30, or 30% of the group's score
+    score += Math.max(40, data.group.score * 0.4);
+
+    if (data.group.verified) {
+      score += 50;
+    }
+  }
+
+  // If has atleast 10 active participants
+  if (activeParticipants.length >= 10) {
+    score += 60;
+  }
+
+  // If has atleast 50 active participants
+  if (activeParticipants.length >= 50) {
+    score += 80;
+  }
+
+  if (isSkill(competition.metric)) {
+    // If the average active participant has gained > 10k exp
+    if (averageGained > 10000) {
+      score += 30;
+    }
+
+    // If the average active participant has gained > 100k exp
+    if (averageGained > 100000) {
+      score += 50;
+    }
+  }
+
+  if (isBoss(competition.metric)) {
+    // If the average active participant has gained > 5 kc
+    if (averageGained > 5) {
+      score += 30;
+    }
+
+    // If the average active participant has gained > 30 kc
+    if (averageGained > 20) {
+      score += 50;
+    }
+  }
+
+  if (isActivity(competition.metric)) {
+    // If the average active participant has gained > 5 score
+    if (averageGained > 5) {
+      score += 30;
+    }
+
+    // If the average active participant has gained > 50 score
+    if (averageGained > 20) {
+      score += 50;
+    }
+  }
+
+  // Discourage "overall" competitions, they are often tests
+  if (competition.metric !== 'overall') {
+    score += 30;
+  }
+
+  // Discourage "over 2 weeks long" competitions
+  if (competition.endsAt - competition.startsAt < 1209600000) {
+    score += 50;
+  }
+
+  return score;
+}
+
+exports.getList = getList;
+exports.getGroupCompetitions = getGroupCompetitions;
+exports.getPlayerCompetitions = getPlayerCompetitions;
+exports.getDetails = getDetails;
+exports.getParticipants = getParticipants;
 exports.create = create;
 exports.edit = edit;
 exports.destroy = destroy;
 exports.addParticipants = addParticipants;
 exports.removeParticipants = removeParticipants;
-exports.getParticipants = getParticipants;
 exports.addToGroupCompetitions = addToGroupCompetitions;
 exports.removeFromGroupCompetitions = removeFromGroupCompetitions;
 exports.updateAllParticipants = updateAllParticipants;
+exports.refreshScores = refreshScores;

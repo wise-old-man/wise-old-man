@@ -27,7 +27,9 @@ export const getGroupCompetitionsMap = createSelector(groupCompetitionsSelector,
 });
 
 export const getCompetitions = createSelector(competitionsSelector, map => {
-  return Object.values(map).map(c => formatCompetition(c));
+  return Object.values(map)
+    .map(c => formatCompetition(c))
+    .sort((a, b) => b.score - a.score || b.createdAt - a.createdAt);
 });
 
 export const getCompetition = (state, id) => getCompetitionsMap(state)[id];

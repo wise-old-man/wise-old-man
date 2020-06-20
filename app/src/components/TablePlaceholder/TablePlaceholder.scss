@@ -1,0 +1,22 @@
+@import '../../variables.scss';
+
+.table-placeholder {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  &__item {
+    border-radius: $border-radius;
+    background: $gray-05;
+    margin-bottom: 10px;
+    padding: 15px;
+
+    .placeholder-text {
+      width: 100px;
+      height: 12px;
+      margin: 4px 0;
+      background: $gray-17;
+      border-radius: $border-radius;
+    }
+  }
+}

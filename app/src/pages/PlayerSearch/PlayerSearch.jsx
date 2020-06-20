@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Button from '../../components/Button';
-import TableList from '../../components/TableList';
+import Table from '../../components/Table';
 import PlayerTag from '../../components/PlayerTag';
 import { durationBetween } from '../../utils';
 import searchAction from '../../redux/modules/players/actions/search';
@@ -77,10 +77,11 @@ function PlayerSearch() {
         <div className="player-search__list row">
           <div className="col">
             <b>{`Search results for "${username}":`}</b>
-            <TableList
+            <Table
               uniqueKeySelector={TABLE_CONFIG.uniqueKey}
               columns={TABLE_CONFIG.columns}
               rows={searchResults}
+              listStyle
             />
           </div>
         </div>

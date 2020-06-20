@@ -54,6 +54,7 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 ## Environment Variables
 
 Copy the example file to configure the development app
+
 ```
 cp .env.example .env
 ```
@@ -65,7 +66,7 @@ REACT_APP_API_BASE_URL=http://localhost:5000/api
 SKIP_PREFLIGHT_CHECK=true
 ```
 
-**Note: This url will be your development server api url, which can differ from localhost, you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/psikoi/wise-old-man/blob/master/.github/contributing/server-guide.md)**
+**Note: This url will be your development server api url, which can differ from localhost, you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md)**
 
 Alternatively, if you don't want to also develop the api simultaneously and are looking to just make some frontend changes, you can use the following snippet instead, to use the production api url:
 

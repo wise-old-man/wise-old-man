@@ -28,11 +28,6 @@ export default [
         description: 'The status to filter the list by. (See accepted values above) - Optional'
       },
       {
-        field: 'playerId',
-        type: 'string',
-        description: 'The playerId to filter the list by. (See comment above) - Optional'
-      },
-      {
         field: 'limit',
         type: 'integer',
         description: 'The maximum amount of results to return - Optional (Default is 20)'
@@ -51,6 +46,7 @@ export default [
             id: 1,
             title: 'SOTW 52 - Firemaking',
             metric: 'firemaking',
+            score: 150,
             startsAt: '2020-03-20T23:00:00.000Z',
             endsAt: '2020-04-16T23:00:00.000Z',
             groupId: null,
@@ -95,6 +91,7 @@ export default [
           id: 1,
           title: 'SOTW 52 - Firemaking',
           metric: 'firemaking',
+          score: 120,
           startsAt: '2020-03-20T23:00:00.000Z',
           endsAt: '2020-04-16T23:00:00.000Z',
           groupId: null,
@@ -191,6 +188,7 @@ export default [
           verificationCode: '373-418-957',
           startsAt: '2020-05-20T19:00:00.000Z',
           endsAt: '2020-05-27T19:00:00.000Z',
+          score: 0,
           updatedAt: '2020-03-27T23:00:44.588Z',
           createdAt: '2020-03-27T23:00:44.588Z',
           participants: [
@@ -289,6 +287,7 @@ export default [
           id: 56,
           title: 'New title',
           metric: 'fishing',
+          score: 0,
           startsAt: '2020-05-20T19:00:00.000Z',
           endsAt: '2020-05-27T19:00:00.000Z',
           updatedAt: '2020-03-27T23:00:44.588Z',
@@ -413,7 +412,7 @@ export default [
   },
   {
     title: 'Add participants',
-    url: '/competitions/:id/add',
+    url: '/competitions/:id/add-participants',
     method: 'POST',
     params: [
       {
@@ -473,7 +472,7 @@ export default [
   },
   {
     title: 'Remove participants',
-    url: '/competitions/:id/remove',
+    url: '/competitions/:id/remove-participants',
     method: 'POST',
     params: [
       {

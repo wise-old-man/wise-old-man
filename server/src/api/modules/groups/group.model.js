@@ -23,6 +23,14 @@ module.exports = (sequelize, DataTypes) => {
     clanChat: {
       type: DataTypes.STRING(20)
     },
+    score: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     verificationCode: {
       type: DataTypes.VIRTUAL,
       allowNull: false
