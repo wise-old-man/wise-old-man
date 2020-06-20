@@ -27,8 +27,8 @@ function instance() {
     }
 
     if (data && data.username && data.username === 'psikoi') {
-      console.log(data, { ...options, priority });
       const priority = (options && options.priority) || PRIORITY_MEDIUM;
+      console.log(data, { ...options, priority });
       queue.bull.add(data, { ...options, priority });
     }
   }
