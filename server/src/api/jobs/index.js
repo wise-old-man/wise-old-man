@@ -26,8 +26,11 @@ function instance() {
       throw new Error(`No job found for name ${name}`);
     }
 
-    const priority = (options && options.priority) || PRIORITY_MEDIUM;
-    queue.bull.add(data, { ...options, priority });
+    if (data && data.username && data.username === 'psikoi') {
+      console.log(data, { ...options, priority });
+      const priority = (options && options.priority) || PRIORITY_MEDIUM;
+      queue.bull.add(data, { ...options, priority });
+    }
   }
 
   /**

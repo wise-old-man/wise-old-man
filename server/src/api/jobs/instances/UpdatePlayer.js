@@ -6,6 +6,7 @@ module.exports = {
     const { username } = data;
     console.log('Executing UpdatePlayer job', username);
     await playerService.update(username);
+    console.log('Execued UpdatePlayer job', username);
   },
   onFail(jobData, error) {
     console.log('Failed UpdatePlayer job', jobData.username, error);
