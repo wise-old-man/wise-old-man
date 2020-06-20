@@ -31,7 +31,7 @@ You can read the documentation at:
 The project is currently divided into 3 components:
 
 - **Server**: (The backend & API)
-  - Node.js
+  - Node.js / TypeScript
   - PostgreSQL: Main Database
   - Sqlite: Tests Database
   - Redis & Bull: Job processor
