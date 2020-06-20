@@ -100,7 +100,7 @@ async function updateAll(req, res, next) {
 
     const members = await groupService.updateAllMembers(id, player => {
       // Attempt this 5 times per player, waiting 65 seconds in between
-      addJob('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+      addJob('UpdatePlayer', { username: player.username }, { attempts: 5, backoff: 65000 });
     });
 
     const message = `${members.length} players are being updated. This can take up to a few minutes.`;

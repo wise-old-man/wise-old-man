@@ -2,7 +2,7 @@ import * as recordService from '../../modules/records/record.service';
 import { periods } from '../../constants/periods';
 
 export default {
-  key: 'SyncPlayerRecords',
+  name: 'SyncPlayerRecords',
   async handle({ data }) {
     const { playerId } = data;
 

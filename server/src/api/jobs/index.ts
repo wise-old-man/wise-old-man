@@ -2,6 +2,7 @@ import * as Queue from 'bull';
 import { config } from './redis';
 import * as jobs from './instances';
 import crons from './crons';
+import * as logger from '../logger';
 
 const PRIORITY_HIGH = 1;
 const PRIORITY_MEDIUM = 2;
@@ -59,10 +60,21 @@ async function setup() {
   // Initialize all queue processing
   queues.forEach(queue => {
     queue.bull.process(queue.handle);
+
     // On Success callback
     queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));
+
     // On Failure callback
-    queue.bull.on('failed', (job, err) => queue.onFail && queue.onFail(job.data, err));
+    queue.bull.on('failed', (job, error) => {
+      if (queue.onFail) {
+        queue.onFail(job.data, error);
+      }
+
+      logger.error(`Failed job (${job.queue.name})`, {
+        data: job.data,
+        error: { ...error, message: error.message || '' }
+      });
+    });
   });
 
   // If running through pm2 (production), only run cronjobs on the first CPU core.

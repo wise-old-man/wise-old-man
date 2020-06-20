@@ -1,9 +1,9 @@
 import * as playerService from '../../modules/players/player.service';
 
 export default {
-  key: 'UpdatePlayer',
+  name: 'UpdatePlayer',
   async handle({ data }) {
-    const { player } = data;
-    await playerService.update(player.username);
+    const { username } = data;
+    await playerService.update(username);
   }
 };

@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as logger from './logger';
 import { NotFoundError } from './errors';
 import { api as playerRoutes } from './modules/players/player.route';
 import { api as deltaRoutes } from './modules/deltas/delta.route';
@@ -26,6 +27,13 @@ router.use((req, res, next) => {
 
 // Handle errors
 router.use((error, req, res, next) => {
+  const { query, params, body, originalUrl } = req;
+
+  logger.error(`Failed endpoint (${originalUrl})`, {
+    data: { query, params, body },
+    error
+  });
+
   res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
 });
 
