@@ -7,8 +7,7 @@ import { getHiscoresTableNames } from '../../util/scraping';
 import { getNextProxy } from '../../proxies';
 import { getCombatLevel } from '../../../api/util/level';
 import * as snapshotService from '../snapshots/snapshot.service';
-
-const axios = require('axios');
+import axios from 'axios';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
@@ -483,8 +482,7 @@ async function getHiscoresNames(username) {
     const { data } = await axios({
       url: proxy ? URL.replace('https', 'http') : URL,
       proxy,
-      responseType: 'arraybuffer',
-      reponseEncoding: 'binary'
+      responseType: 'arraybuffer'
     });
 
     // Validate the response data

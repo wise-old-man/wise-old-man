@@ -8,7 +8,6 @@ import {
   BelongsTo,
   AllowNull
 } from 'sequelize-typescript';
-import { SKILLS, BOSSES, ACTIVITIES, getRankKey, getValueKey } from '../../api/constants/metrics';
 
 import { Player } from '.';
 import HiscoreValues from './hiscoreValues.model';
