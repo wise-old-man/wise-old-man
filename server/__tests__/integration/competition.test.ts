@@ -1,9 +1,10 @@
-const supertest = require('supertest');
-const api = require('../../src/api');
-const { Player, Competition, Group, Membership } = require('../../src/database');
-const { resetDatabase } = require('../utils');
+import * as supertest from 'supertest';
+import { api } from '../../src/api';
+import { Player, Competition, Group, Membership } from '../../src/database/models';
+import { resetDatabase } from '../utils';
+import { TestData } from '../types';
 
-const TEST_DATA = {};
+const TEST_DATA: TestData = {};
 const TEST_ID = 300000;
 const TEST_GROUP_ID = 9001;
 

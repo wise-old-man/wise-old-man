@@ -1,5 +1,5 @@
-const supertest = require('supertest');
-const api = require('../../src/api');
+import * as supertest from 'supertest';
+import { api } from '../../src/api';
 
 const request = supertest(api);
 

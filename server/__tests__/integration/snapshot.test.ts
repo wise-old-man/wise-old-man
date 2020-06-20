@@ -1,14 +1,15 @@
-const fs = require('fs');
-const { promisify } = require('util');
-const { resetDatabase } = require('../utils');
-const { Player } = require('../../src/database');
-const { SKILLS, getRankKey, getValueKey } = require('../../src/api/constants/metrics');
-const service = require('../../src/api/modules/snapshots/snapshot.service');
+import * as fs from 'fs';
+import { promisify } from 'util';
+import { resetDatabase } from '../utils';
+import { Player } from '../../src/database/models';
+import { SKILLS, getRankKey, getValueKey } from '../../src/api/constants/metrics';
+import * as service from '../../src/api/modules/snapshots/snapshot.service';
+import { TestData } from '../types';
 
 const HISCORES_DATA_PATH = `${__dirname}/../data/lynx_titan_hiscores.txt`;
 const CML_DATA_PATH = `${__dirname}/../data/lynx_titan_cml.txt`;
 
-const TEST_DATA = {};
+const TEST_DATA = {} as TestData;
 
 beforeAll(async done => {
   await resetDatabase();

@@ -1,4 +1,4 @@
-const { sequelize } = require('../src/database');
+import { sequelize } from '../src/database';
 
 function resetDatabase() {
   return Promise.all(
@@ -8,4 +8,4 @@ function resetDatabase() {
   );
 }
 
-exports.resetDatabase = resetDatabase;
+export { resetDatabase };

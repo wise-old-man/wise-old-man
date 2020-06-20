@@ -1,11 +1,12 @@
-const supertest = require('supertest');
-const api = require('../../src/api');
-const { Player } = require('../../src/database');
-const { resetDatabase } = require('../utils');
+import * as supertest from 'supertest';
+import { api } from '../../src/api';
+import { Player } from '../../src/database/models';
+import { resetDatabase } from '../utils';
+import { TestData } from '../types';
 
 const request = supertest(api);
 
-const TEST_DATA = {};
+const TEST_DATA: TestData = {};
 
 beforeAll(async done => {
   await resetDatabase();
