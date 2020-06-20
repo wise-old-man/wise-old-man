@@ -1,28 +1,30 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('achievements', {
-      playerId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'players',
-          key: 'id'
-        }
-      },
-      type: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.dropTable('achievements');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('achievements', {
+    playerId: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'players',
+        key: 'id'
+      }
+    },
+    type: {
+      type: dataTypes.STRING,
+      primaryKey: true,
+      allowNull: false
+    },
+    createdAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('achievements');
+}
+
+export { up, down };

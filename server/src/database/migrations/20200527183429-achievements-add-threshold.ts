@@ -1,11 +1,13 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('achievements', 'threshold', {
-      type: Sequelize.BIGINT
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('achievements', 'threshold');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('achievements', 'threshold', {
+    type: dataTypes.BIGINT
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('achievements', 'threshold');
+}
+
+export { up, down };

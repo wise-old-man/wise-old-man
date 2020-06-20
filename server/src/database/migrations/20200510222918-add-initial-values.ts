@@ -1,4 +1,32 @@
 import { ALL_METRICS, getRankKey, getValueKey } from '../../api/constants/metrics';
+import { QueryInterface } from 'sequelize/types';
+
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('initialValues', {
+    id: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    playerId: {
+      type: dataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'players',
+        key: 'id'
+      }
+    },
+    ...buildDynamicSchema(dataTypes),
+    updatedAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('initialValues');
+}
 
 function buildDynamicSchema(DataTypes) {
   const obj = {};
@@ -11,31 +39,4 @@ function buildDynamicSchema(DataTypes) {
   return obj;
 }
 
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('initialValues', {
-      id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      playerId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'players',
-          key: 'id'
-        }
-      },
-      ...buildDynamicSchema(Sequelize),
-      updatedAt: {
-        type: Sequelize.DATE
-      }
-    });
-  },
-
-  down: queryInterface => {
-    return queryInterface.dropTable('initialValues');
-  }
-};
+export { up, down };

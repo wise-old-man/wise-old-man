@@ -1,11 +1,13 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('competitions', 'updatedAllAt', {
-      type: Sequelize.DATE
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('competitions', 'updatedAllAt');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('competitions', 'updatedAllAt', {
+    type: dataTypes.DATE
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('competitions', 'updatedAllAt');
+}
+
+export { up, down };

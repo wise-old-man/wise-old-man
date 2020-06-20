@@ -1,12 +1,14 @@
-export = {
-  up: queryInterface => {
-    return queryInterface.addIndex('deltas', ['playerId', 'period'], {
-      indexName: 'deltas_playerId_period',
-      unique: true
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeIndex('deltas', '`deltas_playerId_period`');
-  }
-};
+function up(queryInterface: QueryInterface): Promise<void> {
+  return queryInterface.addIndex('deltas', ['playerId', 'period'], {
+    name: 'deltas_playerId_period',
+    unique: true
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeIndex('deltas', '`deltas_playerId_period`');
+}
+
+export { up, down };

@@ -1,11 +1,13 @@
-export = {
-  up: queryInterface => {
-    return queryInterface.removeColumn('participations', 'startSnapshotId');
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('participations', 'startSnapshotId', {
-      type: Sequelize.INTEGER
-    });
-  }
-};
+function up(queryInterface: QueryInterface): Promise<void> {
+  return queryInterface.removeColumn('participations', 'startSnapshotId');
+}
+
+function down(queryInterface: QueryInterface, dataTypes: any) {
+  return queryInterface.addColumn('participations', 'startSnapshotId', {
+    type: dataTypes.INTEGER
+  });
+}
+
+export { up, down };

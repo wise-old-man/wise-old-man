@@ -1,11 +1,13 @@
-export = {
-  up: queryInterface => {
-    return queryInterface.addIndex('snapshots', ['playerId'], {
-      indexName: 'snapshots_playerId'
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeIndex('snapshots', '`snapshots_playerId`');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addIndex('snapshots', ['playerId'], {
+    name: 'snapshots_playerId'
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeIndex('snapshots', '`snapshots_playerId`');
+}
+
+export { up, down };

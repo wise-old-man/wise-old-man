@@ -1,42 +1,43 @@
 import { roles } from '../../api/constants/roles';
+import { QueryInterface } from 'sequelize/types';
 
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('memberships', {
-      playerId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'players',
-          key: 'id'
-        }
-      },
-      groupId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'groups',
-          key: 'id'
-        }
-      },
-      role: {
-        type: Sequelize.ENUM(roles),
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        type: Sequelize.DATE
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('memberships', {
+    playerId: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'players',
+        key: 'id'
       }
-    });
-  },
+    },
+    groupId: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'groups',
+        key: 'id'
+      }
+    },
+    role: {
+      type: dataTypes.ENUM(roles),
+      allowNull: false
+    },
+    createdAt: {
+      type: dataTypes.DATE
+    },
+    updatedAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
 
-  down: queryInterface => {
-    return queryInterface.dropTable('memberships');
-  }
-};
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('memberships');
+}
+
+export { up, down };

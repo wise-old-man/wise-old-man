@@ -1,12 +1,14 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('groups', 'score', {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('groups', 'score');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('groups', 'score', {
+    type: dataTypes.INTEGER,
+    defaultValue: 0
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('groups', 'score');
+}
+
+export { up, down };

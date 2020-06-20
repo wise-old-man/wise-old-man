@@ -1,42 +1,44 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('participations', {
-      playerId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'players',
-          key: 'id'
-        }
-      },
-      competitionId: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'competitions',
-          key: 'id'
-        }
-      },
-      startSnapshotId: {
-        type: Sequelize.INTEGER
-      },
-      endSnapshotId: {
-        type: Sequelize.INTEGER
-      },
-      createdAt: {
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        type: Sequelize.DATE
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.dropTable('participations');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('participations', {
+    playerId: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'players',
+        key: 'id'
+      }
+    },
+    competitionId: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      onDelete: 'CASCADE',
+      references: {
+        model: 'competitions',
+        key: 'id'
+      }
+    },
+    startSnapshotId: {
+      type: dataTypes.INTEGER
+    },
+    endSnapshotId: {
+      type: dataTypes.INTEGER
+    },
+    createdAt: {
+      type: dataTypes.DATE
+    },
+    updatedAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('participations');
+}
+
+export { up, down };

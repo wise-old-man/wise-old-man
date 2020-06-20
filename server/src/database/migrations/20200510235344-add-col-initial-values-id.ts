@@ -1,16 +1,18 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('deltas', 'initialValuesId', {
-      type: Sequelize.INTEGER,
-      onDelete: 'SET NULL',
-      references: {
-        model: 'initialValues',
-        key: 'id'
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('deltas', 'initialValuesId');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('deltas', 'initialValuesId', {
+    type: dataTypes.INTEGER,
+    onDelete: 'SET NULL',
+    references: {
+      model: 'initialValues',
+      key: 'id'
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('deltas', 'initialValuesId');
+}
+
+export { up, down };

@@ -1,11 +1,13 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('achievements', 'metric', {
-      type: Sequelize.STRING
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('achievements', 'metric');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('achievements', 'metric', {
+    type: dataTypes.STRING
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('achievements', 'metric');
+}
+
+export { up, down };

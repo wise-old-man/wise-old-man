@@ -1,12 +1,14 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('groups', 'verified', {
-      type: Sequelize.BOOLEAN,
-      defaultValue: false
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('groups', 'verified');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('groups', 'verified', {
+    type: dataTypes.BOOLEAN,
+    defaultValue: false
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('groups', 'verified');
+}
+
+export { up, down };

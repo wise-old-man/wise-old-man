@@ -1,16 +1,18 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.addColumn('competitions', 'groupId', {
-      type: Sequelize.INTEGER,
-      onDelete: 'SET NULL',
-      references: {
-        model: 'groups',
-        key: 'id'
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.removeColumn('competitions', 'groupId');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.addColumn('competitions', 'groupId', {
+    type: dataTypes.INTEGER,
+    onDelete: 'SET NULL',
+    references: {
+      model: 'groups',
+      key: 'id'
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('competitions', 'groupId');
+}
+
+export { up, down };

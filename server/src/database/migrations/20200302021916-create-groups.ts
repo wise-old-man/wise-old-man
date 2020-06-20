@@ -1,30 +1,32 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('groups', {
-      id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      name: {
-        type: Sequelize.STRING(30),
-        unique: true,
-        allowNull: false
-      },
-      verificationHash: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        type: Sequelize.DATE
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.dropTable('groups');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('groups', {
+    id: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: dataTypes.STRING(30),
+      unique: true,
+      allowNull: false
+    },
+    verificationHash: {
+      type: dataTypes.STRING,
+      allowNull: false
+    },
+    createdAt: {
+      type: dataTypes.DATE
+    },
+    updatedAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('groups');
+}
+
+export { up, down };

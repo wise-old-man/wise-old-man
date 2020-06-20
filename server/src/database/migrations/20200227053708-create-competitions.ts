@@ -1,41 +1,43 @@
-export = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('competitions', {
-      id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      title: {
-        type: Sequelize.STRING(30),
-        allowNull: false
-      },
-      metric: {
-        type: Sequelize.STRING(100),
-        allowNull: false
-      },
-      verificationHash: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      startsAt: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      endsAt: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      createdAt: {
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        type: Sequelize.DATE
-      }
-    });
-  },
+import { QueryInterface } from 'sequelize/types';
 
-  down: queryInterface => {
-    return queryInterface.dropTable('competitions');
-  }
-};
+function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+  return queryInterface.createTable('competitions', {
+    id: {
+      type: dataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    title: {
+      type: dataTypes.STRING(30),
+      allowNull: false
+    },
+    metric: {
+      type: dataTypes.STRING(100),
+      allowNull: false
+    },
+    verificationHash: {
+      type: dataTypes.STRING,
+      allowNull: false
+    },
+    startsAt: {
+      type: dataTypes.DATE,
+      allowNull: false
+    },
+    endsAt: {
+      type: dataTypes.DATE,
+      allowNull: false
+    },
+    createdAt: {
+      type: dataTypes.DATE
+    },
+    updatedAt: {
+      type: dataTypes.DATE
+    }
+  });
+}
+
+function down(queryInterface: QueryInterface) {
+  return queryInterface.dropTable('competitions');
+}
+
+export { up, down };
