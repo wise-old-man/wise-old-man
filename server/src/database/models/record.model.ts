@@ -1,6 +1,3 @@
-import { periods } from '../../api/constants/periods';
-import { ALL_METRICS } from '../../api/constants/metrics';
-
 import {
   Table,
   Column,
@@ -13,6 +10,9 @@ import {
   AllowNull,
   Default
 } from 'sequelize-typescript';
+import { periods } from '../../api/constants/periods';
+import { ALL_METRICS } from '../../api/constants/metrics';
+
 import { Player } from '.';
 
 // Define other table options

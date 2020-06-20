@@ -1,5 +1,3 @@
-const roles = ["member", "leader"];
+const roles = ['member', 'leader'];
 
-export {
-    roles
-}
+export { roles };

@@ -5,6 +5,6 @@ const config = {
     maxRetriesPerRequest: null,
     enableReadyCheck: false
   }
-}
+};
 
 export { config };

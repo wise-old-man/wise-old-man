@@ -1,5 +1,5 @@
-import { roles } from '../../api/constants/roles';
 import { Table, Column, DataType, PrimaryKey, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { roles } from '../../api/constants/roles';
 import { Player, Group } from '.';
 
 // Define other table options

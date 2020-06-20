@@ -1,4 +1,3 @@
-import { playerTypes } from '../../api/constants/playerTypes';
 import {
   Table,
   Column,
@@ -12,6 +11,7 @@ import {
   Default,
   BelongsTo
 } from 'sequelize-typescript';
+import { playerTypes } from '../../api/constants/playerTypes';
 import { Competition, Group, Snapshot, Participation, Membership } from '.';
 
 // Define other table options

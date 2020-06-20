@@ -47,7 +47,4 @@ function getNextProxy() {
 
   return { host, port, auth: { username, password } };
 }
-export {
-  setup,
-  getNextProxy
-};
+export { setup, getNextProxy };

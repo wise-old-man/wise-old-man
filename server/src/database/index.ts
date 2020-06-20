@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-dotenv.config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 import { Sequelize } from 'sequelize-typescript';
 import {
   Achievement,
@@ -12,6 +11,8 @@ import {
   Record,
   Snapshot
 } from './models';
+
+dotenv.config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
 const sequelize = new Sequelize({
   host: process.env.DB_HOST,

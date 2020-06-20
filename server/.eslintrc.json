@@ -1,6 +1,11 @@
 {
-  "extends": ["airbnb", "prettier", "plugin:node/recommended"],
+  "extends": ["airbnb", "prettier", "plugin:node/recommended", "plugin:@typescript-eslint/recommended"],
   "plugins": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2020
+  },
   "env": {
     "jest": true
   },

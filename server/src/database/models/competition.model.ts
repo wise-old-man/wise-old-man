@@ -1,4 +1,3 @@
-import { ALL_METRICS } from '../../api/constants/metrics';
 import {
   Table,
   Column,
@@ -13,6 +12,7 @@ import {
   Default,
   HasMany
 } from 'sequelize-typescript';
+import { ALL_METRICS } from '../../api/constants/metrics';
 import { Group, Player, Participation } from '.';
 
 // Define other table options

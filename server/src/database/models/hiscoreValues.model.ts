@@ -244,6 +244,7 @@ export default class HiscoreValues extends Model<HiscoreValues> {
     allowNull: false
   })
   herbloreExperience: number;
+
   @Column({
     type: DataType.INTEGER,
     defaultValue: -1,
@@ -299,6 +300,7 @@ export default class HiscoreValues extends Model<HiscoreValues> {
     allowNull: false
   })
   farmingExperience: number;
+
   @Column({
     type: DataType.INTEGER,
     defaultValue: -1,

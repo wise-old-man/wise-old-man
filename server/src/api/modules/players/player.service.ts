@@ -1,4 +1,3 @@
-const axios = require('axios');
 import { Op } from 'sequelize';
 import { isValidDate } from '../../util/dates';
 import { CML, OSRS_HISCORES } from '../../constants/services';
@@ -8,6 +7,8 @@ import { getHiscoresTableNames } from '../../util/scraping';
 import { getNextProxy } from '../../proxies';
 import { getCombatLevel } from '../../../api/util/level';
 import * as snapshotService from '../snapshots/snapshot.service';
+
+const axios = require('axios');
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
