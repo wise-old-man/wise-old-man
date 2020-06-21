@@ -55,6 +55,8 @@ function instance() {
 
     // Initialize all queue processing
     queues.forEach(queue => {
+      queue.bull.empty().then(() => console.log('Cleared'));
+
       queue.bull.process(queue.handle);
 
       // On Success callback
