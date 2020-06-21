@@ -30,7 +30,11 @@ async function track(req, res, next) {
     const [player, isNew] = await playerService.update(username);
 
     // Run secondary job
-    // jobs.add('ImportPlayer', { username: player.username });
+    const [shouldImport] = playerService.shouldImport(player.lastImportedAt);
+
+    if (shouldImport) {
+      jobs.add('ImportPlayer', { username: player.username });
+    }
 
     res.status(isNew ? 201 : 200).json(player);
   } catch (e) {

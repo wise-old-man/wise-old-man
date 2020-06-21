@@ -26,11 +26,8 @@ function instance() {
       throw new Error(`No job found for name ${name}`);
     }
 
-    if (data && data.username && data.username === 'psikoi') {
-      const priority = (options && options.priority) || PRIORITY_MEDIUM;
-      console.log(data, { ...options, priority });
-      queue.bull.add(data, { ...options, priority });
-    }
+    const priority = (options && options.priority) || PRIORITY_MEDIUM;
+    queue.bull.add({ ...data, created: new Date() }, { ...options, priority });
   }
 
   /**
@@ -55,8 +52,6 @@ function instance() {
 
     // Initialize all queue processing
     queues.forEach(queue => {
-      queue.bull.empty().then(() => console.log('Cleared'));
-
       queue.bull.process(queue.handle);
 
       // On Success callback

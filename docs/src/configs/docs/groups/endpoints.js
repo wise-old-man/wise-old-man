@@ -1138,7 +1138,7 @@ export default [
       {
         type: 'warning',
         content:
-          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+          'This action will only submit an update job for the players which have not been updated in the last 60 minutes'
       },
       {
         type: 'warning',
@@ -1169,7 +1169,7 @@ export default [
       },
       {
         description:
-          "If the group's member list is invalid, empty or every member has been updated in the last 10 minutes",
+          "If the group's member list is invalid, empty or every member has been updated in the last 60 minutes",
         body: { message: 'This group has no members that should be updated' }
       }
     ]
