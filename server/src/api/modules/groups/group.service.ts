@@ -880,7 +880,7 @@ async function getOutdatedMembers(groupId) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const tenMinsAgo = moment().subtract(10, 'minute');
+  const hourAgo = moment().subtract(60, 'minute');
 
   const membersToUpdate = await Membership.findAll({
     attributes: ['groupId', 'playerId'],
@@ -889,7 +889,7 @@ async function getOutdatedMembers(groupId) {
       {
         model: Player,
         where: {
-          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
+          updatedAt: { [Op.lt]: hourAgo.toDate() }
         }
       }
     ]

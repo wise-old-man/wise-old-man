@@ -103,7 +103,7 @@ async function updateAll(req, res, next) {
       addJob('UpdatePlayer', { username: player.username }, { attempts: 5, backoff: 65000 });
     });
 
-    const message = `${members.length} players are being updated. This can take up to a few minutes.`;
+    const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;
 
     res.json({ message });
   } catch (e) {

@@ -29,8 +29,12 @@ async function track(req, res, next) {
     // Update the player, by creating a new snapshot
     const [player, isNew]: any = await playerService.update(username);
 
-    // Run secondary jobs
-    addJob('ImportPlayer', { username: player.username });
+    // Run secondary job
+    const [shouldImport] = playerService.shouldImport(player.lastImportedAt);
+
+    if (shouldImport) {
+      addJob('ImportPlayer', { username: player.username });
+    }
 
     res.status(isNew ? 201 : 200).json(player);
   } catch (e) {

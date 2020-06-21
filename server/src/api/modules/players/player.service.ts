@@ -509,5 +509,6 @@ export {
   update,
   importCML,
   assertType,
-  assertName
+  assertName,
+  shouldImport
 };
