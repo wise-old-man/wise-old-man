@@ -538,7 +538,7 @@ export default [
       {
         type: 'warning',
         content:
-          'This action will only submit an update job for the players which have not been updated in the last 10 minutes'
+          'This action will only submit an update job for the players which have not been updated in the last 60 minutes'
       },
       {
         type: 'warning',
@@ -569,7 +569,7 @@ export default [
       },
       {
         description:
-          "If the competition's participants list is invalid, empty or every participant has been updated in the last 10 minutes",
+          "If the competition's participants list is invalid, empty or every participant has been updated in the last 60 minutes",
         body: { message: 'This competition has no participants that should be updated' }
       }
     ]

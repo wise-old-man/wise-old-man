@@ -612,7 +612,7 @@ async function getOutdatedParticipants(competitionId) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const tenMinsAgo = moment().subtract(10, 'minute');
+  const hourAgo = moment().subtract(60, 'minute');
 
   const participantsToUpdate = await Participation.findAll({
     attributes: ['competitionId', 'playerId'],
@@ -621,7 +621,7 @@ async function getOutdatedParticipants(competitionId) {
       {
         model: Player,
         where: {
-          updatedAt: { [Op.lt]: tenMinsAgo.toDate() }
+          updatedAt: { [Op.lt]: hourAgo.toDate() }
         }
       }
     ]
