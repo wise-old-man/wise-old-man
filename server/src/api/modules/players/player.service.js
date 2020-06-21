@@ -152,7 +152,6 @@ async function search(username) {
  */
 async function update(username) {
   if (!username) {
-    console.log('Invalid username');
     throw new BadRequestError('Invalid username.');
   }
 
@@ -164,7 +163,6 @@ async function update(username) {
   // If the player already existed and was updated recently,
   // don't allow the api to update it
   if (!should && !created) {
-    console.log(username, 'Too soon');
     throw new BadRequestError(`Failed to update: ${username} was updated ${seconds} seconds ago.`);
   }
 
@@ -188,10 +186,8 @@ async function update(username) {
 
     const formatted = { ...player.toJSON(), latestSnapshot: formattedSnapshot };
 
-    console.log(username, 'Succeeded mm');
     return [formatted, created];
   } catch (e) {
-    console.log(username, 'Failed mm');
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
     if (created) {
