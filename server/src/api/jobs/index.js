@@ -27,7 +27,7 @@ function instance() {
     }
 
     const priority = (options && options.priority) || PRIORITY_MEDIUM;
-    queue.bull.add(data, { ...options, priority });
+    queue.bull.add({ ...data, created: new Date() }, { ...options, priority });
   }
 
   /**
