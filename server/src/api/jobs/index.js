@@ -52,7 +52,7 @@ function instance() {
 
     // Initialize all queue processing
     queues.forEach(queue => {
-      queue.bull.process(queue.handle);
+      queue.bull.process(5, queue.handle);
 
       // On Success callback
       queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));
