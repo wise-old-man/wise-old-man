@@ -1,5 +1,5 @@
 import Queue from 'bull';
-import config from './redis';
+import redisConfig from './redis';
 import * as jobs from './instances';
 import crons from './crons';
 import * as logger from '../logger';
@@ -9,7 +9,7 @@ const PRIORITY_MEDIUM = 2;
 const PRIORITY_LOW = 3;
 
 const queues = Object.values(jobs).map((job: any) => ({
-  bull: new Queue(job.key, config),
+  bull: new Queue(job.key, redisConfig),
   name: job.key,
   handle: job.handle,
   onFail: job.onFail,
@@ -48,18 +48,15 @@ function schedule(name, data, date) {
 
 async function setup() {
   queues.push(
-    ...Object.values(jobs).map(
-      (job: any) =>
-        ({
-          bull: new Queue(job.name, config),
-          ...job
-        } as any)
-    )
+    ...Object.values(jobs).map((job: any) => ({
+      bull: new Queue(job.name, redisConfig),
+      ...job
+    }))
   );
 
   // Initialize all queue processing
   queues.forEach(queue => {
-    queue.bull.process(queue.handle);
+    queue.bull.process(5, queue.handle);
 
     // On Success callback
     queue.bull.on('completed', job => queue.onSuccess && queue.onSuccess(job.data));

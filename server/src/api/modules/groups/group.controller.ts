@@ -99,8 +99,13 @@ async function updateAll(req, res, next) {
     const { id } = req.params;
 
     const members = await groupService.updateAllMembers(id, player => {
+<<<<<<< HEAD:server/src/api/modules/groups/group.controller.ts
       // Attempt this 5 times per player, waiting 65 seconds in between
       addJob('UpdatePlayer', { username: player.username }, { attempts: 5, backoff: 65000 });
+=======
+      // Attempt this 3 times per player, waiting 65 seconds in between
+      jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+>>>>>>> master:server/src/api/modules/groups/group.controller.js
     });
 
     const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;
