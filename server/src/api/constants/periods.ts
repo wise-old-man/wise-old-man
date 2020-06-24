@@ -1,3 +1,3 @@
-const periods = ['day', 'week', 'month', 'year'];
+const PERIODS = ['day', 'week', 'month', 'year'];
 
-export { periods };
+export { PERIODS };

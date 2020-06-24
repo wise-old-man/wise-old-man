@@ -1,3 +1,3 @@
-const statuses = ['upcoming', 'ongoing', 'finished'];
+const STATUSES = ['upcoming', 'ongoing', 'finished'];
 
-export { statuses };
+export { STATUSES };

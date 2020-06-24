@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import * as controller from './delta.controller';
 
-const api = Router();
+const deltaRoutes = Router();
 
-api.get('/leaderboard', controller.leaderboard);
+deltaRoutes.get('/leaderboard', controller.leaderboard);
 
-export { api };
+export { deltaRoutes };

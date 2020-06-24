@@ -19,13 +19,13 @@ export default class Participation extends Model<Participation> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
-  @BelongsTo(() => Player)
-  player: Player;
-
   @PrimaryKey
   @ForeignKey(() => Competition)
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   competitionId: number;
+
+  @BelongsTo(() => Player)
+  player: Player;
 
   @BelongsTo(() => Competition)
   competition: Competition;

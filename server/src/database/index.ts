@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv';
 import { Sequelize } from 'sequelize-typescript';
 import {
   Achievement,
@@ -11,20 +10,20 @@ import {
   Record,
   Snapshot
 } from './models';
-
-dotenv.config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
+import config from './config';
 
 const sequelize = new Sequelize({
-  host: process.env.DB_HOST,
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DB,
-  storage: process.env.DB_STORAGE,
+  host: config.host,
+  username: config.username,
+  password: config.password,
+  database: config.database,
+  storage: config.storage,
   dialect: getDialect(),
-  logging: false,
-  pool: { max: 40, min: 2, acquire: 20000, idle: 5000 },
-  retry: { max: 10 }
+  logging: config.logging,
+  pool: config.pool,
+  retry: config.retry
 });
+
 sequelize.addModels([
   Achievement,
   Competition,

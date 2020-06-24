@@ -1,4 +1,4 @@
-import { periods } from '../../api/constants/periods';
+import { PERIODS } from '../../api/constants/periods';
 import { QueryInterface } from 'sequelize/types';
 
 function up(queryInterface: QueryInterface): Promise<void> {
@@ -22,7 +22,7 @@ function down(queryInterface: QueryInterface, dataTypes: any) {
       }
     },
     period: {
-      type: dataTypes.ENUM(periods),
+      type: dataTypes.ENUM(PERIODS),
       allowNull: false
     },
     startSnapshotId: {

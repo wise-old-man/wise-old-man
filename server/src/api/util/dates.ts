@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 function castToDate(date) {
   return date instanceof Date ? date : new Date(date);

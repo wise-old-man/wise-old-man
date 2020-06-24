@@ -1,7 +1,7 @@
 import { mapValues, keyBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import { periods } from '../../constants/periods';
-import { playerTypes } from '../../constants/playerTypes';
+import { PERIODS } from '../../constants/periods';
+import { PLAYER_TYPES } from '../../constants/playerTypes';
 import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
 import { BadRequestError, ServerError } from '../../errors';
 import { sequelize } from '../../../database';
@@ -42,7 +42,7 @@ async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
     throw new BadRequestError('Invalid player id.');
   }
 
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -83,7 +83,7 @@ async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
  * Optionally, the deltas can be filtered by the playerType.
  */
 async function getPeriodLeaderboard(metric, period, playerType) {
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -91,7 +91,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (playerType && !playerTypes.includes(playerType)) {
+  if (playerType && !PLAYER_TYPES.includes(playerType)) {
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
@@ -124,7 +124,7 @@ async function getLeaderboard(metric, playerType) {
   const periods = ['day', 'week', 'month'];
 
   const partials = await Promise.all(
-    periods.map(async period => {
+    PERIODS.map(async period => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, deltas: list };
     })
@@ -142,7 +142,7 @@ async function getPlayerDeltas(playerId) {
   const initialValues = await InitialValues.findOne({ where: { playerId } });
 
   const partials = await Promise.all(
-    periods.map(async period => {
+    PERIODS.map(async period => {
       const list = await getPlayerPeriodDeltas(playerId, period, initialValues);
       return { period, deltas: list };
     })

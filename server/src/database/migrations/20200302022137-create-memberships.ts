@@ -1,4 +1,4 @@
-import { roles } from '../../api/constants/roles';
+import { ROLES } from '../../api/constants/roles';
 import { QueryInterface } from 'sequelize/types';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
@@ -24,7 +24,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       }
     },
     role: {
-      type: dataTypes.ENUM(roles),
+      type: dataTypes.ENUM(ROLES),
       allowNull: false
     },
     createdAt: {

@@ -1,4 +1,4 @@
-import * as supertest from 'supertest';
+import supertest from 'supertest';
 import { api } from '../../src/api';
 
 const request = supertest(api);

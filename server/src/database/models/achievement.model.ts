@@ -36,9 +36,6 @@ export default class Achievement extends Model<Achievement> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
-  @BelongsTo(() => Player)
-  player: Player;
-
   @PrimaryKey
   @AllowNull(false)
   @Column({ type: DataType.STRING })
@@ -54,4 +51,7 @@ export default class Achievement extends Model<Achievement> {
     }
   })
   threshold: number;
+
+  @BelongsTo(() => Player)
+  player: Player;
 }

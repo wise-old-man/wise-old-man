@@ -1,11 +1,11 @@
-import * as express from 'express';
+import express from 'express';
 import * as logger from './logger';
 import { NotFoundError } from './errors';
-import { api as playerRoutes } from './modules/players/player.route';
-import { api as deltaRoutes } from './modules/deltas/delta.route';
-import { api as recordRoutes } from './modules/records/record.route';
-import { api as competitionRoutes } from './modules/competitions/competition.route';
-import { api as groupRoutes } from './modules/groups/group.route';
+import { playerRoutes } from './modules/players/player.route';
+import { deltaRoutes } from './modules/deltas/delta.route';
+import { recordRoutes } from './modules/records/record.route';
+import { competitionRoutes } from './modules/competitions/competition.route';
+import { groupRoutes } from './modules/groups/group.route';
 
 const router = express.Router();
 

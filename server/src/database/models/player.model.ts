@@ -10,7 +10,7 @@ import {
   AllowNull,
   Default
 } from 'sequelize-typescript';
-import { playerTypes } from '../../api/constants/playerTypes';
+import { PLAYER_TYPES } from '../../api/constants/playerTypes';
 import { Competition, Group, Snapshot, Participation, Membership } from '.';
 
 // Define other table options
@@ -79,12 +79,12 @@ export default class Player extends Model<Player> {
   displayName: string;
 
   @AllowNull(false)
-  @Default(playerTypes[0])
+  @Default(PLAYER_TYPES[0])
   @Column({
-    type: DataType.ENUM(...playerTypes),
+    type: DataType.ENUM(...PLAYER_TYPES),
     validate: {
       isIn: {
-        args: [playerTypes],
+        args: [PLAYER_TYPES],
         msg: 'Invalid player type.'
       }
     }

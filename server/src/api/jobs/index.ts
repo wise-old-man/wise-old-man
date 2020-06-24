@@ -1,5 +1,5 @@
-import * as Queue from 'bull';
-import { config } from './redis';
+import Queue from 'bull';
+import config from './redis';
 import * as jobs from './instances';
 import crons from './crons';
 import * as logger from '../logger';

@@ -5,7 +5,7 @@ class ServerError extends Error {
 
   statusCode: number;
 
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = 'ServerError';
     this.statusCode = 500;

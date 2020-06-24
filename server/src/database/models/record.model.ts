@@ -10,7 +10,7 @@ import {
   AllowNull,
   Default
 } from 'sequelize-typescript';
-import { periods } from '../../api/constants/periods';
+import { PERIODS } from '../../api/constants/periods';
 import { ALL_METRICS } from '../../api/constants/metrics';
 
 import { Player } from '.';
@@ -52,14 +52,11 @@ export default class Record extends Model<Record> {
   @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
   playerId: number;
 
-  @BelongsTo(() => Player)
-  player: Player;
-
   @AllowNull(false)
   @Column({
-    type: DataType.ENUM(...periods),
+    type: DataType.ENUM(...PERIODS),
     validate: {
-      args: [periods],
+      args: [PERIODS],
       msg: 'Invalid period'
     }
   })
@@ -88,4 +85,7 @@ export default class Record extends Model<Record> {
     }
   })
   value: number;
+
+  @BelongsTo(() => Player)
+  player: Player;
 }

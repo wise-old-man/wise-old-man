@@ -1,9 +1,9 @@
 import { omit, keyBy, forEach, mapValues } from 'lodash';
-import { periods } from '../../constants/periods';
+import { PERIODS } from '../../constants/periods';
 import { ALL_METRICS, getMeasure } from '../../constants/metrics';
 import { BadRequestError } from '../../errors';
 import { Player, Record } from '../../../database/models';
-import * as deltaService from '../deltas/delta.service';
+import { getPlayerPeriodDeltas } from '../deltas/delta.service';
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);
@@ -23,7 +23,7 @@ async function syncRecords(playerId, period) {
   }
 
   const periodRecords = await Record.findAll({ where: { playerId, period } });
-  const periodDelta = await deltaService.getPlayerPeriodDeltas(playerId, period);
+  const periodDelta = await getPlayerPeriodDeltas(playerId, period);
 
   const recordMap: any = keyBy(
     periodRecords.map(r => r.toJSON()),
@@ -66,7 +66,7 @@ async function getPlayerRecords(playerId, period, metric) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  if (period && !periods.includes(period)) {
+  if (period && !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -97,7 +97,7 @@ async function getPlayerRecords(playerId, period, metric) {
  */
 async function getLeaderboard(metric, playerType) {
   const partials = await Promise.all(
-    periods.map(async period => {
+    PERIODS.map(async period => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, records: list };
     })
@@ -113,7 +113,7 @@ async function getLeaderboard(metric, playerType) {
  * Optionally, the records can be filtered by the playerType.
  */
 async function getPeriodLeaderboard(metric, period, playerType) {
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -144,7 +144,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
  * Gets the best records for a specific metric, period and list of players.
  */
 async function getGroupLeaderboard(metric, period, playerIds, pagination) {
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

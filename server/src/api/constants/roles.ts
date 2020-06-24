@@ -1,3 +1,3 @@
-const roles = ['member', 'leader'];
+const ROLES = ['member', 'leader'];
 
-export { roles };
+export { ROLES };

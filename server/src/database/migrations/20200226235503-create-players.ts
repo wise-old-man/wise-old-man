@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { playerTypes } from '../../api/constants/playerTypes';
+import { PLAYER_TYPES } from '../../api/constants/playerTypes';
 import { QueryInterface } from 'sequelize/types';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
@@ -15,8 +15,8 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       allowNull: false
     },
     type: {
-      type: dataTypes.ENUM(playerTypes),
-      defaultValue: playerTypes[0]
+      type: dataTypes.ENUM(PLAYER_TYPES),
+      defaultValue: PLAYER_TYPES[0]
     },
     lastImportedAt: {
       type: dataTypes.DATE

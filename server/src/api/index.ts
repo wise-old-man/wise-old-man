@@ -1,7 +1,7 @@
-import * as dotenv from 'dotenv';
-import * as express from 'express';
-import * as cors from 'cors';
-import * as rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { router } from './routing';
 import * as jobs from './jobs';
 import * as hooks from './hooks';

@@ -1,6 +1,6 @@
-import * as csv from 'csvtojson';
+import csv from 'csvtojson';
 import { mapValues, keyBy } from 'lodash';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Op } from 'sequelize';
 import {
   ALL_METRICS,
@@ -11,7 +11,7 @@ import {
   getValueKey,
   getMeasure
 } from '../../constants/metrics';
-import { periods } from '../../constants/periods';
+import { PERIODS } from '../../constants/periods';
 import { Snapshot } from '../../../database/models';
 import { ServerError, BadRequestError } from '../../errors';
 
@@ -71,7 +71,7 @@ async function getAllGrouped(playerId) {
   }
 
   const partials = await Promise.all(
-    periods.map(async period => {
+    PERIODS.map(async period => {
       const list = await getAllInPeriod(playerId, period);
       return { period, snapshots: list };
     })
@@ -90,7 +90,7 @@ async function getAllInPeriod(playerId, period) {
     throw new BadRequestError(`Invalid player id.`);
   }
 
-  if (!periods.includes(period)) {
+  if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

@@ -1,7 +1,7 @@
 import { omit, uniqBy, mapValues, keyBy } from 'lodash';
 import { Op, Sequelize, QueryTypes } from 'sequelize';
-import * as moment from 'moment';
-import { periods } from '../../constants/periods';
+import moment from 'moment';
+import { PERIODS } from '../../constants/periods';
 import { ALL_METRICS, getValueKey, getRankKey, getMeasure, isSkill } from '../../constants/metrics';
 import { sequelize } from '../../../database';
 import { generateVerification, verifyCode } from '../../util/verification';
@@ -157,7 +157,7 @@ async function getGained(groupId, period, metric, pagination) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -224,7 +224,7 @@ async function getRecords(groupId, metric, period, pagination) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  if (!period || !periods.includes(period)) {
+  if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

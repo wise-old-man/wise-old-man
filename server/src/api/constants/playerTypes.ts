@@ -1,3 +1,3 @@
-const playerTypes = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
+const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
 
-export { playerTypes };
+export { PLAYER_TYPES };

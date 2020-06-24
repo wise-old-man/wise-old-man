@@ -1,8 +1,8 @@
 import { omit, mapValues, keyBy, uniqBy } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
-import * as moment from 'moment';
+import moment from 'moment';
 import { ALL_METRICS, getValueKey, isSkill, isBoss, isActivity } from '../../constants/metrics';
-import { statuses } from '../../constants/statuses';
+import { STATUSES } from '../../constants/statuses';
 import { Competition, Participation, Player, Group } from '../../../database/models';
 import { durationBetween, isValidDate, isPast } from '../../util/dates';
 import { generateVerification, verifyCode } from '../../util/verification';
@@ -30,7 +30,7 @@ function format(competition) {
  */
 async function getList(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
-  if (status && !statuses.includes(status.toLowerCase())) {
+  if (status && !STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
   }
 
