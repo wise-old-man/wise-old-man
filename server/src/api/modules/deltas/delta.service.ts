@@ -124,7 +124,7 @@ async function getLeaderboard(metric, playerType) {
   const periods = ['day', 'week', 'month'];
 
   const partials = await Promise.all(
-    PERIODS.map(async period => {
+    periods.map(async period => {
       const list = await getPeriodLeaderboard(metric, period, playerType);
       return { period, deltas: list };
     })
