@@ -429,6 +429,22 @@ async function findAll(usernames) {
   return promises;
 }
 
+async function findById(playerId) {
+  const players = await Player.findOne({
+    where: { id: playerId }
+  });
+
+  return players;
+}
+
+async function findAllByIds(playerIds) {
+  const players = await Player.findAll({
+    where: { id: playerIds }
+  });
+
+  return players;
+}
+
 /**
  * Fetches the player history from the CML API.
  */
@@ -505,6 +521,8 @@ exports.isValidUsername = isValidUsername;
 exports.findAllOrCreate = findAllOrCreate;
 exports.findAll = findAll;
 exports.find = find;
+exports.findAllByIds = findAllByIds;
+exports.findById = findById;
 
 // Handlers
 exports.getDetailsById = getDetailsById;
