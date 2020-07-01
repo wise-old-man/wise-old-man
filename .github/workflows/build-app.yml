@@ -24,3 +24,9 @@ jobs:
           cd app
           docker build . --file Dockerfile --tag wiseoldman/app:latest --build-arg REACT_APP_ANALYTICS_TRACKING_ID=$ANALYTICS_TRACKING_ID
           docker push wiseoldman/app:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-app]
+    steps:
+      - name: 'Rebuild NGINX and Deploy'
+        uses: wise-old-man/nginx-deploy-config@master
