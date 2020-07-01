@@ -1,3 +1,6 @@
+const axios = require('axios');
+const services = require('../../constants/services.json');
+
 module.exports = {
   key: 'GroupCompetitionEnded',
   onDispatch({ competition }) {
@@ -7,9 +10,11 @@ module.exports = {
       return { displayName, gained: progress.gained };
     });
 
-    return {
+    const body = {
       type: 'COMPETITION_ENDED',
       data: { groupId, competition, standings }
     };
+
+    axios.post(services.DISCORD_BOT.API, body);
   }
 };
