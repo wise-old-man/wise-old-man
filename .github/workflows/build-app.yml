@@ -3,7 +3,7 @@ name: Build App Image
 on:
   push:
     branches:
-      - master
+      - staging
     paths:
       - 'app/**'
 
