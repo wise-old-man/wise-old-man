@@ -8,6 +8,8 @@ import './index.scss';
 
 import App from './App';
 
+// TODO: Testing conditional image building, delete later
+
 ReactDOM.render(
   <Provider store={store}>
     <App />
