@@ -8,8 +8,19 @@ on:
       - 'app/**'
 
 jobs:
-  test:
+  build-app:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.ORG_DOCKER_USERNAME }} -p ${{ secrets.ORG_DOCKER_PASSWORD }}
+
+      - name: Build and Push To Docker Hub
+        env:
+          ANALYTICS_TRACKING_ID: ${{ secrets.ANALYTICS_TRACKING_ID }}
+        run: |
+          cd app
+          docker build . --file Dockerfile --tag wiseoldman/app:latest --build-arg REACT_APP_ANALYTICS_TRACKING_ID=$ANALYTICS_TRACKING_ID
+          docker push wiseoldman/app:latest
