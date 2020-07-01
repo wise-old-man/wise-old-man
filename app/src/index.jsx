@@ -8,7 +8,7 @@ import './index.scss';
 
 import App from './App';
 
-// Test 1
+// Test 2
 
 ReactDOM.render(
   <Provider store={store}>
