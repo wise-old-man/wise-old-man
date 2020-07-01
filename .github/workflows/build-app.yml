@@ -29,4 +29,4 @@ jobs:
     needs: [build-app]
     steps:
       - name: 'Rebuild NGINX and Deploy'
-        uses: wise-old-man/nginx-deploy-config@master
+        uses: wise-old-man/nginx-deploy-config@test
