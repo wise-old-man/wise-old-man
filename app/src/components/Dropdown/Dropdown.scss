@@ -60,5 +60,14 @@
         outline: none;
       }
     }
+
+    .dropdown-url {
+      padding: 0;
+
+      a {
+        display: block;
+        padding: 10px;
+      }
+    }
   }
 }

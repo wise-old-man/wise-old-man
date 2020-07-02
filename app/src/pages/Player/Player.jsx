@@ -150,6 +150,15 @@ function Player() {
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
   const deltasPeriodIndex = PERIOD_OPTIONS.findIndex(o => o.value === selectedPeriod);
 
+  useEffect(() => {
+    // Set the player's HiScores URL
+    if (player) {
+      MENU_OPTIONS.find(option => option.value === 'openOsrsHiscores').url = getOfficialHiscoresUrl(
+        player
+      );
+    }
+  }, [player]);
+
   const experienceChartData = useSelector(state =>
     getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric), isReducedChart)
   );
@@ -228,8 +237,6 @@ function Player() {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
     } else if (option.value === 'assertName') {
       await dispatch(assertPlayerNameAction(player.username, player.id));
-    } else if (option.value === 'openOsrsHiscores') {
-      window.location = getOfficialHiscoresUrl(player);
     }
   };
 

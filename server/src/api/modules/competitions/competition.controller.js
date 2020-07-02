@@ -120,11 +120,11 @@ async function updateAllParticipants(req, res, next) {
     const { id } = req.params;
 
     const participants = await service.updateAllParticipants(id, player => {
-      // Attempt this 5 times per player, waiting 65 seconds in between
-      jobs.add('UpdatePlayer', { player }, { attempts: 5, backoff: 65000 });
+      // Attempt this 3 times per player, waiting 65 seconds in between
+      jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
     });
 
-    const message = `${participants.length} players are being updated. This can take up to a few minutes.`;
+    const message = `${participants.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;
 
     res.json({ message });
   } catch (e) {
