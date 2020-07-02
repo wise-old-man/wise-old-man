@@ -8,7 +8,7 @@ import './index.scss';
 
 import App from './App';
 
-// Test staging 7
+// Test staging 8
 
 ReactDOM.render(
   <Provider store={store}>
