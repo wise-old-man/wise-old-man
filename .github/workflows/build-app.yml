@@ -31,5 +31,5 @@ jobs:
       - name: 'Rebuild NGINX and Deploy'
         uses: wise-old-man/nginx-deploy-config@test
         with:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: 'helloooo'
+          DOCKER_USERNAME: ${{ secrets.ORG_DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.ORG_DOCKER_USERNAME }}
