@@ -28,8 +28,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-app]
     steps:
-      - name: 'Rebuild NGINX and Deploy'
-        uses: wise-old-man/nginx-deploy-config@test
+      - name: Restart docker
+        uses: appleboy/ssh-action@master
         with:
-          DOCKER_USERNAME: ${{ secrets.ORG_DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.ORG_DOCKER_USERNAME }}
+          host: ${{ secrets.STAGING_DO_HOST }}
+          username: ${{ secrets.STAGING_DO_USER }}
+          passphrase: ${{ secrets.STAGING_DO_SSH_PASS }}
+          key: ${{ secrets.STAGING_DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker-compose pull
+            docker-compose up --build
+            docker ps
