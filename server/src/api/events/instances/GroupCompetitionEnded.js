@@ -12,7 +12,8 @@ module.exports = {
 
     const body = {
       type: 'COMPETITION_ENDED',
-      data: { groupId, competition, standings }
+      data: { groupId, competition, standings },
+      api_token: process.env.API_TOKEN
     };
 
     axios.post(services.DISCORD_BOT.API, body);
