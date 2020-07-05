@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "faker": "^4.1.0",
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "sequelize-cli": "^5.5.1",
