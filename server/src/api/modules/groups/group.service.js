@@ -608,24 +608,68 @@ async function setMembers(group, members) {
     throw new BadRequestError(`Invalid group.`);
   }
 
-  const uniqueNames = _.uniqBy(
-    members.map(m => m.username),
-    m => m.toLowerCase()
-  );
+  // Ignore any duplicate names
+  const uniqueNames = _.uniq(members.map(m => m.username.toLowerCase()));
 
+  // Fetch (or create) player from the unique usernames
   const players = await playerService.findAllOrCreate(uniqueNames);
 
-  const newMemberships = players.map((p, i) => ({
-    playerId: p.id,
+  // Define membership models for each player
+  const memberships = players.map((player, i) => ({
+    playerId: player.id,
     groupId: group.id,
     role: members[i].role || 'member'
+    // TODO: this can be problematic in the future and should be fixed ASAP:
+    // If we supply a list of 4 usernames, 2 of them being repeated,
+    // array size of members will be different than uniqueNames and therefore players
+    // so by doing members[i] we might be accessing the wrong index.
   }));
 
-  // Remove all existing memberships
-  await Membership.destroy({ where: { groupId: group.id } });
+  // Fetch all previous (existing) memberships
+  const previousMemberships = await Membership.findAll({
+    attributes: ['groupId', 'playerId', 'role'],
+    where: { groupId: group.id }
+  });
 
-  // Add all the new memberships
-  await Membership.bulkCreate(newMemberships, { ignoreDuplicates: true });
+  // Find all "to remove" memberships (were previously members, and should now be removed)
+  const removeMemberships = previousMemberships.filter(
+    pm => !memberships.find(m => m.playerId === pm.playerId)
+  );
+
+  // Find all memberships that should be stay members (opposite of removeMemberships)
+  const keptMemberships = previousMemberships.filter(pm =>
+    memberships.find(m => m.playerId === pm.playerId)
+  );
+
+  // Find all new memberships (were not previously members, but should be added)
+  const newMemberships = memberships.filter(
+    m => !previousMemberships.map(pm => pm.playerId).includes(m.playerId)
+  );
+
+  // Delete all memberships for "removed members", if any exist
+  if (removeMemberships.length > 0) {
+    const toRemoveIds = removeMemberships.map(rm => rm.playerId);
+    await Membership.destroy({ where: { groupId: group.id, playerId: toRemoveIds } });
+  }
+
+  // Add all the new memberships, if any exist
+  if (memberships.length > 0) {
+    await Membership.bulkCreate(newMemberships, { ignoreDuplicates: true });
+  }
+
+  // Check if any kept member's role should be changed
+  if (keptMemberships.length > 0) {
+    await Promise.all(
+      keptMemberships.map(async k => {
+        const membership = memberships.find(m => m.playerId === k.playerId);
+
+        // Role has changed and should be updated
+        if (membership && membership.role !== k.role) {
+          await k.update({ role: membership.role });
+        }
+      })
+    );
+  }
 
   const allMembers = await group.getMembers();
 
