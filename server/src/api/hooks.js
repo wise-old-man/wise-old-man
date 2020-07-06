@@ -31,24 +31,30 @@ function setup() {
     });
   });
 
-  Competition.afterUpdate(competition => {
-    if (!competition) return;
+  Competition.beforeUpdate((competition, options) => {
+    if (!competition || !options || !options.fields) return;
 
-    // Schedule events for competition started/starting/ending/ended
-    handleCompetitionTimers(competition);
+    const editedFields = options.fields;
+
+    // Start date has been changed
+    if (editedFields.includes('startsAt')) {
+      setupCompetitionStart(competition);
+    }
+
+    // End date has been changed
+    if (editedFields.includes('endsAt')) {
+      setupCompetitionStart(competition);
+    }
   });
 
   Competition.afterCreate(competition => {
     if (!competition) return;
 
-    if (competition.groupId) {
-      events.dispatch('GroupCompetitionCreated', { competition });
-    } else {
-      // Note: If is group competition, the competition timers
-      // will be initialized on the afterUpdate hooks instead.
-      // So ensure this is only ran onCreate if it isn't a group competition.
-      handleCompetitionTimers(competition);
-    }
+    events.dispatch('GroupCompetitionCreated', { competition });
+
+    // Schedule all initial competition timed events (onStarted, onEnding, etc)
+    setupCompetitionStart(competition);
+    setupCompetitionEnd(competition);
   });
 
   Snapshot.afterCreate(({ playerId }) => {
@@ -106,19 +112,13 @@ function setup() {
   });
 }
 
-/**
- * Schedules future time-based competition jobs.
- */
-function handleCompetitionTimers(competition) {
+function setupCompetitionStart(competition) {
   if (!competition) return;
 
-  const { id, startsAt, endsAt } = competition;
+  const { id, startsAt } = competition;
 
   // On competition started
   jobs.schedule('CompetitionStarted', { competitionId: id }, startsAt);
-
-  // On competition ended
-  jobs.schedule('CompetitionEnded', { competitionId: id }, endsAt);
 
   // On competition starting
   const starting24h = new Date(startsAt - 24 * 60 * 60 * 1000);
@@ -132,6 +132,15 @@ function handleCompetitionTimers(competition) {
 
   const starting5mins = new Date(startsAt - 5 * 60 * 1000);
   jobs.schedule('CompetitionStarting', { competitionId: id, minutes: 5 }, starting5mins);
+}
+
+function setupCompetitionEnd(competition) {
+  if (!competition) return;
+
+  const { id, endsAt } = competition;
+
+  // On competition ended
+  jobs.schedule('CompetitionEnded', { competitionId: id }, endsAt);
 
   // On competition ending
   const ending24h = new Date(endsAt - 24 * 60 * 60 * 1000);
