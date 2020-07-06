@@ -4,7 +4,7 @@ module.exports = {
   host: process.env.DB_HOST,
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DB,
+  database: 'wise-old-man',
   dialect: process.env.DB_DIALECT,
   storage: process.env.DB_STORAGE,
   logging: false,

@@ -8,5 +8,8 @@
   },
   "CML": {
     "HISTORY": "https://crystalmathlabs.com/tracker/api.php?type=datapoints"
+  },
+  "DISCORD_BOT": {
+    "API": "https://discord-bot.wiseoldman.net/event"
   }
 }
