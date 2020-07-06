@@ -74,6 +74,8 @@ function setup() {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
+    if (!playerIds || playerIds.length === 0) return;
+
     // Handle jobs
     jobs.add('AddToGroupCompetitions', { groupId, playerIds });
 
@@ -89,6 +91,8 @@ function setup() {
     if (!info || !info.where) return;
 
     const { groupId, playerId } = info.where;
+
+    if (!playerId || playerId.length === 0) return;
 
     // Handle jobs
     jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
