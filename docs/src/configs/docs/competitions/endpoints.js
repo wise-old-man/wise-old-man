@@ -168,7 +168,9 @@ export default [
         type: 'info',
         content:
           "Instead of an array of participants, you can also supply the values \
-          'groupId' and 'groupVerificationCode' to create a group competition"
+          'groupId' and 'groupVerificationCode' to create a group competition. \
+          Providing these two values will require you to use your group verfication \
+          code to make edits to the competition."
       }
     ],
     body: {
@@ -354,8 +356,12 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the verification code is not correct.',
+        description: 'If the competition verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description: 'If the group verification code is not correct when editing a group competition.',
+        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: "If one of the participant' usernames is invalid",
@@ -405,8 +411,12 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the verification code is not correct.',
+        description: 'If the competition verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description: 'If the group verification code is not correct when deleting a group competition.',
+        body: { message: 'Incorrect group verification code.' }
       }
     ]
   },
@@ -461,8 +471,13 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the verification code is not correct.',
+        description: 'If the competition verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description:
+          'If the group verification code is not correct when adding participants to a group competition.',
+        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: 'If all the participants are already participating.',
@@ -511,8 +526,13 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the verification code is not correct.',
+        description: 'If the competition verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description:
+          'If the group verification code is not correct when removing participants from a group competition.',
+        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: 'If none of the participants given exist.',

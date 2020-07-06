@@ -216,7 +216,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid verification code.');
+      expect(response.body.message).toMatch('Invalid competition verification code.');
 
       done();
     });

@@ -211,7 +211,7 @@ function EditCompetition() {
           <span className="form-row__label">
             {groupId ? 'Group verification code' : 'Verification code'}
             <span className="form-row__label-info -right">
-              Lost your verification code?
+              {`Lost your${groupId ? ' group' : ''} verification code?`}
               <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
                 Join our discord
               </a>
