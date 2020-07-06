@@ -376,10 +376,25 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
 
-  const verified = await verifyCode(competition.verificationHash, verificationCode);
+  // If the competition has a groupId, compare the code to the group hash
+  if (competition.groupId) {
+    const group = await Group.findOne({ where: { id: competition.groupId } });
 
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+    if (!group) {
+      throw new BadRequestError(`Group of id ${competition.groupId} was not found.`);
+    }
+
+    const verified = await verifyCode(group.verificationHash, verificationCode);
+
+    if (!verified) {
+      throw new BadRequestError('Incorrect group verification code.');
+    }
+  } else {
+    const verified = await verifyCode(competition.verificationHash, verificationCode);
+
+    if (!verified) {
+      throw new BadRequestError('Incorrect competition verification code.');
+    }
   }
 
   const newValues = {};
