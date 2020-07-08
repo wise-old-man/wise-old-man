@@ -105,6 +105,12 @@ function NavigationBar() {
                 API
               </a>
             </li>
+
+            <li className="nav-links__item">
+              <a href="https://bot.wiseoldman.net" onClick={closeMenu}>
+                Discord Bot
+              </a>
+            </li>
           </ul>
         </div>
       </div>
