@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
-import className from 'classnames';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import ConditionalWrap from 'conditional-wrap';
 import Button from '../../components/Button';
 import './Home.scss';
 
@@ -11,13 +9,27 @@ const FEATURES = [
     title: 'Experience tracking',
     page: '/players/1057', // Lynx Titan
     description:
-      'Track your skilling progression overtime, browse your personal records and achievements.',
+      'Track your skilling progression overtime, browse your recent gains, personal records and more.',
     image: '/img/landing_page/features/player_tracking.png'
   },
   {
     title: 'Boss killcount tracking',
+    page: '/top/general_graardor/', // Lynx Titan
     description: 'Track your boss kills and take your rightful place in the global PvM leaderboards.',
     image: '/img/landing_page/features/boss_tracking.png'
+  },
+  {
+    title: 'Player achievements',
+    page: '/players/128/achievements',
+    description: 'Reach your in-game goals to unlock your player achievements.',
+    image: '/img/landing_page/features/efficiency_metrics.png'
+  },
+  {
+    title: 'Discord Bot',
+    url: 'https://bot.wiseoldman.net',
+    description:
+      "Track your clan's progress, competitions and achievements from your own Discord server.",
+    image: '/img/landing_page/features/discord_bot.png'
   },
   {
     title: 'Group competitions',
@@ -67,7 +79,19 @@ function Home() {
             <p className="intro-description">
               The Open Source Old School Runescape player progress tracker.
             </p>
-            <Button text="Contribute" url="https://github.com/wise-old-man/wise-old-man" />
+            <div className="intro-cta">
+              <Button
+                className="secondary"
+                text="Join our Discord"
+                url="https://wiseoldman.net/discord"
+              />
+              <Button text="Contribute" url="https://wiseoldman.net/github" />
+            </div>
+            <a className="intro-update" href="https://bot.wiseoldman.net">
+              <b className="update-new-tag">NEW!</b>
+              <span className="update-title">The Wise Old Man Discord Bot!</span>
+              <img className="update-icon" src="/img/icons/arrow_right.svg" alt="" />
+            </a>
           </div>
         </div>
         <div id="illustration" className="hero__illustration">
@@ -79,13 +103,14 @@ function Home() {
           <div className="details__info col-lg-7 col-md-12">
             <h1 className="section-title">What is it?</h1>
             <p className="description">
-              The Wise Old Man is an Open source project, meaning anyone in the community can contribute
-              code or ideas to add new functionality.
+              The Wise Old Man is an app that tracks your Old School Runescape player progress. Built on
+              top of the OSRS hiscores, it allows you to keep track of your gains, participate in group
+              competitions, collect achievements and much more.
               <br />
               <br />
-              This application measures Old School Runescape player progress. Built on top of the OSRS
-              hiscores, it adds extra functionality like group competitions, player achievements,
-              experience records, etc.
+              It is also a free Open Source project, meaning anyone in the community can contribute code
+              or ideas to add new functionality. Please consider supporting us on Patreon so we can keep
+              expanding and project without relying on &quot;premium&quot; features.
             </p>
             <div className="info-actions">
               <a href="https://wiseoldman.net/github" className="about-btn -github" role="button">
@@ -96,9 +121,9 @@ function Home() {
                 <img className="about-btn__icon" src="/img/icons/discord.svg" alt="discord icon" />
                 <span className="about-btn__text">Join our discord</span>
               </a>
-              <a href="https://wiseoldman.net/twitter" className="about-btn -twitter" role="button">
-                <img className="about-btn__icon" src="/img/icons/twitter.svg" alt="twitter icon" />
-                <span className="about-btn__text">Follow on Twitter</span>
+              <a href="https://wiseoldman.net/patreon" className="about-btn -patreon" role="button">
+                <img className="about-btn__icon" src="/img/icons/patreon.svg" alt="patreon icon" />
+                <span className="about-btn__text">Become a patron</span>
               </a>
             </div>
           </div>
@@ -107,20 +132,20 @@ function Home() {
           </div>
         </div>
         <div className="features row">
-          {FEATURES.map(({ unavailable, title, image, description, page }) => (
-            <div
-              key={title}
-              className={className({ 'feature-card': true, '-unavailable': unavailable })}
-            >
+          {FEATURES.map(({ title, image, description, page, url }) => (
+            <div key={title} className="feature-card">
               <img className="feature-card__image" src={image} alt="" />
               <div className="feature-card__info">
-                <ConditionalWrap
-                  condition={!unavailable && !!page}
-                  wrap={children => <Link to={page}>{children}</Link>}
-                >
-                  <b className="feature-title">{title}</b>
-                </ConditionalWrap>
-                {unavailable && <span className="unavailable-label">Coming soon</span>}
+                {url && (
+                  <a href={url}>
+                    <b className="feature-title">{title}</b>
+                  </a>
+                )}
+                {page && (
+                  <Link to={page}>
+                    <b className="feature-title">{title}</b>
+                  </Link>
+                )}
                 <p className="feature-description">{description}</p>
               </div>
             </div>
