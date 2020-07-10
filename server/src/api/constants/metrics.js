@@ -301,7 +301,7 @@ function getAbbreviation(abbr) {
       return 'zulrah';
 
     default:
-      return null;
+      return abbr;
   }
 }
 
