@@ -1,15 +1,16 @@
 const axios = require('axios');
-const services = require('../../constants/services.json');
 
 module.exports = {
   key: 'GroupCompetitionEnding',
   onDispatch({ competition, period }) {
+    const { DISCORD_BOT_API_URL, DISCORD_BOT_API_TOKEN } = process.env;
+
     const body = {
       type: 'COMPETITION_ENDING',
       data: { groupId: competition.groupId, competition, period },
-      api_token: process.env.API_TOKEN
+      api_token: DISCORD_BOT_API_TOKEN
     };
 
-    axios.post(services.DISCORD_BOT.API, body);
+    axios.post(DISCORD_BOT_API_URL, body);
   }
 };

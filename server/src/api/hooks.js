@@ -43,7 +43,7 @@ function setup() {
 
     // End date has been changed
     if (editedFields.includes('endsAt')) {
-      setupCompetitionStart(competition);
+      setupCompetitionEnd(competition);
     }
   });
 
