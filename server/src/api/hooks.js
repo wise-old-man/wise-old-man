@@ -25,9 +25,8 @@ function setup() {
     const player = await playerService.findById(playerId);
 
     groups.forEach(g => {
-      newAchievements.forEach(a => {
-        events.dispatch('GroupMemberAchievement', { groupId: g.id, player, achievement: a });
-      });
+      const payload = { groupId: g.id, player, achievements: newAchievements };
+      events.dispatch('GroupMemberAchievements', payload);
     });
   });
 
