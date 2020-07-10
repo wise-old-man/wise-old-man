@@ -11,7 +11,7 @@ export default [
       {
         field: 'title',
         type: 'string',
-        description: 'The title of the competition (1-30 characters)'
+        description: 'The title of the competition (1-50 characters)'
       },
       {
         field: 'metric',

@@ -9,12 +9,12 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     title: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
         len: {
-          args: [1, 30],
-          msg: 'Competition title must be between 1 and 30 characters long.'
+          args: [1, 50],
+          msg: 'Competition title must be between 1 and 50 characters long.'
         }
       }
     },
