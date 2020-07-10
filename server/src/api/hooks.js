@@ -87,10 +87,7 @@ function setup() {
 
     // Handle events
     const players = await playerService.findAllByIds(playerIds);
-
-    players.forEach(({ id, displayName }) => {
-      events.dispatch('GroupMemberJoined', { groupId, playerId: id, displayName });
-    });
+    events.dispatch('GroupMembersJoined', { groupId, players });
   });
 
   Membership.afterBulkDestroy(async info => {
@@ -105,10 +102,7 @@ function setup() {
 
     // Handle events
     const players = await playerService.findAllByIds(playerId);
-
-    players.forEach(({ id, displayName }) => {
-      events.dispatch('GroupMemberLeft', { groupId, playerId: id, displayName });
-    });
+    events.dispatch('GroupMembersLeft', { groupId, players });
   });
 }
 

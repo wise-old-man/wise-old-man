@@ -1,5 +1,5 @@
-const GroupMemberJoined = require('./instances/GroupMemberJoined');
-const GroupMemberLeft = require('./instances/GroupMemberLeft');
+const GroupMembersJoined = require('./instances/GroupMembersJoined');
+const GroupMembersLeft = require('./instances/GroupMembersLeft');
 const GroupMemberAchievement = require('./instances/GroupMemberAchievement');
 const GroupCompetitionCreated = require('./instances/GroupCompetitionCreated');
 const GroupCompetitionStarting = require('./instances/GroupCompetitionStarting');
@@ -8,8 +8,8 @@ const GroupCompetitionEnding = require('./instances/GroupCompetitionEnding');
 const GroupCompetitionEnded = require('./instances/GroupCompetitionEnded');
 
 const events = [
-  GroupMemberJoined,
-  GroupMemberLeft,
+  GroupMembersJoined,
+  GroupMembersLeft,
   GroupMemberAchievement,
   GroupCompetitionCreated,
   GroupCompetitionStarting,
