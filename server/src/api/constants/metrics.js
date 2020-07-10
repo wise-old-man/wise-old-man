@@ -219,7 +219,7 @@ function getAbbreviation(abbr) {
     case 'saradomin':
     case 'zilyana':
     case 'zily':
-      return 'Commander commander_zilyana';
+      return 'commander_zilyana';
 
     case 'corp':
       return 'corporeal_beast';
