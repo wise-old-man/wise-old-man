@@ -174,6 +174,137 @@ function getDifficultyFactor(metric) {
   }
 }
 
+function getAbbreviation(abbr) {
+  if (!abbr || abbr.length === 0) {
+    return null;
+  }
+
+  switch (abbr) {
+    case 'sire':
+      return 'abyssal_sire';
+
+    case 'hydra':
+      return 'alchemical_hydra';
+
+    case 'barrows':
+      return 'barrows_chests';
+
+    case 'bryo':
+      return 'bryophyta';
+
+    case 'cerb':
+      return 'cerberus';
+
+    case 'cox':
+    case 'xeric':
+    case 'chambers':
+    case 'olm':
+    case 'raids':
+      return 'chambers_of_xeric';
+
+    case 'cox-cm':
+    case 'xeric-cm':
+    case 'chambers-cm':
+    case 'olm-cm':
+    case 'raids-cm':
+      return 'chambers_of_xeric_challenge_mode';
+
+    case 'chaos ele':
+      return 'chaos_elemental';
+
+    case 'fanatic':
+      return 'chaos_fanatic';
+
+    case 'sara':
+    case 'saradomin':
+    case 'zilyana':
+    case 'zily':
+      return 'Commander commander_zilyana';
+
+    case 'corp':
+      return 'corporeal_beast';
+
+    case 'crazy arch':
+      return 'crazy_archaeologist';
+
+    case 'prime':
+      return 'dagannoth_prime';
+    case 'rex':
+      return 'dagannoth_rex';
+    case 'supreme':
+      return 'dagannoth_supreme';
+
+    case 'deranged arch':
+      return 'deranged_archaeologist';
+
+    case 'bandos':
+    case 'graardor':
+      return 'general_graardor';
+
+    case 'mole':
+      return 'giant_mole';
+
+    case 'dusk':
+    case 'dawn':
+    case 'gargs':
+    case 'guardians':
+      return 'grotesque_guardians';
+
+    case 'kq':
+      return 'kalphite_queen';
+
+    case 'kbd':
+      return 'king_black_dragon';
+
+    case 'kree':
+    case 'kreearra':
+    case 'armadyl':
+      return 'kreearra';
+
+    case 'zammy':
+    case 'zamorak':
+    case 'kril':
+    case 'kril trutsaroth':
+      return 'kril_tsutsaroth';
+
+    case 'gaunt':
+    case 'gauntlet':
+      return 'the_gauntlet';
+
+    case 'cgaunt':
+    case 'cgauntlet':
+    case 'corrupted':
+      return 'the_corrupted_gauntlet';
+
+    case 'tob':
+    case 'theatre':
+    case 'verzik':
+      return 'theatre_of_blood';
+
+    case 'thermy':
+      return 'thermonuclear_smoke_devil';
+
+    case 'zuk':
+    case 'inferno':
+      return 'tzkal_zuk';
+
+    case 'jad':
+      return 'tztok_jad';
+
+    case 'vork':
+      return 'vorkath';
+
+    case 'wt':
+      return 'wintertodt';
+
+    case 'snek':
+      return 'zulrah';
+
+    default:
+      return null;
+  }
+}
+
 module.exports = {
   SKILLS: SKILLS_KEYS,
   ACTIVITIES: ACTIVITIES_KEYS,
@@ -186,5 +317,6 @@ module.exports = {
   getFormattedName,
   getRankKey,
   getValueKey,
-  getDifficultyFactor
+  getDifficultyFactor,
+  getAbbreviation
 };
