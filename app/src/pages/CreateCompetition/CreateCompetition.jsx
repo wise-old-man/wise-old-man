@@ -14,6 +14,7 @@ import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
+import CustomConfirmationModal from '../../modals/CustomConfirmationModal';
 import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
@@ -54,6 +55,7 @@ function CreateCompetition() {
   const [groupCompetition, setGroupCompetition] = useState(false);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
+  const [showingCustomConfirmationModal, toggleCustomMessageModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
 
@@ -118,6 +120,10 @@ function CreateCompetition() {
       if (a && a.competition) {
         setVerificationCode(a.competition.verificationCode);
         setCreatedId(a.competition.id);
+
+        if (groupCompetition) {
+          showCustomConfirmationModal();
+        }
       }
     });
   };
@@ -130,6 +136,7 @@ function CreateCompetition() {
   const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
   const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
   const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
+  const showCustomConfirmationModal = useCallback(() => toggleCustomMessageModal(true), []);
   const toggleGroupCompetition = useCallback(handleToggleGroupCompetition, [groupCompetition]);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
@@ -243,7 +250,7 @@ function CreateCompetition() {
       {showingImportModal && (
         <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
       )}
-      {verificationCode && (
+      {verificationCode && !groupCompetition && (
         <VerificationModal
           entity="competition"
           verificationCode={verificationCode}
@@ -255,6 +262,13 @@ function CreateCompetition() {
           entity={{ type: 'competition', group: 'participant' }}
           onClose={hideEmptyConfirmationModal}
           onConfirm={onSubmit}
+        />
+      )}
+      {showingCustomConfirmationModal && (
+        <CustomConfirmationModal
+          title="Verification code"
+          message="To edit this competition in the future, please use your group verification code on submission."
+          onConfirm={onConfirmVerification}
         />
       )}
     </div>
