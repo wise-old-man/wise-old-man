@@ -356,12 +356,8 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the competition verification code is not correct.',
+        description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
-      },
-      {
-        description: 'If the group verification code is not correct when editing a group competition.',
-        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: "If one of the participant' usernames is invalid",
@@ -411,12 +407,8 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the competition verification code is not correct.',
+        description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
-      },
-      {
-        description: 'If the group verification code is not correct when deleting a group competition.',
-        body: { message: 'Incorrect group verification code.' }
       }
     ]
   },
@@ -471,13 +463,8 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the competition verification code is not correct.',
+        description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
-      },
-      {
-        description:
-          'If the group verification code is not correct when adding participants to a group competition.',
-        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: 'If all the participants are already participating.',
@@ -526,13 +513,8 @@ export default [
         body: { message: 'Invalid verification code.' }
       },
       {
-        description: 'If the competition verification code is not correct.',
+        description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
-      },
-      {
-        description:
-          'If the group verification code is not correct when removing participants from a group competition.',
-        body: { message: 'Incorrect group verification code.' }
       },
       {
         description: 'If none of the participants given exist.',
