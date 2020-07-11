@@ -44,7 +44,6 @@ function EditCompetition() {
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
-  const [groupId, setGroupId] = useState('');
 
   const [showingImportModal, toggleImportModal] = useState(false);
 
@@ -58,6 +57,7 @@ function EditCompetition() {
     dispatch(fetchDetailsAction(id));
   };
 
+  // Populate all the editable fields
   const populate = () => {
     if (competition) {
       setTitle(competition.title);
@@ -65,7 +65,6 @@ function EditCompetition() {
       setStartDate(competition.startsAt);
       setEndDate(competition.endsAt);
       setParticipants(competition.participants.map(p => p.displayName));
-      setGroupId(competition.groupId);
     }
   };
 
@@ -209,9 +208,9 @@ function EditCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">
-            {groupId ? 'Group verification code' : 'Verification code'}
+            {competition.groupId ? 'Group verification code' : 'Verification code'}
             <span className="form-row__label-info -right">
-              {`Lost your${groupId ? ' group' : ''} verification code?`}
+              {`Lost your${competition.groupId ? ' group' : ''} verification code?`}
               <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
                 Join our discord
               </a>

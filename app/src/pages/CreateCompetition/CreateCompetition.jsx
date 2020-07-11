@@ -14,6 +14,7 @@ import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import VerificationModal from '../../modals/VerificationModal';
+import CustomConfirmationModal from '../../modals/CustomConfirmationModal';
 import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
@@ -21,7 +22,6 @@ import { ALL_METRICS } from '../../config';
 import createCompetitionAction from '../../redux/modules/competitions/actions/create';
 import { isCreating, getError } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
-import CustomConfirmationModal from '../../modals/CustomConfirmationModal';
 
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
@@ -267,7 +267,7 @@ function CreateCompetition() {
       {showingCustomConfirmationModal && (
         <CustomConfirmationModal
           title="Verification code"
-          message="To edit this competition, please use your group verification code on submission."
+          message="To edit this competition in the future, please use your group verification code on submission."
           onConfirm={onConfirmVerification}
         />
       )}
