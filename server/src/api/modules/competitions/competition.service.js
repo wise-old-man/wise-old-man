@@ -376,25 +376,10 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
 
-  // If the competition has a groupId, compare the code to the group hash
-  if (competition.groupId) {
-    const group = await Group.findOne({ where: { id: competition.groupId } });
+  const verified = await isVerified(competition, verificationCode);
 
-    if (!group) {
-      throw new BadRequestError(`Group of id ${competition.groupId} was not found.`);
-    }
-
-    const verified = await verifyCode(group.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect group verification code.');
-    }
-  } else {
-    const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect verification code.');
-    }
+  if (!verified) {
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   const newValues = {};
@@ -459,25 +444,10 @@ async function destroy(id, verificationCode) {
     throw new BadRequestError(`Competition of id ${id} was not found.`);
   }
 
-  // If the competition has a groupId, compare the code to the group hash
-  if (competition.groupId) {
-    const group = await Group.findOne({ where: { id: competition.groupId } });
+  const verified = await isVerified(competition, verificationCode);
 
-    if (!group) {
-      throw new BadRequestError(`Group of id ${competition.groupId} was not found.`);
-    }
-
-    const verified = await verifyCode(group.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect group verification code.');
-    }
-  } else {
-    const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect verification code.');
-    }
+  if (!verified) {
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   await competition.destroy();
@@ -605,25 +575,10 @@ async function getCompetitionForParticipantOperation(id, verificationCode, usern
     throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
-  // If the competition has a groupId, compare the code to the group hash
-  if (competition.groupId) {
-    const group = await Group.findOne({ where: { id: competition.groupId } });
+  const verified = await isVerified(competition, verificationCode);
 
-    if (!group) {
-      throw new BadRequestError(`Group of id ${competition.groupId} was not found.`);
-    }
-
-    const verified = await verifyCode(group.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect group verification code.');
-    }
-  } else {
-    const verified = await verifyCode(competition.verificationHash, verificationCode);
-
-    if (!verified) {
-      throw new BadRequestError('Incorrect verification code.');
-    }
+  if (!verified) {
+    throw new BadRequestError('Incorrect verification code.');
   }
 
   return competition;
@@ -869,6 +824,27 @@ async function calculateScore(competition) {
   }
 
   return score;
+}
+
+async function isVerified(competition, verificationCode) {
+  const { groupId, verificationHash } = competition;
+
+  let hash = verificationHash;
+
+  // If it is a group competition, compare the code
+  // to the group's verification hash instead
+  if (groupId) {
+    const group = await Group.findOne({ where: { id: groupId } });
+
+    if (!group) {
+      throw new BadRequestError(`Group of id ${groupId} was not found.`);
+    }
+
+    hash = group.verificationHash;
+  }
+
+  const verified = await verifyCode(hash, verificationCode);
+  return verified;
 }
 
 exports.getList = getList;
