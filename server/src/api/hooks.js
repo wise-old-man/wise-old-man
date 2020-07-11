@@ -110,21 +110,18 @@ function setupCompetitionStart(competition) {
 
   const { id, startsAt } = competition;
 
-  // On competition started
-  jobs.schedule('CompetitionStarted', { competitionId: id }, startsAt);
+  // Time intervals to send "starting in" notifications at (in minutes)
+  // Current: 24h, 6h, 1h, 5mins
+  const startingIntervals = [1440, 360, 60, 5];
 
   // On competition starting
-  const starting24h = new Date(startsAt - 24 * 60 * 60 * 1000);
-  jobs.schedule('CompetitionStarting', { competitionId: id, minutes: 24 * 60 }, starting24h);
+  startingIntervals.forEach(minutes => {
+    const date = new Date(startsAt - minutes * 60 * 1000);
+    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
+  });
 
-  const starting6h = new Date(startsAt - 6 * 60 * 60 * 1000);
-  jobs.schedule('CompetitionStarting', { competitionId: id, minutes: 6 * 60 }, starting6h);
-
-  const starting1h = new Date(startsAt - 60 * 60 * 1000);
-  jobs.schedule('CompetitionStarting', { competitionId: id, minutes: 60 }, starting1h);
-
-  const starting5mins = new Date(startsAt - 5 * 60 * 1000);
-  jobs.schedule('CompetitionStarting', { competitionId: id, minutes: 5 }, starting5mins);
+  // On competition started
+  jobs.schedule('CompetitionStarted', { competitionId: id }, startsAt);
 }
 
 function setupCompetitionEnd(competition) {
@@ -135,21 +132,15 @@ function setupCompetitionEnd(competition) {
   // On competition ended
   jobs.schedule('CompetitionEnded', { competitionId: id }, endsAt);
 
+  // Time intervals to send "ending in" notifications at (in minutes)
+  // Current: 24h, 6h, 1h, 5mins
+  const endingIntervals = [1440, 360, 60, 5];
+
   // On competition ending
-  const ending24h = new Date(endsAt - 24 * 60 * 60 * 1000);
-  jobs.schedule('CompetitionEnding', { competitionId: id, minutes: 24 * 60 }, ending24h);
-
-  const ending6h = new Date(endsAt - 6 * 60 * 60 * 1000);
-  jobs.schedule('CompetitionEnding', { competitionId: id, minutes: 6 * 60 }, ending6h);
-
-  const ending1h = new Date(endsAt - 60 * 60 * 1000);
-  jobs.schedule('CompetitionEnding', { competitionId: id, minutes: 60 }, ending1h);
-
-  const ending5mins = new Date(endsAt - 5 * 60 * 1000);
-  jobs.schedule('CompetitionEnding', { competitionId: id, minutes: 5 }, ending5mins);
-
-  const ending1min = new Date(endsAt - 60 * 1000);
-  jobs.schedule('CompetitionEnding', { competitionId: id, minutes: 1 }, ending1min);
+  endingIntervals.forEach(minutes => {
+    const date = new Date(endsAt - minutes * 60 * 1000);
+    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
+  });
 }
 
 exports.setup = setup;
