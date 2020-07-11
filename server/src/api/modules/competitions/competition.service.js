@@ -325,7 +325,12 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     ? await addAllGroupMembers(competition, groupId)
     : await setParticipants(competition, participants);
 
-  return { ...format(competition), participants: newParticipants };
+  // If it's a group competition, don't return a verification code
+  const formatted = competition.groupId
+    ? _.omit(format(competition), ['verificationCode'])
+    : format(competition);
+
+  return { ...formatted, participants: newParticipants };
 }
 
 /**
