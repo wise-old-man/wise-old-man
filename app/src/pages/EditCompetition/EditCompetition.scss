@@ -6,6 +6,20 @@
   width: 700px !important;
   max-width: 90%;
 
+  .warning {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid $neutral-orange;
+    font-size: 0.9em;
+    border-radius: 5px;
+    color: $gray-60;
+
+    b {
+      color: white;
+      margin-right: 7px;
+    }
+  }
+
   .page__title {
     padding-bottom: 15px;
   }

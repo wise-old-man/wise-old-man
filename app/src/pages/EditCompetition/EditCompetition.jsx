@@ -206,6 +206,14 @@ function EditCompetition() {
           />
         </div>
 
+        {competition.createdAt < new Date('2020-07-11 00:00') && (
+          <div className="warning">
+            <b>Attention:</b>
+            As of the 11th of July, group competitions use the group&quot;s verification code, and not
+            the competition verification code you were given when you created it.
+          </div>
+        )}
+
         <div className="form-row">
           <span className="form-row__label">
             {competition.groupId ? 'Group verification code' : 'Verification code'}
