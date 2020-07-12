@@ -8,6 +8,10 @@ const ReevaluatePlayerAchievements = require('./ReevaluatePlayerAchievements');
 const SyncPlayerInitialValues = require('./SyncPlayerInitialValues');
 const AssertPlayerName = require('./AssertPlayerName');
 const RefreshRankings = require('./RefreshRankings');
+const CompetitionStarted = require('./CompetitionStarted');
+const CompetitionStarting = require('./CompetitionStarting');
+const CompetitionEnding = require('./CompetitionEnding');
+const CompetitionEnded = require('./CompetitionEnded');
 
 module.exports = {
   ImportPlayer,
@@ -19,5 +23,9 @@ module.exports = {
   ReevaluatePlayerAchievements,
   SyncPlayerInitialValues,
   AssertPlayerName,
-  RefreshRankings
+  RefreshRankings,
+  CompetitionStarted,
+  CompetitionStarting,
+  CompetitionEnding,
+  CompetitionEnded
 };

@@ -57,6 +57,7 @@ function EditCompetition() {
     dispatch(fetchDetailsAction(id));
   };
 
+  // Populate all the editable fields
   const populate = () => {
     if (competition) {
       setTitle(competition.title);
@@ -205,11 +206,19 @@ function EditCompetition() {
           />
         </div>
 
+        {competition.createdAt < new Date('2020-07-11 00:00') && (
+          <div className="warning">
+            <b>Attention:</b>
+            As of the 11th of July, group competitions use the group&quot;s verification code, and not
+            the competition verification code you were given when you created it.
+          </div>
+        )}
+
         <div className="form-row">
           <span className="form-row__label">
-            Verification code
+            {competition.groupId ? 'Group verification code' : 'Verification code'}
             <span className="form-row__label-info -right">
-              Lost your verification code?
+              {`Lost your${competition.groupId ? ' group' : ''} verification code?`}
               <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
                 Join our discord
               </a>

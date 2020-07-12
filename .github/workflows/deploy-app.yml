@@ -3,7 +3,7 @@ name: Build App Image
 on:
   push:
     branches:
-      - staging
+      - master
     paths:
       - 'app/**'
 
@@ -24,3 +24,18 @@ jobs:
           cd app
           docker build . --file Dockerfile --tag wiseoldman/app:latest --build-arg REACT_APP_ANALYTICS_TRACKING_ID=$ANALYTICS_TRACKING_ID
           docker push wiseoldman/app:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-app]
+    steps:
+      - name: Restart docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          passphrase: ${{ secrets.DO_SSH_PASS }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker-compose pull
+            docker-compose up --build -d

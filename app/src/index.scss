@@ -29,6 +29,12 @@
   src: url('/fonts/SquadaOne/SquadaOne-Regular.ttf');
 }
 
+@font-face {
+  font-family: 'Lobster';
+  src: url('/fonts/Lobster/Lobster.otf');
+  font-weight: 300;
+}
+
 body {
   background: $gray-00;
   margin: 0;

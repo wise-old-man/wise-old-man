@@ -77,13 +77,15 @@ DB_DIALECT=postgres
 
 POSTGRES_PASSWORD=postgres
 POSTGRES_USER=postgres
-POSTGRES_DB=wise-old-man
 
 REDIS_HOST=localhost
 REDIS_PORT=6379
 
 PGADMIN_DEFAULT_EMAIL=test@wiseoldman.net
 PGADMIN_DEFAULT_PASSWORD=postgres
+
+DISCORD_BOT_API_TOKEN=ab1b4cc0-c264-11ea-b3de-0242ac130004
+DISCORD_BOT_API_URL=https://discord-bot.wiseoldman.net/event
 ```
 
 ```

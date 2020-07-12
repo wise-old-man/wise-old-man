@@ -3,12 +3,12 @@ name: Build API Image
 on:
   push:
     branches:
-      - staging
+      - master
     paths:
       - 'server/**'
 
 jobs:
-  build-app:
+  build-api:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,3 +22,18 @@ jobs:
           cd server
           docker build . --file Dockerfile --tag wiseoldman/api:latest
           docker push wiseoldman/api:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-api]
+    steps:
+      - name: Restart docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          passphrase: ${{ secrets.DO_SSH_PASS }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker-compose pull
+            docker-compose up --build -d

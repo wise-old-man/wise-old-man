@@ -45,7 +45,7 @@ function DeleteCompetitionModal({ competition, onCancel }) {
           autoComplete="off"
         />
         <div className="lost-code">
-          Lost your verification code?
+          {`Lost your${competition.groupId ? ' group' : ''} verification code?`}
           <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
             Join our discord for help
           </a>

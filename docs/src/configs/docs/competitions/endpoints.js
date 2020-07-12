@@ -168,7 +168,9 @@ export default [
         type: 'info',
         content:
           "Instead of an array of participants, you can also supply the values \
-          'groupId' and 'groupVerificationCode' to create a group competition"
+          'groupId' and 'groupVerificationCode' to create a group competition. \
+          Providing these two values will require you to use your group verfication \
+          code to make edits to the competition."
       }
     ],
     body: {

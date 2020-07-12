@@ -1,5 +1,6 @@
 const express = require('express');
 const { NotFoundError } = require('./errors');
+const { metricAbbreviation } = require('./util/middlewares');
 const logger = require('./logger');
 const playerRoutes = require('./modules/players/player.route');
 const deltaRoutes = require('./modules/deltas/delta.route');
@@ -12,6 +13,9 @@ const router = express.Router();
 router.get('/', (req, res) => {
   res.json(true);
 });
+
+// Handle metric abbreviations (tob -> theatre_of_blood)
+router.use(metricAbbreviation);
 
 // Register all the modules to the router
 router.use('/players', playerRoutes);

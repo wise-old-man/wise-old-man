@@ -10,7 +10,7 @@
   }
 
   .hero {
-    background-image: linear-gradient(to right, $gray-07, $gray-00);
+    background-image: linear-gradient(to right, #252e34, #091116);
     min-height: 450px;
     display: flex;
     flex-direction: row;
@@ -35,7 +35,11 @@
           padding: 0;
           margin: 0;
           font-size: 4em;
-          font-weight: 900;
+          font-weight: 400;
+          font-family: 'Lobster';
+          background: -webkit-linear-gradient(white, #d5e9f8);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
 
         .intro-description {
@@ -45,13 +49,54 @@
           max-width: 300px;
         }
 
-        .button {
-          margin-top: 30px;
-          font-size: 1em;
-          height: 40px;
-          line-height: 40px;
-          padding: 0;
-          width: 150px;
+        .intro-cta {
+          display: flex;
+          flex-direction: row;
+
+          .button {
+            margin-top: 30px;
+            font-size: 1em;
+            height: 40px;
+            line-height: 40px;
+
+            &.secondary {
+              margin-right: 20px;
+              background: none;
+              box-shadow: none;
+              text-shadow: 2px 1px 2px rgba(0, 0, 0, 0.5);
+              border: 1px solid $brand-color;
+            }
+          }
+        }
+
+        .intro-update {
+          margin-top: 40px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 5px;
+          padding: 6px 10px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          width: 320px;
+          max-width: 100%;
+
+          .update-new-tag {
+            color: $positive-green;
+            font-size: 0.7em;
+            font-weight: 900;
+          }
+
+          .update-title {
+            font-size: 0.7em;
+            margin-left: 10px;
+            flex-grow: 1;
+          }
+
+          .update-icon {
+            background: none;
+            border: none;
+            margin-top: 2px;
+          }
         }
       }
     }
@@ -129,8 +174,8 @@
               background: #7289da;
             }
 
-            &.-twitter {
-              background: #1da1f2;
+            &.-patreon {
+              background: #f96855;
             }
           }
         }
@@ -274,6 +319,14 @@
 
           .intro-description {
             max-width: 100% !important;
+          }
+
+          .intro-cta {
+            flex-direction: column;
+
+            .button {
+              width: 100%;
+            }
           }
         }
       }

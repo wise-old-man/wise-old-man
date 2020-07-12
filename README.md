@@ -1,52 +1,62 @@
-# Wise Old Man
+<div align = "center">
 
-[www.wiseoldman.net](https://wiseoldman.net/)
+![Wise Old Man](https://user-images.githubusercontent.com/3278148/86636807-a32b9f00-bfcc-11ea-963f-8fb2920447f4.png)
+
+🔗 [www.wiseoldman.net](https://wiseoldman.net/)
 
 The Open Source Old School Runescape progress tracker.
 
-![API Integration Testing](https://github.com/wise-old-man/wise-old-man/workflows/API%20Integration%20Testing/badge.svg)
+![API Tests](https://github.com/wise-old-man/wise-old-man/workflows/API%20Integration%20Testing/badge.svg) ![MIT license](https://img.shields.io/github/license/wise-old-man/wise-old-man) ![Core repo](https://img.shields.io/badge/wise%20old%20man-core-blue)
 
-The Wise Old Man is an Open source project, meaning anyone in the community can contribute code or ideas to add new functionality.
 
-This application measures Old School Runescape player progress. Built on top of the OSRS hiscores, it adds extra functionality like group competitions, player achievements, experience records, etc.
+The Wise Old Man is a web app (and API) that measures your Old School Runescape player progress. Built on top of the OSRS hiscores, it allows you to keep track of your gains, participate in group competitions, collect achievements and much more.
 
 [Website](https://wiseoldman.net/) |
-[Twitter](https://twitter.com/wise_old_man_rs) |
-[Discord](https://discord.gg/Ky5vNt2)
+[Discord](https://discord.gg/Ky5vNt2) |
+[Patreon](https://www.patreon.com/wiseoldman)
+
+</div>
 
 <br />
 
-## API
+## 👪 Related projects
 
-We also offer a REST API for developers and encourage you to create your own apps and integrations with it.
+Although this is the core repository, some related repositories have been created to expand the functionality of this project.
 
-You can read the documentation at:
-
-[API Docs](https://wiseoldman.net/docs)
+- [Discord Bot](https://github.com/wise-old-man/discord-bot)
+- [Discord Bot Landing Page](https://github.com/wise-old-man/bot.wiseoldman.net)
 
 <br />
 
-## Project structure and stack
+## 🛠️ API
 
-The project is currently divided into 3 components:
+We also offer a REST API for developers and encourage you to create your own apps and integrations with it. You can read the API documentation at: [https://wiseoldman.net/docs](https://wiseoldman.net/docs)
 
-- **Server**: (The backend & API)
+<br />
+
+## 📚  Project structure and stack
+
+The repository is currently divided into 3 components:
+
+- **Server**: (The backend & **API**)
   - Node.js
   - PostgreSQL: Main Database
   - Sqlite: Tests Database
   - Redis & Bull: Job processor
   - Express: API framework
   - Sequelize: ORM
+
 - **App**: (The web app)
   - React.js
   - Redux: State management
   - Reselect: Selector memoization
+
 - **Docs**: (The API documentation)
   - Next.js (A react framework)
 
 <br />
 
-## Suggestions and bugs
+## 💬 Suggestions and bugs
 
 Have a suggestion or a bug to report? [Click here to create a issue](https://github.com/wise-old-man/wise-old-man/issues)
 
@@ -54,9 +64,9 @@ Have something else you'd like to discuss? [Join us on discord](https://discord.
 
 <br />
 
-## Contributing
+## 🤝 Contributing
 
-Each component of the project has it's own build and development process, check the documentation for each one below:
+Each component of the repository has it's own build and development process, check the documentation for each below:
 
 **Help expand and improve the Wise Old Man API:** [Server / API Development Guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md)
 
