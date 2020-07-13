@@ -1,8 +1,8 @@
-import jobs from './jobs';
-import { Player, Snapshot, Membership, Achievement, Competition } from '../database/models';
-import * as playerService from './modules/players/player.service';
-import * as groupService from './modules/groups/group.service';
+import { Achievement, Competition, Membership, Player, Snapshot } from '../database/models';
 import { eventDispatch } from './events';
+import jobs from './jobs';
+import * as groupService from './modules/groups/group.service';
+import * as playerService from './modules/players/player.service';
 
 function setup() {
   Player.afterCreate(({ username }) => {
@@ -154,4 +154,4 @@ function setupCompetitionEnd(competition) {
   });
 }
 
-export { setup };
+export default { setup };

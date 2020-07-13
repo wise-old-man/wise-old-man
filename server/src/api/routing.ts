@@ -1,11 +1,11 @@
 import express from 'express';
-import * as logger from './logger';
 import { NotFoundError } from './errors';
-import { playerRoutes } from './modules/players/player.route';
-import { deltaRoutes } from './modules/deltas/delta.route';
-import { recordRoutes } from './modules/records/record.route';
+import logger from './logger';
 import { competitionRoutes } from './modules/competitions/competition.route';
+import { deltaRoutes } from './modules/deltas/delta.route';
 import { groupRoutes } from './modules/groups/group.route';
+import { playerRoutes } from './modules/players/player.route';
+import { recordRoutes } from './modules/records/record.route';
 import { metricAbbreviation } from './util/middlewares';
 
 const router = express.Router();
@@ -41,4 +41,4 @@ router.use((error, req, res, next) => {
   res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
 });
 
-export { router };
+export default router;

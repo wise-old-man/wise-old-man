@@ -2,9 +2,9 @@ import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { isTesting } from '../env';
-import * as hooks from './hooks';
+import hooks from './hooks';
 import jobs from './jobs';
-import { router } from './routing';
+import router from './routing';
 
 const RATE_LIMIT_MINUTES = 5;
 const RATE_LIMIT_REQUESTS = 500;

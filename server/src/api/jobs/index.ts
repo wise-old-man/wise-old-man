@@ -1,9 +1,9 @@
 import Queue from 'bull';
 import env, { isTesting } from '../../env';
-import redisConfig from './redis';
-import * as jobs from './instances';
+import logger from '../logger';
 import crons from './crons';
-import * as logger from '../logger';
+import * as jobs from './instances';
+import redisConfig from './redis';
 
 enum JobPriority {
   High = 1,

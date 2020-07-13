@@ -1,8 +1,8 @@
 import env from '../env';
 
 class ProxiesHandler {
-  config: any = {};
-  cursor = 0;
+  private config;
+  private cursor;
 
   constructor() {
     const hostList = env.PROXY_LIST;
@@ -26,6 +26,7 @@ class ProxiesHandler {
     const username = env.PROXY_USER;
     const password = env.PROXY_PASSWORD;
 
+    this.cursor = 0;
     this.config = { port, username, password, hosts: allowedHosts };
   }
 
