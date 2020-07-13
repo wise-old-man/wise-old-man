@@ -139,7 +139,7 @@ function setupCompetitionEnd(competition) {
   // On competition ending
   endingIntervals.forEach(minutes => {
     const date = new Date(endsAt - minutes * 60 * 1000);
-    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
+    jobs.schedule('CompetitionEnding', { competitionId: id, minutes }, date);
   });
 }
 
