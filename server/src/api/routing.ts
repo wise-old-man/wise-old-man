@@ -6,12 +6,16 @@ import { deltaRoutes } from './modules/deltas/delta.route';
 import { recordRoutes } from './modules/records/record.route';
 import { competitionRoutes } from './modules/competitions/competition.route';
 import { groupRoutes } from './modules/groups/group.route';
+import { metricAbbreviation } from './util/middlewares';
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
   res.json(true);
 });
+
+// Handle metric abbreviations (tob -> theatre_of_blood)
+router.use(metricAbbreviation);
 
 // Register all the modules to the router
 router.use('/players', playerRoutes);

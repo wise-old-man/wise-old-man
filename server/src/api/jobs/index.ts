@@ -8,7 +8,7 @@ const PRIORITY_HIGH = 1;
 const PRIORITY_MEDIUM = 2;
 const PRIORITY_LOW = 3;
 
-const queues = Object.values(jobs).map((job: any) => ({
+const jobQueues = Object.values(jobs).map((job: any) => ({
   bull: new Queue(job.key, redisConfig),
   name: job.key,
   handle: job.handle,
@@ -24,7 +24,7 @@ function addJob(name, data, options?) {
     return;
   }
 
-  const queue = queues.find(q => q.name === name);
+  const queue = jobQueues.find(q => q.name === name);
 
   if (!queue) {
     throw new Error(`No job found for name ${name}`);
@@ -37,7 +37,7 @@ function addJob(name, data, options?) {
 /**
  * Adds new scheduled job, to be executed at the specified date.
  */
-function schedule(name, data, date) {
+function scheduleJob(name, data, date) {
   const secondsTill = date - (new Date() as any);
 
   // Don't allow scheduling for past dates
@@ -46,8 +46,8 @@ function schedule(name, data, date) {
   }
 }
 
-async function setup() {
-  queues.push(
+async function setupJobs() {
+  jobQueues.push(
     ...Object.values(jobs).map((job: any) => ({
       bull: new Queue(job.name, redisConfig),
       ...job
@@ -55,7 +55,7 @@ async function setup() {
   );
 
   // Initialize all queue processing
-  queues.forEach(queue => {
+  jobQueues.forEach(queue => {
     queue.bull.process(5, queue.handle);
 
     // On Success callback
@@ -79,7 +79,7 @@ async function setup() {
   // Note: This will also run in development environments
   if (!process.env.pm_id || parseInt(process.env.pm_id, 10) === 0) {
     // Remove any active cron jobs
-    queues.forEach(async ({ bull }) => {
+    jobQueues.forEach(async ({ bull }) => {
       const activeQueues = await bull.getRepeatableJobs();
       activeQueues.forEach(async job => bull.removeRepeatable({ cron: job.cron, jobId: job.id }));
     });
@@ -94,4 +94,4 @@ async function setup() {
   }
 }
 
-export { queues, addJob, schedule, setup, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_HIGH };
+export { jobQueues, addJob, scheduleJob, setupJobs, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_HIGH };

@@ -8,6 +8,10 @@ import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
 import SyncPlayerInitialValues from './SyncPlayerInitialValues';
 import AssertPlayerName from './AssertPlayerNames';
 import RefreshRankings from './RefreshRankings';
+import CompetitionStarted from './CompetitionStarted';
+import CompetitionStarting from './CompetitionStarting';
+import CompetitionEnding from './CompetitionEnding';
+import CompetitionEnded from './CompetitionEnded';
 
 export {
   ImportPlayer,
@@ -19,5 +23,9 @@ export {
   ReevaluatePlayerAchievements,
   SyncPlayerInitialValues,
   AssertPlayerName,
-  RefreshRankings
+  RefreshRankings,
+  CompetitionStarted,
+  CompetitionStarting,
+  CompetitionEnding,
+  CompetitionEnded
 };

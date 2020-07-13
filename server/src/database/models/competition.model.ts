@@ -46,11 +46,11 @@ export default class Competition extends Model<Competition> {
 
   @AllowNull(false)
   @Column({
-    type: DataType.STRING(30),
+    type: DataType.STRING(50),
     validate: {
       len: {
-        args: [1, 30],
-        msg: 'Competition title must be between 1 and 30 characters long.'
+        args: [1, 50],
+        msg: 'Competition title must be between 1 and 50 characters long.'
       }
     }
   })
