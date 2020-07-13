@@ -1,15 +1,15 @@
-import { hash, compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 
 // Generates a random numeric code with the
 // following format: XXX-XXX-XXX
 function generateCode() {
   let code = '';
+
   for (let i = 0; i < 9; i++) {
     code += Math.floor(Math.random() * 10);
-    if (i === 2 || i === 5) {
-      code += '-';
-    }
+    if (i === 2 || i === 5) code += '-';
   }
+
   return code;
 }
 

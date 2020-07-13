@@ -1,6 +1,6 @@
 import { pick, transform } from 'lodash';
-import { SKILLS, getValueKey } from '../constants/metrics';
 import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../constants/levels';
+import { getValueKey, SKILLS } from '../constants/metrics';
 
 function getLevel(experience, virtual = false) {
   // Unranked
@@ -14,9 +14,11 @@ function getLevel(experience, virtual = false) {
 
   for (let level = 1; level < maxlevel; level++) {
     const required = getXpDifferenceTo(level + 1);
+
     if (experience >= accumulated && experience < accumulated + required) {
       return level;
     }
+
     accumulated += required;
   }
 
@@ -24,23 +26,17 @@ function getLevel(experience, virtual = false) {
 }
 
 function getXpDifferenceTo(level) {
-  if (level < 2) {
-    return 0;
-  }
-
+  if (level < 2) return 0;
   return Math.floor(level - 1 + 300 * 2 ** ((level - 1) / 7)) / 4;
 }
 
 function getCombatLevel(snapshot: any) {
-  const combatExperiences = pick(snapshot, [
-    'attackExperience',
-    'strengthExperience',
-    'defenceExperience',
-    'hitpointsExperience',
-    'rangedExperience',
-    'prayerExperience',
-    'magicExperience'
-  ]);
+  const combatSkills = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'prayer', 'magic'];
+
+  const combatExperiences = pick(
+    snapshot,
+    combatSkills.map(s => `${s}Experience`)
+  );
 
   const levels: any = transform(combatExperiences, (r, v, k) => {
     // eslint-disable-next-line no-param-reassign

@@ -1,5 +1,6 @@
 import { BadRequestError } from '../errors';
 
+// TODO: parse to int before checking < > 0
 function getPaginationConfig(limit, offset) {
   if (limit <= 0) {
     throw new BadRequestError('Invalid limit: must be > 0');

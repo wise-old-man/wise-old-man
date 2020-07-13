@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+// TODO: This should be removed after TS migration is done
+// and we're using Date types for the other methods in this file
 function castToDate(date) {
   return date instanceof Date ? date : new Date(date);
 }
@@ -10,18 +12,6 @@ function isValidDate(date) {
 
 function isPast(date) {
   return castToDate(date) < new Date();
-}
-
-function isFuture(date) {
-  return castToDate(date) > new Date();
-}
-
-function isAfter(a, b) {
-  return castToDate(a) > castToDate(b);
-}
-
-function isBefore(a, b) {
-  return castToDate(a) < castToDate(b);
 }
 
 function durationBetween(startDate, endDate) {
@@ -75,4 +65,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-export { isValidDate, isPast, isFuture, isAfter, isBefore, durationBetween };
+export { isValidDate, isPast, durationBetween };
