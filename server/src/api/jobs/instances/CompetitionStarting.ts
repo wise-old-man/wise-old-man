@@ -1,4 +1,4 @@
-import { eventDispatch } from '../../events';
+import { onCompetitionStarting } from '../../events';
 import * as competitionService from '../../modules/competitions/competition.service';
 
 export default {
@@ -16,11 +16,7 @@ export default {
       return;
     }
 
-    // Add all onCompetitionStarting actions below
-
-    if (competition.groupId) {
-      const period = minutes <= 60 ? { minutes } : { hours: minutes / 60 };
-      eventDispatch('GroupCompetitionStarting', { competition, period });
-    }
+    const period = minutes < 60 ? { minutes } : { hours: minutes / 60 };
+    onCompetitionStarting(competition, period);
   }
 };

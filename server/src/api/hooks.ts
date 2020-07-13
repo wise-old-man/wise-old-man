@@ -1,156 +1,60 @@
 import { Achievement, Competition, Membership, Player, Snapshot } from '../database/models';
-import { eventDispatch } from './events';
-import jobs from './jobs';
-import * as groupService from './modules/groups/group.service';
-import * as playerService from './modules/players/player.service';
+import {
+  onAchievementsCreated,
+  onCompetitionCreated,
+  onCompetitionUpdated,
+  onMembersJoined,
+  onMembersLeft,
+  onPlayerCreated,
+  onPlayerImported,
+  onPlayerUpdated
+} from './events';
 
 function setup() {
   Player.afterCreate(({ username }) => {
-    jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
-  });
-
-  Achievement.afterBulkCreate(async achievements => {
-    if (!achievements || achievements.length === 0) return;
-
-    const { playerId } = achievements[0];
-    const now: any = new Date();
-    const newAchievements = achievements.filter(a => now - a.createdAt < 30000);
-
-    if (newAchievements.length === 0) return;
-
-    const groups = await groupService.getPlayerGroups(playerId);
-
-    if (!groups || groups.length === 0) return;
-
-    const player = await playerService.findById(playerId);
-
-    groups.forEach(g => {
-      const payload = { groupId: g.id, player, achievements: newAchievements };
-      eventDispatch('GroupMemberAchievements', payload);
-    });
-  });
-
-  Competition.beforeUpdate((competition, options) => {
-    if (!competition || !options || !options.fields) return;
-
-    const editedFields = options.fields;
-
-    // Start date has been changed
-    if (editedFields.includes('startsAt')) {
-      setupCompetitionStart(competition);
-    }
-
-    // End date has been changed
-    if (editedFields.includes('endsAt')) {
-      setupCompetitionEnd(competition);
-    }
-  });
-
-  Competition.afterCreate(competition => {
-    if (!competition) return;
-
-    eventDispatch('GroupCompetitionCreated', { competition });
-
-    // Schedule all initial competition timed events (onStarted, onEnding, etc)
-    setupCompetitionStart(competition);
-    setupCompetitionEnd(competition);
+    onPlayerCreated(username);
   });
 
   Snapshot.afterCreate(({ playerId }) => {
-    jobs.add('SyncPlayerAchievements', { playerId });
-    jobs.add('SyncPlayerInitialValues', { playerId });
-
-    // Delay this to ensure SyncPlayerInitialValues runs first
-    jobs.add('SyncPlayerRecords', { playerId }, { delay: 10000 });
+    onPlayerUpdated(playerId);
   });
 
   Snapshot.afterBulkCreate(snapshots => {
-    if (!snapshots || !snapshots.length) return;
-
-    const { playerId } = snapshots[0];
-
-    jobs.add('SyncPlayerRecords', { playerId });
-    jobs.add('ReevaluatePlayerAchievements', { playerId });
+    if (!snapshots || snapshots.length === 0) return;
+    onPlayerImported(snapshots[0].playerId);
   });
 
-  Membership.afterBulkCreate(async memberships => {
+  Membership.afterBulkCreate(memberships => {
     if (!memberships || !memberships.length) return;
 
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
+    onMembersJoined(groupId, playerIds);
   });
 
-  Membership.afterBulkDestroy(async (info: any) => {
-    if (!info || !info.where) {
-      return;
-    }
-
-    const { groupId, playerId } = info.where;
-    let playerIds: any;
-    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
-    if (!playerIds || playerIds.length === 0) return;
-
-    // Handle jobs
-    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
-
-    // Handle events
-    const players = await playerService.findAllByIds(playerIds);
-    eventDispatch('GroupMembersJoined', { groupId, players });
-  });
-
-  Membership.afterBulkDestroy(async info => {
+  Membership.afterBulkDestroy(info => {
     if (!info || !info.where) return;
 
     const { groupId, playerId }: any = info.where;
 
     if (!playerId || playerId.length === 0) return;
 
-    // Handle jobs
-    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
-
-    // Handle events
-    const players = await playerService.findAllByIds(playerId);
-    eventDispatch('GroupMembersLeft', { groupId, players });
-  });
-}
-
-function setupCompetitionStart(competition) {
-  if (!competition) return;
-
-  const { id, startsAt } = competition;
-
-  // Time intervals to send "starting in" notifications at (in minutes)
-  // Current: 24h, 6h, 1h, 5mins
-  const startingIntervals = [1440, 360, 60, 5];
-
-  // On competition starting
-  startingIntervals.forEach(minutes => {
-    const date = new Date(startsAt - minutes * 60 * 1000);
-    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
+    onMembersLeft(groupId, playerId);
   });
 
-  // On competition started
-  jobs.schedule('CompetitionStarted', { competitionId: id }, startsAt);
-}
+  Achievement.afterBulkCreate(async achievements => {
+    if (!achievements || achievements.length === 0) return;
+    onAchievementsCreated(achievements);
+  });
 
-function setupCompetitionEnd(competition) {
-  if (!competition) return;
+  Competition.beforeUpdate((competition, options) => {
+    if (!options || !options.fields) return;
+    onCompetitionUpdated(competition, options.fields);
+  });
 
-  const { id, endsAt } = competition;
-
-  // On competition ended
-  jobs.schedule('CompetitionEnded', { competitionId: id }, endsAt);
-
-  // Time intervals to send "ending in" notifications at (in minutes)
-  // Current: 24h, 6h, 1h, 5mins
-  const endingIntervals = [1440, 360, 60, 5];
-
-  // On competition ending
-  endingIntervals.forEach(minutes => {
-    const date = new Date(endsAt - minutes * 60 * 1000);
-    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
+  Competition.afterCreate(competition => {
+    onCompetitionCreated(competition);
   });
 }
 

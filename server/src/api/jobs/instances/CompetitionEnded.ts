@@ -1,4 +1,4 @@
-import { eventDispatch } from '../../events';
+import { onCompetitionEnded } from '../../events';
 import * as competitionService from '../../modules/competitions/competition.service';
 
 export default {
@@ -16,10 +16,6 @@ export default {
       return;
     }
 
-    // Add all onCompetitionEnded actions below
-
-    if (competition.groupId) {
-      eventDispatch('GroupCompetitionEnded', { competition });
-    }
+    onCompetitionEnded(competition);
   }
 };
