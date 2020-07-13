@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import * as controller from './competition.controller';
 
-const competitionRoutes = Router();
+const api = Router();
 
-competitionRoutes.get('/', controller.index);
-competitionRoutes.post('/', controller.create);
-competitionRoutes.get('/:id', controller.details);
-competitionRoutes.put('/:id', controller.edit);
-competitionRoutes.delete('/:id', controller.remove);
-competitionRoutes.post('/:id/add-participants', controller.addParticipants);
-competitionRoutes.post('/:id/remove-participants', controller.removeParticipants);
-competitionRoutes.post('/:id/update-all', controller.updateAllParticipants);
+api.get('/', controller.index);
+api.post('/', controller.create);
+api.get('/:id', controller.details);
+api.put('/:id', controller.edit);
+api.delete('/:id', controller.remove);
+api.post('/:id/add-participants', controller.addParticipants);
+api.post('/:id/remove-participants', controller.removeParticipants);
+api.post('/:id/update-all', controller.updateAllParticipants);
 
-export { competitionRoutes };
+export default api;

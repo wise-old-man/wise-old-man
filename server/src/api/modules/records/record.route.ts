@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import * as controller from './record.controller';
 
-const recordRoutes = Router();
+const api = Router();
 
-recordRoutes.get('/leaderboard', controller.leaderboard);
+api.get('/leaderboard', controller.leaderboard);
 
-export { recordRoutes };
+export default api;

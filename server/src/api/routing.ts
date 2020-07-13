@@ -1,44 +1,59 @@
 import express from 'express';
 import { NotFoundError } from './errors';
 import logger from './logger';
-import { competitionRoutes } from './modules/competitions/competition.route';
-import { deltaRoutes } from './modules/deltas/delta.route';
-import { groupRoutes } from './modules/groups/group.route';
-import { playerRoutes } from './modules/players/player.route';
-import { recordRoutes } from './modules/records/record.route';
+import competitionRoutes from './modules/competitions/competition.route';
+import deltaRoutes from './modules/deltas/delta.route';
+import groupRoutes from './modules/groups/group.route';
+import playerRoutes from './modules/players/player.route';
+import recordRoutes from './modules/records/record.route';
 import { metricAbbreviation } from './util/middlewares';
 
-const router = express.Router();
+class RoutingHandler {
+  router;
 
-router.get('/', (req, res) => {
-  res.json(true);
-});
+  constructor() {
+    this.router = express.Router();
+    this.setupMiddlewares();
+    this.setupRoutes();
+    this.setupFallbacks();
+  }
 
-// Handle metric abbreviations (tob -> theatre_of_blood)
-router.use(metricAbbreviation);
+  setupMiddlewares() {
+    // Handle metric abbreviations (tob -> theatre_of_blood)
+    this.router.use(metricAbbreviation);
+  }
 
-// Register all the modules to the router
-router.use('/players', playerRoutes);
-router.use('/deltas', deltaRoutes);
-router.use('/records', recordRoutes);
-router.use('/competitions', competitionRoutes);
-router.use('/groups', groupRoutes);
+  setupRoutes() {
+    // A simple ping/test endpoint
+    this.router.get('/', (req, res) => res.json(true));
 
-// Handle endpoint not found
-router.use((req, res, next) => {
-  next(new NotFoundError('Endpoint was not found'));
-});
+    // Register all the modules to the router
+    this.router.use('/players', playerRoutes);
+    this.router.use('/deltas', deltaRoutes);
+    this.router.use('/records', recordRoutes);
+    this.router.use('/competitions', competitionRoutes);
+    this.router.use('/groups', groupRoutes);
+  }
 
-// Handle errors
-router.use((error, req, res, next) => {
-  const { query, params, body, originalUrl } = req;
+  setupFallbacks() {
+    // Handle endpoint not found
+    this.router.use((req, res, next) => {
+      next(new NotFoundError('Endpoint was not found'));
+    });
 
-  logger.error(`Failed endpoint (${originalUrl})`, {
-    data: { query, params, body },
-    error
-  });
+    // Handle errors
+    this.router.use((error, req, res, next) => {
+      const { query, params, body, originalUrl } = req;
+      const { statusCode, message, data } = error;
 
-  res.status(error.statusCode || 500).json({ message: error.message, data: error.data });
-});
+      logger.error(`Failed endpoint (${originalUrl})`, {
+        data: { query, params, body },
+        error
+      });
 
-export default router;
+      res.status(statusCode || 500).json({ message, data });
+    });
+  }
+}
+
+export default new RoutingHandler().router;

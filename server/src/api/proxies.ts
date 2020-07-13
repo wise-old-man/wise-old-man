@@ -1,8 +1,8 @@
 import env from '../env';
 
 class ProxiesHandler {
-  private config;
   private cursor;
+  private config;
 
   constructor() {
     const hostList = env.PROXY_LIST;
