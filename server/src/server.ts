@@ -1,5 +1,5 @@
 import env from './env';
-import { api } from './api';
+import api from './api';
 
 const port = env.PORT || 5000;
 

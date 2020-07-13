@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { router } from './routing';
-import { setupJobs } from './jobs';
+import jobs from './jobs';
 import * as hooks from './hooks';
 import * as proxies from './proxies';
 
@@ -22,11 +22,11 @@ if (!isTesting()) {
   // Limits 500 requests per ip, every 5 minutes
   api.use(rateLimit({ windowMs: RATE_LIMIT_MINUTES * 60 * 1000, max: RATE_LIMIT_REQUESTS }));
 
-  setupJobs();
+  jobs.setup();
   hooks.setup();
   proxies.setup();
 }
 
 api.use('/api', router);
 
-export { api };
+export default api;

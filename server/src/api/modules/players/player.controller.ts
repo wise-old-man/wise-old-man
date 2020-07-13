@@ -1,4 +1,4 @@
-import { addJob } from '../../jobs';
+import jobs from '../../jobs';
 import * as playerService from './player.service';
 import * as achievementService from '../achievements/achievement.service';
 import * as competitionService from '../competitions/competition.service';
@@ -33,7 +33,7 @@ async function track(req, res, next) {
     const [shouldImport] = playerService.shouldImport(player.lastImportedAt);
 
     if (shouldImport) {
-      addJob('ImportPlayer', { username: player.username });
+      jobs.add('ImportPlayer', { username: player.username });
     }
 
     res.status(isNew ? 201 : 200).json(player);

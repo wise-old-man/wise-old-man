@@ -1,6 +1,6 @@
 import * as groupService from './group.service';
 import * as competitionService from '../competitions/competition.service';
-import { addJob } from '../../jobs';
+import jobs from '../../jobs';
 import { getPaginationConfig } from '../../util/pagination';
 
 // GET /groups
@@ -100,7 +100,7 @@ async function updateAll(req, res, next) {
 
     const members = await groupService.updateAllMembers(id, player => {
       // Attempt this 3 times per player, waiting 65 seconds in between
-      addJob('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+      jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
     });
 
     const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;

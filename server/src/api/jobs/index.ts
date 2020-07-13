@@ -5,16 +5,18 @@ import * as jobs from './instances';
 import crons from './crons';
 import * as logger from '../logger';
 
-const PRIORITY_HIGH = 1;
-const PRIORITY_MEDIUM = 2;
-const PRIORITY_LOW = 3;
+enum JobPriority {
+  High = 1,
+  Medium = 2,
+  Low = 3
+}
 
 const jobQueues = [];
 
 /**
  * Adds a new job to the queue, to be executed ASAP.
  */
-function addJob(name, data, options?) {
+function add(name, data, options?) {
   if (isTesting()) {
     return;
   }
@@ -25,23 +27,23 @@ function addJob(name, data, options?) {
     throw new Error(`No job found for name ${name}`);
   }
 
-  const priority = (options && options.priority) || PRIORITY_MEDIUM;
+  const priority = (options && options.priority) || JobPriority.Medium;
   queue.bull.add({ ...data, created: new Date() }, { ...options, priority });
 }
 
 /**
  * Adds new scheduled job, to be executed at the specified date.
  */
-function scheduleJob(name, data, date) {
+function schedule(name, data, date) {
   const secondsTill = date - (new Date() as any);
 
   // Don't allow scheduling for past dates
   if (secondsTill >= 0) {
-    addJob(name, data, { delay: secondsTill, priority: PRIORITY_MEDIUM });
+    add(name, data, { delay: secondsTill, priority: JobPriority.Medium });
   }
 }
 
-async function setupJobs() {
+async function setup() {
   jobQueues.push(
     ...Object.values(jobs).map((job: any) => ({
       bull: new Queue(job.name, redisConfig),
@@ -82,11 +84,11 @@ async function setupJobs() {
     // Start all cron jobs (with a 10 second delay, to wait for old jobs to be removed)
     // TODO: this can be improved to await for the removal above, instead of the hacky 10sec wait
     setTimeout(() => {
-      crons.forEach(cron =>
-        addJob(cron.jobName, null, { repeat: { cron: cron.cronConfig }, priority: PRIORITY_LOW })
+      crons.forEach(({ jobName, cronConfig }) =>
+        add(jobName, null, { repeat: { cron: cronConfig }, priority: JobPriority.Low })
       );
     }, 10000);
   }
 }
 
-export { jobQueues, addJob, scheduleJob, setupJobs, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_HIGH };
+export default { add, schedule, setup };

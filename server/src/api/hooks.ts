@@ -1,4 +1,4 @@
-import { addJob, scheduleJob } from './jobs';
+import jobs from './jobs';
 import { Player, Snapshot, Membership, Achievement, Competition } from '../database/models';
 import * as playerService from './modules/players/player.service';
 import * as groupService from './modules/groups/group.service';
@@ -6,7 +6,7 @@ import { eventDispatch } from './events';
 
 function setup() {
   Player.afterCreate(({ username }) => {
-    addJob('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+    jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
   });
 
   Achievement.afterBulkCreate(async achievements => {
@@ -57,11 +57,11 @@ function setup() {
   });
 
   Snapshot.afterCreate(({ playerId }) => {
-    addJob('SyncPlayerAchievements', { playerId });
-    addJob('SyncPlayerInitialValues', { playerId });
+    jobs.add('SyncPlayerAchievements', { playerId });
+    jobs.add('SyncPlayerInitialValues', { playerId });
 
     // Delay this to ensure SyncPlayerInitialValues runs first
-    addJob('SyncPlayerRecords', { playerId }, { delay: 10000 });
+    jobs.add('SyncPlayerRecords', { playerId }, { delay: 10000 });
   });
 
   Snapshot.afterBulkCreate(snapshots => {
@@ -69,8 +69,8 @@ function setup() {
 
     const { playerId } = snapshots[0];
 
-    addJob('SyncPlayerRecords', { playerId });
-    addJob('ReevaluatePlayerAchievements', { playerId });
+    jobs.add('SyncPlayerRecords', { playerId });
+    jobs.add('ReevaluatePlayerAchievements', { playerId });
   });
 
   Membership.afterBulkCreate(async memberships => {
@@ -79,7 +79,7 @@ function setup() {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    addJob('AddToGroupCompetitions', { groupId, playerIds });
+    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
   });
 
   Membership.afterBulkDestroy(async (info: any) => {
@@ -89,11 +89,11 @@ function setup() {
 
     const { groupId, playerId } = info.where;
     let playerIds: any;
-    addJob('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
+    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
     if (!playerIds || playerIds.length === 0) return;
 
     // Handle jobs
-    addJob('AddToGroupCompetitions', { groupId, playerIds });
+    jobs.add('AddToGroupCompetitions', { groupId, playerIds });
 
     // Handle events
     const players = await playerService.findAllByIds(playerIds);
@@ -108,7 +108,7 @@ function setup() {
     if (!playerId || playerId.length === 0) return;
 
     // Handle jobs
-    addJob('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
+    jobs.add('RemoveFromGroupCompetitions', { groupId, playerIds: playerId });
 
     // Handle events
     const players = await playerService.findAllByIds(playerId);
@@ -128,11 +128,11 @@ function setupCompetitionStart(competition) {
   // On competition starting
   startingIntervals.forEach(minutes => {
     const date = new Date(startsAt - minutes * 60 * 1000);
-    scheduleJob('CompetitionStarting', { competitionId: id, minutes }, date);
+    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
   });
 
   // On competition started
-  scheduleJob('CompetitionStarted', { competitionId: id }, startsAt);
+  jobs.schedule('CompetitionStarted', { competitionId: id }, startsAt);
 }
 
 function setupCompetitionEnd(competition) {
@@ -141,7 +141,7 @@ function setupCompetitionEnd(competition) {
   const { id, endsAt } = competition;
 
   // On competition ended
-  scheduleJob('CompetitionEnded', { competitionId: id }, endsAt);
+  jobs.schedule('CompetitionEnded', { competitionId: id }, endsAt);
 
   // Time intervals to send "ending in" notifications at (in minutes)
   // Current: 24h, 6h, 1h, 5mins
@@ -150,7 +150,7 @@ function setupCompetitionEnd(competition) {
   // On competition ending
   endingIntervals.forEach(minutes => {
     const date = new Date(endsAt - minutes * 60 * 1000);
-    scheduleJob('CompetitionStarting', { competitionId: id, minutes }, date);
+    jobs.schedule('CompetitionStarting', { competitionId: id, minutes }, date);
   });
 }
 
