@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { PLAYER_TYPES } from '../../api/constants/playerTypes';
 import { QueryInterface } from 'sequelize/types';
+import { PLAYER_TYPES } from '../../api/constants';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   return queryInterface.createTable('players', {

@@ -1,17 +1,17 @@
 import {
-  Table,
+  AllowNull,
+  AutoIncrement,
+  BelongsToMany,
   Column,
   DataType,
-  PrimaryKey,
-  AutoIncrement,
-  Model,
-  BelongsToMany,
+  Default,
   HasMany,
-  AllowNull,
-  Default
+  Model,
+  PrimaryKey,
+  Table
 } from 'sequelize-typescript';
-import { PLAYER_TYPES } from '../../api/constants/playerTypes';
-import { Competition, Group, Snapshot, Participation, Membership } from '.';
+import { Competition, Group, Membership, Participation, Snapshot } from '.';
+import { PLAYER_TYPES } from '../../api/constants';
 
 // Define other table options
 const options = {

@@ -1,4 +1,4 @@
-import { PERIODS } from '../../constants/periods';
+import { PERIODS } from '../../constants';
 import { syncRecords } from '../../modules/records/record.service';
 
 export default {

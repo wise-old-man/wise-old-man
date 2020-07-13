@@ -1,6 +1,6 @@
 import { pick, transform } from 'lodash';
-import { MAX_LEVEL, MAX_VIRTUAL_LEVEL } from '../constants/levels';
-import { getValueKey, SKILLS } from '../constants/metrics';
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL, SKILLS } from '../constants';
+import { getValueKey } from '../util/metrics';
 
 function getLevel(experience, virtual = false) {
   // Unranked

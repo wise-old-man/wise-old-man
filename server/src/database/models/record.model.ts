@@ -1,19 +1,17 @@
 import {
-  Table,
+  AllowNull,
+  AutoIncrement,
+  BelongsTo,
   Column,
   DataType,
-  PrimaryKey,
-  AutoIncrement,
-  Model,
+  Default,
   ForeignKey,
-  BelongsTo,
-  AllowNull,
-  Default
+  Model,
+  PrimaryKey,
+  Table
 } from 'sequelize-typescript';
-import { PERIODS } from '../../api/constants/periods';
-import { ALL_METRICS } from '../../api/constants/metrics';
-
 import { Player } from '.';
+import { ALL_METRICS, PERIODS } from '../../api/constants';
 
 // Define other table options
 const options = {

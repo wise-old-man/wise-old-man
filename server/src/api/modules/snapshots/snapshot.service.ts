@@ -1,19 +1,11 @@
 import csv from 'csvtojson';
-import { mapValues, keyBy } from 'lodash';
+import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import {
-  ALL_METRICS,
-  SKILLS,
-  BOSSES,
-  ACTIVITIES,
-  getRankKey,
-  getValueKey,
-  getMeasure
-} from '../../constants/metrics';
-import { PERIODS } from '../../constants/periods';
 import { Snapshot } from '../../../database/models';
-import { ServerError, BadRequestError } from '../../errors';
+import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
+import { BadRequestError, ServerError } from '../../errors';
+import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format

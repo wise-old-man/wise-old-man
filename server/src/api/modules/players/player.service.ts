@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Op } from 'sequelize';
 import { getCombatLevel } from '../../../api/util/level';
 import { Player } from '../../../database/models';
-import { CML, OSRS_HISCORES } from '../../constants/services';
+import { CML, OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxies from '../../proxies';
 import { isValidDate } from '../../util/dates';

@@ -1,6 +1,6 @@
-import { Table, Column, DataType, PrimaryKey, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { ROLES } from '../../api/constants/roles';
-import { Player, Group } from '.';
+import { BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { Group, Player } from '.';
+import { GROUP_ROLES } from '../../api/constants';
 
 // Define other table options
 const options = {
@@ -26,12 +26,12 @@ export default class Membership extends Model<Membership> {
   groupId: number;
 
   @Column({
-    type: DataType.ENUM(...ROLES),
+    type: DataType.ENUM(...GROUP_ROLES),
     allowNull: false,
-    defaultValue: ROLES[0],
+    defaultValue: GROUP_ROLES[0],
     validate: {
       isIn: {
-        args: [ROLES],
+        args: [GROUP_ROLES],
         msg: 'Invalid role'
       }
     }

@@ -1,8 +1,8 @@
-import { omit, keyBy, forEach, mapValues } from 'lodash';
-import { PERIODS } from '../../constants/periods';
-import { ALL_METRICS, getMeasure } from '../../constants/metrics';
-import { BadRequestError } from '../../errors';
+import { forEach, keyBy, mapValues, omit } from 'lodash';
 import { Player, Record } from '../../../database/models';
+import { ALL_METRICS, PERIODS } from '../../constants';
+import { BadRequestError } from '../../errors';
+import { getMeasure } from '../../util/metrics';
 import { getPlayerPeriodDeltas } from '../deltas/delta.service';
 
 function format(record) {

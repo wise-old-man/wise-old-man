@@ -1,5 +1,6 @@
-import { SKILLS, getRankKey, getValueKey } from '../../api/constants/metrics';
 import { QueryInterface } from 'sequelize/types';
+import { SKILLS } from '../../api/constants';
+import { getRankKey, getValueKey } from '../../api/util/metrics';
 
 function buildDynamicSchema(DataTypes: any) {
   const obj = {};

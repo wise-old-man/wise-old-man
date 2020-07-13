@@ -1,5 +1,6 @@
-import { ACTIVITIES, BOSSES, getRankKey, getValueKey } from '../../api/constants/metrics';
 import { QueryInterface } from 'sequelize/types';
+import { ACTIVITIES, BOSSES } from '../../api/constants';
+import { getRankKey, getValueKey } from '../../api/util/metrics';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<Array<any>> {
   const newColumns = [...getActivityColumns(dataTypes), ...getBossColumns(dataTypes)];

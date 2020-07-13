@@ -1,5 +1,5 @@
-import { PERIODS } from '../../api/constants/periods';
 import { QueryInterface } from 'sequelize/types';
+import { PERIODS } from '../../api/constants';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   return queryInterface.createTable('deltas', {

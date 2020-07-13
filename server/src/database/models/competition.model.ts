@@ -1,18 +1,18 @@
 import {
-  Table,
+  AllowNull,
+  AutoIncrement,
+  BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
-  PrimaryKey,
-  AutoIncrement,
-  Model,
+  Default,
   ForeignKey,
-  BelongsToMany,
-  BelongsTo,
-  AllowNull,
-  Default
+  Model,
+  PrimaryKey,
+  Table
 } from 'sequelize-typescript';
-import { ALL_METRICS } from '../../api/constants/metrics';
-import { Group, Player, Participation } from '.';
+import { Group, Participation, Player } from '.';
+import { ALL_METRICS } from '../../api/constants';
 
 // Define other table options
 const options = {

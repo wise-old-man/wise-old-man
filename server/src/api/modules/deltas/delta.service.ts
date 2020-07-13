@@ -1,13 +1,12 @@
-import { mapValues, keyBy } from 'lodash';
+import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import { PERIODS } from '../../constants/periods';
-import { PLAYER_TYPES } from '../../constants/playerTypes';
-import { ALL_METRICS, getRankKey, getValueKey, getMeasure, isSkill } from '../../constants/metrics';
-import { BadRequestError, ServerError } from '../../errors';
 import { sequelize } from '../../../database';
+import { InitialValues } from '../../../database/models';
+import { ALL_METRICS, PERIODS, PLAYER_TYPES } from '../../constants';
+import { BadRequestError, ServerError } from '../../errors';
+import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as snapshotService from '../snapshots/snapshot.service';
 import * as queries from './delta.queries';
-import { InitialValues } from '../../../database/models';
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;

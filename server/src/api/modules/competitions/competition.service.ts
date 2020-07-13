@@ -1,16 +1,16 @@
-import { omit, mapValues, keyBy, uniqBy } from 'lodash';
-import { Op, Sequelize } from 'sequelize';
+import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
-import { ALL_METRICS, getValueKey, isSkill, isBoss, isActivity } from '../../constants/metrics';
-import { STATUSES } from '../../constants/statuses';
-import { Competition, Participation, Player, Group } from '../../../database/models';
-import { durationBetween, isValidDate, isPast } from '../../util/dates';
-import { generateVerification, verifyCode } from '../../util/verification';
+import { Op, Sequelize } from 'sequelize';
+import { Competition, Group, Participation, Player } from '../../../database/models';
+import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
+import { durationBetween, isPast, isValidDate } from '../../util/dates';
+import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { generateVerification, verifyCode } from '../../util/verification';
+import * as deltaService from '../deltas/delta.service';
+import * as groupService from '../groups/group.service';
 import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
-import * as groupService from '../groups/group.service';
-import * as deltaService from '../deltas/delta.service';
 
 function sanitizeTitle(title) {
   return title
@@ -30,7 +30,7 @@ function format(competition) {
  */
 async function getList(title, status, metric, pagination) {
   // The status is optional, however if present, should be valid
-  if (status && !STATUSES.includes(status.toLowerCase())) {
+  if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
   }
 
