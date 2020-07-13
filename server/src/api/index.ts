@@ -44,7 +44,7 @@ class API {
   }
 
   setupServices() {
-    jobs.setup();
+    jobs.init();
     hooks.setup();
   }
 }

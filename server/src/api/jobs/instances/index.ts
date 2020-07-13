@@ -1,19 +1,19 @@
-import ImportPlayer from './ImportPlayer';
-import UpdatePlayer from './UpdatePlayer';
-import SyncPlayerRecords from './SyncPlayerRecords';
-import SyncPlayerAchievements from './SyncPlayerAchievements';
 import AddToGroupCompetitions from './AddToGroupCompetitions';
-import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
-import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
-import SyncPlayerInitialValues from './SyncPlayerInitialValues';
 import AssertPlayerName from './AssertPlayerNames';
-import RefreshRankings from './RefreshRankings';
+import CompetitionEnded from './CompetitionEnded';
+import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
 import CompetitionStarting from './CompetitionStarting';
-import CompetitionEnding from './CompetitionEnding';
-import CompetitionEnded from './CompetitionEnded';
+import ImportPlayer from './ImportPlayer';
+import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
+import RefreshRankings from './RefreshRankings';
+import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
+import SyncPlayerAchievements from './SyncPlayerAchievements';
+import SyncPlayerInitialValues from './SyncPlayerInitialValues';
+import SyncPlayerRecords from './SyncPlayerRecords';
+import UpdatePlayer from './UpdatePlayer';
 
-export {
+export default [
   ImportPlayer,
   UpdatePlayer,
   SyncPlayerRecords,
@@ -28,4 +28,4 @@ export {
   CompetitionStarting,
   CompetitionEnding,
   CompetitionEnded
-};
+];
