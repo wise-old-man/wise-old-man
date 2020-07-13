@@ -1,10 +1,12 @@
+import env from '../env';
+
 const config: any = {};
 let cursor = 0;
 
 function setup() {
-  const hostList = process.env.PROXY_LIST;
-  const cpuCount: any = process.env.CPU_COUNT || '1';
-  const cpuIndex: any = process.env.pm_id || 0;
+  const hostList = env.PROXY_LIST;
+  const cpuCount: any = env.CPU_COUNT || '1';
+  const cpuIndex: any = env.pm_id || 0;
 
   if (!hostList) {
     return;
@@ -19,9 +21,9 @@ function setup() {
   const hostsPerCpu = Math.floor(hosts.length / cpuCount);
   const allowedHosts = hosts.slice(hostsPerCpu * cpuIndex, hostsPerCpu * (cpuIndex + 1));
 
-  const port = process.env.PROXY_PORT;
-  const username = process.env.PROXY_USER;
-  const password = process.env.PROXY_PASSWORD;
+  const port = env.PROXY_PORT;
+  const username = env.PROXY_USER;
+  const password = env.PROXY_PASSWORD;
 
   config.port = port;
   config.username = username;

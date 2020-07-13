@@ -1,7 +1,9 @@
+import env from '../../env';
+
 const config = {
   redis: {
-    host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT),
+    host: env.REDIS_HOST,
+    port: parseInt(env.REDIS_PORT),
     maxRetriesPerRequest: null,
     enableReadyCheck: false
   }

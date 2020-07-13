@@ -1,4 +1,5 @@
 import Queue from 'bull';
+import env, { isTesting } from '../../env';
 import redisConfig from './redis';
 import * as jobs from './instances';
 import crons from './crons';
@@ -8,19 +9,13 @@ const PRIORITY_HIGH = 1;
 const PRIORITY_MEDIUM = 2;
 const PRIORITY_LOW = 3;
 
-const jobQueues = Object.values(jobs).map((job: any) => ({
-  bull: new Queue(job.key, redisConfig),
-  name: job.key,
-  handle: job.handle,
-  onFail: job.onFail,
-  onSuccess: job.onSuccess
-}));
+const jobQueues = [];
 
 /**
  * Adds a new job to the queue, to be executed ASAP.
  */
 function addJob(name, data, options?) {
-  if (process.env.NODE_ENV === 'test') {
+  if (isTesting()) {
     return;
   }
 
@@ -77,7 +72,7 @@ async function setupJobs() {
   // If running through pm2 (production), only run cronjobs on the first CPU core.
   // Otherwise, on a 4 core server, every cronjob would run 4x as often.
   // Note: This will also run in development environments
-  if (!process.env.pm_id || parseInt(process.env.pm_id, 10) === 0) {
+  if (!env.pm_id || parseInt(env.pm_id, 10) === 0) {
     // Remove any active cron jobs
     jobQueues.forEach(async ({ bull }) => {
       const activeQueues = await bull.getRepeatableJobs();
