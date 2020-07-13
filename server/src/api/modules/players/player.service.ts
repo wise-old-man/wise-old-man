@@ -1,13 +1,13 @@
-import { Op } from 'sequelize';
-import { isValidDate } from '../../util/dates';
-import { CML, OSRS_HISCORES } from '../../constants/services';
-import { ServerError, BadRequestError } from '../../errors';
-import { Player } from '../../../database/models';
-import { getHiscoresTableNames } from '../../util/scraping';
-import { getNextProxy } from '../../proxies';
-import { getCombatLevel } from '../../../api/util/level';
-import * as snapshotService from '../snapshots/snapshot.service';
 import axios from 'axios';
+import { Op } from 'sequelize';
+import { getCombatLevel } from '../../../api/util/level';
+import { Player } from '../../../database/models';
+import { CML, OSRS_HISCORES } from '../../constants/services';
+import { BadRequestError, ServerError } from '../../errors';
+import proxies from '../../proxies';
+import { isValidDate } from '../../util/dates';
+import { getHiscoresTableNames } from '../../util/scraping';
+import * as snapshotService from '../snapshots/snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
@@ -471,7 +471,7 @@ async function getCMLHistory(username, time) {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username, type = 'regular') {
-  const proxy = getNextProxy();
+  const proxy = proxies.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
@@ -490,7 +490,7 @@ async function getHiscoresData(username, type = 'regular') {
 }
 
 async function getHiscoresNames(username) {
-  const proxy = getNextProxy();
+  const proxy = proxies.getNextProxy();
   const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
 
   try {

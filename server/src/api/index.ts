@@ -4,7 +4,6 @@ import rateLimit from 'express-rate-limit';
 import { isTesting } from '../env';
 import * as hooks from './hooks';
 import jobs from './jobs';
-import * as proxies from './proxies';
 import { router } from './routing';
 
 const RATE_LIMIT_MINUTES = 5;
@@ -47,7 +46,6 @@ class API {
   setupServices() {
     jobs.setup();
     hooks.setup();
-    proxies.setup();
   }
 }
 
