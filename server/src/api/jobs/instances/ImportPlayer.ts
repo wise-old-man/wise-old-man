@@ -1,9 +1,17 @@
-import { importCML } from '../../modules/players/player.service';
+import * as playerService from '../../modules/players/player.service';
+import { Job } from '../index';
 
-export default {
-  name: 'ImportPlayer',
-  async handle({ data }) {
-    const { username } = data;
-    await importCML(username);
+class ImportPlayer implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'ImportPlayer';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { username } = data;
+    await playerService.importCML(username);
+  }
+}
+
+export default new ImportPlayer();

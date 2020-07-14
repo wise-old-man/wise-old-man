@@ -1,9 +1,17 @@
-import { syncInitialValues } from '../../modules/deltas/delta.service';
+import * as deltaService from '../../modules/deltas/delta.service';
+import { Job } from '../index';
 
-export default {
-  name: 'SyncPlayerInitialValues',
-  async handle({ data }) {
-    const { playerId } = data;
-    await syncInitialValues(playerId);
+class SyncPlayerInitialValues implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'SyncPlayerInitialValues';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { playerId } = data;
+    await deltaService.syncInitialValues(playerId);
+  }
+}
+
+export default new SyncPlayerInitialValues();

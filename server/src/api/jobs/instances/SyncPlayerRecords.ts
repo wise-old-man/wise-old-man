@@ -1,15 +1,23 @@
 import { PERIODS } from '../../constants';
-import { syncRecords } from '../../modules/records/record.service';
+import * as recordService from '../../modules/records/record.service';
+import { Job } from '../index';
 
-export default {
-  name: 'SyncPlayerRecords',
-  async handle({ data }) {
+class SyncPlayerRecords implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'SyncPlayerRecords';
+  }
+
+  async handle(data: any): Promise<void> {
     const { playerId } = data;
 
     await Promise.all(
       PERIODS.map(async period => {
-        await syncRecords(playerId, period);
+        await recordService.syncRecords(playerId, period);
       })
     );
   }
-};
+}
+
+export default new SyncPlayerRecords();

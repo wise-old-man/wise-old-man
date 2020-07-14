@@ -1,9 +1,17 @@
-import { syncAchievements } from '../../modules/achievements/achievement.service';
+import * as achievementService from '../../modules/achievements/achievement.service';
+import { Job } from '../index';
 
-export default {
-  name: 'SyncPlayerAchievements',
-  async handle({ data }) {
-    const { playerId } = data;
-    await syncAchievements(playerId);
+class SyncPlayerAchievements implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'SyncPlayerAchievements';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { playerId } = data;
+    await achievementService.syncAchievements(playerId);
+  }
+}
+
+export default new SyncPlayerAchievements();

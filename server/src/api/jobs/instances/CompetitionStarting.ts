@@ -1,9 +1,15 @@
 import { onCompetitionStarting } from '../../events';
 import * as competitionService from '../../modules/competitions/competition.service';
+import { Job } from '../index';
 
-export default {
-  name: 'CompetitionStarting',
-  async handle({ data }) {
+class CompetitionStarting implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'CompetitionStarting';
+  }
+
+  async handle(data: any): Promise<void> {
     const { competitionId, minutes } = data;
     const competition: any = await competitionService.getDetails(competitionId);
 
@@ -19,4 +25,6 @@ export default {
     const period = minutes < 60 ? { minutes } : { hours: minutes / 60 };
     onCompetitionStarting(competition, period);
   }
-};
+}
+
+export default new CompetitionStarting();

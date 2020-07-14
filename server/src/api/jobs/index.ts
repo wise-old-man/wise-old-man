@@ -5,6 +5,13 @@ import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';
 
+export interface Job {
+  name: string;
+  handle(data: any): void;
+  onSuccess?(data: any): void;
+  onFailure?(data: any, error: Error): void;
+}
+
 enum JobPriority {
   High = 1,
   Medium = 2,
@@ -15,9 +22,12 @@ class JobHandler {
   private queues;
 
   constructor() {
-    this.queues = jobs.map((job: any) => ({
+    this.queues = jobs.map((job: Job) => ({
       bull: new Queue(job.name, redisConfig),
-      ...job
+      name: job.name,
+      handle: job.handle,
+      onFailure: job.onFailure,
+      onSuccess: job.onSuccess
     }));
   }
 
@@ -54,7 +64,7 @@ class JobHandler {
   init() {
     // Initialize all queue processing
     this.queues.forEach(queue => {
-      queue.bull.process(5, queue.handle);
+      queue.bull.process(5, ({ data }) => queue.handle(data));
 
       // On Success callback
       queue.bull.on('completed', job => {
@@ -65,8 +75,8 @@ class JobHandler {
 
       // On Failure callback
       queue.bull.on('failed', (job, error) => {
-        if (queue.onFail) {
-          queue.onFail(job.data, error);
+        if (queue.onFailure) {
+          queue.onFailure(job.data, error);
         }
 
         logger.error(`Failed job (${job.queue.name})`, {

@@ -1,9 +1,17 @@
-import { reevaluateAchievements } from '../../modules/achievements/achievement.service';
+import * as achievementService from '../../modules/achievements/achievement.service';
+import { Job } from '../index';
 
-export default {
-  name: 'ReevaluatePlayerAchievements',
-  async handle({ data }) {
-    const { playerId } = data;
-    await reevaluateAchievements(playerId);
+class ReevaluatePlayerAchievements implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'ReevaluatePlayerAchievements';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { playerId } = data;
+    await achievementService.reevaluateAchievements(playerId);
+  }
+}
+
+export default new ReevaluatePlayerAchievements();

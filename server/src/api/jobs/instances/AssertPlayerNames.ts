@@ -1,9 +1,17 @@
-import { assertName } from '../../modules/players/player.service';
+import * as playerService from '../../modules/players/player.service';
+import { Job } from '../index';
 
-export default {
-  name: 'AssertPlayerName',
-  async handle({ data }) {
-    const { username } = data;
-    await assertName(username);
+class AssertPlayerName implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'AssertPlayerName';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { username } = data;
+    await playerService.assertName(username);
+  }
+}
+
+export default new AssertPlayerName();

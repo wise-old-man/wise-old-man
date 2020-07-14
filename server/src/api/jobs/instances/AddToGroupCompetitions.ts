@@ -1,9 +1,17 @@
-import { addToGroupCompetitions } from '../../modules/competitions/competition.service';
+import * as groupService from '../../modules/competitions/competition.service';
+import { Job } from '../index';
 
-export default {
-  name: 'AddToGroupCompetitions',
-  async handle({ data }) {
-    const { groupId, playerIds } = data;
-    await addToGroupCompetitions(groupId, playerIds);
+class AddToGroupCompetitions implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'AddToGroupCompetitions';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { groupId, playerIds } = data;
+    await groupService.addToGroupCompetitions(groupId, playerIds);
+  }
+}
+
+export default new AddToGroupCompetitions();

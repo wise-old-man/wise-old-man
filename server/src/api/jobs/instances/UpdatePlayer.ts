@@ -1,9 +1,17 @@
-import { update } from '../../modules/players/player.service';
+import * as playerService from '../../modules/players/player.service';
+import { Job } from '../index';
 
-export default {
-  name: 'UpdatePlayer',
-  async handle({ data }) {
-    const { username } = data;
-    await update(username);
+class UpdatePlayer implements Job {
+  name: string;
+
+  constructor() {
+    this.name = 'UpdatePlayer';
   }
-};
+
+  async handle(data: any): Promise<void> {
+    const { username } = data;
+    await playerService.update(username);
+  }
+}
+
+export default new UpdatePlayer();
