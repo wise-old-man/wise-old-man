@@ -1,8 +1,6 @@
 class ServerError extends Error {
   message: string;
-
   name: string;
-
   statusCode: number;
 
   constructor(message: string) {

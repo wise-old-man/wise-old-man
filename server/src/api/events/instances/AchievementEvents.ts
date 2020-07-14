@@ -1,17 +1,16 @@
-import discord from '../../discord';
 import * as groupService from '../../modules/groups/group.service';
 import * as playerService from '../../modules/players/player.service';
+import discord from '../../util/discord';
 
 async function onAchievementsCreated(achievements) {
-  const { playerId } = achievements[0];
-
-  // Filter out any achievements from unknown dates
+  // Filter out any achievements from earlier dates
   const recent = achievements.filter(a => Date.now() - a.createdAt < 30000);
 
   if (recent.length === 0) {
     return;
   }
 
+  const { playerId } = recent[0];
   const groups = await groupService.getPlayerGroups(playerId);
 
   // The following actions are only relevant to players

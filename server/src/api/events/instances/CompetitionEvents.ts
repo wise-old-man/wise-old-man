@@ -1,5 +1,5 @@
-import discord from '../../discord';
 import jobs from '../../jobs';
+import discord from '../../util/discord';
 
 function onCompetitionCreated(competition) {
   setupCompetitionStart(competition);

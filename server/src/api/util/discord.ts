@@ -1,5 +1,5 @@
 import axios from 'axios';
-import env from '../env';
+import env from '../../env';
 
 /**
  * Dispatch an event to our Discord Bot API.

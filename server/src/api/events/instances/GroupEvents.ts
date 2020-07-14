@@ -1,8 +1,6 @@
-import axios from 'axios';
-import env from '../../../env';
-import discord from '../../discord';
 import jobs from '../../jobs';
 import * as playerService from '../../modules/players/player.service';
+import discord from '../../util/discord';
 
 async function onMembersJoined(groupId, playerIds) {
   jobs.add('AddToGroupCompetitions', { groupId, playerIds });
@@ -25,13 +23,7 @@ async function onMembersLeft(groupId, playerIds) {
     return;
   }
 
-  const body = {
-    type: 'GROUP_MEMBERS_LEFT',
-    api_token: env.DISCORD_BOT_API_TOKEN,
-    data: { groupId, players }
-  };
-
-  axios.post(env.DISCORD_BOT_API_URL, body);
+  discord.dispatch('GROUP_MEMBERS_LEFT', { groupId, players });
 }
 
 export { onMembersJoined, onMembersLeft };
