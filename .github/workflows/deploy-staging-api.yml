@@ -1,0 +1,39 @@
+name: Build (Staging) API Image
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'server/**'
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.ORG_DOCKER_USERNAME }} -p ${{ secrets.ORG_DOCKER_PASSWORD }}
+
+      - name: Build and Push To Docker Hub
+        run: |
+          cd server
+          docker build . --file Dockerfile --tag wiseoldman/api-staging:latest
+          docker push wiseoldman/api-staging:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-api]
+    steps:
+      - name: Restart docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_DO_HOST }}
+          username: ${{ secrets.STAGING_DO_USER }}
+          passphrase: ${{ secrets.STAGING_DO_SSH_PASS }}
+          key: ${{ secrets.STAGING_DO_SSH_KEY }}
+          script: |
+            cd wise-old-man
+            docker-compose pull
+            docker-compose up --build -d
