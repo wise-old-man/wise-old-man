@@ -51,7 +51,7 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.STRING(20), allowNull: false })
   username: string;
 
-  @Column({ type: DataType.STRING(20), allowNull: false })
+  @Column({ type: DataType.STRING(20) })
   displayName: string;
 
   @Default(PLAYER_TYPES[0]) // unknown
@@ -109,6 +109,10 @@ function validateUsername(this: Player) {
 }
 
 function validateDisplayName(this: Player) {
+  if (!this.displayName) {
+    return;
+  }
+
   if (this.displayName.length < 1 || this.displayName.length > 12) {
     throw new Error('Display name must be between 1 and 12 characters long.');
   }

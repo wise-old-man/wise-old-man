@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import { api } from '../../src/api';
+import api from '../../src/api';
 
 const request = supertest(api);
 

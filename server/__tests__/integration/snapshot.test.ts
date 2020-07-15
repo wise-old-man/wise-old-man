@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import { promisify } from 'util';
-import { resetDatabase } from '../utils';
-import { Player } from '../../src/database/models';
-import { SKILLS, getRankKey, getValueKey } from '../../src/api/constants/metrics';
+import { SKILLS } from '../../src/api/constants';
 import * as service from '../../src/api/modules/snapshots/snapshot.service';
+import { getRankKey, getValueKey } from '../../src/api/util/metrics';
+import { Player } from '../../src/database';
 import { TestData } from '../types';
+import { resetDatabase } from '../utils';
 
 const HISCORES_DATA_PATH = `${__dirname}/../data/lynx_titan_hiscores.txt`;
 const CML_DATA_PATH = `${__dirname}/../data/lynx_titan_cml.txt`;

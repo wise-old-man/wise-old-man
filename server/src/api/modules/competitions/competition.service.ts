@@ -615,7 +615,7 @@ async function getParticipants(id) {
 
 /**
  * Get outdated participants for a specific competition id.
- * A participant is considered outdated 10 minutes after their last update
+ * A participant is considered outdated 60 minutes after their last update
  */
 async function getOutdatedParticipants(competitionId) {
   if (!competitionId) {
@@ -630,9 +630,7 @@ async function getOutdatedParticipants(competitionId) {
     include: [
       {
         model: Player,
-        where: {
-          updatedAt: { [Op.lt]: hourAgo.toDate() }
-        }
+        where: { updatedAt: { [Op.lt]: hourAgo.toDate() } }
       }
     ]
   });

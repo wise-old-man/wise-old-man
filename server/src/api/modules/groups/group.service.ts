@@ -311,7 +311,7 @@ async function getHiscores(id, metric, pagination) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const group = await sequelize.models.Group.findOne({ where: { id } });
+  const group = await Group.findOne({ where: { id } });
 
   if (!group) {
     throw new BadRequestError(`Group of id ${id} was not found.`);

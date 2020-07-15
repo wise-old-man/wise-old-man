@@ -1,8 +1,7 @@
 import supertest from 'supertest';
-import { api } from '../../src/api';
-import { Player } from '../../src/database/models';
+import api from '../../src/api';
+import { Player } from '../../src/database';
 import { resetDatabase } from '../utils';
-import {} from 'jest';
 
 const request = supertest(api);
 

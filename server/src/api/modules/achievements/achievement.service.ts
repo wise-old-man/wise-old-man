@@ -167,15 +167,14 @@ async function addPastDates(playerId, achievements) {
     if (newAchievements.length > 0) {
       newAchievements.forEach(a => {
         if (!dateMap[a.type]) {
-          dateMap[a.type] = new Date(Math.min(a.createdAt.getTime(), next.createdAt.getTime()));
+          const minDate = Math.min(a.createdAt.getTime(), next.createdAt.getTime());
+          dateMap[a.type] = new Date(minDate);
         }
       });
     }
   }
 
-  return achievements.map(a => {
-    return { ...a, createdAt: dateMap[a.type] || a.createdAt };
-  });
+  return achievements.map(a => ({ ...a, createdAt: dateMap[a.type] || a.createdAt }));
 }
 
 /**
