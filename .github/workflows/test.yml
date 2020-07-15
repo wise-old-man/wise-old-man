@@ -24,5 +24,4 @@ jobs:
         run: cd server && npm test
         env:
           CI: true
-          DB_DIALECT: sqlite
           DB_STORAGE: ./__tests__/database.sqlite

@@ -1,4 +1,4 @@
-import { Achievement, Competition, Membership, Player, Snapshot } from '../database/models';
+import { Achievement, Competition, Membership, Player, Snapshot } from '../database';
 import {
   onAchievementsCreated,
   onCompetitionCreated,

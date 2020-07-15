@@ -73,7 +73,6 @@ By default the example files contain the following snippets
 
 ```
 #.env
-DB_DIALECT=postgres
 
 POSTGRES_PASSWORD=postgres
 POSTGRES_USER=postgres
@@ -90,7 +89,6 @@ DISCORD_BOT_API_URL=https://discord-bot.wiseoldman.net/event
 
 ```
 #.env.test
-DB_DIALECT=sqlite
 DB_STORAGE=./__tests__/database.sqlite
 ```
 

@@ -1,31 +1,17 @@
 import { Sequelize } from 'sequelize-typescript';
-import env from '../env';
-import {
-  Achievement,
-  Competition,
-  Group,
-  InitialValues,
-  Membership,
-  Participation,
-  Player,
-  Record,
-  Snapshot
-} from './models';
+import Achievement from '../api/modules/achievements/achievement.model';
+import Competition from '../api/modules/competitions/competition.model';
+import Participation from '../api/modules/competitions/participation.model';
+import InitialValues from '../api/modules/deltas/initialValues.model';
+import Group from '../api/modules/groups/group.model';
+import Membership from '../api/modules/groups/membership.model';
+import Player from '../api/modules/players/player.model';
+import Record from '../api/modules/records/record.model';
+import Snapshot from '../api/modules/snapshots/snapshot.model';
+import { isTesting } from '../env';
 import config from './config';
 
-const sequelize = new Sequelize({
-  host: config.host,
-  username: config.username,
-  password: config.password,
-  database: config.database,
-  storage: config.storage,
-  dialect: getDialect(),
-  logging: config.logging,
-  pool: config.pool,
-  retry: config.retry
-});
-
-sequelize.addModels([
+const models = [
   Achievement,
   Competition,
   Group,
@@ -35,15 +21,23 @@ sequelize.addModels([
   Player,
   Record,
   Snapshot
-]);
+];
 
-function getDialect() {
-  switch (env.DB_DIALECT) {
-    case 'sqlite':
-      return 'sqlite';
-    default:
-      return 'postgres';
-  }
-}
+const sequelize = new Sequelize({
+  ...config,
+  models,
+  dialect: isTesting() ? 'sqlite' : 'postgres'
+});
 
-export { sequelize };
+export {
+  sequelize,
+  Achievement,
+  Competition,
+  Group,
+  InitialValues,
+  Membership,
+  Participation,
+  Player,
+  Record,
+  Snapshot
+};

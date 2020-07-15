@@ -1,16 +1,6 @@
-import {
-  Table,
-  Column,
-  DataType,
-  PrimaryKey,
-  AutoIncrement,
-  ForeignKey,
-  BelongsTo,
-  AllowNull
-} from 'sequelize-typescript';
-
-import { Player } from '.';
-import HiscoreValues from './hiscoreValues.model';
+import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'sequelize-typescript';
+import { Player } from '../../../database';
+import HiscoreValues from '../deltas/hiscoreValues.model';
 
 // Define other table options
 const options = {
@@ -32,18 +22,20 @@ const options = {
 
 @Table(options)
 export default class Snapshot extends HiscoreValues {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
   id: number;
 
   @ForeignKey(() => Player)
-  @AllowNull(false)
-  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
 
   @Column({ type: DataType.DATE })
   importedAt: Date;
+
+  @CreatedAt
+  createdAt: Date;
+
+  /* Associations */
 
   @BelongsTo(() => Player)
   player: Player;

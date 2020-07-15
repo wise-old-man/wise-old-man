@@ -1,14 +1,5 @@
-import {
-  Table,
-  Column,
-  DataType,
-  PrimaryKey,
-  AutoIncrement,
-  ForeignKey,
-  BelongsTo,
-  AllowNull
-} from 'sequelize-typescript';
-import { Player } from '.';
+import { BelongsTo, Column, DataType, ForeignKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { Player } from '../../../database';
 import HiscoreValues from './hiscoreValues.model';
 
 // Define other table options
@@ -28,15 +19,17 @@ const options = {
 
 @Table(options)
 export default class InitialValues extends HiscoreValues {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
   id: number;
 
   @ForeignKey(() => Player)
-  @AllowNull(false)
-  @Column({ type: DataType.INTEGER, onDelete: 'CASCADE' })
+  @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
+
+  @UpdatedAt
+  updatedAt: Date;
+
+  /* Associations */
 
   @BelongsTo(() => Player)
   player: Player;

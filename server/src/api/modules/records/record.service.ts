@@ -1,5 +1,5 @@
 import { forEach, keyBy, mapValues, omit } from 'lodash';
-import { Player, Record } from '../../../database/models';
+import { Player, Record } from '../../../database';
 import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';

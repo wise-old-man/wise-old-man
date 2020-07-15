@@ -1,7 +1,6 @@
 import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import { sequelize } from '../../../database';
-import { InitialValues } from '../../../database/models';
+import { InitialValues, sequelize } from '../../../database';
 import { ALL_METRICS, PERIODS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';

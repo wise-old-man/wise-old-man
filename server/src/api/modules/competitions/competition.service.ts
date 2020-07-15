@@ -1,7 +1,7 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { Competition, Group, Participation, Player } from '../../../database/models';
+import { Competition, Group, Participation, Player } from '../../../database';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';

@@ -1,5 +1,4 @@
-import { sequelize } from '../../../database';
-import { Achievement } from '../../../database/models';
+import { Achievement, sequelize } from '../../../database';
 import { ACTIVITIES, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import {
@@ -168,7 +167,7 @@ async function addPastDates(playerId, achievements) {
     if (newAchievements.length > 0) {
       newAchievements.forEach(a => {
         if (!dateMap[a.type]) {
-          dateMap[a.type] = new Date(Math.min(a.createdAt, next.createdAt));
+          dateMap[a.type] = new Date(Math.min(a.createdAt.getTime(), next.createdAt.getTime()));
         }
       });
     }
