@@ -38,8 +38,8 @@ We also offer a REST API for developers and encourage you to create your own app
 
 The repository is currently divided into 3 components:
 
-- **Server**: (The backend & **API**)
-  - Node.js
+- **Server**: (The backend & API)
+  - Node.js / TypeScript
   - PostgreSQL: Main Database
   - Sqlite: Tests Database
   - Redis & Bull: Job processor
