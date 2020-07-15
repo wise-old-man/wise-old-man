@@ -10,7 +10,7 @@
     "start": "pm2-runtime dist/server.js -i 2",
     "predev": "npm run build && sequelize db:migrate",
     "dev": "nodemon -L --exec ts-node src/server.ts",
-    "pretest": "cross-env NODE_ENV=test sequelize db:migrate",
+    "pretest": "cross-env NODE_ENV=test npm run build && sequelize db:migrate",
     "test": "cross-env NODE_ENV=test jest __tests__/integration --detectOpenHandles --verbose",
     "posttest": "cross-env NODE_ENV=test sequelize db:migrate:undo:all"
   },
