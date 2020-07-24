@@ -42,6 +42,9 @@ export default class Group extends Model<Group> {
   @Column({ type: DataType.INTEGER, defaultValue: 0 })
   score: number;
 
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  verified: boolean;
+
   @Column({ type: DataType.VIRTUAL, allowNull: false })
   verificationCode: string;
 
