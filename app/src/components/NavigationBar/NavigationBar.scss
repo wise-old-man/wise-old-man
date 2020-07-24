@@ -28,18 +28,6 @@
       flex-direction: row;
       align-items: center;
 
-      .tag {
-        position: absolute;
-        top: 15px;
-        left: 100px;
-        color: $neutral-orange;
-        font-weight: 900;
-        font-size: 0.8em;
-        letter-spacing: 0.15em;
-        text-shadow: 1px 1px black;
-        transform: rotate(20deg);
-      }
-
       .nav-logo-img {
         margin-left: -10px;
         max-height: 100%;

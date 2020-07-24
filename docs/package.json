@@ -7,7 +7,7 @@
     "start": "next start",
     "build": "next build",
     "dev": "next",
-    "lint": "npx eslint --ext .js --ext .jsx src"
+    "lint": "npx eslint@7.2 --ext .js --ext .jsx src"
   },
   "keywords": [],
   "author": "Psikoi",
