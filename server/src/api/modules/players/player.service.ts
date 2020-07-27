@@ -190,7 +190,7 @@ async function update(username) {
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
-    if (created) {
+    if (created && player.type !== 'unknown') {
       // Doing this with the model method (Player.update) because the
       // instance method (instance.update) doesn't seem to work.
       await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
