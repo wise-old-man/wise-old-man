@@ -175,7 +175,12 @@ function CreateCompetition() {
 
         <div className="form-row">
           <span className="form-row__label">Title</span>
-          <TextInput placeholder="Ex: Varrock Titan's firemaking comp" onChange={onTitleChanged} />
+          <TextInput
+            placeholder="Ex: Varrock Titan's firemaking comp"
+            value={title}
+            onChange={onTitleChanged}
+            maxCharacters={50}
+          />
         </div>
 
         <div className="form-row">

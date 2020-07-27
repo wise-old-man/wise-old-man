@@ -151,12 +151,22 @@ function EditGroup() {
 
         <div className="form-row">
           <span className="form-row__label">Group name</span>
-          <TextInput value={name} placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+          <TextInput
+            value={name}
+            placeholder="Ex: Varrock Titans"
+            onChange={onNameChanged}
+            maxCharacters={30}
+          />
         </div>
 
         <div className="form-row">
           <span className="form-row__label">Clan chat</span>
-          <TextInput placeholder="Ex: titanZ" value={clanChat} onChange={onClanChatChanged} />
+          <TextInput
+            placeholder="Ex: titanZ"
+            value={clanChat}
+            onChange={onClanChatChanged}
+            maxCharacters={20}
+          />
         </div>
 
         <div className="form-row">

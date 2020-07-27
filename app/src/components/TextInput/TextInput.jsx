@@ -2,7 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './TextInput.scss';
 
-function TextInput({ id, type, value, onChange, placeholder, search, disableAutocomplete }) {
+function TextInput({
+  id,
+  type,
+  value,
+  onChange,
+  placeholder,
+  search,
+  disableAutocomplete,
+  maxCharacters
+}) {
   return (
     <div className="text-input">
       <input
@@ -13,8 +22,12 @@ function TextInput({ id, type, value, onChange, placeholder, search, disableAuto
         placeholder={placeholder}
         onChange={onChange}
         autoComplete={disableAutocomplete ? 'off' : 'on'}
+        maxLength={maxCharacters}
       />
       {search && <img className="text-input__icon" src="/img/icons/search.svg" alt="" />}
+      {maxCharacters && value && (
+        <span className="text-input__counter">{maxCharacters - value.length}</span>
+      )}
     </div>
   );
 }
@@ -24,7 +37,8 @@ TextInput.defaultProps = {
   value: undefined,
   type: 'text',
   search: false,
-  disableAutocomplete: true
+  disableAutocomplete: true,
+  maxCharacters: undefined
 };
 
 TextInput.propTypes = {
@@ -46,7 +60,10 @@ TextInput.propTypes = {
   onChange: PropTypes.func.isRequired,
 
   // If enabled, no autofill/autocomplete will be used
-  disableAutocomplete: PropTypes.bool
+  disableAutocomplete: PropTypes.bool,
+
+  // The maximum number of characters that can be used and requires the value to be propogated into the child
+  maxCharacters: PropTypes.number
 };
 
 export default React.memo(TextInput);
