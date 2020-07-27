@@ -32,7 +32,7 @@ function format(snapshot) {
 }
 
 /**
- * Decides wether teo snapshots are within reasonable time/progress distance
+ * Decides whether two snapshots are within reasonable time/progress distance
  * of eachother. The difference between the two cannot be negative, or over the
  * EHP (maximum efficiency).
  */

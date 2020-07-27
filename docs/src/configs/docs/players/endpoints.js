@@ -22,8 +22,10 @@ export default [
         body: [
           {
             id: 44,
-            username: 'Iron Mammal',
+            username: 'iron mammal',
+            displayName: 'Iron Mammal',
             type: 'ironman',
+            flagged: false,
             lastImportedAt: null,
             registeredAt: '2020-04-04T21:48:19.197Z',
             updatedAt: '2020-04-04T21:48:29.235Z',
@@ -31,8 +33,10 @@ export default [
           },
           {
             id: 45,
-            username: 'Iron Faux',
+            username: 'iron faux',
+            displayName: 'Iron Faux',
             type: 'regular',
+            flagged: false,
             lastImportedAt: null,
             registeredAt: '2020-04-04T21:48:31.367Z',
             updatedAt: '2020-04-04T21:48:39.636Z',
@@ -76,8 +80,10 @@ export default [
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
           id: 37,
-          username: 'Psikoi',
+          username: 'psikoi',
+          displayName: 'Psikoi',
           type: 'regular',
+          flagged: false,
           lastImportedAt: '2020-04-03T21:43:21.899Z',
           registeredAt: '2020-04-03T21:43:17.574Z',
           updatedAt: '2020-04-04T22:33:51.594Z',
@@ -262,8 +268,10 @@ export default [
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
           id: 37,
-          username: 'Psikoi',
+          username: 'psikoi',
+          displayName: 'Psikoi',
           type: 'regular',
+          flagged: false,
           lastImportedAt: '2020-04-03T21:43:21.899Z',
           registeredAt: '2020-04-03T21:43:17.574Z',
           updatedAt: '2020-04-04T16:43:36.230Z',

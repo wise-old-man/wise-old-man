@@ -24,6 +24,11 @@ export default [
         description: "The player's account type. (See possible values below)"
       },
       {
+        field: 'flagged',
+        type: 'boolean',
+        description: 'Whether or not this player has had an unregistered name change.'
+      },
+      {
         field: 'lastImportedAt',
         type: 'date',
         description: "The last time this player's history was imported from CML."

@@ -1,11 +1,11 @@
 import jobs from '../../jobs';
-import * as playerService from './player.service';
 import * as achievementService from '../achievements/achievement.service';
 import * as competitionService from '../competitions/competition.service';
-import * as groupService from '../groups/group.service';
 import * as deltaService from '../deltas/delta.service';
-import * as snapshotService from '../snapshots/snapshot.service';
+import * as groupService from '../groups/group.service';
 import * as recordService from '../records/record.service';
+import * as snapshotService from '../snapshots/snapshot.service';
+import * as playerService from './player.service';
 
 // GET /players/search?username={username}
 async function search(req, res, next) {
@@ -210,7 +210,7 @@ async function snapshots(req, res, next) {
 }
 
 /**
- * To support /username endpoints, we should evaluate wether
+ * To support /username endpoints, we should evaluate whether
  * we can use the id given to us via url param, or we need
  * to find that id by doing a username search.
  */

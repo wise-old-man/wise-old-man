@@ -189,7 +189,7 @@ async function update(username) {
 
     // If the player was previosuly flagged, unflag it.
     // Otherwise just force update the "updatedAt" timestamp on the player model
-    if (player.flagged) {
+    if (player.flagged && player.type !== 'unknown') {
       await player.update({ flagged: false });
     } else {
       await player.changed('updatedAt', true);
