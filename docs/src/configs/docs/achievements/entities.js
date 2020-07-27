@@ -37,36 +37,39 @@ export default [
     structure: [
       {
         type: '{threshold} {skill}',
+        metric: '{skill}',
         measure: 'experience',
-        thresholds: [13034431, 50000000, 100000000, 200000000]
+        thresholds: '13034431, 50000000, 100000000, 200000000'
       },
       {
         type: '{threshold} Overall Exp.',
         metric: 'overall',
         measure: 'experience',
-        thresholds: [500000000, 1000000000, 2000000000, 4600000000]
+        thresholds: '500000000, 1000000000, 2000000000, 4600000000'
       },
       {
         type: 'Maxed Overall',
         metric: 'overall',
         measure: 'levels',
-        thresholds: [2277]
+        thresholds: '2277'
       },
       {
         type: 'Maxed combat',
         metric: 'combat',
         measure: 'levels',
-        thresholds: [126]
+        thresholds: '126'
       },
       {
         type: '{threshold} {activity}',
+        metric: '{activity}',
         measure: 'score',
-        thresholds: [1000, 5000, 10000]
+        thresholds: '1000, 5000, 10000'
       },
       {
         type: '{threshold} {boss}',
+        metric: '{boss}',
         measure: 'kills',
-        thresholds: [500, 1000, 5000, 10000]
+        thresholds: '500, 1000, 5000, 10000'
       }
     ]
   },
