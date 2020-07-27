@@ -25,7 +25,7 @@ function MembersTable({ members, isLoading }) {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.id}`}>
-            <PlayerTag name={value} type={row.type} />
+            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
           </Link>
         )
       },

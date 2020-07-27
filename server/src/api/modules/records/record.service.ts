@@ -133,6 +133,7 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     username: player.username,
     displayName: player.displayName,
     type: player.type,
+    flagged: player.flagged,
     value,
     updatedAt
   }));
@@ -165,6 +166,7 @@ async function getGroupLeaderboard(metric, period, playerIds, pagination) {
     username: player.username,
     displayName: player.displayName,
     type: player.type,
+    flagged: player.flagged,
     value,
     updatedAt
   }));

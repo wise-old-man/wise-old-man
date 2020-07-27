@@ -204,10 +204,10 @@ async function getAchievements(groupId, pagination) {
   const achievements = await achievementService.findAllForGroup(memberIds, pagination);
 
   const formatted = achievements.map(a => {
-    const { id, username, displayName, type } = memberMap[a.playerId];
+    const { id, username, displayName, type, flagged } = memberMap[a.playerId];
     return {
       ...a.toJSON(),
-      player: { id, username, displayName, type }
+      player: { id, username, displayName, type, flagged }
     };
   });
 

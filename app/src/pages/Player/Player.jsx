@@ -36,7 +36,7 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerR
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import { getPlayerIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
 import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
@@ -265,8 +265,8 @@ function Player() {
         <div className="col">
           <PageHeader
             title={player.displayName}
-            icon={getPlayerTypeIcon(player.type)}
-            iconTooltip={getPlayerTooltip(player.type)}
+            icon={getPlayerIcon(player.type, player.flagged)}
+            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
