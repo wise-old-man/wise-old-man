@@ -165,7 +165,7 @@ function EditGroup() {
             placeholder="Ex: titanZ"
             value={clanChat}
             onChange={onClanChatChanged}
-            maxCharacters={20}
+            maxCharacters={12}
           />
         </div>
 

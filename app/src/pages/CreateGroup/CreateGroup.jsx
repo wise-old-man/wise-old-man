@@ -147,7 +147,7 @@ function CreateGroup() {
             value={clanChat}
             placeholder="Ex: titanZ"
             onChange={onClanChatChanged}
-            maxCharacters={20}
+            maxCharacters={12}
           />
         </div>
 

@@ -16,7 +16,7 @@ export default [
       {
         field: 'clanChat',
         type: 'string',
-        description: "The group's clan chat (1-20 characters) (Optional)."
+        description: "The group's clan chat (1-12 characters) (Optional)."
       },
       {
         field: 'score',
