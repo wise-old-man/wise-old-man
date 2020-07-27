@@ -6,6 +6,7 @@ import { Snapshot } from '../../../database';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
+import * as efficiencyService from '../efficiency/efficiency.service';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
@@ -28,6 +29,24 @@ function format(snapshot) {
   });
 
   return obj;
+}
+
+/**
+ * Decides wether teo snapshots are within reasonable time/progress distance
+ * of eachother. The difference between the two cannot be negative, or over the
+ * EHP (maximum efficiency).
+ */
+function withinRange(before: Snapshot, after: Snapshot): boolean {
+  const keys = ALL_METRICS.map(m => getValueKey(m));
+
+  const afterDate = after.createdAt || new Date();
+  const hoursDiff = (afterDate.getTime() - before.createdAt.getTime()) / 1000 / 3600;
+  const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
+
+  const hasNegativeGains = keys.some(k => after[k] < before[k] && after[k]);
+  const hasOverEHP = ehpDiff > hoursDiff;
+
+  return !hasNegativeGains && !hasOverEHP;
 }
 
 /**
@@ -258,12 +277,13 @@ async function fromRS(playerId, csvData) {
     stats[getValueKey(s)] = parseInt(kills, 10);
   });
 
-  const newSnapshot = await Snapshot.create({ playerId, ...stats });
+  const newSnapshot = await Snapshot.build({ playerId, ...stats });
   return newSnapshot;
 }
 
 export {
   format,
+  withinRange,
   findAll,
   findLatest,
   findAllBetween,
