@@ -201,6 +201,7 @@ async function getDetails(id) {
       username: player.username,
       displayName: player.displayName,
       type: player.type,
+      flagged: player.flagged,
       updatedAt: player.updatedAt,
       history: [],
       progress: {

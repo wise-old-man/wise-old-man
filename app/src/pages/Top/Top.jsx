@@ -9,14 +9,7 @@ import Table from '../../components/Table';
 import NumberLabel from '../../components/NumberLabel';
 import TablePlaceholder from '../../components/TablePlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
-import {
-  capitalize,
-  getPlayerTypeIcon,
-  getMetricIcon,
-  getMetricName,
-  isSkill,
-  isBoss
-} from '../../utils';
+import { capitalize, getPlayerIcon, getMetricIcon, getMetricName, isSkill, isBoss } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
 import { getLeaderboard, isFetchingLeaderboard } from '../../redux/selectors/deltas';
 import './Top.scss';
@@ -35,7 +28,7 @@ function getTableConfig(metric, period) {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={getPlayerURL(row.playerId, metric, period)}>
-            <PlayerTag name={value} type={row.type} />
+            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
           </Link>
         )
       },
@@ -53,7 +46,7 @@ function getPlayerTypeOptions() {
     { label: 'All players', value: null },
     ...PLAYER_TYPES.map(type => ({
       label: capitalize(type),
-      icon: getPlayerTypeIcon(type),
+      icon: getPlayerIcon(type),
       value: type
     }))
   ];

@@ -127,6 +127,7 @@ export default [
             username: 'psikoi',
             displayName: 'Psikoi',
             type: 'regular',
+            flagged: false,
             lastImportedAt: null,
             registeredAt: '2020-05-02T20:35:05.251Z',
             updatedAt: '2020-05-03T01:08:18.827Z',
@@ -137,6 +138,7 @@ export default [
             id: 416,
             username: 'zulu',
             displayName: 'Zulu',
+            flagged: false,
             type: 'regular',
             lastImportedAt: '2020-05-03T01:27:05.764Z',
             registeredAt: '2020-05-02T20:35:06.302Z',
@@ -213,6 +215,7 @@ export default [
           playerId: 299,
           username: 'psikoi',
           displayName: 'Psikoi',
+          flagged: false,
           type: 'regular',
           startDate: '2020-04-18T16:20:05.000Z',
           endDate: '2020-05-18T14:52:22.213Z',
@@ -284,6 +287,7 @@ export default [
             playerId: 1188,
             username: 'unequalized',
             displayName: 'Unequalized',
+            flagged: false,
             type: 'regular',
             startDate: '2020-05-18T10:29:33.291Z',
             endDate: '2020-05-24T22:43:56.955Z',
@@ -295,6 +299,7 @@ export default [
             playerId: 1191,
             username: '8 feb 2020',
             displayName: '8 Feb 2020',
+            flagged: false,
             type: 'regular',
             startDate: '2020-05-18T23:53:21.708Z',
             endDate: '2020-05-24T02:38:49.950Z',
@@ -306,6 +311,7 @@ export default [
             playerId: 1170,
             username: 'teethbreaker',
             displayName: 'Teethbreaker',
+            flagged: false,
             type: 'regular',
             startDate: '2020-05-18T04:47:13.127Z',
             endDate: '2020-05-24T04:42:37.801Z',
@@ -318,6 +324,7 @@ export default [
             username: 'mobilekingpt',
             displayName: 'Mobilekingpt',
             type: 'regular',
+            flagged: false,
             startDate: '2020-05-18T05:37:09.757Z',
             endDate: '2020-05-24T20:55:53.915Z',
             endValue: 204319855,
@@ -389,6 +396,7 @@ export default [
             username: 'windows10',
             displayName: 'Windows10',
             type: 'regular',
+            flagged: false,
             lastImportedAt: '2020-05-14T00:21:28.251Z',
             registeredAt: '2020-04-15T13:03:28.396Z',
             updatedAt: '2020-06-02T23:37:26.348Z',
@@ -401,6 +409,7 @@ export default [
             username: 'ze punheteir',
             displayName: 'Ze Punheteir',
             type: 'regular',
+            flagged: false,
             lastImportedAt: '2020-05-13T23:14:52.828Z',
             registeredAt: '2020-04-28T17:56:45.960Z',
             updatedAt: '2020-06-02T23:41:18.937Z',
@@ -413,6 +422,7 @@ export default [
             username: 'melisma',
             displayName: 'Melisma',
             type: 'regular',
+            flagged: false,
             lastImportedAt: null,
             registeredAt: '2020-04-28T22:00:09.281Z',
             updatedAt: '2020-06-03T00:58:50.838Z',
@@ -484,6 +494,7 @@ export default [
             username: 'unequalized',
             displayName: 'Unequalized',
             type: 'regular',
+            flagged: false,
             value: 76566869,
             updatedAt: '2020-06-02T23:38:37.203Z'
           },
@@ -492,6 +503,7 @@ export default [
             username: '8 feb 2020',
             displayName: '8 Feb 2020',
             type: 'regular',
+            flagged: false,
             value: 57448742,
             updatedAt: '2020-04-29T10:20:34.052Z'
           },
@@ -500,6 +512,7 @@ export default [
             username: 'windows10',
             displayName: 'Windows10',
             type: 'regular',
+            flagged: false,
             value: 54337702,
             updatedAt: '2020-05-13T23:08:14.112Z'
           }
@@ -568,7 +581,8 @@ export default [
               id: 1236,
               username: 'j onys',
               displayName: 'J Onys',
-              type: 'regular'
+              type: 'regular',
+              flagged: false
             }
           },
           {
@@ -581,7 +595,8 @@ export default [
               id: 1177,
               username: 'o joao',
               displayName: 'O Joao',
-              type: 'regular'
+              type: 'regular',
+              flagged: false
             }
           },
           {
@@ -594,7 +609,8 @@ export default [
               id: 1188,
               username: 'unequalized',
               displayName: 'Unequalized',
-              type: 'regular'
+              type: 'regular',
+              flagged: false
             }
           }
         ]
@@ -729,6 +745,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-19T17:21:12.258Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
               updatedAt: '2020-04-20T23:55:14.540Z',
@@ -739,6 +756,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-20T23:55:19.286Z',
@@ -749,6 +767,7 @@ export default [
               username: 'zezima',
               displayName: 'Zezima',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
               updatedAt: '2020-04-20T23:55:24.007Z',
@@ -759,6 +778,7 @@ export default [
               username: 'lynx titan',
               displayName: 'Lynx Titan',
               type: 'unknown',
+              flagged: false,
               lastImportedAt: null,
               registeredAt: '2020-04-23T01:53:26.156Z',
               updatedAt: '2020-04-23T01:53:26.156Z',
@@ -827,6 +847,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-18T02:22:49.364Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
               updatedAt: '2020-04-18T04:02:42.235Z',
@@ -837,6 +858,7 @@ export default [
               username: 'zezima',
               displayName: 'Zezima',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-11T01:02:25.132Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
               updatedAt: '2020-04-18T03:40:17.940Z',
@@ -952,6 +974,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-18T03:22:36.419Z',
@@ -962,6 +985,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-18T03:22:36.419Z',
@@ -1081,6 +1105,7 @@ export default [
             username: 'psikoi',
             displayName: 'Psikoi',
             type: 'regular',
+            flagged: false,
             lastImportedAt: '2020-04-18T02:22:49.364Z',
             registeredAt: '2020-04-10T18:11:02.544Z',
             updatedAt: '2020-04-18T04:02:42.235Z',

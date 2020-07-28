@@ -11,7 +11,7 @@ import TablePlaceholder from '../../components/TablePlaceholder';
 import { PLAYER_TYPES, ALL_METRICS } from '../../config';
 import {
   formatDate,
-  getPlayerTypeIcon,
+  getPlayerIcon,
   getMetricIcon,
   capitalize,
   getMetricName,
@@ -36,7 +36,7 @@ function getTableConfig(metric) {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={getPlayerURL(row.playerId, metric)}>
-            <PlayerTag name={value} type={row.type} />
+            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
           </Link>
         )
       },
@@ -62,7 +62,7 @@ function getPlayerTypeOptions() {
     { label: 'All players', value: null },
     ...PLAYER_TYPES.map(type => ({
       label: capitalize(type),
-      icon: getPlayerTypeIcon(type),
+      icon: getPlayerIcon(type),
       value: type
     }))
   ];

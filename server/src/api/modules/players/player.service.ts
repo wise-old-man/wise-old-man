@@ -176,15 +176,29 @@ async function update(username) {
     // Load data from OSRS hiscores
     const hiscoresCSV = await getHiscoresData(player.username, player.type);
 
+    // Get the latest snapshot from the DB
+    const previousSnapshot = await snapshotService.findLatest(player.id);
+
     // Convert the csv data to a Snapshot instance (saved in the DB)
     const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
-    const formattedSnapshot = snapshotService.format(currentSnapshot);
 
-    // Update the "updatedAt" timestamp on the player model
-    await player.changed('updatedAt', true);
+    if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
+      await player.update({ flagged: true });
+      throw new BadRequestError('Failed to update: Unregistered name change.');
+    }
+
+    // If the player was previosuly flagged, unflag it.
+    // Otherwise just force update the "updatedAt" timestamp on the player model
+    if (player.flagged && player.type !== 'unknown') {
+      await player.update({ flagged: false });
+    } else {
+      await player.changed('updatedAt', true);
+    }
+
+    await currentSnapshot.save();
     await player.save();
 
-    const formatted = { ...player.toJSON(), latestSnapshot: formattedSnapshot };
+    const formatted = { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
 
     return [formatted, created];
   } catch (e) {
@@ -485,6 +499,7 @@ async function getHiscoresData(username, type = 'regular') {
 
     return data;
   } catch (e) {
+    if (e instanceof ServerError) throw e;
     throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
 }
@@ -508,6 +523,7 @@ async function getHiscoresNames(username) {
 
     return getHiscoresTableNames(data.toString('latin1'));
   } catch (e) {
+    if (e instanceof ServerError) throw e;
     throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
 }

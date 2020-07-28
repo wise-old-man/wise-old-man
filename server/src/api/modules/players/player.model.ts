@@ -58,6 +58,9 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
   type: string;
 
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  flagged: boolean;
+
   @Column({ type: DataType.DATE })
   lastImportedAt: Date;
 

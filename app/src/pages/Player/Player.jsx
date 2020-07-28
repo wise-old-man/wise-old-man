@@ -36,7 +36,7 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerR
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import { getPlayerIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
 import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
@@ -263,10 +263,23 @@ function Player() {
       </Helmet>
       <div className="player__header row">
         <div className="col">
+          {player.flagged && (
+            <div className="warning">
+              <img src="/img/runescape/icons_small/flagged.png" alt="" />
+              <span>
+                This player is flagged. This is likely caused by an unregistered name change. We are
+                working on semi-automatic name change submissions, but for the time being, contact us on
+                our &nbsp;
+              </span>
+              <a href="https://wiseoldman.net/discord">Discord</a>
+              <span>&nbsp;to submit one.</span>
+            </div>
+          )}
+
           <PageHeader
             title={player.displayName}
-            icon={getPlayerTypeIcon(player.type)}
-            iconTooltip={getPlayerTooltip(player.type)}
+            icon={getPlayerIcon(player.type)}
+            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
