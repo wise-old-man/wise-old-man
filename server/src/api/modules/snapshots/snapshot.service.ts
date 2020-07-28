@@ -43,7 +43,9 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const keys = ALL_METRICS.map(m => getValueKey(m));
 
   const afterDate = after.createdAt || new Date();
-  const hoursDiff = (afterDate.getTime() - before.createdAt.getTime()) / 1000 / 3600;
+  const timeDiff = afterDate.getTime() - before.createdAt.getTime();
+
+  const hoursDiff = Math.max(6, timeDiff / 1000 / 3600);
 
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
