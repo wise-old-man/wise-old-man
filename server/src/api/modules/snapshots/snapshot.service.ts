@@ -37,16 +37,21 @@ function format(snapshot) {
  * EHP (maximum efficiency).
  */
 function withinRange(before: Snapshot, after: Snapshot): boolean {
+  // If this is the player's first snapshot
+  if (!before) return true;
+
   const keys = ALL_METRICS.map(m => getValueKey(m));
 
   const afterDate = after.createdAt || new Date();
   const hoursDiff = (afterDate.getTime() - before.createdAt.getTime()) / 1000 / 3600;
+
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
+  const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
   const hasNegativeGains = keys.some(k => after[k] < before[k] && after[k]);
-  const hasOverEHP = ehpDiff > hoursDiff;
+  const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
 
-  return !hasNegativeGains && !hasOverEHP;
+  return !hasNegativeGains && !hasTooManyGains;
 }
 
 /**
