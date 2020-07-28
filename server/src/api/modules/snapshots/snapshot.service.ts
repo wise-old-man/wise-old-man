@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { Snapshot } from '../../../database';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
+import logger from '../../logger';
 import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
 import * as efficiencyService from '../efficiency/efficiency.service';
 
@@ -52,6 +53,16 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 
   const hasNegativeGains = keys.some(k => after[k] < before[k] && after[k]);
   const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
+
+  if (hasNegativeGains || hasTooManyGains) {
+    logger.info(`Flagging player`, {
+      hasNegativeGains,
+      hasTooManyGains,
+      hoursDiff,
+      ehpDiff,
+      ehbDiff
+    });
+  }
 
   return !hasNegativeGains && !hasTooManyGains;
 }
