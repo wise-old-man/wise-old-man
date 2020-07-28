@@ -46,12 +46,12 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const afterDate = after.createdAt || new Date();
   const timeDiff = afterDate.getTime() - before.createdAt.getTime();
 
-  const hoursDiff = Math.max(6, timeDiff / 1000 / 3600);
+  const hoursDiff = Math.max(24, timeDiff / 1000 / 3600);
 
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
-  const hasNegativeGains = keys.some(k => after[k] < before[k] && after[k]);
+  const hasNegativeGains = keys.some(k => after[k] < before[k]);
   const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
 
   if (hasNegativeGains || hasTooManyGains) {
