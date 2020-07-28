@@ -263,9 +263,22 @@ function Player() {
       </Helmet>
       <div className="player__header row">
         <div className="col">
+          {player.flagged && (
+            <div className="warning">
+              <img src="/img/runescape/icons_small/flagged.png" alt="" />
+              <span>
+                This player is flagged. This is likely caused by an unregistered name change. We are
+                working on semi-automatic name change submissions, but for the time being, contact us on
+                our &nbsp;
+              </span>
+              <a href="https://wiseoldman.net/discord">Discord</a>
+              <span>&nbsp;to submit one.</span>
+            </div>
+          )}
+
           <PageHeader
             title={player.displayName}
-            icon={getPlayerIcon(player.type, player.flagged)}
+            icon={getPlayerIcon(player.type)}
             iconTooltip={getPlayerTooltip(player.type, player.flagged)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
