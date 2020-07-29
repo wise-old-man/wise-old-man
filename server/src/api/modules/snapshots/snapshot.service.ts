@@ -51,7 +51,7 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
-  const hasNegativeGains = keys.some(k => after[k] < before[k]);
+  const hasNegativeGains = keys.filter(k => k != 'last_man_standing').some(k => after[k] < before[k]);
   const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
 
   if (hasNegativeGains || hasTooManyGains) {
