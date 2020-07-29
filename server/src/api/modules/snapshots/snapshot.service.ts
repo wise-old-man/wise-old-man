@@ -55,9 +55,12 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
 
   if (hasNegativeGains || hasTooManyGains) {
+    const negativeGainsKeys = keys.filter(k => after[k] < before[k]);
+
     logger.info(`Flagging player`, {
       hasNegativeGains,
       hasTooManyGains,
+      negativeGainsKeys,
       hoursDiff,
       ehpDiff,
       ehbDiff
