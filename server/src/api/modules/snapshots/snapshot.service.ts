@@ -42,8 +42,6 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   if (!before) return true;
 
   const keys = ALL_METRICS.map(m => getValueKey(m));
-  // These metrics' values can fluctuate on the hiscores
-  const fluctuatingKeys = ['last_man_standingScore'];
 
   const afterDate = after.createdAt || new Date();
   const timeDiff = afterDate.getTime() - before.createdAt.getTime();
@@ -53,11 +51,16 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
-  const hasNegativeGains = keys.some(k => !fluctuatingKeys.includes(k) && after[k] < before[k]);
   const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
 
+  const hasNegativeGains = keys.some(k => {
+    return k !== 'last_man_standingScore' && after[k] > -1 && after[k] < before[k];
+  });
+
   if (hasNegativeGains || hasTooManyGains) {
-    const negativeGainsKeys = keys.filter(k => !fluctuatingKeys.includes(k) && after[k] < before[k]);
+    const negativeGainsKeys = keys.filter(k => {
+      return k !== 'last_man_standingScore' && after[k] > -1 && after[k] < before[k];
+    });
 
     logger.info(`Flagging player`, {
       hasNegativeGains,
