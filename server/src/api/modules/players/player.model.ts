@@ -16,6 +16,7 @@ import {
   Group,
   InitialValues,
   Membership,
+  NameChange,
   Participation,
   Record,
   Snapshot
@@ -77,6 +78,9 @@ export default class Player extends Model<Player> {
 
   @BelongsToMany(() => Group, { as: 'members', through: () => Membership })
   members: Group;
+
+  @HasMany(() => NameChange, 'playerId')
+  nameChanges: NameChange[];
 
   @HasMany(() => Snapshot, 'playerId')
   snapshots: Snapshot[];
