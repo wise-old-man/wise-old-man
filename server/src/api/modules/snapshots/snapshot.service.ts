@@ -5,7 +5,6 @@ import { Op } from 'sequelize';
 import { Snapshot } from '../../../database';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import logger from '../../logger';
 import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
 import * as efficiencyService from '../efficiency/efficiency.service';
 
@@ -41,8 +40,19 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   // If this is the player's first snapshot
   if (!before) return true;
 
-  const keys = ALL_METRICS.map(m => getValueKey(m));
+  const negativeGains = hasNegativeGains(before, after);
+  const excessiveGains = hasExcessiveGains(before, after);
 
+  return !negativeGains && !excessiveGains;
+}
+
+/**
+ * Checks whether two snapshots have excessive gains in between.
+ * This happens when the gained EHP and gained EHB combined are over
+ * the ellapsed time between the two. This would have to mean this player
+ * played at over maximum efficiency for the transition duration.
+ */
+function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
   const afterDate = after.createdAt || new Date();
   const timeDiff = afterDate.getTime() - before.createdAt.getTime();
 
@@ -51,28 +61,18 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
-  const hasTooManyGains = ehpDiff + ehbDiff > hoursDiff;
+  return ehpDiff + ehbDiff > hoursDiff;
+}
 
-  const hasNegativeGains = keys.some(k => {
-    return k !== 'last_man_standingScore' && after[k] > -1 && after[k] < before[k];
-  });
+/**
+ * Checks whether two snapshots have negative gains in between.
+ */
+function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
+  // Last man standing scores can fluctuate overtime
+  const isValidKey = key => key !== 'last_man_standingScore';
+  const keys = ALL_METRICS.map(m => getValueKey(m));
 
-  if (hasNegativeGains || hasTooManyGains) {
-    const negativeGainsKeys = keys.filter(k => {
-      return k !== 'last_man_standingScore' && after[k] > -1 && after[k] < before[k];
-    });
-
-    logger.info(`Flagging player`, {
-      hasNegativeGains,
-      hasTooManyGains,
-      negativeGainsKeys,
-      hoursDiff,
-      ehpDiff,
-      ehbDiff
-    });
-  }
-
-  return !hasNegativeGains && !hasTooManyGains;
+  return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
 }
 
 /**
@@ -169,6 +169,18 @@ async function findAllBetween(playerIds, startDate, endDate) {
     order: [['createdAt', 'ASC']]
   });
   return results;
+}
+
+/**
+ * Finds the first snapshot since "date" for a given player.
+ */
+async function findFirstSince(playerId, date) {
+  const result = await Snapshot.findOne({
+    where: { playerId, createdAt: { [Op.gte]: date } },
+    order: [['createdAt', 'ASC']]
+  });
+
+  return result;
 }
 
 function average(snapshots) {
@@ -310,9 +322,12 @@ async function fromRS(playerId, csvData) {
 export {
   format,
   withinRange,
+  hasExcessiveGains,
+  hasNegativeGains,
   findAll,
   findLatest,
   findAllBetween,
+  findFirstSince,
   average,
   saveAll,
   fromCML,

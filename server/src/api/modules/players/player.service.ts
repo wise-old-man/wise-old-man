@@ -542,6 +542,7 @@ export {
   search,
   update,
   importCML,
+  getHiscoresData,
   assertType,
   assertName,
   shouldImport
