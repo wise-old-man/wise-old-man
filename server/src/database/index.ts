@@ -5,12 +5,12 @@ import Participation from '../api/modules/competitions/participation.model';
 import InitialValues from '../api/modules/deltas/initialValues.model';
 import Group from '../api/modules/groups/group.model';
 import Membership from '../api/modules/groups/membership.model';
-import NameChange from '../api/modules/names/nameChange.model';
 import Player from '../api/modules/players/player.model';
 import Record from '../api/modules/records/record.model';
 import Snapshot from '../api/modules/snapshots/snapshot.model';
 import { isTesting } from '../env';
 import config from './config';
+import NameChange from './models/NameChange';
 
 const models = [
   Achievement,

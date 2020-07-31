@@ -8,7 +8,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Player } from '../../../database';
+import { Player } from '..';
 
 // Define other table options
 const options = {

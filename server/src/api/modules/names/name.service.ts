@@ -1,66 +1,60 @@
 import { NameChange } from '../../../database';
-import { BadRequestError, ServerError } from '../../errors';
+import { NameChangeStatus } from '../../../database/models/NameChange';
+import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
-import { NameChangeStatus } from './nameChange.model';
 
 /**
  * Submit a new name change request, from oldName to newName.
  */
 async function submit(oldName: string, newName: string) {
-  if (!oldName) {
-    throw new BadRequestError('Error: Empty "old" name.');
-  }
-
-  if (!newName) {
-    throw new BadRequestError('Error: Empty "new" name.');
-  }
-
-  if (!playerService.isValidUsername(oldName)) {
-    throw new BadRequestError('Error: Invalid "old" name.');
-  }
-
-  if (!playerService.isValidUsername(newName)) {
-    throw new BadRequestError('Error: Invalid "new" name.');
-  }
-
-  // Standardize names to "username" sanitized format.
-  const oldUsername = playerService.standardize(oldName);
-  const newUsername = playerService.standardize(newName);
-
-  if (oldUsername === newUsername) {
-    throw new BadRequestError('Error: Old and New names must be different.');
-  }
-
-  const oldPlayer = await playerService.find(oldUsername);
+  // Check if a player with the "oldName" username is registered
+  const oldPlayer = await playerService.find(oldName);
 
   if (!oldPlayer) {
     throw new BadRequestError(`Error: Player "${oldName}" is not tracked yet."`);
   }
 
   // Check if there's any pending name changes for these names
-  const matches = await NameChange.findOne({
-    where: {
-      oldName: oldUsername,
-      newName: newUsername,
-      status: NameChangeStatus.PENDING
-    }
+  const pendingRequest = await NameChange.findOne({
+    where: { oldName, newName, status: NameChangeStatus.PENDING }
   });
 
-  if (matches) {
+  if (pendingRequest) {
     throw new BadRequestError("Error: There's already a similar pending name change request.");
   }
 
-  const rating = await calculateRating(oldUsername, newUsername);
+  // Calculate the name change likelihood rating
+  const rating = await calculateRating(oldName, newName);
 
-  const nameChange = NameChange.build({
+  // Create a new instance (a new name change request)
+  const nameChange = NameChange.create({
     playerId: oldPlayer.id,
-    oldName: oldUsername,
-    newName: newUsername,
+    oldName,
+    newName,
     rating
   });
 
-  await nameChange.save();
+  return nameChange;
+}
+
+/**
+ * Refresh the rating of a given name change instance.
+ */
+async function refresh(nameChangeId: number) {
+  const nameChange = await NameChange.findOne({ where: { id: nameChangeId } });
+
+  if (!nameChange) {
+    throw new NotFoundError('Id not found.');
+  }
+
+  const newRating = await calculateRating(nameChange.oldName, nameChange.newName);
+
+  // The rating has changed since the last refresh
+  if (newRating !== nameChange.rating) {
+    nameChange.rating = newRating;
+    await nameChange.save();
+  }
 
   return nameChange;
 }
@@ -69,10 +63,10 @@ async function submit(oldName: string, newName: string) {
  * Calculate the "likelihood" rating of a particular
  * name change between oldName and newName.
  */
-async function calculateRating(oldName: string, newName: string) {
-  try {
-    let rating = 0;
+async function calculateRating(oldName: string, newName: string): Promise<number> {
+  let rating = 0;
 
+  try {
     // Attempt to fetch hiscores data for the new name
     const newHiscoresData = await playerService.getHiscoresData(newName);
 
@@ -101,14 +95,14 @@ async function calculateRating(oldName: string, newName: string) {
     if (!snapshotService.hasExcessiveGains(oldStats, newStats)) {
       rating += 2;
     }
-
-    return rating;
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
     // If the player could not be found on the hiscores, 0 rating
     if (e instanceof BadRequestError) return 0;
   }
+
+  return rating;
 }
 
-export { submit };
+export { submit, refresh };
