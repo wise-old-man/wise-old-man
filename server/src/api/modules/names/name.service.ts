@@ -1,5 +1,6 @@
 import { NameChange } from '../../../database';
 import { NameChangeStatus } from '../../../database/models/NameChange';
+import env from '../../../env';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
@@ -7,12 +8,12 @@ import * as snapshotService from '../snapshots/snapshot.service';
 /**
  * Submit a new name change request, from oldName to newName.
  */
-async function submit(oldName: string, newName: string) {
+async function submit(oldName: string, newName: string): Promise<NameChange> {
   // Check if a player with the "oldName" username is registered
   const oldPlayer = await playerService.find(oldName);
 
   if (!oldPlayer) {
-    throw new BadRequestError(`Error: Player "${oldName}" is not tracked yet."`);
+    throw new BadRequestError(`Player "${oldName}" is not tracked yet."`);
   }
 
   // Check if there's any pending name changes for these names
@@ -21,7 +22,7 @@ async function submit(oldName: string, newName: string) {
   });
 
   if (pendingRequest) {
-    throw new BadRequestError("Error: There's already a similar pending name change request.");
+    throw new BadRequestError("There's already a similar pending name change request.");
   }
 
   // Calculate the name change likelihood rating
@@ -41,11 +42,11 @@ async function submit(oldName: string, newName: string) {
 /**
  * Refresh the rating of a given name change instance.
  */
-async function refresh(nameChangeId: number) {
-  const nameChange = await NameChange.findOne({ where: { id: nameChangeId } });
+async function refresh(id: number): Promise<NameChange> {
+  const nameChange = await NameChange.findOne({ where: { id } });
 
   if (!nameChange) {
-    throw new NotFoundError('Id not found.');
+    throw new NotFoundError('Name change id was not found.');
   }
 
   const newRating = await calculateRating(nameChange.oldName, nameChange.newName);
@@ -55,6 +56,30 @@ async function refresh(nameChangeId: number) {
     nameChange.rating = newRating;
     await nameChange.save();
   }
+
+  return nameChange;
+}
+
+/**
+ * Denies a pending name change request.
+ */
+async function deny(id: number, adminPassword: string): Promise<NameChange> {
+  const nameChange = await NameChange.findOne({ where: { id } });
+
+  if (!nameChange) {
+    throw new NotFoundError('Name change id was not found.');
+  }
+
+  if (nameChange.status !== NameChangeStatus.PENDING) {
+    throw new BadRequestError('Name change status must be PENDING');
+  }
+
+  if (adminPassword !== env.ADMIN_PASSWORD) {
+    throw new BadRequestError('Incorrect password.');
+  }
+
+  nameChange.status = NameChangeStatus.DENIED;
+  await nameChange.save();
 
   return nameChange;
 }
@@ -105,4 +130,4 @@ async function calculateRating(oldName: string, newName: string): Promise<number
   return rating;
 }
 
-export { submit, refresh };
+export { submit, refresh, deny };

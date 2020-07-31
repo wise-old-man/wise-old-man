@@ -6,10 +6,10 @@ async function submit(req: Request, _: Response, next: NextFunction) {
   const { oldName, newName } = req.body;
 
   try {
-    if (!oldName) throw new BadRequestError("Empty 'old' name.");
-    if (!newName) throw new BadRequestError("Empty 'new' name.");
-    if (!isValidUsername(oldName)) throw new BadRequestError("Invalid 'old' name.");
-    if (!isValidUsername(newName)) throw new BadRequestError("Invalid 'new' name.");
+    if (!oldName) throw new BadRequestError('Invalid old name. (Undefined)');
+    if (!newName) throw new BadRequestError('Invalid new name. (Undefined)');
+    if (!isValidUsername(oldName)) throw new BadRequestError('Invalid old name.');
+    if (!isValidUsername(newName)) throw new BadRequestError('Invalid new name.');
 
     // Standardize names to "username" sanitized format.
     if (standardize(oldName) === standardize(newName))
@@ -25,8 +25,8 @@ async function refresh(req: Request, _: Response, next: NextFunction) {
   const { id } = req.params;
 
   try {
-    if (!id) throw new BadRequestError('Invalid name change id. (Empty)');
-    if (!isNaN(id as any)) throw new BadRequestError('Invalid name change id. Must be an integer.');
+    if (!id) throw new BadRequestError('Invalid name change id. (Undefined)');
+    if (isNaN(id as any)) throw new BadRequestError('Invalid name change id. (Must be an integer)');
 
     next();
   } catch (e) {
@@ -34,4 +34,20 @@ async function refresh(req: Request, _: Response, next: NextFunction) {
   }
 }
 
-export { submit, refresh };
+async function deny(req: Request, _: Response, next: NextFunction) {
+  const { id } = req.params;
+  const { adminPassword } = req.body;
+
+  try {
+    if (!id) throw new BadRequestError('Invalid name change id. (Undefined)');
+    if (!adminPassword) throw new BadRequestError('Invalid admin password. (Undefined)');
+    if (adminPassword.length === 0) throw new BadRequestError('Invalid admin password. (Empty)');
+    if (isNaN(id as any)) throw new BadRequestError('Invalid name change id. Must be an integer.');
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
+
+export { submit, refresh, deny };

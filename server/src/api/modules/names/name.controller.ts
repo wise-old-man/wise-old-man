@@ -29,7 +29,6 @@ async function submit(req: Request, res: Response, next: NextFunction) {
 async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
     const id = parseInt(req.params.id, 10);
-
     const nameChangeRequest = await nameService.refresh(id);
 
     res.json(nameChangeRequest);
@@ -38,8 +37,8 @@ async function refresh(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// POST /names/:id/resolve
-async function resolve(req: Request, res: Response, next: NextFunction) {
+// POST /names/:id/approve
+async function approve(req: Request, res: Response, next: NextFunction) {
   try {
     // ola
   } catch (e) {
@@ -47,4 +46,18 @@ async function resolve(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, refresh, resolve };
+// POST /names/:id/deny
+async function deny(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const adminPassword = req.body.adminPassword;
+
+    const nameChangeRequest = await nameService.deny(id, adminPassword);
+
+    res.json(nameChangeRequest);
+  } catch (e) {
+    next(e);
+  }
+}
+
+export { index, submit, refresh, approve, deny };
