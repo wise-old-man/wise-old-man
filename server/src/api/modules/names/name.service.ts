@@ -90,41 +90,57 @@ async function deny(id: number, adminPassword: string): Promise<NameChange> {
  */
 async function calculateRating(oldName: string, newName: string): Promise<number> {
   let rating = 0;
+  let newHiscores;
+  let oldHiscores;
 
   try {
     // Attempt to fetch hiscores data for the new name
-    const newHiscoresData = await playerService.getHiscoresData(newName);
-
-    const oldPlayer = await playerService.find(oldName);
-    const newPlayer = await playerService.find(newName);
-
-    // Fetch the last snapshot from the old name
-    const oldStats = await snapshotService.findLatest(oldPlayer.id);
-
-    // Fetch either the first snapshot of the new name, or the current hiscores stats
-    const newStats = newPlayer
-      ? await snapshotService.findFirstSince(newPlayer.id, oldStats.createdAt)
-      : await snapshotService.fromRS(-1, newHiscoresData);
-
-    // If the old username is not found in the hiscores
-    playerService.getHiscoresData(oldName).catch(e => {
-      if (e instanceof BadRequestError) rating += 1;
-    });
-
-    // If has no negative gains between the old and new stats
-    if (!snapshotService.hasNegativeGains(oldStats, newStats)) {
-      rating += 2;
-    }
-
-    // If has no excessive gains (over ehp and ehb) between the old and new stats
-    if (!snapshotService.hasExcessiveGains(oldStats, newStats)) {
-      rating += 2;
-    }
+    newHiscores = await playerService.getHiscoresData(newName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
-    // If the player could not be found on the hiscores, 0 rating
+    // If the new username could not be found on the hiscores
     if (e instanceof BadRequestError) return 0;
+  }
+
+  try {
+    oldHiscores = await playerService.getHiscoresData(oldName);
+  } catch (e) {
+    // If te hiscores failed to load, abort mission
+    if (e instanceof ServerError) throw e;
+    // If the old username is no longer on the hiscores
+    if (e instanceof BadRequestError) rating += 1;
+  }
+
+  const oldPlayer = await playerService.find(oldName);
+  const newPlayer = await playerService.find(newName);
+
+  // Fetch the last snapshot from the old name
+  const oldStats = await snapshotService.findLatest(oldPlayer.id);
+
+  // Fetch either the first snapshot of the new name, or the current hiscores stats
+  // TODO: think of what to do is findFirstSince is null
+  const newStats = newPlayer
+    ? await snapshotService.findFirstSince(newPlayer.id, oldStats.createdAt)
+    : await snapshotService.fromRS(-1, newHiscores);
+
+  // If the old name's current hiscores data exists, convert to snapshot
+  const curOldStats = oldHiscores ? await snapshotService.fromRS(-1, oldHiscores) : null;
+
+  // If the old name's current hiscores data matches their lastest stats,
+  // Then that account has not changed its name. Abort mission
+  if (snapshotService.withinRange(oldStats, curOldStats)) {
+    return 0;
+  }
+
+  // If has no negative gains between the old and new stats
+  if (!snapshotService.hasNegativeGains(oldStats, newStats)) {
+    rating += 2;
+  }
+
+  // If has no excessive gains (over ehp and ehb) between the old and new stats
+  if (!snapshotService.hasExcessiveGains(oldStats, newStats)) {
+    rating += 4;
   }
 
   return rating;

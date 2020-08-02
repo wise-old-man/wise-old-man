@@ -40,6 +40,8 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   // If this is the player's first snapshot
   if (!before) return true;
 
+  if (!after) return false;
+
   const negativeGains = hasNegativeGains(before, after);
   const excessiveGains = hasExcessiveGains(before, after);
 
