@@ -50,4 +50,17 @@ async function deny(req: Request, _: Response, next: NextFunction) {
   }
 }
 
-export { submit, refresh, deny };
+async function details(req: Request, _: Response, next: NextFunction) {
+  const { id } = req.params;
+
+  try {
+    if (!id) throw new BadRequestError('Invalid name change id. (Undefined)');
+    if (isNaN(id as any)) throw new BadRequestError('Invalid name change id. (Must be an integer)');
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
+
+export { submit, refresh, deny, details };

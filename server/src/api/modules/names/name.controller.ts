@@ -25,6 +25,18 @@ async function submit(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /names/:id
+async function details(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const nameChangeDetails = await nameService.getDetails(id);
+
+    res.json(nameChangeDetails);
+  } catch (e) {
+    next(e);
+  }
+}
+
 // POST /names/:id/refresh
 async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
@@ -60,4 +72,4 @@ async function deny(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, refresh, approve, deny };
+export { index, submit, details, refresh, approve, deny };
