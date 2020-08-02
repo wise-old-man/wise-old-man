@@ -1,3 +1,4 @@
+import { PaginationConfig } from 'src/types';
 import { NameChange } from '../../../database';
 import { NameChangeStatus } from '../../../database/models/NameChange';
 import env from '../../../env';
@@ -5,6 +6,17 @@ import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import * as efficiencyService from '../efficiency/efficiency.service';
 import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
+
+async function getList(status: NameChangeStatus, pagination: PaginationConfig): Promise<NameChange[]> {
+  const nameChanges = await NameChange.findAll({
+    where: { status },
+    order: [['createdAt', 'DESC']],
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
+
+  return nameChanges;
+}
 
 /**
  * Submit a new name change request, from oldName to newName.
@@ -226,4 +238,4 @@ async function calculateRating(oldName: string, newName: string): Promise<number
   return rating;
 }
 
-export { submit, refresh, deny, getDetails };
+export { getList, getDetails, submit, refresh, deny };

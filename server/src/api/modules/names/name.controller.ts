@@ -1,11 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
+import * as pagination from '../../util/pagination';
 import * as playerService from '../players/player.service';
 import * as nameService from './name.service';
 
 // GET /names
 async function index(req: Request, res: Response, next: NextFunction) {
   try {
-    // ola
+    const { limit, offset } = req.query;
+    const status = parseInt((req.query.status || 0) as string, 10);
+
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+    const results = await nameService.getList(status, paginationConfig);
+
+    res.json(results);
   } catch (e) {
     next(e);
   }

@@ -1,6 +1,23 @@
 import { NextFunction, Request, Response } from 'express';
+import { NameChangeStatus } from '../../../database/models/NameChange';
 import { BadRequestError } from '../../errors';
 import { isValidUsername, standardize } from '../players/player.service';
+
+async function index(req: Request, _: Response, next: NextFunction) {
+  const { status } = req.query;
+
+  try {
+    if (status && isNaN(status as any))
+      throw new BadRequestError('Invalid status. (Must be an integer)');
+
+    if (status && !NameChangeStatus[parseInt(status as string, 10)])
+      throw new BadRequestError('Invalid status.');
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
 
 async function submit(req: Request, _: Response, next: NextFunction) {
   const { oldName, newName } = req.body;
@@ -63,4 +80,4 @@ async function details(req: Request, _: Response, next: NextFunction) {
   }
 }
 
-export { submit, refresh, deny, details };
+export { index, submit, refresh, deny, details };

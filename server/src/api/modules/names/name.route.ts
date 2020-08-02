@@ -4,7 +4,7 @@ import * as validator from './name.validator';
 
 const api = Router();
 
-api.get('/', controller.index);
+api.get('/', validator.index, controller.index);
 api.post('/', validator.submit, controller.submit);
 api.get('/:id', validator.details, controller.details);
 api.post('/:id/refresh', validator.refresh, controller.refresh);
