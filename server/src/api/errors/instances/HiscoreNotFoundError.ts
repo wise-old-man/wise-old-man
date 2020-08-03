@@ -5,7 +5,7 @@ class HiscoreNotFoundError extends Error {
 
   constructor(message: string) {
     super(message);
-    this.name = 'HiscoreNotFound';
+    this.name = 'HiscoreNotFoundError';
     this.statusCode = 404;
   }
 }
