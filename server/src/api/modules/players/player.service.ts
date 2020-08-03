@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { getCombatLevel } from '../../../api/util/level';
 import { Player } from '../../../database';
 import { CML, OSRS_HISCORES } from '../../constants';
-import { BadRequestError, HiscoreNotFoundError, ServerError } from '../../errors';
+import { BadRequestError, HiscoresNotFoundError, ServerError } from '../../errors';
 import proxies from '../../proxies';
 import { isValidDate } from '../../util/dates';
 import { getHiscoresTableNames } from '../../util/scraping';
@@ -335,7 +335,7 @@ async function assertType(username, force = false) {
   const regularExp = await getOverallExperience(formattedUsername, 'regular');
 
   if (regularExp === -1) {
-    throw new HiscoreNotFoundError(`User ${username} not found in the hiscore.`);
+    throw new HiscoresNotFoundError(`User ${username} not found in the hiscore.`);
   }
 
   const ironmanExp = await getOverallExperience(formattedUsername, 'ironman');
