@@ -29,11 +29,6 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       defaultValue: 0,
       allowNull: false
     },
-    rating: {
-      type: dataTypes.INTEGER,
-      defaultValue: -1,
-      allowNull: false
-    },
     resolvedAt: {
       type: dataTypes.DATE
     },

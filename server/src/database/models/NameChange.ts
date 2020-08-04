@@ -52,9 +52,6 @@ export default class NameChange extends Model<NameChange> {
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   status: NameChangeStatus;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: -1 })
-  rating: number;
-
   @Column({ type: DataType.DATE })
   resolvedAt: Date;
 

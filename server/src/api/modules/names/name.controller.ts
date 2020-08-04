@@ -44,18 +44,6 @@ async function details(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// POST /names/:id/refresh
-async function refresh(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = parseInt(req.params.id, 10);
-    const nameChangeRequest = await nameService.refresh(id);
-
-    res.json(nameChangeRequest);
-  } catch (e) {
-    next(e);
-  }
-}
-
 // POST /names/:id/approve
 async function approve(req: Request, res: Response, next: NextFunction) {
   try {
@@ -79,4 +67,4 @@ async function deny(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, details, refresh, approve, deny };
+export { index, submit, details, approve, deny };

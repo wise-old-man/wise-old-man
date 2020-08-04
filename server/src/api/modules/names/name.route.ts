@@ -7,7 +7,6 @@ const api = Router();
 api.get('/', validator.index, controller.index);
 api.post('/', validator.submit, controller.submit);
 api.get('/:id', validator.details, controller.details);
-api.post('/:id/refresh', validator.refresh, controller.refresh);
 api.post('/:id/approve', controller.approve);
 api.post('/:id/deny', validator.deny, controller.deny);
 
