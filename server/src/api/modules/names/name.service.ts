@@ -7,12 +7,17 @@ import * as efficiencyService from '../efficiency/efficiency.service';
 import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
 
+/**
+ * List all name changes, filtered by a specific status (PENDING by default).
+ */
 async function getList(status: NameChangeStatus, pagination: PaginationConfig): Promise<NameChange[]> {
+  const { limit, offset } = pagination;
+
   const nameChanges = await NameChange.findAll({
     where: { status },
     order: [['createdAt', 'DESC']],
-    limit: pagination.limit,
-    offset: pagination.offset
+    limit,
+    offset
   });
 
   return nameChanges;
@@ -26,7 +31,7 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
   const oldPlayer = await playerService.find(oldName);
 
   if (!oldPlayer) {
-    throw new BadRequestError(`Player "${oldName}" is not tracked yet."`);
+    throw new BadRequestError(`Player '${oldName}' is not tracked yet.`);
   }
 
   // Check if there's any pending name changes for these names
@@ -123,12 +128,15 @@ async function getDetails(id: number) {
   const ehpDiff = efficiencyService.calculateEHPDiff(oldStats, newStats);
   const ehbDiff = efficiencyService.calculateEHBDiff(oldStats, newStats);
 
+  const hasNegativeGains = snapshotService.hasNegativeGains(oldStats, newStats);
+
   return {
     nameChange,
     data: {
       isNewOnHiscores: !!newHiscores,
       isOldOnHiscores: !!oldHiscores,
       isNewTracked: !!newPlayer,
+      hasNegativeGains,
       timeDiff,
       hoursDiff,
       ehpDiff,
