@@ -47,7 +47,12 @@ async function details(req: Request, res: Response, next: NextFunction) {
 // POST /names/:id/approve
 async function approve(req: Request, res: Response, next: NextFunction) {
   try {
-    // ola
+    const id = parseInt(req.params.id, 10);
+    const adminPassword = req.body.adminPassword;
+
+    const nameChangeRequest = await nameService.approve(id, adminPassword);
+
+    res.json(nameChangeRequest);
   } catch (e) {
     next(e);
   }

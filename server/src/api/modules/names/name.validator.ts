@@ -54,6 +54,22 @@ async function deny(req: Request, _: Response, next: NextFunction) {
   }
 }
 
+async function approve(req: Request, _: Response, next: NextFunction) {
+  const { id } = req.params;
+  const { adminPassword } = req.body;
+
+  try {
+    if (!id) throw new BadRequestError('Invalid name change id. (Undefined)');
+    if (!adminPassword) throw new BadRequestError('Invalid admin password. (Undefined)');
+    if (adminPassword.length === 0) throw new BadRequestError('Invalid admin password. (Empty)');
+    if (isNaN(id as any)) throw new BadRequestError('Invalid name change id. Must be an integer.');
+
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
+
 async function details(req: Request, _: Response, next: NextFunction) {
   const { id } = req.params;
 
@@ -67,4 +83,4 @@ async function details(req: Request, _: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, deny, details };
+export { index, submit, deny, approve, details };
