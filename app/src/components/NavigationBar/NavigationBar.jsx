@@ -97,6 +97,12 @@ function NavigationBar() {
               </Link>
             </li>
 
+            <li className="nav-links__item">
+              <Link to="/names" onClick={closeMenu}>
+                Names
+              </Link>
+            </li>
+
             <li className="nav-links__item -spacing">|</li>
 
             <li className="nav-links__item">
