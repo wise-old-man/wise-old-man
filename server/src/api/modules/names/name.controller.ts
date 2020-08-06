@@ -7,7 +7,7 @@ import * as nameService from './name.service';
 async function index(req: Request, res: Response, next: NextFunction) {
   try {
     const { limit, offset } = req.query;
-    const status = parseInt((req.query.status || 0) as string, 10);
+    const status = req.query.status ? parseInt(req.query.status as string) : null;
 
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
     const results = await nameService.getList(status, paginationConfig);

@@ -18,13 +18,13 @@ import * as playerService from '../players/player.service';
 import * as snapshotService from '../snapshots/snapshot.service';
 
 /**
- * List all name changes, filtered by a specific status (PENDING by default).
+ * List all name changes, filtered by a specific status
  */
 async function getList(status: NameChangeStatus, pagination: PaginationConfig): Promise<NameChange[]> {
   const { limit, offset } = pagination;
 
   const nameChanges = await NameChange.findAll({
-    where: { status },
+    where: status ? { status } : {},
     order: [['createdAt', 'DESC']],
     limit,
     offset
