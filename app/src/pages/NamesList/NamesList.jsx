@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import PageTitle from '../../components/PageTitle';
@@ -22,8 +21,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'oldName',
-      className: () => '-primary',
-      transform: (val, row) => <Link to={`/names/${row.id}`}>{val}</Link>
+      className: () => '-primary'
     },
     {
       key: 'newName',
@@ -32,13 +30,12 @@ const TABLE_CONFIG = {
     },
     {
       key: 'newName',
-      className: () => '-primary',
-      transform: (val, row) => <Link to={`/names/${row.id}`}>{val}</Link>
+      className: () => '-primary'
     },
     {
       key: 'createdAt',
       className: () => '-break-medium',
-      transform: value => `Created ${durationBetween(value, new Date(), 2, true)} ago`
+      transform: value => `Submitted ${durationBetween(value, new Date(), 2, true)} ago`
     },
     {
       key: 'status',
