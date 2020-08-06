@@ -1,5 +1,6 @@
 import AddToGroupCompetitions from './AddToGroupCompetitions';
-import AssertPlayerName from './AssertPlayerNames';
+import AssertPlayerName from './AssertPlayerName';
+import AssertPlayerType from './AssertPlayerType';
 import CompetitionEnded from './CompetitionEnded';
 import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
@@ -27,5 +28,6 @@ export default [
   CompetitionStarted,
   CompetitionStarting,
   CompetitionEnding,
-  CompetitionEnded
+  CompetitionEnded,
+  AssertPlayerType
 ];

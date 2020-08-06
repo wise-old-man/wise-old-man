@@ -110,7 +110,7 @@ async function approve(id: number, adminPassword: string): Promise<NameChange> {
   }
 
   // Attempt to transfer data between both accounts
-  await transferData(oldPlayer, newPlayer);
+  await transferData(oldPlayer, newPlayer, nameChange.newName);
 
   // If successful, resolve the name change
   nameChange.status = NameChangeStatus.APPROVED;
@@ -191,11 +191,11 @@ async function getDetails(id: number) {
   };
 }
 
-async function transferData(oldPlayer: Player, newPlayer: Player | undefined): Promise<void> {
+async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
   const transaction = await sequelize.transaction();
 
   const transitionDate = (await snapshotService.findLatest(oldPlayer.id))?.createdAt;
-  const standardizedName = playerService.standardize(newPlayer.username);
+  const standardizedName = playerService.standardize(newName);
 
   try {
     if (newPlayer) {
