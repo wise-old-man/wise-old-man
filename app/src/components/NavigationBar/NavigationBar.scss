@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: row;
     height: 72px;
-    width: calc(100% - 30px);
+    width: calc(100% - 20px);
 
     .nav-brand {
       position: relative;
@@ -81,7 +81,7 @@
         .text-input {
           border: 1px solid $gray-12;
           padding: 6px 9px;
-          min-width: 135px;
+          width: 130px;
         }
 
         .nav-links__item {

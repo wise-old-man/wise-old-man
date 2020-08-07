@@ -63,7 +63,8 @@ const METRIC_TYPE_OPTIONS = [
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
   { label: 'Reset username capitalization', value: 'assertName' },
-  { label: 'Reassign player type', value: 'assertType' }
+  { label: 'Reassign player type', value: 'assertType' },
+  { label: '[NEW] Change name', value: 'changeName' }
 ];
 
 function getSelectedTabIndex(section) {
@@ -237,6 +238,8 @@ function Player() {
       await dispatch(assertPlayerTypeAction(player.username, player.id));
     } else if (option.value === 'assertName') {
       await dispatch(assertPlayerNameAction(player.username, player.id));
+    } else if (option.value === 'changeName') {
+      router.push(`/names/submit/${player.displayName}`);
     }
   };
 

@@ -1,7 +1,8 @@
+import { PaginationConfig } from 'src/types';
 import { BadRequestError } from '../errors';
 
 // TODO: parse to int before checking < > 0
-function getPaginationConfig(limit, offset) {
+function getPaginationConfig(limit, offset): PaginationConfig {
   if (limit <= 0) {
     throw new BadRequestError('Invalid limit: must be > 0');
   }

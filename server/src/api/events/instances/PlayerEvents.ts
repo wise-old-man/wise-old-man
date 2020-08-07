@@ -1,7 +1,14 @@
+import { Player } from 'src/database';
 import jobs from '../../jobs';
 
 function onPlayerCreated(username) {
   jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+}
+
+function onPlayerNameChanged(player: Player) {
+  jobs.add('SyncPlayerAchievements', { playerId: player.id });
+  jobs.add('AssertPlayerName', { username: player.username }, { attempts: 5, backoff: 30000 });
+  jobs.add('AssertPlayerType', { username: player.username }, { attempts: 5, backoff: 30000 });
 }
 
 function onPlayerUpdated(playerId) {
@@ -17,4 +24,4 @@ function onPlayerImported(playerId) {
   jobs.add('ReevaluatePlayerAchievements', { playerId });
 }
 
-export { onPlayerCreated, onPlayerUpdated, onPlayerImported };
+export { onPlayerCreated, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

@@ -9,6 +9,7 @@ import players from './modules/players/reducer';
 import achievements from './modules/achievements/reducer';
 import groups from './modules/groups/reducer';
 import hiscores from './modules/hiscores/reducer';
+import names from './modules/names/reducer';
 
 export default combineReducers({
   notifications,
@@ -19,5 +20,6 @@ export default combineReducers({
   players,
   achievements,
   groups,
-  hiscores
+  hiscores,
+  names
 });

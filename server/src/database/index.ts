@@ -10,6 +10,7 @@ import Record from '../api/modules/records/record.model';
 import Snapshot from '../api/modules/snapshots/snapshot.model';
 import { isTesting } from '../env';
 import config from './config';
+import NameChange from './models/NameChange';
 
 const models = [
   Achievement,
@@ -20,7 +21,8 @@ const models = [
   Participation,
   Player,
   Record,
-  Snapshot
+  Snapshot,
+  NameChange
 ];
 
 const sequelize = new Sequelize({
@@ -39,5 +41,6 @@ export {
   Participation,
   Player,
   Record,
-  Snapshot
+  Snapshot,
+  NameChange
 };

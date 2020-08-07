@@ -1,3 +1,4 @@
+import { UpdateOptions } from 'sequelize/types';
 import { Achievement, Competition, Membership, Player, Snapshot } from '../database';
 import {
   onAchievementsCreated,
@@ -7,10 +8,17 @@ import {
   onMembersLeft,
   onPlayerCreated,
   onPlayerImported,
+  onPlayerNameChanged,
   onPlayerUpdated
 } from './events';
 
 function setup() {
+  Player.afterUpdate((player: Player, options: UpdateOptions) => {
+    if (options.fields && options.fields.includes('username')) {
+      onPlayerNameChanged(player);
+    }
+  });
+
   Player.afterCreate(({ username }) => {
     onPlayerCreated(username);
   });

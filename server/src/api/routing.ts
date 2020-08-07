@@ -4,6 +4,7 @@ import logger from './logger';
 import competitionRoutes from './modules/competitions/competition.route';
 import deltaRoutes from './modules/deltas/delta.route';
 import groupRoutes from './modules/groups/group.route';
+import nameRoutes from './modules/names/name.route';
 import playerRoutes from './modules/players/player.route';
 import recordRoutes from './modules/records/record.route';
 import { metricAbbreviation } from './util/middlewares';
@@ -33,6 +34,7 @@ class RoutingHandler {
     this.router.use('/records', recordRoutes);
     this.router.use('/competitions', competitionRoutes);
     this.router.use('/groups', groupRoutes);
+    this.router.use('/names', nameRoutes);
   }
 
   setupFallbacks() {
