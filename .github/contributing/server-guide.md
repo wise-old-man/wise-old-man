@@ -1,6 +1,6 @@
 # How to contribute to the Wise Old Man API
 
-First off, you should start by checking the [API documentation](https://wiseoldman.net/), this should give you a pretty good idea of the entities and endpoints that are currently available.
+First off, you should start by checking the [API documentation](https://wiseoldman.net/docs), this should give you a pretty good idea of the entities and endpoints that are currently available.
 
 <br />
 
