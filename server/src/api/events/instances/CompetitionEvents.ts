@@ -1,14 +1,15 @@
 import jobs from '../../jobs';
 import discord from '../../util/discord';
+import { Competition } from 'src/database';
 
-function onCompetitionCreated(competition) {
+function onCompetitionCreated(competition: Competition) {
   setupCompetitionStart(competition);
   setupCompetitionEnd(competition);
 
   discord.dispatch('COMPETITION_CREATED', { groupId: competition.groupId, competition });
 }
 
-function onCompetitionUpdated(competition, editedFields) {
+function onCompetitionUpdated(competition: Competition, editedFields: string[]) {
   // Start date has been changed
   if (editedFields.includes('startsAt')) {
     setupCompetitionStart(competition);

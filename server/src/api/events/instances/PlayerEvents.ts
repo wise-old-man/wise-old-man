@@ -1,8 +1,8 @@
-import { Player } from 'src/database';
+import { Player, Snapshot } from 'src/database';
 import jobs from '../../jobs';
 
-function onPlayerCreated(username) {
-  jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+function onPlayerCreated(player: Player) {
+  jobs.add('AssertPlayerName', { username: player.username }, { attempts: 5, backoff: 30000 });
 }
 
 function onPlayerNameChanged(player: Player) {
@@ -11,15 +11,15 @@ function onPlayerNameChanged(player: Player) {
   jobs.add('AssertPlayerType', { username: player.username }, { attempts: 5, backoff: 30000 });
 }
 
-function onPlayerUpdated(playerId) {
-  jobs.add('SyncPlayerAchievements', { playerId });
-  jobs.add('SyncPlayerInitialValues', { playerId });
+function onPlayerUpdated(snapshot: Snapshot) {
+  jobs.add('SyncPlayerAchievements', { playerId: snapshot.playerId });
+  jobs.add('SyncPlayerInitialValues', { playerId: snapshot.playerId });
 
   // Delay this to ensure SyncPlayerInitialValues runs first
-  jobs.add('SyncPlayerRecords', { playerId }, { delay: 10000 });
+  jobs.add('SyncPlayerRecords', { playerId: snapshot.playerId }, { delay: 10000 });
 }
 
-function onPlayerImported(playerId) {
+function onPlayerImported(playerId: number) {
   jobs.add('SyncPlayerRecords', { playerId });
   jobs.add('ReevaluatePlayerAchievements', { playerId });
 }
