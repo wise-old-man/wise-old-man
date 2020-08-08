@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory, useLocation } from 'react-router-dom';
+import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import queryString from 'query-string';
@@ -270,12 +270,14 @@ function Player() {
             <div className="warning">
               <img src="/img/runescape/icons_small/flagged.png" alt="" />
               <span>
-                This player is flagged. This is likely caused by an unregistered name change. We are
-                working on semi-automatic name change submissions, but for the time being, contact us on
-                our &nbsp;
+                This player is flagged. This is likely caused by an unregistered name change. &nbsp;
+                <Link to={`/names/submit/${player.displayName}`}>
+                  Click here to submit a name change.
+                </Link>
+                &nbsp; Or join our &nbsp;
+                <a href="https://wiseoldman.net/discord">Discord server</a>
+                &nbsp; for help.
               </span>
-              <a href="https://wiseoldman.net/discord">Discord</a>
-              <span>&nbsp;to submit one.</span>
             </div>
           )}
 
