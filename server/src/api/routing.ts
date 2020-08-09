@@ -1,12 +1,12 @@
 import express from 'express';
+import competitionRoutes from '@routes/competitions';
+import deltaRoutes from '@routes/deltas';
+import groupRoutes from '@routes/groups';
+import nameRoutes from '@routes/names';
+import playerRoutes from '@routes/players';
+import recordRoutes from '@routes/records';
 import { NotFoundError } from './errors';
 import logger from './logger';
-import competitionRoutes from './modules/competitions/competition.route';
-import deltaRoutes from './modules/deltas/delta.route';
-import groupRoutes from './modules/groups/group.route';
-import nameRoutes from './modules/names/name.route';
-import playerRoutes from './modules/players/player.route';
-import recordRoutes from './modules/records/record.route';
 import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
