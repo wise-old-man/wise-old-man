@@ -1,7 +1,7 @@
+import * as nameService from '@services/internal/names';
+import * as playerService from '@services/internal/players';
 import { NextFunction, Request, Response } from 'express';
-import * as pagination from '../../util/pagination';
-import * as playerService from '../players/player.service';
-import * as nameService from './name.service';
+import * as pagination from '../util/pagination';
 
 // GET /names
 async function index(req: Request, res: Response, next: NextFunction) {

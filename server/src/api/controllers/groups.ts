@@ -1,7 +1,7 @@
-import jobs from '../../jobs';
-import { getPaginationConfig } from '../../util/pagination';
-import * as competitionService from '../competitions/competition.service';
-import * as groupService from './group.service';
+import * as competitionService from '@services/internal/competitions';
+import * as groupService from '@services/internal/groups';
+import jobs from '../jobs';
+import { getPaginationConfig } from '../util/pagination';
 
 // GET /groups
 async function index(req, res, next) {

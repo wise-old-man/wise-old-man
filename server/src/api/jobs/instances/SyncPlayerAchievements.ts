@@ -1,4 +1,4 @@
-import * as achievementService from '../../modules/achievements/achievement.service';
+import * as achievementService from '@services/internal/achievements';
 import { Job } from '../index';
 
 class SyncPlayerAchievements implements Job {

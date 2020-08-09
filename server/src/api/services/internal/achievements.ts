@@ -1,6 +1,12 @@
+import * as snapshotService from '@services/internal/snapshots';
 import { Achievement, sequelize } from '../../../database';
 import { ACTIVITIES, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError } from '../../errors';
+import {
+  ACTIVITY_TEMPLATES,
+  BOSS_TEMPLATES,
+  SKILL_TEMPLATES
+} from '../../modules/achievements/achievement.templates';
 import {
   getDifficultyFactor,
   getFormattedName,
@@ -8,8 +14,6 @@ import {
   getValueKey,
   isSkill
 } from '../../util/metrics';
-import * as snapshotService from '../snapshots/snapshot.service';
-import { ACTIVITY_TEMPLATES, BOSS_TEMPLATES, SKILL_TEMPLATES } from './achievement.templates';
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {

@@ -1,5 +1,8 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
+import * as efficiencyService from '@services/internal/efficiency';
+import * as playerService from '@services/internal/players';
+import * as snapshotService from '@services/internal/snapshots';
 import { PaginationConfig } from 'src/types';
 import {
   Membership,
@@ -13,9 +16,6 @@ import {
 import { NameChangeStatus } from '../../../database/models/NameChange';
 import env from '../../../env';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
-import * as efficiencyService from '../efficiency/efficiency.service';
-import * as playerService from '../players/player.service';
-import * as snapshotService from '../snapshots/snapshot.service';
 
 /**
  * List all name changes, filtered by a specific status

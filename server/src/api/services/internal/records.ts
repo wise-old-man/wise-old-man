@@ -1,9 +1,9 @@
 import { forEach, keyBy, mapValues, omit } from 'lodash';
+import { getPlayerPeriodDeltas } from '@services/internal/deltas';
 import { Player, Record } from '../../../database';
 import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';
-import { getPlayerPeriodDeltas } from '../deltas/delta.service';
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);

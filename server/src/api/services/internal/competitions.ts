@@ -1,16 +1,16 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
+import * as deltaService from '@services/internal/deltas';
+import * as groupService from '@services/internal/groups';
+import * as playerService from '@services/internal/players';
+import * as snapshotService from '@services/internal/snapshots';
 import { Competition, Group, Participation, Player } from '../../../database';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import { generateVerification, verifyCode } from '../../util/verification';
-import * as deltaService from '../deltas/delta.service';
-import * as groupService from '../groups/group.service';
-import * as playerService from '../players/player.service';
-import * as snapshotService from '../snapshots/snapshot.service';
 
 function sanitizeTitle(title) {
   return title

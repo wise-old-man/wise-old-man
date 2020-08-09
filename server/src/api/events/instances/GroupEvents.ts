@@ -1,5 +1,5 @@
+import * as playerService from '@services/internal/players';
 import jobs from '../../jobs';
-import * as playerService from '../../modules/players/player.service';
 import discord from '../../util/discord';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {

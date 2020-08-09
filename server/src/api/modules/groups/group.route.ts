@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as controller from './group.controller';
+import * as controller from '@controllers/groups';
 
 const api = Router();
 

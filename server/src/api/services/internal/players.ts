@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { Op } from 'sequelize';
-import { getCombatLevel } from '../../../api/util/level';
+import * as snapshotService from '@services/internal/snapshots';
 import { Player } from '../../../database';
 import { CML, OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxies from '../../proxies';
 import { isValidDate } from '../../util/dates';
+import { getCombatLevel } from '../../util/level';
 import { getHiscoresTableNames } from '../../util/scraping';
-import * as snapshotService from '../snapshots/snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;

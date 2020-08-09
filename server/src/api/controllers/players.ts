@@ -1,11 +1,11 @@
-import jobs from '../../jobs';
-import * as achievementService from '../achievements/achievement.service';
-import * as competitionService from '../competitions/competition.service';
-import * as deltaService from '../deltas/delta.service';
-import * as groupService from '../groups/group.service';
-import * as recordService from '../records/record.service';
-import * as snapshotService from '../snapshots/snapshot.service';
-import * as playerService from './player.service';
+import * as achievementService from '@services/internal/achievements';
+import * as competitionService from '@services/internal/competitions';
+import * as deltaService from '@services/internal/deltas';
+import * as groupService from '@services/internal/groups';
+import * as playerService from '@services/internal/players';
+import * as recordService from '@services/internal/records';
+import * as snapshotService from '@services/internal/snapshots';
+import jobs from '../jobs';
 
 // GET /players/search?username={username}
 async function search(req, res, next) {

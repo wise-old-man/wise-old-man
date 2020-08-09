@@ -1,18 +1,18 @@
 import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../../api/util/level';
+import * as achievementService from '@services/internal/achievements';
+import * as competitionService from '@services/internal/competitions';
+import * as deltaService from '@services/internal/deltas';
+import * as playerService from '@services/internal/players';
+import * as recordService from '@services/internal/records';
+import * as snapshotService from '@services/internal/snapshots';
 import { Group, Membership, Player, sequelize } from '../../../database';
 import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
+import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import { generateVerification, verifyCode } from '../../util/verification';
-import * as achievementService from '../achievements/achievement.service';
-import * as competitionService from '../competitions/competition.service';
-import * as deltaService from '../deltas/delta.service';
-import * as playerService from '../players/player.service';
-import * as recordService from '../records/record.service';
-import * as snapshotService from '../snapshots/snapshot.service';
 
 function sanitizeName(name) {
   return name

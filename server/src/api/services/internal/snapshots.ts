@@ -2,11 +2,11 @@ import csv from 'csvtojson';
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
+import * as efficiencyService from '@services/internal/efficiency';
 import { Snapshot } from '../../../database';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
-import * as efficiencyService from '../efficiency/efficiency.service';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format

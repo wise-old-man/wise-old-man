@@ -1,7 +1,7 @@
-import * as groupService from '../../modules/groups/group.service';
-import * as playerService from '../../modules/players/player.service';
-import discord from '../../util/discord';
+import * as groupService from '@services/internal/groups';
+import * as playerService from '@services/internal/players';
 import { Achievement } from 'src/database';
+import discord from '../../util/discord';
 
 async function onAchievementsCreated(achievements: Achievement[]) {
   // Filter out any achievements from earlier dates

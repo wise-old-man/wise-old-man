@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as controller from './delta.controller';
+import * as controller from '@controllers/deltas';
 
 const api = Router();
 
