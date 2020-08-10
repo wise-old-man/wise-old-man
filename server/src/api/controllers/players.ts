@@ -1,3 +1,4 @@
+import jobs from 'api/jobs';
 import * as achievementService from 'api/services/internal/achievements';
 import * as competitionService from 'api/services/internal/competitions';
 import * as deltaService from 'api/services/internal/deltas';
@@ -5,7 +6,6 @@ import * as groupService from 'api/services/internal/groups';
 import * as playerService from 'api/services/internal/players';
 import * as recordService from 'api/services/internal/records';
 import * as snapshotService from 'api/services/internal/snapshots';
-import jobs from '../jobs';
 
 // GET /players/search?username={username}
 async function search(req, res, next) {

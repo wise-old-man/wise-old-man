@@ -1,5 +1,5 @@
+import jobs from 'api/jobs';
 import * as discordService from 'api/services/external/discord';
-import jobs from '../jobs';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {
   // Add a job to add these new users to ongoing/upcoming group competitions

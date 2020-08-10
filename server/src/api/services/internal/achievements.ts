@@ -1,20 +1,20 @@
+import { ACTIVITIES, BOSSES, SKILLS } from 'api/constants';
+import { BadRequestError } from 'api/errors';
 import { sequelize } from 'database';
 import { Achievement } from 'database/models';
 import * as snapshotService from 'api/services/internal/snapshots';
-import { ACTIVITIES, BOSSES, SKILLS } from '../../constants';
-import { BadRequestError } from '../../errors';
-import {
-  ACTIVITY_TEMPLATES,
-  BOSS_TEMPLATES,
-  SKILL_TEMPLATES
-} from '../../modules/achievements/achievement.templates';
 import {
   getDifficultyFactor,
   getFormattedName,
   getMeasure,
   getValueKey,
   isSkill
-} from '../../util/metrics';
+} from 'api/util/metrics';
+import {
+  ACTIVITY_TEMPLATES,
+  BOSS_TEMPLATES,
+  SKILL_TEMPLATES
+} from '../../modules/achievements/achievement.templates';
 
 function formatThreshold(threshold) {
   if (threshold < 1000 || threshold === 2277) {

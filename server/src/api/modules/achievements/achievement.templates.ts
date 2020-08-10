@@ -1,4 +1,4 @@
-import { getCombatLevel, getTotalLevel } from '../../util/level';
+import { getCombatLevel, getTotalLevel } from 'api/util/level';
 
 const SKILL_TEMPLATES = [
   {

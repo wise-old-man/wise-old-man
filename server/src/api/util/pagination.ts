@@ -1,5 +1,5 @@
 import { PaginationConfig } from 'types';
-import { BadRequestError } from '../errors';
+import { BadRequestError } from 'api/errors';
 
 // TODO: parse to int before checking < > 0
 function getPaginationConfig(limit, offset): PaginationConfig {

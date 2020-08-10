@@ -1,5 +1,5 @@
-import { ALL_METRICS } from '../constants';
-import { getAbbreviation } from '../util/metrics';
+import { ALL_METRICS } from 'api/constants';
+import { getAbbreviation } from 'api/util/metrics';
 
 function metricAbbreviation(req, res, next) {
   if (!req) {

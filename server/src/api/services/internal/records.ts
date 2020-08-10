@@ -1,9 +1,9 @@
 import { forEach, keyBy, mapValues, omit } from 'lodash';
 import { Player, Record } from 'database/models';
+import { ALL_METRICS, PERIODS } from 'api/constants';
+import { BadRequestError } from 'api/errors';
+import { getMeasure } from 'api/util/metrics';
 import { getPlayerPeriodDeltas } from 'api/services/internal/deltas';
-import { ALL_METRICS, PERIODS } from '../../constants';
-import { BadRequestError } from '../../errors';
-import { getMeasure } from '../../util/metrics';
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);

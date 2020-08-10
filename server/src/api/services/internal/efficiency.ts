@@ -1,7 +1,7 @@
 import { Snapshot } from 'database/models';
-import { BOSSES, SKILLS } from '../../constants';
-import mainAlgorithm from '../../modules/efficiency/algorithms/main';
-import { getValueKey } from '../../util/metrics';
+import { BOSSES, SKILLS } from 'api/constants';
+import mainAlgorithm from 'api/modules/efficiency/algorithms/main';
+import { getValueKey } from 'api/util/metrics';
 
 function calculateEHP(snapshot: Snapshot): number {
   // TODO: always use main ehp, for now

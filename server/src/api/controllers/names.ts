@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import * as nameService from 'api/services/internal/names';
 import * as playerService from 'api/services/internal/players';
-import * as pagination from '../util/pagination';
+import * as pagination from 'api/util/pagination';
 
 // GET /names
 async function index(req: Request, res: Response, next: NextFunction) {

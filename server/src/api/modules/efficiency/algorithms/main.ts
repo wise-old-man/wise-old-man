@@ -1,7 +1,7 @@
 import { Algorithm, BossMeta, Experiences, Killcounts, SkillMeta } from 'types';
+import { calculateBossEHB, calculateEHB, calculateMaxEHP, calculateTTM } from '../util';
 import mainBossingMetas from '../configs/ehb/main.ehb';
 import mainSkillingMetas from '../configs/ehp/main.ehp';
-import { calculateBossEHB, calculateEHB, calculateMaxEHP, calculateTTM } from '../util';
 
 class MainAlgorithm implements Algorithm {
   type: string;

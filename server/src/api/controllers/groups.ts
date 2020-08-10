@@ -1,7 +1,7 @@
+import jobs from 'api/jobs';
 import * as competitionService from 'api/services/internal/competitions';
 import * as groupService from 'api/services/internal/groups';
-import jobs from '../jobs';
-import { getPaginationConfig } from '../util/pagination';
+import { getPaginationConfig } from 'api/util/pagination';
 
 // GET /groups
 async function index(req, res, next) {

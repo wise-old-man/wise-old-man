@@ -1,6 +1,6 @@
+import jobs from 'api/jobs';
 import * as service from 'api/services/internal/competitions';
-import jobs from '../jobs';
-import * as pagination from '../util/pagination';
+import * as pagination from 'api/util/pagination';
 
 // GET /competitions
 async function index(req, res, next) {
