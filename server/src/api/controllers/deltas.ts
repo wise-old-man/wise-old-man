@@ -1,4 +1,4 @@
-import * as service from '@services/internal/deltas';
+import * as service from 'api/services/internal/deltas';
 
 // GET /deltas/leaderboard
 async function leaderboard(req, res, next) {

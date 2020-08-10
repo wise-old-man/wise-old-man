@@ -1,5 +1,5 @@
-import * as competitionService from '@services/internal/competitions';
-import * as groupService from '@services/internal/groups';
+import * as competitionService from 'api/services/internal/competitions';
+import * as groupService from 'api/services/internal/groups';
 import jobs from '../jobs';
 import { getPaginationConfig } from '../util/pagination';
 

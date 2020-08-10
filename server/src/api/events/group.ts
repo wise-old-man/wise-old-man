@@ -1,4 +1,4 @@
-import * as discordService from '@services/external/discord';
+import * as discordService from 'api/services/external/discord';
 import jobs from '../jobs';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {

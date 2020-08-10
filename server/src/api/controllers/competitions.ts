@@ -1,4 +1,4 @@
-import * as service from '@services/internal/competitions';
+import * as service from 'api/services/internal/competitions';
 import jobs from '../jobs';
 import * as pagination from '../util/pagination';
 

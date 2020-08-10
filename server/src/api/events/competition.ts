@@ -1,6 +1,6 @@
-import { EventPeriod } from '@types';
-import { Competition } from '@models';
-import * as discordService from '@services/external/discord';
+import { EventPeriod } from 'types';
+import { Competition } from 'database/models';
+import * as discordService from 'api/services/external/discord';
 import jobs from '../jobs';
 
 function onCompetitionCreated(competition: Competition) {

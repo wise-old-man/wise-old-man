@@ -1,4 +1,4 @@
-import { Algorithm, BossMeta, Experiences, Killcounts, SkillMeta } from '@types';
+import { Algorithm, BossMeta, Experiences, Killcounts, SkillMeta } from 'types';
 import mainBossingMetas from '../configs/ehb/main.ehb';
 import mainSkillingMetas from '../configs/ehp/main.ehp';
 import { calculateBossEHB, calculateEHB, calculateMaxEHP, calculateTTM } from '../util';

@@ -1,4 +1,4 @@
-import * as recordService from '@services/internal/records';
+import * as recordService from 'api/services/internal/records';
 import { PERIODS } from '../../constants';
 import { Job } from '../index';
 

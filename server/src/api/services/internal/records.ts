@@ -1,6 +1,6 @@
 import { forEach, keyBy, mapValues, omit } from 'lodash';
-import { Player, Record } from '@models';
-import { getPlayerPeriodDeltas } from '@services/internal/deltas';
+import { Player, Record } from 'database/models';
+import { getPlayerPeriodDeltas } from 'api/services/internal/deltas';
 import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';

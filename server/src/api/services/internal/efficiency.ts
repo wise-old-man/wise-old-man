@@ -1,4 +1,4 @@
-import { Snapshot } from '@models';
+import { Snapshot } from 'database/models';
 import { BOSSES, SKILLS } from '../../constants';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';

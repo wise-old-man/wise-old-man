@@ -9,9 +9,9 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Group, Participation, Player } from '@models';
-import { ALL_METRICS } from '../../api/constants';
-import { isValidDate } from '../../api/util/dates';
+import { Group, Participation, Player } from 'database/models';
+import { ALL_METRICS } from 'api/constants';
+import { isValidDate } from 'api/util/dates';
 
 // Define other table options
 const options = {

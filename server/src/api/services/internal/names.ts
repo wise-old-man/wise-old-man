@@ -1,13 +1,13 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import { NameChangeStatus, PaginationConfig } from '@types';
-import { sequelize } from '@database';
-import { Membership, NameChange, Participation, Player, Record, Snapshot } from '@models';
-import * as jagexService from '@services/external/jagex';
-import * as efficiencyService from '@services/internal/efficiency';
-import * as playerService from '@services/internal/players';
-import * as snapshotService from '@services/internal/snapshots';
-import env from '../../../env';
+import env from 'env';
+import { NameChangeStatus, PaginationConfig } from 'types';
+import { sequelize } from 'database';
+import { Membership, NameChange, Participation, Player, Record, Snapshot } from 'database/models';
+import * as jagexService from 'api/services/external/jagex';
+import * as efficiencyService from 'api/services/internal/efficiency';
+import * as playerService from 'api/services/internal/players';
+import * as snapshotService from 'api/services/internal/snapshots';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 
 /**

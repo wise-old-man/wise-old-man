@@ -1,4 +1,4 @@
-import * as deltaService from '@services/internal/deltas';
+import * as deltaService from 'api/services/internal/deltas';
 import { Job } from '../index';
 
 class SyncPlayerInitialValues implements Job {

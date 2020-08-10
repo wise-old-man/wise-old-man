@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import { isTesting } from 'env';
 import {
   Achievement,
   Competition,
@@ -10,8 +11,7 @@ import {
   Player,
   Record,
   Snapshot
-} from '@models';
-import { isTesting } from '../env';
+} from 'database/models';
 import config from './config';
 
 const models = [

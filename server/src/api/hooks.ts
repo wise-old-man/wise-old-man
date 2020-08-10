@@ -1,9 +1,10 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import { onAchievementsCreated } from '@events/achievement';
-import { onCompetitionCreated, onCompetitionUpdated } from '@events/competition';
-import { onMembersJoined, onMembersLeft } from '@events/group';
-import { onPlayerCreated, onPlayerImported, onPlayerNameChanged, onPlayerUpdated } from '@events/player';
-import { Achievement, Competition, Membership, Player, Snapshot } from '@models';
+import { Achievement, Competition, Membership, Player, Snapshot } from 'database/models';
+import { onAchievementsCreated } from 'api/events/achievement';
+import { onCompetitionCreated, onCompetitionUpdated } from 'api/events/competition';
+import { onMembersJoined, onMembersLeft } from 'api/events/group';
+import { onPlayerCreated, onPlayerImported, onPlayerNameChanged, onPlayerUpdated } from 'api/events/player';
+
 
 function setup() {
   Player.afterUpdate((player: Player, options: UpdateOptions) => {

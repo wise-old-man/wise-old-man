@@ -1,12 +1,12 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { Competition, Group, Participation, Player } from '@models';
-import * as cryptService from '@services/external/crypt';
-import * as deltaService from '@services/internal/deltas';
-import * as groupService from '@services/internal/groups';
-import * as playerService from '@services/internal/players';
-import * as snapshotService from '@services/internal/snapshots';
+import { Competition, Group, Participation, Player } from 'database/models';
+import * as cryptService from 'api/services/external/crypt';
+import * as deltaService from 'api/services/internal/deltas';
+import * as groupService from 'api/services/internal/groups';
+import * as playerService from 'api/services/internal/players';
+import * as snapshotService from 'api/services/internal/snapshots';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';

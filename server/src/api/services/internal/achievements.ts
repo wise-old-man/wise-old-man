@@ -1,6 +1,6 @@
-import { sequelize } from '@database';
-import { Achievement } from '@models';
-import * as snapshotService from '@services/internal/snapshots';
+import { sequelize } from 'database';
+import { Achievement } from 'database/models';
+import * as snapshotService from 'api/services/internal/snapshots';
 import { ACTIVITIES, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import {

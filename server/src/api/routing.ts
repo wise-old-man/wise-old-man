@@ -1,11 +1,11 @@
 import express from 'express';
-import competitionRoutes from '@routes/competitions';
-import deltaRoutes from '@routes/deltas';
-import groupRoutes from '@routes/groups';
-import nameRoutes from '@routes/names';
-import playerRoutes from '@routes/players';
-import recordRoutes from '@routes/records';
-import logger from '@services/external/logger';
+import competitionRoutes from 'api/routes/competitions';
+import deltaRoutes from 'api/routes/deltas';
+import groupRoutes from 'api/routes/groups';
+import nameRoutes from 'api/routes/names';
+import playerRoutes from 'api/routes/players';
+import recordRoutes from 'api/routes/records';
+import logger from 'api/services/external/logger';
 import { NotFoundError } from './errors';
 import { metricAbbreviation } from './util/middlewares';
 

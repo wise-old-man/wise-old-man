@@ -1,4 +1,4 @@
-import { Bonus, BonusType, BossMeta, Experiences, Killcounts, SkillMeta } from '@types';
+import { Bonus, BonusType, BossMeta, Experiences, Killcounts, SkillMeta } from 'types';
 import { BOSSES, SKILLS } from '../../constants';
 
 function getBonuses(metas: SkillMeta[], type: BonusType): Bonus[] {

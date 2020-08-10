@@ -1,4 +1,4 @@
-import { removeFromGroupCompetitions } from '@services/internal/competitions';
+import { removeFromGroupCompetitions } from 'api/services/internal/competitions';
 import { Job } from '../index';
 
 class RemoveFromGroupCompetitions implements Job {

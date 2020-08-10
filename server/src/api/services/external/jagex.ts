@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
-import proxiesService from '@services/external/proxies';
+import proxiesService from 'api/services/external/proxies';
 import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 

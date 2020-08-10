@@ -1,5 +1,5 @@
-import { onCompetitionStarting } from '@events/competition';
-import * as competitionService from '@services/internal/competitions';
+import { onCompetitionStarting } from 'api/events/competition';
+import * as competitionService from 'api/services/internal/competitions';
 import { Job } from '../index';
 
 class CompetitionStarting implements Job {

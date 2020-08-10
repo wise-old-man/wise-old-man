@@ -9,16 +9,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "importHelpers": true,
-    "baseUrl": ".",
-    "paths": {
-      "@types": ["./src/types"],
-      "@controllers/*": ["./src/api/controllers/*"],
-      "@services/*": ["./src/api/services/*"],
-      "@routes/*": ["./src/api/routes/*"],
-      "@database": ["./src/database"],
-      "@models": ["./src/database/models"],
-      "@events/*": ["./src/api/events/*"]
-    },
+    "baseUrl": "./src",
     "lib": ["es6", "es2017", "esnext"]
   },
   "exclude": ["node_modules", "dist", "__tests__"]

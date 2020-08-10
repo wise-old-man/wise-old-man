@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
-import { Player } from '@models';
-import * as jagexService from '@services/external/jagex';
-import * as cmlService from '@services/external/cml';
-import * as snapshotService from '@services/internal/snapshots';
+import { Player } from 'database/models';
+import * as jagexService from 'api/services/external/jagex';
+import * as cmlService from 'api/services/external/cml';
+import * as snapshotService from 'api/services/internal/snapshots';
 import { BadRequestError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel } from '../../util/level';

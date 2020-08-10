@@ -1,4 +1,4 @@
-import * as playerService from '@services/internal/players';
+import * as playerService from 'api/services/internal/players';
 import { Job } from '../index';
 
 class UpdatePlayer implements Job {

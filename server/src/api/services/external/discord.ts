@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { EventPeriod } from '@types';
-import { Achievement, Competition } from '@models';
-import * as groupService from '@services/internal/groups';
-import * as playerService from '@services/internal/players';
-import env from '../../../env';
+import env from 'env';
+import { EventPeriod } from 'types';
+import { Achievement, Competition } from 'database/models';
+import * as groupService from 'api/services/internal/groups';
+import * as playerService from 'api/services/internal/players';
 
 /**
  * Dispatch an event to our Discord Bot API.

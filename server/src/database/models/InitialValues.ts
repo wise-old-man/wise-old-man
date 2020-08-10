@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table, UpdatedAt } from 'sequelize-typescript';
-import { HiscoresValues, Player } from '@models';
+import { HiscoresValues, Player } from 'database/models';
 
 // Define other table options
 const options = {

@@ -1,6 +1,6 @@
-import * as nameService from '@services/internal/names';
-import * as playerService from '@services/internal/players';
 import { NextFunction, Request, Response } from 'express';
+import * as nameService from 'api/services/internal/names';
+import * as playerService from 'api/services/internal/players';
 import * as pagination from '../util/pagination';
 
 // GET /names

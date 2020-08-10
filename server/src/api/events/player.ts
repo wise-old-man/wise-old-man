@@ -1,4 +1,4 @@
-import { Player, Snapshot } from '@models';
+import { Player, Snapshot } from 'database/models';
 import jobs from '../jobs';
 
 function onPlayerCreated(player: Player) {
