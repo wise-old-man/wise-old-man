@@ -1,4 +1,4 @@
-import { ProxiesConfig } from '@types';
+import { ProxiesConfig, Proxy } from '@types';
 import env from '../../../env';
 
 class ProxiesHandler {
@@ -31,7 +31,7 @@ class ProxiesHandler {
     this.config = { port, username, password, hosts: allowedHosts };
   }
 
-  getNextProxy() {
+  getNextProxy(): Proxy {
     if (!this.config || !this.config.hosts) {
       return null;
     }

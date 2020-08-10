@@ -72,3 +72,12 @@ export interface ProxiesConfig {
   password: string;
   hosts: string[];
 }
+
+export interface Proxy {
+  port: number;
+  host: string;
+  auth: {
+    username: string;
+    password: string;
+  };
+}

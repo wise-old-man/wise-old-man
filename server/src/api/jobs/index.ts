@@ -1,6 +1,6 @@
 import Queue from 'bull';
+import logger from '@services/external/logger';
 import env, { isTesting } from '../../env';
-import logger from '../logger';
 import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';

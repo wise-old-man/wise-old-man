@@ -5,8 +5,8 @@ import groupRoutes from '@routes/groups';
 import nameRoutes from '@routes/names';
 import playerRoutes from '@routes/players';
 import recordRoutes from '@routes/records';
+import logger from '@services/external/logger';
 import { NotFoundError } from './errors';
-import logger from './logger';
 import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
