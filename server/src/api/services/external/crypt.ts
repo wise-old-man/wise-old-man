@@ -1,8 +1,9 @@
 import { compare, hash } from 'bcrypt';
 
-// Generates a random numeric code with the
-// following format: XXX-XXX-XXX
-function generateCode() {
+/**
+ * Generates a random numeric code with the following format: XXX-XXX-XXX
+ */
+function generateCode(): string {
   let code = '';
 
   for (let i = 0; i < 9; i++) {
@@ -13,7 +14,10 @@ function generateCode() {
   return code;
 }
 
-async function generateVerification() {
+/**
+ * Generates a code/hash pair.
+ */
+async function generateVerification(): Promise<[string, string]> {
   const saltRounds = 10;
 
   // This code is to be given to
@@ -22,7 +26,7 @@ async function generateVerification() {
 
   // This hashed code is to be stored on the database
   // for later authentication (sorta)
-  const hashedCode = await new Promise((resolve, reject) => {
+  const hashedCode: any = await new Promise((resolve, reject) => {
     hash(code, saltRounds, (err, hash) => {
       if (err) reject(err);
       resolve(hash);
@@ -32,14 +36,18 @@ async function generateVerification() {
   return [code, hashedCode];
 }
 
-async function verifyCode(verificationHash, verificationCode) {
+/**
+ * Checks if a given hash matches a given code.
+ */
+async function verifyCode(hash: string, code: string): Promise<boolean> {
   const verified = await new Promise((resolve, reject) => {
-    compare(verificationCode, verificationHash, (err, result) => {
+    compare(code, hash, (err, result) => {
       if (err) reject(err);
       resolve(result);
     });
   });
-  return verified;
+
+  return !!verified;
 }
 
 export { generateVerification, verifyCode };

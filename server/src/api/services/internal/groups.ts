@@ -3,6 +3,7 @@ import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { sequelize } from '@database';
 import { Group, Membership, Player } from '@models';
+import * as cryptService from '@services/external/crypt';
 import * as achievementService from '@services/internal/achievements';
 import * as competitionService from '@services/internal/competitions';
 import * as deltaService from '@services/internal/deltas';
@@ -13,7 +14,6 @@ import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
-import { generateVerification, verifyCode } from '../../util/verification';
 
 function sanitizeName(name) {
   return name
@@ -476,13 +476,13 @@ async function create(name, clanChat, members) {
     }
   }
 
-  const [verificationCode, verificationHash] = await generateVerification();
+  const [code, hash] = await cryptService.generateVerification();
 
   const group = await Group.create({
     name: sanitizedName,
     clanChat: sanitizedClanChat,
-    verificationCode,
-    verificationHash
+    verificationCode: code,
+    verificationHash: hash
   });
 
   if (!members) {
@@ -528,7 +528,7 @@ async function edit(id, name, clanChat, verificationCode, members) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  const verified = await verifyCode(group.verificationHash, verificationCode);
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
     throw new BadRequestError('Incorrect verification code.');
@@ -588,7 +588,7 @@ async function destroy(id, verificationCode) {
   }
 
   const { name } = group;
-  const verified = await verifyCode(group.verificationHash, verificationCode);
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
     throw new BadRequestError('Incorrect verification code.');
@@ -712,7 +712,7 @@ async function addMembers(id, verificationCode, members) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  const verified = await verifyCode(group.verificationHash, verificationCode);
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
     throw new BadRequestError('Incorrect verification code.');
@@ -778,7 +778,7 @@ async function removeMembers(id, verificationCode, usernames) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  const verified = await verifyCode(group.verificationHash, verificationCode);
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
     throw new BadRequestError('Incorrect verification code.');
@@ -830,7 +830,7 @@ async function changeRole(id, username, role, verificationCode) {
     throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
-  const verified = await verifyCode(group.verificationHash, verificationCode);
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
 
   if (!verified) {
     throw new BadRequestError('Incorrect verification code.');

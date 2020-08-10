@@ -2,6 +2,7 @@ import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player } from '@models';
+import * as cryptService from '@services/external/crypt';
 import * as deltaService from '@services/internal/deltas';
 import * as groupService from '@services/internal/groups';
 import * as playerService from '@services/internal/players';
@@ -10,7 +11,6 @@ import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
-import { generateVerification, verifyCode } from '../../util/verification';
 
 function sanitizeTitle(title) {
   return title
@@ -288,7 +288,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
       throw new BadRequestError('Invalid group id.');
     }
 
-    const verified = await verifyCode(group.verificationHash, groupVerificationCode);
+    const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
     if (!verified) {
       throw new BadRequestError('Incorrect group verification code.');
@@ -308,14 +308,14 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     }
   }
 
-  const [verificationCode, verificationHash] = await generateVerification();
+  const [code, hash] = await cryptService.generateVerification();
   const sanitizedTitle = sanitizeTitle(title);
 
   const competition = await Competition.create({
     title: sanitizedTitle,
     metric: metric.toLowerCase(),
-    verificationCode,
-    verificationHash,
+    verificationCode: code,
+    verificationHash: hash,
     startsAt,
     endsAt,
     groupId
@@ -852,7 +852,7 @@ async function isVerified(competition, verificationCode) {
     hash = group.verificationHash;
   }
 
-  const verified = await verifyCode(hash, verificationCode);
+  const verified = await cryptService.verifyCode(hash, verificationCode);
   return verified;
 }
 
