@@ -60,3 +60,8 @@ export enum NameChangeStatus {
   DENIED,
   APPROVED
 }
+
+export interface EventPeriod {
+  hours?: number;
+  minutes?: number;
+}

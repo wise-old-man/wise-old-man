@@ -16,7 +16,8 @@
       "@services/*": ["./src/api/services/*"],
       "@routes/*": ["./src/api/routes/*"],
       "@database": ["./src/database"],
-      "@models": ["./src/database/models"]
+      "@models": ["./src/database/models"],
+      "@events/*": ["./src/api/events/*"]
     },
     "lib": ["es6", "es2017", "esnext"]
   },

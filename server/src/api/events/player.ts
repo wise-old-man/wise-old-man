@@ -1,5 +1,5 @@
 import { Player, Snapshot } from '@models';
-import jobs from '../../jobs';
+import jobs from '../jobs';
 
 function onPlayerCreated(player: Player) {
   jobs.add('AssertPlayerName', { username: player.username }, { attempts: 5, backoff: 30000 });
