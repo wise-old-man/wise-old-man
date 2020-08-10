@@ -65,3 +65,10 @@ export interface EventPeriod {
   hours?: number;
   minutes?: number;
 }
+
+export interface ProxiesConfig {
+  port: number;
+  username: string;
+  password: string;
+  hosts: string[];
+}

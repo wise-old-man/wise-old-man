@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { Op } from 'sequelize';
 import { Player } from '@models';
+import proxiesService from '@services/external/proxies';
 import * as snapshotService from '@services/internal/snapshots';
 import { CML, OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import proxies from '../../proxies';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel } from '../../util/level';
 import { getHiscoresTableNames } from '../../util/scraping';
@@ -485,7 +485,7 @@ async function getCMLHistory(username, time) {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username, type = 'regular') {
-  const proxy = proxies.getNextProxy();
+  const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
   try {
@@ -505,7 +505,7 @@ async function getHiscoresData(username, type = 'regular') {
 }
 
 async function getHiscoresNames(username) {
-  const proxy = proxies.getNextProxy();
+  const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
 
   try {
