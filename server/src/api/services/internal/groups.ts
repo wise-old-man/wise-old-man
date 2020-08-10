@@ -1,13 +1,14 @@
 import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { sequelize } from '@database';
+import { Group, Membership, Player } from '@models';
 import * as achievementService from '@services/internal/achievements';
 import * as competitionService from '@services/internal/competitions';
 import * as deltaService from '@services/internal/deltas';
 import * as playerService from '@services/internal/players';
 import * as recordService from '@services/internal/records';
 import * as snapshotService from '@services/internal/snapshots';
-import { Group, Membership, Player, sequelize } from '../../../database';
 import { ALL_METRICS, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';

@@ -1,6 +1,6 @@
 import { Column, DataType, Model } from 'sequelize-typescript';
 
-export default class HiscoreValues extends Model<HiscoreValues> {
+export default class HiscoresValues extends Model<HiscoresValues> {
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   overallRank: number;
 

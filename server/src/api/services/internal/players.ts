@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Op } from 'sequelize';
+import { Player } from '@models';
 import * as snapshotService from '@services/internal/snapshots';
-import { Player } from '../../../database';
 import { CML, OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxies from '../../proxies';

@@ -8,7 +8,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Competition, Player } from '../../../database';
+import { Competition, Player } from '@models';
 
 // Define other table options
 const options = {

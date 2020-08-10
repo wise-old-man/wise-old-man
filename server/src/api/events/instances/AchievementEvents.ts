@@ -1,6 +1,6 @@
+import { Achievement } from '@models';
 import * as groupService from '@services/internal/groups';
 import * as playerService from '@services/internal/players';
-import { Achievement } from 'src/database';
 import discord from '../../util/discord';
 
 async function onAchievementsCreated(achievements: Achievement[]) {

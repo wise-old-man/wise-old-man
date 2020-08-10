@@ -1,7 +1,8 @@
 import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
+import { sequelize } from '@database';
+import { InitialValues } from '@models';
 import * as snapshotService from '@services/internal/snapshots';
-import { InitialValues, sequelize } from '../../../database';
 import { ALL_METRICS, PERIODS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import * as queries from '../../modules/deltas/delta.queries';

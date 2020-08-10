@@ -8,7 +8,8 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Player } from '..';
+import { Player } from '@models';
+import { NameChangeStatus } from '@types';
 
 // Define other table options
 const options = {
@@ -27,12 +28,6 @@ const options = {
     }
   ]
 };
-
-export enum NameChangeStatus {
-  PENDING,
-  DENIED,
-  APPROVED
-}
 
 @Table(options)
 export default class NameChange extends Model<NameChange> {

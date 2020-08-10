@@ -1,4 +1,4 @@
-import { PaginationConfig } from 'src/types';
+import { PaginationConfig } from '@types';
 import { BadRequestError } from '../errors';
 
 // TODO: parse to int before checking < > 0

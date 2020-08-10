@@ -1,19 +1,11 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
+import { NameChangeStatus, PaginationConfig } from '@types';
+import { sequelize } from '@database';
+import { Membership, NameChange, Participation, Player, Record, Snapshot } from '@models';
 import * as efficiencyService from '@services/internal/efficiency';
 import * as playerService from '@services/internal/players';
 import * as snapshotService from '@services/internal/snapshots';
-import { PaginationConfig } from 'src/types';
-import {
-  Membership,
-  NameChange,
-  Participation,
-  Player,
-  Record,
-  sequelize,
-  Snapshot
-} from '../../../database';
-import { NameChangeStatus } from '../../../database/models/NameChange';
 import env from '../../../env';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 

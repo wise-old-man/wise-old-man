@@ -54,3 +54,9 @@ export interface PaginationConfig {
   limit: number;
   offset: number;
 }
+
+export enum NameChangeStatus {
+  PENDING,
+  DENIED,
+  APPROVED
+}

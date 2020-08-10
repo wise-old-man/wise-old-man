@@ -1,5 +1,5 @@
-import { UpdateOptions, DestroyOptions } from 'sequelize/types';
-import { Achievement, Competition, Membership, Player, Snapshot } from '../database';
+import { DestroyOptions, UpdateOptions } from 'sequelize/types';
+import { Achievement, Competition, Membership, Player, Snapshot } from '@models';
 import {
   onAchievementsCreated,
   onCompetitionCreated,

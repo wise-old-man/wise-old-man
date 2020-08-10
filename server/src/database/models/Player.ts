@@ -20,8 +20,8 @@ import {
   Participation,
   Record,
   Snapshot
-} from '../../../database';
-import { PLAYER_TYPES } from '../../constants';
+} from '@models';
+import { PLAYER_TYPES } from '../../api/constants';
 
 // Define other table options
 const options = {

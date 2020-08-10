@@ -1,6 +1,6 @@
+import { Competition } from '@models';
 import jobs from '../../jobs';
 import discord from '../../util/discord';
-import { Competition } from 'src/database';
 
 function onCompetitionCreated(competition: Competition) {
   setupCompetitionStart(competition);

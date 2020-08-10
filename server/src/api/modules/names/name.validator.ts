@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { isValidUsername, standardize } from '@services/internal/players';
-import { NameChangeStatus } from '../../../database/models/NameChange';
+import { NameChangeStatus } from '@types';
 import { BadRequestError } from '../../errors';
 
 async function index(req: Request, _: Response, next: NextFunction) {

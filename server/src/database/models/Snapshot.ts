@@ -1,11 +1,10 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table, UpdatedAt } from 'sequelize-typescript';
-import { Player } from '../../../database';
-import HiscoreValues from './hiscoreValues.model';
+import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'sequelize-typescript';
+import { HiscoresValues, Player } from '@models';
 
 // Define other table options
 const options = {
-  modelName: 'initialValues',
-  createdAt: false,
+  modelName: 'snapshots',
+  updatedAt: false,
   indexes: [
     {
       unique: true,
@@ -13,12 +12,15 @@ const options = {
     },
     {
       fields: ['playerId']
+    },
+    {
+      fields: ['createdAt']
     }
   ]
 };
 
 @Table(options)
-export default class InitialValues extends HiscoreValues {
+export default class Snapshot extends HiscoresValues {
   @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true })
   id: number;
 
@@ -26,8 +28,11 @@ export default class InitialValues extends HiscoreValues {
   @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
 
-  @UpdatedAt
-  updatedAt: Date;
+  @Column({ type: DataType.DATE })
+  importedAt: Date;
+
+  @CreatedAt
+  createdAt: Date;
 
   /* Associations */
 
