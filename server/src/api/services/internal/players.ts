@@ -1,9 +1,8 @@
-import axios from 'axios';
 import { Op } from 'sequelize';
 import { Player } from '@models';
 import * as jagexService from '@services/external/jagex';
+import * as cmlService from '@services/external/cml';
 import * as snapshotService from '@services/internal/snapshots';
-import { CML } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel } from '../../util/level';
@@ -259,7 +258,7 @@ async function importCML(username) {
 
 async function importCMLSince(id, username, time) {
   // Load the CML history
-  const history = await getCMLHistory(username, time);
+  const history = await cmlService.getCMLHistory(username, time);
 
   // Convert the CML csv data to Snapshot instances
   const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
@@ -458,27 +457,6 @@ async function findAllByIds(playerIds) {
   return players;
 }
 
-/**
- * Fetches the player history from the CML API.
- */
-async function getCMLHistory(username, time) {
-  const URL = `${CML.HISTORY}&player=${username}&time=${time}`;
-
-  try {
-    // Fetch the data through the API Url
-    const { data } = await axios.get(URL);
-
-    // Validate the response data
-    if (!data || !data.length || data === '-1') {
-      throw new Error();
-    }
-
-    // Separate the data into rows and filter invalid ones
-    return data.split('\n').filter(r => r.length);
-  } catch (e) {
-    throw new ServerError('Failed to load history from CML.');
-  }
-}
 
 export {
   standardize,
