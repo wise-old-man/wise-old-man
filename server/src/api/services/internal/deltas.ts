@@ -2,10 +2,10 @@ import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
 import { sequelize } from 'database';
 import { InitialValues } from 'database/models';
+import * as queries from 'database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_TYPES } from 'api/constants';
 import { BadRequestError, ServerError } from 'api/errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
-import * as queries from 'api/modules/deltas/delta.queries';
 import * as snapshotService from 'api/services/internal/snapshots';
 
 const DAY_IN_SECONDS = 86400;
