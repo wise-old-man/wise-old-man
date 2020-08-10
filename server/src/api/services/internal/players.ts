@@ -1,13 +1,12 @@
 import axios from 'axios';
 import { Op } from 'sequelize';
 import { Player } from '@models';
-import proxiesService from '@services/external/proxies';
+import * as jagexService from '@services/external/jagex';
 import * as snapshotService from '@services/internal/snapshots';
-import { CML, OSRS_HISCORES } from '../../constants';
+import { CML } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel } from '../../util/level';
-import { getHiscoresTableNames } from '../../util/scraping';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
@@ -174,7 +173,7 @@ async function update(username) {
     }
 
     // Load data from OSRS hiscores
-    const hiscoresCSV = await getHiscoresData(player.username, player.type);
+    const hiscoresCSV = await jagexService.getHiscoresData(player.username, player.type);
 
     // Get the latest snapshot from the DB
     const previousSnapshot = await snapshotService.findLatest(player.id);
@@ -283,7 +282,7 @@ async function importCMLSince(id, username, time) {
  */
 async function getOverallExperience(username, type) {
   try {
-    const data = await getHiscoresData(username, type);
+    const data = await jagexService.getHiscoresData(username, type);
 
     if (!data || data.length === 0) {
       throw new ServerError('Failed to fetch hiscores data.');
@@ -393,7 +392,7 @@ async function assertName(username) {
     throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
   }
 
-  const hiscoresNames = await getHiscoresNames(username);
+  const hiscoresNames = await jagexService.getHiscoresNames(username);
   const match = hiscoresNames.find(h => standardize(h) === username);
 
   if (!match) {
@@ -481,53 +480,6 @@ async function getCMLHistory(username, time) {
   }
 }
 
-/**
- * Fetches the player data from the Hiscores API.
- */
-async function getHiscoresData(username, type = 'regular') {
-  const proxy = proxiesService.getNextProxy();
-  const URL = `${OSRS_HISCORES[type]}?player=${username}`;
-
-  try {
-    // Fetch the data through the API Url
-    const { data } = await axios({ url: proxy ? URL.replace('https', 'http') : URL, proxy });
-
-    // Validate the response data
-    if (!data || !data.length || data.includes('Unavailable')) {
-      throw new ServerError('Failed to load hiscores: Service is unavailable');
-    }
-
-    return data;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    throw new BadRequestError('Failed to load hiscores: Invalid username.');
-  }
-}
-
-async function getHiscoresNames(username) {
-  const proxy = proxiesService.getNextProxy();
-  const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
-
-  try {
-    // Fetch the data through the API Url
-    const { data } = await axios({
-      url: proxy ? URL.replace('https', 'http') : URL,
-      proxy,
-      responseType: 'arraybuffer'
-    });
-
-    // Validate the response data
-    if (!data || !data.length || data.includes('Unavailable')) {
-      throw new ServerError('Failed to load hiscores: Service is unavailable');
-    }
-
-    return getHiscoresTableNames(data.toString('latin1'));
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    throw new BadRequestError('Failed to load hiscores: Invalid username.');
-  }
-}
-
 export {
   standardize,
   sanitize,
@@ -542,7 +494,6 @@ export {
   search,
   update,
   importCML,
-  getHiscoresData,
   assertType,
   assertName,
   shouldImport

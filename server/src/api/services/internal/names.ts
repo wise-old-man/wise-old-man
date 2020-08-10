@@ -3,6 +3,7 @@ import { Op, Transaction, WhereOptions } from 'sequelize';
 import { NameChangeStatus, PaginationConfig } from '@types';
 import { sequelize } from '@database';
 import { Membership, NameChange, Participation, Player, Record, Snapshot } from '@models';
+import * as jagexService from '@services/external/jagex';
 import * as efficiencyService from '@services/internal/efficiency';
 import * as playerService from '@services/internal/players';
 import * as snapshotService from '@services/internal/snapshots';
@@ -124,14 +125,14 @@ async function getDetails(id: number) {
 
   try {
     // Attempt to fetch hiscores data for the new name
-    newHiscores = await playerService.getHiscoresData(nameChange.newName);
+    newHiscores = await jagexService.getHiscoresData(nameChange.newName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
   }
 
   try {
-    oldHiscores = await playerService.getHiscoresData(nameChange.oldName);
+    oldHiscores = await jagexService.getHiscoresData(nameChange.oldName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
