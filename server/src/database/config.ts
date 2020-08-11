@@ -1,4 +1,4 @@
-import env, { isTesting } from 'env';
+import env, { isTesting } from '../env';
 
 export = {
   database: 'wise-old-man',
