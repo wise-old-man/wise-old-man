@@ -1,14 +1,14 @@
-import Achievement from './Achievement';
-import Competition from './Competition';
-import Group from './Group';
-import HiscoresValues from './HiscoresValues';
-import InitialValues from './InitialValues';
-import Membership from './Membership';
-import NameChange from './NameChange';
-import Participation from './Participation';
-import Player from './Player';
-import Record from './Record';
-import Snapshot from './Snapshot';
+import Achievement from './achievement.model';
+import Competition from './competition.model';
+import Group from './group.model';
+import HiscoresValues from './hiscoresValues.model';
+import InitialValues from './initialValues.model';
+import Membership from './membership.model';
+import NameChange from './nameChange.model';
+import Participation from './participation.model';
+import Player from './player.model';
+import Record from './record.model';
+import Snapshot from './snapshot.model';
 
 export {
   NameChange,
