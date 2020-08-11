@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as controller from 'api/controllers/name.controller';
-import * as validations from 'api/validations/names';
+import * as validations from 'api/validations/name.validations';
 
 const api = Router();
 
