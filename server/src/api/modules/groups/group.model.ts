@@ -69,7 +69,7 @@ function validateName(this: Group): void {
   }
 
   if (this.name.length > 30) {
-    throw new Error('Group name must be shorted than 50 characters.');
+    throw new Error('Group name must be shorter than 30 characters.');
   }
 }
 
