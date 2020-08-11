@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as controller from 'api/controllers/names';
+import * as controller from 'api/controllers/name.controller';
 import * as validations from 'api/validations/names';
 
 const api = Router();
