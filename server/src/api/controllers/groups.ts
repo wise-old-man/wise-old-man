@@ -1,6 +1,6 @@
 import jobs from 'api/jobs';
-import * as competitionService from 'api/services/internal/competitions';
-import * as groupService from 'api/services/internal/groups';
+import * as competitionService from 'api/services/internal/competition.service';
+import * as groupService from 'api/services/internal/group.service';
 import { getPaginationConfig } from 'api/util/pagination';
 
 // GET /groups

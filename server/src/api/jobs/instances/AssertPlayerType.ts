@@ -1,4 +1,4 @@
-import * as playerService from 'api/services/internal/players';
+import * as playerService from 'api/services/internal/player.service';
 import { Job } from '../index';
 
 class AssertPlayerType implements Job {

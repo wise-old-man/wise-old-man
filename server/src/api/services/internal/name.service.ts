@@ -6,9 +6,9 @@ import { sequelize } from 'database';
 import { Membership, NameChange, Participation, Player, Record, Snapshot } from 'database/models';
 import { BadRequestError, NotFoundError, ServerError } from 'api/errors';
 import * as jagexService from 'api/services/external/jagex.service';
-import * as efficiencyService from 'api/services/internal/efficiency';
-import * as playerService from 'api/services/internal/players';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as efficiencyService from 'api/services/internal/efficiency.service';
+import * as playerService from 'api/services/internal/player.service';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 
 /**
  * List all name changes, filtered by a specific status

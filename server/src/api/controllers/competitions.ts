@@ -1,5 +1,5 @@
 import jobs from 'api/jobs';
-import * as service from 'api/services/internal/competitions';
+import * as service from 'api/services/internal/competition.service';
 import * as pagination from 'api/util/pagination';
 
 // GET /competitions

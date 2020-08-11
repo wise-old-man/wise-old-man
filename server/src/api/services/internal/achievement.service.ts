@@ -2,7 +2,7 @@ import { ACTIVITIES, BOSSES, SKILLS } from 'api/constants';
 import { BadRequestError } from 'api/errors';
 import { sequelize } from 'database';
 import { Achievement } from 'database/models';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 import { getTotalLevel, getCombatLevel } from 'api/util/level';
 import {
   getDifficultyFactor,

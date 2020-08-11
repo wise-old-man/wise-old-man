@@ -5,7 +5,7 @@ import { isValidDate } from 'api/util/dates';
 import { getCombatLevel } from 'api/util/level';
 import * as jagexService from 'api/services/external/jagex.service';
 import * as cmlService from 'api/services/external/cml.service';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;

@@ -1,4 +1,4 @@
-import * as groupService from 'api/services/internal/competitions';
+import * as groupService from 'api/services/internal/competition.service';
 import { Job } from '../index';
 
 class AddToGroupCompetitions implements Job {

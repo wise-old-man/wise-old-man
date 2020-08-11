@@ -6,7 +6,7 @@ import * as queries from 'database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_TYPES } from 'api/constants';
 import { BadRequestError, ServerError } from 'api/errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;

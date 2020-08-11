@@ -7,10 +7,10 @@ import { BadRequestError, NotFoundError } from 'api/errors';
 import { durationBetween, isPast, isValidDate } from 'api/util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from 'api/util/metrics';
 import * as cryptService from 'api/services/external/crypt.service';
-import * as deltaService from 'api/services/internal/deltas';
-import * as groupService from 'api/services/internal/groups';
-import * as playerService from 'api/services/internal/players';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as deltaService from 'api/services/internal/delta.service';
+import * as groupService from 'api/services/internal/group.service';
+import * as playerService from 'api/services/internal/player.service';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 
 function sanitizeTitle(title) {
   return title

@@ -8,12 +8,12 @@ import { BadRequestError } from 'api/errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from 'api/util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
 import * as cryptService from 'api/services/external/crypt.service';
-import * as achievementService from 'api/services/internal/achievements';
-import * as competitionService from 'api/services/internal/competitions';
-import * as deltaService from 'api/services/internal/deltas';
-import * as playerService from 'api/services/internal/players';
-import * as recordService from 'api/services/internal/records';
-import * as snapshotService from 'api/services/internal/snapshots';
+import * as achievementService from 'api/services/internal/achievement.service';
+import * as competitionService from 'api/services/internal/competition.service';
+import * as deltaService from 'api/services/internal/delta.service';
+import * as playerService from 'api/services/internal/player.service';
+import * as recordService from 'api/services/internal/record.service';
+import * as snapshotService from 'api/services/internal/snapshot.service';
 
 function sanitizeName(name) {
   return name
