@@ -6,7 +6,7 @@ import { ALL_METRICS, COMPETITION_STATUSES } from 'api/constants';
 import { BadRequestError, NotFoundError } from 'api/errors';
 import { durationBetween, isPast, isValidDate } from 'api/util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from 'api/util/metrics';
-import * as cryptService from 'api/services/external/crypt';
+import * as cryptService from 'api/services/external/crypt.service';
 import * as deltaService from 'api/services/internal/deltas';
 import * as groupService from 'api/services/internal/groups';
 import * as playerService from 'api/services/internal/players';

@@ -1,7 +1,7 @@
 import { EventPeriod } from 'types';
 import { Competition } from 'database/models';
 import jobs from 'api/jobs';
-import * as discordService from 'api/services/external/discord';
+import * as discordService from 'api/services/external/discord.service';
 
 function onCompetitionCreated(competition: Competition) {
   // Schedule all competition started/starting events

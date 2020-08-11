@@ -1,5 +1,5 @@
 import { Achievement } from 'database/models';
-import * as discordService from 'api/services/external/discord';
+import * as discordService from 'api/services/external/discord.service';
 
 async function onAchievementsCreated(achievements: Achievement[]) {
   // Dispatch this event to the discord bot

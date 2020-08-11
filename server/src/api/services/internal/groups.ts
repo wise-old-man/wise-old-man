@@ -7,7 +7,7 @@ import { ALL_METRICS, PERIODS } from 'api/constants';
 import { BadRequestError } from 'api/errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from 'api/util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
-import * as cryptService from 'api/services/external/crypt';
+import * as cryptService from 'api/services/external/crypt.service';
 import * as achievementService from 'api/services/internal/achievements';
 import * as competitionService from 'api/services/internal/competitions';
 import * as deltaService from 'api/services/internal/deltas';

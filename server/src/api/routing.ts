@@ -5,7 +5,7 @@ import groupRoutes from 'api/routes/groups';
 import nameRoutes from 'api/routes/names';
 import playerRoutes from 'api/routes/players';
 import recordRoutes from 'api/routes/records';
-import logger from 'api/services/external/logger';
+import logger from 'api/services/external/logger.service';
 import { NotFoundError } from './errors';
 import { metricAbbreviation } from './util/middlewares';
 

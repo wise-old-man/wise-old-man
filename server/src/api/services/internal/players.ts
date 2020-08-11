@@ -3,8 +3,8 @@ import { Player } from 'database/models';
 import { BadRequestError, ServerError } from 'api/errors';
 import { isValidDate } from 'api/util/dates';
 import { getCombatLevel } from 'api/util/level';
-import * as jagexService from 'api/services/external/jagex';
-import * as cmlService from 'api/services/external/cml';
+import * as jagexService from 'api/services/external/jagex.service';
+import * as cmlService from 'api/services/external/cml.service';
 import * as snapshotService from 'api/services/internal/snapshots';
 
 const YEAR_IN_SECONDS = 31556926;
@@ -456,7 +456,6 @@ async function findAllByIds(playerIds) {
 
   return players;
 }
-
 
 export {
   standardize,
