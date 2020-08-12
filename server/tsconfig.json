@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "importHelpers": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "lib": ["es6", "es2017", "esnext"]
   },
   "exclude": ["node_modules", "dist", "__tests__"]

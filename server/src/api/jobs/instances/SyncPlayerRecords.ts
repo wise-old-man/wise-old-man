@@ -1,5 +1,5 @@
-import { PERIODS } from 'api/constants';
-import * as recordService from 'api/services/internal/record.service';
+import { PERIODS } from '../../constants';
+import * as recordService from '../../services/internal/record.service';
 import { Job } from '../index';
 
 class SyncPlayerRecords implements Job {

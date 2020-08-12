@@ -10,6 +10,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
+import { PLAYER_TYPES } from '../../api/constants';
 import {
   Achievement,
   Competition,
@@ -20,8 +21,7 @@ import {
   Participation,
   Record,
   Snapshot
-} from 'database/models';
-import { PLAYER_TYPES } from 'api/constants';
+} from '../../database/models';
 
 // Define other table options
 const options = {

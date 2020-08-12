@@ -1,12 +1,12 @@
 import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import { sequelize } from 'database';
-import { InitialValues } from 'database/models';
-import * as queries from 'database/queries';
-import { ALL_METRICS, PERIODS, PLAYER_TYPES } from 'api/constants';
-import { BadRequestError, ServerError } from 'api/errors';
-import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
-import * as snapshotService from 'api/services/internal/snapshot.service';
+import { sequelize } from '../../../database';
+import { InitialValues } from '../../../database/models';
+import * as queries from '../../../database/queries';
+import { ALL_METRICS, PERIODS, PLAYER_TYPES } from '../../constants';
+import { BadRequestError, ServerError } from '../../errors';
+import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import * as snapshotService from './snapshot.service';
 
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;

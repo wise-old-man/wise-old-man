@@ -1,4 +1,4 @@
-import * as achievementService from 'api/services/internal/achievement.service';
+import * as achievementService from '../../services/internal/achievement.service';
 import { Job } from '../index';
 
 class ReevaluatePlayerAchievements implements Job {

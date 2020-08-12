@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
-import { ALL_METRICS } from 'api/constants';
-import { getRankKey, getValueKey } from 'api/util/metrics';
+import { ALL_METRICS } from '../../api/constants';
+import { getRankKey, getValueKey } from '../../api/util/metrics';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   return queryInterface.createTable('initialValues', {

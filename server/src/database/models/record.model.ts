@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, UpdatedAt } from 'sequelize-typescript';
-import { Player } from 'database/models';
-import { ALL_METRICS, PERIODS } from 'api/constants';
+import { ALL_METRICS, PERIODS } from '../../api/constants';
+import { Player } from '../../database/models';
 
 // Define other table options
 const options = {

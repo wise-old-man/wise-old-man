@@ -1,4 +1,4 @@
-import { ACTIVITIES, ACTIVITIES_MAP, BOSSES, BOSSES_MAP, SKILLS, SKILLS_MAP } from 'api/constants';
+import { ACTIVITIES, ACTIVITIES_MAP, BOSSES, BOSSES_MAP, SKILLS, SKILLS_MAP } from '../constants';
 
 function isSkill(value: string) {
   return SKILLS.includes(value);

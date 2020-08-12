@@ -1,7 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { isTesting } from 'env';
+import { isTesting } from '../env';
 import hooks from './hooks';
 import jobs from './jobs';
 import router from './routing';

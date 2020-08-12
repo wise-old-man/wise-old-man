@@ -1,14 +1,21 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import env from 'env';
-import { NameChangeStatus, PaginationConfig } from 'types';
-import { sequelize } from 'database';
-import { Membership, NameChange, Participation, Player, Record, Snapshot } from 'database/models';
-import { BadRequestError, NotFoundError, ServerError } from 'api/errors';
-import * as jagexService from 'api/services/external/jagex.service';
-import * as efficiencyService from 'api/services/internal/efficiency.service';
-import * as playerService from 'api/services/internal/player.service';
-import * as snapshotService from 'api/services/internal/snapshot.service';
+import { sequelize } from '../../../database';
+import {
+  Membership,
+  NameChange,
+  Participation,
+  Player,
+  Record,
+  Snapshot
+} from '../../../database/models';
+import env from '../../../env';
+import { NameChangeStatus, PaginationConfig } from '../../../types';
+import { BadRequestError, NotFoundError, ServerError } from '../../errors';
+import * as jagexService from '../external/jagex.service';
+import * as efficiencyService from './efficiency.service';
+import * as playerService from './player.service';
+import * as snapshotService from './snapshot.service';
 
 /**
  * List all name changes, filtered by a specific status

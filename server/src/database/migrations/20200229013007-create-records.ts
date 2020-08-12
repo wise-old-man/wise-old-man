@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { ALL_METRICS, PERIODS } from 'api/constants';
+import { ALL_METRICS, PERIODS } from '../../api/constants';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   return queryInterface.createTable('records', {

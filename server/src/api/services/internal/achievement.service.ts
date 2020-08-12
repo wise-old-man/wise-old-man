@@ -1,16 +1,16 @@
-import { ACTIVITIES, BOSSES, SKILLS } from 'api/constants';
-import { BadRequestError } from 'api/errors';
-import { sequelize } from 'database';
-import { Achievement } from 'database/models';
-import * as snapshotService from 'api/services/internal/snapshot.service';
-import { getTotalLevel, getCombatLevel } from 'api/util/level';
+import { sequelize } from '../../../database';
+import { Achievement } from '../../../database/models';
+import { ACTIVITIES, BOSSES, SKILLS } from '../..//constants';
+import { BadRequestError } from '../../errors';
+import { getCombatLevel, getTotalLevel } from '../../util/level';
 import {
   getDifficultyFactor,
   getFormattedName,
   getMeasure,
   getValueKey,
   isSkill
-} from 'api/util/metrics';
+} from '../../util/metrics';
+import * as snapshotService from './snapshot.service';
 
 const SKILL_TEMPLATES = [
   {

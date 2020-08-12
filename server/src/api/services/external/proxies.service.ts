@@ -1,5 +1,5 @@
-import env from 'env';
-import { ProxiesConfig, Proxy } from 'types';
+import env from '../../../env';
+import { ProxiesConfig, Proxy } from '../../../types';
 
 class ProxiesHandler {
   private cursor: number;

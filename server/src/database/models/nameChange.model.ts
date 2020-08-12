@@ -8,8 +8,8 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { NameChangeStatus } from 'types';
-import { Player } from 'database/models';
+import { Player } from '../../database/models';
+import { NameChangeStatus } from '../../types';
 
 // Define other table options
 const options = {

@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { GROUP_ROLES } from 'api/constants';
+import { GROUP_ROLES } from '../../api/constants';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   return queryInterface.createTable('memberships', {

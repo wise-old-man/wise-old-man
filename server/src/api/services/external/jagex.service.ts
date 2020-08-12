@@ -1,9 +1,9 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
-import { OSRS_HISCORES } from 'api/constants';
-import { BadRequestError, ServerError } from 'api/errors';
-import proxiesService from 'api/services/external/proxies.service';
+import { OSRS_HISCORES } from '../../constants';
+import { BadRequestError, ServerError } from '../../errors';
+import proxiesService from './proxies.service';
 
 /**
  * Fetches the player data from the Hiscores API.

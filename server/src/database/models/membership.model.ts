@@ -9,8 +9,8 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Group, Player } from 'database/models';
-import { GROUP_ROLES } from 'api/constants';
+import { GROUP_ROLES } from '../../api/constants';
+import { Group, Player } from '../../database/models';
 
 // Define other table options
 const options = {

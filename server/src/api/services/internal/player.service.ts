@@ -1,11 +1,11 @@
 import { Op } from 'sequelize';
-import { Player } from 'database/models';
-import { BadRequestError, ServerError } from 'api/errors';
-import { isValidDate } from 'api/util/dates';
-import { getCombatLevel } from 'api/util/level';
-import * as jagexService from 'api/services/external/jagex.service';
-import * as cmlService from 'api/services/external/cml.service';
-import * as snapshotService from 'api/services/internal/snapshot.service';
+import { Player } from '../../../database/models';
+import { BadRequestError, ServerError } from '../../errors';
+import { isValidDate } from '../../util/dates';
+import { getCombatLevel } from '../../util/level';
+import * as cmlService from '../external/cml.service';
+import * as jagexService from '../external/jagex.service';
+import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;

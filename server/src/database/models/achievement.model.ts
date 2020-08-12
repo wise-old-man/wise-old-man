@@ -1,5 +1,5 @@
 import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
-import { Player } from 'database/models';
+import { Player } from '../../database/models';
 
 // Define other table options
 const options = {

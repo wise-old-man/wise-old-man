@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { CML } from 'api/constants';
-import { ServerError } from 'api/errors';
+import { CML } from '../../constants';
+import { ServerError } from '../../errors';
 
 /**
  * Fetches the player history from the CML API.

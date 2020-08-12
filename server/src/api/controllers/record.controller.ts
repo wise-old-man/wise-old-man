@@ -1,4 +1,4 @@
-import * as service from 'api/services/internal/record.service';
+import * as service from '../services/internal/record.service';
 
 // GET /records/leaderboard
 async function leaderboard(req, res, next) {

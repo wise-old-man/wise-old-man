@@ -1,19 +1,19 @@
 import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { sequelize } from 'database';
-import { Group, Membership, Player } from 'database/models';
-import { ALL_METRICS, PERIODS } from 'api/constants';
-import { BadRequestError } from 'api/errors';
-import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from 'api/util/level';
-import { getMeasure, getRankKey, getValueKey, isSkill } from 'api/util/metrics';
-import * as cryptService from 'api/services/external/crypt.service';
-import * as achievementService from 'api/services/internal/achievement.service';
-import * as competitionService from 'api/services/internal/competition.service';
-import * as deltaService from 'api/services/internal/delta.service';
-import * as playerService from 'api/services/internal/player.service';
-import * as recordService from 'api/services/internal/record.service';
-import * as snapshotService from 'api/services/internal/snapshot.service';
+import { sequelize } from '../../../database';
+import { Group, Membership, Player } from '../../../database/models';
+import { ALL_METRICS, PERIODS } from '../../constants';
+import { BadRequestError } from '../../errors';
+import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
+import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import * as cryptService from '../external/crypt.service';
+import * as achievementService from './achievement.service';
+import * as competitionService from './competition.service';
+import * as deltaService from './delta.service';
+import * as playerService from './player.service';
+import * as recordService from './record.service';
+import * as snapshotService from './snapshot.service';
 
 function sanitizeName(name) {
   return name

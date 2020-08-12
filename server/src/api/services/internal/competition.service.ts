@@ -1,16 +1,16 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { Competition, Group, Participation, Player } from 'database/models';
-import { ALL_METRICS, COMPETITION_STATUSES } from 'api/constants';
-import { BadRequestError, NotFoundError } from 'api/errors';
-import { durationBetween, isPast, isValidDate } from 'api/util/dates';
-import { getValueKey, isActivity, isBoss, isSkill } from 'api/util/metrics';
-import * as cryptService from 'api/services/external/crypt.service';
-import * as deltaService from 'api/services/internal/delta.service';
-import * as groupService from 'api/services/internal/group.service';
-import * as playerService from 'api/services/internal/player.service';
-import * as snapshotService from 'api/services/internal/snapshot.service';
+import { Competition, Group, Participation, Player } from '../../../database/models';
+import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
+import { BadRequestError, NotFoundError } from '../../errors';
+import { durationBetween, isPast, isValidDate } from '../../util/dates';
+import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import * as cryptService from '../external/crypt.service';
+import * as deltaService from './delta.service';
+import * as groupService from './group.service';
+import * as playerService from './player.service';
+import * as snapshotService from './snapshot.service';
 
 function sanitizeTitle(title) {
   return title

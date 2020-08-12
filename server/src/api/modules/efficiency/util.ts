@@ -1,5 +1,5 @@
-import { Bonus, BonusType, BossMeta, Experiences, Killcounts, SkillMeta } from 'types';
-import { BOSSES, SKILLS } from 'api/constants';
+import { Bonus, BonusType, BossMeta, Experiences, Killcounts, SkillMeta } from '../../../types';
+import { BOSSES, SKILLS } from '../../constants';
 
 function getBonuses(metas: SkillMeta[], type: BonusType): Bonus[] {
   return metas

@@ -7,7 +7,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Membership, Player } from 'database/models';
+import { Membership, Player } from '../../database/models';
 
 // Define other table options
 const options = {

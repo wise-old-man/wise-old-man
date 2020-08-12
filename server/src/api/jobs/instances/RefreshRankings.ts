@@ -1,5 +1,5 @@
-import * as competitionService from 'api/services/internal/competition.service';
-import * as groupService from 'api/services/internal/group.service';
+import * as competitionService from '../../services/internal/competition.service';
+import * as groupService from '../../services/internal/group.service';
 import { Job } from '../index';
 
 class RefreshRankings implements Job {
