@@ -1,4 +1,4 @@
-import * as playerService from '../../modules/players/player.service';
+import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
 
 class AssertPlayerName implements Job {

@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { promisify } from 'util';
 import { SKILLS } from '../../src/api/constants';
-import * as service from '../../src/api/modules/snapshots/snapshot.service';
+import * as service from '../../src/api/services/internal/snapshot.service';
 import { getRankKey, getValueKey } from '../../src/api/util/metrics';
-import { Player } from '../../src/database';
+import { Player } from '../../src/database/models';
 import { TestData } from '../types';
 import { resetDatabase } from '../utils';
 

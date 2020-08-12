@@ -54,3 +54,30 @@ export interface PaginationConfig {
   limit: number;
   offset: number;
 }
+
+export enum NameChangeStatus {
+  PENDING,
+  DENIED,
+  APPROVED
+}
+
+export interface EventPeriod {
+  hours?: number;
+  minutes?: number;
+}
+
+export interface ProxiesConfig {
+  port: number;
+  username: string;
+  password: string;
+  hosts: string[];
+}
+
+export interface Proxy {
+  port: number;
+  host: string;
+  auth: {
+    username: string;
+    password: string;
+  };
+}

@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import api from '../../src/api';
-import { Competition, Group, Membership, Player } from '../../src/database';
+import { Competition, Group, Membership, Player } from '../../src/database/models';
 import { TestData } from '../types';
 import { resetDatabase } from '../utils';
 

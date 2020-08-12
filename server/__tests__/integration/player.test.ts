@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import api from '../../src/api';
-import { Player } from '../../src/database';
+import { Player } from '../../src/database/models';
 import { resetDatabase } from '../utils';
 
 const request = supertest(api);

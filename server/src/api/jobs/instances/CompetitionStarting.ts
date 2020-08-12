@@ -1,5 +1,5 @@
-import { onCompetitionStarting } from '../../events';
-import * as competitionService from '../../modules/competitions/competition.service';
+import { onCompetitionStarting } from '../../events/competition.events';
+import * as competitionService from '../../services/internal/competition.service';
 import { Job } from '../index';
 
 class CompetitionStarting implements Job {
