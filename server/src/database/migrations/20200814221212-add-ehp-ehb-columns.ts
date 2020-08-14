@@ -1,12 +1,15 @@
 import { QueryInterface } from 'sequelize/types';
-import { ACTIVITIES, BOSSES } from '../../api/constants';
-import { getRankKey, getValueKey } from '../../api/util/metrics';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<Array<any>> {
-  const newColumns = [...getActivityColumns(dataTypes), ...getBossColumns(dataTypes)];
+  const NEW_COLUMNS = [
+    { name: 'ehpValue', type: dataTypes.FLOAT },
+    { name: 'ehbValue', type: dataTypes.FLOAT },
+    { name: 'ehpRank', type: dataTypes.INTEGER },
+    { name: 'ehbRank', type: dataTypes.INTEGER }
+  ];
 
   const actions = Promise.all(
-    newColumns.map(({ name, type }) =>
+    NEW_COLUMNS.map(({ name, type }) =>
       queryInterface.addColumn('snapshots', name, {
         type,
         defaultValue: -1,
@@ -25,19 +28,4 @@ function down() {
   // https://github.com/sequelize/sequelize/issues/12229
   return new Promise(success => success([]));
 }
-
-function getActivityColumns(Sequelize) {
-  return ACTIVITIES.map(activity => [
-    { name: getRankKey(activity), type: Sequelize.INTEGER },
-    { name: getValueKey(activity), type: Sequelize.INTEGER }
-  ]).flat();
-}
-
-function getBossColumns(Sequelize) {
-  return BOSSES.map(boss => [
-    { name: getRankKey(boss), type: Sequelize.INTEGER },
-    { name: getValueKey(boss), type: Sequelize.INTEGER }
-  ]).flat();
-}
-
 export { up, down };
