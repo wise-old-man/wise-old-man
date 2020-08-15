@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { getCombatLevel } from '../../util/level';
+import { getCombatLevel, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as snapshotService from './snapshot.service';
@@ -154,15 +154,14 @@ async function update(username: string): Promise<[Player, boolean]> {
     throw new BadRequestError('Invalid username.');
   }
 
-  // Find a player with the given username,
-  // or create a new one if none are found
+  // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
-  const [should, seconds] = shouldUpdate(player);
+  // Check if this player should be updated again
+  const [should] = shouldUpdate(player);
 
-  // If the player already existed and was updated recently,
-  // don't allow the API to update it
+  // If the player was updated recently, don't update it
   if (!should && !isNew) {
-    throw new RateLimitError(`Error: ${username} was updated ${seconds} seconds ago.`);
+    throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
   try {
@@ -172,14 +171,11 @@ async function update(username: string): Promise<[Player, boolean]> {
       player.type = await assertType(player.username);
     }
 
-    // Load data from OSRS hiscores
-    const hiscoresCSV = await jagexService.getHiscoresData(player.username, player.type);
-
     // Get the latest snapshot from the DB
     const previousSnapshot = await snapshotService.findLatest(player.id);
 
-    // Convert the csv data to a Snapshot instance (saved in the DB)
-    const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+    // Fetch the latest stats from the hiscores
+    const currentSnapshot = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
     if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
@@ -187,13 +183,10 @@ async function update(username: string): Promise<[Player, boolean]> {
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    // If the player was previosuly flagged, unflag it.
-    // Otherwise just force update the "updatedAt" timestamp on the player model
-    if (player.flagged && player.type !== 'unknown') {
-      await player.update({ flagged: false });
-    } else {
-      await player.changed('updatedAt', true);
-    }
+    // Update the player's build
+    player.build = getBuild(currentSnapshot);
+    // If the player has reached this point, it's certainly not flagged
+    player.flagged = false;
 
     await currentSnapshot.save();
     await player.save();
@@ -203,8 +196,6 @@ async function update(username: string): Promise<[Player, boolean]> {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
     if (isNew && player.type !== 'unknown') {
-      // Doing this with the model method (Player.update) because the
-      // instance method (instance.update) doesn't seem to work.
       await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
     }
 
@@ -270,6 +261,16 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
 
   return savedSnapshots;
+}
+
+async function fetchStats(player: Player): Promise<Snapshot> {
+  // Load data from OSRS hiscores
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username, player.type);
+
+  // Convert the csv data to a Snapshot instance (saved in the DB)
+  const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+
+  return newSnapshot;
 }
 
 /**
@@ -408,6 +409,22 @@ async function assertName(username: string): Promise<string> {
 
   await player.update({ displayName });
   return displayName;
+}
+
+function getBuild(snapshot: Snapshot) {
+  if (isF2p(snapshot)) {
+    return 'f2p';
+  }
+
+  if (isLvl3(snapshot)) {
+    return 'lvl3';
+  }
+
+  if (is1Def(snapshot)) {
+    return '1def';
+  }
+
+  return 'main';
 }
 
 async function findOrCreate(username: string): Promise<[Player, boolean]> {

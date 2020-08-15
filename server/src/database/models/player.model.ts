@@ -30,7 +30,8 @@ const options = {
   validate: {
     validateUsername,
     validateDisplayName,
-    validateType
+    validateType,
+    validateBuild
   },
   indexes: [
     {
@@ -58,6 +59,9 @@ export default class Player extends Model<Player> {
   @Default(PLAYER_TYPES[0]) // unknown
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
   type: string;
+
+  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 'main' })
+  build: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   flagged: boolean;
@@ -98,6 +102,14 @@ export default class Player extends Model<Player> {
 function validateType(this: Player) {
   if (!PLAYER_TYPES.includes(this.type)) {
     throw new Error('Invalid player type.');
+  }
+}
+
+function validateBuild(this: Player) {
+  const builds = ['f2p', 'lvl3', '1def', 'main'];
+
+  if (!builds.includes(this.build)) {
+    throw new Error('Invalid player build.');
   }
 }
 

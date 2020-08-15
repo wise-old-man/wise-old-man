@@ -109,6 +109,19 @@ export const BOSSES_MAP = [
   { key: 'zulrah', name: 'Zulrah' }
 ];
 
+export const MEMBER_SKILLS = [
+  'agility',
+  'construction',
+  'farming',
+  'fletching',
+  'herblore',
+  'hunter',
+  'thieving',
+  'slayer'
+];
+
+export const COMBAT_SKILLS = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'prayer', 'magic'];
+
 export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
