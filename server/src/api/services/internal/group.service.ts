@@ -614,7 +614,7 @@ async function setMembers(group, members) {
   const uniqueNames = uniq(members.map(m => m.username.toLowerCase()));
 
   // Fetch (or create) player from the unique usernames
-  const players = await playerService.findAllOrCreate(uniqueNames);
+  const players = await playerService.findAllOrCreate(uniqueNames as string[]);
 
   // Define membership models for each player
   const memberships = players.map((player, i) => ({

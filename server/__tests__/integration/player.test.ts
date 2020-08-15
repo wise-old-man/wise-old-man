@@ -19,8 +19,8 @@ describe('Player API', () => {
     test('Do not track valid username too soon', async done => {
       const response = await request.post('/api/players/track').send({ username: 'Test Player' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Failed to update:');
+      expect(response.status).toBe(429);
+      expect(response.body.message).toMatch('Error:');
 
       done();
     }, 90000);

@@ -5,7 +5,7 @@ import { ServerError } from '../../errors';
 /**
  * Fetches the player history from the CML API.
  */
-async function getCMLHistory(username, time) {
+async function getCMLHistory(username: string, time: number): Promise<string[]> {
   const URL = `${CML.HISTORY}&player=${username}&time=${time}`;
 
   try {

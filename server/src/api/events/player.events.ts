@@ -12,6 +12,7 @@ function onPlayerNameChanged(player: Player) {
 }
 
 function onPlayerUpdated(snapshot: Snapshot) {
+  jobs.add('ImportPlayer', { playerId: snapshot.playerId });
   jobs.add('SyncPlayerAchievements', { playerId: snapshot.playerId });
   jobs.add('SyncPlayerInitialValues', { playerId: snapshot.playerId });
 

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player } from '../../../database/models';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
-import { BadRequestError, NotFoundError } from '../../errors';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
@@ -285,13 +285,13 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
     const group = await groupService.findOne(groupId);
 
     if (!group) {
-      throw new BadRequestError('Invalid group id.');
+      throw new NotFoundError('Error: Group could not be found.');
     }
 
     const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
     if (!verified) {
-      throw new BadRequestError('Incorrect group verification code.');
+      throw new ForbiddenError('Incorrect group verification code.');
     }
   }
 
@@ -366,7 +366,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   const competition = await Competition.findOne({ where: { id } });
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   if (metric && !ALL_METRICS.includes(metric)) {
@@ -388,7 +388,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
   const verified = await isVerified(competition, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+    throw new ForbiddenError('Incorrect verification code.');
   }
 
   const newValues: any = {};
@@ -450,13 +450,13 @@ async function destroy(id, verificationCode) {
   const { title } = competition;
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   const verified = await isVerified(competition, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+    throw new ForbiddenError('Incorrect verification code.');
   }
 
   await competition.destroy();
@@ -589,7 +589,7 @@ async function getCompetitionForParticipantOperation(id, verificationCode, usern
   const verified = await isVerified(competition, verificationCode);
 
   if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+    throw new ForbiddenError('Incorrect verification code.');
   }
 
   return competition;
@@ -606,7 +606,7 @@ async function getParticipants(id) {
   const competition = await Competition.findOne({ where: { id } });
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   const participants = await competition.$get('participants');
@@ -707,7 +707,7 @@ async function updateAllParticipants(id, updateAction) {
   const competition = await Competition.findOne({ where: { id } });
 
   if (!competition) {
-    throw new BadRequestError(`Competition of id ${id} was not found.`);
+    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   const participants = await getOutdatedParticipants(id);
@@ -846,7 +846,7 @@ async function isVerified(competition, verificationCode) {
     const group = await Group.findOne({ where: { id: groupId } });
 
     if (!group) {
-      throw new BadRequestError(`Group of id ${groupId} was not found.`);
+      throw new NotFoundError(`Group of id ${groupId} was not found.`);
     }
 
     hash = group.verificationHash;
