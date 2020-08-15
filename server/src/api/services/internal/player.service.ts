@@ -29,6 +29,10 @@ function sanitize(username: string): string {
 }
 
 function isValidUsername(username: string): boolean {
+  if (typeof username !== 'string') {
+    return false;
+  }
+
   const standardized = standardize(username);
 
   // If doesn't meet the size requirements

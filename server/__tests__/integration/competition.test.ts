@@ -201,8 +201,8 @@ describe('Competition API', () => {
         groupVerificationCode: TEST_GROUP_VERIFICATION_CODE
       });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid group id.');
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Error: Group could not be found.');
 
       done();
     });
@@ -308,7 +308,7 @@ describe('Competition API', () => {
         verificationCode: '123-123'
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
 
       done();
@@ -488,7 +488,7 @@ describe('Competition API', () => {
         verificationCode: 'invalid'
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
 
       done();
