@@ -3,6 +3,7 @@ import { Snapshot } from '../../database/models';
 import {
   BOSSES,
   COMBAT_SKILLS,
+  F2P_BOSSES,
   MAX_LEVEL,
   MAX_VIRTUAL_LEVEL,
   MEMBER_SKILLS,
@@ -12,7 +13,7 @@ import { getValueKey } from './metrics';
 
 function getLevel(exp: number, virtual = false): number {
   // Unranked
-  if (exp === -1) return 0;
+  if (exp === -1) return 1;
 
   const maxlevel = virtual ? MAX_VIRTUAL_LEVEL : MAX_LEVEL;
 
@@ -77,7 +78,7 @@ function get200msCount(snapshot: any) {
 
 function isF2p(snapshot: Snapshot) {
   const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getValueKey(s)]) > 1);
-  const hasBossKc = BOSSES.some(b => snapshot[getValueKey(b)] > 0);
+  const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getValueKey(b)] > 0);
 
   return !hasMemberStats && !hasBossKc;
 }
@@ -87,7 +88,7 @@ function isLvl3(snapshot: Snapshot) {
 }
 
 function is1Def(snapshot: Snapshot) {
-  return getLevel(snapshot.defenceExperience) <= 1;
+  return getLevel(snapshot.defenceExperience) === 1;
 }
 
 export { getLevel, getCombatLevel, getTotalLevel, get200msCount, is1Def, isF2p, isLvl3 };

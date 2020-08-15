@@ -120,6 +120,8 @@ export const MEMBER_SKILLS = [
   'slayer'
 ];
 
+export const F2P_BOSSES = ['obor', 'bryophyta'];
+
 export const COMBAT_SKILLS = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'prayer', 'magic'];
 
 export const SKILLS = SKILLS_MAP.map(s => s.key);
