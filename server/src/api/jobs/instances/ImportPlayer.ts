@@ -9,8 +9,19 @@ class ImportPlayer implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { username } = data;
-    await playerService.importCML(username);
+    const { playerId, username } = data;
+
+    // If the player id is supplied instead of the username
+    // fetch the user data from the id, and then import from username
+    if (playerId) {
+      const player = await playerService.findById(playerId);
+
+      if (player) {
+        await playerService.importCML(player.username);
+      }
+    } else {
+      await playerService.importCML(username);
+    }
   }
 }
 
