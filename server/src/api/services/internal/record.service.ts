@@ -1,6 +1,6 @@
-import { forEach, keyBy, mapValues, omit } from 'lodash';
+import { forEach, keyBy, omit } from 'lodash';
 import { Player, Record } from '../../../database/models';
-import { ALL_METRICS, PERIODS } from '../../constants';
+import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';
 import { getPlayerPeriodDeltas } from './delta.service';
@@ -92,27 +92,10 @@ async function getPlayerRecords(playerId, period, metric) {
 }
 
 /**
- * Gets the all the best records for a specific metric.
- * Optionally, the records can be filtered by the playerType.
- */
-async function getLeaderboard(metric, playerType) {
-  const partials = await Promise.all(
-    PERIODS.map(async period => {
-      const list = await getPeriodLeaderboard(metric, period, playerType);
-      return { period, records: list };
-    })
-  );
-
-  // Turn an array of records, into an object, using the period as a key,
-  // then include only the records array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), p => p.records);
-}
-
-/**
  * Gets the best records for a specific metric and period.
- * Optionally, the records can be filtered by the playerType.
+ * Optionally, the records can be filtered by the playerType and playerBuild.
  */
-async function getPeriodLeaderboard(metric, period, playerType) {
+async function getLeaderboard(metric: string, period: string, type: string, build: string) {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -121,24 +104,26 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
+  if (type && !PLAYER_TYPES.includes(type)) {
+    throw new BadRequestError(`Invalid player type: ${type}.`);
+  }
+
+  if (build && !PLAYER_BUILDS.includes(build)) {
+    throw new BadRequestError(`Invalid player build: ${build}.`);
+  }
+
+  const query: any = {};
+  if (type) query.type = type;
+  if (build) query.build = build;
+
   const records = await Record.findAll({
     where: { period, metric },
     order: [['value', 'DESC']],
-    limit: 20,
-    include: [{ model: Player, where: playerType && { type: playerType } }]
+    include: [{ model: Player, where: query }],
+    limit: 20
   });
 
-  const formattedRecords = records.map(({ player, value, updatedAt }) => ({
-    playerId: player.id,
-    username: player.username,
-    displayName: player.displayName,
-    type: player.type,
-    flagged: player.flagged,
-    value,
-    updatedAt
-  }));
-
-  return formattedRecords;
+  return records;
 }
 
 /**
@@ -174,4 +159,4 @@ async function getGroupLeaderboard(metric, period, playerIds, pagination) {
   return formattedRecords;
 }
 
-export { syncRecords, getPlayerRecords, getPeriodLeaderboard, getLeaderboard, getGroupLeaderboard };
+export { syncRecords, getPlayerRecords, getLeaderboard, getGroupLeaderboard };

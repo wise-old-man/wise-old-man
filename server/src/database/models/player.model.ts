@@ -10,7 +10,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { PLAYER_TYPES } from '../../api/constants';
+import { PLAYER_BUILDS, PLAYER_TYPES } from '../../api/constants';
 import {
   Achievement,
   Competition,
@@ -106,9 +106,7 @@ function validateType(this: Player) {
 }
 
 function validateBuild(this: Player) {
-  const builds = ['f2p', 'lvl3', '1def', 'main'];
-
-  if (!builds.includes(this.build)) {
+  if (!PLAYER_BUILDS.includes(this.build)) {
     throw new Error('Invalid player build.');
   }
 }

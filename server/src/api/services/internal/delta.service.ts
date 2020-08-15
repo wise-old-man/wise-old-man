@@ -1,9 +1,9 @@
 import { keyBy, mapValues } from 'lodash';
 import { QueryTypes } from 'sequelize';
 import { sequelize } from '../../../database';
-import { InitialValues } from '../../../database/models';
+import { InitialValues, Player } from '../../../database/models';
 import * as queries from '../../../database/queries';
-import { ALL_METRICS, PERIODS, PLAYER_TYPES } from '../../constants';
+import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
@@ -79,9 +79,9 @@ async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
 
 /**
  * Gets the best deltas for a specific metric and period.
- * Optionally, the deltas can be filtered by the playerType.
+ * Optionally, the deltas can be filtered by the playerType and playerBuild.
  */
-async function getPeriodLeaderboard(metric, period, playerType) {
+async function getLeaderboard(metric: string, period: string, type: string, build: string) {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -90,48 +90,37 @@ async function getPeriodLeaderboard(metric, period, playerType) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (playerType && !PLAYER_TYPES.includes(playerType)) {
-    throw new BadRequestError(`Invalid player type: ${playerType}.`);
+  if (type && !PLAYER_TYPES.includes(type)) {
+    throw new BadRequestError(`Invalid player type: ${type}.`);
+  }
+
+  if (build && !PLAYER_BUILDS.includes(build)) {
+    throw new BadRequestError(`Invalid player build: ${build}.`);
   }
 
   const metricKey = getValueKey(metric);
   const seconds = getSeconds(period);
-  const typeCondition = playerType ? `player.type = '${playerType}'` : "NOT player.type = 'unknown'";
 
-  const query = queries.GET_PERIOD_LEADERBOARD(metricKey, typeCondition);
+  const typeCondition = type ? `player.type = '${type}'` : "NOT player.type = 'unknown'";
+  const buildCondition = build ? `AND player.build = '${build}'` : '';
+
+  const query = queries.GET_PERIOD_LEADERBOARD(metricKey, typeCondition, buildCondition);
 
   const results = await sequelize.query(query, {
     replacements: { seconds },
     type: QueryTypes.SELECT
   });
 
-  return results.map((r: any) => ({
-    ...r,
-    endValue: parseInt(r.endValue, 10),
-    startValue: parseInt(r.startValue, 10),
-    gained: parseInt(r.gained, 10)
-  }));
-}
-
-/**
- * Gets the the best deltas for a specific metric.
- * Optionally, the deltas can be filtered by the playerType.
- */
-async function getLeaderboard(metric, playerType) {
-  // Do not include year, as this makes the whole query slower, and is not
-  // required for the app
-  const periods = ['day', 'week', 'month'];
-
-  const partials = await Promise.all(
-    periods.map(async period => {
-      const list = await getPeriodLeaderboard(metric, period, playerType);
-      return { period, deltas: list };
-    })
-  );
-
-  // Turn an array of deltas, into an object, using the period as a key,
-  // then include only the deltas array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), p => p.deltas);
+  return results.map((r: any) => {
+    return {
+      startDate: r.startDate as string,
+      endDate: r.endDate as string,
+      startValue: parseInt(r.startValue, 10),
+      endValue: parseInt(r.endValue, 10),
+      gained: parseInt(r.gained, 10),
+      player: Player.build(r)
+    };
+  });
 }
 
 /**
@@ -279,7 +268,6 @@ function emptyDiff() {
 export {
   getPlayerDeltas,
   getPlayerPeriodDeltas,
-  getPeriodLeaderboard,
   getLeaderboard,
   getGroupLeaderboard,
   getCompetitionLeaderboard,
