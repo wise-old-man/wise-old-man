@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import { Player } from '../../../database/models';
-import { BadRequestError, ServerError } from '../../errors';
+import { Player, Snapshot } from '../../../database/models';
+import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel } from '../../util/level';
 import * as cmlService from '../external/cml.service';
@@ -17,69 +17,66 @@ const DECADE_IN_SECONDS = 315569260;
  * "Psikoi" -> "psikoi",
  * "Hello_world  " -> "hello world"
  */
-function standardize(username) {
+function standardize(username: string): string {
   return username
     .replace(/[-_\s]/g, ' ')
     .trim()
     .toLowerCase();
 }
 
-function sanitize(username) {
+function sanitize(username: string): string {
   return username.replace(/[-_\s]/g, ' ').trim();
 }
 
-function isValidUsername(username) {
-  if (typeof username !== 'string') {
+function isValidUsername(username: string): boolean {
+  const standardized = standardize(username);
+
+  // If doesn't meet the size requirements
+  if (standardized.length < 1 || standardized.length > 12) {
     return false;
   }
 
-  const formattedUsername = standardize(username);
-
-  if (formattedUsername.length < 1 || formattedUsername.length > 12) {
+  // If starts or ends with a space
+  if (standardized.startsWith(' ') || standardized.endsWith(' ')) {
     return false;
   }
 
-  if (formattedUsername.startsWith(' ') || formattedUsername.endsWith(' ')) {
-    return false;
-  }
-
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(formattedUsername)) {
+  // If has any special characters
+  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) {
     return false;
   }
 
   return true;
 }
 
-function shouldUpdate(updatedAt) {
-  if (!updatedAt || !isValidDate(updatedAt)) {
+/**
+ * Checks if a given player has been updated in the last 60 seconds.
+ */
+function shouldUpdate(player: Player): [boolean, number] {
+  if (!player.updatedAt || !isValidDate(player.updatedAt)) {
     return [true, DECADE_IN_SECONDS];
   }
 
-  const diff = Date.now() - updatedAt.getTime();
+  const diff = Date.now() - player.updatedAt.getTime();
   const seconds = Math.floor(diff / 1000);
 
-  // Only allow the player to be updated ,
-  // if he hasn't been in the last 60 seconds
-  const should = seconds >= 60;
-
-  return [should, seconds];
+  return [seconds >= 60, seconds];
 }
 
-function shouldImport(lastImportedAt) {
+/**
+ * Checks if a given player has been imported from CML in the last 24 hours.
+ */
+function shouldImport(player: Player): [boolean, number] {
   // If the player's CML history has never been
   // imported, should import the last years
-  if (!lastImportedAt || !isValidDate(lastImportedAt)) {
+  if (!player.lastImportedAt || !isValidDate(player.lastImportedAt)) {
     return [true, DECADE_IN_SECONDS];
   }
 
-  const diff = Date.now() - lastImportedAt.getTime();
+  const diff = Date.now() - player.lastImportedAt.getTime();
   const seconds = Math.floor(diff / 1000);
 
-  // Only allow the player to be imported from CML,
-  // If he hasn't been in the last 24h
-  const should = seconds / 60 / 60 >= 24;
-
-  return [should, seconds];
+  return [seconds / 60 / 60 >= 24, seconds];
 }
 
 /**
@@ -127,7 +124,7 @@ async function getDetailsById(id) {
 /**
  * Search for players with a (partially) matching username.
  */
-async function search(username) {
+async function search(username: string): Promise<Player[]> {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -148,25 +145,25 @@ async function search(username) {
  * Update a given username, by getting its latest
  * hiscores data, saving it as a new player if necessary.
  */
-async function update(username) {
+async function update(username: string): Promise<[Player, boolean]> {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
 
   // Find a player with the given username,
   // or create a new one if none are found
-  const [player, created] = await findOrCreate(username);
-  const [should, seconds] = await shouldUpdate(player.updatedAt);
+  const [player, isNew] = await findOrCreate(username);
+  const [should, seconds] = shouldUpdate(player);
 
   // If the player already existed and was updated recently,
-  // don't allow the api to update it
-  if (!should && !created) {
-    throw new BadRequestError(`Failed to update: ${username} was updated ${seconds} seconds ago.`);
+  // don't allow the API to update it
+  if (!should && !isNew) {
+    throw new RateLimitError(`Error: ${username} was updated ${seconds} seconds ago.`);
   }
 
   try {
     // If the player is new or has an unknown player type,
-    // determine it before tracking
+    // determine it before tracking (to get the correct ranks)
     if (player.type === 'unknown') {
       player.type = await assertType(player.username);
     }
@@ -180,9 +177,10 @@ async function update(username) {
     // Convert the csv data to a Snapshot instance (saved in the DB)
     const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
+    // There has been a radical change in this player's stats, mark it as flagged
     if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
       await player.update({ flagged: true });
-      throw new BadRequestError('Failed to update: Unregistered name change.');
+      throw new ServerError('Failed to update: Unregistered name change.');
     }
 
     // If the player was previosuly flagged, unflag it.
@@ -196,13 +194,11 @@ async function update(username) {
     await currentSnapshot.save();
     await player.save();
 
-    const formatted = { ...player.toJSON(), latestSnapshot: snapshotService.format(currentSnapshot) };
-
-    return [formatted, created];
+    return [player, isNew];
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
-    if (created && player.type !== 'unknown') {
+    if (isNew && player.type !== 'unknown') {
       // Doing this with the model method (Player.update) because the
       // instance method (instance.update) doesn't seem to work.
       await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
@@ -218,7 +214,7 @@ async function update(username) {
  * datapoints as it can. If it has imported in the past, it will
  * attempt to import all the datapoints CML gathered since the last import.
  */
-async function importCML(username) {
+async function importCML(username: string): Promise<Snapshot[]> {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -226,13 +222,13 @@ async function importCML(username) {
   // Find a player with the given username,
   // or create a new one if none are found
   const [player] = await findOrCreate(username);
-  const [should, seconds] = shouldImport(player.lastImportedAt);
+  const [should, seconds] = shouldImport(player);
 
   // If the player hasn't imported in over 24h,
   // attempt to import its history from CML
   if (!should) {
-    const minsTilImport = Math.floor((24 * 3600 - (seconds as number)) / 60);
-    throw new BadRequestError(`Imported too soon, please wait another ${minsTilImport} minutes.`);
+    const timeLeft = Math.floor((24 * 3600 - seconds) / 60);
+    throw new RateLimitError(`Imported too soon, please wait another ${timeLeft} minutes.`);
   }
 
   const importedSnapshots = [];
@@ -240,13 +236,13 @@ async function importCML(username) {
   // If the player hasn't imported in over a year
   // import the last year and decade.
   if (seconds >= YEAR_IN_SECONDS) {
-    const yearSnapshots = await importCMLSince(player.id, player.username, YEAR_IN_SECONDS);
-    const decadeSnapshots = await importCMLSince(player.id, player.username, DECADE_IN_SECONDS);
+    const yearSnapshots = await importCMLSince(player, YEAR_IN_SECONDS);
+    const decadeSnapshots = await importCMLSince(player, DECADE_IN_SECONDS);
 
     importedSnapshots.push(...yearSnapshots);
     importedSnapshots.push(...decadeSnapshots);
   } else {
-    const recentSnapshots = await importCMLSince(player.id, player.username, seconds);
+    const recentSnapshots = await importCMLSince(player, seconds);
     importedSnapshots.push(recentSnapshots);
   }
 
@@ -256,12 +252,12 @@ async function importCML(username) {
   return importedSnapshots;
 }
 
-async function importCMLSince(id, username, time) {
+async function importCMLSince(player: Player, time: number): Promise<Snapshot[]> {
   // Load the CML history
-  const history = await cmlService.getCMLHistory(username, time);
+  const history = await cmlService.getCMLHistory(player.username, time);
 
   // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(id, row)));
+  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(player.id, row)));
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
   const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
@@ -279,7 +275,7 @@ async function importCMLSince(id, username, time) {
  * Note: This is an auxilary function for the assertType function
  * and should not be used for any other situation.
  */
-async function getOverallExperience(username, type) {
+async function getOverallExperience(username: string, type: string): Promise<number> {
   try {
     const data = await jagexService.getHiscoresData(username, type);
 
@@ -301,9 +297,7 @@ async function getOverallExperience(username, type) {
 
     return parseInt(values[2], 10);
   } catch (e) {
-    if (e instanceof ServerError) {
-      throw e;
-    }
+    if (e instanceof ServerError) throw e;
     return -1;
   }
 }
@@ -379,7 +373,7 @@ async function assertType(username, force = false) {
  * Fetch the hiscores table overall to find the correct
  * capitalization of a given username
  */
-async function assertName(username) {
+async function assertName(username: string): Promise<string> {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -388,18 +382,18 @@ async function assertName(username) {
   const player = await find(formattedUsername);
 
   if (!player) {
-    throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
+    throw new NotFoundError(`Player not found: ${username} is not being tracked yet.`);
   }
 
   const hiscoresNames = await jagexService.getHiscoresNames(username);
   const match = hiscoresNames.find(h => standardize(h) === username);
 
   if (!match) {
-    throw new BadRequestError(`Couldn't find a name match for ${username}`);
+    throw new ServerError(`Couldn't find a name match for ${username}`);
   }
 
   if (standardize(match) !== player.username) {
-    throw new BadRequestError(`Display name and username don't match for ${username}`);
+    throw new ServerError(`Display name and username don't match for ${username}`);
   }
 
   const displayName = sanitize(match);
@@ -412,7 +406,7 @@ async function assertName(username) {
   return displayName;
 }
 
-async function findOrCreate(username) {
+async function findOrCreate(username: string): Promise<[Player, boolean]> {
   const result = await Player.findOrCreate({
     where: { username: standardize(username) },
     defaults: { displayName: sanitize(username) }
@@ -421,27 +415,28 @@ async function findOrCreate(username) {
   return result;
 }
 
-async function find(username) {
-  const result = await Player.findOne({ where: { username: standardize(username) } });
+async function find(username: string): Promise<Player | null> {
+  const result = await Player.findOne({
+    where: { username: standardize(username) }
+  });
+
   return result;
 }
 
-async function findAllOrCreate(usernames) {
+async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
   const promises = await Promise.all(usernames.map(username => findOrCreate(username)));
   return promises.map(p => p[0]);
 }
 
-async function findAll(usernames) {
+async function findAll(usernames: string[]): Promise<Player[]> {
   const promises = await Promise.all(usernames.map(username => find(username)));
 
-  if (!promises || !promises.length) {
-    return [];
-  }
+  if (!promises || !promises.length) return [];
 
   return promises;
 }
 
-async function findById(playerId) {
+async function findById(playerId: number): Promise<Player | null> {
   const players = await Player.findOne({
     where: { id: playerId }
   });
@@ -449,7 +444,7 @@ async function findById(playerId) {
   return players;
 }
 
-async function findAllByIds(playerIds) {
+async function findAllByIds(playerIds: number[]): Promise<Player[]> {
   const players = await Player.findAll({
     where: { id: playerIds }
   });
