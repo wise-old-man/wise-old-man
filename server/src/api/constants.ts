@@ -114,6 +114,11 @@ export const BOSSES_MAP = [
   { key: 'zulrah', name: 'Zulrah' }
 ];
 
+export const EFFICIENCY_MAP = [
+  { key: 'ehp', name: 'EHP' },
+  { key: 'ehb', name: 'EHB' }
+];
+
 export const MEMBER_SKILLS = [
   'agility',
   'construction',
@@ -132,7 +137,6 @@ export const COMBAT_SKILLS = ['attack', 'strength', 'defence', 'hitpoints', 'ran
 export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
-export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
 
 export const SKILL_ACHIEVEMENT_TEMPLATES = [
   {
@@ -178,3 +182,7 @@ export const BOSS_ACHIEVEMENT_TEMPLATES = [
     thresholds: [500, 1000, 5000, 10000]
   }
 ];
+
+export const EFFICIENCY = EFFICIENCY_MAP.map(s => s.key);
+
+export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...EFFICIENCY];

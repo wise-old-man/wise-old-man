@@ -67,8 +67,10 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
  * Checks whether two snapshots have negative gains in between.
  */
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
-  // Last man standing scores can fluctuate overtime
-  const isValidKey = key => key !== 'last_man_standingScore';
+  // Last man standing scores, ehp and ehb can fluctuate overtime
+  const keysToIgnore = ['last_man_standingScore', 'ehpValue', 'ehbValue'];
+
+  const isValidKey = key => !keysToIgnore.includes(key);
   const keys = ALL_METRICS.map(m => getValueKey(m));
 
   return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
