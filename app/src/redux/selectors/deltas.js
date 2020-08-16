@@ -25,7 +25,7 @@ export const isFetchingGroupDeltas = createSelector(rootSelector, root => root.i
 
 export const getLeaderboards = createSelector(leaderboardsSelector, map => {
   // Add a "rank" field to each delta of each period
-  return _.mapValues(map, deltas => deltas.map((d, i) => ({ ...d, rank: i + 1 })));
+  return _.mapValues(map, deltas => deltas && deltas.map((d, i) => ({ ...d, rank: i + 1 })));
 });
 
 export const getPlayerDeltas = (state, playerId) => getPlayerDeltasMap(state)[playerId];

@@ -27,7 +27,7 @@ export const ROUTES = [
     component: TopPage
   },
   {
-    path: '/records/:metric?/:playerType?',
+    path: '/records/:metric?',
     component: RecordsPage
   },
   {

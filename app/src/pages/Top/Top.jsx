@@ -21,7 +21,7 @@ import './Top.scss';
 
 function getTableConfig(metric, period) {
   return {
-    uniqueKey: row => row.username,
+    uniqueKey: row => row.player.username,
     columns: [
       {
         key: 'rank',
