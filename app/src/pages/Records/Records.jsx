@@ -209,11 +209,13 @@ function Records() {
           />
         </div>
         <div className="col-lg-3 col-md-5">
-          <Selector
-            options={playerBuildOptions}
-            selectedIndex={playerBuildIndex}
-            onSelect={handleBuildSelected}
-          />
+          {new Date() > new Date('2020-08-20') && (
+            <Selector
+              options={playerBuildOptions}
+              selectedIndex={playerBuildIndex}
+              onSelect={handleBuildSelected}
+            />
+          )}
         </div>
         <div className="col-md-2">
           {isLoading && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
