@@ -9,7 +9,15 @@ import Table from '../../components/Table';
 import NumberLabel from '../../components/NumberLabel';
 import TablePlaceholder from '../../components/TablePlaceholder';
 import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from '../../config';
-import { capitalize, getPlayerIcon, getMetricIcon, getMetricName, isSkill, isBoss } from '../../utils';
+import {
+  capitalize,
+  getPlayerBuild,
+  getPlayerIcon,
+  getMetricIcon,
+  getMetricName,
+  isSkill,
+  isBoss
+} from '../../utils';
 import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
 import {
   getLeaderboards,
@@ -59,7 +67,7 @@ function getPlayerTypeOptions() {
 
 function getPlayerBuildOptions() {
   const options = PLAYER_BUILDS.map(type => ({
-    label: capitalize(type),
+    label: getPlayerBuild(type),
     value: type
   }));
 

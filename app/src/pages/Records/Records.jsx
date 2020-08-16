@@ -12,6 +12,7 @@ import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from '../../config';
 import {
   formatDate,
   getPlayerIcon,
+  getPlayerBuild,
   getMetricIcon,
   capitalize,
   getMetricName,
@@ -75,7 +76,7 @@ function getPlayerTypeOptions() {
 
 function getPlayerBuildOptions() {
   const options = PLAYER_BUILDS.map(type => ({
-    label: capitalize(type),
+    label: getPlayerBuild(type),
     value: type
   }));
 
