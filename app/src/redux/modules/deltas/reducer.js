@@ -11,24 +11,41 @@ export const FETCH_GROUP_DELTAS_SUCCESS = 'deltas/FETCH_GROUP_DELTAS_SUCCESS';
 export const FETCH_GROUP_DELTAS_FAILURE = 'deltas/FETCH_GROUP_DELTAS_FAILURE';
 
 const initialState = {
-  isFetchingLeaderboard: false,
+  isFetching: {
+    day: false,
+    week: false,
+    month: false
+  },
+  leaderboards: {
+    day: null,
+    week: null,
+    month: null
+  },
   isFetchingPlayerDeltas: false,
   isFetchingGroupDeltas: false,
   playerDeltas: {},
-  groupDeltas: {},
-  leaderboard: {}
+  groupDeltas: {}
 };
 
 export default function deltasReducer(state = initialState, action) {
   switch (action.type) {
     case FETCH_LEADERBOARD_REQUEST:
-      return { ...state, isFetchingLeaderboard: true };
+      return { ...state, isFetching: { ...state.isFetching, [action.period]: true } };
 
-    case FETCH_LEADERBOARD_SUCCESS:
-      return { ...state, isFetchingLeaderboard: false, leaderboard: action.leaderboard };
+    case FETCH_LEADERBOARD_SUCCESS: {
+      return {
+        ...state,
+        isFetching: { ...state.isFetching, [action.period]: false },
+        leaderboards: { ...state.leaderboards, [action.period]: action.leaderboard }
+      };
+    }
 
     case FETCH_LEADERBOARD_FAILURE:
-      return { ...state, isFetchingLeaderboard: false, error: action.error };
+      return {
+        ...state,
+        isFetching: { ...state.isFetching, [action.period]: false },
+        error: action.error
+      };
 
     case FETCH_PLAYER_DELTAS_REQUEST:
       return { ...state, isFetchingPlayerDeltas: true };

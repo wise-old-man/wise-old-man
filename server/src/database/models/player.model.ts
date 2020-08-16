@@ -10,7 +10,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { PLAYER_TYPES } from '../../api/constants';
+import { PLAYER_BUILDS, PLAYER_TYPES } from '../../api/constants';
 import {
   Achievement,
   Competition,
@@ -30,7 +30,8 @@ const options = {
   validate: {
     validateUsername,
     validateDisplayName,
-    validateType
+    validateType,
+    validateBuild
   },
   indexes: [
     {
@@ -58,6 +59,9 @@ export default class Player extends Model<Player> {
   @Default(PLAYER_TYPES[0]) // unknown
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
   type: string;
+
+  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 'main' })
+  build: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   flagged: boolean;
@@ -98,6 +102,12 @@ export default class Player extends Model<Player> {
 function validateType(this: Player) {
   if (!PLAYER_TYPES.includes(this.type)) {
     throw new Error('Invalid player type.');
+  }
+}
+
+function validateBuild(this: Player) {
+  if (!PLAYER_BUILDS.includes(this.build)) {
+    throw new Error('Invalid player build.');
   }
 }
 

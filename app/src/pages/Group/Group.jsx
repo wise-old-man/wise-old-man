@@ -52,6 +52,11 @@ const PERIOD_OPTIONS = [
   { label: 'Year', value: 'year' }
 ];
 
+const VERIFIED_BADGE = {
+  text: 'Verified',
+  hoverText: "Verified group: This group's leader is verified on our Discord server."
+};
+
 const TABS = ['Members', 'Competitions', 'Hiscores', 'Gained', 'Records', 'Achievements', 'Statistics'];
 
 const MENU_OPTIONS = [
@@ -193,7 +198,7 @@ function Group() {
       </Helmet>
       <div className="group__header row">
         <div className="col">
-          <PageHeader title={group.name} verified={group.verified}>
+          <PageHeader title={group.name} badges={[VERIFIED_BADGE]}>
             <Button text="Update all" onClick={onUpdateAllClicked} disabled={isButtonDisabled} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">

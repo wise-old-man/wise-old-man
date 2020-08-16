@@ -11,24 +11,41 @@ export const FETCH_GROUP_RECORDS_SUCCESS = 'records/FETCH_GROUP_RECORDS_SUCCESS'
 export const FETCH_GROUP_RECORDS_FAILURE = 'records/FETCH_GROUP_RECORDS_FAILURE';
 
 const initialState = {
-  isFetchingLeaderboard: false,
+  isFetching: {
+    day: false,
+    week: false,
+    month: false
+  },
+  leaderboards: {
+    day: null,
+    week: null,
+    month: null
+  },
   isFetchingPlayerRecords: false,
   isFetchingGroupRecords: false,
   playerRecords: {},
-  groupRecords: {},
-  leaderboard: {}
+  groupRecords: {}
 };
 
 export default function recordsReducer(state = initialState, action) {
   switch (action.type) {
     case FETCH_LEADERBOARD_REQUEST:
-      return { ...state, isFetchingLeaderboard: true };
+      return { ...state, isFetching: { ...state.isFetching, [action.period]: true } };
 
-    case FETCH_LEADERBOARD_SUCCESS:
-      return { ...state, isFetchingLeaderboard: false, leaderboard: action.leaderboard };
+    case FETCH_LEADERBOARD_SUCCESS: {
+      return {
+        ...state,
+        isFetching: { ...state.isFetching, [action.period]: false },
+        leaderboards: { ...state.leaderboards, [action.period]: action.leaderboard }
+      };
+    }
 
     case FETCH_LEADERBOARD_FAILURE:
-      return { ...state, isFetchingLeaderboard: false, error: action.error };
+      return {
+        ...state,
+        isFetching: { ...state.isFetching, [action.period]: false },
+        error: action.error
+      };
 
     case FETCH_PLAYER_RECORDS_REQUEST:
       return { ...state, isFetchingPlayerRecords: true };

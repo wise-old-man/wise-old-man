@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { getCombatLevel } from '../../util/level';
+import { getCombatLevel, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as snapshotService from './snapshot.service';
@@ -18,10 +18,7 @@ const DECADE_IN_SECONDS = 315569260;
  * "Hello_world  " -> "hello world"
  */
 function standardize(username: string): string {
-  return username
-    .replace(/[-_\s]/g, ' ')
-    .trim()
-    .toLowerCase();
+  return sanitize(username).toLowerCase();
 }
 
 function sanitize(username: string): string {
@@ -29,26 +26,18 @@ function sanitize(username: string): string {
 }
 
 function isValidUsername(username: string): boolean {
-  if (typeof username !== 'string') {
-    return false;
-  }
+  if (typeof username !== 'string') return false;
 
   const standardized = standardize(username);
 
   // If doesn't meet the size requirements
-  if (standardized.length < 1 || standardized.length > 12) {
-    return false;
-  }
+  if (standardized.length < 1 || standardized.length > 12) return false;
 
   // If starts or ends with a space
-  if (standardized.startsWith(' ') || standardized.endsWith(' ')) {
-    return false;
-  }
+  if (standardized.startsWith(' ') || standardized.endsWith(' ')) return false;
 
   // If has any special characters
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) {
-    return false;
-  }
+  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) return false;
 
   return true;
 }
@@ -61,8 +50,7 @@ function shouldUpdate(player: Player): [boolean, number] {
     return [true, DECADE_IN_SECONDS];
   }
 
-  const diff = Date.now() - player.updatedAt.getTime();
-  const seconds = Math.floor(diff / 1000);
+  const seconds = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
 
   return [seconds >= 60, seconds];
 }
@@ -77,8 +65,7 @@ function shouldImport(player: Player): [boolean, number] {
     return [true, DECADE_IN_SECONDS];
   }
 
-  const diff = Date.now() - player.lastImportedAt.getTime();
-  const seconds = Math.floor(diff / 1000);
+  const seconds = Math.floor(Date.now() - player.lastImportedAt.getTime() / 1000);
 
   return [seconds / 60 / 60 >= 24, seconds];
 }
@@ -154,32 +141,28 @@ async function update(username: string): Promise<[Player, boolean]> {
     throw new BadRequestError('Invalid username.');
   }
 
-  // Find a player with the given username,
-  // or create a new one if none are found
+  // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
-  const [should, seconds] = shouldUpdate(player);
+  // Check if this player should be updated again
+  const [should] = shouldUpdate(player);
 
-  // If the player already existed and was updated recently,
-  // don't allow the API to update it
+  // If the player was updated recently, don't update it
   if (!should && !isNew) {
-    throw new RateLimitError(`Error: ${username} was updated ${seconds} seconds ago.`);
+    throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
   try {
     // If the player is new or has an unknown player type,
     // determine it before tracking (to get the correct ranks)
     if (player.type === 'unknown') {
-      player.type = await assertType(player.username);
+      player.type = await getType(player);
     }
-
-    // Load data from OSRS hiscores
-    const hiscoresCSV = await jagexService.getHiscoresData(player.username, player.type);
 
     // Get the latest snapshot from the DB
     const previousSnapshot = await snapshotService.findLatest(player.id);
 
-    // Convert the csv data to a Snapshot instance (saved in the DB)
-    const currentSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+    // Fetch the latest stats from the hiscores
+    const currentSnapshot = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
     if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
@@ -187,13 +170,10 @@ async function update(username: string): Promise<[Player, boolean]> {
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    // If the player was previosuly flagged, unflag it.
-    // Otherwise just force update the "updatedAt" timestamp on the player model
-    if (player.flagged && player.type !== 'unknown') {
-      await player.update({ flagged: false });
-    } else {
-      await player.changed('updatedAt', true);
-    }
+    // Update the player's build
+    player.build = getBuild(currentSnapshot);
+    // If the player has reached this point, it's certainly not flagged
+    player.flagged = false;
 
     await currentSnapshot.save();
     await player.save();
@@ -203,8 +183,6 @@ async function update(username: string): Promise<[Player, boolean]> {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
     if (isNew && player.type !== 'unknown') {
-      // Doing this with the model method (Player.update) because the
-      // instance method (instance.update) doesn't seem to work.
       await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
     }
 
@@ -272,105 +250,63 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   return savedSnapshots;
 }
 
+async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
+  // Load data from OSRS hiscores
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+
+  // Convert the csv data to a Snapshot instance (saved in the DB)
+  const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+
+  return newSnapshot;
+}
+
 /**
- * Gets a player's overall experience in a specific
- * player type hiscores endpoint.
- *
- * Note: This is an auxilary function for the assertType function
- * and should not be used for any other situation.
+ * Gets a player's overall exp in a specific hiscores endpoint.
+ * Note: This is an auxilary function for the getType function.
  */
-async function getOverallExperience(username: string, type: string): Promise<number> {
+async function getOverallExperience(player: Player, type: string): Promise<number> {
   try {
-    const data = await jagexService.getHiscoresData(username, type);
-
-    if (!data || data.length === 0) {
-      throw new ServerError('Failed to fetch hiscores data.');
-    }
-
-    const rows = data.split('\n');
-
-    if (!rows || rows.length === 0) {
-      throw new ServerError('Failed to fetch hiscores data.');
-    }
-
-    const values = rows[0].split(',');
-
-    if (values.length < 3) {
-      throw new ServerError('Failed to fetch hiscores data.');
-    }
-
-    return parseInt(values[2], 10);
+    return (await fetchStats(player, type)).overallExperience;
   } catch (e) {
     if (e instanceof ServerError) throw e;
     return -1;
   }
 }
 
-/**
- * Query the multiple hiscore endpoints to try and determine
- * the player's account type.
- *
- * If force is true, this will reassign the type, even if the current
- * value is not unknown.
- *
- * Note: If an hardcore acc dies at 1m overall exp, it stays that way in the
- * hardcore hiscores, even if the regular ironman hiscores continue to progress.
- * So to check if the player is no longer hardcore, we have to check if the
- * ironman exp is higher than the hardcore exp (meaning it progressed further as an ironman)
- */
-async function assertType(username, force = false) {
-  async function submitType(player, type) {
-    if (player.type === type) {
-      throw new BadRequestError(`Failed to reassign player type: ${username}'s is already ${type}.`);
-    }
+async function getType(player: Player): Promise<string> {
+  const regularExp = await getOverallExperience(player, 'regular');
 
+  // This username is not on the hiscores
+  if (regularExp === -1) {
+    throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
+  }
+
+  const ironmanExp = await getOverallExperience(player, 'ironman');
+  if (ironmanExp < regularExp) return 'regular';
+
+  const hardcoreExp = await getOverallExperience(player, 'hardcore');
+  if (hardcoreExp >= ironmanExp) return 'hardcore';
+
+  const ultimateExp = await getOverallExperience(player, 'ultimate');
+  if (ultimateExp >= ironmanExp) return 'ultimate';
+
+  return 'ironman';
+}
+
+async function assertType(username: string) {
+  if (!username) throw new BadRequestError('Invalid username.');
+
+  const player = await find(username);
+
+  if (!player) throw new NotFoundError('Player not found.');
+
+  const type = await getType(player);
+
+  if (player.type !== type) {
     await player.update({ type });
   }
 
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  const formattedUsername = standardize(username);
-  const player = await find(formattedUsername);
-
-  if (!player) {
-    throw new BadRequestError(`Invalid player: ${username} is not being tracked yet.`);
-  }
-
-  if (!force && player.type !== 'unknown') {
-    return player.type;
-  }
-
-  const regularExp = await getOverallExperience(formattedUsername, 'regular');
-
-  if (regularExp === -1) {
-    throw new BadRequestError(`Failed to load hiscores for ${username}.`);
-  }
-
-  const ironmanExp = await getOverallExperience(formattedUsername, 'ironman');
-
-  if (ironmanExp < regularExp) {
-    await submitType(player, 'regular');
-    return 'regular';
-  }
-
-  const hardcoreExp = await getOverallExperience(formattedUsername, 'hardcore');
-
-  if (hardcoreExp >= ironmanExp) {
-    await submitType(player, 'hardcore');
-    return 'hardcore';
-  }
-
-  const ultimateExp = await getOverallExperience(formattedUsername, 'ultimate');
-
-  if (ultimateExp >= ironmanExp) {
-    await submitType(player, 'ultimate');
-    return 'ultimate';
-  }
-
-  await submitType(player, 'ironman');
-  return 'ironman';
+  return type;
 }
 
 /**
@@ -408,6 +344,22 @@ async function assertName(username: string): Promise<string> {
 
   await player.update({ displayName });
   return displayName;
+}
+
+function getBuild(snapshot: Snapshot) {
+  if (isF2p(snapshot)) {
+    return 'f2p';
+  }
+
+  if (isLvl3(snapshot)) {
+    return 'lvl3';
+  }
+
+  if (is1Def(snapshot)) {
+    return '1def';
+  }
+
+  return 'main';
 }
 
 async function findOrCreate(username: string): Promise<[Player, boolean]> {

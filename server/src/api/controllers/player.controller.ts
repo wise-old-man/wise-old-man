@@ -40,7 +40,7 @@ async function assertType(req, res, next) {
     const { username } = req.body;
 
     // (Forcefully) Assert the player's account type
-    const type = await playerService.assertType(username, true);
+    const type = await playerService.assertType(username);
 
     res.json({ type });
   } catch (e) {

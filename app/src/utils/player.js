@@ -2,6 +2,19 @@ export function getPlayerIcon(type, flagged) {
   return `/img/runescape/icons_small/${flagged ? 'flagged' : type}.png`;
 }
 
+export function getPlayerBuild(build) {
+  switch (build) {
+    case '1def':
+      return '1 Def Pure';
+    case 'lvl3':
+      return 'Level 3';
+    case 'f2p':
+      return 'F2P';
+    default:
+      return 'Main';
+  }
+}
+
 export function getOfficialHiscoresUrl(player) {
   const username = encodeURI(player.username);
   let suffix;

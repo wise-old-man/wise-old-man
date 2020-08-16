@@ -3,11 +3,9 @@ import * as service from '../services/internal/delta.service';
 // GET /deltas/leaderboard
 async function leaderboard(req, res, next) {
   try {
-    const { metric, period, playerType } = req.query;
+    const { metric, period, playerType, playerBuild } = req.query;
 
-    const results = period
-      ? await service.getPeriodLeaderboard(metric, period, playerType)
-      : await service.getLeaderboard(metric, playerType);
+    const results = await service.getLeaderboard(metric, period, playerType, playerBuild);
 
     res.json(results);
   } catch (e) {

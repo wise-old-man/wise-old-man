@@ -12,13 +12,10 @@ const GET_PLAYER_DELTA = `
 
 // Since sequelize's param escaping doesn't work too well with strings,
 // we should just inject some variables into the query directly
-const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition) => `
+const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition, buildCondition) => `
     SELECT
         player.id as "playerId",
-        player.username,
-        player."displayName",
-        player.type,
-        player.flagged,
+        player.*,
         c."minDate" AS "startDate",
         c."maxDate" AS "endDate",
         c."endValue",
@@ -40,7 +37,7 @@ const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition) => `
         FROM "initialValues"
         GROUP BY "pId"
     ) i ON player.id = i."pId"
-    WHERE ${typeCondition}
+    WHERE ${typeCondition} ${buildCondition}
     ORDER BY gained DESC
     LIMIT 20`;
 

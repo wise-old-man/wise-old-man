@@ -7,6 +7,8 @@ export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultim
 
 export const GROUP_ROLES = ['member', 'leader'];
 
+export const PLAYER_BUILDS = ['f2p', 'lvl3', '1def', 'main'];
+
 export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];
 
 export const OSRS_HISCORES = {
@@ -108,6 +110,21 @@ export const BOSSES_MAP = [
   { key: 'zalcano', name: 'Zalcano' },
   { key: 'zulrah', name: 'Zulrah' }
 ];
+
+export const MEMBER_SKILLS = [
+  'agility',
+  'construction',
+  'farming',
+  'fletching',
+  'herblore',
+  'hunter',
+  'thieving',
+  'slayer'
+];
+
+export const F2P_BOSSES = ['obor', 'bryophyta'];
+
+export const COMBAT_SKILLS = ['attack', 'strength', 'defence', 'hitpoints', 'ranged', 'prayer', 'magic'];
 
 export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);

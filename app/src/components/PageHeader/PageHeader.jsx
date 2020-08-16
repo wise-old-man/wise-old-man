@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import VerifiedBadge from '../VerifiedBadge';
+import PageBadge from '../PageBadge';
 import './PageHeader.scss';
 
-function PageHeader({ title, icon, iconTooltip, children, verified }) {
+function PageHeader({ title, icon, iconTooltip, children, badges }) {
   return (
     <div className="page-header">
       {icon && (
@@ -12,7 +12,10 @@ function PageHeader({ title, icon, iconTooltip, children, verified }) {
         </abbr>
       )}
       <h1 className="page-header__title">{title}</h1>
-      {verified && <VerifiedBadge version="full" />}
+      {badges &&
+        badges.map(badge => (
+          <PageBadge key={badge.text} text={badge.text} hoverText={badge.hoverText} />
+        ))}
       <div className="page-header__actions">{children}</div>
     </div>
   );
@@ -21,7 +24,7 @@ function PageHeader({ title, icon, iconTooltip, children, verified }) {
 PageHeader.defaultProps = {
   icon: undefined,
   iconTooltip: undefined,
-  verified: false
+  badges: []
 };
 
 PageHeader.propTypes = {
@@ -35,7 +38,10 @@ PageHeader.propTypes = {
   iconTooltip: PropTypes.string,
 
   // If enabled, a verified badge will be displayed next to the title
-  verified: PropTypes.bool
+  badges: PropTypes.arrayOf({
+    text: PropTypes.string.isRequired,
+    hoverText: PropTypes.string.isRequired
+  })
 };
 
 export default React.memo(PageHeader);

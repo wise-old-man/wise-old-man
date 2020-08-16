@@ -23,11 +23,11 @@ export const ROUTES = [
     component: HomePage
   },
   {
-    path: '/top/:metric?/:playerType?',
+    path: '/top/:metric?',
     component: TopPage
   },
   {
-    path: '/records/:metric?/:playerType?',
+    path: '/records/:metric?',
     component: RecordsPage
   },
   {

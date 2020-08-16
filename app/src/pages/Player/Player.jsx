@@ -67,6 +67,19 @@ const MENU_OPTIONS = [
   { label: '[NEW] Change name', value: 'changeName' }
 ];
 
+function getPlayerBadges(build) {
+  switch (build) {
+    case 'lvl3':
+      return [{ text: 'Level 3', hoverText: '' }];
+    case 'f2p':
+      return [{ text: 'F2P', hoverText: '' }];
+    case '1def':
+      return [{ text: '1 Def Pure', hoverText: '' }];
+    default:
+      return [];
+  }
+}
+
 function getSelectedTabIndex(section) {
   const index = TABS.findIndex(t => t.toLowerCase() === section);
   return Math.max(0, index);
@@ -285,6 +298,7 @@ function Player() {
             title={player.displayName}
             icon={getPlayerIcon(player.type)}
             iconTooltip={getPlayerTooltip(player.type, player.flagged)}
+            badges={getPlayerBadges(player.build)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
