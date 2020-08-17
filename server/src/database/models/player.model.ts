@@ -66,6 +66,21 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   flagged: boolean;
 
+  @Column({ type: DataType.BIGINT, get: parseExp, allowNull: false, defaultValue: 0 })
+  exp: number;
+
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  ehp: number;
+
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  ehb: number;
+
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  ttm: number;
+
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  tt200m: number;
+
   @Column({ type: DataType.DATE })
   lastImportedAt: Date;
 
@@ -97,6 +112,15 @@ export default class Player extends Model<Player> {
 
   @HasOne(() => InitialValues, 'playerId')
   initialValues: InitialValues;
+}
+
+/**
+ * As experience (overall) can exceed the integer maximum of 2.147b,
+ * we have to store it into a BIGINT, however, sequelize returns bigints
+ * as strings, to counter that, we convert every bigint to a JS number
+ */
+function parseExp(this: any) {
+  return parseInt(this.getDataValue('exp', 10));
 }
 
 function validateType(this: Player) {
