@@ -176,6 +176,8 @@ async function update(username: string): Promise<[Player, boolean]> {
     player.flagged = false;
 
     await currentSnapshot.save();
+
+    await player.changed('updatedAt', true);
     await player.save();
 
     return [player, isNew];
