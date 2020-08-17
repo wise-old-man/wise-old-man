@@ -31,11 +31,14 @@
   }
 
   .period-label {
+    display: inline-block;
     margin-bottom: 5px;
   }
 
   .loading-icon {
-    margin-top: 8px;
+    max-width: 20px;
+    margin-left: 10px;
+    margin-bottom: -3px;
     opacity: 0.5;
     animation: rotation 0.7s infinite linear;
   }
