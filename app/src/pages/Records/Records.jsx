@@ -155,7 +155,6 @@ function Records() {
   const isLoadingDay = useSelector(isFetchingDay);
   const isLoadingWeek = useSelector(isFetchingWeek);
   const isLoadingMonth = useSelector(isFetchingMonth);
-  const isLoading = isLoadingDay || isLoadingWeek || isLoadingMonth;
 
   const reloadList = () => {
     const periods = ['day', 'week', 'month'];
@@ -217,13 +216,11 @@ function Records() {
             />
           )}
         </div>
-        <div className="col-md-2">
-          {isLoading && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
-        </div>
       </div>
       <div className="records__list row">
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Day</h3>
+          {isLoadingDay && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
           {!leaderboards || !leaderboards.day ? (
             <TablePlaceholder size={20} />
           ) : (
@@ -237,6 +234,7 @@ function Records() {
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Week</h3>
+          {isLoadingWeek && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
           {!leaderboards || !leaderboards.week ? (
             <TablePlaceholder size={20} />
           ) : (
@@ -250,6 +248,7 @@ function Records() {
         </div>
         <div className="col-lg-4 col-md-6">
           <h3 className="period-label">Month</h3>
+          {isLoadingMonth && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
           {!leaderboards || !leaderboards.month ? (
             <TablePlaceholder size={20} />
           ) : (
