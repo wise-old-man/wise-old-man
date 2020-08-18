@@ -6,6 +6,7 @@ import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
+import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
@@ -136,7 +137,6 @@ async function search(username: string): Promise<Player[]> {
 async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
-  // Check if this player should be updated again
   const [should] = shouldUpdate(player);
 
   // If the player was updated recently, don't update it
@@ -145,16 +145,12 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 
   try {
-    // If the player is new or has an unknown player type,
-    // determine it before tracking (to get the correct ranks)
+    // Always determine the rank before tracking (to fetch correct ranks)
     if (player.type === 'unknown') {
       player.type = await getType(player);
     }
 
-    // Get the latest snapshot from the DB
     const previousSnapshot = await snapshotService.findLatest(player.id);
-
-    // Fetch the latest stats from the hiscores
     const currentSnapshot = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
@@ -163,9 +159,10 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    // Update the player's build
+    player.exp = currentSnapshot.overallExperience;
+    player.ehp = currentSnapshot.ehpValue;
+    player.ehb = currentSnapshot.ehbValue;
     player.build = getBuild(currentSnapshot);
-    // If the player has reached this point, it's certainly not flagged
     player.flagged = false;
 
     await currentSnapshot.save();
@@ -246,6 +243,14 @@ async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+
+  const ehpValue = await efficiencyService.calculateEHP(newSnapshot);
+  const ehbValue = await efficiencyService.calculateEHB(newSnapshot);
+
+  const ehpRank = await efficiencyService.getEHPRank(player.id, ehpValue);
+  const ehbRank = await efficiencyService.getEHBRank(player.id, ehbValue);
+
+  Object.assign(newSnapshot, { ehpValue, ehpRank, ehbValue, ehbRank });
 
   return newSnapshot;
 }

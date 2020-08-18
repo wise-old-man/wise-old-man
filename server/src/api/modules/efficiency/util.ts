@@ -56,12 +56,16 @@ function calculateTTM(experiences: Experiences, metas: SkillMeta[]): number {
   );
 
   const skillTimes = SKILLS.map(skill => {
+    if (skill === 'overall') return 0;
+
     const methods = metas.find(sm => sm.skill === skill)?.methods;
     const startExp = startExps[skill];
     const endExp = targetExps[skill];
 
-    // TODO: review later for 0 time skills
-    if (!methods || (methods.length === 1 && methods[0].rate === 0)) return 0;
+    // Handle 0 time skills (Hitpoints, Magic, Fletching)
+    if (!methods || (methods.length === 1 && methods[0].rate === 0)) {
+      return (endExp - startExp) / 200_000_000;
+    }
 
     let skillTime = 0;
 

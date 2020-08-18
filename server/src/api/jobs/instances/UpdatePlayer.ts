@@ -9,11 +9,8 @@ class UpdatePlayer implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { username } = data;
-
-    if (!username) return;
-
-    await playerService.update(username);
+    if (!data.username) return;
+    await playerService.update(data.username);
   }
 }
 

@@ -1,4 +1,5 @@
-import { Snapshot } from '../../../database/models';
+import { Op } from 'sequelize';
+import { Player, Snapshot } from '../../../database/models';
 import { BOSSES, SKILLS } from '../../constants';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
@@ -8,7 +9,7 @@ function calculateEHP(snapshot: Snapshot): number {
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return algorithm.calculateEHP(exp);
+  return Math.floor(algorithm.calculateEHP(exp) * 100000) / 100000;
 }
 
 function calculateEHB(snapshot: Snapshot) {
@@ -16,7 +17,7 @@ function calculateEHB(snapshot: Snapshot) {
   const algorithm = mainAlgorithm;
   const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
 
-  return algorithm.calculateEHB(kcs);
+  return Math.floor(algorithm.calculateEHB(kcs) * 100000) / 100000;
 }
 
 function calculateEHPDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): number {
@@ -27,4 +28,26 @@ function calculateEHBDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): nu
   return calculateEHB(afterSnapshot) - calculateEHB(beforeSnapshot);
 }
 
-export { calculateEHP, calculateEHB, calculateEHBDiff, calculateEHPDiff };
+async function getEHPRank(playerId: number, ehpValue: number): Promise<number> {
+  const rank = await Player.count({
+    where: {
+      id: { [Op.not]: playerId },
+      ehp: { [Op.gte]: ehpValue }
+    }
+  });
+
+  return rank + 1;
+}
+
+async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
+  const rank = await Player.count({
+    where: {
+      id: { [Op.not]: playerId },
+      ehb: { [Op.gte]: ehbValue }
+    }
+  });
+
+  return rank + 1;
+}
+
+export { calculateEHP, calculateEHB, calculateEHBDiff, calculateEHPDiff, getEHPRank, getEHBRank };
