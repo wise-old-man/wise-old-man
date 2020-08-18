@@ -28,13 +28,16 @@ export interface Algorithm {
   type: string;
   skillMetas: SkillMeta[];
   bossMetas: BossMeta[];
-  maxEHP: number;
+  maximumEHP: number;
+  maxedEHP: number;
   calculateEHB(killcounts: Killcounts): number;
   calculateEHP(experiences: Experiences): number;
   calculateTTM(experiences: Experiences): number;
+  calculateTT200m(experiences: Experiences): number;
   calculateSkillEHP(skill: string, experiences: Experiences): number;
   calculateBossEHB(boss: string, killcounts: Killcounts): number;
-  calculateMaxEHP(): number;
+  calculateMaximumEHP(): number;
+  calculateMaxedEHP(): number;
 }
 
 export interface Experiences {

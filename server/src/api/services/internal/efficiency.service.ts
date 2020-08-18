@@ -4,6 +4,22 @@ import { BOSSES, SKILLS } from '../../constants';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
 
+function calculateTTM(snapshot: Snapshot): number {
+  // TODO: always use main ehp, for now
+  const algorithm = mainAlgorithm;
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+
+  return Math.floor(algorithm.calculateTTM(exp) * 100000) / 100000;
+}
+
+function calculateTT200m(snapshot: Snapshot): number {
+  // TODO: always use main ehp, for now
+  const algorithm = mainAlgorithm;
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+
+  return Math.floor(algorithm.calculateTT200m(exp) * 100000) / 100000;
+}
+
 function calculateEHP(snapshot: Snapshot): number {
   // TODO: always use main ehp, for now
   const algorithm = mainAlgorithm;
@@ -50,4 +66,13 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
   return rank + 1;
 }
 
-export { calculateEHP, calculateEHB, calculateEHBDiff, calculateEHPDiff, getEHPRank, getEHBRank };
+export {
+  calculateTTM,
+  calculateTT200m,
+  calculateEHP,
+  calculateEHB,
+  calculateEHBDiff,
+  calculateEHPDiff,
+  getEHPRank,
+  getEHBRank
+};

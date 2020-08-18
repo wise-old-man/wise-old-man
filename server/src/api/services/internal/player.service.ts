@@ -162,6 +162,9 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.exp = currentSnapshot.overallExperience;
     player.ehp = currentSnapshot.ehpValue;
     player.ehb = currentSnapshot.ehbValue;
+    player.ttm = efficiencyService.calculateTTM(currentSnapshot);
+    player.tt200m = efficiencyService.calculateTT200m(currentSnapshot);
+
     player.build = getBuild(currentSnapshot);
     player.flagged = false;
 

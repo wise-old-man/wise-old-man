@@ -24,9 +24,15 @@ function calculateBonuses(experiences: Experiences, bonuses: Bonus[]) {
   return map;
 }
 
-function calculateMaxEHP(metas: SkillMeta[]) {
+function calculateMaximumEHP(metas: SkillMeta[]) {
   const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
-  return calculateTTM(zeroStats, metas);
+  return calculateTT200m(zeroStats, metas);
+}
+
+function calculateMaxedEHP(metas: SkillMeta[]) {
+  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
+  const maxedStats = Object.fromEntries(SKILLS.map(s => [s, 13_034_431]));
+  return calculateTT200m(zeroStats, metas) - calculateTT200m(maxedStats, metas);
 }
 
 function calculateBossEHB(boss: string, killcounts: Killcounts, metas: BossMeta[]) {
@@ -45,7 +51,7 @@ function calculateEHB(killcounts: Killcounts, metas: BossMeta[]) {
   return BOSSES.map(b => calculateBossEHB(b, killcounts, metas)).reduce((a, c) => a + c);
 }
 
-function calculateTTM(experiences: Experiences, metas: SkillMeta[]): number {
+function calculateTT200m(experiences: Experiences, metas: SkillMeta[]): number {
   const startBonusExp = calculateBonuses(experiences, getBonuses(metas, BonusType.Start));
   const endBonusExp = calculateBonuses(experiences, getBonuses(metas, BonusType.End));
 
@@ -93,4 +99,12 @@ function calculateTTM(experiences: Experiences, metas: SkillMeta[]): number {
   return skillTimes.reduce((a, c) => a + c);
 }
 
-export { getBonuses, calculateBonuses, calculateTTM, calculateMaxEHP, calculateEHB, calculateBossEHB };
+export {
+  getBonuses,
+  calculateBonuses,
+  calculateTT200m,
+  calculateMaximumEHP,
+  calculateMaxedEHP,
+  calculateEHB,
+  calculateBossEHB
+};
