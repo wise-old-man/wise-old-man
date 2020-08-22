@@ -149,7 +149,7 @@ async function getAllInPeriod(playerId, period) {
 /**
  * Finds the latest snapshot for a given player.
  */
-async function findLatest(playerId) {
+async function findLatest(playerId: number) {
   const result = await Snapshot.findOne({
     where: { playerId },
     order: [['createdAt', 'DESC']]

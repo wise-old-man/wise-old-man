@@ -1,35 +1,110 @@
 import { keyBy, mapValues } from 'lodash';
+import moment from 'moment';
 import { QueryTypes } from 'sequelize';
 import { sequelize } from '../../../database';
-import { InitialValues, Player } from '../../../database/models';
+import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
 import * as queries from '../../../database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
 
+const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
+
 const DAY_IN_SECONDS = 86400;
 const WEEK_IN_SECONDS = 604800;
 const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
 const YEAR_IN_SECONDS = 31556926;
 
-async function syncInitialValues(playerId) {
-  const latestSnapshot = await snapshotService.findLatest(playerId);
-
-  // Find or create (if doesn't exist) the player's initial values
-  const [initialValues] = await InitialValues.findOrCreate({ where: { playerId } });
-
-  const newInitialValues = {};
-
-  // Find which values are known for the first time
-  mapValues(latestSnapshot.toJSON(), (value, key) => {
-    if (value > -1 && initialValues[key] === -1) newInitialValues[key] = value;
+async function findPlayerDeltas(playerId: number): Promise<Delta[]> {
+  const deltas = await Delta.findAll({
+    where: { playerId }
   });
 
-  // Update the player's initial values, with the newly discovered fields
-  if (Object.keys(newInitialValues).length > 0) {
-    await initialValues.update(newInitialValues);
-  }
+  return deltas;
+}
+
+async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
+  // prettier-ignore
+  const startingDate = moment().subtract(1, period as any).toDate();
+  const first = await snapshotService.findFirstSince(playerId, startingDate);
+
+  const currentDeltas = await Delta.findAll({ where: { playerId, period } });
+
+  const deltaDefinitions = Object.fromEntries(
+    DELTA_INDICATORS.map(indicator => [
+      indicator,
+      {
+        playerId,
+        period,
+        indicator,
+        startedAt: first.createdAt,
+        endedAt: latest.createdAt
+      }
+    ])
+  );
+
+  const toCreate = [];
+  const toUpdate = [];
+
+  ALL_METRICS.forEach(metric => {
+    const rankKey = getRankKey(metric);
+    const valueKey = getValueKey(metric);
+
+    const initialRank = initial ? initial[rankKey] : -1;
+    const initialValue = initial ? initial[valueKey] : -1;
+
+    const endValue = parseInt(latest[valueKey], 10);
+    const endRank = latest[rankKey];
+    // TODO: const endEfficiency = ...
+
+    const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey], 10);
+    const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
+    // TODO: const startEfficiency = ...
+
+    // Do not use initial ranks for skill, to prevent -1 ranks
+    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
+    const gainedRank = isSkill(metric) && first[rankKey] === -1 ? 0 : endRank - startRank;
+    const gainedValue = endValue - startValue;
+    // TODO: const gainedEfficiency = ...
+
+    deltaDefinitions['value'][metric] = gainedValue;
+    deltaDefinitions['rank'][metric] = gainedRank;
+    deltaDefinitions['efficiency'][metric] = 0;
+  });
+
+  DELTA_INDICATORS.forEach(indicator => {
+    const delta = currentDeltas.find(c => c.indicator === indicator);
+
+    if (!delta) {
+      toCreate.push(deltaDefinitions[indicator]);
+    } else {
+      toUpdate.push({ current: delta, updated: deltaDefinitions[indicator] });
+    }
+  });
+
+  // Update all "outdated deltas"
+  await Promise.all(
+    toUpdate.map(async ({ current, updated }) => {
+      await current.update({ ...updated });
+    })
+  );
+
+  // Create all missing deltas
+  await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+}
+
+async function syncInitialValues(playerId: number, latest: Snapshot): Promise<InitialValues> {
+  // Find or create (if doesn't exist) the player's initial values
+  const [initial] = await InitialValues.findOrCreate({ where: { playerId } });
+
+  mapValues(latest, (value, key) => {
+    if (value > -1 && initial[key] === -1) initial[key] = value;
+  });
+
+  await initial.save();
+
+  return initial;
 }
 
 /**
@@ -271,5 +346,7 @@ export {
   getLeaderboard,
   getGroupLeaderboard,
   getCompetitionLeaderboard,
-  syncInitialValues
+  syncInitialValues,
+  syncDeltas,
+  findPlayerDeltas
 };

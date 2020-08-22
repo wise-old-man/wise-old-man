@@ -10,7 +10,7 @@ import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
 import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
 import SyncPlayerAchievements from './SyncPlayerAchievements';
-import SyncPlayerInitialValues from './SyncPlayerInitialValues';
+import SyncPlayerDeltas from './SyncPlayerDeltas';
 import SyncPlayerRecords from './SyncPlayerRecords';
 import UpdatePlayer from './UpdatePlayer';
 
@@ -22,12 +22,12 @@ export default [
   AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
   ReevaluatePlayerAchievements,
-  SyncPlayerInitialValues,
   AssertPlayerName,
   RefreshRankings,
   CompetitionStarted,
   CompetitionStarting,
   CompetitionEnding,
   CompetitionEnded,
-  AssertPlayerType
+  AssertPlayerType,
+  SyncPlayerDeltas
 ];

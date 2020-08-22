@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize-typescript';
 import {
   Achievement,
   Competition,
+  Delta,
   Group,
   InitialValues,
   Membership,
@@ -24,7 +25,8 @@ const models = [
   Player,
   Record,
   Snapshot,
-  NameChange
+  NameChange,
+  Delta
 ];
 
 const sequelize = new Sequelize({
