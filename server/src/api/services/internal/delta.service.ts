@@ -16,14 +16,6 @@ const WEEK_IN_SECONDS = 604800;
 const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
 const YEAR_IN_SECONDS = 31556926;
 
-async function findPlayerDeltas(playerId: number): Promise<Delta[]> {
-  const deltas = await Delta.findAll({
-    where: { playerId }
-  });
-
-  return deltas;
-}
-
 async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
   // prettier-ignore
   const startingDate = moment().subtract(1, period as any).toDate();
@@ -108,10 +100,78 @@ async function syncInitialValues(playerId: number, latest: Snapshot): Promise<In
 }
 
 /**
+ * Get all the player deltas (gains) for a specific time period.
+ */
+async function getPlayerPeriodDeltas(playerId: number, period: string) {
+  if (!playerId) {
+    throw new BadRequestError('Invalid player id.');
+  }
+
+  if (!period || !PERIODS.includes(period)) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  const deltas = await Delta.findAll({ where: { playerId, period } });
+
+  // TODO: remove in a few weeks
+  // If the player hasn't been updated since this update came out
+  // use the legacy deltas calculations.
+  if (!deltas || deltas.length < DELTA_INDICATORS.length) {
+    const legacyGains = await getPlayerPeriodDeltasLegacy(playerId, period);
+    return legacyGains;
+  }
+
+  const latest = await snapshotService.findLatest(playerId);
+
+  const rankDeltas = deltas.find(d => d.indicator === 'rank');
+  const valueDeltas = deltas.find(d => d.indicator === 'value');
+
+  const formattedData = Object.fromEntries(
+    ALL_METRICS.map(metric => {
+      const rankEnd = parseInt(latest[getRankKey(metric)]);
+      const rankGained = parseInt(rankDeltas[metric] || 0);
+      const rankStart = rankEnd - rankGained;
+
+      const valueEnd = parseInt(latest[getValueKey(metric)]);
+      const valueGained = parseInt(valueDeltas[metric] || 0);
+      const valueStart = valueEnd - valueGained;
+
+      return [
+        metric,
+        {
+          rank: {
+            start: rankStart,
+            end: rankEnd,
+            gained: rankGained
+          },
+          [getMeasure(metric)]: {
+            start: valueStart,
+            end: valueEnd,
+            gained: valueGained
+          }
+        }
+      ];
+    })
+  );
+
+  return {
+    period,
+    startsAt: deltas[0].startedAt,
+    endsAt: deltas[0].endedAt,
+    data: formattedData
+  };
+}
+
+/**
+ * Legacy player gains.
+ *
  * Get a player delta for a specific period.
  * Note: if initialVals is undefined, this method will force-fetch it.
+ *
+ * TODO: this method should be removed in a few weeks after
+ * most players have been updated
  */
-async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
+async function getPlayerPeriodDeltasLegacy(playerId, period, initialVals = null) {
   if (!playerId) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -150,6 +210,22 @@ async function getPlayerPeriodDeltas(playerId, period, initialVals = null) {
     endsAt: end.createdAt,
     data: diffs
   };
+}
+
+/**
+ * Gets the all the player deltas (gains), for every period.
+ */
+async function getPlayerDeltas(playerId: number) {
+  const periodDeltas = await Promise.all(
+    PERIODS.map(async period => {
+      const deltas = await getPlayerPeriodDeltas(playerId, period);
+      return { period, deltas };
+    })
+  );
+
+  // Turn an array of deltas, into an object, using the period as a key,
+  // then include only the deltas array in the final object, not the period fields
+  return mapValues(keyBy(periodDeltas, 'period'), p => p.deltas);
 }
 
 /**
@@ -196,24 +272,6 @@ async function getLeaderboard(metric: string, period: string, type: string, buil
       player: Player.build(r)
     };
   });
-}
-
-/**
- * Gets the all the deltas for a specific playerId.
- */
-async function getPlayerDeltas(playerId) {
-  const initialValues = await InitialValues.findOne({ where: { playerId } });
-
-  const partials = await Promise.all(
-    PERIODS.map(async period => {
-      const list = await getPlayerPeriodDeltas(playerId, period, initialValues);
-      return { period, deltas: list };
-    })
-  );
-
-  // Turn an array of deltas, into an object, using the period as a key,
-  // then include only the deltas array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), p => p.deltas);
 }
 
 async function getCompetitionLeaderboard(competition, playerIds) {
@@ -347,6 +405,5 @@ export {
   getGroupLeaderboard,
   getCompetitionLeaderboard,
   syncInitialValues,
-  syncDeltas,
-  findPlayerDeltas
+  syncDeltas
 };
