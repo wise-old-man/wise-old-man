@@ -1,6 +1,7 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
+import { PaginationConfig } from 'src/types';
 import { sequelize } from '../../../database';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
 import * as queries from '../../../database/queries';
@@ -305,23 +306,27 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(metric, period, playerIds, pagination) {
-  const metricKey = getValueKey(metric);
-  const seconds = getSeconds(period);
-  const ids = playerIds.join(',');
-
-  const query = queries.GET_GROUP_LEADERBOARD(metricKey, ids);
-
-  const results = await sequelize.query(query, {
-    replacements: { seconds, ...pagination },
-    type: QueryTypes.SELECT
+async function getGroupDeltas(
+  metric: string,
+  period: string,
+  playerIds: number[],
+  pagination: PaginationConfig
+) {
+  // Fetch all deltas for group members
+  const deltas = await Delta.findAll({
+    attributes: [metric, 'startedAt', 'endedAt'],
+    where: { period, indicator: 'value', playerId: playerIds },
+    order: [[metric, 'DESC']],
+    include: [{ model: Player }],
+    limit: pagination.limit,
+    offset: pagination.offset
   });
 
-  return results.map((r: any) => ({
-    ...r,
-    endValue: parseInt(r.endValue, 10),
-    startValue: parseInt(r.startValue, 10),
-    gained: parseInt(r.gained, 10)
+  return deltas.map(d => ({
+    startDate: d.startedAt,
+    endDate: d.endedAt,
+    gained: parseInt(d[metric]),
+    player: d.player
   }));
 }
 
@@ -398,8 +403,8 @@ function emptyDiff() {
 export {
   getPlayerDeltas,
   getPlayerPeriodDeltas,
+  getGroupDeltas,
   getLeaderboard,
-  getGroupLeaderboard,
   getCompetitionLeaderboard,
   syncInitialValues,
   syncDeltas
