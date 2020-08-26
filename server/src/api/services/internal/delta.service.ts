@@ -1,7 +1,7 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { QueryTypes } from 'sequelize';
-import { PaginationConfig } from 'src/types';
+import { Pagination } from 'src/types';
 import { sequelize } from '../../../database';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
 import * as queries from '../../../database/queries';
@@ -306,16 +306,11 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupDeltas(
-  metric: string,
-  period: string,
-  playerIds: number[],
-  pagination: PaginationConfig
-) {
+async function getGroupDeltas(metric: string, period: string, ids: number[], pagination: Pagination) {
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, indicator: 'value', playerId: playerIds },
+    where: { period, indicator: 'value', playerId: ids },
     order: [[metric, 'DESC']],
     include: [{ model: Player }],
     limit: pagination.limit,

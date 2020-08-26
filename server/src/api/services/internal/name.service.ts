@@ -10,7 +10,7 @@ import {
   Snapshot
 } from '../../../database/models';
 import env from '../../../env';
-import { NameChangeStatus, PaginationConfig } from '../../../types';
+import { NameChangeStatus, Pagination } from '../../../types';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
@@ -20,7 +20,7 @@ import * as snapshotService from './snapshot.service';
 /**
  * List all name changes, filtered by a specific status
  */
-async function getList(status: NameChangeStatus, pagination: PaginationConfig): Promise<NameChange[]> {
+async function getList(status: NameChangeStatus, pagination: Pagination): Promise<NameChange[]> {
   const { limit, offset } = pagination;
 
   const nameChanges = await NameChange.findAll({

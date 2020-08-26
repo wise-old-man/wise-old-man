@@ -50,7 +50,7 @@ export enum BonusType {
   End
 }
 
-export interface PaginationConfig {
+export interface Pagination {
   limit: number;
   offset: number;
 }
