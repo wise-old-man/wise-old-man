@@ -8,7 +8,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { Competition, Player } from '../../database/models';
+import { Competition, Player, Snapshot } from '../../database/models';
 
 // Define other table options
 const options = {
@@ -37,6 +37,14 @@ export default class Participation extends Model<Participation> {
   @UpdatedAt
   updatedAt: Date;
 
+  @ForeignKey(() => Snapshot)
+  @Column({ type: DataType.INTEGER })
+  startSnapshotId: number;
+
+  @ForeignKey(() => Snapshot)
+  @Column({ type: DataType.INTEGER })
+  endSnapshotId: number;
+
   /* Associations */
 
   @BelongsTo(() => Player)
@@ -44,4 +52,10 @@ export default class Participation extends Model<Participation> {
 
   @BelongsTo(() => Competition)
   competition: Competition;
+
+  @BelongsTo(() => Snapshot, 'startSnapshotId')
+  startSnapshot: Snapshot;
+
+  @BelongsTo(() => Snapshot, 'endSnapshotId')
+  endSnapshot: Snapshot;
 }

@@ -14,12 +14,7 @@ import * as snapshotService from './snapshot.service';
 
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
 
-async function syncDeltas(
-  playerId: number,
-  period: string,
-  latest: Snapshot,
-  initial: InitialValues
-): Promise<void> {
+async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
   // prettier-ignore
   const startingDate = moment().subtract(getSeconds(period), "seconds").toDate();
   const first = await snapshotService.findFirstSince(playerId, startingDate);
@@ -93,7 +88,7 @@ async function syncDeltas(
   }
 }
 
-async function syncInitialValues(playerId: number, latest: Snapshot): Promise<InitialValues> {
+async function syncInitialValues(playerId: number, latest: Snapshot) {
   // Find or create (if doesn't exist) the player's initial values
   const [initial] = await InitialValues.findOrCreate({ where: { playerId } });
 
@@ -110,7 +105,7 @@ async function syncInitialValues(playerId: number, latest: Snapshot): Promise<In
 /**
  * Get all the player deltas (gains) for a specific time period.
  */
-async function getPlayerPeriodDeltas(playerId: number, period: string): Promise<PlayerPeriodDeltas> {
+async function getPlayerPeriodDeltas(playerId: number, period: string) {
   if (!playerId) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -173,7 +168,7 @@ async function getPlayerPeriodDeltas(playerId: number, period: string): Promise<
 /**
  * Gets the all the player deltas (gains), for every period.
  */
-async function getPlayerDeltas(playerId: number): Promise<PlayerDeltas> {
+async function getPlayerDeltas(playerId: number) {
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
       const deltas = await getPlayerPeriodDeltas(playerId, period);
@@ -190,12 +185,7 @@ async function getPlayerDeltas(playerId: number): Promise<PlayerDeltas> {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(
-  metric: string,
-  period: string,
-  type?: string,
-  build?: string
-): Promise<LeaderboardEntry[]> {
+async function getLeaderboard(metric: string, period: string, type?: string, build?: string) {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -267,7 +257,7 @@ async function getGroupLeaderboard(
   period: string,
   ids: number[],
   pagination: Pagination
-): Promise<LeaderboardEntry[]> {
+) {
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
@@ -284,37 +274,6 @@ async function getGroupLeaderboard(
     gained: parseInt(d[metric]),
     player: d.player
   }));
-}
-
-interface LeaderboardEntry {
-  startDate: Date;
-  endDate: Date;
-  gained: number;
-  player: Player;
-}
-
-interface PlayerDeltas {
-  [period: string]: PlayerPeriodDeltas;
-}
-
-interface PlayerPeriodDeltas {
-  period: string;
-  startsAt: Date;
-  endsAt: Date;
-  data: {
-    [metric: string]: {
-      rank: {
-        start: number;
-        end: number;
-        gained: number;
-      };
-      [measure: string]: {
-        start: number;
-        end: number;
-        gained: number;
-      };
-    };
-  };
 }
 
 export {
