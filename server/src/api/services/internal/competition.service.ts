@@ -1,7 +1,7 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { Competition, Group, Participation, Player } from '../../../database/models';
+import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
@@ -856,6 +856,56 @@ async function isVerified(competition, verificationCode) {
   return verified;
 }
 
+/**
+ * Sync all participations for a given player id.
+ *
+ * When a player is updated, this should be executed by a job.
+ * This should update all the "endSnapshotId" field in the player's participations.
+ */
+async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
+  // Get all on-going participations
+  const currentDate = new Date();
+
+  const participations = await Participation.findAll({
+    attributes: ['competitionId', 'playerId'],
+    where: { playerId },
+    include: [
+      {
+        model: Competition,
+        attributes: ['startsAt', 'endsAt'],
+        where: {
+          startsAt: { [Op.lt]: currentDate },
+          endsAt: { [Op.gte]: currentDate }
+        }
+      }
+    ]
+  });
+
+  if (!participations || participations.length === 0) {
+    return;
+  }
+
+  await Promise.all(
+    participations.map(async participation => {
+      // Update this participation's latest (end) snapshot
+      participation.endSnapshotId = latestSnapshot.id;
+
+      // If this participation's starting snapshot has not been set,
+      // find the first snapshot created since the start date and set it
+      if (!participation.startSnapshot) {
+        const startDate = participation.competition.startsAt;
+        const start = await snapshotService.findFirstSince(playerId, startDate);
+
+        participation.startSnapshotId = start.id;
+      }
+
+      await participation.save();
+
+      return participation;
+    })
+  );
+}
+
 export {
   getList,
   getGroupCompetitions,
@@ -870,5 +920,6 @@ export {
   addToGroupCompetitions,
   removeFromGroupCompetitions,
   updateAllParticipants,
-  refreshScores
+  refreshScores,
+  syncParticipations
 };

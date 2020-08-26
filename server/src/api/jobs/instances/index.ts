@@ -11,6 +11,7 @@ import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
 import SyncPlayerAchievements from './SyncPlayerAchievements';
 import SyncPlayerDeltas from './SyncPlayerDeltas';
+import SyncPlayerParticipations from './SyncPlayerParticipations';
 import SyncPlayerRecords from './SyncPlayerRecords';
 import UpdatePlayer from './UpdatePlayer';
 
@@ -29,5 +30,6 @@ export default [
   CompetitionEnding,
   CompetitionEnded,
   AssertPlayerType,
-  SyncPlayerDeltas
+  SyncPlayerDeltas,
+  SyncPlayerParticipations
 ];
