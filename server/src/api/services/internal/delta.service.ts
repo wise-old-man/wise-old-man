@@ -6,19 +6,20 @@ import { sequelize } from '../../../database';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
 import * as queries from '../../../database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
-import { BadRequestError, ServerError } from '../../errors';
+import { BadRequestError } from '../../errors';
+import { getPlayerPeriodDeltasLegacy, getSeconds } from '../../util/legacy';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
 
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
 
-const DAY_IN_SECONDS = 86400;
-const WEEK_IN_SECONDS = 604800;
-const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
-const YEAR_IN_SECONDS = 31556926;
-
-async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
+async function syncDeltas(
+  playerId: number,
+  period: string,
+  latest: Snapshot,
+  initial: InitialValues
+): Promise<void> {
   // prettier-ignore
   const startingDate = moment().subtract(getSeconds(period), "seconds").toDate();
   const first = await snapshotService.findFirstSince(playerId, startingDate);
@@ -48,11 +49,11 @@ async function syncDeltas(playerId: number, period: string, latest: Snapshot, in
     const initialRank = initial ? initial[rankKey] : -1;
     const initialValue = initial ? initial[valueKey] : -1;
 
-    const endValue = parseInt(latest[valueKey], 10);
+    const endValue = parseInt(latest[valueKey]);
     const endRank = latest[rankKey];
     // TODO: const endEfficiency = ...
 
-    const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey], 10);
+    const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey]);
     const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
     // TODO: const startEfficiency = ...
 
@@ -109,7 +110,7 @@ async function syncInitialValues(playerId: number, latest: Snapshot): Promise<In
 /**
  * Get all the player deltas (gains) for a specific time period.
  */
-async function getPlayerPeriodDeltas(playerId: number, period: string) {
+async function getPlayerPeriodDeltas(playerId: number, period: string): Promise<PlayerPeriodDeltas> {
   if (!playerId) {
     throw new BadRequestError('Invalid player id.');
   }
@@ -170,59 +171,9 @@ async function getPlayerPeriodDeltas(playerId: number, period: string) {
 }
 
 /**
- * Legacy player gains.
- *
- * Get a player delta for a specific period.
- * Note: if initialVals is undefined, this method will force-fetch it.
- *
- * TODO: this method should be removed in a few weeks after
- * most players have been updated
- */
-async function getPlayerPeriodDeltasLegacy(playerId, period, initialVals = null) {
-  if (!playerId) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  if (!period || !PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
-
-  const initialValues = initialVals || (await InitialValues.findOne({ where: { playerId } }));
-  const seconds = getSeconds(period);
-
-  const results = await sequelize.query(queries.GET_PLAYER_DELTA, {
-    replacements: { seconds, playerId },
-    type: QueryTypes.SELECT
-  });
-
-  if (!results) {
-    throw new ServerError(`Couldn't find ${period} deltas for that player.`);
-  }
-
-  if (results.length < 2) {
-    return {
-      period,
-      startsAt: null,
-      endsAt: null,
-      data: emptyDiff()
-    };
-  }
-
-  const [start, end]: any = results;
-  const diffs = diff(start, end, initialValues);
-
-  return {
-    period,
-    startsAt: start.createdAt,
-    endsAt: end.createdAt,
-    data: diffs
-  };
-}
-
-/**
  * Gets the all the player deltas (gains), for every period.
  */
-async function getPlayerDeltas(playerId: number) {
+async function getPlayerDeltas(playerId: number): Promise<PlayerDeltas> {
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
       const deltas = await getPlayerPeriodDeltas(playerId, period);
@@ -239,7 +190,12 @@ async function getPlayerDeltas(playerId: number) {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(metric: string, period: string, type?: string, build?: string) {
+async function getLeaderboard(
+  metric: string,
+  period: string,
+  type?: string,
+  build?: string
+): Promise<LeaderboardEntry[]> {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -296,9 +252,9 @@ async function getCompetitionLeaderboard(competition, playerIds) {
 
   return results.map((r: any) => ({
     ...r,
-    endValue: parseInt(r.endValue, 10),
-    startValue: parseInt(r.startValue, 10),
-    gained: parseInt(r.gained, 10)
+    endValue: parseInt(r.endValue),
+    startValue: parseInt(r.startValue),
+    gained: parseInt(r.gained)
   }));
 }
 
@@ -306,7 +262,12 @@ async function getCompetitionLeaderboard(competition, playerIds) {
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupDeltas(metric: string, period: string, ids: number[], pagination: Pagination) {
+async function getGroupLeaderboard(
+  metric: string,
+  period: string,
+  ids: number[],
+  pagination: Pagination
+): Promise<LeaderboardEntry[]> {
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
@@ -325,80 +286,41 @@ async function getGroupDeltas(metric: string, period: string, ids: number[], pag
   }));
 }
 
-function getSeconds(period) {
-  switch (period) {
-    case 'day':
-      return DAY_IN_SECONDS;
-    case 'week':
-      return WEEK_IN_SECONDS;
-    case 'month':
-      return MONTH_IN_SECONDS;
-    case 'year':
-      return YEAR_IN_SECONDS;
-    default:
-      return -1;
-  }
+interface LeaderboardEntry {
+  startDate: Date;
+  endDate: Date;
+  gained: number;
+  player: Player;
 }
 
-/**
- * Calculate the difference between two snapshots,
- * taking untracked values into consideration. (via initial values)
- */
-function diff(start, end, initial) {
-  const diffObj = {};
+interface PlayerDeltas {
+  [period: string]: PlayerPeriodDeltas;
+}
 
-  ALL_METRICS.forEach(metric => {
-    const rankKey = getRankKey(metric);
-    const valueKey = getValueKey(metric);
-
-    const initialRank = initial ? initial[rankKey] : -1;
-    const initialValue = initial ? initial[valueKey] : -1;
-
-    const endValue = parseInt(end[valueKey], 10);
-    const endRank = end[rankKey];
-
-    const startValue = parseInt(start[valueKey] === -1 ? initialValue : start[valueKey], 10);
-    const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
-
-    // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
-    const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
-    const gainedValue = endValue - startValue;
-
-    diffObj[metric] = {
+interface PlayerPeriodDeltas {
+  period: string;
+  startsAt: Date;
+  endsAt: Date;
+  data: {
+    [metric: string]: {
       rank: {
-        start: startRank,
-        end: endRank,
-        gained: gainedRank
-      },
-      [getMeasure(metric)]: {
-        start: startValue,
-        end: endValue,
-        gained: gainedValue
-      }
+        start: number;
+        end: number;
+        gained: number;
+      };
+      [measure: string]: {
+        start: number;
+        end: number;
+        gained: number;
+      };
     };
-  });
-
-  return diffObj;
-}
-
-function emptyDiff() {
-  const diffObj = {};
-
-  ALL_METRICS.forEach(metric => {
-    diffObj[metric] = {
-      rank: { start: 0, end: 0, gained: 0 },
-      [getMeasure(metric)]: { start: 0, end: 0, gained: 0 }
-    };
-  });
-
-  return diffObj;
+  };
 }
 
 export {
   getPlayerDeltas,
   getPlayerPeriodDeltas,
-  getGroupDeltas,
+  getGroupLeaderboard,
   getLeaderboard,
   getCompetitionLeaderboard,
   syncInitialValues,

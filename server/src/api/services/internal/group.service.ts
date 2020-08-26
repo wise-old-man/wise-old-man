@@ -141,7 +141,7 @@ async function getMonthlyTopPlayer(groupId) {
   }
 
   const pagination = { limit: 1, offset: 0 };
-  const leaderboard = await deltaService.getGroupDeltas('overall', 'month', memberIds, pagination);
+  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, pagination);
 
   const monthlyTopPlayer = leaderboard[0] || null;
 
@@ -176,7 +176,7 @@ async function getGained(groupId, period, metric, pagination) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const leaderboard = await deltaService.getGroupDeltas(metric, period, memberIds, pagination);
+  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, pagination);
   return leaderboard;
 }
 
