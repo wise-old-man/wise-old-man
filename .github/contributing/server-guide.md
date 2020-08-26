@@ -74,6 +74,7 @@ By default the example files contain the following snippets
 ```
 #.env
 
+POSTGRES_DB=wise-old-man
 POSTGRES_PASSWORD=postgres
 POSTGRES_USER=postgres
 
