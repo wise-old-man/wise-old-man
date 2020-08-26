@@ -12,37 +12,6 @@ const GET_PLAYER_DELTA = `
 
 // Since sequelize's param escaping doesn't work too well with strings,
 // we should just inject some variables into the query directly
-const GET_PERIOD_LEADERBOARD = (metricKey, typeCondition, buildCondition) => `
-    SELECT
-        player.id as "playerId",
-        player.*,
-        c."minDate" AS "startDate",
-        c."maxDate" AS "endDate",
-        c."endValue",
-        GREATEST(i."initialValue", c."startValue") AS  "startValue" ,
-        (c."endValue" - GREATEST(i."initialValue", c."startValue")) AS gained
-    FROM public.players player
-    JOIN (
-        SELECT "playerId",
-            MIN("createdAt") AS "minDate",
-            MIN("${metricKey}") AS "startValue",
-            MAX("createdAt") AS "maxDate",
-            MAX("${metricKey}") AS "endValue"
-        FROM public.snapshots
-        WHERE "createdAt" >= date_trunc('second', NOW() - INTERVAL ':seconds seconds')
-        GROUP BY "playerId"
-    ) c ON player.id = c."playerId"
-    JOIN (
-        SELECT "playerId" AS "pId", MAX("${metricKey}") AS "initialValue"
-        FROM "initialValues"
-        GROUP BY "pId"
-    ) i ON player.id = i."pId"
-    WHERE ${typeCondition} ${buildCondition}
-    ORDER BY gained DESC
-    LIMIT 20`;
-
-// Since sequelize's param escaping doesn't work too well with strings,
-// we should just inject some variables into the query directly
 const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
     SELECT
         player.id as "playerId",
@@ -110,4 +79,4 @@ const GET_GROUP_LEADERBOARD = (metricKey, ids) => `
     LIMIT :limit
     OFFSET :offset`;
 
-export { GET_PLAYER_DELTA, GET_PERIOD_LEADERBOARD, GET_COMPETITION_LEADERBOARD, GET_GROUP_LEADERBOARD };
+export { GET_PLAYER_DELTA, GET_COMPETITION_LEADERBOARD, GET_GROUP_LEADERBOARD };

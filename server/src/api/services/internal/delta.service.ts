@@ -7,6 +7,7 @@ import * as queries from '../../../database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
 
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
@@ -18,7 +19,7 @@ const YEAR_IN_SECONDS = 31556926;
 
 async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
   // prettier-ignore
-  const startingDate = moment().subtract(1, period as any).toDate();
+  const startingDate = moment().subtract(getSeconds(period), "seconds").toDate();
   const first = await snapshotService.findFirstSince(playerId, startingDate);
 
   const currentDeltas = await Delta.findAll({ where: { playerId, period } });
@@ -76,14 +77,18 @@ async function syncDeltas(playerId: number, period: string, latest: Snapshot, in
   });
 
   // Update all "outdated deltas"
-  await Promise.all(
-    toUpdate.map(async ({ current, updated }) => {
-      await current.update({ ...updated });
-    })
-  );
+  if (toUpdate.length > 0) {
+    await Promise.all(
+      toUpdate.map(async ({ current, updated }) => {
+        await current.update({ ...updated });
+      })
+    );
+  }
 
   // Create all missing deltas
-  await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+  if (toCreate.length > 0) {
+    await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+  }
 }
 
 async function syncInitialValues(playerId: number, latest: Snapshot): Promise<InitialValues> {
@@ -91,11 +96,12 @@ async function syncInitialValues(playerId: number, latest: Snapshot): Promise<In
   const [initial] = await InitialValues.findOrCreate({ where: { playerId } });
 
   mapValues(latest, (value, key) => {
-    if (value > -1 && initial[key] === -1) initial[key] = value;
+    if (value > -1 && initial[key] === -1) {
+      initial[key] = value;
+    }
   });
 
   await initial.save();
-
   return initial;
 }
 
@@ -230,9 +236,9 @@ async function getPlayerDeltas(playerId: number) {
 
 /**
  * Gets the best deltas for a specific metric and period.
- * Optionally, the deltas can be filtered by the playerType and playerBuild.
+ * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(metric: string, period: string, type: string, build: string) {
+async function getLeaderboard(metric: string, period: string, type?: string, build?: string) {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -249,29 +255,20 @@ async function getLeaderboard(metric: string, period: string, type: string, buil
     throw new BadRequestError(`Invalid player build: ${build}.`);
   }
 
-  const metricKey = getValueKey(metric);
-  const seconds = getSeconds(period);
-
-  const typeCondition = type ? `player.type = '${type}'` : "NOT player.type = 'unknown'";
-  const buildCondition = build ? `AND player.build = '${build}'` : '';
-
-  const query = queries.GET_PERIOD_LEADERBOARD(metricKey, typeCondition, buildCondition);
-
-  const results = await sequelize.query(query, {
-    replacements: { seconds },
-    type: QueryTypes.SELECT
+  const deltas = await Delta.findAll({
+    attributes: [metric, 'startedAt', 'endedAt'],
+    where: { period, indicator: 'value' },
+    order: [[metric, 'DESC']],
+    include: [{ model: Player, where: buildQuery({ type, build }) }],
+    limit: 20
   });
 
-  return results.map((r: any) => {
-    return {
-      startDate: r.startDate as string,
-      endDate: r.endDate as string,
-      startValue: parseInt(r.startValue, 10),
-      endValue: parseInt(r.endValue, 10),
-      gained: parseInt(r.gained, 10),
-      player: Player.build(r)
-    };
-  });
+  return deltas.map(d => ({
+    startDate: d.startedAt,
+    endDate: d.endedAt,
+    gained: parseInt(d[metric]),
+    player: d.player
+  }));
 }
 
 async function getCompetitionLeaderboard(competition, playerIds) {
