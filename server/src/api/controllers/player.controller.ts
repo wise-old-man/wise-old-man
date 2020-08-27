@@ -5,6 +5,7 @@ import * as groupService from '../services/internal/group.service';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
+import { getCombatLevel } from '../util/level';
 
 // GET /players/search?username={username}
 async function search(req, res, next) {
@@ -26,9 +27,15 @@ async function track(req, res, next) {
     const { username } = req.body;
 
     // Update the player, by creating a new snapshot
-    const [player, isNew]: any = await playerService.update(username);
+    const [player, snapshot, isNew] = await playerService.update(username);
 
-    res.status(isNew ? 201 : 200).json(player);
+    const response = {
+      ...player.toJSON(),
+      combatLevel: getCombatLevel(snapshot),
+      latestSnapshot: snapshotService.format(snapshot)
+    };
+
+    res.status(isNew ? 201 : 200).json(response);
   } catch (e) {
     next(e);
   }
