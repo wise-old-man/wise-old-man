@@ -136,7 +136,7 @@ async function search(username: string): Promise<Player[]> {
  * Update a given username, by getting its latest
  * hiscores data, saving it as a new player if necessary.
  */
-async function update(username: string): Promise<[Player, boolean]> {
+async function update(username: string): Promise<[Player, Snapshot, boolean]> {
   if (!username) {
     throw new BadRequestError('Invalid username.');
   }
@@ -180,7 +180,7 @@ async function update(username: string): Promise<[Player, boolean]> {
     await player.changed('updatedAt', true);
     await player.save();
 
-    return [player, isNew];
+    return [player, currentSnapshot, isNew];
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
