@@ -1,5 +1,6 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
+import { Op } from 'sequelize';
 import { Pagination } from 'src/types';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
@@ -193,9 +194,15 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
     throw new BadRequestError(`Invalid player build: ${build}.`);
   }
 
+  const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
+
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, indicator: 'value' },
+    where: {
+      period,
+      indicator: 'value',
+      updatedAt: { [Op.gte]: startingDate }
+    },
     order: [[metric, 'DESC']],
     include: [{ model: Player, where: buildQuery({ type, build }) }],
     limit: 20
