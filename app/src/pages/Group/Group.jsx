@@ -198,7 +198,7 @@ function Group() {
       </Helmet>
       <div className="group__header row">
         <div className="col">
-          <PageHeader title={group.name} badges={[VERIFIED_BADGE]}>
+          <PageHeader title={group.name} badges={group.verified ? [VERIFIED_BADGE] : []}>
             <Button text="Update all" onClick={onUpdateAllClicked} disabled={isButtonDisabled} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
               <button className="header__options-btn" type="button">

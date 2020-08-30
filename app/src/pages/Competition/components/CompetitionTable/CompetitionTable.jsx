@@ -2,10 +2,11 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween } from '../../../../utils';
+import { durationBetween, getMinimumBossKc, getMetricName } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
+import TextLabel from '../../../../components/TextLabel';
 import TablePlaceholder from '../../../../components/TablePlaceholder';
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
@@ -41,9 +42,21 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       },
       {
         key: 'start',
-        transform: val => <NumberLabel value={val} />,
+        get: row => (row.progress ? row.progress.start : 0),
         className: () => '-break-small',
-        get: row => (row.progress ? row.progress.start : 0)
+        transform: val => {
+          const minKc = getMinimumBossKc(competition.metric);
+          const metricName = getMetricName(competition.metric);
+
+          return val === -1 ? (
+            <TextLabel
+              value={`< ${minKc}`}
+              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+            />
+          ) : (
+            <NumberLabel value={val} />
+          );
+        }
       },
       {
         key: 'end',
