@@ -5,7 +5,7 @@ import { Competition, Group, Participation, Player, Snapshot } from '../../../da
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
-import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { getMinimumBossKc, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
@@ -196,7 +196,7 @@ async function getDetails(id) {
     .map(({ player, startSnapshot, endSnapshot }) => {
       const start = startSnapshot ? startSnapshot[metricKey] : 0;
       const end = endSnapshot ? endSnapshot[metricKey] : 0;
-      const gained = end - start;
+      const gained = end - Math.max(getMinimumBossKc(competition.metric) - 1, start);
 
       return {
         ...player.toJSON(),
@@ -236,7 +236,7 @@ async function getDetails(id) {
   });
 
   // Sum all gained values
-  const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c));
+  const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
   return { ...format(competition), duration, totalGained, participants, group };
 }

@@ -84,6 +84,26 @@ function getDifficultyFactor(metric) {
   }
 }
 
+export function getMinimumBossKc(metric: string): number {
+  if (!isBoss(metric)) return 0;
+
+  switch (metric) {
+    case 'mimic':
+    case 'tzkal_zuk':
+      return 2;
+    case 'bryophyta':
+    case 'chambers_of_xeric_challenge_mode':
+    case 'hespori':
+    case 'obor':
+    case 'skotizo':
+    case 'the_corrupted_gauntlet':
+    case 'tztok_jad':
+      return 10;
+    default:
+      return 50;
+  }
+}
+
 function getAbbreviation(abbr) {
   if (!abbr || abbr.length === 0) {
     return null;
