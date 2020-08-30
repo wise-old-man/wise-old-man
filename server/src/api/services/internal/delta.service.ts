@@ -1,10 +1,7 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
-import { QueryTypes } from 'sequelize';
 import { Pagination } from 'src/types';
-import { sequelize } from '../../../database';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
-import * as queries from '../../../database/queries';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getPlayerPeriodDeltasLegacy, getSeconds } from '../../util/legacy';
@@ -218,36 +215,6 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
   }));
 }
 
-async function getCompetitionLeaderboard(competition, playerIds) {
-  if (!competition) {
-    throw new BadRequestError(`Invalid competition.`);
-  }
-
-  if (!playerIds || playerIds.length === 0) {
-    return [];
-  }
-
-  const metricKey = getValueKey(competition.metric);
-  const ids = playerIds.join(',');
-
-  const query = queries.GET_COMPETITION_LEADERBOARD(metricKey, ids);
-
-  const results = await sequelize.query(query, {
-    replacements: {
-      startsAt: competition.startsAt.toISOString(),
-      endsAt: competition.endsAt.toISOString()
-    },
-    type: QueryTypes.SELECT
-  });
-
-  return results.map((r: any) => ({
-    ...r,
-    endValue: parseInt(r.endValue),
-    startValue: parseInt(r.startValue),
-    gained: parseInt(r.gained)
-  }));
-}
-
 /**
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
@@ -281,7 +248,6 @@ export {
   getPlayerPeriodDeltas,
   getGroupLeaderboard,
   getLeaderboard,
-  getCompetitionLeaderboard,
   syncInitialValues,
   syncDeltas
 };

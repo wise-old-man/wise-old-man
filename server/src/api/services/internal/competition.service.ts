@@ -7,7 +7,6 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
 import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
-import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
@@ -183,41 +182,36 @@ async function getDetails(id) {
   const duration = durationBetween(competition.startsAt, competition.endsAt);
   const group = competition.group ? groupService.format(competition.group) : null;
 
-  // Fetch all participations, including their players and snapshots
   const participations = await Participation.findAll({
     attributes: ['playerId'],
     where: { competitionId: id },
-    include: [{ model: Player }]
+    include: [
+      { model: Player },
+      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
+    ]
   });
 
-  const playerIds = participations.map(p => p.playerId);
-
-  const leaderboard = await deltaService.getCompetitionLeaderboard(competition, playerIds);
-  const leaderboardMap = keyBy(leaderboard, 'playerId');
-
   const participants = participations
-    .map(({ player }) => ({
-      id: player.id,
-      username: player.username,
-      displayName: player.displayName,
-      type: player.type,
-      flagged: player.flagged,
-      updatedAt: player.updatedAt,
-      history: [],
-      progress: {
-        start: leaderboardMap[player.id] ? leaderboardMap[player.id].startValue : 0,
-        end: leaderboardMap[player.id] ? leaderboardMap[player.id].endValue : 0,
-        gained: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
-      }
-    }))
+    .map(({ player, startSnapshot, endSnapshot }) => {
+      const start = startSnapshot ? startSnapshot[metricKey] : 0;
+      const end = endSnapshot ? endSnapshot[metricKey] : 0;
+      const gained = end - start;
+
+      return {
+        ...player.toJSON(),
+        progress: { start, end, gained },
+        history: []
+      };
+    })
     .sort((a, b) => b.progress.gained - a.progress.gained);
 
-  // Select the top 10 players
-  const top10Ids = participants.slice(0, 10).map(p => p.id);
+  // Select the top 5 players
+  const top5Ids = participants.slice(0, 5).map((p: any) => p.id);
 
-  // Select all snapshots for the top 10 players, created during the competition
+  // Select all snapshots for the top 5 players, created during the competition
   const raceSnapshots = await snapshotService.findAllBetween(
-    top10Ids,
+    top5Ids,
     competition.startsAt,
     competition.endsAt
   );
@@ -231,17 +225,18 @@ async function getDetails(id) {
 
   // Add all "race data" to their respective players' history
   raceData.forEach(d => {
-    const player = participants.find(p => p.id === d.playerId);
+    const player = participants.find((p: any) => p.id === d.playerId);
+
     if (player) {
-      player.history.push({ date: d.createdAt, value: d.value });
+      player.history.push({
+        date: d.createdAt,
+        value: d.value
+      });
     }
   });
 
   // Sum all gained values
-  const totalGained =
-    participants &&
-    participants.length &&
-    participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c));
+  const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c));
 
   return { ...format(competition), duration, totalGained, participants, group };
 }

@@ -10,37 +10,4 @@ const GET_PLAYER_DELTA = `
 
     SELECT * FROM differences WHERE differences.first_row = 1 OR differences.last_row = 1`;
 
-// Since sequelize's param escaping doesn't work too well with strings,
-// we should just inject some variables into the query directly
-const GET_COMPETITION_LEADERBOARD = (metricKey, ids) => `
-    SELECT
-        player.id as "playerId",
-        c."minDate" AS "startDate",
-        c."maxDate" AS "endDate",
-        c."endValue",
-        GREATEST(i."initialValue", c."startValue") AS  "startValue" ,
-        (c."endValue" - GREATEST(i."initialValue", c."startValue")) AS gained
-    FROM public.players player
-    JOIN (
-        SELECT "playerId",
-            MIN("createdAt") AS "minDate",
-            MIN("${metricKey}") AS "startValue",
-            MAX("createdAt") AS "maxDate",
-            MAX("${metricKey}") AS "endValue"
-        FROM public.snapshots
-        WHERE "createdAt" >= :startsAt
-        AND "createdAt" <= :endsAt
-        AND "playerId" IN (${ids})
-        GROUP BY "playerId"
-    ) c ON player.id = c."playerId"
-    JOIN (
-        SELECT "playerId" AS "pId", MAX("${metricKey}") AS "initialValue"
-        FROM "initialValues"
-        WHERE "playerId" IN (${ids})
-        GROUP BY "pId"
-    ) i ON player.id = i."pId"
-    WHERE "playerId" IN (${ids})
-    ORDER BY gained DESC
-`;
-
-export { GET_PLAYER_DELTA, GET_COMPETITION_LEADERBOARD };
+export { GET_PLAYER_DELTA };
