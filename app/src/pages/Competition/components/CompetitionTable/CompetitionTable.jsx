@@ -60,9 +60,21 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       },
       {
         key: 'end',
-        transform: val => <NumberLabel value={val} />,
+        get: row => (row.progress ? row.progress.end : 0),
         className: () => '-break-small',
-        get: row => (row.progress ? row.progress.end : 0)
+        transform: val => {
+          const minKc = getMinimumBossKc(competition.metric);
+          const metricName = getMetricName(competition.metric);
+
+          return val === -1 ? (
+            <TextLabel
+              value={`< ${minKc}`}
+              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+            />
+          ) : (
+            <NumberLabel value={val} />
+          );
+        }
       },
       {
         key: 'gained',

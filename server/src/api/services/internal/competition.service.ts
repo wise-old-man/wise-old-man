@@ -192,11 +192,13 @@ async function getDetails(id) {
     ]
   });
 
+  const minimumValue = getMinimumBossKc(competition.metric);
+
   const participants = participations
     .map(({ player, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? startSnapshot[metricKey] : 0;
-      const end = endSnapshot ? endSnapshot[metricKey] : 0;
-      const gained = end - Math.max(getMinimumBossKc(competition.metric) - 1, start);
+      const start = startSnapshot ? startSnapshot[metricKey] : -1;
+      const end = endSnapshot ? endSnapshot[metricKey] : -1;
+      const gained = Math.max(0, end - Math.max(minimumValue - 1, start));
 
       return {
         ...player.toJSON(),
