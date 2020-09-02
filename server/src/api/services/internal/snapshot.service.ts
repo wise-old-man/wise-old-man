@@ -185,6 +185,18 @@ async function findFirstSince(playerId, date) {
   return result;
 }
 
+/**
+ * Finds the last snapshot before "date" for a given player.
+ */
+async function findLastBefore(playerId, date) {
+  const result = await Snapshot.findOne({
+    where: { playerId, createdAt: { [Op.lte]: date } },
+    order: [['createdAt', 'DESC']]
+  });
+
+  return result;
+}
+
 function average(snapshots) {
   if (!snapshots && snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
@@ -330,6 +342,7 @@ export {
   findLatest,
   findAllBetween,
   findFirstSince,
+  findLastBefore,
   average,
   saveAll,
   fromCML,
