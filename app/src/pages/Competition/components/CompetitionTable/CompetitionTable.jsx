@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween, getMinimumBossKc, getMetricName } from '../../../../utils';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
@@ -48,13 +48,14 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
           const minKc = getMinimumBossKc(competition.metric);
           const metricName = getMetricName(competition.metric);
 
-          return val === -1 ? (
+          if (val !== -1) return <NumberLabel value={val} />;
+          if (!isBoss(competition.metric)) return val;
+
+          return (
             <TextLabel
               value={`< ${minKc}`}
               popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
             />
-          ) : (
-            <NumberLabel value={val} />
           );
         }
       },
@@ -66,13 +67,14 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
           const minKc = getMinimumBossKc(competition.metric);
           const metricName = getMetricName(competition.metric);
 
-          return val === -1 ? (
+          if (val !== -1) return <NumberLabel value={val} />;
+          if (!isBoss(competition.metric)) return val;
+
+          return (
             <TextLabel
               value={`< ${minKc}`}
               popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
             />
-          ) : (
-            <NumberLabel value={val} />
           );
         }
       },
