@@ -9,12 +9,8 @@ const groupDeltasSelector = state => state.deltas.groupDeltas;
 const getPlayerDeltasMap = createSelector(playerDeltasSelector, map => map);
 
 const getGroupDeltasMap = createSelector(groupDeltasSelector, map => {
-  // Add a "rank" and "percentage" fields to each row
-  return _.mapValues(map, hiscores =>
-    hiscores.map((d, i) => {
-      return { ...d, rank: i + 1, percentage: d.startValue === 0 ? 1 : d.gained / d.startValue };
-    })
-  );
+  // Add a "rank" field to each row
+  return _.mapValues(map, hiscores => hiscores.map((d, i) => ({ ...d, rank: i + 1 })));
 });
 
 export const isFetchingDay = createSelector(rootSelector, root => root.isFetching.day);

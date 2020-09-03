@@ -21,7 +21,7 @@ import TopPlayerWidget from './components/TopPlayerWidget';
 import CountdownWidget from './components/CountdownWidget';
 import './Competition.scss';
 
-const TABS = ['Progress Table', 'Top 10 progress chart'];
+const TABS = ['Progress Table', 'Top 5 progress chart'];
 
 function getMenuOptions(competition) {
   if (!competition) {

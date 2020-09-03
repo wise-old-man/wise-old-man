@@ -14,10 +14,8 @@ function onPlayerNameChanged(player: Player) {
 function onPlayerUpdated(snapshot: Snapshot) {
   jobs.add('ImportPlayer', { playerId: snapshot.playerId });
   jobs.add('SyncPlayerAchievements', { playerId: snapshot.playerId });
-  jobs.add('SyncPlayerInitialValues', { playerId: snapshot.playerId });
-
-  // Delay this to ensure SyncPlayerInitialValues runs first
-  jobs.add('SyncPlayerRecords', { playerId: snapshot.playerId }, { delay: 10000 });
+  jobs.add('SyncPlayerDeltas', { playerId: snapshot.playerId, latestSnapshot: snapshot });
+  jobs.add('SyncPlayerParticipations', { playerId: snapshot.playerId, latestSnapshot: snapshot });
 }
 
 function onPlayerImported(playerId: number) {

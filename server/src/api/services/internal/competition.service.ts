@@ -1,13 +1,12 @@
 import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { Competition, Group, Participation, Player } from '../../../database/models';
+import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
-import { getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { getMinimumBossKc, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
-import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
@@ -183,41 +182,38 @@ async function getDetails(id) {
   const duration = durationBetween(competition.startsAt, competition.endsAt);
   const group = competition.group ? groupService.format(competition.group) : null;
 
-  // Fetch all participations, including their players and snapshots
   const participations = await Participation.findAll({
     attributes: ['playerId'],
     where: { competitionId: id },
-    include: [{ model: Player }]
+    include: [
+      { model: Player },
+      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
+    ]
   });
 
-  const playerIds = participations.map(p => p.playerId);
-
-  const leaderboard = await deltaService.getCompetitionLeaderboard(competition, playerIds);
-  const leaderboardMap = keyBy(leaderboard, 'playerId');
+  const minimumValue = getMinimumBossKc(competition.metric);
 
   const participants = participations
-    .map(({ player }) => ({
-      id: player.id,
-      username: player.username,
-      displayName: player.displayName,
-      type: player.type,
-      flagged: player.flagged,
-      updatedAt: player.updatedAt,
-      history: [],
-      progress: {
-        start: leaderboardMap[player.id] ? leaderboardMap[player.id].startValue : 0,
-        end: leaderboardMap[player.id] ? leaderboardMap[player.id].endValue : 0,
-        gained: leaderboardMap[player.id] ? leaderboardMap[player.id].gained : 0
-      }
-    }))
+    .map(({ player, startSnapshot, endSnapshot }) => {
+      const start = startSnapshot ? startSnapshot[metricKey] : -1;
+      const end = endSnapshot ? endSnapshot[metricKey] : -1;
+      const gained = Math.max(0, end - Math.max(minimumValue - 1, start));
+
+      return {
+        ...player.toJSON(),
+        progress: { start, end, gained },
+        history: []
+      };
+    })
     .sort((a, b) => b.progress.gained - a.progress.gained);
 
-  // Select the top 10 players
-  const top10Ids = participants.slice(0, 10).map(p => p.id);
+  // Select the top 5 players
+  const top5Ids = participants.slice(0, 5).map((p: any) => p.id);
 
-  // Select all snapshots for the top 10 players, created during the competition
+  // Select all snapshots for the top 5 players, created during the competition
   const raceSnapshots = await snapshotService.findAllBetween(
-    top10Ids,
+    top5Ids,
     competition.startsAt,
     competition.endsAt
   );
@@ -231,17 +227,18 @@ async function getDetails(id) {
 
   // Add all "race data" to their respective players' history
   raceData.forEach(d => {
-    const player = participants.find(p => p.id === d.playerId);
+    const player = participants.find((p: any) => p.id === d.playerId);
+
     if (player) {
-      player.history.push({ date: d.createdAt, value: d.value });
+      player.history.push({
+        date: d.createdAt,
+        value: d.value
+      });
     }
   });
 
   // Sum all gained values
-  const totalGained =
-    participants &&
-    participants.length &&
-    participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c));
+  const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
   return { ...format(competition), duration, totalGained, participants, group };
 }
@@ -856,6 +853,56 @@ async function isVerified(competition, verificationCode) {
   return verified;
 }
 
+/**
+ * Sync all participations for a given player id.
+ *
+ * When a player is updated, this should be executed by a job.
+ * This should update all the "endSnapshotId" field in the player's participations.
+ */
+async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
+  // Get all on-going participations
+  const currentDate = new Date();
+
+  const participations = await Participation.findAll({
+    attributes: ['competitionId', 'playerId'],
+    where: { playerId },
+    include: [
+      {
+        model: Competition,
+        attributes: ['startsAt', 'endsAt'],
+        where: {
+          startsAt: { [Op.lt]: currentDate },
+          endsAt: { [Op.gte]: currentDate }
+        }
+      }
+    ]
+  });
+
+  if (!participations || participations.length === 0) {
+    return;
+  }
+
+  await Promise.all(
+    participations.map(async participation => {
+      // Update this participation's latest (end) snapshot
+      participation.endSnapshotId = latestSnapshot.id;
+
+      // If this participation's starting snapshot has not been set,
+      // find the first snapshot created since the start date and set it
+      if (!participation.startSnapshot) {
+        const startDate = participation.competition.startsAt;
+        const start = await snapshotService.findFirstSince(playerId, startDate);
+
+        participation.startSnapshotId = start.id;
+      }
+
+      await participation.save();
+
+      return participation;
+    })
+  );
+}
+
 export {
   getList,
   getGroupCompetitions,
@@ -870,5 +917,6 @@ export {
   addToGroupCompetitions,
   removeFromGroupCompetitions,
   updateAllParticipants,
-  refreshScores
+  refreshScores,
+  syncParticipations
 };

@@ -1,4 +1,3 @@
-import { PERIODS } from '../../constants';
 import * as recordService from '../../services/internal/record.service';
 import { Job } from '../index';
 
@@ -10,13 +9,11 @@ class SyncPlayerRecords implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { playerId } = data;
+    const { playerId, period } = data;
 
-    await Promise.all(
-      PERIODS.map(async period => {
-        await recordService.syncRecords(playerId, period);
-      })
-    );
+    if (playerId && period) {
+      await recordService.syncRecords(playerId, period);
+    }
   }
 }
 

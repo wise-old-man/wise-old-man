@@ -1,5 +1,6 @@
 import Achievement from './achievement.model';
 import Competition from './competition.model';
+import Delta from './delta.model';
 import Group from './group.model';
 import HiscoresValues from './hiscoresValues.model';
 import InitialValues from './initialValues.model';
@@ -21,5 +22,6 @@ export {
   Membership,
   Record,
   Snapshot,
-  InitialValues
+  InitialValues,
+  Delta
 };

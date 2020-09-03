@@ -149,7 +149,7 @@ async function getAllInPeriod(playerId, period) {
 /**
  * Finds the latest snapshot for a given player.
  */
-async function findLatest(playerId) {
+async function findLatest(playerId: number) {
   const result = await Snapshot.findOne({
     where: { playerId },
     order: [['createdAt', 'DESC']]
@@ -180,6 +180,18 @@ async function findFirstSince(playerId, date) {
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: date } },
     order: [['createdAt', 'ASC']]
+  });
+
+  return result;
+}
+
+/**
+ * Finds the last snapshot before "date" for a given player.
+ */
+async function findLastBefore(playerId, date) {
+  const result = await Snapshot.findOne({
+    where: { playerId, createdAt: { [Op.lte]: date } },
+    order: [['createdAt', 'DESC']]
   });
 
   return result;
@@ -330,6 +342,7 @@ export {
   findLatest,
   findAllBetween,
   findFirstSince,
+  findLastBefore,
   average,
   saveAll,
   fromCML,

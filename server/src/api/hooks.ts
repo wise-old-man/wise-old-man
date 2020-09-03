@@ -1,7 +1,8 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import { Achievement, Competition, Membership, Player, Snapshot } from '../database/models';
+import { Achievement, Competition, Delta, Membership, Player, Snapshot } from '../database/models';
 import { onAchievementsCreated } from './events/achievement.events';
 import { onCompetitionCreated, onCompetitionUpdated } from './events/competition.events';
+import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
 import {
   onPlayerCreated,
@@ -26,6 +27,14 @@ function setup() {
 
   Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
     onPlayerImported(snapshots[0].playerId);
+  });
+
+  Delta.afterUpdate((delta: Delta) => {
+    onDeltaUpdated(delta);
+  });
+
+  Delta.afterCreate((delta: Delta) => {
+    onDeltaUpdated(delta);
   });
 
   Membership.afterBulkCreate((memberships: Membership[]) => {
