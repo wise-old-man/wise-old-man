@@ -286,58 +286,56 @@ export default [
       {
         description: '',
         body: [
-          {
-            playerId: 1188,
-            username: 'unequalized',
-            displayName: 'Unequalized',
-            build: 'main',
-            flagged: false,
-            type: 'regular',
-            startDate: '2020-05-18T10:29:33.291Z',
-            endDate: '2020-05-24T22:43:56.955Z',
-            endValue: 977545937,
-            startValue: 963372008,
-            gained: 14173929
-          },
-          {
-            playerId: 1191,
-            username: '8 feb 2020',
-            displayName: '8 Feb 2020',
-            build: 'main',
-            flagged: false,
-            type: 'regular',
-            startDate: '2020-05-18T23:53:21.708Z',
-            endDate: '2020-05-24T02:38:49.950Z',
-            endValue: 212662135,
-            startValue: 200415405,
-            gained: 12246730
-          },
-          {
-            playerId: 1170,
-            username: 'teethbreaker',
-            displayName: 'Teethbreaker',
-            build: 'main',
-            flagged: false,
-            type: 'regular',
-            startDate: '2020-05-18T04:47:13.127Z',
-            endDate: '2020-05-24T04:42:37.801Z',
-            endValue: 158106176,
-            startValue: 149273178,
-            gained: 8832998
-          },
-          {
-            playerId: 1153,
-            username: 'mobilekingpt',
-            displayName: 'Mobilekingpt',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            startDate: '2020-05-18T05:37:09.757Z',
-            endDate: '2020-05-24T20:55:53.915Z',
-            endValue: 204319855,
-            startValue: 195506941,
-            gained: 8812914
-          }
+          [
+            {
+              startDate: '2020-07-28T18:43:24.339Z',
+              endDate: '2020-08-26T22:07:37.065Z',
+              gained: 8370924,
+              player: {
+                id: 1163,
+                username: 'knock',
+                displayName: 'Knock',
+                type: 'regular',
+                build: 'main',
+                flagged: false,
+                lastImportedAt: '2020-08-24T16:29:13.227Z',
+                registeredAt: '2020-04-28T18:46:19.553Z',
+                updatedAt: '2020-08-26T22:07:37.104Z'
+              }
+            },
+            {
+              startDate: '2020-07-27T01:14:45.528Z',
+              endDate: '2020-08-26T22:07:39.353Z',
+              gained: 6036661,
+              player: {
+                id: 1201,
+                username: 'ice juice',
+                displayName: 'Ice Juice',
+                type: 'ironman',
+                build: 'main',
+                flagged: false,
+                lastImportedAt: '2020-08-22T20:20:32.956Z',
+                registeredAt: '2020-04-28T19:25:58.626Z',
+                updatedAt: '2020-08-26T22:07:39.384Z'
+              }
+            },
+            {
+              startDate: '2020-07-28T18:43:35.745Z',
+              endDate: '2020-08-26T22:02:42.823Z',
+              gained: 3201759,
+              player: {
+                id: 1155,
+                username: 'paposeco',
+                displayName: 'Paposeco',
+                type: 'regular',
+                build: 'main',
+                flagged: false,
+                lastImportedAt: '2020-08-22T23:41:14.792Z',
+                registeredAt: '2020-04-27T20:46:08.951Z',
+                updatedAt: '2020-08-26T22:02:42.961Z'
+              }
+            }
+          ]
         ]
       }
     ],
