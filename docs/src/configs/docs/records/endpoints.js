@@ -40,6 +40,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 101659,
               updatedAt: '2020-04-04T16:21:50.919Z'
@@ -49,6 +50,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 34655,
               updatedAt: '2020-04-03T23:03:19.135Z'
@@ -58,6 +60,7 @@ export default [
               username: 'porthuguese',
               displayName: 'Porthuguese',
               type: 'unknown',
+              build: 'main',
               flagged: false,
               value: 0,
               updatedAt: '2020-04-03T23:03:24.181Z'
@@ -69,6 +72,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 101659,
               updatedAt: '2020-04-04T16:21:51.060Z'
@@ -78,6 +82,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 7930,
               updatedAt: '2020-04-04T16:21:23.462Z'
@@ -87,6 +92,7 @@ export default [
               username: 'porthuguese',
               displayName: 'Porthuguese',
               type: 'unknown',
+              build: 'main',
               flagged: false,
               value: 0,
               updatedAt: '2020-04-03T23:03:26.343Z'
@@ -98,6 +104,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 290949,
               updatedAt: '2020-04-04T16:21:51.185Z'
@@ -107,6 +114,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 25515,
               updatedAt: '2020-04-04T16:21:23.606Z'
@@ -116,6 +124,7 @@ export default [
               username: 'porthuguese',
               displayName: 'Porthuguese',
               type: 'unknown',
+              build: 'main',
               flagged: false,
               value: 0,
               updatedAt: '2020-04-03T23:03:28.737Z'
@@ -127,6 +136,7 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 3225180,
               updatedAt: '2020-04-04T16:21:51.291Z'
@@ -136,6 +146,7 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
+              build: 'main',
               flagged: false,
               value: 25515,
               updatedAt: '2020-04-04T16:21:23.746Z'
@@ -145,6 +156,7 @@ export default [
               username: 'porthuguese',
               displayName: 'Porthuguese',
               type: 'unknown',
+              build: 'main',
               flagged: false,
               value: 0,
               updatedAt: '2020-04-03T23:03:30.820Z'
@@ -160,6 +172,7 @@ export default [
             username: 'psikoi',
             displayName: 'Psikoi',
             type: 'regular',
+            build: 'main',
             flagged: false,
             value: 290949,
             updatedAt: '2020-04-04T16:21:51.185Z'
@@ -169,6 +182,7 @@ export default [
             username: 'zulu',
             displayName: 'Zulu',
             type: 'regular',
+            build: 'main',
             flagged: false,
             value: 25515,
             updatedAt: '2020-04-04T16:21:23.746Z'
@@ -178,6 +192,7 @@ export default [
             username: 'porthuguese',
             displayName: 'Porthuguese',
             type: 'unknown',
+            build: 'main',
             flagged: false,
             value: 0,
             updatedAt: '2020-04-03T23:03:28.737Z'
