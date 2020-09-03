@@ -10,7 +10,7 @@ export async function runTempParticipationJobs() {
   const baseDate = new Date();
 
   competitions.forEach((competition, index) => {
-    const jobDate = new Date(baseDate.getTime() + 1000 + index * 60000);
+    const jobDate = new Date(baseDate.getTime() + 1000 + index * 300000);
     jobs.schedule('RevalidateParticipations', { competition }, jobDate);
   });
 }
