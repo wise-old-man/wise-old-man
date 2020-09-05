@@ -133,12 +133,22 @@ function CreateGroup() {
 
         <div className="form-row">
           <span className="form-row__label">Group name</span>
-          <TextInput placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+          <TextInput
+            value={name}
+            placeholder="Ex: Varrock Titans"
+            onChange={onNameChanged}
+            maxCharacters={30}
+          />
         </div>
 
         <div className="form-row">
           <span className="form-row__label">Clan Chat</span>
-          <TextInput placeholder="Ex: titanZ" onChange={onClanChatChanged} />
+          <TextInput
+            value={clanChat}
+            placeholder="Ex: titanZ"
+            onChange={onClanChatChanged}
+            maxCharacters={12}
+          />
         </div>
 
         <div className="form-row">

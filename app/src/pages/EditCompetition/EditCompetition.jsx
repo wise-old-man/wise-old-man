@@ -169,6 +169,7 @@ function EditCompetition() {
             value={title}
             placeholder="Ex: Varrock Titan's firemaking comp"
             onChange={onTitleChanged}
+            maxCharacters={50}
           />
         </div>
 
