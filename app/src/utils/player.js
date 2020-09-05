@@ -10,6 +10,8 @@ export function getPlayerBuild(build) {
       return 'Level 3';
     case 'f2p':
       return 'F2P';
+    case '10hp':
+      return '10 Hitpoints Pure';
     default:
       return 'Main';
   }

@@ -75,6 +75,8 @@ function getPlayerBadges(build) {
       return [{ text: 'F2P', hoverText: '' }];
     case '1def':
       return [{ text: '1 Def Pure', hoverText: '' }];
+    case '10hp':
+      return [{ text: '10 HP Pure', hoverText: '' }]
     default:
       return [];
   }

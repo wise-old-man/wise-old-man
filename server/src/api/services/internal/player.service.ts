@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { getCombatLevel, is1Def, isF2p, isLvl3 } from '../../util/level';
+import { getCombatLevel, is1Def, isF2p, isLvl3, is10HP } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as snapshotService from './snapshot.service';
@@ -355,6 +355,11 @@ function getBuild(snapshot: Snapshot) {
 
   if (isLvl3(snapshot)) {
     return 'lvl3';
+  }
+
+  // This must be above 1def because 10 HP accounts can also have 1 def
+  if (is10HP(snapshot)) {
+    return '10hp';
   }
 
   if (is1Def(snapshot)) {
