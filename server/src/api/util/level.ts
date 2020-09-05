@@ -92,7 +92,7 @@ function is1Def(snapshot: Snapshot) {
 }
 
 function is10HP(snapshot: Snapshot) {
-  return getCombatLevel(snapshot) > 3 && getLevel(snapshot.hitpointsExperience) <= 10;
+  return getCombatLevel(snapshot) > 3 && getLevel(snapshot.hitpointsExperience) === 10;
 }
 
 export { getLevel, getCombatLevel, getTotalLevel, get200msCount, is1Def, isF2p, isLvl3, is10HP };
