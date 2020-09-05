@@ -76,7 +76,7 @@ function getPlayerBadges(build) {
     case '1def':
       return [{ text: '1 Def Pure', hoverText: '' }];
     case '10hp':
-      return [{ text: '10 Hitpoints Pure', hoverText: '' }]
+      return [{ text: '10 HP Pure', hoverText: '' }]
     default:
       return [];
   }
