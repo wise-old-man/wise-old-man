@@ -4,7 +4,6 @@ import logger from '../services/external/logger.service';
 import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';
-import { runTempParticipationJobs } from './temp';
 
 export interface Job {
   name: string;
@@ -103,8 +102,6 @@ class JobHandler {
         crons.forEach(({ jobName, cronConfig }) =>
           this.add(jobName, null, { repeat: { cron: cronConfig }, priority: JobPriority.Low })
         );
-
-        runTempParticipationJobs();
       }, 10000);
     }
   }

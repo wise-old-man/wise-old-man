@@ -9,8 +9,6 @@ import ImportPlayer from './ImportPlayer';
 import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
 import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
-import RevalidateParticipation from './RevalidateParticipation';
-import RevalidateParticipations from './RevalidateParticipations';
 import SyncPlayerAchievements from './SyncPlayerAchievements';
 import SyncPlayerDeltas from './SyncPlayerDeltas';
 import SyncPlayerParticipations from './SyncPlayerParticipations';
@@ -33,7 +31,5 @@ export default [
   CompetitionEnded,
   AssertPlayerType,
   SyncPlayerDeltas,
-  SyncPlayerParticipations,
-  RevalidateParticipations,
-  RevalidateParticipation
+  SyncPlayerParticipations
 ];
