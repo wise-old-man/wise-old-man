@@ -465,30 +465,35 @@ async function destroy(id, verificationCode) {
  *
  * This will replace any existing participants.
  */
-async function setParticipants(competition, usernames) {
+async function setParticipants(competition: Competition, usernames: string[]) {
   if (!competition) {
     throw new BadRequestError(`Invalid competition.`);
   }
 
-  const uniqueUsernames = uniqBy(usernames, (p: any) => p.toLowerCase());
+  const uniqueUsernames = uniqBy(usernames, u => playerService.standardize(u));
 
-  const existingParticipants = await competition.getParticipants();
+  const existingParticipants = await competition.$get('participants');
   const existingUsernames = existingParticipants.map(e => e.username);
 
-  const usernamesToAdd = uniqueUsernames.filter(u => !existingUsernames.includes(u));
+  const usernamesToAdd = uniqueUsernames.filter(
+    u => !existingUsernames.includes(playerService.standardize(u))
+  );
 
-  const playersToRemove = existingParticipants.filter(p => !uniqueUsernames.includes(p.username));
+  const playersToRemove = existingParticipants.filter(
+    p => !uniqueUsernames.map(playerService.standardize).includes(p.username)
+  );
+
   const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
 
   if (playersToRemove && playersToRemove.length > 0) {
-    await competition.removeParticipants(playersToRemove);
+    await competition.$remove('participants', playersToRemove);
   }
 
   if (playersToAdd && playersToAdd.length > 0) {
-    await competition.addParticipants(playersToAdd);
+    await competition.$add('participants', playersToAdd);
   }
 
-  const participants = await competition.getParticipants();
+  const participants = await competition.$get('participants');
   return participants.map(p => ({ ...p.toJSON(), participations: undefined }));
 }
 
