@@ -7,7 +7,7 @@
     "build": "tsc",
     "lint": "npx eslint@7.2 . --ext .ts",
     "prestart": "sequelize db:migrate",
-    "start": "pm2-runtime dist/server.js -i 2",
+    "start": "pm2-runtime dist/server.js -i 4",
     "predev": "npm run build && sequelize db:migrate",
     "dev": "nodemon -L --exec ts-node src/server.ts",
     "pretest": "cross-env NODE_ENV=test sequelize db:migrate",
