@@ -309,7 +309,7 @@ async function transferMemberships(filter: WhereOptions, targetId: number, trans
   const movedMemberships = newMemberships.map(ns => ({ ...ns.toJSON(), playerId: targetId }));
 
   // Add all these memberships, ignoring duplicates
-  await Membership.bulkCreate(movedMemberships, { ignoreDuplicates: true, transaction });
+  await Membership.bulkCreate(movedMemberships, { ignoreDuplicates: true, hooks: false, transaction });
 }
 
 async function transferRecords(filter: WhereOptions, targetId: number, transaction: Transaction) {
