@@ -53,11 +53,11 @@ class JobHandler {
    * Adds new scheduled job, to be executed at the specified date.
    */
   schedule(name, data, date) {
-    const secondsTill = date.getTime() - Date.now();
+    const msDiff = date.getTime() - Date.now();
 
     // Don't allow scheduling for past dates
-    if (secondsTill >= 0) {
-      this.add(name, data, { delay: secondsTill, priority: JobPriority.Medium });
+    if (msDiff >= 0) {
+      this.add(name, data, { delay: msDiff, priority: JobPriority.Medium });
     }
   }
 

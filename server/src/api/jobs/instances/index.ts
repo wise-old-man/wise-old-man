@@ -7,8 +7,10 @@ import CompetitionStarted from './CompetitionStarted';
 import CompetitionStarting from './CompetitionStarting';
 import ImportPlayer from './ImportPlayer';
 import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
+import RefreshNameChanges from './RefreshNameChanges';
 import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
+import ReviewNameChange from './ReviewNameChange';
 import SyncPlayerAchievements from './SyncPlayerAchievements';
 import SyncPlayerDeltas from './SyncPlayerDeltas';
 import SyncPlayerParticipations from './SyncPlayerParticipations';
@@ -31,5 +33,7 @@ export default [
   CompetitionEnded,
   AssertPlayerType,
   SyncPlayerDeltas,
-  SyncPlayerParticipations
+  SyncPlayerParticipations,
+  ReviewNameChange,
+  RefreshNameChanges
 ];
