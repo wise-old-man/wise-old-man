@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Achievement, Competition } from '../../../database/models';
 import env from '../../../env';
 import { EventPeriod } from '../../../types';
+import { durationBetween } from '../../util/dates';
 import * as groupService from '../internal/group.service';
 import * as playerService from '../internal/player.service';
 
@@ -77,7 +78,12 @@ async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
  * Dispatch a competition created event to our discord bot API.
  */
 function dispatchCompetitionCreated(competition: Competition) {
-  dispatch('COMPETITION_CREATED', { groupId: competition.groupId, competition });
+  const duration = durationBetween(competition.startsAt, competition.endsAt);
+
+  dispatch('COMPETITION_CREATED', {
+    groupId: competition.groupId,
+    competition: { ...competition.toJSON(), duration }
+  });
 }
 
 /**
