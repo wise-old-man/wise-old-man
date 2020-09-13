@@ -13,7 +13,11 @@ function dispatch(type: string, payload: any) {
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
 
-  axios.post(url, body);
+  try {
+    axios.post(url, body);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /**

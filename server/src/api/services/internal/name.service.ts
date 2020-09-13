@@ -11,7 +11,9 @@ import {
 } from '../../../database/models';
 import env from '../../../env';
 import { NameChangeStatus, Pagination } from '../../../types';
+import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
+import { getLevel } from '../../util/level';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
@@ -23,8 +25,10 @@ import * as snapshotService from './snapshot.service';
 async function getList(status: NameChangeStatus, pagination: Pagination): Promise<NameChange[]> {
   const { limit, offset } = pagination;
 
+  const query = status !== null ? { status } : {};
+
   const nameChanges = await NameChange.findAll({
-    where: status ? { status } : {},
+    where: query,
     order: [['createdAt', 'DESC']],
     limit,
     offset
@@ -151,6 +155,10 @@ async function getDetails(id: number) {
   // Fetch the last snapshot from the old name
   const oldStats = await snapshotService.findLatest(oldPlayer.id);
 
+  if (!oldStats) {
+    throw new ServerError('Old stats could not be found.');
+  }
+
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   let newStats = newHiscores ? await snapshotService.fromRS(-1, newHiscores) : null;
 
@@ -191,13 +199,51 @@ async function getDetails(id: number) {
   };
 }
 
-async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
-  const transaction = await sequelize.transaction();
+async function autoReview(id: number): Promise<void> {
+  const details = await getDetails(id);
 
+  if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
+
+  const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = details.data;
+
+  // If new name is not on the hiscores
+  if (!isNewOnHiscores) {
+    return;
+  }
+
+  // If has lost exp/kills/scores
+  if (hasNegativeGains) {
+    return;
+  }
+
+  // If the transition period is over 2 weeks
+  if (hoursDiff > 336) {
+    return;
+  }
+
+  // If has gained too much exp/kills
+  if (ehpDiff + ehbDiff > hoursDiff) {
+    return;
+  }
+
+  const totalLevel = SKILLS.filter(s => s !== 'overall')
+    .map(s => getLevel(oldStats[s].experience))
+    .reduce((acc, cur) => acc + cur);
+
+  // If is high level enough (high level swaps are harder to fake)
+  if (totalLevel < 1000) {
+    return;
+  }
+
+  // All seems to be fine, auto approve
+  await approve(id, env.ADMIN_PASSWORD);
+}
+
+async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
   const transitionDate = (await snapshotService.findLatest(oldPlayer.id))?.createdAt;
   const standardizedName = playerService.standardize(newName);
 
-  try {
+  await sequelize.transaction(async transaction => {
     if (newPlayer) {
       // Include only the data gathered after the name change transition started
       const createdFilter = {
@@ -223,14 +269,7 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
     oldPlayer.username = standardizedName;
     oldPlayer.displayName = standardizedName;
     await oldPlayer.save({ transaction });
-
-    // If all of the operations above succeeded, commit the transaction
-    await transaction.commit();
-  } catch (e) {
-    // If any of the operations above fail, rollback the transaction
-    await transaction.rollback();
-    throw e;
-  }
+  });
 }
 
 async function transferSnapshots(filter: WhereOptions, targetId: number, transaction: Transaction) {
@@ -251,7 +290,12 @@ async function transferParticipations(filter: WhereOptions, targetId: number, tr
   const newParticipations = await Participation.findAll({ where: filter });
 
   // Transfer all participations to the old player id
-  const movedParticipations = newParticipations.map(ns => ({ ...ns.toJSON(), playerId: targetId }));
+  const movedParticipations = newParticipations.map(ns => ({
+    ...ns.toJSON(),
+    playerId: targetId,
+    startSnapshotId: null,
+    endSnapshotId: null
+  }));
 
   // Add all these participations, ignoring duplicates
   await Participation.bulkCreate(movedParticipations, { ignoreDuplicates: true, transaction });
@@ -293,4 +337,4 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   );
 }
 
-export { getList, getDetails, submit, deny, approve };
+export { getList, getDetails, submit, deny, approve, autoReview };
