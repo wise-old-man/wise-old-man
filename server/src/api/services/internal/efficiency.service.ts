@@ -3,13 +3,14 @@ import { Player, Snapshot } from '../../../database/models';
 import { BOSSES, SKILLS } from '../../constants';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
+import { round } from '../../util/numbers';
 
 function calculateTTM(snapshot: Snapshot): number {
   // TODO: always use main ehp, for now
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return Math.floor(algorithm.calculateTTM(exp) * 100000) / 100000;
+  return round(algorithm.calculateTTM(exp), 5);
 }
 
 function calculateTT200m(snapshot: Snapshot): number {
@@ -17,7 +18,7 @@ function calculateTT200m(snapshot: Snapshot): number {
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return Math.floor(algorithm.calculateTT200m(exp) * 100000) / 100000;
+  return round(algorithm.calculateTT200m(exp), 5);
 }
 
 function calculateEHP(snapshot: Snapshot): number {
@@ -25,7 +26,7 @@ function calculateEHP(snapshot: Snapshot): number {
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return Math.floor(algorithm.calculateEHP(exp) * 100000) / 100000;
+  return round(algorithm.calculateEHP(exp), 5);
 }
 
 function calculateEHB(snapshot: Snapshot) {
@@ -33,7 +34,7 @@ function calculateEHB(snapshot: Snapshot) {
   const algorithm = mainAlgorithm;
   const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
 
-  return Math.floor(algorithm.calculateEHB(kcs) * 100000) / 100000;
+  return round(algorithm.calculateEHB(kcs), 5);
 }
 
 function calculateEHPDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): number {
