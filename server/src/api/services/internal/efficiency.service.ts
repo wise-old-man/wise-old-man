@@ -10,7 +10,7 @@ function calculateTTM(snapshot: Snapshot): number {
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return round(algorithm.calculateTTM(exp), 5);
+  return Math.max(0, round(algorithm.calculateTTM(exp), 5));
 }
 
 function calculateTT200m(snapshot: Snapshot): number {
@@ -18,7 +18,7 @@ function calculateTT200m(snapshot: Snapshot): number {
   const algorithm = mainAlgorithm;
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
-  return round(algorithm.calculateTT200m(exp), 5);
+  return Math.max(0, round(algorithm.calculateTT200m(exp), 5));
 }
 
 function calculateEHP(snapshot: Snapshot): number {
