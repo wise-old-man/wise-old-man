@@ -1,37 +1,68 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BOSSES, SKILLS } from '../../constants';
-import mainAlgorithm from '../../modules/efficiency/algorithms/main';
+import {
+  default as f2pAlgorithm,
+  default as ironAlgorithm,
+  default as lvl3Algorithm,
+  default as mainAlgorithm
+} from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 
-function calculateTTM(snapshot: Snapshot): number {
-  // TODO: always use main ehp, for now
-  const algorithm = mainAlgorithm;
+function getAlgorithm(type: string, build: string) {
+  if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
+    return ironAlgorithm;
+  }
+
+  switch (build) {
+    case 'f2p':
+      return f2pAlgorithm;
+    case 'lvl3':
+      return lvl3Algorithm;
+    default:
+      return mainAlgorithm;
+  }
+}
+
+async function calculatePlayerEfficiency(player: Player, snapshot: Snapshot) {
+  const { type, build } = player;
+
+  const ttm = calculateTTM(snapshot, type, build);
+  const tt200m = calculateTT200m(snapshot, type, build);
+
+  const ehpValue = calculateEHP(snapshot, type, build);
+  const ehbValue = calculateEHB(snapshot, type, build);
+
+  const ehpRank = await getEHPRank(player.id, ehpValue);
+  const ehbRank = await getEHBRank(player.id, ehbValue);
+
+  return { ehpValue, ehpRank, ehbValue, ehbRank, ttm, tt200m };
+}
+
+function calculateTTM(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+  const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTTM(exp), 5));
 }
 
-function calculateTT200m(snapshot: Snapshot): number {
-  // TODO: always use main ehp, for now
-  const algorithm = mainAlgorithm;
+function calculateTT200m(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+  const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTT200m(exp), 5));
 }
 
-function calculateEHP(snapshot: Snapshot): number {
-  // TODO: always use main ehp, for now
-  const algorithm = mainAlgorithm;
+function calculateEHP(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+  const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return round(algorithm.calculateEHP(exp), 5);
 }
 
-function calculateEHB(snapshot: Snapshot) {
-  // TODO: always use main ehp, for now
-  const algorithm = mainAlgorithm;
+function calculateEHB(snapshot: Snapshot, type = 'regular', build = 'main') {
+  const algorithm = getAlgorithm(type, build);
   const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
 
   return round(algorithm.calculateEHB(kcs), 5);
@@ -68,6 +99,7 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
 }
 
 export {
+  calculatePlayerEfficiency,
   calculateTTM,
   calculateTT200m,
   calculateEHP,

@@ -159,15 +159,19 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    player.exp = currentSnapshot.overallExperience;
-    player.ehp = currentSnapshot.ehpValue;
-    player.ehb = currentSnapshot.ehbValue;
-    player.ttm = efficiencyService.calculateTTM(currentSnapshot);
-    player.tt200m = efficiencyService.calculateTT200m(currentSnapshot);
-
     player.build = getBuild(currentSnapshot);
     player.flagged = false;
 
+    const playerEfficiency = await efficiencyService.calculatePlayerEfficiency(player, currentSnapshot);
+
+    player.exp = currentSnapshot.overallExperience;
+    player.ehp = playerEfficiency.ehpValue;
+    player.ehb = playerEfficiency.ehbValue;
+    player.ttm = playerEfficiency.ttm;
+    player.tt200m = playerEfficiency.tt200m;
+
+    // Add the efficiency data and save the snapshot
+    Object.assign(currentSnapshot, playerEfficiency);
     await currentSnapshot.save();
 
     await player.changed('updatedAt', true);
@@ -246,14 +250,6 @@ async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
-
-  const ehpValue = await efficiencyService.calculateEHP(newSnapshot);
-  const ehbValue = await efficiencyService.calculateEHB(newSnapshot);
-
-  const ehpRank = await efficiencyService.getEHPRank(player.id, ehpValue);
-  const ehbRank = await efficiencyService.getEHBRank(player.id, ehbValue);
-
-  Object.assign(newSnapshot, { ehpValue, ehpRank, ehbValue, ehbRank });
 
   return newSnapshot;
 }
