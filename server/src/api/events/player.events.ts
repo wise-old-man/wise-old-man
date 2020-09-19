@@ -21,7 +21,6 @@ function onPlayerUpdated(snapshot: Snapshot) {
 }
 
 function onPlayerImported(playerId: number) {
-  jobs.add('SyncPlayerRecords', { playerId });
   jobs.add('ReevaluatePlayerAchievements', { playerId });
 }
 
