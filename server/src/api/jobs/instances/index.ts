@@ -11,7 +11,6 @@ import RefreshNameChanges from './RefreshNameChanges';
 import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
 import ReviewNameChange from './ReviewNameChange';
-import SyncPlayerAchievements from './SyncPlayerAchievements';
 import SyncPlayerDeltas from './SyncPlayerDeltas';
 import SyncPlayerParticipations from './SyncPlayerParticipations';
 import SyncPlayerRecords from './SyncPlayerRecords';
@@ -21,7 +20,6 @@ export default [
   ImportPlayer,
   UpdatePlayer,
   SyncPlayerRecords,
-  SyncPlayerAchievements,
   AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
   ReevaluatePlayerAchievements,
