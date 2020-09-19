@@ -7,7 +7,6 @@ import CompetitionStarting from './CompetitionStarting';
 import ImportPlayer from './ImportPlayer';
 import RefreshNameChanges from './RefreshNameChanges';
 import RefreshRankings from './RefreshRankings';
-import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
 import ReviewNameChange from './ReviewNameChange';
 import SyncPlayerDeltas from './SyncPlayerDeltas';
 import UpdatePlayer from './UpdatePlayer';
@@ -15,7 +14,6 @@ import UpdatePlayer from './UpdatePlayer';
 export default [
   ImportPlayer,
   UpdatePlayer,
-  RemoveFromGroupCompetitions,
   AssertPlayerName,
   RefreshRankings,
   CompetitionStarted,
