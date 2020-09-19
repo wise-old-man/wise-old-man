@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import { NotFoundError } from './errors';
 import competitionRoutes from './routes/competition.routes';
@@ -38,6 +39,9 @@ class RoutingHandler {
   }
 
   setupFallbacks() {
+    // Setup Sentry error tracking
+    this.router.use(Sentry.Handlers.errorHandler());
+
     // Handle endpoint not found
     this.router.use((req, res, next) => {
       next(new NotFoundError('Endpoint was not found'));
