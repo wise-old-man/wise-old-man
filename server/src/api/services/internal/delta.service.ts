@@ -31,78 +31,84 @@ export function getSeconds(period) {
   }
 }
 
-async function syncDeltas(playerId: number, period: string, latest: Snapshot, initial: InitialValues) {
-  // prettier-ignore
-  const startingDate = moment().subtract(getSeconds(period), "seconds").toDate();
-  const first = await snapshotService.findFirstSince(playerId, startingDate);
+async function syncDeltas(latestSnapshot: Snapshot) {
+  const { playerId } = latestSnapshot;
+  const initialValues = await syncInitialValues(playerId, latestSnapshot);
 
-  const currentDeltas = await Delta.findAll({ where: { playerId, period } });
+  await Promise.all(
+    PERIODS.map(async period => {
+      const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
+      const first = await snapshotService.findFirstSince(playerId, startingDate);
 
-  const deltaDefinitions = Object.fromEntries(
-    DELTA_INDICATORS.map(indicator => [
-      indicator,
-      {
-        playerId,
-        period,
-        indicator,
-        startedAt: first.createdAt,
-        endedAt: latest.createdAt
+      const currentDeltas = await Delta.findAll({ where: { playerId, period } });
+
+      const deltaDefinitions = Object.fromEntries(
+        DELTA_INDICATORS.map(indicator => [
+          indicator,
+          {
+            playerId,
+            period,
+            indicator,
+            startedAt: first.createdAt,
+            endedAt: latestSnapshot.createdAt
+          }
+        ])
+      );
+
+      const toCreate = [];
+      const toUpdate = [];
+
+      ALL_METRICS.forEach(metric => {
+        const rankKey = getRankKey(metric);
+        const valueKey = getValueKey(metric);
+
+        const initialRank = initialValues ? initialValues[rankKey] : -1;
+        const initialValue = initialValues ? initialValues[valueKey] : -1;
+
+        const endValue = parseInt(latestSnapshot[valueKey]);
+        const endRank = latestSnapshot[rankKey];
+        // TODO: const endEfficiency = ...
+
+        const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey]);
+        const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
+        // TODO: const startEfficiency = ...
+
+        // Do not use initial ranks for skill, to prevent -1 ranks
+        // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
+        const gainedRank = isSkill(metric) && first[rankKey] === -1 ? 0 : endRank - startRank;
+        const gainedValue = endValue - startValue;
+        // TODO: const gainedEfficiency = ...
+
+        deltaDefinitions['value'][metric] = gainedValue;
+        deltaDefinitions['rank'][metric] = gainedRank;
+        deltaDefinitions['efficiency'][metric] = 0;
+      });
+
+      DELTA_INDICATORS.forEach(indicator => {
+        const delta = currentDeltas.find(c => c.indicator === indicator);
+
+        if (!delta) {
+          toCreate.push(deltaDefinitions[indicator]);
+        } else {
+          toUpdate.push({ current: delta, updated: deltaDefinitions[indicator] });
+        }
+      });
+
+      // Update all "outdated deltas"
+      if (toUpdate.length > 0) {
+        await Promise.all(
+          toUpdate.map(async ({ current, updated }) => {
+            await current.update({ ...updated });
+          })
+        );
       }
-    ])
+
+      // Create all missing deltas
+      if (toCreate.length > 0) {
+        await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+      }
+    })
   );
-
-  const toCreate = [];
-  const toUpdate = [];
-
-  ALL_METRICS.forEach(metric => {
-    const rankKey = getRankKey(metric);
-    const valueKey = getValueKey(metric);
-
-    const initialRank = initial ? initial[rankKey] : -1;
-    const initialValue = initial ? initial[valueKey] : -1;
-
-    const endValue = parseInt(latest[valueKey]);
-    const endRank = latest[rankKey];
-    // TODO: const endEfficiency = ...
-
-    const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey]);
-    const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
-    // TODO: const startEfficiency = ...
-
-    // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
-    const gainedRank = isSkill(metric) && first[rankKey] === -1 ? 0 : endRank - startRank;
-    const gainedValue = endValue - startValue;
-    // TODO: const gainedEfficiency = ...
-
-    deltaDefinitions['value'][metric] = gainedValue;
-    deltaDefinitions['rank'][metric] = gainedRank;
-    deltaDefinitions['efficiency'][metric] = 0;
-  });
-
-  DELTA_INDICATORS.forEach(indicator => {
-    const delta = currentDeltas.find(c => c.indicator === indicator);
-
-    if (!delta) {
-      toCreate.push(deltaDefinitions[indicator]);
-    } else {
-      toUpdate.push({ current: delta, updated: deltaDefinitions[indicator] });
-    }
-  });
-
-  // Update all "outdated deltas"
-  if (toUpdate.length > 0) {
-    await Promise.all(
-      toUpdate.map(async ({ current, updated }) => {
-        await current.update({ ...updated });
-      })
-    );
-  }
-
-  // Create all missing deltas
-  if (toCreate.length > 0) {
-    await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
-  }
 }
 
 async function syncInitialValues(playerId: number, latest: Snapshot) {
