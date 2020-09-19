@@ -21,7 +21,7 @@ function onPlayerUpdated(snapshot: Snapshot) {
 }
 
 function onPlayerImported(playerId: number) {
-  jobs.add('ReevaluatePlayerAchievements', { playerId });
+  achievementService.reevaluateAchievements(playerId);
 }
 
 export { onPlayerCreated, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

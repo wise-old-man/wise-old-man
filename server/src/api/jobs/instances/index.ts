@@ -6,7 +6,6 @@ import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
 import CompetitionStarting from './CompetitionStarting';
 import ImportPlayer from './ImportPlayer';
-import ReevaluatePlayerAchievements from './ReevaluatePlayerAchievements';
 import RefreshNameChanges from './RefreshNameChanges';
 import RefreshRankings from './RefreshRankings';
 import RemoveFromGroupCompetitions from './RemoveFromGroupCompetitions';
@@ -19,7 +18,6 @@ export default [
   UpdatePlayer,
   AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
-  ReevaluatePlayerAchievements,
   AssertPlayerName,
   RefreshRankings,
   CompetitionStarted,
