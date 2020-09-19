@@ -7,7 +7,6 @@ import CompetitionStarting from './CompetitionStarting';
 import RefreshNameChanges from './RefreshNameChanges';
 import RefreshRankings from './RefreshRankings';
 import ReviewNameChange from './ReviewNameChange';
-import SyncPlayerDeltas from './SyncPlayerDeltas';
 import UpdatePlayer from './UpdatePlayer';
 
 export default [
@@ -19,7 +18,6 @@ export default [
   CompetitionEnding,
   CompetitionEnded,
   AssertPlayerType,
-  SyncPlayerDeltas,
   ReviewNameChange,
   RefreshNameChanges
 ];

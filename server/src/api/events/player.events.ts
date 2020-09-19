@@ -2,6 +2,7 @@ import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
+import * as deltaService from '../services/internal/delta.service';
 import * as playerService from '../services/internal/player.service';
 
 function onPlayerCreated(player: Player) {
@@ -15,8 +16,8 @@ function onPlayerNameChanged(player: Player) {
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {
+  deltaService.syncDeltas(snapshot);
   achievementService.syncAchievements(snapshot.playerId);
-  jobs.add('SyncPlayerDeltas', { playerId: snapshot.playerId, latestSnapshot: snapshot });
   competitionService.syncParticipations(snapshot.playerId, snapshot);
 
   const player = await snapshot.$get('player');
