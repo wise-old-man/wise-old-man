@@ -1,4 +1,3 @@
-import AddToGroupCompetitions from './AddToGroupCompetitions';
 import AssertPlayerName from './AssertPlayerName';
 import AssertPlayerType from './AssertPlayerType';
 import CompetitionEnded from './CompetitionEnded';
@@ -16,7 +15,6 @@ import UpdatePlayer from './UpdatePlayer';
 export default [
   ImportPlayer,
   UpdatePlayer,
-  AddToGroupCompetitions,
   RemoveFromGroupCompetitions,
   AssertPlayerName,
   RefreshRankings,
