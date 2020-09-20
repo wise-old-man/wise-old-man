@@ -5,9 +5,19 @@ import { Delta, InitialValues, Player, Snapshot } from '../../../database/models
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getMeasure, getRankKey, getValueKey, isEfficiency, isSkill } from '../../util/metrics';
+import {
+  getEfficiencyKey,
+  getMeasure,
+  getRankKey,
+  getValueKey,
+  isBoss,
+  isEfficiency,
+  isSkill
+} from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
+import * as efficiencyService from './efficiency.service';
+import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
 interface GlobalDeltasFilter {
@@ -150,7 +160,8 @@ async function getPlayerPeriodDeltas(
   playerId: number,
   period: string,
   latest?: Snapshot,
-  initial?: InitialValues
+  initial?: InitialValues,
+  player?: Player
 ) {
   if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
@@ -159,6 +170,7 @@ async function getPlayerPeriodDeltas(
   const periodStartDate = new Date(Date.now() - getSeconds(period) * 1000);
   const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
   const latestSnapshot = latest || (await snapshotService.findLatest(playerId));
+  const targetPlayer = player || (await playerService.findById(playerId));
 
   const startSnapshot = await snapshotService.findFirstSince(playerId, periodStartDate);
 
@@ -166,11 +178,14 @@ async function getPlayerPeriodDeltas(
     return { period, startsAt: null, endsAt: null, data: emptyDiff() };
   }
 
+  const startEfficiency = efficiencyService.calculateDetailedEfficiency(targetPlayer, startSnapshot);
+  const endEfficiency = efficiencyService.calculateDetailedEfficiency(targetPlayer, latestSnapshot);
+
   return {
     period,
     startsAt: startSnapshot.createdAt,
     endsAt: latestSnapshot.createdAt,
-    data: diff(startSnapshot, latestSnapshot, initialValues)
+    data: diff(startSnapshot, latestSnapshot, initialValues, startEfficiency, endEfficiency)
   };
 }
 
@@ -180,10 +195,11 @@ async function getPlayerPeriodDeltas(
 async function getPlayerDeltas(playerId: number) {
   const initial = await InitialValues.findOne({ where: { playerId } });
   const latest = await snapshotService.findLatest(playerId);
+  const player = await playerService.findById(playerId);
 
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
-      const deltas = await getPlayerPeriodDeltas(playerId, period, latest, initial);
+      const deltas = await getPlayerPeriodDeltas(playerId, period, latest, initial, player);
       return { period, deltas };
     })
   );
@@ -268,7 +284,13 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
  * Calculate the difference between two snapshots,
  * taking untracked values into consideration. (via initial values)
  */
-function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
+function diff(
+  start: Snapshot,
+  end: Snapshot,
+  initial: InitialValues,
+  startEfficiencyMap: { [metric: string]: number },
+  endEfficiencyMap: { [metric: string]: number }
+) {
   const diffObj = {};
 
   ALL_METRICS.forEach(metric => {
@@ -289,6 +311,11 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
     const gainedValue = round(endValue - startValue, 5);
 
+    // Calculate EHP/EHB diffs
+    const startEfficiency = startEfficiencyMap[metric];
+    const endEfficiency = endEfficiencyMap[metric];
+    const gainedEfficiency = round(endEfficiency - startEfficiency, 5);
+
     diffObj[metric] = {
       rank: {
         start: startRank,
@@ -301,7 +328,19 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
         gained: gainedValue
       }
     };
+
+    // Add EHP/EHB diffs
+    if (isSkill(metric) || isBoss(metric)) {
+      diffObj[metric][getEfficiencyKey(metric)] = {
+        start: startEfficiency,
+        end: endEfficiency,
+        gained: gainedEfficiency
+      };
+    }
   });
+
+  // Set overall EHP, since the overall EHP is the total EHP
+  diffObj['overall'].ehp = { ...diffObj['ehp'].value };
 
   return diffObj;
 }

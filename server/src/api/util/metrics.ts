@@ -61,6 +61,13 @@ function getValueKey(metric: string): string {
   return `${metric}Value`;
 }
 
+function getEfficiencyKey(metric: string): string {
+  if (isBoss(metric)) return 'ehb';
+  if (isSkill(metric)) return 'ehp';
+
+  return null;
+}
+
 function getFormattedName(metric: string): string {
   const maps = [...SKILLS_MAP, ...ACTIVITIES_MAP, ...BOSSES_MAP, ...EFFICIENCY_MAP];
 
@@ -255,6 +262,7 @@ export {
   getFormattedName,
   getRankKey,
   getValueKey,
+  getEfficiencyKey,
   getDifficultyFactor,
   getAbbreviation
 };

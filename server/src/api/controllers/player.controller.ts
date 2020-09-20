@@ -106,6 +106,7 @@ async function details(req: Request, res: Response, next: NextFunction) {
 
     res.json(playerDetails);
   } catch (e) {
+    console.log(e);
     next(e);
   }
 }

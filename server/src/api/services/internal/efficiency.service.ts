@@ -40,7 +40,7 @@ async function calculateEfficiency(player: Player, snapshot: Snapshot) {
   return { ehpValue, ehpRank, ehbValue, ehbRank, ttm, tt200m };
 }
 
-async function calculateDetailedEfficiency(player: Player, snapshot: Snapshot) {
+function calculateDetailedEfficiency(player: Player, snapshot: Snapshot) {
   const obj = {};
   const algorithm = getAlgorithm(player.type, player.build);
 

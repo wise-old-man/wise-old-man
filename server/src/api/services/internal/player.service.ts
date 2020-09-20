@@ -105,8 +105,10 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
   const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
-  const efficiency = await efficiencyService.calculateDetailedEfficiency(player, latestSnapshot);
   const combatLevel = getCombatLevel(latestSnapshot);
+
+  const efficiency =
+    latestSnapshot && (await efficiencyService.calculateDetailedEfficiency(player, latestSnapshot));
 
   return {
     ...(player.toJSON() as any),
