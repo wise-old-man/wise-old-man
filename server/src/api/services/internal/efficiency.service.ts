@@ -25,7 +25,7 @@ function getAlgorithm(type: string, build: string) {
   }
 }
 
-async function calculatePlayerEfficiency(player: Player, snapshot: Snapshot) {
+async function calculateEfficiency(player: Player, snapshot: Snapshot) {
   const { type, build } = player;
 
   const ttm = calculateTTM(snapshot, type, build);
@@ -38,6 +38,19 @@ async function calculatePlayerEfficiency(player: Player, snapshot: Snapshot) {
   const ehbRank = await getEHBRank(player.id, ehbValue);
 
   return { ehpValue, ehpRank, ehbValue, ehbRank, ttm, tt200m };
+}
+
+async function calculateDetailedEfficiency(player: Player, snapshot: Snapshot) {
+  const obj = {};
+  const algorithm = getAlgorithm(player.type, player.build);
+
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+  const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
+
+  SKILLS.forEach(s => (obj[s] = round(algorithm.calculateSkillEHP(s, exp), 5)));
+  BOSSES.forEach(b => (obj[b] = round(algorithm.calculateBossEHB(b, kcs), 5)));
+
+  return obj;
 }
 
 function calculateTTM(snapshot: Snapshot, type = 'regular', build = 'main'): number {
@@ -99,7 +112,8 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
 }
 
 export {
-  calculatePlayerEfficiency,
+  calculateEfficiency,
+  calculateDetailedEfficiency,
   calculateTTM,
   calculateTT200m,
   calculateEHP,

@@ -105,12 +105,13 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
   const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
+  const efficiency = await efficiencyService.calculateDetailedEfficiency(player, latestSnapshot);
   const combatLevel = getCombatLevel(latestSnapshot);
 
   return {
     ...(player.toJSON() as any),
     combatLevel,
-    latestSnapshot: snapshotService.format(latestSnapshot)
+    latestSnapshot: snapshotService.format(latestSnapshot, efficiency)
   };
 }
 
@@ -162,16 +163,16 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.build = getBuild(currentSnapshot);
     player.flagged = false;
 
-    const playerEfficiency = await efficiencyService.calculatePlayerEfficiency(player, currentSnapshot);
+    const efficiency = await efficiencyService.calculateEfficiency(player, currentSnapshot);
 
     player.exp = currentSnapshot.overallExperience;
-    player.ehp = playerEfficiency.ehpValue;
-    player.ehb = playerEfficiency.ehbValue;
-    player.ttm = playerEfficiency.ttm;
-    player.tt200m = playerEfficiency.tt200m;
+    player.ehp = efficiency.ehpValue;
+    player.ehb = efficiency.ehbValue;
+    player.ttm = efficiency.ttm;
+    player.tt200m = efficiency.tt200m;
 
     // Add the efficiency data and save the snapshot
-    Object.assign(currentSnapshot, playerEfficiency);
+    Object.assign(currentSnapshot, efficiency);
     await currentSnapshot.save();
 
     await player.changed('updatedAt', true);
