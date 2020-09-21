@@ -81,26 +81,28 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          id: 37,
-          username: 'psikoi',
-          displayName: 'Psikoi',
-          type: 'regular',
-          build: 'main',
-          flagged: false,
-          lastImportedAt: '2020-04-03T21:43:21.899Z',
-          registeredAt: '2020-04-03T21:43:17.574Z',
-          updatedAt: '2020-04-04T22:33:51.594Z',
+          player: {
+            id: 38833,
+            username: 'psikoi',
+            displayName: 'Psikoi',
+            type: 'regular',
+            build: 'main',
+            flagged: false,
+            lastImportedAt: '2020-09-13T23:46:06.779Z',
+            registeredAt: '2020-09-13T23:42:53.316Z',
+            updatedAt: '2020-09-13T23:46:06.779Z'
+          },
           combatLevel: 125,
-          latestSnapshot: {
-            createdAt: '2020-04-04T22:33:51.567Z',
+          stats: {
+            createdAt: '2020-09-13T23:46:03.370Z',
             importedAt: null,
             overall: {
-              rank: 30420,
-              experience: 269900478
+              rank: 36104,
+              experience: 280543064
             },
             attack: {
-              rank: 12159,
-              experience: 27216011
+              rank: 14367,
+              experience: 27419373
             }
           }
         }
@@ -270,26 +272,28 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          id: 37,
-          username: 'psikoi',
-          displayName: 'Psikoi',
-          type: 'regular',
-          build: 'main',
-          flagged: false,
-          lastImportedAt: '2020-04-03T21:43:21.899Z',
-          registeredAt: '2020-04-03T21:43:17.574Z',
-          updatedAt: '2020-04-04T16:43:36.230Z',
+          player: {
+            id: 38833,
+            username: 'psikoi',
+            displayName: 'Psikoi',
+            type: 'regular',
+            build: 'main',
+            flagged: false,
+            lastImportedAt: '2020-09-13T23:46:06.779Z',
+            registeredAt: '2020-09-13T23:42:53.316Z',
+            updatedAt: '2020-09-13T23:46:06.779Z'
+          },
           combatLevel: 125,
-          latestSnapshot: {
-            createdAt: '2020-04-04T16:43:36.219Z',
+          stats: {
+            createdAt: '2020-09-13T23:46:03.370Z',
             importedAt: null,
             overall: {
-              rank: 30400,
-              experience: 269828205
+              rank: 36104,
+              experience: 280543064
             },
             attack: {
-              rank: 12158,
-              experience: 27216011
+              rank: 14367,
+              experience: 27419373
             }
           }
         }
@@ -802,73 +806,12 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: 'The time period to filter the snapshots by (See accepted values above) - Optional'
+        description: 'The time period to filter the snapshots by (See accepted values above)'
       }
     ],
     successResponses: [
       {
-        description: 'Without any period filtering (Not showing the whole response)',
-        body: {
-          day: [
-            {
-              createdAt: '2020-04-04T16:43:36.219Z',
-              importedAt: null,
-              overall: {
-                rank: 30400,
-                experience: 269828205
-              },
-              attack: {
-                rank: 12158,
-                experience: 27216011
-              }
-            }
-          ],
-          week: [
-            {
-              createdAt: '2020-04-04T16:43:36.219Z',
-              importedAt: null,
-              overall: {
-                rank: 30400,
-                experience: 269828205
-              },
-              attack: {
-                rank: 12158,
-                experience: 27216011
-              }
-            }
-          ],
-          month: [
-            {
-              createdAt: '2020-04-04T16:43:36.219Z',
-              importedAt: null,
-              overall: {
-                rank: 30400,
-                experience: 269828205
-              },
-              attack: {
-                rank: 12158,
-                experience: 27216011
-              }
-            }
-          ],
-          year: [
-            {
-              createdAt: '2020-04-04T16:43:36.219Z',
-              importedAt: null,
-              overall: {
-                rank: 30400,
-                experience: 269828205
-              },
-              attack: {
-                rank: 12158,
-                experience: 27216011
-              }
-            }
-          ]
-        }
-      },
-      {
-        description: 'Filtered by the period field (day) (Not showing the whole response)',
+        description: 'Not showing the whole response for demo purposes.',
         body: [
           {
             createdAt: '2020-04-04T16:43:36.219Z',
