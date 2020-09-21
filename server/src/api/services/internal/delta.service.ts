@@ -134,11 +134,7 @@ async function getPlayerPeriodDeltas(
   latest?: Snapshot,
   initial?: InitialValues
 ) {
-  if (!playerId) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  if (!period || !PERIODS.includes(period)) {
+  if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

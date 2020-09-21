@@ -1,7 +1,6 @@
 import { sequelize } from '../../../database';
 import { Achievement } from '../../../database/models';
 import { ACTIVITIES, BOSSES, SKILLS } from '../..//constants';
-import { BadRequestError } from '../../errors';
 import { getCombatLevel, getTotalLevel } from '../../util/level';
 import {
   getDifficultyFactor,
@@ -354,11 +353,7 @@ async function syncAchievements(playerId) {
  * If includeMissing, it will also include the missing
  * achievements, with a "missing" field set to true.
  */
-async function getPlayerAchievements(playerId, includeMissing = false) {
-  if (!playerId) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
+async function getPlayerAchievements(playerId: number, includeMissing = false) {
   const achievements = (
     await Achievement.findAll({
       where: { playerId }
@@ -375,7 +370,7 @@ async function getPlayerAchievements(playerId, includeMissing = false) {
   const missingAchievements = definitions
     .filter(d => !achievedTypes.includes(d.type))
     .map(({ type, metric, threshold }) => ({
-      playerId: parseInt(playerId, 10),
+      playerId,
       type,
       metric,
       threshold,

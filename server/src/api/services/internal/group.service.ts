@@ -51,11 +51,7 @@ async function getList(name, pagination) {
 /**
  * Returns a list of all groups of which a given player is a member.
  */
-async function getPlayerGroups(playerId, pagination = { limit: 10000, offset: 0 }) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getPlayerGroups(playerId: number, pagination = { limit: 10000, offset: 0 }) {
   // Find all memberships for the player
   const memberships = await Membership.findAll({
     where: { playerId },

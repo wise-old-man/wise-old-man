@@ -61,11 +61,7 @@ async function syncRecords(playerId, period) {
  * Finds all records for a given player id.
  * These records can be optionally filtered by period and metric.
  */
-async function getPlayerRecords(playerId, period, metric) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getPlayerRecords(playerId: number, period?: string, metric?: string) {
   if (period && !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }

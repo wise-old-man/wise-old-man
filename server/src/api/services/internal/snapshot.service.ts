@@ -1,5 +1,4 @@
 import csv from 'csvtojson';
-import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import { Snapshot } from '../../../database/models';
@@ -12,9 +11,7 @@ import * as efficiencyService from './efficiency.service';
  * Converts a Snapshot instance into a JSON friendlier format
  */
 function format(snapshot) {
-  if (!snapshot) {
-    return null;
-  }
+  if (!snapshot) return null;
 
   const obj = {
     createdAt: snapshot.createdAt,
@@ -95,45 +92,14 @@ async function findAll(playerId, limit) {
 }
 
 /**
- * Finds all player snapshots, grouped by period.
- *
- * Ex:
- * {
- *    day: [...],
- *    week: [...],
- *    etc
- * }
- */
-async function getAllGrouped(playerId) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
-  const partials = await Promise.all(
-    PERIODS.map(async period => {
-      const list = await getAllInPeriod(playerId, period);
-      return { period, snapshots: list };
-    })
-  );
-
-  // Turn an array of snapshots, into an object, using the period as a key,
-  // then include only the snapshots array in the final object, not the period fields
-  return mapValues(keyBy(partials, 'period'), p => p.snapshots);
-}
-
-/**
  * Finds all snapshots within a time period, for a given player.
  */
-async function getAllInPeriod(playerId, period) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getSnapshots(playerId: number, period: string) {
   if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const before = moment().subtract(1, period);
+  const before = moment().subtract(1, period as any);
 
   const result = await Snapshot.findAll({
     where: {
@@ -143,7 +109,7 @@ async function getAllInPeriod(playerId, period) {
     order: [['createdAt', 'DESC']]
   });
 
-  return result.map(r => format(r));
+  return result.map(format);
 }
 
 /**
@@ -347,6 +313,5 @@ export {
   saveAll,
   fromCML,
   fromRS,
-  getAllGrouped,
-  getAllInPeriod
+  getSnapshots
 };

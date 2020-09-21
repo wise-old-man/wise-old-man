@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import { PlayerResolvable } from 'src/types';
 import { Player, Snapshot } from '../../../database/models';
+import { PlayerDetails, PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
@@ -72,10 +72,17 @@ function shouldImport(player: Player): [boolean, number] {
 }
 
 async function resolve(playerResolvable: PlayerResolvable) {
-  if (playerResolvable.username) return find(playerResolvable.username);
-  if (playerResolvable.id) return findById(playerResolvable.id);
+  let player;
 
-  throw new NotFoundError('Player not found.');
+  if (playerResolvable.id) {
+    player = await findById(playerResolvable.id);
+  } else if (playerResolvable.username) {
+    player = await find(playerResolvable.username);
+  }
+
+  if (!player) throw new NotFoundError('Player not found.');
+
+  return player;
 }
 
 async function resolveId(playerResolvable: PlayerResolvable) {
@@ -88,41 +95,21 @@ async function resolveId(playerResolvable: PlayerResolvable) {
 /**
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getDetails(player: Player) {
-  const latestSnapshot = await snapshotService.findLatest(player.id);
+async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
+  const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
   const combatLevel = getCombatLevel(latestSnapshot);
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
-}
-
-/**
- * Get the latest date on a given player id. (Player info and latest snapshot)
- */
-async function getDetailsById(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  const player = await Player.findOne({ where: { id } });
-
-  if (!player) {
-    throw new BadRequestError(`Player of id ${id} is not being tracked yet.`);
-  }
-
-  const latestSnapshot = await snapshotService.findLatest(player.id);
-  const combatLevel = getCombatLevel(latestSnapshot);
-
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
+  return {
+    player,
+    combatLevel,
+    stats: snapshotService.format(latestSnapshot)
+  };
 }
 
 /**
  * Search for players with a (partially) matching username.
  */
 async function search(username: string): Promise<Player[]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
   const players = await Player.findAll({
     where: {
       username: {
@@ -139,11 +126,7 @@ async function search(username: string): Promise<Player[]> {
  * Update a given username, by getting its latest
  * hiscores data, saving it as a new player if necessary.
  */
-async function update(username: string): Promise<[Player, Snapshot, boolean]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
+async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
   // Check if this player should be updated again
@@ -183,7 +166,9 @@ async function update(username: string): Promise<[Player, Snapshot, boolean]> {
     await player.changed('updatedAt', true);
     await player.save();
 
-    return [player, currentSnapshot, isNew];
+    const playerDetails = await getDetails(player, currentSnapshot);
+
+    return [playerDetails, isNew];
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
@@ -291,7 +276,7 @@ async function getType(player: Player): Promise<string> {
   return 'ironman';
 }
 
-async function assertType(player: Player) {
+async function assertType(player: Player): Promise<string> {
   const type = await getType(player);
 
   if (player.type !== type) {
@@ -329,24 +314,12 @@ async function assertName(player: Player): Promise<string> {
   return displayName;
 }
 
-function getBuild(snapshot: Snapshot) {
-  if (isF2p(snapshot)) {
-    return 'f2p';
-  }
-
-  if (isLvl3(snapshot)) {
-    return 'lvl3';
-  }
-
+function getBuild(snapshot: Snapshot): string {
+  if (isF2p(snapshot)) return 'f2p';
+  if (isLvl3(snapshot)) return 'lvl3';
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot)) {
-    return '10hp';
-  }
-
-  if (is1Def(snapshot)) {
-    return '1def';
-  }
-
+  if (is10HP(snapshot)) return '10hp';
+  if (is1Def(snapshot)) return '1def';
   return 'main';
 }
 
@@ -405,7 +378,6 @@ export {
   findById,
   findAllByIds,
   find,
-  getDetailsById,
   getDetails,
   search,
   update,

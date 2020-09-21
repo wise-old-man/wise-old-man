@@ -102,11 +102,7 @@ async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function getPlayerCompetitions(playerId, pagination = { limit: 10000, offset: 0 }) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getPlayerCompetitions(playerId: number, pagination = { limit: 10000, offset: 0 }) {
   const participations = await Participation.findAll({
     where: { playerId },
     attributes: [],

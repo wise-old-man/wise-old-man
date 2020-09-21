@@ -1,3 +1,4 @@
+import { NextFunction, Request, Response } from 'express';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
@@ -5,12 +6,12 @@ import * as groupService from '../services/internal/group.service';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
-import { getCombatLevel } from '../util/level';
+import { extractBoolean, extractNumber, extractString } from '../util/http';
 
 // GET /players/search?username={username}
-async function search(req, res, next) {
+async function search(req: Request, res: Response, next: NextFunction) {
   try {
-    const { username } = req.query;
+    const username = extractString(req.query, { key: 'username', required: true });
 
     // Search for players with a partial username match
     const players = await playerService.search(username);
@@ -22,29 +23,23 @@ async function search(req, res, next) {
 }
 
 // POST /players/track/
-async function track(req, res, next) {
+async function track(req: Request, res: Response, next: NextFunction) {
   try {
-    const { username } = req.body;
+    const username = extractString(req.body, { key: 'username', required: true });
 
     // Update the player, by creating a new snapshot
-    const [player, snapshot, isNew] = await playerService.update(username);
+    const [playerDetails, isNew] = await playerService.update(username);
 
-    const response = {
-      ...player.toJSON(),
-      combatLevel: getCombatLevel(snapshot),
-      latestSnapshot: snapshotService.format(snapshot)
-    };
-
-    res.status(isNew ? 201 : 200).json(response);
+    res.status(isNew ? 201 : 200).json(playerDetails);
   } catch (e) {
     next(e);
   }
 }
 
 // POST /players/assert-type
-async function assertType(req, res, next) {
+async function assertType(req: Request, res: Response, next: NextFunction) {
   try {
-    const { username } = req.body;
+    const username = extractString(req.body, { key: 'username', required: true });
 
     // Find the player using the username body param
     const player = await playerService.resolve({ username });
@@ -59,9 +54,9 @@ async function assertType(req, res, next) {
 }
 
 // POST /players/assert-name
-async function assertName(req, res, next) {
+async function assertName(req: Request, res: Response, next: NextFunction) {
   try {
-    const { username } = req.body;
+    const username = extractString(req.body, { key: 'username', required: true });
 
     // Find the player using the username body param
     const player = await playerService.resolve({ username });
@@ -76,9 +71,9 @@ async function assertName(req, res, next) {
 }
 
 // POST /players/import
-async function importPlayer(req, res, next) {
+async function importPlayer(req: Request, res: Response, next: NextFunction) {
   try {
-    const { username } = req.body;
+    const username = extractString(req.body, { key: 'username', required: true });
 
     // Find the player using the username body param
     const player = await playerService.resolve({ username });
@@ -94,9 +89,10 @@ async function importPlayer(req, res, next) {
 
 // GET /players/:id
 // GET /players/username/:username
-async function details(req, res, next) {
+async function details(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
 
     // Find the player by either the id or the username
     const player = await playerService.resolve({ id, username });
@@ -112,10 +108,11 @@ async function details(req, res, next) {
 
 // GET /players/:id/achievements
 // GET /players/username/:username/achievements
-async function achievements(req, res, next) {
+async function achievements(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
-    const { includeMissing } = req.query;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+    const includeMissing = extractBoolean(req.query, { key: 'includeMissing' });
 
     const playerId = await playerService.resolveId({ id, username });
 
@@ -130,9 +127,10 @@ async function achievements(req, res, next) {
 
 // GET /players/:id/competitions
 // GET /players/username/:username/competitions
-async function competitions(req, res, next) {
+async function competitions(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
 
     const playerId = await playerService.resolveId({ id, username });
 
@@ -147,9 +145,10 @@ async function competitions(req, res, next) {
 
 // GET /players/:id/groups
 // GET /players/username/:username/groups
-async function groups(req, res, next) {
+async function groups(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
 
     const playerId = await playerService.resolveId({ id, username });
 
@@ -164,10 +163,11 @@ async function groups(req, res, next) {
 
 // GET /players/:id/gained
 // GET /players/username/:username/gained
-async function gained(req, res, next) {
+async function gained(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
-    const { period } = req.query;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+    const period = extractString(req.query, { key: 'period' });
 
     const playerId = await playerService.resolveId({ id, username });
 
@@ -183,10 +183,12 @@ async function gained(req, res, next) {
 
 // GET /players/:id/records
 // GET /players/username/:username/records
-async function records(req, res, next) {
+async function records(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
-    const { period, metric } = req.query;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+    const period = extractString(req.query, { key: 'period' });
+    const metric = extractString(req.query, { key: 'metric' });
 
     const playerId = await playerService.resolveId({ id, username });
 
@@ -201,16 +203,15 @@ async function records(req, res, next) {
 
 // GET /players/:id/snapshots
 // GET /players/username/:username/snapshots
-async function snapshots(req, res, next) {
+async function snapshots(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id, username } = req.params;
-    const { period } = req.query;
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+    const period = extractString(req.query, { key: 'period' });
 
     const playerId = await playerService.resolveId({ id, username });
 
-    const playerSnapshots = period
-      ? await snapshotService.getAllInPeriod(playerId, period)
-      : await snapshotService.getAllGrouped(playerId);
+    const playerSnapshots = await snapshotService.getSnapshots(playerId, period);
 
     res.json(playerSnapshots);
   } catch (e) {
