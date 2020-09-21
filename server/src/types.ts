@@ -1,3 +1,5 @@
+import { Player } from './database/models';
+
 export interface SkillMeta {
   skill: string;
   methods: Method[];
@@ -85,4 +87,10 @@ export interface Proxy {
 export interface PlayerResolvable {
   id?: number;
   username?: string;
+}
+
+export interface PlayerDetails {
+  player: Player;
+  combatLevel: number;
+  stats: any;
 }

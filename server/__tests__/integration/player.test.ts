@@ -83,8 +83,8 @@ describe('Player API', () => {
       const response = await request.post(`${BASE_URL}/track`).send(body);
 
       if (response.status === 200 || response.status === 201) {
-        expect(response.body.username).toBe('psikoi');
-        expect(response.body.displayName).toBe('Psikoi');
+        expect(response.body.player.username).toBe('psikoi');
+        expect(response.body.player.displayName).toBe('Psikoi');
       } else {
         expect(response.body.message).toMatch('Failed to load hiscores: Service is unavailable');
       }
@@ -97,8 +97,8 @@ describe('Player API', () => {
       const response = await request.post(`${BASE_URL}/track`).send(body);
 
       if (response.status === 200 || response.status === 201) {
-        expect(response.body.username).toBe('iron mammal');
-        expect(response.body.displayName).toBe('iron Mammal');
+        expect(response.body.player.username).toBe('iron mammal');
+        expect(response.body.player.displayName).toBe('iron Mammal');
       } else {
         expect(response.body.message).toMatch('Failed to load hiscores');
       }
@@ -225,7 +225,7 @@ describe('Player API', () => {
       const response = await request.get(url);
 
       expect(response.status).toBe(200);
-      expect(response.body.id).toBe(1000000);
+      expect(response.body.player.id).toBe(1000000);
 
       done();
     });

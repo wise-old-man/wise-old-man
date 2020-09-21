@@ -45,9 +45,6 @@ async function assertType(req: Request, res: Response, next: NextFunction) {
     // Find the player using the username body param
     const player = await playerService.resolve({ username });
 
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
     // (Forcefully) Assert the player's account type
     const type = await playerService.assertType(player);
 
@@ -65,9 +62,6 @@ async function assertName(req: Request, res: Response, next: NextFunction) {
     // Find the player using the username body param
     const player = await playerService.resolve({ username });
 
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
     // Assert the player's displayName (via hiscores lookup)
     const name = await playerService.assertName(player);
 
@@ -81,9 +75,6 @@ async function assertName(req: Request, res: Response, next: NextFunction) {
 async function importPlayer(req: Request, res: Response, next: NextFunction) {
   try {
     const username = extractString(req.body, { key: 'username', required: true });
-
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
 
     // Find the player using the username body param
     const player = await playerService.resolve({ username });

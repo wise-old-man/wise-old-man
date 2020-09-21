@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import { PlayerResolvable } from 'src/types';
 import { Player, Snapshot } from '../../../database/models';
+import { PlayerDetails, PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
@@ -85,9 +85,7 @@ async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
     player = await find(playerResolvable.username);
   }
 
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
+  if (!player) throw new NotFoundError('Player not found.');
 
   return player;
 }
