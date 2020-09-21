@@ -46,8 +46,11 @@ async function assertType(req, res, next) {
   try {
     const { username } = req.body;
 
+    // Find the player using the username body param
+    const player = await playerService.resolve({ username });
+
     // (Forcefully) Assert the player's account type
-    const type = await playerService.assertType(username);
+    const type = await playerService.assertType(player);
 
     res.json({ type });
   } catch (e) {
@@ -60,8 +63,11 @@ async function assertName(req, res, next) {
   try {
     const { username } = req.body;
 
+    // Find the player using the username body param
+    const player = await playerService.resolve({ username });
+
     // Assert the player's displayName (via hiscores lookup)
-    const name = await playerService.assertName(username);
+    const name = await playerService.assertName(player);
 
     res.json({ displayName: name });
   } catch (e) {
@@ -74,8 +80,11 @@ async function importPlayer(req, res, next) {
   try {
     const { username } = req.body;
 
+    // Find the player using the username body param
+    const player = await playerService.resolve({ username });
+
     // Attempt to import the player's history from CML
-    const history = await playerService.importCML(username);
+    const history = await playerService.importCML(player);
 
     res.json({ message: `${history.length} snapshots imported from CML` });
   } catch (e) {
@@ -89,12 +98,13 @@ async function details(req, res, next) {
   try {
     const { id, username } = req.params;
 
-    // Get player details, by id or username
-    const player = username
-      ? await playerService.getDetails(username)
-      : await playerService.getDetailsById(id);
+    // Find the player by either the id or the username
+    const player = await playerService.resolve({ id, username });
 
-    res.json(player);
+    // Fetch the player's details
+    const playerDetails = await playerService.getDetails(player);
+
+    res.json(playerDetails);
   } catch (e) {
     next(e);
   }
@@ -107,7 +117,7 @@ async function achievements(req, res, next) {
     const { id, username } = req.params;
     const { includeMissing } = req.query;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
     const playerAchievements = await achievementService.getPlayerAchievements(playerId, includeMissing);
@@ -124,7 +134,7 @@ async function competitions(req, res, next) {
   try {
     const { id, username } = req.params;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     // Get all player competitions (by player id)
     const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
@@ -141,7 +151,7 @@ async function groups(req, res, next) {
   try {
     const { id, username } = req.params;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     // Get all player groups (by player id)
     const playerGroups = await groupService.getPlayerGroups(playerId);
@@ -159,7 +169,7 @@ async function gained(req, res, next) {
     const { id, username } = req.params;
     const { period } = req.query;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     const playerDeltas = period
       ? await deltaService.getPlayerPeriodDeltas(playerId, period)
@@ -178,7 +188,7 @@ async function records(req, res, next) {
     const { id, username } = req.params;
     const { period, metric } = req.query;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     // Fetch all player records for the given period and metric
     const playerRecords = await recordService.getPlayerRecords(playerId, period, metric);
@@ -196,7 +206,7 @@ async function snapshots(req, res, next) {
     const { id, username } = req.params;
     const { period } = req.query;
 
-    const playerId = await getPlayerId(id, username);
+    const playerId = await playerService.resolveId({ id, username });
 
     const playerSnapshots = period
       ? await snapshotService.getAllInPeriod(playerId, period)
@@ -206,24 +216,6 @@ async function snapshots(req, res, next) {
   } catch (e) {
     next(e);
   }
-}
-
-/**
- * To support /username endpoints, we should evaluate whether
- * we can use the id given to us via url param, or we need
- * to find that id by doing a username search.
- */
-async function getPlayerId(idParam, usernameParam) {
-  if (idParam) {
-    return idParam;
-  }
-
-  if (usernameParam) {
-    const player = await playerService.find(usernameParam);
-    if (player) return player.id;
-  }
-
-  return null;
 }
 
 export {

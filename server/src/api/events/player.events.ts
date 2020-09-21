@@ -6,21 +6,17 @@ import * as deltaService from '../services/internal/delta.service';
 import * as playerService from '../services/internal/player.service';
 
 function onPlayerCreated(player: Player) {
-  const { username } = player;
-
   // Confirm this player's name capitalization
-  jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
+  jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
 }
 
 function onPlayerNameChanged(player: Player) {
-  const { id, username } = player;
-
   // Recalculate player achievements
-  achievementService.syncAchievements(id);
+  achievementService.syncAchievements(player.id);
 
   // Setup jobs to assert the player's name capitalization and account type
-  jobs.add('AssertPlayerName', { username }, { attempts: 5, backoff: 30000 });
-  jobs.add('AssertPlayerType', { username }, { attempts: 5, backoff: 30000 });
+  jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
+  jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30000 });
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {
@@ -35,7 +31,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   if (!player) return;
 
   // Attempt to import this player's history from CML
-  playerService.importCML(player.username);
+  playerService.importCML(player);
 }
 
 function onPlayerImported(playerId: number) {

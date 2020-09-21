@@ -1,8 +1,9 @@
 import { Op } from 'sequelize';
+import { PlayerResolvable } from 'src/types';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { getCombatLevel, is1Def, isF2p, isLvl3, is10HP } from '../../util/level';
+import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as snapshotService from './snapshot.service';
@@ -70,22 +71,24 @@ function shouldImport(player: Player): [boolean, number] {
   return [seconds / 60 / 60 >= 24, seconds];
 }
 
+async function resolve(playerResolvable: PlayerResolvable) {
+  if (playerResolvable.username) return find(playerResolvable.username);
+  if (playerResolvable.id) return findById(playerResolvable.id);
+
+  throw new NotFoundError('Player not found.');
+}
+
+async function resolveId(playerResolvable: PlayerResolvable) {
+  if (playerResolvable.id) return playerResolvable.id;
+
+  const player = await resolve(playerResolvable);
+  return player.id;
+}
+
 /**
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getDetails(username) {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  const player = await Player.findOne({
-    where: { username: { [Op.like]: `${standardize(username)}` } }
-  });
-
-  if (!player) {
-    throw new BadRequestError(`${username} is not being tracked yet.`);
-  }
-
+async function getDetails(player: Player) {
   const latestSnapshot = await snapshotService.findLatest(player.id);
   const combatLevel = getCombatLevel(latestSnapshot);
 
@@ -198,14 +201,7 @@ async function update(username: string): Promise<[Player, Snapshot, boolean]> {
  * datapoints as it can. If it has imported in the past, it will
  * attempt to import all the datapoints CML gathered since the last import.
  */
-async function importCML(username: string): Promise<Snapshot[]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  // Find a player with the given username,
-  // or create a new one if none are found
-  const [player] = await findOrCreate(username);
+async function importCML(player: Player): Promise<Snapshot[]> {
   const [should, seconds] = shouldImport(player);
 
   // If the player hasn't imported in over 24h,
@@ -295,13 +291,7 @@ async function getType(player: Player): Promise<string> {
   return 'ironman';
 }
 
-async function assertType(username: string) {
-  if (!username) throw new BadRequestError('Invalid username.');
-
-  const player = await find(username);
-
-  if (!player) throw new NotFoundError('Player not found.');
-
+async function assertType(player: Player) {
   const type = await getType(player);
 
   if (player.type !== type) {
@@ -315,17 +305,8 @@ async function assertType(username: string) {
  * Fetch the hiscores table overall to find the correct
  * capitalization of a given username
  */
-async function assertName(username: string): Promise<string> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  const formattedUsername = standardize(username);
-  const player = await find(formattedUsername);
-
-  if (!player) {
-    throw new NotFoundError(`Player not found: ${username} is not being tracked yet.`);
-  }
+async function assertName(player: Player): Promise<string> {
+  const { username } = player;
 
   const hiscoresNames = await jagexService.getHiscoresNames(username);
   const match = hiscoresNames.find(h => standardize(h) === username);
@@ -431,5 +412,7 @@ export {
   importCML,
   assertType,
   assertName,
-  shouldImport
+  shouldImport,
+  resolve,
+  resolveId
 };

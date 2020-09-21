@@ -9,8 +9,8 @@ class AssertPlayerName implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { username } = data;
-    await playerService.assertName(username);
+    const player = await playerService.resolve({ id: data.id });
+    await playerService.assertName(player);
   }
 }
 
