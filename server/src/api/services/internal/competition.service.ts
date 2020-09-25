@@ -30,13 +30,11 @@ interface CreateCompetitionDTO {
 }
 
 interface EditCompetitionDTO {
-  id: number;
   title?: string;
   metric?: string;
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
-  verificationCode: string;
 }
 
 function sanitizeTitle(title: string): string {
@@ -361,17 +359,11 @@ async function create(dto: CreateCompetitionDTO) {
  *
  * Note: If "participants" is defined, it will replace the existing participants.
  */
-async function edit(dto: EditCompetitionDTO) {
-  const { id, title, metric, startsAt, endsAt, participants, verificationCode } = dto;
+async function edit(competition: Competition, dto: EditCompetitionDTO) {
+  const { title, metric, startsAt, endsAt, participants } = dto;
 
   if (startsAt && endsAt && startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   if (metric && !ALL_METRICS.includes(metric)) {
@@ -388,12 +380,6 @@ async function edit(dto: EditCompetitionDTO) {
     isPast(competition.startsAt)
   ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
   }
 
   const newValues = buildQuery({
@@ -431,13 +417,8 @@ async function edit(dto: EditCompetitionDTO) {
 /**
  * Permanently delete a competition and all associated participations.
  */
-async function destroy(competition: Competition, verificationCode: string) {
+async function destroy(competition: Competition) {
   const competitionTitle = competition.title;
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
 
   await competition.destroy();
   return competitionTitle;
@@ -502,15 +483,9 @@ async function addAllGroupMembers(competition, groupId) {
 /**
  * Adds all the usernames as competition participants.
  */
-async function addParticipants(competition: Competition, verificationCode: string, usernames: string[]) {
+async function addParticipants(competition: Competition, usernames: string[]) {
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
   }
 
   // Find all existing participants
@@ -536,19 +511,9 @@ async function addParticipants(competition: Competition, verificationCode: strin
 /**
  * Removes all the usernames (participants) from a competition.
  */
-async function removeParticipants(
-  competition: Competition,
-  verificationCode: string,
-  usernames: string[]
-) {
+async function removeParticipants(competition: Competition, usernames: string[]) {
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
@@ -797,27 +762,6 @@ async function calculateScore(competition: Competition): Promise<number> {
   }
 
   return score;
-}
-
-async function isVerified(competition, verificationCode) {
-  const { groupId, verificationHash } = competition;
-
-  let hash = verificationHash;
-
-  // If it is a group competition, compare the code
-  // to the group's verification hash instead
-  if (groupId) {
-    const group = await Group.findOne({ where: { id: groupId } });
-
-    if (!group) {
-      throw new NotFoundError(`Group of id ${groupId} was not found.`);
-    }
-
-    hash = group.verificationHash;
-  }
-
-  const verified = await cryptService.verifyCode(hash, verificationCode);
-  return verified;
 }
 
 /**

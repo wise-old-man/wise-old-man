@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
+import { ForbiddenError } from '../errors';
+import * as guard from '../guards/competition.guards';
 import jobs from '../jobs';
 import * as service from '../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
@@ -70,10 +72,17 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const endsAt = extractDate(req.body, { key: 'endsAt' });
     const participants = extractStrings(req.body, { key: 'participants' });
 
-    const dto = { id, verificationCode, title, metric, startsAt, endsAt, participants };
-    const competition = await service.edit(dto);
+    const competition = await service.resolve(id);
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
-    res.json(competition);
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const dto = { verificationCode, title, metric, startsAt, endsAt, participants };
+    const editedCompetition = await service.edit(competition, dto);
+
+    res.json(editedCompetition);
   } catch (e) {
     next(e);
   }
@@ -86,8 +95,13 @@ async function remove(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const competition = await service.resolve(id);
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
-    const competitionName = await service.destroy(competition, verificationCode);
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const competitionName = await service.destroy(competition);
     const message = `Successfully deleted competition '${competitionName}' (id: ${id})`;
 
     res.json({ message });
@@ -104,7 +118,13 @@ async function addParticipants(req: Request, res: Response, next: NextFunction) 
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
     const competition = await service.resolve(id);
-    const result = await service.addParticipants(competition, verificationCode, participants);
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const result = await service.addParticipants(competition, participants);
 
     res.json({ newParticipants: result });
   } catch (e) {
@@ -120,8 +140,13 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
     const competition = await service.resolve(id);
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
-    const count = await service.removeParticipants(competition, verificationCode, participants);
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const count = await service.removeParticipants(competition, participants);
     const message = `Successfully removed ${count} participants from competition of id: ${id}.`;
 
     res.json({ message });
