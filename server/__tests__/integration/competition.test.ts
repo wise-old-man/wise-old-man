@@ -295,7 +295,7 @@ describe('Competition API', () => {
       const response = await request.get(`/api/competitions/9001`).send();
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition of id 9001 was not found.');
+      expect(response.body.message).toBe('Competition not found.');
 
       done();
     });

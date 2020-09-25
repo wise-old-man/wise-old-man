@@ -71,7 +71,7 @@ function shouldImport(player: Player): [boolean, number] {
   return [seconds / 60 / 60 >= 24, seconds];
 }
 
-async function resolve(playerResolvable: PlayerResolvable) {
+async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
   let player;
 
   if (playerResolvable.id) {
@@ -80,12 +80,14 @@ async function resolve(playerResolvable: PlayerResolvable) {
     player = await find(playerResolvable.username);
   }
 
-  if (!player) throw new NotFoundError('Player not found.');
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
 
   return player;
 }
 
-async function resolveId(playerResolvable: PlayerResolvable) {
+async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
   if (playerResolvable.id) return playerResolvable.id;
 
   const player = await resolve(playerResolvable);

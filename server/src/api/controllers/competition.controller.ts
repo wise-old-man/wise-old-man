@@ -20,8 +20,10 @@ async function details(req, res, next) {
   try {
     const { id } = req.params;
 
-    const competition = await service.getDetails(id);
-    res.json(competition);
+    const competition = await service.resolve(id, true);
+    const competitionDetails = await service.getDetails(competition);
+
+    res.json(competitionDetails);
   } catch (e) {
     next(e);
   }

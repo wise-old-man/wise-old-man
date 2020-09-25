@@ -2,6 +2,7 @@ import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
+import { CompetitionDetails } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast, isValidDate } from '../../util/dates';
@@ -19,8 +20,31 @@ function sanitizeTitle(title) {
     .trim();
 }
 
-function format(competition) {
-  return omit(competition.toJSON(), ['verificationHash']);
+function format(competition: Competition) {
+  const obj = { ...competition.toJSON() };
+
+  // Hide the verification hash
+  // @ts-ignore
+  delete obj.verificationHash;
+
+  return obj;
+}
+
+async function resolve(competitionId: number, includeGroup = false): Promise<Competition> {
+  if (!competitionId || isNaN(competitionId)) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const competition = await Competition.findOne({
+    where: { id: competitionId },
+    include: includeGroup ? [{ model: Group }] : []
+  });
+
+  if (!competition) {
+    throw new NotFoundError('Competition not found.');
+  }
+
+  return competition;
 }
 
 /**
@@ -160,27 +184,14 @@ async function attachParticipantCount(competitions) {
 /**
  * Get all the data on a given competition.
  */
-async function getDetails(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  const competition = await Competition.findOne({
-    where: { id },
-    include: [{ model: Group }]
-  });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
+async function getDetails(competition: Competition): Promise<CompetitionDetails> {
   const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
   const group = competition.group ? groupService.format(competition.group) : null;
 
   const participations = await Participation.findAll({
     attributes: ['playerId'],
-    where: { competitionId: id },
+    where: { competitionId: competition.id },
     include: [
       { model: Player },
       { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
@@ -236,6 +247,7 @@ async function getDetails(id) {
   // Sum all gained values
   const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
+  // @ts-ignore
   return { ...format(competition), duration, totalGained, participants, group };
 }
 
@@ -735,7 +747,7 @@ async function refreshScores() {
   );
 }
 
-async function calculateScore(competition) {
+async function calculateScore(competition: Competition): Promise<number> {
   const now = new Date();
   let score = 0;
 
@@ -744,9 +756,9 @@ async function calculateScore(competition) {
     return score;
   }
 
-  const data = await getDetails(competition.id);
-  const activeParticipants = data.participants.filter(p => p.progress.gained > 0);
-  const averageGained = data.totalGained / activeParticipants.length;
+  const details = await getDetails(competition);
+  const activeParticipants = details.participants.filter(p => p.progress.gained > 0);
+  const averageGained = details.totalGained / activeParticipants.length;
 
   // If is ongoing
   if (competition.startsAt <= now && competition.endsAt >= now) {
@@ -755,7 +767,7 @@ async function calculateScore(competition) {
 
   // If is upcoming
   if (competition.startsAt > now) {
-    const daysLeft = (competition.startsAt - (now as any)) / 1000 / 3600 / 24;
+    const daysLeft = (competition.startsAt.getTime() - now.getTime()) / 1000 / 3600 / 24;
 
     if (daysLeft > 7) {
       score += 60;
@@ -765,11 +777,11 @@ async function calculateScore(competition) {
   }
 
   // If is group competition
-  if (data.group) {
+  if (details.group) {
     // The highest of 30, or 30% of the group's score
-    score += Math.max(40, data.group.score * 0.4);
+    score += Math.max(40, details.group.score * 0.4);
 
-    if (data.group.verified) {
+    if (details.group.verified) {
       score += 50;
     }
   }
@@ -826,7 +838,7 @@ async function calculateScore(competition) {
   }
 
   // Discourage "over 2 weeks long" competitions
-  if (competition.endsAt - competition.startsAt < 1209600000) {
+  if (competition.endsAt.getTime() - competition.startsAt.getTime() < 1209600000) {
     score += 50;
   }
 
@@ -905,6 +917,7 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
 }
 
 export {
+  resolve,
   getList,
   getGroupCompetitions,
   getPlayerCompetitions,
