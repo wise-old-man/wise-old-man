@@ -9,6 +9,13 @@ import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics
 import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
 
+interface DeltaLeaderboardsFilter {
+  period?: string;
+  metric?: string;
+  playerType?: string;
+  playerBuild?: string;
+}
+
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
 
 export const DAY_IN_SECONDS = 86400;
@@ -16,7 +23,7 @@ export const WEEK_IN_SECONDS = 604800;
 export const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
 export const YEAR_IN_SECONDS = 31556926;
 
-export function getSeconds(period) {
+function getSeconds(period: string) {
   switch (period) {
     case 'day':
       return DAY_IN_SECONDS;
@@ -179,7 +186,9 @@ async function getPlayerDeltas(playerId: number) {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(metric: string, period: string, type?: string, build?: string) {
+async function getLeaderboard(filter: DeltaLeaderboardsFilter, pagination: Pagination) {
+  const { metric, period, playerBuild, playerType } = filter;
+
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -188,12 +197,12 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (type && !PLAYER_TYPES.includes(type)) {
-    throw new BadRequestError(`Invalid player type: ${type}.`);
+  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+    throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (build && !PLAYER_BUILDS.includes(build)) {
-    throw new BadRequestError(`Invalid player build: ${build}.`);
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+    throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
   const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
@@ -205,9 +214,10 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
       indicator: 'value',
       updatedAt: { [Op.gte]: startingDate }
     },
+    include: [{ model: Player, where: buildQuery({ type: playerType, build: playerBuild }) }],
     order: [[metric, 'DESC']],
-    include: [{ model: Player, where: buildQuery({ type, build }) }],
-    limit: 20
+    limit: pagination.limit,
+    offset: pagination.offset
   });
 
   return deltas.map(d => ({

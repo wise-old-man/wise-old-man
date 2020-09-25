@@ -1,11 +1,24 @@
+import { NextFunction, Request, Response } from 'express';
 import * as service from '../services/internal/delta.service';
+import { extractNumber, extractString } from '../util/http';
+import * as pagination from '../util/pagination';
 
 // GET /deltas/leaderboard
-async function leaderboard(req, res, next) {
+async function leaderboard(req: Request, res: Response, next: NextFunction) {
   try {
-    const { metric, period, playerType, playerBuild } = req.query;
+    // Search filter query
+    const metric = extractString(req.query, { key: 'metric' });
+    const period = extractString(req.query, { key: 'period' });
+    const playerType = extractString(req.query, { key: 'playerType' });
+    const playerBuild = extractString(req.query, { key: 'playerBuild' });
+    // Pagination query
+    const limit = extractNumber(req.query, { key: 'limit' });
+    const offset = extractNumber(req.query, { key: 'offset' });
 
-    const results = await service.getLeaderboard(metric, period, playerType, playerBuild);
+    const filter = { metric, period, playerType, playerBuild };
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+
+    const results = await service.getLeaderboard(filter, paginationConfig);
 
     res.json(results);
   } catch (e) {
