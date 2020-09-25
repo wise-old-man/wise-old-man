@@ -1,15 +1,15 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { Pagination } from 'src/types';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
+import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
 
-interface DeltaLeaderboardsFilter {
+interface LeaderboardsFilter {
   period?: string;
   metric?: string;
   playerType?: string;
@@ -186,7 +186,7 @@ async function getPlayerDeltas(playerId: number) {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(filter: DeltaLeaderboardsFilter, pagination: Pagination) {
+async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination) {
   const { metric, period, playerBuild, playerType } = filter;
 
   if (!period || !PERIODS.includes(period)) {

@@ -1,9 +1,18 @@
 import { forEach, keyBy, omit } from 'lodash';
 import { Player, Record } from '../../../database/models';
+import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';
+import { buildQuery } from '../../util/query';
 import { getPlayerPeriodDeltas } from './delta.service';
+
+interface LeaderboardsFilter {
+  period?: string;
+  metric?: string;
+  playerType?: string;
+  playerBuild?: string;
+}
 
 function format(record) {
   return omit(record.toJSON(), ['id', 'playerId']);
@@ -91,7 +100,9 @@ async function getPlayerRecords(playerId: number, period?: string, metric?: stri
  * Gets the best records for a specific metric and period.
  * Optionally, the records can be filtered by the playerType and playerBuild.
  */
-async function getLeaderboard(metric: string, period: string, type: string, build: string) {
+async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination) {
+  const { metric, period, playerBuild, playerType } = filter;
+
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -100,23 +111,20 @@ async function getLeaderboard(metric: string, period: string, type: string, buil
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (type && !PLAYER_TYPES.includes(type)) {
-    throw new BadRequestError(`Invalid player type: ${type}.`);
+  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+    throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (build && !PLAYER_BUILDS.includes(build)) {
-    throw new BadRequestError(`Invalid player build: ${build}.`);
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+    throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
-
-  const query: any = {};
-  if (type) query.type = type;
-  if (build) query.build = build;
 
   const records = await Record.findAll({
     where: { period, metric },
+    include: [{ model: Player, where: buildQuery({ type: playerType, build: playerBuild }) }],
     order: [['value', 'DESC']],
-    include: [{ model: Player, where: query }],
-    limit: 20
+    limit: pagination.limit,
+    offset: pagination.offset
   });
 
   return records;
