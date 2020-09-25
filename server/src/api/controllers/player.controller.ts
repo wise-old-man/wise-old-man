@@ -193,7 +193,7 @@ async function records(req: Request, res: Response, next: NextFunction) {
     const playerId = await playerService.resolveId({ id, username });
 
     // Fetch all player records for the given period and metric
-    const playerRecords = await recordService.getPlayerRecords(playerId, period, metric);
+    const playerRecords = await recordService.getPlayerRecords(playerId, { period, metric });
 
     res.json(playerRecords);
   } catch (e) {

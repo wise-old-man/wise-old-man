@@ -234,11 +234,11 @@ async function getRecords(groupId, metric, period, pagination) {
   });
 
   if (!memberships.length) {
-    throw new BadRequestError(`That group has no members.`);
+    throw new BadRequestError('This group has no members.');
   }
 
-  const memberIds = memberships.map(m => m.playerId);
-  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, pagination);
+  const filter = { playerIds: memberships.map(m => m.playerId), metric, period };
+  const records = await recordService.getGroupLeaderboard(filter, pagination);
 
   return records;
 }

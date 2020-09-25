@@ -1,4 +1,4 @@
-import { forEach, keyBy, omit } from 'lodash';
+import { forEach } from 'lodash';
 import { Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
@@ -7,15 +7,18 @@ import { getMeasure } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import { getPlayerPeriodDeltas } from './delta.service';
 
-interface LeaderboardsFilter {
+interface PlayerRecordsFilter {
   period?: string;
   metric?: string;
-  playerType?: string;
-  playerBuild?: string;
 }
 
-function format(record) {
-  return omit(record.toJSON(), ['id', 'playerId']);
+interface GroupRecordsFilter extends PlayerRecordsFilter {
+  playerIds: number[];
+}
+
+interface GlobalRecordsFilter extends PlayerRecordsFilter {
+  playerType?: string;
+  playerBuild?: string;
 }
 
 /**
@@ -26,31 +29,26 @@ function format(record) {
  *
  * Note: this method will only created records for values > 0
  */
-async function syncRecords(playerId, period) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player.`);
-  }
-
+async function syncRecords(playerId: number, period: string): Promise<void> {
   const periodRecords = await Record.findAll({ where: { playerId, period } });
-  const periodDelta = await getPlayerPeriodDeltas(playerId, period);
+  const periodDeltas = await getPlayerPeriodDeltas(playerId, period);
 
-  const recordMap: any = keyBy(
-    periodRecords.map(r => r.toJSON()),
-    'metric'
+  const recordMap: { [metric: string]: Record } = Object.fromEntries(
+    periodRecords.map(r => [r.metric, r])
   );
 
   const toCreate = [];
   const toUpdate = [];
 
-  forEach(periodDelta.data, (values, metric) => {
+  forEach(periodDeltas.data, (values, metric) => {
     const { gained } = values[getMeasure(metric)];
 
-    if (gained > 0) {
-      if (!recordMap[metric]) {
-        toCreate.push({ playerId, period, metric, value: gained });
-      } else if (gained > recordMap[metric].value) {
-        toUpdate.push({ playerId, period, metric, value: gained });
-      }
+    if (gained <= 0) return;
+
+    if (!recordMap[metric]) {
+      toCreate.push({ playerId, period, metric, value: gained });
+    } else if (gained > recordMap[metric].value) {
+      toUpdate.push({ playerId, period, metric, value: gained });
     }
   });
 
@@ -70,7 +68,9 @@ async function syncRecords(playerId, period) {
  * Finds all records for a given player id.
  * These records can be optionally filtered by period and metric.
  */
-async function getPlayerRecords(playerId: number, period?: string, metric?: string) {
+async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): Promise<Record[]> {
+  const { period, metric } = filter;
+
   if (period && !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -79,28 +79,18 @@ async function getPlayerRecords(playerId: number, period?: string, metric?: stri
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const query: any = {
-    playerId
-  };
+  const records = await Record.findAll({
+    where: buildQuery({ playerId, period, metric })
+  });
 
-  if (period) {
-    query.period = period;
-  }
-
-  if (metric) {
-    query.metric = metric;
-  }
-
-  const records = await Record.findAll({ where: query });
-
-  return records.map(r => format(r));
+  return records;
 }
 
 /**
  * Gets the best records for a specific metric and period.
  * Optionally, the records can be filtered by the playerType and playerBuild.
  */
-async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination) {
+async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Pagination): Promise<Record[]> {
   const { metric, period, playerBuild, playerType } = filter;
 
   if (!period || !PERIODS.includes(period)) {
@@ -121,7 +111,12 @@ async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination
 
   const records = await Record.findAll({
     where: { period, metric },
-    include: [{ model: Player, where: buildQuery({ type: playerType, build: playerBuild }) }],
+    include: [
+      {
+        model: Player,
+        where: buildQuery({ type: playerType, build: playerBuild })
+      }
+    ],
     order: [['value', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset
@@ -133,7 +128,12 @@ async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination
 /**
  * Gets the best records for a specific metric, period and list of players.
  */
-async function getGroupLeaderboard(metric, period, playerIds, pagination) {
+async function getGroupLeaderboard(
+  filter: GroupRecordsFilter,
+  pagination: Pagination
+): Promise<Record[]> {
+  const { playerIds, period, metric } = filter;
+
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -150,17 +150,7 @@ async function getGroupLeaderboard(metric, period, playerIds, pagination) {
     offset: pagination.offset
   });
 
-  const formattedRecords = records.map(({ player, value, updatedAt }) => ({
-    playerId: player.id,
-    username: player.username,
-    displayName: player.displayName,
-    type: player.type,
-    flagged: player.flagged,
-    value,
-    updatedAt
-  }));
-
-  return formattedRecords;
+  return records;
 }
 
 export { syncRecords, getPlayerRecords, getLeaderboard, getGroupLeaderboard };
