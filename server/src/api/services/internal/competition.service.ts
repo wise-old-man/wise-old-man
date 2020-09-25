@@ -2,17 +2,44 @@ import { keyBy, mapValues, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
-import { CompetitionDetails } from '../../../types';
+import { CompetitionDetails, Pagination } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
-import { durationBetween, isPast, isValidDate } from '../../util/dates';
+import { durationBetween, isPast } from '../../util/dates';
 import { getMinimumBossKc, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
-function sanitizeTitle(title) {
+interface CompetitionListFilter {
+  title?: string;
+  metric?: string;
+  status?: string;
+}
+
+interface CreateCompetitionDTO {
+  title: string;
+  metric: string;
+  startsAt: Date;
+  endsAt: Date;
+  groupId?: number;
+  groupVerificationCode?: string;
+  participants?: string[];
+}
+
+interface EditCompetitionDTO {
+  id: number;
+  title?: string;
+  metric?: string;
+  startsAt?: Date;
+  endsAt?: Date;
+  participants?: string[];
+  verificationCode: string;
+}
+
+function sanitizeTitle(title: string): string {
   return title
     .replace(/_/g, ' ')
     .replace(/-/g, ' ')
@@ -51,7 +78,9 @@ async function resolve(competitionId: number, includeGroup = false): Promise<Com
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function getList(title, status, metric, pagination) {
+async function getList(filter: CompetitionListFilter, pagination: Pagination) {
+  const { title, status, metric } = filter;
+
   // The status is optional, however if present, should be valid
   if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -62,15 +91,10 @@ async function getList(title, status, metric, pagination) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
-  const query: any = {};
-
-  if (title) {
-    query.title = { [Op.iLike]: `%${sanitizeTitle(title)}%` };
-  }
-
-  if (metric) {
-    query.metric = metric.toLowerCase();
-  }
+  const query = buildQuery({
+    title: title && { [Op.iLike]: `%${sanitizeTitle(title)}%` },
+    metric: metric?.toLowerCase()
+  });
 
   if (status) {
     const formattedStatus = status.toLowerCase();
@@ -257,24 +281,14 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails>
  * Note: if a groupId is given, the participants will be
  * the group's members, and the "participants" argument will be ignored.
  */
-async function create(title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants) {
-  if (!title) {
-    throw new BadRequestError('Invalid competition title.');
-  }
+async function create(dto: CreateCompetitionDTO) {
+  const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants } = dto;
 
   if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError('Invalid competition metric.');
   }
 
-  if (!startsAt || !isValidDate(startsAt)) {
-    throw new BadRequestError('Invalid start date.');
-  }
-
-  if (!endsAt || !isValidDate(endsAt)) {
-    throw new BadRequestError('Invalid end date.');
-  }
-
-  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
+  if (startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
@@ -347,24 +361,10 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
  *
  * Note: If "participants" is defined, it will replace the existing participants.
  */
-async function edit(id, title, metric, startsAt, endsAt, participants, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
+async function edit(dto: EditCompetitionDTO) {
+  const { id, title, metric, startsAt, endsAt, participants, verificationCode } = dto;
 
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (endsAt && !isValidDate(endsAt)) {
-    throw new BadRequestError('Invalid end date.');
-  }
-
-  if (startsAt && !isValidDate(startsAt)) {
-    throw new BadRequestError('Invalid start date.');
-  }
-
-  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
+  if (startsAt && endsAt && startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
@@ -384,7 +384,7 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (
     startsAt &&
-    new Date(startsAt).getTime() !== competition.startsAt.getTime() &&
+    startsAt.getTime() !== competition.startsAt.getTime() &&
     isPast(competition.startsAt)
   ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
@@ -396,23 +396,12 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
     throw new ForbiddenError('Incorrect verification code.');
   }
 
-  const newValues: any = {};
-
-  if (title) {
-    newValues.title = sanitizeTitle(title);
-  }
-
-  if (metric) {
-    newValues.metric = metric;
-  }
-
-  if (startsAt) {
-    newValues.startsAt = startsAt;
-  }
-
-  if (endsAt) {
-    newValues.endsAt = endsAt;
-  }
+  const newValues = buildQuery({
+    title: title && sanitizeTitle(title),
+    metric,
+    startsAt,
+    endsAt
+  });
 
   let competitionParticipants;
 
@@ -442,22 +431,8 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 /**
  * Permanently delete a competition and all associated participations.
  */
-async function destroy(id, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-  const { title } = competition;
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
+async function destroy(competition: Competition, verificationCode: string) {
+  const competitionTitle = competition.title;
   const verified = await isVerified(competition, verificationCode);
 
   if (!verified) {
@@ -465,7 +440,7 @@ async function destroy(id, verificationCode) {
   }
 
   await competition.destroy();
-  return title;
+  return competitionTitle;
 }
 
 /**
@@ -527,15 +502,22 @@ async function addAllGroupMembers(competition, groupId) {
 /**
  * Adds all the usernames as competition participants.
  */
-async function addParticipants(id, verificationCode, usernames) {
-  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
+async function addParticipants(competition: Competition, verificationCode: string, usernames: string[]) {
+  if (usernames.length === 0) {
+    throw new BadRequestError('Empty participants list.');
+  }
+
+  const verified = await isVerified(competition, verificationCode);
+
+  if (!verified) {
+    throw new ForbiddenError('Incorrect verification code.');
+  }
 
   // Find all existing participants
   const existingIds = (await competition.$get('participants')).map(p => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(usernames);
-
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
@@ -554,13 +536,25 @@ async function addParticipants(id, verificationCode, usernames) {
 /**
  * Removes all the usernames (participants) from a competition.
  */
-async function removeParticipants(id, verificationCode, usernames) {
-  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
+async function removeParticipants(
+  competition: Competition,
+  verificationCode: string,
+  usernames: string[]
+) {
+  if (usernames.length === 0) {
+    throw new BadRequestError('Empty participants list.');
+  }
+
+  const verified = await isVerified(competition, verificationCode);
+
+  if (!verified) {
+    throw new ForbiddenError('Incorrect verification code.');
+  }
 
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid untracked players were given.');
+    throw new BadRequestError('No valid tracked players were given.');
   }
 
   // Remove all specific players, and return the removed count
@@ -575,34 +569,6 @@ async function removeParticipants(id, verificationCode, usernames) {
   await competition.save();
 
   return removedPlayersCount;
-}
-
-async function getCompetitionForParticipantOperation(id, verificationCode, usernames) {
-  if (!id) {
-    throw new NotFoundError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
-
-  return competition;
 }
 
 /**
@@ -628,7 +594,7 @@ async function getParticipants(id) {
  * Get outdated participants for a specific competition id.
  * A participant is considered outdated 60 minutes after their last update
  */
-async function getOutdatedParticipants(competitionId) {
+async function getOutdatedParticipants(competitionId: number) {
   if (!competitionId) {
     throw new BadRequestError('Invalid competition id.');
   }
@@ -704,26 +670,14 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
  *
  * An update action must be supplied, to be executed for
  * every participant. This is to prevent calling jobs from
- * within the service. I'd rather call them from the controller.
- *
- * Note: this is a soft update, meaning it will only create a new
- * snapshot. It won't import from CML or determine player type.
+ * within the service (circular dependency).
+ * I'd rather call them from the controller.
  */
-async function updateAllParticipants(id, updateAction) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
-  const participants = await getOutdatedParticipants(id);
+async function updateAllParticipants(competition: Competition, updateAction: (player: Player) => void) {
+  const participants = await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
-    throw new BadRequestError('This competition has no participants that should be updated');
+    throw new BadRequestError('This competition has no outdated participants.');
   }
 
   // Execute the update action for every participant

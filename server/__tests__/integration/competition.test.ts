@@ -76,7 +76,7 @@ describe('Competition API', () => {
       const response = await request.post('/api/competitions').send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid competition title.');
+      expect(response.body.message).toMatch("Parameter 'title' is undefined.");
 
       done();
     });
@@ -85,7 +85,7 @@ describe('Competition API', () => {
       const response = await request.post('/api/competitions').send({ title: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid competition title.');
+      expect(response.body.message).toMatch("Parameter 'title' is undefined.");
 
       done();
     });
@@ -94,7 +94,7 @@ describe('Competition API', () => {
       const response = await request.post('/api/competitions').send({ title: 'test' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid competition metric.');
+      expect(response.body.message).toMatch("Parameter 'metric' is undefined.");
 
       done();
     });
@@ -107,7 +107,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid start date.');
+      expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
 
       done();
     });
@@ -121,7 +121,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid end date');
+      expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
 
       done();
     });
@@ -320,7 +320,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid verification code.');
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
 
       done();
     });
@@ -432,7 +432,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Competition of id 1234 was not found.');
+      expect(response.body.message).toBe('Competition not found.');
 
       done();
     });
@@ -446,7 +446,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid participants list.');
+      expect(response.body.message).toBe('Empty participants list.');
 
       done();
     });
@@ -483,6 +483,15 @@ describe('Competition API', () => {
   });
 
   describe('Deleting', () => {
+    test('Do not delete ( Undefined verification code )', async done => {
+      const response = await request.delete(`/api/competitions/${TEST_DATA.minimal.id}`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+
+      done();
+    });
+
     test('Do not delete ( Invalid verification code )', async done => {
       const response = await request.delete(`/api/competitions/${TEST_DATA.minimal.id}`).send({
         verificationCode: 'invalid'

@@ -1,14 +1,24 @@
+import { NextFunction, Request, Response } from 'express';
 import jobs from '../jobs';
 import * as service from '../services/internal/competition.service';
+import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import * as pagination from '../util/pagination';
 
 // GET /competitions
-async function index(req, res, next) {
+async function index(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, status, metric, limit, offset } = req.query;
+    // Search filter query
+    const title = extractString(req.query, { key: 'title' });
+    const status = extractString(req.query, { key: 'status' });
+    const metric = extractString(req.query, { key: 'metric' });
+    // Pagination query
+    const limit = extractNumber(req.query, { key: 'limit' });
+    const offset = extractNumber(req.query, { key: 'offset' });
+
+    const filter = { title, status, metric };
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    const results = await service.getList(title, status, metric, paginationConfig);
+    const results = await service.getList(filter, paginationConfig);
     res.json(results);
   } catch (e) {
     next(e);
@@ -16,9 +26,9 @@ async function index(req, res, next) {
 }
 
 // GET /competitions/:id
-async function details(req, res, next) {
+async function details(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = extractNumber(req.params, { key: 'id', required: true });
 
     const competition = await service.resolve(id, true);
     const competitionDetails = await service.getDetails(competition);
@@ -30,19 +40,18 @@ async function details(req, res, next) {
 }
 
 // POST /competitions
-async function create(req, res, next) {
+async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const { title, metric, startsAt, endsAt, participants, groupId, groupVerificationCode } = req.body;
+    const title = extractString(req.body, { key: 'title', required: true });
+    const metric = extractString(req.body, { key: 'metric', required: true });
+    const startsAt = extractDate(req.body, { key: 'startsAt', required: true });
+    const endsAt = extractDate(req.body, { key: 'endsAt', required: true });
+    const groupId = extractNumber(req.body, { key: 'groupId' });
+    const groupVerificationCode = extractString(req.body, { key: 'groupVerificationCode' });
+    const participants = extractStrings(req.body, { key: 'participants' });
 
-    const competition = await service.create(
-      title,
-      metric,
-      startsAt,
-      endsAt,
-      groupId,
-      groupVerificationCode,
-      participants
-    );
+    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants };
+    const competition = await service.create(dto);
 
     res.status(201).json(competition);
   } catch (e) {
@@ -51,20 +60,18 @@ async function create(req, res, next) {
 }
 
 // PUT /competitions/:id
-async function edit(req, res, next) {
+async function edit(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
-    const { title, metric, startsAt, endsAt, participants, verificationCode } = req.body;
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const title = extractString(req.body, { key: 'title' });
+    const metric = extractString(req.body, { key: 'metric' });
+    const startsAt = extractDate(req.body, { key: 'startsAt' });
+    const endsAt = extractDate(req.body, { key: 'endsAt' });
+    const participants = extractStrings(req.body, { key: 'participants' });
 
-    const competition = await service.edit(
-      id,
-      title,
-      metric,
-      startsAt,
-      endsAt,
-      participants,
-      verificationCode
-    );
+    const dto = { id, verificationCode, title, metric, startsAt, endsAt, participants };
+    const competition = await service.edit(dto);
 
     res.json(competition);
   } catch (e) {
@@ -73,12 +80,14 @@ async function edit(req, res, next) {
 }
 
 // DELETE /competitions/:id
-async function remove(req, res, next) {
+async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
-    const { verificationCode } = req.body;
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const competitionName = await service.destroy(id, verificationCode);
+    const competition = await service.resolve(id);
+
+    const competitionName = await service.destroy(competition, verificationCode);
     const message = `Successfully deleted competition '${competitionName}' (id: ${id})`;
 
     res.json({ message });
@@ -88,12 +97,14 @@ async function remove(req, res, next) {
 }
 
 // POST /competitions/:id/add-participants
-async function addParticipants(req, res, next) {
+async function addParticipants(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
-    const { verificationCode, participants } = req.body;
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const participants = extractStrings(req.body, { key: 'participants', required: true });
 
-    const result = await service.addParticipants(id, verificationCode, participants);
+    const competition = await service.resolve(id);
+    const result = await service.addParticipants(competition, verificationCode, participants);
 
     res.json({ newParticipants: result });
   } catch (e) {
@@ -102,12 +113,15 @@ async function addParticipants(req, res, next) {
 }
 
 // POST /competitions/:id/remove-participants
-async function removeParticipants(req, res, next) {
+async function removeParticipants(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
-    const { verificationCode, participants } = req.body;
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const participants = extractStrings(req.body, { key: 'participants', required: true });
 
-    const count = await service.removeParticipants(id, verificationCode, participants);
+    const competition = await service.resolve(id);
+
+    const count = await service.removeParticipants(competition, verificationCode, participants);
     const message = `Successfully removed ${count} participants from competition of id: ${id}.`;
 
     res.json({ message });
@@ -117,11 +131,12 @@ async function removeParticipants(req, res, next) {
 }
 
 // POST /competitions/:id/update-all
-async function updateAllParticipants(req, res, next) {
+async function updateAllParticipants(req: Request, res: Response, next: NextFunction) {
   try {
-    const { id } = req.params;
+    const id = extractNumber(req.params, { key: 'id', required: true });
 
-    const participants = await service.updateAllParticipants(id, player => {
+    const competition = await service.resolve(id);
+    const participants = await service.updateAllParticipants(competition, player => {
       // Attempt this 3 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
     });
