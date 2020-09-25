@@ -85,7 +85,9 @@ async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
     player = await find(playerResolvable.username);
   }
 
-  if (!player) throw new NotFoundError('Player not found.');
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
 
   return player;
 }
