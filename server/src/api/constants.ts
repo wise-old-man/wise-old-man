@@ -1,3 +1,6 @@
+import { Snapshot } from '../database/models';
+import { getCombatLevel, getTotalLevel } from './util/level';
+
 export const MAX_LEVEL = 99;
 export const MAX_VIRTUAL_LEVEL = 126;
 
@@ -130,3 +133,48 @@ export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
 export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
+
+export const SKILL_ACHIEVEMENT_TEMPLATES = [
+  {
+    type: '{threshold} {skill}',
+    measure: 'experience',
+    thresholds: [13034431, 50000000, 100000000, 200000000]
+  },
+  {
+    type: '{threshold} Overall Exp.',
+    metric: 'overall',
+    measure: 'experience',
+    thresholds: [500000000, 1000000000, 2000000000, 4600000000],
+    validate: (snapshot: Snapshot, threshold: number) => snapshot.overallExperience >= threshold
+  },
+  {
+    type: 'Maxed Overall',
+    metric: 'overall',
+    measure: 'levels',
+    thresholds: [2277],
+    validate: (snapshot: Snapshot) => getTotalLevel(snapshot) === 2277
+  },
+  {
+    type: 'Maxed combat',
+    metric: 'combat',
+    measure: 'levels',
+    thresholds: [126],
+    validate: (snapshot: Snapshot) => getCombatLevel(snapshot) === 126
+  }
+];
+
+export const ACTIVITY_ACHIEVEMENT_TEMPLATES = [
+  {
+    type: '{threshold} {activity} score',
+    measure: 'score',
+    thresholds: [1000, 5000, 10000]
+  }
+];
+
+export const BOSS_ACHIEVEMENT_TEMPLATES = [
+  {
+    type: '{threshold} {boss} kills',
+    measure: 'kills',
+    thresholds: [500, 1000, 5000, 10000]
+  }
+];

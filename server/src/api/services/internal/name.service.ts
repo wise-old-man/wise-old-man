@@ -1,6 +1,5 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import { buildQuery } from 'src/api/util/query';
 import { sequelize } from '../../../database';
 import {
   Membership,
@@ -15,6 +14,7 @@ import { NameChangeStatus, Pagination } from '../../../types';
 import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import { getLevel } from '../../util/level';
+import { buildQuery } from '../../util/query';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
