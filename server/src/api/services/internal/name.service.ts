@@ -1,5 +1,6 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
+import { buildQuery } from 'src/api/util/query';
 import { sequelize } from '../../../database';
 import {
   Membership,
