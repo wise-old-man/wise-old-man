@@ -2,7 +2,7 @@ import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { sequelize } from '../../../database';
-import { Group, Membership, Player } from '../../../database/models';
+import { Group, Membership, Player, Snapshot } from '../../../database/models';
 import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
@@ -375,21 +375,11 @@ async function getHiscores(id, metric, pagination) {
 /**
  * Gets the stats for every member of a group (latest snapshot)
  */
-async function getMemberStats(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
+async function getMembersStats(groupId: number): Promise<Snapshot[]> {
   // Fetch all memberships for the group
   const memberships = await Membership.findAll({
     attributes: ['playerId'],
-    where: { groupId: id }
+    where: { groupId }
   });
 
   if (!memberships || memberships.length === 0) {
@@ -415,10 +405,9 @@ async function getMemberStats(id) {
   // Formats the snapshots to a playerId:snapshot map, for easier lookup
   const snapshotMap = mapValues(keyBy(latestSnapshots, 'playerId'));
 
-  // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
-    .filter(({ playerId }) => snapshotMap[playerId])
-    .map(({ playerId }) => ({ ...snapshotMap[playerId] }));
+    .filter(({ playerId }) => playerId in snapshotMap)
+    .map(({ playerId }) => Snapshot.build({ ...snapshotMap[playerId] }));
 }
 
 async function getStatistics(id) {
@@ -426,7 +415,7 @@ async function getStatistics(id) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const stats = await getMemberStats(id);
+  const stats = await getMembersStats(id);
 
   if (!stats || stats.length === 0) {
     throw new BadRequestError("Couldn't find any stats for this group.");

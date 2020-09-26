@@ -145,7 +145,7 @@ async function getPlayerPeriodDeltas(
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const periodStartDate = Date.now() - getSeconds(period) * 1000;
+  const periodStartDate = new Date(Date.now() - getSeconds(period) * 1000);
   const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
   const latestSnapshot = latest || (await snapshotService.findLatest(playerId));
 

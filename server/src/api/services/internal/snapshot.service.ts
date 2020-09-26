@@ -10,7 +10,7 @@ import * as efficiencyService from './efficiency.service';
 /**
  * Converts a Snapshot instance into a JSON friendlier format
  */
-function format(snapshot) {
+function format(snapshot: Snapshot) {
   if (!snapshot) return null;
 
   const obj = {
@@ -75,23 +75,6 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
 }
 
 /**
- * Finds all snapshots for a given player.
- */
-async function findAll(playerId, limit) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
-  const result = await Snapshot.findAll({
-    where: { playerId },
-    order: [['createdAt', 'DESC']],
-    limit
-  });
-
-  return result;
-}
-
-/**
  * Finds all snapshots within a time period, for a given player.
  */
 async function getSnapshots(playerId: number, period: string) {
@@ -113,13 +96,31 @@ async function getSnapshots(playerId: number, period: string) {
 }
 
 /**
+ * Finds all snapshots for a given player.
+ */
+async function findAll(playerId: number, limit: number): Promise<Snapshot[]> {
+  if (!playerId) {
+    throw new BadRequestError(`Invalid player id.`);
+  }
+
+  const result = await Snapshot.findAll({
+    where: { playerId },
+    order: [['createdAt', 'DESC']],
+    limit
+  });
+
+  return result;
+}
+
+/**
  * Finds the latest snapshot for a given player.
  */
-async function findLatest(playerId: number) {
+async function findLatest(playerId: number): Promise<Snapshot | null> {
   const result = await Snapshot.findOne({
     where: { playerId },
     order: [['createdAt', 'DESC']]
   });
+
   return result;
 }
 
@@ -128,7 +129,7 @@ async function findLatest(playerId: number) {
  * for any of the given player ids.
  * Useful for tracking the evolution of every player in a competition.
  */
-async function findAllBetween(playerIds, startDate, endDate) {
+async function findAllBetween(playerIds: number[], startDate: Date, endDate: Date): Promise<Snapshot[]> {
   const results = await Snapshot.findAll({
     where: {
       playerId: playerIds,
@@ -142,7 +143,7 @@ async function findAllBetween(playerIds, startDate, endDate) {
 /**
  * Finds the first snapshot since "date" for a given player.
  */
-async function findFirstSince(playerId, date) {
+async function findFirstSince(playerId: number, date: Date): Promise<Snapshot | null> {
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: date } },
     order: [['createdAt', 'ASC']]
@@ -151,68 +152,60 @@ async function findFirstSince(playerId, date) {
   return result;
 }
 
-/**
- * Finds the last snapshot before "date" for a given player.
- */
-async function findLastBefore(playerId, date) {
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.lte]: date } },
-    order: [['createdAt', 'DESC']]
-  });
-
-  return result;
-}
-
-function average(snapshots) {
+function average(snapshots: Snapshot[]): Snapshot {
   if (!snapshots && snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
 
-  const accumulator = {};
-  const invalidKeys = ['id', 'createdAt', 'importedAt', 'playerId'];
-  const keys = Object.keys(snapshots[0]).filter(k => !invalidKeys.includes(k));
-
-  keys.forEach(key => {
-    const sum = snapshots.map(s => s[key]).reduce((acc, cur) => acc + parseInt(cur, 10), 0);
-    const avg = Math.round(sum / snapshots.length);
-    accumulator[key] = avg;
+  const base = Snapshot.build({
+    ...snapshots[0],
+    id: -1,
+    playerId: -1,
+    createdAt: null,
+    importedAt: null
   });
 
-  return accumulator;
+  ALL_METRICS.forEach(metric => {
+    const valueKey = getValueKey(metric);
+    const rankKey = getRankKey(metric);
+
+    const valueSum = snapshots
+      .map((s: Snapshot) => s[valueKey])
+      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
+
+    const rankSum = snapshots
+      .map((s: Snapshot) => s[rankKey])
+      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
+
+    const valueAvg = Math.round(valueSum / snapshots.length);
+    const rankAvg = Math.round(rankSum / snapshots.length);
+
+    base[valueKey] = valueAvg;
+    base[rankKey] = rankAvg;
+  });
+
+  return base;
 }
 
 /**
- * Saves all supplied snapshots, ignoring any
- * duplicates by playerId and createdAt.
- *
- * Note: This only works if all the supplied snaphots
- * are from a single player.
+ * Saves all supplied snapshots, ignoring any duplicates by playerId and createdAt.
+ * Note: This only works if all the supplied snaphots are from a single player.
  */
-async function saveAll(snapshots) {
-  if (snapshots.length === 0) {
-    return [];
-  }
+async function saveAll(snapshotFragments): Promise<Snapshot[]> {
+  if (snapshotFragments.length === 0) return [];
 
-  const { playerId } = snapshots[0];
+  const existingSnapshots = await Snapshot.findAll({
+    where: { playerId: snapshotFragments[0].playerId }
+  });
 
-  const existingSnapshots = await Snapshot.findAll({ where: { playerId } });
+  const existingVals = existingSnapshots.map(({ playerId, createdAt }) => {
+    return JSON.stringify({ playerId, timestamp: createdAt.getTime() });
+  });
 
-  const existingVals = existingSnapshots.map(s =>
-    JSON.stringify({
-      playerId: s.playerId,
-      timestamp: s.createdAt.getTime()
-    })
-  );
-
-  const newVals = snapshots.filter(
-    s =>
-      !existingVals.includes(
-        JSON.stringify({
-          playerId: s.playerId,
-          timestamp: s.createdAt.getTime()
-        })
-      )
-  );
+  // Filter out any repeated snapshots
+  const newVals = snapshotFragments.filter(({ playerId, createdAt }) => {
+    return !existingVals.includes(JSON.stringify({ playerId, timestamp: createdAt.getTime() }));
+  });
 
   if (!newVals || !newVals.length) {
     return [];
@@ -225,11 +218,9 @@ async function saveAll(snapshots) {
 /**
  * Converts a CSV row imported from the CML API into a Snapshot object.
  */
-async function fromCML(playerId, historyRow) {
-  // CML separates the data "blocks" by a space,
-  // for whatever reason. These blocks are the
-  // datapoint timestamp, and the experience and rank
-  // arrays respectively.
+async function fromCML(playerId: number, historyRow: string) {
+  // CML separates the data "blocks" by a space, for whatever reason.
+  // These blocks are the datapoint timestamp, and the experience and rank arrays respectively.
   const rows = historyRow.split(' ');
   const [timestamp, experienceCSV, ranksCSV] = rows;
 
@@ -251,8 +242,8 @@ async function fromCML(playerId, historyRow) {
 
   // Populate the skills' values with experience and rank data
   SKILLS.forEach((s, i) => {
-    stats[getRankKey(s)] = parseInt(ranks[i], 10);
-    stats[getValueKey(s)] = parseInt(exps[i], 10);
+    stats[getRankKey(s)] = parseInt(ranks[i]);
+    stats[getValueKey(s)] = parseInt(exps[i]);
   });
 
   return { playerId, createdAt, importedAt, ...stats };
@@ -261,7 +252,7 @@ async function fromCML(playerId, historyRow) {
 /**
  * Converts CSV data imported from the OSRS Hiscores API into Snapshot instance.
  */
-async function fromRS(playerId, csvData) {
+async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   // Convert the CSV text into an array of values
   // Ex: for skills, each row is [rank, level, experience]
   const rows = await csv({ noheader: true, output: 'csv' }).fromString(csvData);
@@ -277,26 +268,25 @@ async function fromRS(playerId, csvData) {
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
-    stats[getRankKey(s)] = parseInt(rank, 10);
-    stats[getValueKey(s)] = parseInt(experience, 10);
+    stats[getRankKey(s)] = parseInt(rank);
+    stats[getValueKey(s)] = parseInt(experience);
   });
 
   // Populate the activities' values with the values from the csv
   ACTIVITIES.forEach((s, i) => {
     const [rank, score] = rows[SKILLS.length + i];
-    stats[getRankKey(s)] = parseInt(rank, 10);
-    stats[getValueKey(s)] = parseInt(score, 10);
+    stats[getRankKey(s)] = parseInt(rank);
+    stats[getValueKey(s)] = parseInt(score);
   });
 
   // Populate the bosses' values with the values from the csv
   BOSSES.forEach((s, i) => {
     const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
-    stats[getRankKey(s)] = parseInt(rank, 10);
-    stats[getValueKey(s)] = parseInt(kills, 10);
+    stats[getRankKey(s)] = parseInt(rank);
+    stats[getValueKey(s)] = parseInt(kills);
   });
 
-  const newSnapshot = await Snapshot.build({ playerId, ...stats });
-  return newSnapshot;
+  return Snapshot.build({ playerId, ...stats });
 }
 
 export {
@@ -308,7 +298,6 @@ export {
   findLatest,
   findAllBetween,
   findFirstSince,
-  findLastBefore,
   average,
   saveAll,
   fromCML,
