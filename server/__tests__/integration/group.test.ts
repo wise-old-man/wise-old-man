@@ -23,7 +23,7 @@ describe('Group API', () => {
       const response = await request.post('/api/groups').send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid group name');
+      expect(response.body.message).toMatch("Parameter 'name' is undefined.");
 
       done();
     });
@@ -32,7 +32,7 @@ describe('Group API', () => {
       const response = await request.post('/api/groups').send({ name: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid group name');
+      expect(response.body.message).toMatch("Parameter 'name' is undefined.");
 
       done();
     });
@@ -146,7 +146,7 @@ describe('Group API', () => {
       const response = await request.put('/api/groups/1000').send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid verification code');
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
 
       done();
     });
@@ -155,7 +155,7 @@ describe('Group API', () => {
       const response = await request.put('/api/groups/1000000').send({ verificationCode: 'XYZ' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('You must either include');
+      expect(response.body.message).toMatch('Nothing to update.');
 
       done();
     });
@@ -166,8 +166,8 @@ describe('Group API', () => {
         verificationCode: 'XYZ'
       });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('was not found');
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Group not found');
 
       done();
     });
@@ -175,7 +175,7 @@ describe('Group API', () => {
     test('Do not edit (group name is taken)', async done => {
       const response = await request.put(`/api/groups/${TEST_DATA.noMembers.id}`).send({
         name: 'Cool Bois',
-        verificationCode: 'XYZ'
+        verificationCode: TEST_DATA.noMembers.verificationCode
       });
 
       expect(response.status).toBe(400);
@@ -190,7 +190,7 @@ describe('Group API', () => {
         members: [{ username: 'Psikoi', role: 'leader' }]
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code');
 
       done();

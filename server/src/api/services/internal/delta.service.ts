@@ -9,11 +9,17 @@ import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics
 import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
 
-interface LeaderboardsFilter {
+interface GlobalDeltasFilter {
   period?: string;
   metric?: string;
   playerType?: string;
   playerBuild?: string;
+}
+
+interface GroupDeltasFilter {
+  playerIds: number[];
+  period?: string;
+  metric?: string;
 }
 
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
@@ -186,7 +192,7 @@ async function getPlayerDeltas(playerId: number) {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination) {
+async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination) {
   const { metric, period, playerBuild, playerType } = filter;
 
   if (!period || !PERIODS.includes(period)) {
@@ -232,16 +238,13 @@ async function getLeaderboard(filter: LeaderboardsFilter, pagination: Pagination
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(
-  metric: string,
-  period: string,
-  ids: number[],
-  pagination: Pagination
-) {
+async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagination) {
+  const { metric, period, playerIds } = filter;
+
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, indicator: 'value', playerId: ids },
+    where: { period, indicator: 'value', playerId: playerIds },
     order: [[metric, 'DESC']],
     include: [{ model: Player }],
     limit: pagination.limit,

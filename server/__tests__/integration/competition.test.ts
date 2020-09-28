@@ -202,7 +202,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Error: Group could not be found.');
+      expect(response.body.message).toMatch('Group not found.');
 
       done();
     });

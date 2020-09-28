@@ -7,6 +7,7 @@ import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
 import { extractBoolean, extractNumber, extractString } from '../util/http';
+import * as pagination from '../util/pagination';
 
 // GET /players/search?username={username}
 async function search(req: Request, res: Response, next: NextFunction) {
@@ -149,11 +150,14 @@ async function groups(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
+    const limit = extractNumber(req.query, { key: 'limit' });
+    const offset = extractNumber(req.query, { key: 'offset' });
 
+    const paginationConfig = pagination.getPaginationConfig(limit, offset);
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player groups (by player id)
-    const playerGroups = await groupService.getPlayerGroups(playerId);
+    const playerGroups = await groupService.getPlayerGroups(playerId, paginationConfig);
 
     res.json(playerGroups);
   } catch (e) {

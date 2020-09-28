@@ -1,6 +1,6 @@
 import { Pagination } from 'src/types';
 import { sequelize } from '../../../database';
-import { Achievement, Snapshot } from '../../../database/models';
+import { Achievement, Player, Snapshot } from '../../../database/models';
 import {
   ACTIVITIES,
   ACTIVITY_ACHIEVEMENT_TEMPLATES,
@@ -328,6 +328,7 @@ async function getPlayerAchievements(playerId: number, includeMissing = false) {
 async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<Achievement[]> {
   const achievements = await Achievement.findAll({
     where: { playerId: playerIds },
+    include: [{ model: Player }],
     order: [['createdAt', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset

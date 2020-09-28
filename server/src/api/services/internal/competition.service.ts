@@ -129,7 +129,7 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset: 0 }) {
+async function getGroupCompetitions(groupId: number, pagination: Pagination): Promise<Competition[]> {
   const competitions = await Competition.findAll({
     where: { groupId },
     order: [['score', 'DESC']],
@@ -209,7 +209,6 @@ async function attachParticipantCount(competitions) {
 async function getDetails(competition: Competition): Promise<CompetitionDetails> {
   const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
-  const group = competition.group ? groupService.format(competition.group) : null;
 
   const participations = await Participation.findAll({
     attributes: ['playerId'],
@@ -270,7 +269,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails>
   const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
   // @ts-ignore
-  return { ...format(competition), duration, totalGained, participants, group };
+  return { ...format(competition), duration, totalGained, participants, group: competition.group };
 }
 
 /**
@@ -299,12 +298,7 @@ async function create(dto: CreateCompetitionDTO) {
       throw new BadRequestError('Invalid verification code.');
     }
 
-    const group = await groupService.findOne(groupId);
-
-    if (!group) {
-      throw new NotFoundError('Error: Group could not be found.');
-    }
-
+    const group = await groupService.resolve(groupId, true);
     const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
     if (!verified) {
