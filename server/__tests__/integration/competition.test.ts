@@ -396,6 +396,20 @@ describe('Competition API', () => {
       done();
     });
 
+    test('Do not add participant to competition ( incorrect code )', async done => {
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/add-participants`)
+        .send({
+          participants: ['new player'],
+          verificationCode: 'xxx-xxx-xxx'
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+
+      done();
+    });
+
     test('Add participant to competition', async done => {
       const response = await request
         .post(`/api/competitions/${TEST_DATA.minimal.id}/add-participants`)
@@ -433,6 +447,20 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Competition not found.');
+
+      done();
+    });
+
+    test('Do not remove participant ( Incorrect code )', async done => {
+      const response = await request
+        .post(`/api/competitions/${TEST_DATA.minimal.id}/remove-participants`)
+        .send({
+          participants: ['new player'],
+          verificationCode: 'xxx-xxx-xxx'
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
 
       done();
     });
