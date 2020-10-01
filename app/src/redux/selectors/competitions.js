@@ -66,7 +66,7 @@ export const getChartData = (state, id) => {
     datasets.push({
       borderColor: COLORS[i],
       pointBorderWidth: 1,
-      label: participant.username,
+      label: participant.displayName,
       data: filteredPoints,
       fill: false
     });
