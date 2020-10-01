@@ -37,6 +37,22 @@ describe('Group API', () => {
       done();
     });
 
+    test('Do not create (invalid member roles)', async done => {
+      const response = await request.post('/api/groups').send({
+        name: 'A new test group',
+        members: [
+          { username: 'test player', role: 1 },
+          { username: 'ALT PLAYER', role: 'random' },
+          { username: 'zezima' }
+        ]
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid member roles');
+
+      done();
+    });
+
     test('Create valid group (no members)', async done => {
       const response = await request
         .post('/api/groups')
