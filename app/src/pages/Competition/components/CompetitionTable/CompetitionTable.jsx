@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss } from '../../../../utils';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
@@ -80,7 +80,10 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       },
       {
         key: 'gained',
-        transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
+        transform: val => {
+          const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
+          return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
+        },
         get: row => (row.progress ? row.progress.gained : 0)
       },
       {
