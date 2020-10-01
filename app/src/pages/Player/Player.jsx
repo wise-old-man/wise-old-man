@@ -285,7 +285,7 @@ function Player() {
             <div className="warning">
               <img src="/img/runescape/icons_small/flagged.png" alt="" />
               <span>
-                This player is flagged. This was likely caused by an unregistered name change or they have become unranked in one or more skills due to lack of progress.
+                This player is flagged. This is likely caused by an unregistered name change or they have become unranked in one or more skills due to lack of progress.
                 <br />
                 <Link to={`/names/submit/${player.displayName}`}>
                   Click here to submit a name change
