@@ -291,7 +291,7 @@ function Player() {
                   Click here to submit a name change
                 </Link>
                 &nbsp; or join our &nbsp;
-                <a href="https://wiseoldman.net/discord" target="_blank" rel="noreferrer">Discord server</a>
+                <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">Discord server</a>
                 &nbsp; for help.
               </span>
             </div>
