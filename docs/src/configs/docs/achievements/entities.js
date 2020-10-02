@@ -1,3 +1,5 @@
+import { CAPPED_MAX_TOTAL_XP } from "../../../../../app/src/config";
+
 export default [
   {
     name: 'Achievement',
@@ -50,8 +52,8 @@ export default [
       {
         type: 'Maxed Overall',
         metric: 'overall',
-        measure: 'levels',
-        thresholds: '2277'
+        measure: 'experience',
+        thresholds: CAPPED_MAX_TOTAL_XP
       },
       {
         type: 'Maxed combat',
