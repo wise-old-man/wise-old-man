@@ -5,19 +5,44 @@ import { resetDatabase } from '../utils';
 
 const request = supertest(api);
 
+const BASE_URL = '/api/players';
+
+const TEST_DATA = {
+  playerA: {
+    ref: null,
+    data: {
+      id: 1000000,
+      username: 'test player',
+      displayName: 'Test Player'
+    }
+  },
+  playerB: {
+    ref: null,
+    data: {
+      id: 200000,
+      username: 'alt player',
+      displayName: 'Alt Player'
+    }
+  }
+};
+
 beforeAll(async done => {
   await resetDatabase();
 
-  await Player.create({ id: 1000000, username: 'test player', displayName: 'Test Player' });
-  await Player.create({ id: 200000, username: 'alt player', displayName: 'Alt Player' });
+  const playerA = await Player.create(TEST_DATA.playerA.data);
+  const playerB = await Player.create(TEST_DATA.playerB.data);
+
+  TEST_DATA.playerA.ref = playerA;
+  TEST_DATA.playerB.ref = playerB;
 
   done();
 });
 
 describe('Player API', () => {
-  describe('Tracking', () => {
-    test('Do not track valid username too soon', async done => {
-      const response = await request.post('/api/players/track').send({ username: 'Test Player' });
+  describe('1. Tracking', () => {
+    test("1.1 - DON'T track valid username too soon", async done => {
+      const body = { username: TEST_DATA.playerA.data.username };
+      const response = await request.post(`${BASE_URL}/track`).send(body);
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error:');
@@ -25,8 +50,8 @@ describe('Player API', () => {
       done();
     }, 90000);
 
-    test('Do not track undefined username', async done => {
-      const response = await request.post('/api/players/track').send({});
+    test("1.2 - DON'T track undefined username", async done => {
+      const response = await request.post(`${BASE_URL}/track`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
@@ -34,8 +59,8 @@ describe('Player API', () => {
       done();
     });
 
-    test('Do not track empty username', async done => {
-      const response = await request.post('/api/players/track').send({ username: '' });
+    test("1.3 - DON'T track empty username", async done => {
+      const response = await request.post(`${BASE_URL}/track`).send({ username: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
@@ -43,8 +68,9 @@ describe('Player API', () => {
       done();
     });
 
-    test('Do not track lengthy username', async done => {
-      const response = await request.post('/api/players/track').send({ username: 'ALongUsername' });
+    test("1.4 - DON'T track lengthy username", async done => {
+      const body = { username: 'ALongUsername' };
+      const response = await request.post(`${BASE_URL}/track`).send(body);
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Validation error: Username must be between');
@@ -52,8 +78,9 @@ describe('Player API', () => {
       done();
     });
 
-    test('Track valid username', async done => {
-      const response = await request.post('/api/players/track').send({ username: 'Psikoi' });
+    test('1.5 - Track valid username', async done => {
+      const body = { username: 'Psikoi' };
+      const response = await request.post(`${BASE_URL}/track`).send(body);
 
       if (response.status === 200 || response.status === 201) {
         expect(response.body.player.username).toBe('psikoi');
@@ -65,8 +92,9 @@ describe('Player API', () => {
       done();
     }, 90000);
 
-    test('Track unformatted username', async done => {
-      const response = await request.post('/api/players/track').send({ username: ' iron_Mammal ' });
+    test('1.6 - Track unformatted username', async done => {
+      const body = { username: ' iron_Mammal ' };
+      const response = await request.post(`${BASE_URL}/track`).send(body);
 
       if (response.status === 200 || response.status === 201) {
         expect(response.body.player.username).toBe('iron mammal');
@@ -79,9 +107,9 @@ describe('Player API', () => {
     }, 90000);
   });
 
-  describe('Importing', () => {
-    test('Do not import undefined username', async done => {
-      const response = await request.post('/api/players/import').send({});
+  describe('2. Importing', () => {
+    test("2.1 - DON'T import undefined username", async done => {
+      const response = await request.post(`${BASE_URL}/import`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
@@ -89,8 +117,19 @@ describe('Player API', () => {
       done();
     });
 
-    test('Import existing username', async done => {
-      const response = await request.post('/api/players/import').send({ username: 'Test Player' });
+    test("2.2 - DON'T import unknown username", async done => {
+      const body = { username: 'SomeUnknown' };
+      const response = await request.post(`${BASE_URL}/import`).send(body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+
+      done();
+    });
+
+    test('2.3 - Import existing username', async done => {
+      const body = { username: TEST_DATA.playerA.data.displayName };
+      const response = await request.post(`${BASE_URL}/import`).send(body);
 
       if (response.status === 200 || response.status === 201) {
         expect(response.body.message).toMatch('snapshots imported from CML');
@@ -102,25 +141,26 @@ describe('Player API', () => {
     }, 90000);
   });
 
-  describe('Importing Too soon', () => {
-    test('Do not import existing username too soon', async done => {
-      const firstResponse = await request.post('/api/players/import').send({ username: 'Test Player' });
+  describe('3. Importing Too Soon', () => {
+    test("3.1 - DON'T import existing username too soon", async done => {
+      const body = { username: TEST_DATA.playerA.data.displayName };
+      const firstResponse = await request.post(`${BASE_URL}/import`).send(body);
 
       // If the first response is successful, the second should fail
       if (firstResponse.status === 200) {
-        const secResponse = await request.post('/api/players/import').send({ username: 'Test Player' });
+        const secondResponse = await request.post(`${BASE_URL}/import`).send(body);
 
-        expect(secResponse.status).toBe(400);
-        expect(secResponse.body.message).toMatch('Imported too soon');
+        expect(secondResponse.status).toBe(400);
+        expect(secondResponse.body.message).toMatch('Imported too soon');
       }
 
       done();
     });
   });
 
-  describe('Searching', () => {
-    test('Search with undefined username', async done => {
-      const response = await request.get('/api/players/search').query({});
+  describe('4. Searching', () => {
+    test("4.1 - DON'T search with undefined username", async done => {
+      const response = await request.get(`${BASE_URL}/search`).query({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
@@ -128,8 +168,19 @@ describe('Player API', () => {
       done();
     });
 
-    test('Search for valid partial username', async done => {
-      const response = await request.get('/api/players/search').query({ username: 'tes' });
+    test("4.2 - DON'T search with empty username", async done => {
+      const query = { username: '' };
+      const response = await request.get(`${BASE_URL}/search`).query(query);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test('4.3 - Search for valid partial username', async done => {
+      const query = { username: 'tes' };
+      const response = await request.get(`${BASE_URL}/search`).query(query);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -139,8 +190,9 @@ describe('Player API', () => {
       done();
     });
 
-    test('Search for non-existing valid partial username', async done => {
-      const response = await request.get('/api/players/search').query({ username: 'something else' });
+    test('4.4 - Search for non-existing valid partial username', async done => {
+      const query = { username: 'something else' };
+      const response = await request.get(`${BASE_URL}/search`).query(query);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
@@ -149,9 +201,9 @@ describe('Player API', () => {
     });
   });
 
-  describe('Viewing', () => {
-    test('View non-existing id', async done => {
-      const response = await request.get('/api/players/9999');
+  describe('5. Viewing', () => {
+    test("5.1 - DON'T view non-existing id", async done => {
+      const response = await request.get(`${BASE_URL}/9999`);
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -159,8 +211,8 @@ describe('Player API', () => {
       done();
     });
 
-    test('View non-existing username', async done => {
-      const response = await request.get('/api/players/username/playerViewTest');
+    test("5.2 - DON'T view non-existing username", async done => {
+      const response = await request.get(`${BASE_URL}/username/playerViewTest`);
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -168,8 +220,9 @@ describe('Player API', () => {
       done();
     });
 
-    test('View valid id', async done => {
-      const response = await request.get('/api/players/1000000');
+    test('5.3 - View valid id', async done => {
+      const url = `${BASE_URL}/${TEST_DATA.playerA.data.id}`;
+      const response = await request.get(url);
 
       expect(response.status).toBe(200);
       expect(response.body.player.id).toBe(1000000);
@@ -177,24 +230,126 @@ describe('Player API', () => {
       done();
     });
 
-    test('View valid username', async done => {
-      const response = await request.get('/api/players/username/Test Player');
+    test('5.4 - View valid username', async done => {
+      const url = `${BASE_URL}/username/${TEST_DATA.playerA.data.displayName}`;
+      const response = await request.get(url);
 
       expect(response.status).toBe(200);
-      expect(response.body.player.username).toBe('test player');
-      expect(response.body.player.displayName).toBe('Test Player');
+      expect(response.body.player.username).toBe(TEST_DATA.playerA.data.username);
+      expect(response.body.player.displayName).toBe(TEST_DATA.playerA.data.displayName);
 
       done();
     });
 
-    test('View valid unformatted username', async done => {
-      const response = await request.get('/api/players/username/ alt_player');
+    test('5.5 - View valid unformatted username', async done => {
+      const url = `${BASE_URL}/username/ alt_player`;
+      const response = await request.get(url);
 
       expect(response.status).toBe(200);
-      expect(response.body.player.username).toBe('alt player');
-      expect(response.body.player.displayName).toBe('Alt Player');
+      expect(response.body.player.username).toBe(TEST_DATA.playerB.data.username);
+      expect(response.body.player.displayName).toBe(TEST_DATA.playerB.data.displayName);
 
       done();
     });
+  });
+
+  describe('6. Asserting Type', () => {
+    test("6.1 - DON'T assert type for undefined username", async done => {
+      const response = await request.post(`${BASE_URL}/assert-type`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test("6.2 - DON'T assert type for empty username", async done => {
+      const response = await request.post(`${BASE_URL}/assert-type`).send({ username: '' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test("6.3 - DON'T assert type for unknown username", async done => {
+      const body = { username: 'assert_guy' };
+      const response = await request.post(`${BASE_URL}/assert-type`).send(body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+
+      done();
+    });
+
+    test('6.4 - Assert type for regular', async done => {
+      const body = { username: 'Psikoi' };
+      const response = await request.post(`${BASE_URL}/assert-type`).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.type).toMatch('regular');
+
+      done();
+    }, 90000);
+
+    test('6.5 - Assert type for ironman', async done => {
+      const body = { username: 'iron_mammal' };
+      const response = await request.post(`${BASE_URL}/assert-type`).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.type).toMatch('ironman');
+
+      done();
+    }, 90000);
+  });
+
+  describe('7. Asserting Name', () => {
+    test("7.1 - DON'T assert name for undefined username", async done => {
+      const response = await request.post(`${BASE_URL}/assert-name`).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test("7.2 - DON'T assert name for empty username", async done => {
+      const response = await request.post(`${BASE_URL}/assert-name`).send({ username: '' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test("7.3 - DON'T assert name for unknown username", async done => {
+      const body = { username: 'assert_guy' };
+      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+
+      done();
+    });
+
+    test('7.4 - Assert name for correct username', async done => {
+      const body = { username: 'Psikoi' };
+      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.displayName).toMatch('Psikoi');
+
+      done();
+    }, 90000);
+
+    test('7.5 - Assert name for correct unformatted username', async done => {
+      const body = { username: 'iron_mammal' };
+      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.displayName).toMatch('Iron Mammal');
+
+      done();
+    }, 90000);
   });
 });

@@ -278,6 +278,9 @@ async function getType(player: Player): Promise<string> {
   return 'ironman';
 }
 
+/**
+ * Fetch various hiscores endpoints to find the correct player type of a given player.
+ */
 async function assertType(player: Player): Promise<string> {
   const type = await getType(player);
 
@@ -289,8 +292,7 @@ async function assertType(player: Player): Promise<string> {
 }
 
 /**
- * Fetch the hiscores table overall to find the correct
- * capitalization of a given username
+ * Fetch the hiscores table overall to find the correct capitalization of a given player.
  */
 async function assertName(player: Player): Promise<string> {
   const { username } = player;
@@ -306,14 +308,13 @@ async function assertName(player: Player): Promise<string> {
     throw new ServerError(`Display name and username don't match for ${username}`);
   }
 
-  const displayName = sanitize(match);
+  const newDisplayName = sanitize(match);
 
-  if (displayName === player.displayName) {
-    throw new BadRequestError(`No change required: The current display name is correct.`);
+  if (player.displayName !== newDisplayName) {
+    await player.update({ displayName: newDisplayName });
   }
 
-  await player.update({ displayName });
-  return displayName;
+  return newDisplayName;
 }
 
 function getBuild(snapshot: Snapshot): string {
