@@ -39,7 +39,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('Do not create (invalid member roles)', async done => {
+    test('1.3 - Do not create (invalid member roles)', async done => {
       const response = await request.post('/api/groups').send({
         name: 'A new test group',
         members: [
@@ -55,7 +55,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.3 - Create valid group (no members)', async done => {
+    test('1.4 - Create valid group (no members)', async done => {
       const body = { name: ' Some Group_', clanChat: ' Test ' };
       const response = await request.post(BASE_URL).send(body);
 
@@ -68,7 +68,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.4 - Create valid group (members, no leaders)', async done => {
+    test('1.5 - Create valid group (members, no leaders)', async done => {
       const body = {
         name: 'Cool Bois',
         members: [
@@ -91,7 +91,7 @@ describe('Group API', () => {
       done();
     }, 10000);
 
-    test('1.5 - Create valid group (members, w/ leaders)', async done => {
+    test('1.6 - Create valid group (members, w/ leaders)', async done => {
       const body = {
         name: 'Cooler Bois',
         members: [
@@ -114,7 +114,7 @@ describe('Group API', () => {
       done();
     }, 10000);
 
-    test('1.6 - Do not create (name already taken)', async done => {
+    test('1.7 - Do not create (name already taken)', async done => {
       const body = { name: 'Some Group' };
       const response = await request.post(BASE_URL).send(body);
 
@@ -124,7 +124,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.7 - Do not create (invalid members list format)', async done => {
+    test('1.8 - Do not create (invalid members list format)', async done => {
       const body = { name: 'RSPT', members: ['One', 'Two'] };
       const response = await request.post(BASE_URL).send(body);
 
@@ -134,7 +134,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.8 - Do not create (invalid member in list)', async done => {
+    test('1.9 - Do not create (invalid member in list)', async done => {
       const body = {
         name: 'RSPT',
         members: [
