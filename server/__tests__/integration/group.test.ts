@@ -4,7 +4,6 @@ import { Player } from '../../src/database/models';
 import { TestData } from '../types';
 import { resetDatabase } from '../utils';
 
-const BASE_URL = '/api/groups';
 const request = supertest(api);
 
 const BASE_URL = '/api/groups';
