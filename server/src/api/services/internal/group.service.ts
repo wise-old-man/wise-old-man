@@ -3,7 +3,7 @@ import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player } from '../../../database/models';
-import { ALL_METRICS, PERIODS } from '../../constants';
+import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
@@ -459,6 +459,10 @@ async function create(name, clanChat, members) {
   // If not all elements of members array have a "username" key.
   if (members && members.filter(m => m.username).length !== members.length) {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
+  }
+
+  if (members && members.some(m => m.role && !GROUP_ROLES.includes(m.role))) {
+    throw new BadRequestError("Invalid member roles. Must be 'member' or 'leader'.");
   }
 
   // Check if every username in the list is valid
