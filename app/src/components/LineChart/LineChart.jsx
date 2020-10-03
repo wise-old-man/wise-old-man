@@ -20,8 +20,10 @@ function getConfig(datasets, invertYAxis) {
           usePointStyle: true,
           boxWidth: 6,
           fontColor: 'white',
-          padding: 30
-        }
+          padding: 30,
+        },
+        onHover: (e) => { e.target.style.cursor = 'pointer' },
+        onLeave: (e) => { e.target.style.cursor = 'default' }
       },
       hover: {
         mode: 'point'
