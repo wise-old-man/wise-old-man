@@ -4,8 +4,9 @@ import { Player } from '../../src/database/models';
 import { TestData } from '../types';
 import { resetDatabase } from '../utils';
 
-const BASE_URL = '/api/groups';
 const request = supertest(api);
+
+const BASE_URL = '/api/groups';
 
 const TEST_DATA: TestData = {};
 
@@ -20,7 +21,7 @@ beforeAll(async done => {
 
 describe('Group API', () => {
   describe('1. Creating', () => {
-    test('1.1 - Do not create (invalid group name)', async done => {
+    test("1.1 - DON'T create (invalid group name)", async done => {
       const response = await request.post(BASE_URL).send({});
 
       expect(response.status).toBe(400);
@@ -29,7 +30,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.2 - Do not create (empty group name)', async done => {
+    test("1.2 - DON'T create (empty group name)", async done => {
       const body = { name: '' };
       const response = await request.post(BASE_URL).send(body);
 
@@ -39,15 +40,17 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.3 - Do not create (invalid member roles)', async done => {
-      const response = await request.post('/api/groups').send({
+    test("1.3 - DON'T create (invalid member roles)", async done => {
+      const body = {
         name: 'A new test group',
         members: [
           { username: 'test player', role: 1 },
           { username: 'ALT PLAYER', role: 'random' },
           { username: 'zezima' }
         ]
-      });
+      };
+
+      const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid member roles');
@@ -114,7 +117,7 @@ describe('Group API', () => {
       done();
     }, 10000);
 
-    test('1.7 - Do not create (name already taken)', async done => {
+    test("1.7 - DON'T create (name already taken)", async done => {
       const body = { name: 'Some Group' };
       const response = await request.post(BASE_URL).send(body);
 
@@ -124,7 +127,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.8 - Do not create (invalid members list format)', async done => {
+    test("1.8 - DON'T create (invalid members list format)", async done => {
       const body = { name: 'RSPT', members: ['One', 'Two'] };
       const response = await request.post(BASE_URL).send(body);
 
@@ -134,7 +137,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.9 - Do not create (invalid member in list)', async done => {
+    test("1.9 - DON'T create (invalid member in list)", async done => {
       const body = {
         name: 'RSPT',
         members: [
@@ -155,9 +158,8 @@ describe('Group API', () => {
   });
 
   describe('2. Editing', () => {
-    test('2.1 - Do not edit (invalid verification code)', async done => {
-      const body = {};
-      const response = await request.put(`${BASE_URL}/1000`).send(body);
+    test("2.1 - DON'T edit (invalid verification code)", async done => {
+      const response = await request.put(`${BASE_URL}/1000`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
@@ -165,7 +167,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.2 - Do not edit (empty params)', async done => {
+    test("2.2 - DON'T edit (empty params)", async done => {
       const body = { verificationCode: 'XYZ' };
       const response = await request.put(`${BASE_URL}/1000000`).send(body);
 
@@ -175,7 +177,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.3 - Do not edit (group id does not exist)', async done => {
+    test("2.3 - DON'T edit (group id does not exist)", async done => {
       const body = { name: 'RSPT', verificationCode: 'XYZ' };
       const response = await request.put(`${BASE_URL}/1000000`).send(body);
 
@@ -185,7 +187,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.4 - Do not edit (group name is taken)', async done => {
+    test("2.4 - DON'T edit (group name is taken)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { name: 'Cool Bois', verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -197,7 +199,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.5 - Do not edit (incorrect code)', async done => {
+    test("2.5 - DON'T edit (incorrect code)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { verificationCode: 'XYZ', members: [{ username: 'Psikoi', role: 'leader' }] };
 
@@ -209,13 +211,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.6 - Do not edit (invalid member in list)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
+    test("2.6 - DON'T edit (invalid member in list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'Psikoi', role: 'leader' }, { username: 'Really long username' }]
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
@@ -225,7 +227,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('Edit (members list)', async done => {
+    test('2.7 - Edit (members list)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
@@ -241,7 +243,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('Edit (name)', async done => {
+    test('2.8 - Edit (name)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { name: 'WISE OLD MAN', verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -253,7 +255,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('Edit (clan chat)', async done => {
+    test('2.9 - Edit (clan chat)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { clanChat: 'TheBois ', verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -268,7 +270,7 @@ describe('Group API', () => {
 
   describe('3. Listing', () => {
     test('3.1 - List groups', async done => {
-      const response = await request.get(`/api/groups`).send();
+      const response = await request.get(BASE_URL).send();
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
@@ -276,7 +278,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('3.2 - Search groups ( pagination limit )', async done => {
+    test('3.2 - Search groups (pagination limit)', async done => {
       const response = await request.get(`/api/groups`).query({ limit: 1 });
 
       expect(response.status).toBe(200);
@@ -287,13 +289,13 @@ describe('Group API', () => {
   });
 
   describe('4. Adding members', () => {
-    test('4.1 - Do not add members (id does not exist)', async done => {
-      const url = `${BASE_URL}/1294385/add-members`;
+    test("4.1 - DON'T add members (id does not exist)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'elvard', role: 'leader' }]
       };
 
+      const url = `${BASE_URL}/1294385/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(404);
@@ -302,13 +304,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.2 - Do not add members (incorrect verification code)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+    test("4.2 - DON'T add members (incorrect verification code)", async done => {
       const body = {
         verificationCode: 'xxx-xxx-xxx',
         members: [{ username: 'elvard', role: 'leader' }]
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(403);
@@ -317,13 +319,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.3 - Do not add members (empty members list)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+    test("4.3 - DON'T add members (empty members list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: []
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
@@ -332,13 +334,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.4 - Do not add members (invalid list)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+    test("4.4 - DON'T add members (invalid list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['elvard']
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
@@ -347,13 +349,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.5 - Do not add members (already member)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+    test("4.5 - DON'T add members (already member)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'zezima' }]
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
@@ -363,12 +365,12 @@ describe('Group API', () => {
     });
 
     test('4.6 - Add members', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'elvard', role: 'leader' }]
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(200);
@@ -379,13 +381,13 @@ describe('Group API', () => {
   });
 
   describe('5. Removing members', () => {
-    test('5.1 - Do not remove members (id does not exist)', async done => {
-      const url = `${BASE_URL}/1294385/remove-members`;
+    test("5.1 - DON'T remove members (id does not exist)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['elvard']
       };
 
+      const url = `${BASE_URL}/1294385/remove-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(404);
@@ -394,13 +396,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('5.2 - Do not remove members (incorrect verification code)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
+    test("5.2 - DON'T remove members (incorrect verification code)", async done => {
       const body = {
         verificationCode: 'xxx-xxx-xxx',
         members: ['elvard']
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(403);
@@ -409,13 +411,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('5.3 - Do not remove members (empty members list)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
+    test("5.3 - DON'T remove members (empty members list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: []
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
@@ -424,13 +426,13 @@ describe('Group API', () => {
       done();
     });
 
-    test('5.4 - Do not remove members (not a member)', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
+    test("5.4 - DON'T remove members (not a member)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['randomName']
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
@@ -440,12 +442,12 @@ describe('Group API', () => {
     });
 
     test('5.5 - Remove members', async done => {
-      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['elvard']
       };
 
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/remove-members`;
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(200);
@@ -455,7 +457,7 @@ describe('Group API', () => {
   });
 
   describe('6. Deleting', () => {
-    test('6.1 - Do not delete (id does not exist)', async done => {
+    test("6.1 - DON'T delete (id does not exist)", async done => {
       const url = `${BASE_URL}/1294385`;
       const body = { verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -467,7 +469,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('6.2 - Do not delete (incorrect verification code)', async done => {
+    test("6.2 - DON'T delete (incorrect verification code)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { verificationCode: 'xxx-xxx-xxx' };
 
@@ -487,6 +489,27 @@ describe('Group API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch('Successfully deleted group');
+
+      done();
+    });
+  });
+
+  describe('7. Viewing', () => {
+    test("7.1 - DON'T view non-existing id", async done => {
+      const response = await request.get(`${BASE_URL}/9999`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Group not found.');
+
+      done();
+    });
+
+    test('7.1 - View valid group', async done => {
+      const response = await request.get(`${BASE_URL}/${TEST_DATA.membersNoLeaders.id}`).send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.name).toMatch(TEST_DATA.membersNoLeaders.name);
+      expect(response.body.clanChat).toBeNull();
 
       done();
     });
