@@ -32,7 +32,7 @@ async function details(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
 
-    const competition = await service.resolve(id, true);
+    const competition = await service.resolve(id, { includeGroup: true });
     const competitionDetails = await service.getDetails(competition);
 
     res.json(competitionDetails);
@@ -72,7 +72,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const endsAt = extractDate(req.body, { key: 'endsAt' });
     const participants = extractStrings(req.body, { key: 'participants' });
 
-    const competition = await service.resolve(id);
+    const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
@@ -94,7 +94,7 @@ async function remove(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const competition = await service.resolve(id);
+    const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
@@ -117,7 +117,7 @@ async function addParticipants(req: Request, res: Response, next: NextFunction) 
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
-    const competition = await service.resolve(id);
+    const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
@@ -139,7 +139,7 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
-    const competition = await service.resolve(id);
+    const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {

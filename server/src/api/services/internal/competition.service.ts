@@ -1,4 +1,4 @@
-import { keyBy, mapValues, omit, uniqBy } from 'lodash';
+import { uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
@@ -12,6 +12,16 @@ import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+
+interface ExtendedCompetition extends Competition {
+  participantCount: number;
+  duration: string;
+}
+
+interface ResolveOptions {
+  includeGroup?: boolean;
+  includeHash?: boolean;
+}
 
 interface CompetitionListFilter {
   title?: string;
@@ -45,24 +55,16 @@ function sanitizeTitle(title: string): string {
     .trim();
 }
 
-function format(competition: Competition) {
-  const obj = { ...competition.toJSON() };
-
-  // Hide the verification hash
-  // @ts-ignore
-  delete obj.verificationHash;
-
-  return obj;
-}
-
-async function resolve(competitionId: number, includeGroup = false): Promise<Competition> {
+async function resolve(competitionId: number, options?: ResolveOptions): Promise<Competition> {
   if (!competitionId || isNaN(competitionId)) {
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const competition = await Competition.findOne({
+  const scope = options.includeHash ? 'withHash' : 'defaultScope';
+
+  const competition = await Competition.scope(scope).findOne({
     where: { id: competitionId },
-    include: includeGroup ? [{ model: Group }] : []
+    include: options.includeGroup ? [{ model: Group }] : []
   });
 
   if (!competition) {
@@ -118,12 +120,9 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
     offset: pagination.offset
   });
 
-  const formattedCompetitions = competitions.map(c => {
-    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
-  });
+  const extendedCompetitions = await extendCompetitions(competitions);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  return extendedCompetitions;
 }
 
 /**
@@ -137,12 +136,9 @@ async function getGroupCompetitions(groupId: number, pagination: Pagination): Pr
     offset: pagination.offset
   });
 
-  const formattedCompetitions = competitions.map(c => {
-    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
-  });
+  const extendedCompetitions = await extendCompetitions(competitions);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  return extendedCompetitions;
 }
 
 /**
@@ -155,26 +151,21 @@ async function getPlayerCompetitions(playerId: number, pagination = { limit: 100
     include: [{ model: Competition }]
   });
 
-  const formattedCompetitions = participations
+  const preparedCompetitions = participations
     .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(
-      ({ competition }) =>
-        ({
-          ...format(competition),
-          duration: durationBetween(competition.startsAt, competition.endsAt)
-        } as any)
-    )
+    .map(p => p.competition)
     .sort((a, b) => b.score - a.score);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  const extendedCompetitions = await extendCompetitions(preparedCompetitions);
+
+  return extendedCompetitions;
 }
 
 /**
  * Given a list of competitions, it will fetch the participant count of each,
  * and inserts a "participantCount" field in every competition object.
  */
-async function attachParticipantCount(competitions) {
+async function extendCompetitions(competitions: Competition[]): Promise<ExtendedCompetition[]> {
   /**
    * Will return a participant count for every competition, with the format:
    * [ {competitionId: 35, count: "4"}, {competitionId: 41, count: "31"} ]
@@ -182,31 +173,21 @@ async function attachParticipantCount(competitions) {
   const participantCount = await Participation.findAll({
     where: { competitionId: competitions.map(countMap => countMap.id) },
     attributes: ['competitionId', [Sequelize.fn('COUNT', Sequelize.col('competitionId')), 'count']],
-    group: ['competitionId']
+    group: ['competitionId'],
+    raw: true
   });
 
-  /**
-   * Convert the counts fetched above, into a key:value format:
-   * { 35: 4, 41: 31 }
-   */
-  const countMap = mapValues(
-    keyBy(
-      participantCount.map((c: any) => ({
-        competitionId: c.competitionId,
-        count: parseInt(c.toJSON().count, 10)
-      })),
-      c => c.competitionId
-    ),
-    (c: any) => c.count
-  );
-
-  return competitions.map(g => ({ ...g, participantCount: countMap[g.id] || 0 }));
+  return competitions.map(c => {
+    const match: any = participantCount.find(m => m.competitionId === c.id);
+    const duration = durationBetween(c.startsAt, c.endsAt);
+    return { ...(c.toJSON() as any), duration, participantCount: parseInt(match ? match.count : 0) };
+  });
 }
 
 /**
  * Get all the data on a given competition.
  */
-async function getDetails(competition: Competition): Promise<CompetitionDetails> {
+async function getDetails(competition: Competition): Promise<CompetitionDetails | any> {
   const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
@@ -268,8 +249,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails>
   // Sum all gained values
   const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
-  // @ts-ignore
-  return { ...format(competition), duration, totalGained, participants, group: competition.group };
+  return { ...competition.toJSON(), duration, totalGained, participants, group: competition.group };
 }
 
 /**
@@ -333,19 +313,22 @@ async function create(dto: CreateCompetitionDTO) {
   });
 
   if (!groupId && !participants) {
-    return { ...format(competition), participants: [] };
+    return { ...competition.toJSON(), participants: [] };
   }
 
   const newParticipants = groupId
     ? await addAllGroupMembers(competition, groupId)
     : await setParticipants(competition, participants);
 
-  // If it's a group competition, don't return a verification code
-  const formatted = competition.groupId
-    ? omit(format(competition), ['verificationCode'])
-    : format(competition);
+  // Hide the verificationHash from the response
+  competition.verificationHash = undefined;
 
-  return { ...formatted, participants: newParticipants };
+  // If this isa group competition, hide the verificationCode from the response
+  if (competition.groupId) {
+    competition.verificationCode = undefined;
+  }
+
+  return { ...competition.toJSON(), participants: newParticipants };
 }
 
 /**
@@ -405,7 +388,7 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
 
   await competition.update(newValues);
 
-  return { ...format(competition), participants: competitionParticipants };
+  return { ...competition.toJSON(), participants: competitionParticipants };
 }
 
 /**

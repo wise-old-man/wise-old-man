@@ -16,6 +16,14 @@ import { Group, Participation, Player } from '../../database/models';
 // Define other table options
 const options = {
   modelName: 'competitions',
+  defaultScope: {
+    attributes: { exclude: ['verificationHash'] }
+  },
+  scopes: {
+    withHash: {
+      attributes: { include: ['verificationHash'] }
+    }
+  },
   validate: {
     validateTitle,
     validateMetric,

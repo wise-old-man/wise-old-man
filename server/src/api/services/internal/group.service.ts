@@ -127,11 +127,9 @@ async function extendGroups(groups: Group[]): Promise<ExtendedGroup[]> {
     raw: true
   });
 
-  // @ts-ignore
   return groups.map(g => {
-    // @ts-ignore
-    const count = membersCount.find(m => m.groupId === g.id)?.count || 0;
-    return { ...g.toJSON(), memberCount: parseInt(count) };
+    const match: any = membersCount.find(m => m.groupId === g.id);
+    return { ...(g.toJSON() as any), membersCount: parseInt(match ? match.count : 0) };
   });
 }
 
@@ -667,8 +665,11 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
 
   const allMembers = await group.$get('members');
 
-  // @ts-ignore
-  return allMembers.map(m => ({ ...m.toJSON(), role: m.memberships.role, memberships: undefined }));
+  return allMembers.map((m: any) => ({
+    ...(m.toJSON() as any),
+    role: m.memberships.role,
+    memberships: undefined
+  }));
 }
 
 /**

@@ -11,7 +11,7 @@ class CompetitionStarted implements Job {
 
   async handle(data: any): Promise<void> {
     const { competitionId } = data;
-    const competition = await competitionService.resolve(competitionId, true);
+    const competition = await competitionService.resolve(competitionId, { includeGroup: true });
 
     if (!competition) return;
 
