@@ -21,28 +21,48 @@ export default [
         description: 'Username param set to "iron".',
         body: [
           {
-            id: 44,
-            username: 'iron mammal',
-            displayName: 'Iron Mammal',
+            id: 28814,
+            username: 'ironic dart',
+            displayName: 'Ironic Dart',
             type: 'ironman',
             build: 'main',
             flagged: false,
-            lastImportedAt: null,
-            registeredAt: '2020-04-04T21:48:19.197Z',
-            updatedAt: '2020-04-04T21:48:29.235Z',
-            combatLevel: 126
+            lastImportedAt: '2020-08-09T09:08:42.573Z',
+            registeredAt: '2020-07-31T09:41:00.833Z',
+            updatedAt: '2020-08-09T21:16:42.420Z'
           },
           {
-            id: 45,
-            username: 'iron faux',
-            displayName: 'Iron Faux',
-            type: 'regular',
+            id: 28926,
+            username: 'iron dazakio',
+            displayName: 'Iron Dazakio',
+            type: 'unknown',
             build: 'main',
             flagged: false,
             lastImportedAt: null,
-            registeredAt: '2020-04-04T21:48:31.367Z',
-            updatedAt: '2020-04-04T21:48:39.636Z',
-            combatLevel: 124
+            registeredAt: '2020-07-31T22:33:17.388Z',
+            updatedAt: '2020-07-31T22:33:17.388Z'
+          },
+          {
+            id: 29008,
+            username: 'ironman gipi',
+            displayName: 'Ironman Gipi',
+            type: 'ironman',
+            build: 'main',
+            flagged: false,
+            lastImportedAt: '2020-09-06T03:50:33.069Z',
+            registeredAt: '2020-08-01T03:11:47.081Z',
+            updatedAt: '2020-09-06T13:44:34.779Z'
+          },
+          {
+            id: 29062,
+            username: 'iron truno',
+            displayName: 'Iron Truno',
+            type: 'ironman',
+            build: 'main',
+            flagged: false,
+            lastImportedAt: '2020-09-06T19:24:26.611Z',
+            registeredAt: '2020-08-01T09:43:11.461Z',
+            updatedAt: '2020-09-06T19:24:26.611Z'
           }
         ]
       }
@@ -51,7 +71,7 @@ export default [
       {
         description: 'If no username is given.',
         body: {
-          message: 'Invalid username.'
+          message: "Parameter 'username' is undefined."
         }
       }
     ]
@@ -61,12 +81,6 @@ export default [
     url: '/players/track',
     method: 'POST',
     comments: [
-      {
-        type: 'info',
-        content:
-          "If the player's type is unknown, this will trigger a \
-          job to determine the player's type."
-      },
       {
         type: 'info',
         content:
@@ -112,20 +126,25 @@ export default [
       {
         description: 'If no username is given.',
         body: {
-          message: 'Invalid username.'
+          message: "Parameter 'username' is undefined."
         }
       },
       {
         description: 'If the player was updated too recently (< 60 seconds)',
         body: {
-          message: 'Failed to update: psikoi was updated 43 seconds ago.'
+          message: 'Error: Zezima has been updated recently.'
         }
       },
       {
-        description:
-          'If the username does not exist (in Runescape) OR failed to fetch from the hiscores.',
+        description: 'If the username could not be found in the hiscores.',
         body: {
-          message: 'Failed to load hiscores: Invalid username'
+          message: 'Failed to load hiscores for urrgbgy.'
+        }
+      },
+      {
+        description: 'If the jagex servers failed to respond.',
+        body: {
+          message: 'Failed to load hiscores: Service is unavailable'
         }
       }
     ]
@@ -149,13 +168,13 @@ export default [
       {
         description: 'If no username is given.',
         body: {
-          message: 'Invalid username.'
+          message: "Parameter 'username' is undefined."
         }
       },
       {
         description: 'If the username is not tracked.',
         body: {
-          message: 'Invalid player: Psikoi is not being tracked yet.'
+          message: 'Player not found.'
         }
       },
       {
@@ -185,13 +204,13 @@ export default [
       {
         description: 'If no username is given.',
         body: {
-          message: 'Invalid username.'
+          message: "Parameter 'username' is undefined."
         }
       },
       {
         description: 'If the username is not tracked.',
         body: {
-          message: 'Invalid player: thelotto is not being tracked yet.'
+          message: 'Player not found.'
         }
       },
       {
@@ -229,7 +248,13 @@ export default [
       {
         description: 'If no username is given.',
         body: {
-          message: 'Invalid username.'
+          message: "Parameter 'username' is undefined."
+        }
+      },
+      {
+        description: 'If the username is not tracked.',
+        body: {
+          message: 'Player not found.'
         }
       },
       {
@@ -301,15 +326,9 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If no id is given.',
+        description: 'If an id or username is given but does not exist.',
         body: {
-          message: 'Invalid player id.'
-        }
-      },
-      {
-        description: 'If an id is given but does not exist.',
-        body: {
-          message: 'Player of id 5767 is not being tracked yet.'
+          message: 'Player not found.'
         }
       }
     ]
