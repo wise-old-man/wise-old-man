@@ -7,10 +7,6 @@ export default [
       {
         type: 'info',
         content: 'This will only return the top 20 players of each period.'
-      },
-      {
-        type: 'warning',
-        content: 'If no "period" param is supplied, it will return the leaderboard for all periods.'
       }
     ],
     query: [
@@ -22,7 +18,7 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: "The delta's period (See accepted values above) - Optional"
+        description: "The delta's period (See accepted values above)"
       },
       {
         field: 'playerType',
@@ -87,9 +83,9 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If period is given but it is not valid.',
+        description: 'If period is not given but.',
         body: {
-          message: 'Invalid period: someInvalidPeriod.'
+          message: "Parameter 'period' is undefined."
         }
       },
       {
