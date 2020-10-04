@@ -13,7 +13,7 @@ const DECADE_IN_SECONDS = 315569260;
 
 interface PlayerDetails extends Player {
   combatLevel: number;
-  stats: any;
+  latestSnapshot: any;
 }
 
 /**
@@ -109,7 +109,7 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   return {
     ...(player.toJSON() as any),
     combatLevel,
-    stats: snapshotService.format(latestSnapshot)
+    latestSnapshot: snapshotService.format(latestSnapshot)
   };
 }
 

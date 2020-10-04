@@ -63,11 +63,11 @@ export const getPlayerAchievementsGrouped = (state, playerId) => {
 };
 
 function processGroup(player, group) {
-  if (!player || !player.stats) {
+  if (!player || !player.latestSnapshot) {
     return group;
   }
 
-  const { stats } = player;
+  const { latestSnapshot } = player;
 
   if (group.metric === 'combat') {
     const progress = {
@@ -81,7 +81,7 @@ function processGroup(player, group) {
   }
 
   if (group.metric === 'overall' && group.measure === 'levels') {
-    const totalLevel = getTotalLevel(stats);
+    const totalLevel = getTotalLevel(latestSnapshot);
     const progress = {
       start: 36,
       end: 2277,
@@ -92,8 +92,8 @@ function processGroup(player, group) {
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
-  if (stats[group.metric]) {
-    const currentValue = stats[group.metric][group.measure];
+  if (latestSnapshot[group.metric]) {
+    const currentValue = latestSnapshot[group.metric][group.measure];
 
     const processedAchievements = group.achievements.map((achievement, i) => {
       if (currentValue >= achievement.threshold) {

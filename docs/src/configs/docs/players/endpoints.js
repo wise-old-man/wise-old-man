@@ -105,7 +105,7 @@ export default [
           registeredAt: '2020-09-13T23:42:53.316Z',
           updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,
-          stats: {
+          latestSnapshot: {
             createdAt: '2020-09-13T23:46:03.370Z',
             importedAt: null,
             overall: {
@@ -305,7 +305,7 @@ export default [
           registeredAt: '2020-09-13T23:42:53.316Z',
           updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,
-          stats: {
+          latestSnapshot: {
             createdAt: '2020-09-13T23:46:03.370Z',
             importedAt: null,
             overall: {
