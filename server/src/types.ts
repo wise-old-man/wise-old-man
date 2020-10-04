@@ -1,5 +1,3 @@
-import { Competition, Player } from './database/models';
-
 export interface SkillMeta {
   skill: string;
   methods: Method[];
@@ -87,28 +85,4 @@ export interface Proxy {
 export interface PlayerResolvable {
   id?: number;
   username?: string;
-}
-
-export interface PlayerDetails {
-  player: Player;
-  combatLevel: number;
-  stats: any;
-}
-
-export interface CompetitionParticipant extends Player {
-  progress: {
-    start: number;
-    end: number;
-    gained: number;
-  };
-  history?: {
-    date: Date;
-    value: number;
-  }[];
-}
-
-export interface CompetitionDetails extends Competition {
-  duration: string;
-  totalGained: number;
-  participants: CompetitionParticipant[];
 }

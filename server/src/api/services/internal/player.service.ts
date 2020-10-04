@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { PlayerDetails, PlayerResolvable } from '../../../types';
+import { PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
@@ -10,6 +10,11 @@ import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
+
+interface PlayerDetails extends Player {
+  combatLevel: number;
+  stats: any;
+}
 
 /**
  * Format a username into a standardized version,
@@ -102,7 +107,7 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   const combatLevel = getCombatLevel(latestSnapshot);
 
   return {
-    player,
+    ...(player.toJSON() as any),
     combatLevel,
     stats: snapshotService.format(latestSnapshot)
   };

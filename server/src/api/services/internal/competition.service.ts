@@ -2,7 +2,7 @@ import { uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
-import { CompetitionDetails, Pagination } from '../../../types';
+import { Pagination } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast } from '../../util/dates';
@@ -12,6 +12,24 @@ import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+
+interface CompetitionParticipant extends Player {
+  progress: {
+    start: number;
+    end: number;
+    gained: number;
+  };
+  history?: {
+    date: Date;
+    value: number;
+  }[];
+}
+
+interface CompetitionDetails extends Competition {
+  duration: string;
+  totalGained: number;
+  participants: CompetitionParticipant[];
+}
 
 interface ExtendedCompetition extends Competition {
   participantCount: number;
@@ -60,11 +78,11 @@ async function resolve(competitionId: number, options?: ResolveOptions): Promise
     throw new BadRequestError('Invalid competition id.');
   }
 
-  const scope = options.includeHash ? 'withHash' : 'defaultScope';
+  const scope = options && options.includeHash ? 'withHash' : 'defaultScope';
 
   const competition = await Competition.scope(scope).findOne({
     where: { id: competitionId },
-    include: options.includeGroup ? [{ model: Group }] : []
+    include: options && options.includeGroup ? [{ model: Group }] : []
   });
 
   if (!competition) {

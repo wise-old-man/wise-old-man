@@ -95,17 +95,15 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          player: {
-            id: 38833,
-            username: 'psikoi',
-            displayName: 'Psikoi',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: '2020-09-13T23:46:06.779Z',
-            registeredAt: '2020-09-13T23:42:53.316Z',
-            updatedAt: '2020-09-13T23:46:06.779Z'
-          },
+          id: 38833,
+          username: 'psikoi',
+          displayName: 'Psikoi',
+          type: 'regular',
+          build: 'main',
+          flagged: false,
+          lastImportedAt: '2020-09-13T23:46:06.779Z',
+          registeredAt: '2020-09-13T23:42:53.316Z',
+          updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,
           stats: {
             createdAt: '2020-09-13T23:46:03.370Z',
@@ -297,17 +295,15 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          player: {
-            id: 38833,
-            username: 'psikoi',
-            displayName: 'Psikoi',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: '2020-09-13T23:46:06.779Z',
-            registeredAt: '2020-09-13T23:42:53.316Z',
-            updatedAt: '2020-09-13T23:46:06.779Z'
-          },
+          id: 38833,
+          username: 'psikoi',
+          displayName: 'Psikoi',
+          type: 'regular',
+          build: 'main',
+          flagged: false,
+          lastImportedAt: '2020-09-13T23:46:06.779Z',
+          registeredAt: '2020-09-13T23:42:53.316Z',
+          updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,
           stats: {
             createdAt: '2020-09-13T23:46:03.370Z',
