@@ -108,12 +108,12 @@ function renderRecentAchievements(achievements) {
 }
 
 function renderClosestSkills(player) {
-  if (!player || !player.latestSnapshot) {
+  if (!player || !player.stats) {
     return null;
   }
 
   const expAt99 = getExperienceAt(99);
-  const expLeftTo99 = skill => expAt99 - player.latestSnapshot[skill].experience;
+  const expLeftTo99 = skill => expAt99 - player.stats[skill].experience;
 
   const diffs = SKILLS.filter(s => s !== 'overall')
     .map(s => ({ skill: s, expLeft: Math.max(0, expLeftTo99(s)) }))

@@ -19,7 +19,7 @@ const TABLE_CONFIG = {
       className: () => '-primary',
       transform: (value, row) => (
         <Link to={`/players/${row.playerId}`}>
-          <PlayerTag name={value} type={row.type} flagged={row.flagged} />
+          <PlayerTag name={row.player.displayName} type={row.player.type} flagged={row.player.flagged} />
         </Link>
       )
     },
@@ -31,7 +31,7 @@ const TABLE_CONFIG = {
       key: 'updatedAt',
       label: 'Date',
       className: () => '-break-small',
-      transform: value => formatDate(value, 'DD MMM, YYYY')
+      transform: (value, row) => formatDate(row.player.updatedAt, 'DD MMM, YYYY')
     }
   ]
 };

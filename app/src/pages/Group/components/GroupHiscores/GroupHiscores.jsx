@@ -21,8 +21,8 @@ function getTableConfig(metric) {
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={`/players/${row.id}`}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
+          <Link to={`/players/${row.player.id}`}>
+            <PlayerTag name={row.player.displayName} type={row.player.type} flagged={row.flagged} />
           </Link>
         )
       },
@@ -34,7 +34,7 @@ function getTableConfig(metric) {
         key: 'updatedAt',
         label: 'Last updated',
         className: () => '-break-small',
-        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+        transform: (value, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
       }
     ]
   };
