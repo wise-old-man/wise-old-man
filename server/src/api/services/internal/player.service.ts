@@ -104,16 +104,15 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
-  const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
-  const combatLevel = getCombatLevel(latestSnapshot);
+  const stats = snapshot || (await snapshotService.findLatest(player.id));
+  const combatLevel = getCombatLevel(stats);
 
-  const efficiency =
-    latestSnapshot && (await efficiencyService.calculateDetailedEfficiency(player, latestSnapshot));
+  const efficiency = stats && (await efficiencyService.calcSnapshotVirtuals(player, stats));
 
   return {
     ...(player.toJSON() as any),
     combatLevel,
-    latestSnapshot: snapshotService.format(latestSnapshot, efficiency)
+    latestSnapshot: snapshotService.format(stats, efficiency)
   };
 }
 
@@ -153,34 +152,38 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
       player.type = await getType(player);
     }
 
-    const previousSnapshot = await snapshotService.findLatest(player.id);
-    const currentSnapshot = await fetchStats(player);
+    // Fetch the previous player stats from the database
+    const previousStats = await snapshotService.findLatest(player.id);
+    // Fetch the new player stats from the hiscores API
+    const currentStats = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
-    if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
+    if (!snapshotService.withinRange(previousStats, currentStats)) {
       await player.update({ flagged: true });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    player.build = getBuild(currentSnapshot);
+    // Refresh the player's build
+    player.build = getBuild(currentStats);
     player.flagged = false;
 
-    const efficiency = await efficiencyService.calculateEfficiency(player, currentSnapshot);
+    const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
 
-    player.exp = currentSnapshot.overallExperience;
-    player.ehp = efficiency.ehpValue;
-    player.ehb = efficiency.ehbValue;
-    player.ttm = efficiency.ttm;
-    player.tt200m = efficiency.tt200m;
+    // Set the player's global virtual data
+    player.exp = currentStats.overallExperience;
+    player.ehp = virtuals.ehpValue;
+    player.ehb = virtuals.ehbValue;
+    player.ttm = virtuals.ttm;
+    player.tt200m = virtuals.tt200m;
 
-    // Add the efficiency data and save the snapshot
-    Object.assign(currentSnapshot, efficiency);
-    await currentSnapshot.save();
+    // Add the virtual data and save the snapshot
+    Object.assign(currentStats, virtuals);
+    await currentStats.save();
 
     await player.changed('updatedAt', true);
     await player.save();
 
-    const playerDetails = await getDetails(player, currentSnapshot);
+    const playerDetails = await getDetails(player, currentStats);
 
     return [playerDetails, isNew];
   } catch (e) {

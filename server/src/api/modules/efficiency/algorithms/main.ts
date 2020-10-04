@@ -1,4 +1,4 @@
-import { Algorithm, BossMeta, Experiences, Killcounts, SkillMeta } from '../../../../types';
+import { BossMeta, Experiences, Killcounts, SkillMeta, VirtualAlgorithm } from '../../../../types';
 import mainBossingMetas from '../configs/ehb/main.ehb';
 import mainSkillingMetas from '../configs/ehp/main.ehp';
 import {
@@ -9,7 +9,7 @@ import {
   calculateTT200m
 } from '../util';
 
-class MainAlgorithm implements Algorithm {
+class MainAlgorithm implements VirtualAlgorithm {
   type: string;
   skillMetas: SkillMeta[];
   bossMetas: BossMeta[];

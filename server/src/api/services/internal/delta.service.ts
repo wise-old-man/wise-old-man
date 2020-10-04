@@ -17,6 +17,7 @@ import {
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as efficiencyService from './efficiency.service';
+import { SnapshotVirtuals } from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
@@ -178,8 +179,8 @@ async function getPlayerPeriodDeltas(
     return { period, startsAt: null, endsAt: null, data: emptyDiff() };
   }
 
-  const startEfficiency = efficiencyService.calculateDetailedEfficiency(targetPlayer, startSnapshot);
-  const endEfficiency = efficiencyService.calculateDetailedEfficiency(targetPlayer, latestSnapshot);
+  const startEfficiency = efficiencyService.calcSnapshotVirtuals(targetPlayer, startSnapshot);
+  const endEfficiency = efficiencyService.calcSnapshotVirtuals(targetPlayer, latestSnapshot);
 
   return {
     period,
@@ -288,8 +289,8 @@ function diff(
   start: Snapshot,
   end: Snapshot,
   initial: InitialValues,
-  startEfficiencyMap: { [metric: string]: number },
-  endEfficiencyMap: { [metric: string]: number }
+  startEfficiencyMap: SnapshotVirtuals,
+  endEfficiencyMap: SnapshotVirtuals
 ) {
   const diffObj = {};
 

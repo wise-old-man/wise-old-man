@@ -24,7 +24,7 @@ export interface Bonus {
   ratio: number;
 }
 
-export interface Algorithm {
+export interface VirtualAlgorithm {
   type: string;
   skillMetas: SkillMeta[];
   bossMetas: BossMeta[];

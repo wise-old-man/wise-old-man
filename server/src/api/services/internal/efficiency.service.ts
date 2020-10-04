@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
+import { VirtualAlgorithm } from '../../../types';
 import { BOSSES, SKILLS } from '../../constants';
 import {
   default as f2pAlgorithm,
@@ -10,7 +11,20 @@ import {
 import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 
-function getAlgorithm(type: string, build: string) {
+interface PlayerVirtuals {
+  ehpValue: number;
+  ehpRank: number;
+  ehbValue: number;
+  ehbRank: number;
+  ttm: number;
+  tt200m: number;
+}
+
+export interface SnapshotVirtuals {
+  [metric: string]: number;
+}
+
+function getAlgorithm(type: string, build: string): VirtualAlgorithm {
   if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
     return ironAlgorithm;
   }
@@ -25,7 +39,10 @@ function getAlgorithm(type: string, build: string) {
   }
 }
 
-async function calculateEfficiency(player: Player, snapshot: Snapshot) {
+/**
+ * Calculates a player's overall virtual data (ttm, ehp, ehb, etc)
+ */
+async function calcPlayerVirtuals(player: Player, snapshot: Snapshot): Promise<PlayerVirtuals> {
   const { type, build } = player;
 
   const ttm = calculateTTM(snapshot, type, build);
@@ -40,7 +57,10 @@ async function calculateEfficiency(player: Player, snapshot: Snapshot) {
   return { ehpValue, ehpRank, ehbValue, ehbRank, ttm, tt200m };
 }
 
-function calculateDetailedEfficiency(player: Player, snapshot: Snapshot) {
+/**
+ * Calculates a player's ehp/ehb values for each metric.
+ */
+function calcSnapshotVirtuals(player: Player, snapshot: Snapshot): SnapshotVirtuals {
   const obj = {};
   const algorithm = getAlgorithm(player.type, player.build);
 
@@ -112,8 +132,8 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
 }
 
 export {
-  calculateEfficiency,
-  calculateDetailedEfficiency,
+  calcPlayerVirtuals,
+  calcSnapshotVirtuals,
   calculateTTM,
   calculateTT200m,
   calculateEHP,
