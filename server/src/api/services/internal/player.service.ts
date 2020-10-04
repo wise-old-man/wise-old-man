@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { PlayerDetails, PlayerResolvable } from '../../../types';
+import { PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
