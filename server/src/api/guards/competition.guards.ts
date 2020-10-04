@@ -10,7 +10,7 @@ async function verifyCompetitionCode(competition: Competition, verificationCode:
   // If it is a group competition, compare the code
   // to the group's verification hash instead
   if (groupId) {
-    const group = await competition.$get('group');
+    const group = await competition.$get('group', { scope: 'withHash' });
     if (!group) throw new ServerError(`Group of id ${groupId} was not found.`);
 
     hash = group.verificationHash;

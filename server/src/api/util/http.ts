@@ -45,7 +45,7 @@ function extractNumber(source: any, options: ParameterOptions): number | undefin
     throw new BadRequestError(`Parameter '${options.key}' is not a valid number.`);
   }
 
-  return options.key in source ? Number(source[options.key]) : undefined;
+  return source[options.key] ? Number(source[options.key]) : undefined;
 }
 
 function extractBoolean(source: any, options: ParameterOptions): boolean | undefined {

@@ -120,7 +120,7 @@ async function extendGroups(groups: Group[]): Promise<ExtendedGroup[]> {
    * Will return a members count for every group, with the format:
    * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
    */
-  const membersCount = await Membership.findAll({
+  const memberCount = await Membership.findAll({
     where: { groupId: groups.map(g => g.id) },
     attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
     group: ['groupId'],
@@ -128,8 +128,8 @@ async function extendGroups(groups: Group[]): Promise<ExtendedGroup[]> {
   });
 
   return groups.map(g => {
-    const match: any = membersCount.find(m => m.groupId === g.id);
-    return { ...(g.toJSON() as any), membersCount: parseInt(match ? match.count : 0) };
+    const match: any = memberCount.find(m => m.groupId === g.id);
+    return { ...(g.toJSON() as any), memberCount: parseInt(match ? match.count : 0) };
   });
 }
 

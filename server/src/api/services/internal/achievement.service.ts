@@ -321,7 +321,7 @@ async function getPlayerAchievements(playerId: number, includeMissing = false) {
     // Only maxed overall and maxed combat are level based
     const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
-    return { ...a, measure };
+    return { ...a, measure, threshold: parseInt(a.threshold) };
   });
 }
 
