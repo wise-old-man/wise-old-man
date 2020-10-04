@@ -5,9 +5,9 @@ import { capitalize, formatNumber, formatDate } from '../../../../utils';
 import './PlayerInfo.scss';
 
 function formatData(player) {
-  const { id, type, combatLevel, registeredAt, updatedAt, lastImportedAt, latestSnapshot } = player;
+  const { id, type, combatLevel, registeredAt, updatedAt, lastImportedAt, stats } = player;
 
-  const overallRank = latestSnapshot ? latestSnapshot.overall.rank : 'Unknown';
+  const overallRank = stats ? stats.overall.rank : 'Unknown';
 
   return [
     {

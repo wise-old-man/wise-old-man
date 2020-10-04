@@ -153,21 +153,21 @@ function PlayerStatsTable({ player, showVirtualLevels, isLoading, metricType }) 
     return <TablePlaceholder size={20} />;
   }
 
-  const { latestSnapshot } = player;
+  const { stats } = player;
 
-  if (!latestSnapshot) {
+  if (!stats) {
     return null;
   }
 
   if (metricType === 'skilling') {
-    return renderSkillsTable(latestSnapshot, showVirtualLevels);
+    return renderSkillsTable(stats, showVirtualLevels);
   }
 
   if (metricType === 'activities') {
-    return renderActivitiesTable(latestSnapshot);
+    return renderActivitiesTable(stats);
   }
 
-  return renderBossesTable(latestSnapshot);
+  return renderBossesTable(stats);
 }
 
 PlayerStatsTable.propTypes = {
