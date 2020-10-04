@@ -114,7 +114,7 @@ export const BOSSES_MAP = [
   { key: 'zulrah', name: 'Zulrah' }
 ];
 
-export const EFFICIENCY_MAP = [
+export const VIRTUAL_MAP = [
   { key: 'ehp', name: 'EHP' },
   { key: 'ehb', name: 'EHB' }
 ];
@@ -183,6 +183,6 @@ export const BOSS_ACHIEVEMENT_TEMPLATES = [
   }
 ];
 
-export const EFFICIENCY = EFFICIENCY_MAP.map(s => s.key);
+export const VIRTUAL = VIRTUAL_MAP.map(s => s.key);
 
-export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...EFFICIENCY];
+export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...VIRTUAL];

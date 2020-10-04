@@ -6,13 +6,13 @@ import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import {
-  getEfficiencyKey,
   getMeasure,
   getRankKey,
   getValueKey,
+  getVirtualKey,
   isBoss,
-  isEfficiency,
-  isSkill
+  isSkill,
+  isVirtual
 } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
@@ -56,7 +56,7 @@ function getSeconds(period: string) {
 }
 
 function parseNum(key: string, val: string) {
-  return isEfficiency(key) ? parseFloat(val) : parseInt(val);
+  return isVirtual(key) ? parseFloat(val) : parseInt(val);
 }
 
 async function syncDeltas(latestSnapshot: Snapshot) {
@@ -331,7 +331,7 @@ function diff(
 
     // Add EHP/EHB diffs
     if (isSkill(metric) || isBoss(metric)) {
-      diffObj[metric][getEfficiencyKey(metric)] = {
+      diffObj[metric][getVirtualKey(metric)] = {
         start: startEfficiency,
         end: endEfficiency,
         gained: gainedEfficiency

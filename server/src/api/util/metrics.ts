@@ -3,10 +3,10 @@ import {
   ACTIVITIES_MAP,
   BOSSES,
   BOSSES_MAP,
-  EFFICIENCY,
-  EFFICIENCY_MAP,
   SKILLS,
-  SKILLS_MAP
+  SKILLS_MAP,
+  VIRTUAL,
+  VIRTUAL_MAP
 } from '../constants';
 
 function isSkill(metric: string): boolean {
@@ -21,8 +21,8 @@ function isBoss(metric: string): boolean {
   return BOSSES.includes(metric);
 }
 
-function isEfficiency(metric: string): boolean {
-  return EFFICIENCY.includes(metric);
+function isVirtual(metric: string): boolean {
+  return VIRTUAL.includes(metric);
 }
 
 function getMeasure(metric: string): string {
@@ -61,7 +61,7 @@ function getValueKey(metric: string): string {
   return `${metric}Value`;
 }
 
-function getEfficiencyKey(metric: string): string {
+function getVirtualKey(metric: string): string {
   if (isBoss(metric)) return 'ehb';
   if (isSkill(metric)) return 'ehp';
 
@@ -69,7 +69,7 @@ function getEfficiencyKey(metric: string): string {
 }
 
 function getFormattedName(metric: string): string {
-  const maps = [...SKILLS_MAP, ...ACTIVITIES_MAP, ...BOSSES_MAP, ...EFFICIENCY_MAP];
+  const maps = [...SKILLS_MAP, ...ACTIVITIES_MAP, ...BOSSES_MAP, ...VIRTUAL_MAP];
 
   for (let i = 0; i < maps.length; i++) {
     if (maps[i].key === metric) {
@@ -257,12 +257,12 @@ export {
   isSkill,
   isActivity,
   isBoss,
-  isEfficiency,
+  isVirtual,
   getMeasure,
   getFormattedName,
   getRankKey,
   getValueKey,
-  getEfficiencyKey,
+  getVirtualKey,
   getDifficultyFactor,
   getAbbreviation
 };
