@@ -32,7 +32,7 @@ export default function fetchPlayerDeltas({ playerId, period }) {
     dispatch(fetchPlayerDeltasRequest());
 
     const url = `${BASE_API_URL}/players/${playerId}/gained`;
-    const params = { playerId, period };
+    const params = { period };
 
     return axios
       .get(url, { params })

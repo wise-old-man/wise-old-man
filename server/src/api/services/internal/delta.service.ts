@@ -128,7 +128,7 @@ async function syncInitialValues(playerId: number, latest: Snapshot) {
   // Find or create (if doesn't exist) the player's initial values
   const [initial] = await InitialValues.findOrCreate({ where: { playerId } });
 
-  mapValues(latest, (value, key) => {
+  mapValues(latest.toJSON(), (value, key) => {
     if (value > -1 && initial[key] === -1) {
       initial[key] = value;
     }
