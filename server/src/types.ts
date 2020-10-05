@@ -84,8 +84,3 @@ export interface Proxy {
     password: string;
   };
 }
-
-export interface PlayerResolvable {
-  id?: number;
-  username?: string;
-}

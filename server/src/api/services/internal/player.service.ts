@@ -1,6 +1,5 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
@@ -10,7 +9,12 @@ import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
-const DECADE_IN_SECONDS = 315569260;
+const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
+
+interface PlayerResolvable {
+  id?: number;
+  username?: string;
+}
 
 interface PlayerDetails extends Player {
   combatLevel: number;
@@ -105,15 +109,12 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
   const stats = snapshot || (await snapshotService.findLatest(player.id));
+  const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
 
-  const efficiency = stats && (await efficiencyService.calcSnapshotVirtuals(player, stats));
+  const latestSnapshot = snapshotService.format(stats, efficiency);
 
-  return {
-    ...(player.toJSON() as any),
-    combatLevel,
-    latestSnapshot: snapshotService.format(stats, efficiency)
-  };
+  return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
 }
 
 /**

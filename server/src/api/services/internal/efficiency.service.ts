@@ -1,7 +1,8 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { VirtualAlgorithm } from '../../../types';
-import { BOSSES, SKILLS } from '../../constants';
+import { Pagination, VirtualAlgorithm } from '../../../types';
+import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
+import { BadRequestError } from '../../errors';
 import {
   default as f2pAlgorithm,
   default as ironAlgorithm,
@@ -10,6 +11,7 @@ import {
 } from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
+import { buildQuery } from '../../util/query';
 
 interface PlayerVirtuals {
   ehpValue: number;
@@ -24,19 +26,41 @@ export interface SnapshotVirtuals {
   [metric: string]: number;
 }
 
-function getAlgorithm(type: string, build: string): VirtualAlgorithm {
-  if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
-    return ironAlgorithm;
+interface LeaderboardFilter {
+  metric: string;
+  playerType: string;
+  playerBuild?: string;
+}
+
+async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
+  if (filter.metric && !VIRTUAL.includes(filter.metric)) {
+    throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb]');
   }
 
-  switch (build) {
-    case 'f2p':
-      return f2pAlgorithm;
-    case 'lvl3':
-      return lvl3Algorithm;
-    default:
-      return mainAlgorithm;
+  if (filter.playerBuild && !PLAYER_BUILDS.includes(filter.playerBuild)) {
+    throw new BadRequestError(`Invalid player build: ${filter.playerBuild}.`);
   }
+
+  const metric = filter.metric || 'ehp';
+  const playerType = filter.playerType || 'regular';
+
+  const results = await Player.findAll({
+    where: buildQuery({ type: playerType, build: filter.playerBuild }),
+    order: [[metric, 'DESC']],
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
+
+  if (pagination.offset < 20 && playerType === 'regular') {
+    // This is a bit of an hack, to make sure the max ehp accounts always
+    // retain their maxing order, manually set their registration dates to
+    // ascend and use that to order them.
+    return results.sort((a, b) => {
+      return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
+    });
+  }
+
+  return results;
 }
 
 /**
@@ -109,6 +133,21 @@ function calculateEHBDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): nu
   return calculateEHB(afterSnapshot) - calculateEHB(beforeSnapshot);
 }
 
+function getAlgorithm(type: string, build: string): VirtualAlgorithm {
+  if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
+    return ironAlgorithm;
+  }
+
+  switch (build) {
+    case 'f2p':
+      return f2pAlgorithm;
+    case 'lvl3':
+      return lvl3Algorithm;
+    default:
+      return mainAlgorithm;
+  }
+}
+
 async function getEHPRank(playerId: number, ehpValue: number): Promise<number> {
   const rank = await Player.count({
     where: {
@@ -132,6 +171,7 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
 }
 
 export {
+  getLeaderboard,
   calcPlayerVirtuals,
   calcSnapshotVirtuals,
   calculateTTM,
