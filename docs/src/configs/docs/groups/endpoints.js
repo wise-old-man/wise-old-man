@@ -3,14 +3,6 @@ export default [
     title: 'Search groups',
     url: '/groups',
     method: 'GET',
-    comments: [
-      {
-        type: 'warning',
-        content:
-          'If a "playerId" query param is given, this will only return groups of which \
-          that player is a member and will ignore every other search parameter.'
-      }
-    ],
     query: [
       {
         field: 'name',
@@ -96,13 +88,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Group of id 4553 was not found.'
+          message: 'Group not found.'
         }
       }
     ]
@@ -155,13 +147,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Group of id 4553 was not found.'
+          message: 'Group not found.'
         }
       }
     ]
@@ -197,7 +189,20 @@ export default [
         ]
       }
     ],
-    errorResponses: []
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
+      }
+    ]
   },
   {
     title: "Get a group's monthly top member",
@@ -232,19 +237,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Group of id 4553 was not found.'
-        }
-      },
-      {
-        description: "If none of the group's members are being tracked.",
-        body: {
-          message: 'None of the group members are tracked.'
+          message: 'Group not found.'
         }
       }
     ]
@@ -343,7 +342,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
         }
       },
       {
@@ -445,7 +450,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
         }
       },
       {
@@ -534,7 +545,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
         }
       },
       {
@@ -631,7 +648,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
         }
       },
       {
@@ -705,7 +728,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid group id.'
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
         }
       },
       {
@@ -806,7 +835,7 @@ export default [
     errorResponses: [
       {
         description: 'If no name is given.',
-        body: { message: 'Invalid group name.' }
+        body: { message: "Parameter 'name' is undefined." }
       },
       {
         description: 'If name is already taken.',
@@ -887,12 +916,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
       },
       {
-        description: 'If the group of a specific id cannot be found.',
-        body: { message: 'Group of id 4 was not found.' }
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description: 'If name or members are given.',
@@ -946,12 +979,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
       },
       {
-        description: 'If the group of a specific id cannot be found.',
-        body: { message: 'Group of id 4 was not found.' }
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description: 'If the verification code is not given.',
@@ -1016,8 +1053,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description: 'If members is invalid or empty.',
@@ -1070,16 +1115,20 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description: 'If members is invalid or empty.',
         body: { message: 'Invalid members list' }
-      },
-      {
-        description: 'If group of id could not be found.',
-        body: { message: 'Group of id 56 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -1138,8 +1187,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description: 'If username is not given.',
@@ -1148,10 +1205,6 @@ export default [
       {
         description: 'If role is not given.',
         body: { message: 'Invalid group role.' }
-      },
-      {
-        description: 'If group of id could not be found.',
-        body: { message: 'Group of id 56 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -1209,8 +1262,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid group id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
       },
       {
         description:

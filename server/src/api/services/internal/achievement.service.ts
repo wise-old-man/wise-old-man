@@ -1,8 +1,14 @@
+import { Pagination } from 'src/types';
 import { sequelize } from '../../../database';
-import { Achievement } from '../../../database/models';
-import { ACTIVITIES, BOSSES, SKILLS } from '../..//constants';
-import { BadRequestError } from '../../errors';
-import { getCombatLevel, getTotalLevel } from '../../util/level';
+import { Achievement, Player, Snapshot } from '../../../database/models';
+import {
+  ACTIVITIES,
+  ACTIVITY_ACHIEVEMENT_TEMPLATES,
+  BOSSES,
+  BOSS_ACHIEVEMENT_TEMPLATES,
+  SKILLS,
+  SKILL_ACHIEVEMENT_TEMPLATES
+} from '../..//constants';
 import {
   getDifficultyFactor,
   getFormattedName,
@@ -12,72 +18,18 @@ import {
 } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
 
-const SKILL_TEMPLATES = [
-  {
-    type: '{threshold} {skill}',
-    measure: 'experience',
-    thresholds: [13034431, 50000000, 100000000, 200000000]
-  },
-  {
-    type: '{threshold} Overall Exp.',
-    metric: 'overall',
-    measure: 'experience',
-    thresholds: [500000000, 1000000000, 2000000000, 4600000000],
-    validate: (snapshot, threshold) => snapshot.overallExperience >= threshold
-  },
-  {
-    type: 'Maxed Overall',
-    metric: 'overall',
-    measure: 'levels',
-    thresholds: [2277],
-    validate: snapshot => getTotalLevel(snapshot) === 2277
-  },
-  {
-    type: 'Maxed combat',
-    metric: 'combat',
-    measure: 'levels',
-    thresholds: [126],
-    validate: snapshot => getCombatLevel(snapshot) === 126
-  }
-];
+function formatThreshold(threshold: number): string {
+  if (threshold === 13034431) return '99';
+  if (threshold < 1000 || threshold === 2277) return String(threshold);
+  if (threshold <= 10000) return `${Math.floor(threshold / 1000)}k`;
 
-const ACTIVITY_TEMPLATES = [
-  {
-    type: '{threshold} {activity} score',
-    measure: 'score',
-    thresholds: [1000, 5000, 10000]
-  }
-];
-
-const BOSS_TEMPLATES = [
-  {
-    type: '{threshold} {boss} kills',
-    measure: 'kills',
-    thresholds: [500, 1000, 5000, 10000]
-  }
-];
-
-function formatThreshold(threshold) {
-  if (threshold < 1000 || threshold === 2277) {
-    return threshold;
-  }
-
-  if (threshold === 13034431) {
-    return '99';
-  }
-
-  if (threshold <= 10000) {
-    return `${Math.floor(threshold / 1000)}k`;
-  }
-
-  if (threshold < 1000000000) {
+  if (threshold < 1000000000)
     return `${Math.round((threshold / 1000000 + Number.EPSILON) * 100) / 100}m`;
-  }
 
   return `${Math.round((threshold / 1000000000 + Number.EPSILON) * 100) / 100}b`;
 }
 
-function formatType(baseType, threshold, metric) {
+function formatType(baseType: string, threshold: number, metric: string): string {
   return baseType
     .replace('{threshold}', formatThreshold(threshold))
     .replace('{skill}', getFormattedName(metric))
@@ -91,7 +43,7 @@ function formatType(baseType, threshold, metric) {
 function getDefinitions() {
   const definitions = [];
 
-  SKILL_TEMPLATES.forEach((template: any) => {
+  SKILL_ACHIEVEMENT_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/skill templates (Ex: 99 Attack, 50m Cooking)
@@ -123,7 +75,7 @@ function getDefinitions() {
     }
   });
 
-  ACTIVITY_TEMPLATES.forEach((template: any) => {
+  ACTIVITY_ACHIEVEMENT_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/activity templates (Ex: 1k Clues (Hard), 5k Clues (Medium))
@@ -153,7 +105,7 @@ function getDefinitions() {
     }
   });
 
-  BOSS_TEMPLATES.forEach((template: any) => {
+  BOSS_ACHIEVEMENT_TEMPLATES.forEach((template: any) => {
     const { metric, thresholds, type, validate } = template;
 
     // Dynamic threshold/boss templates (Ex: 500 Cerberus, 1k Zulrah)
@@ -236,19 +188,12 @@ function getNewAchievements(current, previous) {
   }
 
   const newAchievements = getDefinitions()
+    .filter(def => !def.validate(previous) && def.validate(current))
     .map(def => {
-      const { metric, validate } = def;
-      const key = getValueKey(metric);
-
-      if (!validate(previous) && validate(current)) {
-        // If the previous value was untracked, the achievement date is unknown
-        const createdAt = previous[key] === -1 ? new Date(0) : new Date();
-        return { ...def, createdAt };
-      }
-
-      return null;
-    })
-    .filter(a => a);
+      // If the previous value was untracked, the achievement date is unknown
+      const createdAt = previous[getValueKey(def.metric)] === -1 ? new Date(0) : new Date();
+      return { ...def, createdAt };
+    });
 
   return newAchievements;
 }
@@ -257,22 +202,16 @@ function getNewAchievements(current, previous) {
  * Finds all achievements that a player SHOULD HAVE HAD
  * based on their previous snapshot.
  *
- * This is used to find any missing achievements (by comparing this listto the database)
+ * This is used to find any missing achievements (by comparing this list to the database)
  */
-function getPreviousAchievements(previousSnapshot) {
+function getPreviousAchievements(previousSnapshot: Snapshot) {
   if (!previousSnapshot) {
     return [];
   }
 
   const previousAchievements = getDefinitions()
-    .map(def => {
-      if (def.validate(previousSnapshot)) {
-        return { ...def, createdAt: new Date(0) };
-      }
-
-      return null;
-    })
-    .filter(a => a);
+    .filter(def => def.validate(previousSnapshot))
+    .map(def => ({ ...def, createdAt: new Date(0) }));
 
   return previousAchievements;
 }
@@ -282,15 +221,15 @@ function getPreviousAchievements(previousSnapshot) {
  * to determine their date by searching through the player's snapshot
  * history. (Helps when importing CML history)
  */
-async function reevaluateAchievements(playerId) {
+async function reevaluateAchievements(playerId: number): Promise<void> {
   // Find all unknown date achievements
-  const unknown = await Achievement.findAll({ where: { playerId, createdAt: new Date(0) } });
+  const unknown = await Achievement.findAll({
+    where: { playerId, createdAt: new Date(0) },
+    raw: true
+  });
 
   // Attach dates to as many unknown achievements as possible
-  const datedUnknownAchievements = await addPastDates(
-    playerId,
-    unknown.map(u => u.toJSON())
-  );
+  const datedUnknownAchievements = await addPastDates(playerId, unknown);
 
   // Include only achievements with a valid (not unknown) date
   const toUpdate = datedUnknownAchievements.filter(d => d.createdAt > 0).map(t => ({ ...t, playerId }));
@@ -312,7 +251,7 @@ async function reevaluateAchievements(playerId) {
  * Adds all missing player achievements.
  * (Since ignoreDuplicates is true, it will only insert unique achievements)
  */
-async function syncAchievements(playerId) {
+async function syncAchievements(playerId: number): Promise<void> {
   const snapshots = await snapshotService.findAll(playerId, 10);
 
   if (!snapshots || snapshots.length < 2) {
@@ -354,16 +293,11 @@ async function syncAchievements(playerId) {
  * If includeMissing, it will also include the missing
  * achievements, with a "missing" field set to true.
  */
-async function getPlayerAchievements(playerId, includeMissing = false) {
-  if (!playerId) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  const achievements = (
-    await Achievement.findAll({
-      where: { playerId }
-    })
-  ).map(a => a.toJSON());
+async function getPlayerAchievements(playerId: number, includeMissing = false) {
+  const achievements = await Achievement.findAll({
+    where: { playerId },
+    raw: true
+  });
 
   if (!includeMissing) {
     return achievements;
@@ -375,7 +309,7 @@ async function getPlayerAchievements(playerId, includeMissing = false) {
   const missingAchievements = definitions
     .filter(d => !achievedTypes.includes(d.type))
     .map(({ type, metric, threshold }) => ({
-      playerId: parseInt(playerId, 10),
+      playerId,
       type,
       metric,
       threshold,
@@ -387,13 +321,14 @@ async function getPlayerAchievements(playerId, includeMissing = false) {
     // Only maxed overall and maxed combat are level based
     const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
-    return { ...a, measure };
+    return { ...a, measure, threshold: parseInt(a.threshold) };
   });
 }
 
-async function findAllForGroup(playerIds, pagination) {
+async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<Achievement[]> {
   const achievements = await Achievement.findAll({
     where: { playerId: playerIds },
+    include: [{ model: Player }],
     order: [['createdAt', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset

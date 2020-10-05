@@ -8,10 +8,11 @@ function fetchPlayerSnapshotsRequest() {
   };
 }
 
-function fetchPlayerSnapshotsSuccess(playerId, data) {
+function fetchPlayerSnapshotsSuccess(playerId, period, data) {
   return {
     type: FETCH_SNAPSHOTS_SUCCESS,
     playerId,
+    period,
     snapshotData: data
   };
 }
@@ -32,7 +33,7 @@ export default function fetchPlayerSnapshots({ playerId, period }) {
 
     return axios
       .get(url, { params })
-      .then(result => dispatch(fetchPlayerSnapshotsSuccess(playerId, result.data)))
+      .then(result => dispatch(fetchPlayerSnapshotsSuccess(playerId, period, result.data)))
       .catch(error => dispatch(fetchPlayerSnapshotsFailure(error)));
   };
 }

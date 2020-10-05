@@ -1,14 +1,20 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
+import { PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { getCombatLevel, is1Def, isF2p, isLvl3, is10HP } from '../../util/level';
+import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
 const DECADE_IN_SECONDS = 315569260;
+
+interface PlayerDetails extends Player {
+  combatLevel: number;
+  latestSnapshot: any;
+}
 
 /**
  * Format a username into a standardized version,
@@ -70,56 +76,47 @@ function shouldImport(player: Player): [boolean, number] {
   return [seconds / 60 / 60 >= 24, seconds];
 }
 
-/**
- * Get the latest date on a given username. (Player info and latest snapshot)
- */
-async function getDetails(username) {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
+async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
+  let player;
 
-  const player = await Player.findOne({
-    where: { username: { [Op.like]: `${standardize(username)}` } }
-  });
+  if (playerResolvable.id) {
+    player = await findById(playerResolvable.id);
+  } else if (playerResolvable.username) {
+    player = await find(playerResolvable.username);
+  }
 
   if (!player) {
-    throw new BadRequestError(`${username} is not being tracked yet.`);
+    throw new NotFoundError('Player not found.');
   }
 
-  const latestSnapshot = await snapshotService.findLatest(player.id);
-  const combatLevel = getCombatLevel(latestSnapshot);
+  return player;
+}
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
+async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
+  if (playerResolvable.id) return playerResolvable.id;
+
+  const player = await resolve(playerResolvable);
+  return player.id;
 }
 
 /**
- * Get the latest date on a given player id. (Player info and latest snapshot)
+ * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getDetailsById(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  const player = await Player.findOne({ where: { id } });
-
-  if (!player) {
-    throw new BadRequestError(`Player of id ${id} is not being tracked yet.`);
-  }
-
-  const latestSnapshot = await snapshotService.findLatest(player.id);
+async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
+  const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
   const combatLevel = getCombatLevel(latestSnapshot);
 
-  return { ...player.toJSON(), latestSnapshot: snapshotService.format(latestSnapshot), combatLevel };
+  return {
+    ...(player.toJSON() as any),
+    combatLevel,
+    latestSnapshot: snapshotService.format(latestSnapshot)
+  };
 }
 
 /**
  * Search for players with a (partially) matching username.
  */
 async function search(username: string): Promise<Player[]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
   const players = await Player.findAll({
     where: {
       username: {
@@ -136,11 +133,7 @@ async function search(username: string): Promise<Player[]> {
  * Update a given username, by getting its latest
  * hiscores data, saving it as a new player if necessary.
  */
-async function update(username: string): Promise<[Player, Snapshot, boolean]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
+async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
   // Check if this player should be updated again
@@ -180,7 +173,9 @@ async function update(username: string): Promise<[Player, Snapshot, boolean]> {
     await player.changed('updatedAt', true);
     await player.save();
 
-    return [player, currentSnapshot, isNew];
+    const playerDetails = await getDetails(player, currentSnapshot);
+
+    return [playerDetails, isNew];
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
@@ -198,14 +193,7 @@ async function update(username: string): Promise<[Player, Snapshot, boolean]> {
  * datapoints as it can. If it has imported in the past, it will
  * attempt to import all the datapoints CML gathered since the last import.
  */
-async function importCML(username: string): Promise<Snapshot[]> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  // Find a player with the given username,
-  // or create a new one if none are found
-  const [player] = await findOrCreate(username);
+async function importCML(player: Player): Promise<Snapshot[]> {
   const [should, seconds] = shouldImport(player);
 
   // If the player hasn't imported in over 24h,
@@ -295,13 +283,10 @@ async function getType(player: Player): Promise<string> {
   return 'ironman';
 }
 
-async function assertType(username: string) {
-  if (!username) throw new BadRequestError('Invalid username.');
-
-  const player = await find(username);
-
-  if (!player) throw new NotFoundError('Player not found.');
-
+/**
+ * Fetch various hiscores endpoints to find the correct player type of a given player.
+ */
+async function assertType(player: Player): Promise<string> {
   const type = await getType(player);
 
   if (player.type !== type) {
@@ -312,20 +297,10 @@ async function assertType(username: string) {
 }
 
 /**
- * Fetch the hiscores table overall to find the correct
- * capitalization of a given username
+ * Fetch the hiscores table overall to find the correct capitalization of a given player.
  */
-async function assertName(username: string): Promise<string> {
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  const formattedUsername = standardize(username);
-  const player = await find(formattedUsername);
-
-  if (!player) {
-    throw new NotFoundError(`Player not found: ${username} is not being tracked yet.`);
-  }
+async function assertName(player: Player): Promise<string> {
+  const { username } = player;
 
   const hiscoresNames = await jagexService.getHiscoresNames(username);
   const match = hiscoresNames.find(h => standardize(h) === username);
@@ -338,34 +313,21 @@ async function assertName(username: string): Promise<string> {
     throw new ServerError(`Display name and username don't match for ${username}`);
   }
 
-  const displayName = sanitize(match);
+  const newDisplayName = sanitize(match);
 
-  if (displayName === player.displayName) {
-    throw new BadRequestError(`No change required: The current display name is correct.`);
+  if (player.displayName !== newDisplayName) {
+    await player.update({ displayName: newDisplayName });
   }
 
-  await player.update({ displayName });
-  return displayName;
+  return newDisplayName;
 }
 
-function getBuild(snapshot: Snapshot) {
-  if (isF2p(snapshot)) {
-    return 'f2p';
-  }
-
-  if (isLvl3(snapshot)) {
-    return 'lvl3';
-  }
-
+function getBuild(snapshot: Snapshot): string {
+  if (isF2p(snapshot)) return 'f2p';
+  if (isLvl3(snapshot)) return 'lvl3';
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot)) {
-    return '10hp';
-  }
-
-  if (is1Def(snapshot)) {
-    return '1def';
-  }
-
+  if (is10HP(snapshot)) return '10hp';
+  if (is1Def(snapshot)) return '1def';
   return 'main';
 }
 
@@ -424,12 +386,13 @@ export {
   findById,
   findAllByIds,
   find,
-  getDetailsById,
   getDetails,
   search,
   update,
   importCML,
   assertType,
   assertName,
-  shouldImport
+  shouldImport,
+  resolve,
+  resolveId
 };

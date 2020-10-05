@@ -1,17 +1,71 @@
-import { keyBy, mapValues, omit, uniqBy } from 'lodash';
+import { uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
+import { Pagination } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
-import { durationBetween, isPast, isValidDate } from '../../util/dates';
+import { durationBetween, isPast } from '../../util/dates';
 import { getMinimumBossKc, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
-function sanitizeTitle(title) {
+interface CompetitionParticipant extends Player {
+  progress: {
+    start: number;
+    end: number;
+    gained: number;
+  };
+  history?: {
+    date: Date;
+    value: number;
+  }[];
+}
+
+interface CompetitionDetails extends Competition {
+  duration: string;
+  totalGained: number;
+  participants: CompetitionParticipant[];
+}
+
+interface ExtendedCompetition extends Competition {
+  participantCount: number;
+  duration: string;
+}
+
+interface ResolveOptions {
+  includeGroup?: boolean;
+  includeHash?: boolean;
+}
+
+interface CompetitionListFilter {
+  title?: string;
+  metric?: string;
+  status?: string;
+}
+
+interface CreateCompetitionDTO {
+  title: string;
+  metric: string;
+  startsAt: Date;
+  endsAt: Date;
+  groupId?: number;
+  groupVerificationCode?: string;
+  participants?: string[];
+}
+
+interface EditCompetitionDTO {
+  title?: string;
+  metric?: string;
+  startsAt?: Date;
+  endsAt?: Date;
+  participants?: string[];
+}
+
+function sanitizeTitle(title: string): string {
   return title
     .replace(/_/g, ' ')
     .replace(/-/g, ' ')
@@ -19,15 +73,32 @@ function sanitizeTitle(title) {
     .trim();
 }
 
-function format(competition) {
-  return omit(competition.toJSON(), ['verificationHash']);
+async function resolve(competitionId: number, options?: ResolveOptions): Promise<Competition> {
+  if (!competitionId || isNaN(competitionId)) {
+    throw new BadRequestError('Invalid competition id.');
+  }
+
+  const scope = options && options.includeHash ? 'withHash' : 'defaultScope';
+
+  const competition = await Competition.scope(scope).findOne({
+    where: { id: competitionId },
+    include: options && options.includeGroup ? [{ model: Group }] : []
+  });
+
+  if (!competition) {
+    throw new NotFoundError('Competition not found.');
+  }
+
+  return competition;
 }
 
 /**
  * Returns a list of all competitions that
  * match the query parameters (title, status, metric).
  */
-async function getList(title, status, metric, pagination) {
+async function getList(filter: CompetitionListFilter, pagination: Pagination) {
+  const { title, status, metric } = filter;
+
   // The status is optional, however if present, should be valid
   if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
     throw new BadRequestError(`Invalid status.`);
@@ -38,15 +109,10 @@ async function getList(title, status, metric, pagination) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
-  const query: any = {};
-
-  if (title) {
-    query.title = { [Op.iLike]: `%${sanitizeTitle(title)}%` };
-  }
-
-  if (metric) {
-    query.metric = metric.toLowerCase();
-  }
+  const query = buildQuery({
+    title: title && { [Op.iLike]: `%${sanitizeTitle(title)}%` },
+    metric: metric?.toLowerCase()
+  });
 
   if (status) {
     const formattedStatus = status.toLowerCase();
@@ -72,18 +138,15 @@ async function getList(title, status, metric, pagination) {
     offset: pagination.offset
   });
 
-  const formattedCompetitions = competitions.map(c => {
-    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
-  });
+  const extendedCompetitions = await extendCompetitions(competitions);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  return extendedCompetitions;
 }
 
 /**
  * Returns a list of all competitions for a specific group.
  */
-async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset: 0 }) {
+async function getGroupCompetitions(groupId: number, pagination: Pagination): Promise<Competition[]> {
   const competitions = await Competition.findAll({
     where: { groupId },
     order: [['score', 'DESC']],
@@ -91,48 +154,36 @@ async function getGroupCompetitions(groupId, pagination = { limit: 10000, offset
     offset: pagination.offset
   });
 
-  const formattedCompetitions = competitions.map(c => {
-    return { ...format(c), duration: durationBetween(c.startsAt, c.endsAt) };
-  });
+  const extendedCompetitions = await extendCompetitions(competitions);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  return extendedCompetitions;
 }
 
 /**
  * Find all competitions that a given player is participating in. (Or has participated)
  */
-async function getPlayerCompetitions(playerId, pagination = { limit: 10000, offset: 0 }) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getPlayerCompetitions(playerId: number, pagination = { limit: 10000, offset: 0 }) {
   const participations = await Participation.findAll({
     where: { playerId },
     attributes: [],
     include: [{ model: Competition }]
   });
 
-  const formattedCompetitions = participations
+  const preparedCompetitions = participations
     .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(
-      ({ competition }) =>
-        ({
-          ...format(competition),
-          duration: durationBetween(competition.startsAt, competition.endsAt)
-        } as any)
-    )
+    .map(p => p.competition)
     .sort((a, b) => b.score - a.score);
 
-  const completeCompetitions = await attachParticipantCount(formattedCompetitions);
-  return completeCompetitions;
+  const extendedCompetitions = await extendCompetitions(preparedCompetitions);
+
+  return extendedCompetitions;
 }
 
 /**
  * Given a list of competitions, it will fetch the participant count of each,
  * and inserts a "participantCount" field in every competition object.
  */
-async function attachParticipantCount(competitions) {
+async function extendCompetitions(competitions: Competition[]): Promise<ExtendedCompetition[]> {
   /**
    * Will return a participant count for every competition, with the format:
    * [ {competitionId: 35, count: "4"}, {competitionId: 41, count: "31"} ]
@@ -140,51 +191,27 @@ async function attachParticipantCount(competitions) {
   const participantCount = await Participation.findAll({
     where: { competitionId: competitions.map(countMap => countMap.id) },
     attributes: ['competitionId', [Sequelize.fn('COUNT', Sequelize.col('competitionId')), 'count']],
-    group: ['competitionId']
+    group: ['competitionId'],
+    raw: true
   });
 
-  /**
-   * Convert the counts fetched above, into a key:value format:
-   * { 35: 4, 41: 31 }
-   */
-  const countMap = mapValues(
-    keyBy(
-      participantCount.map((c: any) => ({
-        competitionId: c.competitionId,
-        count: parseInt(c.toJSON().count, 10)
-      })),
-      c => c.competitionId
-    ),
-    (c: any) => c.count
-  );
-
-  return competitions.map(g => ({ ...g, participantCount: countMap[g.id] || 0 }));
+  return competitions.map(c => {
+    const match: any = participantCount.find(m => m.competitionId === c.id);
+    const duration = durationBetween(c.startsAt, c.endsAt);
+    return { ...(c.toJSON() as any), duration, participantCount: parseInt(match ? match.count : 0) };
+  });
 }
 
 /**
  * Get all the data on a given competition.
  */
-async function getDetails(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  const competition = await Competition.findOne({
-    where: { id },
-    include: [{ model: Group }]
-  });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
+async function getDetails(competition: Competition): Promise<CompetitionDetails | any> {
   const metricKey = getValueKey(competition.metric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
-  const group = competition.group ? groupService.format(competition.group) : null;
 
   const participations = await Participation.findAll({
     attributes: ['playerId'],
-    where: { competitionId: id },
+    where: { competitionId: competition.id },
     include: [
       { model: Player },
       { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
@@ -240,7 +267,7 @@ async function getDetails(id) {
   // Sum all gained values
   const totalGained = participants.map(p => p.progress.gained).reduce((a, c) => a + Math.max(0, c), 0);
 
-  return { ...format(competition), duration, totalGained, participants, group };
+  return { ...competition.toJSON(), duration, totalGained, participants, group: competition.group };
 }
 
 /**
@@ -249,24 +276,14 @@ async function getDetails(id) {
  * Note: if a groupId is given, the participants will be
  * the group's members, and the "participants" argument will be ignored.
  */
-async function create(title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants) {
-  if (!title) {
-    throw new BadRequestError('Invalid competition title.');
-  }
+async function create(dto: CreateCompetitionDTO) {
+  const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants } = dto;
 
   if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError('Invalid competition metric.');
   }
 
-  if (!startsAt || !isValidDate(startsAt)) {
-    throw new BadRequestError('Invalid start date.');
-  }
-
-  if (!endsAt || !isValidDate(endsAt)) {
-    throw new BadRequestError('Invalid end date.');
-  }
-
-  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
+  if (startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
@@ -279,12 +296,7 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
       throw new BadRequestError('Invalid verification code.');
     }
 
-    const group = await groupService.findOne(groupId);
-
-    if (!group) {
-      throw new NotFoundError('Error: Group could not be found.');
-    }
-
+    const group = await groupService.resolve(groupId, true);
     const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
 
     if (!verified) {
@@ -319,19 +331,22 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
   });
 
   if (!groupId && !participants) {
-    return { ...format(competition), participants: [] };
+    return { ...competition.toJSON(), participants: [] };
   }
 
   const newParticipants = groupId
     ? await addAllGroupMembers(competition, groupId)
     : await setParticipants(competition, participants);
 
-  // If it's a group competition, don't return a verification code
-  const formatted = competition.groupId
-    ? omit(format(competition), ['verificationCode'])
-    : format(competition);
+  // Hide the verificationHash from the response
+  competition.verificationHash = undefined;
 
-  return { ...formatted, participants: newParticipants };
+  // If this isa group competition, hide the verificationCode from the response
+  if (competition.groupId) {
+    competition.verificationCode = undefined;
+  }
+
+  return { ...competition.toJSON(), participants: newParticipants };
 }
 
 /**
@@ -339,31 +354,11 @@ async function create(title, metric, startsAt, endsAt, groupId, groupVerificatio
  *
  * Note: If "participants" is defined, it will replace the existing participants.
  */
-async function edit(id, title, metric, startsAt, endsAt, participants, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
+async function edit(competition: Competition, dto: EditCompetitionDTO) {
+  const { title, metric, startsAt, endsAt, participants } = dto;
 
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (endsAt && !isValidDate(endsAt)) {
-    throw new BadRequestError('Invalid end date.');
-  }
-
-  if (startsAt && !isValidDate(startsAt)) {
-    throw new BadRequestError('Invalid start date.');
-  }
-
-  if ((new Date(startsAt) as any) - (new Date(endsAt) as any) > 0) {
+  if (startsAt && endsAt && startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
   }
 
   if (metric && !ALL_METRICS.includes(metric)) {
@@ -376,35 +371,18 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   if (
     startsAt &&
-    new Date(startsAt).getTime() !== competition.startsAt.getTime() &&
+    startsAt.getTime() !== competition.startsAt.getTime() &&
     isPast(competition.startsAt)
   ) {
     throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
   }
 
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
-
-  const newValues: any = {};
-
-  if (title) {
-    newValues.title = sanitizeTitle(title);
-  }
-
-  if (metric) {
-    newValues.metric = metric;
-  }
-
-  if (startsAt) {
-    newValues.startsAt = startsAt;
-  }
-
-  if (endsAt) {
-    newValues.endsAt = endsAt;
-  }
+  const newValues = buildQuery({
+    title: title && sanitizeTitle(title),
+    metric,
+    startsAt,
+    endsAt
+  });
 
   let competitionParticipants;
 
@@ -428,36 +406,17 @@ async function edit(id, title, metric, startsAt, endsAt, participants, verificat
 
   await competition.update(newValues);
 
-  return { ...format(competition), participants: competitionParticipants };
+  return { ...competition.toJSON(), participants: competitionParticipants };
 }
 
 /**
  * Permanently delete a competition and all associated participations.
  */
-async function destroy(id, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-  const { title } = competition;
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
+async function destroy(competition: Competition) {
+  const competitionTitle = competition.title;
 
   await competition.destroy();
-  return title;
+  return competitionTitle;
 }
 
 /**
@@ -519,15 +478,16 @@ async function addAllGroupMembers(competition, groupId) {
 /**
  * Adds all the usernames as competition participants.
  */
-async function addParticipants(id, verificationCode, usernames) {
-  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
+async function addParticipants(competition: Competition, usernames: string[]) {
+  if (usernames.length === 0) {
+    throw new BadRequestError('Empty participants list.');
+  }
 
   // Find all existing participants
   const existingIds = (await competition.$get('participants')).map(p => p.id);
 
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(usernames);
-
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
@@ -546,13 +506,15 @@ async function addParticipants(id, verificationCode, usernames) {
 /**
  * Removes all the usernames (participants) from a competition.
  */
-async function removeParticipants(id, verificationCode, usernames) {
-  const competition = await getCompetitionForParticipantOperation(id, verificationCode, usernames);
+async function removeParticipants(competition: Competition, usernames: string[]) {
+  if (usernames.length === 0) {
+    throw new BadRequestError('Empty participants list.');
+  }
 
   const playersToRemove = await playerService.findAll(usernames);
 
   if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid untracked players were given.');
+    throw new BadRequestError('No valid tracked players were given.');
   }
 
   // Remove all specific players, and return the removed count
@@ -567,34 +529,6 @@ async function removeParticipants(id, verificationCode, usernames) {
   await competition.save();
 
   return removedPlayersCount;
-}
-
-async function getCompetitionForParticipantOperation(id, verificationCode, usernames) {
-  if (!id) {
-    throw new NotFoundError('Invalid competition id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid participants list.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
-  const verified = await isVerified(competition, verificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect verification code.');
-  }
-
-  return competition;
 }
 
 /**
@@ -620,7 +554,7 @@ async function getParticipants(id) {
  * Get outdated participants for a specific competition id.
  * A participant is considered outdated 60 minutes after their last update
  */
-async function getOutdatedParticipants(competitionId) {
+async function getOutdatedParticipants(competitionId: number) {
   if (!competitionId) {
     throw new BadRequestError('Invalid competition id.');
   }
@@ -696,26 +630,14 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
  *
  * An update action must be supplied, to be executed for
  * every participant. This is to prevent calling jobs from
- * within the service. I'd rather call them from the controller.
- *
- * Note: this is a soft update, meaning it will only create a new
- * snapshot. It won't import from CML or determine player type.
+ * within the service (circular dependency).
+ * I'd rather call them from the controller.
  */
-async function updateAllParticipants(id, updateAction) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
-  }
-
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
-  }
-
-  const participants = await getOutdatedParticipants(id);
+async function updateAllParticipants(competition: Competition, updateAction: (player: Player) => void) {
+  const participants = await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
-    throw new BadRequestError('This competition has no participants that should be updated');
+    throw new BadRequestError('This competition has no outdated participants.');
   }
 
   // Execute the update action for every participant
@@ -739,7 +661,7 @@ async function refreshScores() {
   );
 }
 
-async function calculateScore(competition) {
+async function calculateScore(competition: Competition): Promise<number> {
   const now = new Date();
   let score = 0;
 
@@ -748,9 +670,9 @@ async function calculateScore(competition) {
     return score;
   }
 
-  const data = await getDetails(competition.id);
-  const activeParticipants = data.participants.filter(p => p.progress.gained > 0);
-  const averageGained = data.totalGained / activeParticipants.length;
+  const details = await getDetails(competition);
+  const activeParticipants = details.participants.filter(p => p.progress.gained > 0);
+  const averageGained = details.totalGained / activeParticipants.length;
 
   // If is ongoing
   if (competition.startsAt <= now && competition.endsAt >= now) {
@@ -759,7 +681,7 @@ async function calculateScore(competition) {
 
   // If is upcoming
   if (competition.startsAt > now) {
-    const daysLeft = (competition.startsAt - (now as any)) / 1000 / 3600 / 24;
+    const daysLeft = (competition.startsAt.getTime() - now.getTime()) / 1000 / 3600 / 24;
 
     if (daysLeft > 7) {
       score += 60;
@@ -769,11 +691,11 @@ async function calculateScore(competition) {
   }
 
   // If is group competition
-  if (data.group) {
+  if (details.group) {
     // The highest of 30, or 30% of the group's score
-    score += Math.max(40, data.group.score * 0.4);
+    score += Math.max(40, details.group.score * 0.4);
 
-    if (data.group.verified) {
+    if (details.group.verified) {
       score += 50;
     }
   }
@@ -830,32 +752,11 @@ async function calculateScore(competition) {
   }
 
   // Discourage "over 2 weeks long" competitions
-  if (competition.endsAt - competition.startsAt < 1209600000) {
+  if (competition.endsAt.getTime() - competition.startsAt.getTime() < 1209600000) {
     score += 50;
   }
 
   return score;
-}
-
-async function isVerified(competition, verificationCode) {
-  const { groupId, verificationHash } = competition;
-
-  let hash = verificationHash;
-
-  // If it is a group competition, compare the code
-  // to the group's verification hash instead
-  if (groupId) {
-    const group = await Group.findOne({ where: { id: groupId } });
-
-    if (!group) {
-      throw new NotFoundError(`Group of id ${groupId} was not found.`);
-    }
-
-    hash = group.verificationHash;
-  }
-
-  const verified = await cryptService.verifyCode(hash, verificationCode);
-  return verified;
 }
 
 /**
@@ -909,6 +810,7 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
 }
 
 export {
+  resolve,
   getList,
   getGroupCompetitions,
   getPlayerCompetitions,

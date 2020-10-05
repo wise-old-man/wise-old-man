@@ -14,11 +14,9 @@ function dispatch(type: string, payload: any) {
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
 
-  try {
-    axios.post(url, body);
-  } catch (error) {
-    console.log(error);
-  }
+  axios.post(url, body).catch(() => {
+    console.log('Error sending discord event.');
+  });
 }
 
 /**
@@ -33,7 +31,7 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   if (recent.length === 0) return;
 
   // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(playerId);
+  const groups = await groupService.getPlayerGroups(playerId, { limit: 20, offset: 0 });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't

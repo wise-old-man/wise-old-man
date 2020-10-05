@@ -13,7 +13,7 @@ export const getPlayerSnapshots = (state, playerId) => getSnapshotsMap(state)[pl
 export const getChartData = (state, playerId, period, skill, measure, reducedMode) => {
   const snapshotsData = getPlayerSnapshots(state, playerId);
 
-  if (!snapshotsData) {
+  if (!snapshotsData || !snapshotsData[period]) {
     return {
       distribution: {
         enabled: false,

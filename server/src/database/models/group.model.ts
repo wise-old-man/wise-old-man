@@ -12,6 +12,14 @@ import { Membership, Player } from '../../database/models';
 // Define other table options
 const options = {
   modelName: 'groups',
+  defaultScope: {
+    attributes: { exclude: ['verificationHash'] }
+  },
+  scopes: {
+    withHash: {
+      attributes: { include: ['verificationHash'] }
+    }
+  },
   validate: {
     validateName
   },

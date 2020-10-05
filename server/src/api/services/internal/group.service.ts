@@ -1,10 +1,11 @@
 import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { Pagination } from 'src/types';
 import { sequelize } from '../../../database';
-import { Group, Membership, Player } from '../../../database/models';
+import { Achievement, Group, Membership, Player, Record, Snapshot } from '../../../database/models';
 import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
-import { BadRequestError } from '../../errors';
+import { BadRequestError, NotFoundError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
@@ -15,7 +16,32 @@ import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
 
-function sanitizeName(name) {
+interface Member extends Player {
+  role: string;
+}
+
+interface MemberFragment {
+  username: string;
+  role: string;
+}
+
+interface ExtendedGroup extends Group {
+  memberCount: number;
+}
+
+interface CreateGroupDTO {
+  name: string;
+  clanChat?: string;
+  members?: MemberFragment[];
+}
+
+interface EditGroupDTO {
+  name?: string;
+  clanChat?: string;
+  members?: MemberFragment[];
+}
+
+function sanitizeName(name: string): string {
   return name
     .replace(/_/g, ' ')
     .replace(/-/g, ' ')
@@ -23,17 +49,33 @@ function sanitizeName(name) {
     .trim();
 }
 
-function format(group) {
-  return omit(group.toJSON(), ['verificationHash']);
+async function resolve(groupId: number, exposeHash = false): Promise<Group> {
+  if (!groupId || isNaN(groupId)) {
+    throw new BadRequestError('Invalid group id.');
+  }
+
+  const scope = exposeHash ? 'withHash' : 'defaultScope';
+
+  const group = await Group.scope(scope).findOne({
+    where: { id: groupId }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
+  return group;
 }
 
 /**
  * Returns a list of all groups that partially match the given name.
  */
-async function getList(name, pagination) {
+async function getList(name: string, pagination: Pagination): Promise<ExtendedGroup[]> {
   // Fetch all groups that match the name
   const groups = await Group.findAll({
-    where: name && { name: { [Op.iLike]: `%${sanitizeName(name)}%` } },
+    where: name && {
+      name: { [Op.iLike]: `%${sanitizeName(name)}%` }
+    },
     order: [
       ['score', 'DESC'],
       ['id', 'ASC']
@@ -43,19 +85,15 @@ async function getList(name, pagination) {
   });
 
   // Fetch and attach member counts for each group
-  const completeGroups = await attachMembersCount(groups.map(format));
+  const extendedGroups = await extendGroups(groups);
 
-  return completeGroups;
+  return extendedGroups;
 }
 
 /**
  * Returns a list of all groups of which a given player is a member.
  */
-async function getPlayerGroups(playerId, pagination = { limit: 10000, offset: 0 }) {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
+async function getPlayerGroups(playerId: number, pagination: Pagination): Promise<ExtendedGroup[]> {
   // Find all memberships for the player
   const memberships = await Membership.findAll({
     where: { playerId },
@@ -63,72 +101,48 @@ async function getPlayerGroups(playerId, pagination = { limit: 10000, offset: 0 
   });
 
   // Extract all the unique groups from the memberships, and format them.
-  const groups = uniqBy(memberships, (m: any) => m.group.id)
+  const groups = uniqBy(memberships, (m: Membership) => m.group.id)
     .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(p => p.group)
-    .sort((a, b) => b.score - a.score)
-    .map(format);
+    .sort((a, b) => b.score - a.score);
 
-  const completeGroups = await attachMembersCount(groups);
+  const extendedGroups = await extendGroups(groups);
 
-  return completeGroups;
+  return extendedGroups;
 }
 
 /**
  * Given a list of groups, it will fetch the member count of each,
  * and inserts a "memberCount" field in every group object.
  */
-async function attachMembersCount(groups) {
+async function extendGroups(groups: Group[]): Promise<ExtendedGroup[]> {
   /**
    * Will return a members count for every group, with the format:
    * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
    */
-  const membersCount = await Membership.findAll({
+  const memberCount = await Membership.findAll({
     where: { groupId: groups.map(g => g.id) },
     attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
-    group: ['groupId']
+    group: ['groupId'],
+    raw: true
   });
 
-  /**
-   * Convert the counts fetched above, into a key:value format:
-   * { 35: 4, 41: 31 }
-   */
-  const countMap = mapValues(
-    keyBy(
-      membersCount.map((c: any) => ({ groupId: c.groupId, count: parseInt(c.toJSON().count, 10) })),
-      c => c.groupId
-    ),
-    (c: any) => c.count
-  );
-
-  return groups.map(g => ({ ...g, memberCount: countMap[g.id] || 0 }));
+  return groups.map(g => {
+    const match: any = memberCount.find(m => m.groupId === g.id);
+    return { ...(g.toJSON() as any), memberCount: parseInt(match ? match.count : 0) };
+  });
 }
 
 /**
  * Get all the data on a given group. (Info and members)
  */
-async function getDetails(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
+async function getDetails(group: Group): Promise<ExtendedGroup> {
   // Format, and calculate the "memberCount" property
-  const formattedGroup = (await attachMembersCount([format(group)]))[0];
-
-  return formattedGroup;
+  const extendedGroup = (await extendGroups([group]))[0];
+  return extendedGroup;
 }
 
-async function getMonthlyTopPlayer(groupId) {
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
+async function getMonthlyTopPlayer(groupId: number) {
   const memberships = await Membership.findAll({
     where: { groupId },
     attributes: ['playerId']
@@ -140,9 +154,10 @@ async function getMonthlyTopPlayer(groupId) {
     return null;
   }
 
+  const filter = { metric: 'overall', period: 'month', playerIds: memberIds };
   const pagination = { limit: 1, offset: 0 };
-  const leaderboard = await deltaService.getGroupLeaderboard('overall', 'month', memberIds, pagination);
 
+  const leaderboard = await deltaService.getGroupLeaderboard(filter, pagination);
   const monthlyTopPlayer = leaderboard[0] || null;
 
   return monthlyTopPlayer;
@@ -152,11 +167,7 @@ async function getMonthlyTopPlayer(groupId) {
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getGained(groupId, period, metric, pagination) {
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
+async function getGained(groupId: number, period: string, metric: string, pagination: Pagination) {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -176,54 +187,41 @@ async function getGained(groupId, period, metric, pagination) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const leaderboard = await deltaService.getGroupLeaderboard(metric, period, memberIds, pagination);
+  const filter = { metric, period, playerIds: memberIds };
+  const leaderboard = await deltaService.getGroupLeaderboard(filter, pagination);
+
   return leaderboard;
 }
 
 /**
  * Get the 10 most recent player achievements for a given group.
  */
-async function getAchievements(groupId, pagination) {
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
+async function getAchievements(groupId: number, pagination: Pagination): Promise<Achievement[]> {
   const memberships = await Membership.findAll({
     where: { groupId },
-    attributes: ['playerId'],
-    include: [{ model: Player }]
+    attributes: ['playerId']
   });
 
   if (!memberships.length) {
     throw new BadRequestError(`That group has no members.`);
   }
 
-  const members = memberships.map(m => m.player);
-  const memberMap = keyBy(members, 'id');
-  const memberIds = members.map(m => m.id);
-
+  const memberIds = memberships.map(m => m.playerId);
   const achievements = await achievementService.findAllForGroup(memberIds, pagination);
 
-  const formatted = achievements.map(a => {
-    const { id, username, displayName, type, flagged } = memberMap[a.playerId];
-    return {
-      ...a.toJSON(),
-      player: { id, username, displayName, type, flagged }
-    };
-  });
-
-  return formatted;
+  return achievements;
 }
 
 /**
  * Gets the top records for a specific metric and period,
  * between the members of a group.
  */
-async function getRecords(groupId, metric, period, pagination) {
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
+async function getRecords(
+  groupId: number,
+  metric: string,
+  period: string,
+  pagination: Pagination
+): Promise<Record[]> {
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -238,30 +236,21 @@ async function getRecords(groupId, metric, period, pagination) {
   });
 
   if (!memberships.length) {
-    throw new BadRequestError(`That group has no members.`);
+    throw new BadRequestError('This group has no members.');
   }
 
-  const memberIds = memberships.map(m => m.playerId);
-  const records = await recordService.getGroupLeaderboard(metric, period, memberIds, pagination);
+  const filter = { playerIds: memberships.map(m => m.playerId), metric, period };
+  const records = await recordService.getGroupLeaderboard(filter, pagination);
 
   return records;
 }
 
-async function getMembersList(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
+// TODO: refactor this function after the efficiency update is finished
+async function getMembersList(group: Group): Promise<Member[]> {
   // Fetch all memberships for the group
   const memberships = await Membership.findAll({
     attributes: ['groupId', 'playerId', 'role'],
-    where: { groupId: id },
+    where: { groupId: group.id },
     include: [{ model: Player }]
   });
 
@@ -285,7 +274,9 @@ async function getMembersList(id) {
   // Execute the query above, which returns the latest snapshot for each member,
   // in the following format: [{playerId: 61, overallExerience: "4465456"}]
   // Note: this used to be a sequelize query, but it was very slow for large groups
-  const experienceSnapshots: any = await sequelize.query(query, { type: QueryTypes.SELECT });
+  const experienceSnapshots: any = await sequelize.query(query, {
+    type: QueryTypes.SELECT
+  });
 
   // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
   const experienceMap = mapValues(keyBy(experienceSnapshots, 'playerId'), d =>
@@ -303,25 +294,15 @@ async function getMembersList(id) {
  * Gets the group hiscores for a specific metric.
  * All members which HAVE SNAPSHOTS will included and sorted by rank.
  */
-async function getHiscores(id, metric, pagination) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
+async function getHiscores(groupId: number, metric: string, pagination: Pagination) {
   if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
   }
 
   // Fetch all memberships for the group
   const memberships = await Membership.findAll({
     attributes: ['playerId'],
-    where: { groupId: id },
+    where: { groupId },
     include: [{ model: Player }]
   });
 
@@ -372,28 +353,18 @@ async function getHiscores(id, metric, pagination) {
   // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
     .filter(({ playerId }: any) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
-    .map(({ player }: any) => ({ ...player.toJSON(), ...experienceMap[player.id] }))
+    .map(({ player }: any) => ({ player: player.toJSON(), ...experienceMap[player.id] }))
     .sort((a, b) => b[measure] - a[measure]);
 }
 
 /**
  * Gets the stats for every member of a group (latest snapshot)
  */
-async function getMemberStats(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
+async function getMembersStats(groupId: number): Promise<Snapshot[]> {
   // Fetch all memberships for the group
   const memberships = await Membership.findAll({
     attributes: ['playerId'],
-    where: { groupId: id }
+    where: { groupId }
   });
 
   if (!memberships || memberships.length === 0) {
@@ -419,18 +390,13 @@ async function getMemberStats(id) {
   // Formats the snapshots to a playerId:snapshot map, for easier lookup
   const snapshotMap = mapValues(keyBy(latestSnapshots, 'playerId'));
 
-  // Format all the members, add each experience to its respective player, and sort them by exp
   return memberships
-    .filter(({ playerId }) => snapshotMap[playerId])
-    .map(({ playerId }) => ({ ...snapshotMap[playerId] }));
+    .filter(({ playerId }) => playerId in snapshotMap)
+    .map(({ playerId }) => Snapshot.build({ ...snapshotMap[playerId] }));
 }
 
-async function getStatistics(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const stats = await getMemberStats(id);
+async function getStatistics(groupId: number) {
+  const stats = await getMembersStats(groupId);
 
   if (!stats || stats.length === 0) {
     throw new BadRequestError("Couldn't find any stats for this group.");
@@ -444,19 +410,16 @@ async function getStatistics(id) {
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }
 
-async function create(name, clanChat, members) {
-  if (!name) {
-    throw new BadRequestError('Invalid group name.');
-  }
-
+async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
+  const { name, clanChat, members } = dto;
   const sanitizedName = sanitizeName(name);
-  const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
 
+  // Check for duplicate names
   if (await Group.findOne({ where: { name: sanitizedName } })) {
     throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
   }
 
-  // If not all elements of members array have a "username" key.
+  // All elements of the "members" array must have a "username" key.
   if (members && members.filter(m => m.username).length !== members.length) {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
@@ -468,7 +431,7 @@ async function create(name, clanChat, members) {
   // Check if every username in the list is valid
   if (members && members.length > 0) {
     const invalidUsernames = members
-      .map(({ username }) => username)
+      .map(member => member.username)
       .filter(username => !playerService.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
@@ -481,6 +444,7 @@ async function create(name, clanChat, members) {
   }
 
   const [code, hash] = await cryptService.generateVerification();
+  const sanitizedClanChat = clanChat ? playerService.sanitize(clanChat) : null;
 
   const group = await Group.create({
     name: sanitizedName,
@@ -489,53 +453,28 @@ async function create(name, clanChat, members) {
     verificationHash: hash
   });
 
-  if (!members) {
-    return { ...format(group), members: [] };
-  }
+  // Hide the verificationHash from the response
+  group.verificationHash = undefined;
 
-  const newMembers = await setMembers(group, members);
+  const newMembers = members ? await setMembers(group, members) : [];
 
-  return { ...format(group), members: newMembers };
+  return [group, newMembers];
 }
 
 /**
- * Edit a group
- *
  * Note: If "members" is defined, it will replace the existing members.
  */
-async function edit(id, name, clanChat, verificationCode, members) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  if (!name && !members && !clanChat) {
-    throw new BadRequestError('You must either include a new name, clan chat or members list.');
-  }
+async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]> {
+  const { name, members, clanChat } = dto;
 
   if (name) {
     const sanitizedName = sanitizeName(name);
     const matchingGroup = await Group.findOne({ where: { name: sanitizedName } });
 
     // If attempting to change to some other group's name.
-    if (matchingGroup && matchingGroup.id !== parseInt(id, 10)) {
+    if (matchingGroup && matchingGroup.id !== group.id) {
       throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
     }
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
   }
 
   let groupMembers;
@@ -557,49 +496,40 @@ async function edit(id, name, clanChat, verificationCode, members) {
     groupMembers = await setMembers(group, members);
   } else {
     const memberships = await group.$get('members');
-    groupMembers = memberships.map(p => ({ ...p.toJSON(), memberships: undefined }));
+
+    groupMembers = memberships.map((p: any) => ({
+      ...p.toJSON(),
+      role: p.memberships.role,
+      memberships: undefined
+    }));
   }
 
   if (name || clanChat) {
-    const sanitizedName = name && sanitizeName(name);
-    const sanitizedClanChat = clanChat && clanChat.length ? playerService.sanitize(clanChat) : null;
+    if (name && name.length !== 0) {
+      group.name = sanitizeName(name);
+    }
 
-    await group.update({
-      name: sanitizedName,
-      clanChat: sanitizedClanChat
-    });
+    if (clanChat && clanChat.length !== 0) {
+      group.clanChat = playerService.sanitize(clanChat);
+    }
+
+    await group.save();
   }
 
-  return { ...format(group), members: groupMembers };
+  // Hide the verificationHash from the response
+  group.verificationHash = undefined;
+
+  return [group, groupMembers];
 }
 
 /**
  * Permanently delete a group and all associated memberships.
  */
-async function destroy(id, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
-  const { name } = group;
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+async function destroy(group: Group): Promise<string> {
+  const groupName = group.name;
 
   await group.destroy();
-  return name;
+  return groupName;
 }
 
 /**
@@ -692,34 +622,14 @@ async function setMembers(group, members) {
  * Note: The members array should have this format:
  * [{username: "ABC", role: "member"}]
  */
-async function addMembers(id, verificationCode, members) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
+async function addMembers(group: Group, members: MemberFragment[]): Promise<Member[]> {
   if (!members || members.length === 0) {
-    throw new BadRequestError('Invalid members list.');
+    throw new BadRequestError('Invalid or empty members list.');
   }
 
   // If not all elements of members array have a "username" key.
-  if (members.filter(m => m.username).length !== members.length) {
-    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+  if (members.some(m => !m.username)) {
+    throw new BadRequestError('Invalid members list. Each member must have a "username".');
   }
 
   // Find all existing members
@@ -728,12 +638,14 @@ async function addMembers(id, verificationCode, members) {
   // Find or create all players with the given usernames
   const players = await playerService.findAllOrCreate(members.map(m => m.username));
 
+  // Filter out any already existing usersnames to find the new unique usernames
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
     throw new BadRequestError('All players given are already members.');
   }
 
+  // Add the new players to the group (as members)
   await group.$add('members', newPlayers);
 
   const leaderUsernames = members
@@ -748,44 +660,24 @@ async function addMembers(id, verificationCode, members) {
   }
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed('updatedAt', true);
+  group.changed('updatedAt', true);
   await group.save();
 
   const allMembers = await group.$get('members');
 
-  const formatted = allMembers.map((member: any) =>
-    omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
-  );
-
-  return formatted;
+  return allMembers.map((m: any) => ({
+    ...(m.toJSON() as any),
+    role: m.memberships.role,
+    memberships: undefined
+  }));
 }
 
 /**
  * Removes all the usernames (members) from a group.
  */
-async function removeMembers(id, verificationCode, usernames) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
+async function removeMembers(group: Group, usernames: string[]) {
   if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid members list.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
+    throw new BadRequestError('Invalid or empty members list.');
   }
 
   const playersToRemove = await playerService.findAll(usernames);
@@ -802,7 +694,7 @@ async function removeMembers(id, verificationCode, usernames) {
   }
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed('updatedAt', true);
+  group.changed('updatedAt', true);
   await group.save();
 
   return removedPlayersCount;
@@ -811,62 +703,29 @@ async function removeMembers(id, verificationCode, usernames) {
 /**
  * Change the role of a given username, in a group.
  */
-async function changeRole(id, username, role, verificationCode) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  if (!username) {
-    throw new BadRequestError('Invalid username.');
-  }
-
-  if (!role) {
-    throw new BadRequestError(`Invalid group role.`);
-  }
-
-  if (!verificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  const group = await Group.findOne({ where: { id } });
-
-  if (!group) {
-    throw new BadRequestError(`Group of id ${id} was not found.`);
-  }
-
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
-
-  if (!verified) {
-    throw new BadRequestError('Incorrect verification code.');
-  }
+async function changeRole(group: Group, member: MemberFragment): Promise<[Player, string]> {
+  const { username, role } = member;
 
   const membership = await Membership.findOne({
-    where: { groupId: id },
-    include: [
-      {
-        model: Player,
-        where: { username: playerService.standardize(username) }
-      }
-    ]
+    where: { groupId: group.id },
+    include: [{ model: Player, where: { username: playerService.standardize(username) } }]
   });
 
   if (!membership) {
-    throw new BadRequestError(`'${username}' is not a member of ${group.name}.`);
+    throw new BadRequestError(`${username} is not a member of ${group.name}.`);
   }
 
-  const oldRole = membership.role;
-
   if (membership.role === role) {
-    throw new BadRequestError(`'${username}' already has the role of ${role}.`);
+    throw new BadRequestError(`${username} is already a ${role}.`);
   }
 
   await membership.update({ role });
 
   // Update the "updatedAt" timestamp on the group model
-  await group.changed('updatedAt', true);
+  group.changed('updatedAt', true);
   await group.save();
 
-  return { player: { ...membership.player.toJSON(), role: membership.role }, newRole: role, oldRole };
+  return [membership.player, role];
 }
 
 /**
@@ -897,17 +756,11 @@ async function findOne(groupId) {
  *
  * An update action must be supplied, to be executed for
  * every member. This is to prevent calling jobs from
- * within the service. I'd rather call them from the controller.
- *
- * Note: this is a soft update, meaning it will only create a new
- * snapshot, it won't import from CML.
+ * within the service (circular dependency).
+ * I'd rather call them from the controller.
  */
-async function updateAllMembers(id, updateAction) {
-  if (!id) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const members = await getOutdatedMembers(id);
+async function updateAllMembers(group: Group, updateAction: (player: Player) => void) {
+  const members = await getOutdatedMembers(group.id);
 
   if (!members || members.length === 0) {
     throw new BadRequestError('This group has no members that should be updated.');
@@ -961,13 +814,14 @@ async function refreshScores() {
   );
 }
 
-async function calculateScore(group) {
+async function calculateScore(group: Group): Promise<number> {
   let score = 0;
 
   const now = new Date();
-  const members = await getMembersList(group.id);
-  const competitions = await competitionService.getGroupCompetitions(group.id);
-  const averageOverallExp = members.reduce((acc, cur) => acc + cur, 0) / members.length;
+  const members = await getMembersList(group);
+  const pagination = { limit: 100, offset: 0 };
+  const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
+  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {
     return score;
@@ -1022,7 +876,7 @@ async function calculateScore(group) {
 }
 
 export {
-  format,
+  resolve,
   getMembers,
   findOne,
   getList,

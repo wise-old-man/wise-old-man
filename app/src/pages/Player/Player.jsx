@@ -76,7 +76,7 @@ function getPlayerBadges(build) {
     case '1def':
       return [{ text: '1 Def Pure', hoverText: '' }];
     case '10hp':
-      return [{ text: '10 HP Pure', hoverText: '' }]
+      return [{ text: '10 HP Pure', hoverText: '' }];
     default:
       return [];
   }
@@ -203,12 +203,15 @@ function Player() {
       })
       .catch(() => router.push('/404'));
 
-    dispatch(fetchSnapshotsAction({ playerId: id }));
     dispatch(fetchAchievementsAction({ playerId: id }));
     dispatch(fetchCompetitionsAction({ playerId: id }));
     dispatch(fetchGroupsAction({ playerId: id }));
     dispatch(fetchRecordsAction({ playerId: id }));
     dispatch(fetchDeltasAction({ playerId: id }));
+
+    PERIOD_OPTIONS.forEach(o => {
+      dispatch(fetchSnapshotsAction({ playerId: id, period: o.value }));
+    });
   };
 
   const getNextUrl = options => {
@@ -285,13 +288,16 @@ function Player() {
             <div className="warning">
               <img src="/img/runescape/icons_small/flagged.png" alt="" />
               <span>
-                This player is flagged. This is likely caused by an unregistered name change or they have become unranked in one or more skills due to lack of progress.
+                This player is flagged. This is likely caused by an unregistered name change or they have
+                become unranked in one or more skills due to lack of progress.
                 <br />
                 <Link to={`/names/submit/${player.displayName}`}>
                   Click here to submit a name change
                 </Link>
                 &nbsp; or join our &nbsp;
-                <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">Discord server</a>
+                <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+                  Discord server
+                </a>
                 &nbsp; for help.
               </span>
             </div>

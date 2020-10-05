@@ -144,13 +144,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid competition id.'
+          message: "Parameter 'id' is undefined."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Competition of id 4553 was not found.'
+          message: 'Competition not found.'
         }
       }
     ]
@@ -340,8 +340,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If endsAt is given but not valid.',
@@ -350,10 +358,6 @@ export default [
       {
         description: 'If startsAt is given but not valid.',
         body: { message: 'Invalid start date.' }
-      },
-      {
-        description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' }
       },
       {
         description: 'If the competition has already started and a metric was given.',
@@ -407,12 +411,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
       },
       {
-        description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' }
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If the verification code is not given.',
@@ -461,16 +469,20 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If participants is invalid or empty.',
         body: { message: 'Invalid participants list' }
-      },
-      {
-        description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -511,16 +523,20 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If participants is invalid or empty.',
         body: { message: 'Invalid participants list' }
-      },
-      {
-        description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -580,8 +596,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description:

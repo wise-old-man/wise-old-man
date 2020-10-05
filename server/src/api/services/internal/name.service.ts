@@ -14,6 +14,7 @@ import { NameChangeStatus, Pagination } from '../../../types';
 import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import { getLevel } from '../../util/level';
+import { buildQuery } from '../../util/query';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
@@ -22,16 +23,17 @@ import * as snapshotService from './snapshot.service';
 /**
  * List all name changes, filtered by a specific status
  */
-async function getList(status: NameChangeStatus, pagination: Pagination): Promise<NameChange[]> {
-  const { limit, offset } = pagination;
-
-  const query = status !== null ? { status } : {};
+async function getList(status: number, pagination: Pagination): Promise<NameChange[]> {
+  // Isn't a valid NameChangeStatus
+  if (status && !NameChangeStatus[status]) {
+    throw new BadRequestError('Invalid status.');
+  }
 
   const nameChanges = await NameChange.findAll({
-    where: query,
+    where: buildQuery({ status }),
     order: [['createdAt', 'DESC']],
-    limit,
-    offset
+    limit: pagination.limit,
+    offset: pagination.offset
   });
 
   return nameChanges;
@@ -41,6 +43,18 @@ async function getList(status: NameChangeStatus, pagination: Pagination): Promis
  * Submit a new name change request, from oldName to newName.
  */
 async function submit(oldName: string, newName: string): Promise<NameChange> {
+  if (!playerService.isValidUsername(oldName)) {
+    throw new BadRequestError('Invalid old name.');
+  }
+
+  if (!playerService.isValidUsername(newName)) {
+    throw new BadRequestError('Invalid new name.');
+  }
+
+  if (playerService.standardize(oldName) === playerService.standardize(newName)) {
+    throw new BadRequestError('Old and new names must be different.');
+  }
+
   // Check if a player with the "oldName" username is registered
   const oldPlayer = await playerService.find(oldName);
 
@@ -58,7 +72,11 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
   }
 
   // Create a new instance (a new name change request)
-  const nameChange = NameChange.create({ playerId: oldPlayer.id, oldName, newName });
+  const nameChange = NameChange.create({
+    playerId: oldPlayer.id,
+    oldName,
+    newName
+  });
 
   return nameChange;
 }

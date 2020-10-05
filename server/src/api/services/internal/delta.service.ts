@@ -1,13 +1,26 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { Pagination } from 'src/types';
 import { Delta, InitialValues, Player, Snapshot } from '../../../database/models';
+import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import * as snapshotService from './snapshot.service';
+
+interface GlobalDeltasFilter {
+  period?: string;
+  metric?: string;
+  playerType?: string;
+  playerBuild?: string;
+}
+
+interface GroupDeltasFilter {
+  playerIds: number[];
+  period?: string;
+  metric?: string;
+}
 
 const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
 
@@ -16,7 +29,7 @@ export const WEEK_IN_SECONDS = 604800;
 export const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
 export const YEAR_IN_SECONDS = 31556926;
 
-export function getSeconds(period) {
+function getSeconds(period: string) {
   switch (period) {
     case 'day':
       return DAY_IN_SECONDS;
@@ -115,7 +128,7 @@ async function syncInitialValues(playerId: number, latest: Snapshot) {
   // Find or create (if doesn't exist) the player's initial values
   const [initial] = await InitialValues.findOrCreate({ where: { playerId } });
 
-  mapValues(latest, (value, key) => {
+  mapValues(latest.toJSON(), (value, key) => {
     if (value > -1 && initial[key] === -1) {
       initial[key] = value;
     }
@@ -134,15 +147,11 @@ async function getPlayerPeriodDeltas(
   latest?: Snapshot,
   initial?: InitialValues
 ) {
-  if (!playerId) {
-    throw new BadRequestError('Invalid player id.');
-  }
-
-  if (!period || !PERIODS.includes(period)) {
+  if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const periodStartDate = Date.now() - getSeconds(period) * 1000;
+  const periodStartDate = new Date(Date.now() - getSeconds(period) * 1000);
   const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
   const latestSnapshot = latest || (await snapshotService.findLatest(playerId));
 
@@ -183,7 +192,9 @@ async function getPlayerDeltas(playerId: number) {
  * Gets the best deltas for a specific metric and period.
  * Optionally, these deltas can be filtered by player type and build.
  */
-async function getLeaderboard(metric: string, period: string, type?: string, build?: string) {
+async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination) {
+  const { metric, period, playerBuild, playerType } = filter;
+
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
@@ -192,12 +203,12 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (type && !PLAYER_TYPES.includes(type)) {
-    throw new BadRequestError(`Invalid player type: ${type}.`);
+  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+    throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (build && !PLAYER_BUILDS.includes(build)) {
-    throw new BadRequestError(`Invalid player build: ${build}.`);
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+    throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
   const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
@@ -209,9 +220,10 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
       indicator: 'value',
       updatedAt: { [Op.gte]: startingDate }
     },
+    include: [{ model: Player, where: buildQuery({ type: playerType, build: playerBuild }) }],
     order: [[metric, 'DESC']],
-    include: [{ model: Player, where: buildQuery({ type, build }) }],
-    limit: 20
+    limit: pagination.limit,
+    offset: pagination.offset
   });
 
   return deltas.map(d => ({
@@ -226,16 +238,13 @@ async function getLeaderboard(metric: string, period: string, type?: string, bui
  * Gets the best deltas for a specific metric, period and list of players.
  * Note: this is useful for group statistics
  */
-async function getGroupLeaderboard(
-  metric: string,
-  period: string,
-  ids: number[],
-  pagination: Pagination
-) {
+async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagination) {
+  const { metric, period, playerIds } = filter;
+
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, indicator: 'value', playerId: ids },
+    where: { period, indicator: 'value', playerId: playerIds },
     order: [[metric, 'DESC']],
     include: [{ model: Player }],
     limit: pagination.limit,
