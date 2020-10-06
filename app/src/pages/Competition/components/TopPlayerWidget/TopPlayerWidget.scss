@@ -36,6 +36,10 @@
     color: $gray-60;
     margin-top: 5px;
 
+    &.-green {
+      color: $positive-green !important;
+    }
+
     &.-placeholder {
       width: 60%;
       height: 14px;
