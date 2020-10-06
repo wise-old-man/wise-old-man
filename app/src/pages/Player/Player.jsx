@@ -110,11 +110,11 @@ function getSelectedMetric(metricType, location) {
 function getMetricList(metricType) {
   switch (metricType) {
     case 'bossing':
-      return BOSSES;
+      return [...BOSSES, 'ehb'];
     case 'activities':
       return ACTIVITIES;
     default:
-      return SKILLS;
+      return [...SKILLS, 'ehp'];
   }
 }
 

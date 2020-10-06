@@ -43,12 +43,14 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
       const aValue = column.get ? column.get(a) : a[sorting.by];
       const bValue = column.get ? column.get(b) : b[sorting.by];
 
+      const isString = typeof aValue === 'string' || typeof bValue === 'string';
+
       if (sorting.type === SORT.ASCENDING) {
-        return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
+        return isString ? String(aValue).localeCompare(String(bValue)) : aValue - bValue;
       }
 
       if (sorting.type === SORT.DESCENDING) {
-        return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
+        return isString ? String(bValue).localeCompare(String(aValue)) : bValue - aValue;
       }
 
       return 0;

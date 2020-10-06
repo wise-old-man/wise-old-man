@@ -56,7 +56,11 @@ export function getMeasure(value) {
     return 'score';
   }
 
-  return 'kills';
+  if (isBoss(value)) {
+    return 'kills';
+  }
+
+  return 'value';
 }
 
 export function getRankKey(value) {
@@ -95,6 +99,12 @@ export function getMetricName(value) {
   for (let i = 0; i < METRICS_CONFIG.BOSSES.length; i += 1) {
     if (METRICS_CONFIG.BOSSES[i].key === value) {
       return METRICS_CONFIG.BOSSES[i].name;
+    }
+  }
+
+  for (let i = 0; i < METRICS_CONFIG.VIRTUALS.length; i += 1) {
+    if (METRICS_CONFIG.VIRTUALS[i].key === value) {
+      return METRICS_CONFIG.VIRTUALS[i].name;
     }
   }
 
