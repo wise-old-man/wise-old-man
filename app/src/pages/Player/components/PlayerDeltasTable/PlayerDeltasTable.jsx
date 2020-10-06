@@ -30,8 +30,8 @@ function getSkillsTable(delta) {
   rows.push({
     metric: 'ehp',
     level: '',
-    experience: delta['ehp'].value.gained,
-    rank: delta['ehp'].rank.gained,
+    experience: delta.ehp.value.gained,
+    rank: delta.ehp.rank.gained,
     ehp: ''
   });
 
@@ -95,8 +95,8 @@ function getBossesTable(delta) {
   rows.push({
     metric: 'ehb',
     level: '',
-    kills: delta['ehb'].value.gained,
-    rank: delta['ehb'].rank.gained,
+    kills: delta.ehb.value.gained,
+    rank: delta.ehb.rank.gained,
     ehb: ''
   });
 

@@ -34,7 +34,8 @@ export function formatNumber(num, withLetters = false) {
 }
 
 export function round(num, cases) {
-  return Math.round(num * Math.pow(10, cases)) / Math.pow(10, cases);
+  const x = 10 ** cases;
+  return Math.round(num * x) / x;
 }
 
 export function padNumber(value) {

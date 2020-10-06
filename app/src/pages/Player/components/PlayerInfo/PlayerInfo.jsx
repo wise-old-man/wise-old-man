@@ -33,19 +33,7 @@ function getEHBLabel(type, build) {
 }
 
 function formatData(player) {
-  const {
-    id,
-    type,
-    build,
-    exp,
-    ehp,
-    ehb,
-    combatLevel,
-    registeredAt,
-    updatedAt,
-    lastImportedAt,
-    latestSnapshot
-  } = player;
+  const { id, type, build, ehp, ehb, combatLevel, registeredAt, updatedAt, latestSnapshot } = player;
 
   const overallRank = latestSnapshot ? latestSnapshot.overall.rank : 'Unknown';
   const ehpLabel = getEHPLabel(type, build);

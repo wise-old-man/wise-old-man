@@ -29,8 +29,8 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
   rows.push({
     metric: 'ehp',
     level: '',
-    experience: snapshot['ehp'].value,
-    rank: snapshot['ehp'].rank
+    experience: snapshot.ehp.value,
+    rank: snapshot.ehp.rank
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -79,8 +79,8 @@ function renderBossesTable(snapshot) {
   // Add special case for EHB
   rows.push({
     metric: 'ehb',
-    kills: snapshot['ehb'].value,
-    rank: snapshot['ehb'].rank
+    kills: snapshot.ehb.value,
+    rank: snapshot.ehb.rank
   });
 
   const uniqueKeySelector = row => row.metric;
