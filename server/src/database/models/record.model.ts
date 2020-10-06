@@ -46,7 +46,7 @@ export default class Record extends Model<Record> {
   @Column({ type: DataType.ENUM(...ALL_METRICS), allowNull: false })
   metric: string;
 
-  @Column({ type: DataType.BIGINT, get: parseValue, defaultValue: 0 })
+  @Column({ type: DataType.BIGINT, get: parseValue, set: setValue, defaultValue: 0 })
   value: number;
 
   @UpdatedAt
@@ -64,7 +64,21 @@ export default class Record extends Model<Record> {
  * as strings, to counter that, we convert every bigint to a JS number
  */
 function parseValue(this: any) {
-  return parseInt(this.getDataValue('value', 10));
+  // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
+  // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
+  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const factor = isFloat ? 10000 : 1;
+
+  return parseInt(this.getDataValue('value', 10)) / factor;
+}
+
+function setValue(value: number) {
+  // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
+  // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
+  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const factor = isFloat ? 10000 : 1;
+
+  this.setDataValue('value', value * factor);
 }
 
 function validateMetric(this: Record) {
