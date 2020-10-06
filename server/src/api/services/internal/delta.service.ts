@@ -5,19 +5,10 @@ import { Delta, InitialValues, Player, Snapshot } from '../../../database/models
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import {
-  getMeasure,
-  getRankKey,
-  getValueKey,
-  getVirtualKey,
-  isBoss,
-  isSkill,
-  isVirtual
-} from '../../util/metrics';
+import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as efficiencyService from './efficiency.service';
-import { SnapshotVirtuals } from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
@@ -179,14 +170,11 @@ async function getPlayerPeriodDeltas(
     return { period, startsAt: null, endsAt: null, data: emptyDiff() };
   }
 
-  const startEfficiency = efficiencyService.calcSnapshotVirtuals(targetPlayer, startSnapshot);
-  const endEfficiency = efficiencyService.calcSnapshotVirtuals(targetPlayer, latestSnapshot);
-
   return {
     period,
     startsAt: startSnapshot.createdAt,
     endsAt: latestSnapshot.createdAt,
-    data: diff(startSnapshot, latestSnapshot, initialValues, startEfficiency, endEfficiency)
+    data: diff(startSnapshot, latestSnapshot, initialValues, targetPlayer)
   };
 }
 
@@ -285,15 +273,14 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
  * Calculate the difference between two snapshots,
  * taking untracked values into consideration. (via initial values)
  */
-function diff(
-  start: Snapshot,
-  end: Snapshot,
-  initial: InitialValues,
-  startEfficiencyMap: SnapshotVirtuals,
-  endEfficiencyMap: SnapshotVirtuals
-) {
+function diff(start: Snapshot, end: Snapshot, initial: InitialValues, player: Player) {
   const diffObj = {};
+  const fixedStart = {};
 
+  // To prevent boss/activity/virtual values from jumping from untracked (-1)
+  // to tracked (high number), the "start" value of each metric is either
+  // fetched from the start snapshot or the player's initial values.
+  // So before calculating the start to end diffs, we must first "fix" the start values.
   ALL_METRICS.forEach(metric => {
     const rankKey = getRankKey(metric);
     const valueKey = getValueKey(metric);
@@ -301,11 +288,34 @@ function diff(
     const initialRank = initial ? initial[rankKey] : -1;
     const initialValue = initial ? initial[valueKey] : -1;
 
-    const endValue = parseNum(metric, end[valueKey]);
-    const endRank = end[rankKey];
-
     const startValue = parseNum(metric, start[valueKey] === -1 ? initialValue : start[valueKey]);
     const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
+
+    fixedStart[rankKey] = startRank;
+    fixedStart[valueKey] = startValue;
+  });
+
+  // After fixing the start values, we convert it into a temporary snapshot
+  const fixedStartSnapshot = Snapshot.build(fixedStart);
+
+  // With this new fixed start snapshot, we calculate start and end EHP/EHB values
+  const startEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player, fixedStartSnapshot);
+  const endEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player, end);
+
+  const startEHP = efficiencyService.calculateEHP(fixedStartSnapshot, player.type, player.build);
+  const startEHB = efficiencyService.calculateEHB(fixedStartSnapshot, player.type, player.build);
+  const endEHP = efficiencyService.calculateEHP(end, player.type, player.build);
+  const endEHB = efficiencyService.calculateEHB(end, player.type, player.build);
+
+  ALL_METRICS.forEach(metric => {
+    const rankKey = getRankKey(metric);
+    const valueKey = getValueKey(metric);
+
+    const startValue = parseNum(metric, fixedStart[valueKey]);
+    const startRank = fixedStart[rankKey];
+
+    const endValue = parseNum(metric, end[valueKey]);
+    const endRank = end[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
     // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
@@ -330,15 +340,36 @@ function diff(
       }
     };
 
-    // Add EHP/EHB diffs
-    if (isSkill(metric) || isBoss(metric)) {
-      diffObj[metric][getVirtualKey(metric)] = {
+    // If this metric is a skill, add it's ehp data
+    if (isSkill(metric)) {
+      diffObj[metric].ehp = {
+        start: startEfficiency,
+        end: endEfficiency,
+        gained: gainedEfficiency
+      };
+    }
+
+    // If this metric is a boss, add it's ehb data
+    if (isBoss(metric)) {
+      diffObj[metric].ehb = {
         start: startEfficiency,
         end: endEfficiency,
         gained: gainedEfficiency
       };
     }
   });
+
+  diffObj['ehp'].value = {
+    start: startEHP,
+    end: endEHP,
+    gained: round(endEHP - startEHP, 5)
+  };
+
+  diffObj['ehb'].value = {
+    start: startEHB,
+    end: endEHB,
+    gained: round(endEHB - startEHB, 5)
+  };
 
   // Set overall EHP, since the overall EHP is the total EHP
   diffObj['overall'].ehp = { ...diffObj['ehp'].value };
