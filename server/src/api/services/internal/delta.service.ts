@@ -25,8 +25,6 @@ interface GroupDeltasFilter {
   metric?: string;
 }
 
-const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
-
 export const DAY_IN_SECONDS = 86400;
 export const WEEK_IN_SECONDS = 604800;
 export const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
@@ -51,81 +49,38 @@ function parseNum(key: string, val: string) {
   return isVirtual(key) ? parseFloat(val) : parseInt(val);
 }
 
-async function syncDeltas(latestSnapshot: Snapshot) {
-  const { playerId } = latestSnapshot;
-  const initialValues = await syncInitialValues(playerId, latestSnapshot);
+async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
+  const initialValues = await syncInitialValues(player.id, latestSnapshot);
 
   await Promise.all(
     PERIODS.map(async period => {
       const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
-      const first = await snapshotService.findFirstSince(playerId, startingDate);
+      const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
 
-      const currentDeltas = await Delta.findAll({ where: { playerId, period } });
+      const currentDelta = await Delta.findOne({
+        where: { playerId: player.id, period, indicator: 'value' }
+      });
 
-      const deltaDefinitions = Object.fromEntries(
-        DELTA_INDICATORS.map(indicator => [
-          indicator,
-          {
-            playerId,
-            period,
-            indicator,
-            startedAt: first.createdAt,
-            endedAt: latestSnapshot.createdAt
-          }
-        ])
-      );
+      const newDelta = {
+        playerId: player.id,
+        indicator: 'value',
+        period,
+        startedAt: startSnapshot.createdAt,
+        endedAt: latestSnapshot.createdAt
+      };
 
-      const toCreate = [];
-      const toUpdate = [];
+      const periodDiffs = diff(startSnapshot, latestSnapshot, initialValues, player);
 
       ALL_METRICS.forEach(metric => {
-        const rankKey = getRankKey(metric);
-        const valueKey = getValueKey(metric);
-
-        const initialRank = initialValues ? initialValues[rankKey] : -1;
-        const initialValue = initialValues ? initialValues[valueKey] : -1;
-
-        const endValue = parseNum(metric, latestSnapshot[valueKey]);
-        const endRank = latestSnapshot[rankKey];
-        // TODO: const endEfficiency = ...
-
-        const startValue = parseNum(metric, first[valueKey] === -1 ? initialValue : first[valueKey]);
-        const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
-        // TODO: const startEfficiency = ...
-
-        // Do not use initial ranks for skill, to prevent -1 ranks
-        // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
-        const gainedRank = isSkill(metric) && first[rankKey] === -1 ? 0 : endRank - startRank;
-        const gainedValue = round(endValue - startValue, 5);
-        // TODO: const gainedEfficiency = ...
-
-        deltaDefinitions['value'][metric] = gainedValue;
-        deltaDefinitions['rank'][metric] = gainedRank;
-        deltaDefinitions['efficiency'][metric] = 0;
+        newDelta[metric] = periodDiffs[metric][getMeasure(metric)].gained;
       });
 
-      DELTA_INDICATORS.forEach(indicator => {
-        const delta = currentDeltas.find(c => c.indicator === indicator);
-
-        if (!delta) {
-          toCreate.push(deltaDefinitions[indicator]);
-        } else {
-          toUpdate.push({ current: delta, updated: deltaDefinitions[indicator] });
-        }
-      });
-
-      // Update all "outdated deltas"
-      if (toUpdate.length > 0) {
-        await Promise.all(
-          toUpdate.map(async ({ current, updated }) => {
-            await current.update({ ...updated });
-          })
-        );
-      }
-
-      // Create all missing deltas
-      if (toCreate.length > 0) {
-        await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+      // If player doesn't have a delta for this period
+      // on the database, create it, otherwise just update it
+      if (!currentDelta) {
+        await Delta.create({ ...newDelta });
+      } else {
+        await currentDelta.update({ ...newDelta });
       }
     })
   );

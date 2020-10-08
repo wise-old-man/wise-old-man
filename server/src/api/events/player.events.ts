@@ -20,8 +20,6 @@ function onPlayerNameChanged(player: Player) {
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {
-  // Update this player's deltas (gains)
-  deltaService.syncDeltas(snapshot);
   // Update this player's competition participations (gains)
   competitionService.syncParticipations(snapshot.playerId, snapshot);
   // Check for new achievements
@@ -29,6 +27,9 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 
   const player = await snapshot.$get('player');
   if (!player) return;
+
+  // Update this player's deltas (gains)
+  deltaService.syncDeltas(player, snapshot);
 
   // Attempt to import this player's history from CML
   playerService.importCML(player);
