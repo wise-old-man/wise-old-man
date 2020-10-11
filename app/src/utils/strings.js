@@ -13,7 +13,9 @@ export function formatNumber(num, withLetters = false) {
 
   // If number is float
   if (num % 1 !== 0) {
-    return round(num, 2);
+    return round(num, 2)
+      .toString()
+      .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
   }
 
   if ((num < 10000 && num > -10000) || !withLetters) {

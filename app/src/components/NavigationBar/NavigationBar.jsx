@@ -24,7 +24,7 @@ const MENU_CONFIG = [
       {
         icon: '/img/icons/hiscores.svg',
         label: 'Virtual Hiscores',
-        url: '/hiscores'
+        url: '/leaderboards'
       }
     ]
   },
