@@ -3,9 +3,9 @@ import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
 import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
 import { BadRequestError } from '../../errors';
+import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
 import {
   default as f2pAlgorithm,
-  default as ironAlgorithm,
   default as lvl3Algorithm,
   default as mainAlgorithm
 } from '../../modules/efficiency/algorithms/main';
@@ -39,7 +39,7 @@ async function getRates(metric = 'ehp', type = 'main') {
     case 'main':
       return isEHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
     case 'ironman':
-      return isEHP ? ironAlgorithm.getEHPRates() : ironAlgorithm.getEHBRates();
+      return isEHP ? ironmanAlgorithm.getEHPRates() : ironmanAlgorithm.getEHBRates();
     case 'f2p':
       return isEHP ? f2pAlgorithm.getEHPRates() : f2pAlgorithm.getEHBRates();
     case 'lvl3':
@@ -155,7 +155,7 @@ function calculateEHBDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): nu
 
 function getAlgorithm(type: string, build: string): VirtualAlgorithm {
   if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
-    return ironAlgorithm;
+    return ironmanAlgorithm;
   }
 
   switch (build) {
