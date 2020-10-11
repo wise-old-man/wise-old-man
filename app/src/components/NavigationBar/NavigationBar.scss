@@ -59,6 +59,7 @@
       flex-direction: row;
       align-items: center;
       justify-content: flex-end;
+      padding: 0;
 
       .nav-toggle {
         display: none;
@@ -73,39 +74,85 @@
         }
       }
 
-      .nav-links__list {
+      .nav-items__list {
         list-style: none;
         margin: 0;
         padding: 0;
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        margin-right: 20px;
 
-        .text-input {
-          border: 1px solid $gray-12;
-          padding: 6px 9px;
-          width: 130px;
-        }
-
-        .nav-links__item {
-          display: inline-block;
+        .nav-item {
           font-weight: 700;
           text-shadow: 1px 1px black;
+          margin-left: 25px;
           font-size: 0.9em;
-          margin-left: 20px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
 
-          &:first-child {
-            margin-left: 0px;
+          &:hover .dropdown__content {
+            display: block;
           }
 
-          &.-spacing {
-            @extend %block-text-selection;
-            color: $gray-40;
+          .dropdown__content {
+            @extend %panel;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            background: $gray-09;
+            position: absolute;
+            top: 72px;
+            min-width: 150px;
+            display: none;
+            list-style: none;
+            padding: 0;
+            margin: 0;
 
-            &:hover {
-              opacity: 1;
+            .dropdown__link {
+              padding: 15px;
+              padding-right: 40px;
+              border-bottom: 1px solid $gray-17;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              font-size: 0.9em !important;
+
+              img {
+                margin-right: 10px;
+                width: 20px;
+                height: 20px;
+              }
+
+              a:hover {
+                opacity: 0.6;
+              }
+
+              &:last-child {
+                border: none;
+              }
             }
           }
 
-          &:hover {
-            opacity: 0.7;
+          &.-dropdown {
+            .dropdown__wrapper {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              cursor: pointer;
+
+              img {
+                margin-left: 5px;
+              }
+            }
+          }
+
+          &.-search {
+            .text-input {
+              border: 1px solid $gray-12;
+              padding: 6px 9px;
+              width: 140px;
+            }
           }
         }
       }
@@ -134,48 +181,62 @@
 
     .nav-menu {
       height: 65px;
+
       .nav-toggle {
         display: block;
       }
 
-      .nav-links__list {
+      .nav-items__list {
         position: fixed;
         top: 65px;
         left: 0;
         right: 0;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        max-height: calc(100vh - 72px);
+        overflow-y: scroll;
+
+        &::-webkit-scrollbar {
+          width: 5px;
+          background: $gray-00;
+
+          &-thumb {
+            background-color: $gray-17;
+          }
+        }
 
         &.-collapsed {
           display: none;
         }
 
-        .nav-links__item {
+        .nav-item {
           background: $gray-07;
           display: block;
-          margin: 0;
           border-bottom: 1px solid $gray-12;
-
-          &:first-child {
-            padding: 20px;
-          }
-
-          &.-spacing {
-            display: none;
-          }
-
-          a {
-            padding: 20px;
-            width: 100%;
-            display: block;
-          }
-
-          &:hover {
-            opacity: 1;
-            color: gray;
-          }
+          width: 100%;
+          padding: 20px;
+          margin: 0;
 
           .text-input {
+            width: 100% !important;
+          }
+
+          .dropdown__content {
+            position: relative;
+            box-shadow: none;
+            background: none;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 15px 10px;
+            padding: 0;
+            margin: 0;
+            margin-top: 10px;
+            display: block;
+
+            .dropdown__link {
+              border-color: $gray-12;
+            }
           }
         }
       }
