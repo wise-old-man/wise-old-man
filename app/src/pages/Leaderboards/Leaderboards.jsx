@@ -103,7 +103,7 @@ function getPlayerBuildOptions() {
 }
 
 function getMetricOptions() {
-  return VIRTUALS.map(metric => ({
+  return [...VIRTUALS, 'ehp+ehb'].map(metric => ({
     label: getMetricName(metric),
     icon: getMetricIcon(metric, true),
     value: metric
@@ -122,7 +122,7 @@ function Leaderboards() {
   const selectedPlayerType = type || null;
   const selectedPlayerBuild = build || null;
 
-  const tableConfig = useMemo(() => getTableConfig(selectedMetric));
+  const tableConfig = useMemo(() => getTableConfig(selectedMetric), [selectedMetric]);
   const metricOptions = useMemo(() => getMetricOptions(), []);
   const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
   const playerBuildOptions = useMemo(() => getPlayerBuildOptions(), []);
@@ -201,8 +201,6 @@ function Leaderboards() {
   // Memoized callbacks
   const onLoadMore = useCallback(handleLoadMore, [pageIndex]);
 
-  console.log(leaderboards);
-
   // Submit search each time any of the search variable change
 
   useEffect(handleFetchData, [selectedMetric, selectedPlayerType, selectedPlayerBuild]);
@@ -247,7 +245,7 @@ function Leaderboards() {
       <div className="leaderboards__list row">
         <div className="col">
           {isLoading && (!leaderboards || leaderboards.length === 0) ? (
-            <TablePlaceholder size={5} />
+            <TablePlaceholder size={20} />
           ) : (
             <Table
               uniqueKeySelector={tableConfig.uniqueKey}
