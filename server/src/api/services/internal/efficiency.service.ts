@@ -3,9 +3,9 @@ import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
 import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
 import { BadRequestError } from '../../errors';
+import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
 import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
 import {
-  default as f2pAlgorithm,
   default as lvl3Algorithm,
   default as mainAlgorithm
 } from '../../modules/efficiency/algorithms/main';
