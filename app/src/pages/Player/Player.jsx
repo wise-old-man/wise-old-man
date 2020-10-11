@@ -19,6 +19,7 @@ import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
+import PlayerCards from './components/PlayerCards';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
 import { getPlayerRecords } from '../../redux/selectors/records';
@@ -316,6 +317,11 @@ function Player() {
               </button>
             </Dropdown>
           </PageHeader>
+        </div>
+      </div>
+      <div className="player__cards row">
+        <div className="col-md-12">
+          <PlayerCards player={player} />
         </div>
       </div>
       <div className="player__controls row">
