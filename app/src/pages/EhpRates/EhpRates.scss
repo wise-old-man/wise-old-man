@@ -1,14 +1,14 @@
 @import '../../styles.scss';
 
-.rates__container {
+.ehp-rates__container {
   @extend %page;
   width: 700px !important;
   max-width: 90%;
 
-  .rates__content {
+  .ehp-rates__content {
     margin-top: 50px;
 
-    .rates__section {
+    .ehp-rates__section {
       @extend %panel;
       padding: 20px;
       margin-bottom: 50px;

@@ -108,11 +108,11 @@ function Rates() {
   }
 
   return (
-    <div className="rates__container container">
+    <div className="ehp-rates__container container">
       <Helmet>
         <title>EHP rates</title>
       </Helmet>
-      <div className="rates__header row">
+      <div className="ehp-rates__header row">
         <div className="col-lg-8 col-sm-12">
           <PageTitle title="EHP Rates" />
         </div>
@@ -120,9 +120,9 @@ function Rates() {
           <Selector options={typeOptions} selectedIndex={typeIndex} onSelect={handleTypeSelected} />
         </div>
       </div>
-      <div className="rates__content">
+      <div className="ehp-rates__content">
         {ehpRates.map(e => (
-          <div key={e.skill} className="rates__section">
+          <div key={e.skill} className="ehp-rates__section">
             <div className="section__header">
               <img className="section__icon" src={getMetricIcon(e.skill)} alt="" />
               <b className="section__title">{getMetricName(e.skill)}</b>

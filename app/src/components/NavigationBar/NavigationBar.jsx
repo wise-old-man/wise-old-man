@@ -54,9 +54,14 @@ const MENU_CONFIG = [
     label: 'Efficiency',
     links: [
       {
-        icon: '/img/icons/math.svg',
-        label: 'Efficiency Rates',
-        url: '/rates'
+        icon: '/img/icons/skilling.svg',
+        label: 'EHP Rates',
+        url: '/rates/ehp'
+      },
+      {
+        icon: '/img/icons/sword.svg',
+        label: 'EHB Rates',
+        url: '/rates/ehb'
       }
     ]
   },

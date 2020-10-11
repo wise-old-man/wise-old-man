@@ -66,11 +66,11 @@ function Rates() {
   }
 
   return (
-    <div className="rates__container container">
+    <div className="ehb-rates__container container">
       <Helmet>
         <title>EHB rates</title>
       </Helmet>
-      <div className="rates__header row">
+      <div className="ehb-rates__header row">
         <div className="col-lg-8 col-sm-12">
           <PageTitle title="EHB Rates" />
         </div>
@@ -78,7 +78,7 @@ function Rates() {
           <Selector options={typeOptions} selectedIndex={typeIndex} onSelect={handleTypeSelected} />
         </div>
       </div>
-      <div className="rates__content">
+      <div className="ehb-rates__content">
         <Table
           rows={ehbRates}
           columns={RATES_TABLE_CONFIG.columns}
