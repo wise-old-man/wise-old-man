@@ -24,6 +24,14 @@ class MainAlgorithm implements VirtualAlgorithm {
     this.maxedEHP = this.calculateMaxedEHP();
   }
 
+  getEHPRates(): SkillMeta[] {
+    return this.skillMetas;
+  }
+
+  getEHBRates(): BossMeta[] {
+    return this.bossMetas;
+  }
+
   calculateMaximumEHP(): number {
     return calculateMaximumEHP(this.skillMetas);
   }

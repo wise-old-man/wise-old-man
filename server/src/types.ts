@@ -30,6 +30,8 @@ export interface VirtualAlgorithm {
   bossMetas: BossMeta[];
   maximumEHP: number;
   maxedEHP: number;
+  getEHPRates(): SkillMeta[];
+  getEHBRates(): BossMeta[];
   calculateEHB(killcounts: Killcounts): number;
   calculateEHP(experiences: Experiences): number;
   calculateTTM(experiences: Experiences): number;

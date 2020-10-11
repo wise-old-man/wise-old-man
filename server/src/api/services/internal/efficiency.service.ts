@@ -32,6 +32,23 @@ interface LeaderboardFilter {
   playerBuild?: string;
 }
 
+async function getRates(metric = 'ehp', type = 'main') {
+  const isEHP = metric === 'ehp';
+
+  switch (type) {
+    case 'main':
+      return isEHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
+    case 'ironman':
+      return isEHP ? ironAlgorithm.getEHPRates() : ironAlgorithm.getEHBRates();
+    case 'f2p':
+      return isEHP ? f2pAlgorithm.getEHPRates() : f2pAlgorithm.getEHBRates();
+    case 'lvl3':
+      return isEHP ? lvl3Algorithm.getEHPRates() : lvl3Algorithm.getEHBRates();
+    default:
+      return isEHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
+  }
+}
+
 async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
   if (filter.metric && ![...VIRTUAL, 'ehp+ehb'].includes(filter.metric)) {
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
@@ -174,6 +191,7 @@ async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
 }
 
 export {
+  getRates,
   getLeaderboard,
   calcPlayerVirtuals,
   calcSnapshotVirtuals,

@@ -25,4 +25,18 @@ async function leaderboard(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { leaderboard };
+// GET /efficiency/rates
+async function rates(req: Request, res: Response, next: NextFunction) {
+  try {
+    const metric = extractString(req.query, { key: 'metric' });
+    const type = extractString(req.query, { key: 'type' });
+
+    const rates = await service.getRates(metric, type);
+
+    res.json(rates);
+  } catch (e) {
+    next(e);
+  }
+}
+
+export { leaderboard, rates };
