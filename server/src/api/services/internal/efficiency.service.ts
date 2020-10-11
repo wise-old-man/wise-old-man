@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
 import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
@@ -33,8 +33,8 @@ interface LeaderboardFilter {
 }
 
 async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
-  if (filter.metric && !VIRTUAL.includes(filter.metric)) {
-    throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb]');
+  if (filter.metric && ![...VIRTUAL, 'ehp+ehb'].includes(filter.metric)) {
+    throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
   }
 
   if (filter.playerBuild && !PLAYER_BUILDS.includes(filter.playerBuild)) {
@@ -44,14 +44,17 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
   const metric = filter.metric || 'ehp';
   const playerType = filter.playerType || 'regular';
 
+  const isCombined = metric === 'ehp+ehb';
+
   const results = await Player.findAll({
+    attributes: isCombined && { include: [['(ehp + ehb)', 'ehp+ehb']] },
     where: buildQuery({ type: playerType, build: filter.playerBuild }),
-    order: [[metric, 'DESC']],
+    order: isCombined ? [[Sequelize.literal(metric), 'DESC']] : [[metric, 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset
   });
 
-  if (pagination.offset < 20 && playerType === 'regular') {
+  if (metric === 'ehp' && pagination.offset < 20 && playerType === 'regular') {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
