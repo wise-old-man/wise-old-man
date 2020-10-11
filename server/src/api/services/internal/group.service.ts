@@ -258,35 +258,9 @@ async function getMembersList(group: Group): Promise<Member[]> {
     return [];
   }
 
-  const query = `
-        SELECT s."playerId", s."overallExperience"
-        FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-              FROM public.snapshots q
-              WHERE q."playerId" = ANY(ARRAY[${memberships.map(m => m.player.id).join(',')}])
-              GROUP BY q."playerId"
-              ) r
-        JOIN public.snapshots s
-          ON s."playerId" = r."playerId"
-          AND s."createdAt"   = r.max_date
-        ORDER BY s."playerId"
-  `;
-
-  // Execute the query above, which returns the latest snapshot for each member,
-  // in the following format: [{playerId: 61, overallExerience: "4465456"}]
-  // Note: this used to be a sequelize query, but it was very slow for large groups
-  const experienceSnapshots: any = await sequelize.query(query, {
-    type: QueryTypes.SELECT
-  });
-
-  // Formats the experience snapshots to a key:value map, like: {"61": 4465456}.
-  const experienceMap = mapValues(keyBy(experienceSnapshots, 'playerId'), d =>
-    parseInt(d.overallExperience, 10)
-  );
-
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
-    .map(({ player, role }) => ({ ...player.toJSON(), role }))
-    .map((member: any) => ({ ...member, overallExperience: experienceMap[member.id] || 0 }))
+    .map(({ player, role }) => ({ ...(player.toJSON() as any), role }))
     .sort((a, b) => a.role.localeCompare(b.role));
 }
 
