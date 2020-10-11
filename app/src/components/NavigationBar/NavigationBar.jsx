@@ -6,6 +6,77 @@ import TextInput from '../TextInput';
 import fetchPlayer from '../../redux/modules/players/actions/fetch';
 import './NavigationBar.scss';
 
+const MENU_CONFIG = [
+  {
+    type: 'dropdown',
+    label: 'Leaderboards',
+    links: [
+      {
+        icon: '/img/icons/rising.svg',
+        label: 'Current Top',
+        url: '/top'
+      },
+      {
+        icon: '/img/icons/medal.svg',
+        label: 'Records',
+        url: '/records'
+      },
+      {
+        icon: '/img/icons/hiscores.svg',
+        label: 'Virtual Hiscores',
+        url: '/leaderboards'
+      }
+    ]
+  },
+  {
+    type: 'dropdown',
+    label: 'Community',
+    links: [
+      {
+        icon: '/img/icons/group.svg',
+        label: 'Groups',
+        url: '/groups'
+      },
+      {
+        icon: '/img/icons/trophy.svg',
+        label: 'Competitions',
+        url: '/competitions'
+      },
+      {
+        icon: '/img/icons/label.svg',
+        label: 'Name changes',
+        url: '/names'
+      }
+    ]
+  },
+  {
+    type: 'dropdown',
+    label: 'Efficiency',
+    links: [
+      {
+        icon: '/img/icons/skilling.svg',
+        label: 'EHP Rates',
+        url: '/rates/ehp'
+      },
+      {
+        icon: '/img/icons/sword.svg',
+        label: 'EHB Rates',
+        url: '/rates/ehb'
+      }
+    ]
+  },
+  {
+    type: 'link',
+    label: 'API',
+    url: 'https://wiseoldman.net/docs'
+  },
+  {
+    type: 'link',
+    label: 'Discord Bot',
+    url: 'https://bot.wiseoldman.net'
+  }
+];
+
 function NavigationBar() {
   const router = useHistory();
   const dispatch = useDispatch();
@@ -43,9 +114,11 @@ function NavigationBar() {
   };
 
   const menuClass = classNames({
-    'nav-links__list': true,
+    'nav-items__list': true,
     '-collapsed': isCollapsed
   });
+
+  const itemClass = item => (item.type === 'dropdown' ? 'nav-item -dropdown' : 'nav-item -link');
 
   return (
     <nav className="nav-bar">
@@ -66,56 +139,34 @@ function NavigationBar() {
             )}
           </button>
           <ul className={menuClass}>
-            <li className="nav-links__item">
+            <li className="nav-item -search">
               <form onSubmit={onSearchSubmit}>
                 <TextInput placeholder="Search player" onChange={onSearchChanged} />
                 <button type="submit" style={{ display: 'none' }} />
               </form>
             </li>
-
-            <li className="nav-links__item">
-              <Link to="/top" onClick={closeMenu}>
-                Current Top
-              </Link>
-            </li>
-
-            <li className="nav-links__item">
-              <Link to="/records" onClick={closeMenu}>
-                Records
-              </Link>
-            </li>
-
-            <li className="nav-links__item">
-              <Link to="/competitions" onClick={closeMenu}>
-                Competitions
-              </Link>
-            </li>
-
-            <li className="nav-links__item">
-              <Link to="/groups" onClick={closeMenu}>
-                Groups
-              </Link>
-            </li>
-
-            <li className="nav-links__item">
-              <Link to="/names" onClick={closeMenu}>
-                Names
-              </Link>
-            </li>
-
-            <li className="nav-links__item -spacing">|</li>
-
-            <li className="nav-links__item">
-              <a href="/docs" onClick={closeMenu}>
-                API
-              </a>
-            </li>
-
-            <li className="nav-links__item">
-              <a href="https://bot.wiseoldman.net" onClick={closeMenu}>
-                Discord Bot
-              </a>
-            </li>
+            {MENU_CONFIG.map(item => (
+              <li key={item.label} className={itemClass(item)}>
+                {item.type === 'link' ? (
+                  <a href={item.url}>{item.label}</a>
+                ) : (
+                  <>
+                    <div className="dropdown__wrapper">
+                      <b>{item.label}</b>
+                      <img src="/img/icons/dropdown_arrow_down.svg" alt="" />
+                    </div>
+                    <ul className="dropdown__content">
+                      {item.links.map(link => (
+                        <li key={link.url} className="dropdown__link">
+                          <img src={link.icon} alt="" />
+                          <Link to={link.url}>{link.label}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
       </div>

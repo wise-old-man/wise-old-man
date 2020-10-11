@@ -1,15 +1,20 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { PlayerResolvable } from '../../../types';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
+import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
-const DECADE_IN_SECONDS = 315569260;
+const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
+
+interface PlayerResolvable {
+  id?: number;
+  username?: string;
+}
 
 interface PlayerDetails extends Player {
   combatLevel: number;
@@ -103,14 +108,13 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
-  const latestSnapshot = snapshot || (await snapshotService.findLatest(player.id));
-  const combatLevel = getCombatLevel(latestSnapshot);
+  const stats = snapshot || (await snapshotService.findLatest(player.id));
+  const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
+  const combatLevel = getCombatLevel(stats);
 
-  return {
-    ...(player.toJSON() as any),
-    combatLevel,
-    latestSnapshot: snapshotService.format(latestSnapshot)
-  };
+  const latestSnapshot = snapshotService.format(stats, efficiency);
+
+  return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
 }
 
 /**
@@ -136,7 +140,6 @@ async function search(username: string): Promise<Player[]> {
 async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
-  // Check if this player should be updated again
   const [should] = shouldUpdate(player);
 
   // If the player was updated recently, don't update it
@@ -145,35 +148,43 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 
   try {
-    // If the player is new or has an unknown player type,
-    // determine it before tracking (to get the correct ranks)
+    // Always determine the rank before tracking (to fetch correct ranks)
     if (player.type === 'unknown') {
       player.type = await getType(player);
     }
 
-    // Get the latest snapshot from the DB
-    const previousSnapshot = await snapshotService.findLatest(player.id);
-
-    // Fetch the latest stats from the hiscores
-    const currentSnapshot = await fetchStats(player);
+    // Fetch the previous player stats from the database
+    const previousStats = await snapshotService.findLatest(player.id);
+    // Fetch the new player stats from the hiscores API
+    const currentStats = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
-    if (!snapshotService.withinRange(previousSnapshot, currentSnapshot)) {
+    if (!snapshotService.withinRange(previousStats, currentStats)) {
       await player.update({ flagged: true });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
-    // Update the player's build
-    player.build = getBuild(currentSnapshot);
-    // If the player has reached this point, it's certainly not flagged
+    // Refresh the player's build
+    player.build = getBuild(currentStats);
     player.flagged = false;
 
-    await currentSnapshot.save();
+    const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
+
+    // Set the player's global virtual data
+    player.exp = currentStats.overallExperience;
+    player.ehp = virtuals.ehpValue;
+    player.ehb = virtuals.ehbValue;
+    player.ttm = virtuals.ttm;
+    player.tt200m = virtuals.tt200m;
+
+    // Add the virtual data and save the snapshot
+    Object.assign(currentStats, virtuals);
+    await currentStats.save();
 
     await player.changed('updatedAt', true);
     await player.save();
 
-    const playerDetails = await getDetails(player, currentSnapshot);
+    const playerDetails = await getDetails(player, currentStats);
 
     return [playerDetails, isNew];
   } catch (e) {

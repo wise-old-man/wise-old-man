@@ -41,8 +41,10 @@ function formatGroup(group) {
 
   if (members && members.length > 0) {
     const rankedMembers = members.map((p, i) => ({ ...p, rank: i + 1 }));
-    const totalExperience = members.map(m => m.overallExperience).reduce((acc, cur) => acc + cur, 0);
-    return { ...group, members: rankedMembers, totalExperience };
+    const totalExperience = members.map(m => m.exp).reduce((acc, cur) => acc + cur, 0);
+    const totalEHP = members.map(m => m.ehp).reduce((acc, cur) => acc + cur, 0);
+
+    return { ...group, members: rankedMembers, totalExperience, totalEHP };
   }
 
   return { ...group, members: [], totalExperience: 0 };

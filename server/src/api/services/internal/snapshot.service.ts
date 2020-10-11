@@ -4,13 +4,13 @@ import { Op } from 'sequelize';
 import { Snapshot } from '../../../database/models';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import { getMeasure, getRankKey, getValueKey } from '../../util/metrics';
+import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
  */
-function format(snapshot: Snapshot) {
+function format(snapshot: Snapshot, efficiency?: any) {
   if (!snapshot) return null;
 
   const obj = {
@@ -18,11 +18,22 @@ function format(snapshot: Snapshot) {
     importedAt: snapshot.importedAt
   };
 
-  ALL_METRICS.forEach(s => {
-    obj[s] = {
-      rank: snapshot[getRankKey(s)],
-      [getMeasure(s)]: snapshot[getValueKey(s)]
+  ALL_METRICS.forEach(m => {
+    obj[m] = {
+      rank: snapshot[getRankKey(m)],
+      [getMeasure(m)]: snapshot[getValueKey(m)]
     };
+
+    // Add individual ehp/ehb values
+    if (efficiency) {
+      if (m === 'overall') {
+        obj[m].ehp = Math.max(0, snapshot.ehpValue);
+      } else if (isSkill(m)) {
+        obj[m].ehp = efficiency[m];
+      } else if (isBoss(m)) {
+        obj[m].ehb = efficiency[m];
+      }
+    }
   });
 
   return obj;
@@ -67,8 +78,10 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
  * Checks whether two snapshots have negative gains in between.
  */
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
-  // Last man standing scores can fluctuate overtime
-  const isValidKey = key => key !== 'last_man_standingScore';
+  // Last man standing scores, ehp and ehb can fluctuate overtime
+  const keysToIgnore = ['last_man_standingScore', 'ehpValue', 'ehbValue'];
+
+  const isValidKey = key => !keysToIgnore.includes(key);
   const keys = ALL_METRICS.map(m => getValueKey(m));
 
   return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);

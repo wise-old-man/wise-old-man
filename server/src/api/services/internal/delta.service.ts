@@ -5,8 +5,11 @@ import { Delta, InitialValues, Player, Snapshot } from '../../../database/models
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
+import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
+import * as efficiencyService from './efficiency.service';
+import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
 interface GlobalDeltasFilter {
@@ -21,8 +24,6 @@ interface GroupDeltasFilter {
   period?: string;
   metric?: string;
 }
-
-const DELTA_INDICATORS = ['value', 'rank', 'efficiency'];
 
 export const DAY_IN_SECONDS = 86400;
 export const WEEK_IN_SECONDS = 604800;
@@ -44,81 +45,42 @@ function getSeconds(period: string) {
   }
 }
 
-async function syncDeltas(latestSnapshot: Snapshot) {
-  const { playerId } = latestSnapshot;
-  const initialValues = await syncInitialValues(playerId, latestSnapshot);
+function parseNum(key: string, val: string) {
+  return isVirtual(key) ? parseFloat(val) : parseInt(val);
+}
+
+async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
+  const initialValues = await syncInitialValues(player.id, latestSnapshot);
 
   await Promise.all(
     PERIODS.map(async period => {
       const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
-      const first = await snapshotService.findFirstSince(playerId, startingDate);
+      const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
 
-      const currentDeltas = await Delta.findAll({ where: { playerId, period } });
+      const currentDelta = await Delta.findOne({
+        where: { playerId: player.id, period, indicator: 'value' }
+      });
 
-      const deltaDefinitions = Object.fromEntries(
-        DELTA_INDICATORS.map(indicator => [
-          indicator,
-          {
-            playerId,
-            period,
-            indicator,
-            startedAt: first.createdAt,
-            endedAt: latestSnapshot.createdAt
-          }
-        ])
-      );
+      const newDelta = {
+        playerId: player.id,
+        indicator: 'value',
+        period,
+        startedAt: startSnapshot.createdAt,
+        endedAt: latestSnapshot.createdAt
+      };
 
-      const toCreate = [];
-      const toUpdate = [];
+      const periodDiffs = diff(startSnapshot, latestSnapshot, initialValues, player);
 
       ALL_METRICS.forEach(metric => {
-        const rankKey = getRankKey(metric);
-        const valueKey = getValueKey(metric);
-
-        const initialRank = initialValues ? initialValues[rankKey] : -1;
-        const initialValue = initialValues ? initialValues[valueKey] : -1;
-
-        const endValue = parseInt(latestSnapshot[valueKey]);
-        const endRank = latestSnapshot[rankKey];
-        // TODO: const endEfficiency = ...
-
-        const startValue = parseInt(first[valueKey] === -1 ? initialValue : first[valueKey]);
-        const startRank = first[rankKey] === -1 && !isSkill(metric) ? initialRank : first[rankKey];
-        // TODO: const startEfficiency = ...
-
-        // Do not use initial ranks for skill, to prevent -1 ranks
-        // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
-        const gainedRank = isSkill(metric) && first[rankKey] === -1 ? 0 : endRank - startRank;
-        const gainedValue = endValue - startValue;
-        // TODO: const gainedEfficiency = ...
-
-        deltaDefinitions['value'][metric] = gainedValue;
-        deltaDefinitions['rank'][metric] = gainedRank;
-        deltaDefinitions['efficiency'][metric] = 0;
+        newDelta[metric] = periodDiffs[metric][getMeasure(metric)].gained;
       });
 
-      DELTA_INDICATORS.forEach(indicator => {
-        const delta = currentDeltas.find(c => c.indicator === indicator);
-
-        if (!delta) {
-          toCreate.push(deltaDefinitions[indicator]);
-        } else {
-          toUpdate.push({ current: delta, updated: deltaDefinitions[indicator] });
-        }
-      });
-
-      // Update all "outdated deltas"
-      if (toUpdate.length > 0) {
-        await Promise.all(
-          toUpdate.map(async ({ current, updated }) => {
-            await current.update({ ...updated });
-          })
-        );
-      }
-
-      // Create all missing deltas
-      if (toCreate.length > 0) {
-        await Delta.bulkCreate(toCreate, { ignoreDuplicates: true });
+      // If player doesn't have a delta for this period
+      // on the database, create it, otherwise just update it
+      if (!currentDelta) {
+        await Delta.create({ ...newDelta });
+      } else {
+        await currentDelta.update({ ...newDelta });
       }
     })
   );
@@ -145,7 +107,8 @@ async function getPlayerPeriodDeltas(
   playerId: number,
   period: string,
   latest?: Snapshot,
-  initial?: InitialValues
+  initial?: InitialValues,
+  player?: Player
 ) {
   if (!PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
@@ -154,6 +117,7 @@ async function getPlayerPeriodDeltas(
   const periodStartDate = new Date(Date.now() - getSeconds(period) * 1000);
   const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
   const latestSnapshot = latest || (await snapshotService.findLatest(playerId));
+  const targetPlayer = player || (await playerService.findById(playerId));
 
   const startSnapshot = await snapshotService.findFirstSince(playerId, periodStartDate);
 
@@ -165,7 +129,7 @@ async function getPlayerPeriodDeltas(
     period,
     startsAt: startSnapshot.createdAt,
     endsAt: latestSnapshot.createdAt,
-    data: diff(startSnapshot, latestSnapshot, initialValues)
+    data: diff(startSnapshot, latestSnapshot, initialValues, targetPlayer)
   };
 }
 
@@ -175,10 +139,11 @@ async function getPlayerPeriodDeltas(
 async function getPlayerDeltas(playerId: number) {
   const initial = await InitialValues.findOne({ where: { playerId } });
   const latest = await snapshotService.findLatest(playerId);
+  const player = await playerService.findById(playerId);
 
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
-      const deltas = await getPlayerPeriodDeltas(playerId, period, latest, initial);
+      const deltas = await getPlayerPeriodDeltas(playerId, period, latest, initial, player);
       return { period, deltas };
     })
   );
@@ -229,7 +194,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   return deltas.map(d => ({
     startDate: d.startedAt,
     endDate: d.endedAt,
-    gained: parseInt(d[metric]),
+    gained: Math.max(0, parseNum(metric, d[metric])),
     player: d.player
   }));
 }
@@ -254,7 +219,7 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
   return deltas.map(d => ({
     startDate: d.startedAt,
     endDate: d.endedAt,
-    gained: parseInt(d[metric]),
+    gained: Math.max(0, parseNum(metric, d[metric])),
     player: d.player
   }));
 }
@@ -263,9 +228,14 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
  * Calculate the difference between two snapshots,
  * taking untracked values into consideration. (via initial values)
  */
-function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
+function diff(start: Snapshot, end: Snapshot, initial: InitialValues, player: Player) {
   const diffObj = {};
+  const fixedStart = {};
 
+  // To prevent boss/activity/virtual values from jumping from untracked (-1)
+  // to tracked (high number), the "start" value of each metric is either
+  // fetched from the start snapshot or the player's initial values.
+  // So before calculating the start to end diffs, we must first "fix" the start values.
   ALL_METRICS.forEach(metric => {
     const rankKey = getRankKey(metric);
     const valueKey = getValueKey(metric);
@@ -273,16 +243,44 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
     const initialRank = initial ? initial[rankKey] : -1;
     const initialValue = initial ? initial[valueKey] : -1;
 
-    const endValue = parseInt(end[valueKey], 10);
-    const endRank = end[rankKey];
-
-    const startValue = parseInt(start[valueKey] === -1 ? initialValue : start[valueKey], 10);
+    const startValue = parseNum(metric, start[valueKey] === -1 ? initialValue : start[valueKey]);
     const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
+
+    fixedStart[rankKey] = startRank;
+    fixedStart[valueKey] = startValue;
+  });
+
+  // After fixing the start values, we convert it into a temporary snapshot
+  const fixedStartSnapshot = Snapshot.build(fixedStart);
+
+  // With this new fixed start snapshot, we calculate start and end EHP/EHB values
+  const startEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player, fixedStartSnapshot);
+  const endEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player, end);
+
+  const startEHP = efficiencyService.calculateEHP(fixedStartSnapshot, player.type, player.build);
+  const startEHB = efficiencyService.calculateEHB(fixedStartSnapshot, player.type, player.build);
+  const endEHP = efficiencyService.calculateEHP(end, player.type, player.build);
+  const endEHB = efficiencyService.calculateEHB(end, player.type, player.build);
+
+  ALL_METRICS.forEach(metric => {
+    const rankKey = getRankKey(metric);
+    const valueKey = getValueKey(metric);
+
+    const startValue = parseNum(metric, fixedStart[valueKey]);
+    const startRank = fixedStart[rankKey];
+
+    const endValue = parseNum(metric, end[valueKey]);
+    const endRank = end[rankKey];
 
     // Do not use initial ranks for skill, to prevent -1 ranks
     // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
-    const gainedValue = endValue - startValue;
+    const gainedValue = round(endValue - startValue, 5);
+
+    // Calculate EHP/EHB diffs
+    const startEfficiency = startEfficiencyMap[metric];
+    const endEfficiency = endEfficiencyMap[metric];
+    const gainedEfficiency = round(endEfficiency - startEfficiency, 5);
 
     diffObj[metric] = {
       rank: {
@@ -296,7 +294,40 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues) {
         gained: gainedValue
       }
     };
+
+    // If this metric is a skill, add it's ehp data
+    if (isSkill(metric)) {
+      diffObj[metric].ehp = {
+        start: startEfficiency,
+        end: endEfficiency,
+        gained: gainedEfficiency
+      };
+    }
+
+    // If this metric is a boss, add it's ehb data
+    if (isBoss(metric)) {
+      diffObj[metric].ehb = {
+        start: startEfficiency,
+        end: endEfficiency,
+        gained: gainedEfficiency
+      };
+    }
   });
+
+  diffObj['ehp'].value = {
+    start: startEHP,
+    end: endEHP,
+    gained: round(endEHP - startEHP, 5)
+  };
+
+  diffObj['ehb'].value = {
+    start: startEHB,
+    end: endEHB,
+    gained: round(endEHB - startEHB, 5)
+  };
+
+  // Set overall EHP, since the overall EHP is the total EHP
+  diffObj['overall'].ehp = { ...diffObj['ehp'].value };
 
   return diffObj;
 }

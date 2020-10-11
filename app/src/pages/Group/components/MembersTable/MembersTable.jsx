@@ -34,8 +34,14 @@ function MembersTable({ members, isLoading }) {
         transform: value => capitalize(value)
       },
       {
-        key: 'overallExperience',
-        label: 'Overall exp.',
+        key: 'exp',
+        label: 'Exp.',
+        className: () => '-break-small',
+        transform: val => <NumberLabel value={val} />
+      },
+      {
+        key: 'ehp',
+        label: 'EHP',
         className: () => '-break-small',
         transform: val => <NumberLabel value={val} />
       },

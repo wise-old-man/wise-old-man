@@ -1,35 +1,59 @@
-import { Algorithm, BossMeta, Experiences, Killcounts, SkillMeta } from '../../../../types';
+import { BossMeta, Experiences, Killcounts, SkillMeta, VirtualAlgorithm } from '../../../../types';
 import mainBossingMetas from '../configs/ehb/main.ehb';
 import mainSkillingMetas from '../configs/ehp/main.ehp';
-import { calculateBossEHB, calculateEHB, calculateMaxEHP, calculateTTM } from '../util';
+import {
+  calculateBossEHB,
+  calculateEHB,
+  calculateMaxedEHP,
+  calculateMaximumEHP,
+  calculateTT200m
+} from '../util';
 
-class MainAlgorithm implements Algorithm {
+class MainAlgorithm implements VirtualAlgorithm {
   type: string;
   skillMetas: SkillMeta[];
   bossMetas: BossMeta[];
-  maxEHP: number;
+  maximumEHP: number;
+  maxedEHP: number;
 
   constructor() {
     this.type = 'main';
     this.skillMetas = mainSkillingMetas;
     this.bossMetas = mainBossingMetas;
-    this.maxEHP = this.calculateMaxEHP();
+    this.maximumEHP = this.calculateMaximumEHP();
+    this.maxedEHP = this.calculateMaxedEHP();
   }
 
-  calculateMaxEHP(): number {
-    return calculateMaxEHP(this.skillMetas);
+  getEHPRates(): SkillMeta[] {
+    return this.skillMetas;
+  }
+
+  getEHBRates(): BossMeta[] {
+    return this.bossMetas;
+  }
+
+  calculateMaximumEHP(): number {
+    return calculateMaximumEHP(this.skillMetas);
+  }
+
+  calculateMaxedEHP(): number {
+    return calculateMaxedEHP(this.skillMetas);
   }
 
   calculateTTM(experiences: Experiences): number {
-    return calculateTTM(experiences, this.skillMetas);
+    return this.maxedEHP - this.calculateEHP(experiences);
+  }
+
+  calculateTT200m(experiences: Experiences): number {
+    return calculateTT200m(experiences, this.skillMetas);
   }
 
   calculateEHP(experiences: Experiences): number {
-    return this.maxEHP - this.calculateTTM(experiences);
+    return this.maximumEHP - this.calculateTT200m(experiences);
   }
 
   calculateSkillEHP(skill: string, experiences: Experiences): number {
-    return this.calculateTTM({ ...experiences, [skill]: 0 }) - this.calculateTTM(experiences);
+    return this.calculateTT200m({ ...experiences, [skill]: 0 }) - this.calculateTT200m(experiences);
   }
 
   calculateEHB(killcounts: Killcounts): number {

@@ -3,8 +3,8 @@
 
 .top-player-widget {
   @extend %panel;
-  padding: 25px;
-  height: 100px;
+  padding: 20px;
+  height: 80px;
   display: flex;
   flex-direction: column;
 
@@ -17,7 +17,7 @@
   .top__name {
     width: 100%;
     display: block;
-    font-size: 1.6em;
+    font-size: 1.2em;
     font-weight: 900;
     margin-top: -2px;
 
@@ -31,7 +31,7 @@
   }
 
   .top__gained {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: $gray-60;
     margin-top: 5px;
 

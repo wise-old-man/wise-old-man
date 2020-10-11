@@ -11,6 +11,7 @@ import Tabs from '../../components/Tabs';
 import DeleteGroupModal from '../../modals/DeleteGroupModal';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
+import TotalEHPWidget from './components/TotalEHPWidget';
 import CompetitionWidget from './components/CompetitionWidget';
 import GroupCompetitions from './components/GroupCompetitions';
 import GroupHiscores from './components/GroupHiscores';
@@ -209,17 +210,21 @@ function Group() {
         </div>
       </div>
       <div className="group__widgets row">
-        <div className="col-md-4">
+        <div className="col-lg-3 col-md-6">
           <span className="widget-label">Featured Competition</span>
           <CompetitionWidget competitions={competitions} />
         </div>
-        <div className="col-md-4 col-sm-6">
+        <div className="col-lg-3 col-md-6">
           <span className="widget-label">Monthly Top Player</span>
           <TopPlayerWidget group={group} isLoading={isLoadingMonthlyTop} />
         </div>
-        <div className="col-md-4 col-sm-6">
-          <span className="widget-label">Total overall experience</span>
+        <div className="col-lg-3 col-md-6">
+          <span className="widget-label">Total Experience</span>
           <TotalExperienceWidget group={group} isLoading={isLoadingMembers} />
+        </div>
+        <div className="col-lg-3 col-md-6">
+          <span className="widget-label">Total EHP</span>
+          <TotalEHPWidget group={group} isLoading={isLoadingMembers} />
         </div>
       </div>
       <div className="group__content row">

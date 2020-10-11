@@ -3,8 +3,8 @@
 
 .competition-widget {
   @extend %panel;
-  padding: 25px;
-  height: 100px;
+  padding: 20px;
+  height: 80px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -22,8 +22,6 @@
   }
 
   .competition-icon {
-    width: 35px;
-
     &.-placeholder {
       width: 35px;
       height: 35px;
@@ -43,6 +41,8 @@
       font-size: 1em;
       display: block;
       margin-top: 2px;
+      max-height: 20px;
+      overflow: hidden;
 
       &.-placeholder {
         width: 80%;

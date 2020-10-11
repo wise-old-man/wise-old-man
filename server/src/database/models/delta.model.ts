@@ -287,6 +287,12 @@ export default class Delta extends Model<Delta> {
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   zulrah: number;
 
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  ehp: number;
+
+  @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
+  ehb: number;
+
   /* Associations */
 
   @BelongsTo(() => Player)

@@ -3,6 +3,7 @@ import express from 'express';
 import { NotFoundError } from './errors';
 import competitionRoutes from './routes/competition.routes';
 import deltaRoutes from './routes/delta.routes';
+import efficiencyRoutes from './routes/efficiency.routes';
 import groupRoutes from './routes/group.routes';
 import nameRoutes from './routes/name.routes';
 import playerRoutes from './routes/player.routes';
@@ -36,6 +37,7 @@ class RoutingHandler {
     this.router.use('/competitions', competitionRoutes);
     this.router.use('/groups', groupRoutes);
     this.router.use('/names', nameRoutes);
+    this.router.use('/efficiency', efficiencyRoutes);
   }
 
   setupFallbacks() {

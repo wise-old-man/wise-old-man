@@ -3,23 +3,19 @@
 
 .total-exp-widget {
   @extend %panel;
-  padding: 25px;
-  height: 100px;
+  padding: 20px;
+  height: 80px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-
-  .total-icon {
-    width: 35px;
-  }
 
   .total-info {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     max-width: calc(100% - 55px);
-    margin-left: 25px;
+    margin-left: 20px;
 
     &__metric {
       &.-placeholder {
@@ -32,9 +28,10 @@
     }
 
     &__gained {
-      font-size: 1.4em;
+      font-size: 0.9em;
       display: block;
       margin-top: 2px;
+      color: $gray-60;
 
       &.-placeholder {
         width: 80%;

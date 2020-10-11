@@ -1,68 +1,86 @@
-import { ACTIVITIES, ACTIVITIES_MAP, BOSSES, BOSSES_MAP, SKILLS, SKILLS_MAP } from '../constants';
+import {
+  ACTIVITIES,
+  ACTIVITIES_MAP,
+  BOSSES,
+  BOSSES_MAP,
+  SKILLS,
+  SKILLS_MAP,
+  VIRTUAL,
+  VIRTUAL_MAP
+} from '../constants';
 
-function isSkill(value: string) {
-  return SKILLS.includes(value);
+function isSkill(metric: string): boolean {
+  return SKILLS.includes(metric);
 }
 
-function isActivity(value) {
-  return ACTIVITIES.includes(value);
+function isActivity(metric: string): boolean {
+  return ACTIVITIES.includes(metric);
 }
 
-function isBoss(value) {
-  return BOSSES.includes(value);
+function isBoss(metric: string): boolean {
+  return BOSSES.includes(metric);
 }
 
-function getMeasure(value) {
-  if (isSkill(value)) {
+function isVirtual(metric: string): boolean {
+  return VIRTUAL.includes(metric);
+}
+
+function getMeasure(metric: string): string {
+  if (isSkill(metric)) {
     return 'experience';
   }
 
-  if (isActivity(value)) {
+  if (isActivity(metric)) {
     return 'score';
   }
 
-  return 'kills';
+  if (isBoss(metric)) {
+    return 'kills';
+  }
+
+  return 'value';
 }
 
-function getRankKey(value) {
-  return `${value}Rank`;
+function getRankKey(metric: string): string {
+  return `${metric}Rank`;
 }
 
-function getValueKey(value) {
-  if (isSkill(value)) {
-    return `${value}Experience`;
+function getValueKey(metric: string): string {
+  if (isSkill(metric)) {
+    return `${metric}Experience`;
   }
 
-  if (isActivity(value)) {
-    return `${value}Score`;
+  if (isBoss(metric)) {
+    return `${metric}Kills`;
   }
 
-  return `${value}Kills`;
+  if (isActivity(metric)) {
+    return `${metric}Score`;
+  }
+
+  return `${metric}Value`;
 }
 
-function getFormattedName(value) {
-  for (let i = 0; i < SKILLS_MAP.length; i += 1) {
-    if (SKILLS_MAP[i].key === value) {
-      return SKILLS_MAP[i].name;
-    }
-  }
+function getVirtualKey(metric: string): string {
+  if (isBoss(metric)) return 'ehb';
+  if (isSkill(metric)) return 'ehp';
 
-  for (let i = 0; i < ACTIVITIES_MAP.length; i += 1) {
-    if (ACTIVITIES_MAP[i].key === value) {
-      return ACTIVITIES_MAP[i].name;
-    }
-  }
+  return null;
+}
 
-  for (let i = 0; i < BOSSES_MAP.length; i += 1) {
-    if (BOSSES_MAP[i].key === value) {
-      return BOSSES_MAP[i].name;
+function getFormattedName(metric: string): string {
+  const maps = [...SKILLS_MAP, ...ACTIVITIES_MAP, ...BOSSES_MAP, ...VIRTUAL_MAP];
+
+  for (let i = 0; i < maps.length; i++) {
+    if (maps[i].key === metric) {
+      return maps[i].name;
     }
   }
 
   return 'Invalid metric name';
 }
 
-function getDifficultyFactor(metric) {
+function getDifficultyFactor(metric: string): number {
   switch (metric) {
     case 'chambers_of_xeric':
     case 'chambers_of_xeric_challenge_mode':
@@ -104,12 +122,12 @@ export function getMinimumBossKc(metric: string): number {
   }
 }
 
-function getAbbreviation(abbr) {
-  if (!abbr || abbr.length === 0) {
+function getAbbreviation(abbreviation: string): string {
+  if (!abbreviation || abbreviation.length === 0) {
     return null;
   }
 
-  switch (abbr) {
+  switch (abbreviation) {
     case 'sire':
       return 'abyssal_sire';
 
@@ -231,7 +249,7 @@ function getAbbreviation(abbr) {
       return 'zulrah';
 
     default:
-      return abbr;
+      return abbreviation;
   }
 }
 
@@ -239,10 +257,12 @@ export {
   isSkill,
   isActivity,
   isBoss,
+  isVirtual,
   getMeasure,
   getFormattedName,
   getRankKey,
   getValueKey,
+  getVirtualKey,
   getDifficultyFactor,
   getAbbreviation
 };

@@ -474,6 +474,18 @@ export default class HiscoresValues extends Model<HiscoresValues> {
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   zulrahKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  ehpRank: number;
+
+  @Column({ type: DataType.FLOAT, defaultValue: -1, allowNull: false })
+  ehpValue: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  ehbRank: number;
+
+  @Column({ type: DataType.FLOAT, defaultValue: -1, allowNull: false })
+  ehbValue: number;
 }
 
 function parseOverall(this: any) {

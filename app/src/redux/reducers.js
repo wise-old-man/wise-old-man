@@ -10,6 +10,8 @@ import achievements from './modules/achievements/reducer';
 import groups from './modules/groups/reducer';
 import hiscores from './modules/hiscores/reducer';
 import names from './modules/names/reducer';
+import leaderboards from './modules/leaderboards/reducer';
+import rates from './modules/rates/reducer';
 
 export default combineReducers({
   notifications,
@@ -21,5 +23,7 @@ export default combineReducers({
   achievements,
   groups,
   hiscores,
-  names
+  names,
+  leaderboards,
+  rates
 });
