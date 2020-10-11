@@ -18,7 +18,7 @@ function TopPlayerWidget({ competition }) {
 
   if (showPlaceholder) {
     return (
-      <div className="top-player-widget">
+      <div className="top-participant-widget">
         <b className="top__name -placeholder" />
         <span className="top__gained -placeholder" />
       </div>
@@ -30,7 +30,7 @@ function TopPlayerWidget({ competition }) {
   const label = `+${formatNumber(gained)} ${measureLabel(metric)}`;
 
   return (
-    <Link className="top-player-widget -clickable" to={`/players/${topPlayer.id}`}>
+    <Link className="top-participant-widget -clickable" to={`/players/${topPlayer.id}`}>
       <b className="top__name">{topPlayer.displayName}</b>
       <span className={className('top__gained', { '-green': gained > 0 })}>{label}</span>
     </Link>
