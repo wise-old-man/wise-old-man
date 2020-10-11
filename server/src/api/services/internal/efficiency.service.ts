@@ -5,10 +5,8 @@ import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
 import { BadRequestError } from '../../errors';
 import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
 import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
-import {
-  default as lvl3Algorithm,
-  default as mainAlgorithm
-} from '../../modules/efficiency/algorithms/main';
+import lvl3Algorithm from '../../modules/efficiency/algorithms/lvl3';
+import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
