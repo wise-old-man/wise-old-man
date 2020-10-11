@@ -1,0 +1,53 @@
+@import '../../styles.scss';
+
+.rates__container {
+  @extend %page;
+  width: 500px !important;
+  max-width: 90%;
+
+  .rates__content {
+    margin-top: 50px;
+
+    .rates__section {
+      @extend %panel;
+      padding: 20px;
+      margin-bottom: 50px;
+
+      .section__header {
+        display: flex;
+        flex-direction: row;
+
+        .section__title {
+          margin-left: 15px;
+          font-size: 1.2em;
+        }
+      }
+
+      .section__table-wrapper {
+        padding: 40px;
+        padding-bottom: 20px;
+
+        b {
+          font-size: 0.9em;
+        }
+
+        .table {
+          margin-top: 20px;
+          box-shadow: none;
+          border: 1px solid $gray-00;
+          border-bottom: none;
+
+          th {
+            background: $gray-00;
+          }
+
+          td {
+            background: $gray-09;
+            border-bottom: 1px solid $gray-00;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}

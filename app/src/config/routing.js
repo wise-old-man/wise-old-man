@@ -15,6 +15,8 @@ import EditGroupPage from '../pages/EditGroup';
 import NamesListPage from '../pages/NamesList';
 import SubmitNameChangePage from '../pages/SubmitNameChange';
 import VirtualLeaderboards from '../pages/Leaderboards';
+import EhpRates from '../pages/EhpRates';
+import EhbRates from '../pages/EhbRates';
 
 // Note: if you're adding a new route with a dynamic url param
 // be sure to add it to the analytics.js file.
@@ -82,6 +84,14 @@ export const ROUTES = [
   {
     path: '/leaderboards/:metric?',
     component: VirtualLeaderboards
+  },
+  {
+    path: '/rates/ehp/:type?',
+    component: EhpRates
+  },
+  {
+    path: '/rates/ehb/:type?',
+    component: EhbRates
   }
 ];
 
