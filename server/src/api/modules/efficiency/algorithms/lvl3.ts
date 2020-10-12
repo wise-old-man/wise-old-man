@@ -1,3 +1,4 @@
+import { mapValues } from 'lodash';
 import { BossMeta, Experiences, Killcounts, SkillMeta, VirtualAlgorithm } from '../../../../types';
 import lvl3BossingMetas from '../configs/ehb/lvl3.ehb';
 import lvl3SkillingMetas from '../configs/ehp/lvl3.ehp';
@@ -41,7 +42,8 @@ class Lvl3Algorithm implements VirtualAlgorithm {
   }
 
   calculateTTM(experiences: Experiences): number {
-    return this.maxedEHP - this.calculateEHP(experiences);
+    const cappedExp = mapValues(experiences, val => Math.min(val, 13_034_431));
+    return this.maxedEHP - this.calculateEHP(cappedExp);
   }
 
   calculateTT200m(experiences: Experiences): number {
