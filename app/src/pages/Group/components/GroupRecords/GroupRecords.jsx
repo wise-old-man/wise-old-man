@@ -31,7 +31,7 @@ const TABLE_CONFIG = {
       key: 'updatedAt',
       label: 'Date',
       className: () => '-break-small',
-      transform: (value, row) => formatDate(row.player.updatedAt, 'DD MMM, YYYY')
+      transform: (value, row) => formatDate(row.updatedAt, 'DD MMM, YYYY')
     }
   ]
 };
