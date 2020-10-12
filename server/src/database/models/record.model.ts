@@ -78,7 +78,7 @@ function setValue(value: number) {
   const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
   const factor = isFloat ? 10000 : 1;
 
-  this.setDataValue('value', value * factor);
+  this.setDataValue('value', Math.floor(value * factor));
 }
 
 function validateMetric(this: Record) {
