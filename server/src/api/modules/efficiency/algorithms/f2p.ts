@@ -1,3 +1,4 @@
+import { mapValues } from 'lodash';
 import { BossMeta, Experiences, Killcounts, SkillMeta, VirtualAlgorithm } from '../../../../types';
 import f2pBossingMetas from '../configs/ehb/f2p.ehb';
 import f2pSkillingMetas from '../configs/ehp/f2p.ehp';
@@ -41,7 +42,8 @@ class F2PAlgorithm implements VirtualAlgorithm {
   }
 
   calculateTTM(experiences: Experiences): number {
-    return this.maxedEHP - this.calculateEHP(experiences);
+    const cappedExp = mapValues(experiences, val => Math.min(val, 13_034_431));
+    return this.maxedEHP - this.calculateEHP(cappedExp);
   }
 
   calculateTT200m(experiences: Experiences): number {
