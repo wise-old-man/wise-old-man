@@ -21,7 +21,7 @@ function getTableConfig(metric) {
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={`/players/${row.player.id}`}>
+          <Link to={`/players/${row.player.username}`}>
             <PlayerTag name={row.player.displayName} type={row.player.type} flagged={row.flagged} />
           </Link>
         )

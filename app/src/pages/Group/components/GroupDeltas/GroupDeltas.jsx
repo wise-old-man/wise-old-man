@@ -19,7 +19,7 @@ const TABLE_CONFIG = {
       label: 'Name',
       className: () => '-primary',
       transform: (_, { player }) => (
-        <Link to={`/players/${player.id}`}>
+        <Link to={`/players/${player.username}`}>
           <PlayerTag name={player.displayName} type={player.type} flagged={player.flagged} />
         </Link>
       )

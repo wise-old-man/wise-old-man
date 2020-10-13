@@ -7,7 +7,7 @@ import './Home.scss';
 const FEATURES = [
   {
     title: 'Experience tracking',
-    page: '/players/1057', // Lynx Titan
+    page: '/players/Lynx_Titan', // Lynx Titan
     description:
       'Track your skilling progression overtime, browse your recent gains, personal records and more.',
     image: '/img/landing_page/features/player_tracking.png'
@@ -20,7 +20,7 @@ const FEATURES = [
   },
   {
     title: 'Player achievements',
-    page: '/players/128/achievements',
+    page: '/players/Zulu/achievements',
     description: 'Reach your in-game goals to unlock your player achievements.',
     image: '/img/landing_page/features/efficiency_metrics.png'
   },
