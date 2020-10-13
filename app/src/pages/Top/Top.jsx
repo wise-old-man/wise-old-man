@@ -96,9 +96,9 @@ function useQuery(keys) {
 function getPlayerURL(username, metric, period) {
   let section = '';
 
-  if (isSkill(metric)) {
+  if (isSkill(metric) || metric === 'ehp') {
     section = 'skilling';
-  } else if (isBoss(metric)) {
+  } else if (isBoss(metric) || metric === 'ehb') {
     section = 'bossing';
   } else {
     section = 'activities';
