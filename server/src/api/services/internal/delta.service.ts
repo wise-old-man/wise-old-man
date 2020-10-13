@@ -340,6 +340,12 @@ function emptyDiff() {
       rank: { start: 0, end: 0, gained: 0 },
       [getMeasure(metric)]: { start: 0, end: 0, gained: 0 }
     };
+
+    if (isSkill(metric)) {
+      diffObj[metric]['ehp'] = { start: 0, end: 0, gained: 0 };
+    } else if (isBoss(metric)) {
+      diffObj[metric]['ehb'] = { start: 0, end: 0, gained: 0 };
+    }
   });
 
   return diffObj;
