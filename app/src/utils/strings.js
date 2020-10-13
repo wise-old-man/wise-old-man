@@ -47,3 +47,12 @@ export function padNumber(value) {
 
   return value < 10 ? `0${value}` : value;
 }
+
+export function standardizeUsername(username) {
+  if (!username) return null;
+
+  return username
+    .replace(/[-_\s]/g, ' ')
+    .trim()
+    .toLowerCase();
+}

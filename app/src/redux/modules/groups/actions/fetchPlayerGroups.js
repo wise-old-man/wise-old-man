@@ -12,11 +12,11 @@ function fetchGroupsRequest() {
   };
 }
 
-function fetchGroupsSuccess(data, playerId) {
+function fetchGroupsSuccess(data, username) {
   return {
     type: FETCH_PLAYER_GROUPS_SUCCESS,
     groups: data,
-    playerId
+    username
   };
 }
 
@@ -27,15 +27,15 @@ function fetchGroupsFailure(error) {
   };
 }
 
-export default function fetchGroups({ playerId }) {
+export default function fetchGroups({ username }) {
   return dispatch => {
     dispatch(fetchGroupsRequest());
 
-    const url = `${BASE_API_URL}/players/${playerId}/groups/`;
+    const url = `${BASE_API_URL}/players/username/${username}/groups/`;
 
     return axios
       .get(url)
-      .then(result => dispatch(fetchGroupsSuccess(result.data, playerId)))
+      .then(result => dispatch(fetchGroupsSuccess(result.data, username)))
       .catch(error => dispatch(fetchGroupsFailure(error)));
   };
 }

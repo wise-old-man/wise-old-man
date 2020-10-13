@@ -24,5 +24,5 @@ export const getLeaderboards = createSelector(leaderboardsSelector, map => {
   return _.mapValues(map, records => records && records.map((r, i) => ({ ...r, rank: i + 1 })));
 });
 
-export const getPlayerRecords = (state, playerId) => getPlayerRecordsMap(state)[playerId];
+export const getPlayerRecords = (state, username) => getPlayerRecordsMap(state)[username];
 export const getGroupRecords = (state, groupId) => getGroupRecordsMap(state)[groupId];

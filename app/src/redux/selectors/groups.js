@@ -30,7 +30,7 @@ export const getGroups = createSelector(groupsSelector, map => {
 
 export const getGroup = (state, id) => getGroupsMap(state)[id];
 
-export const getPlayerGroups = (state, playerId) => getPlayerGroupsMap(state)[playerId];
+export const getPlayerGroups = (state, username) => getPlayerGroupsMap(state)[username];
 
 function formatGroup(group) {
   if (!group) {

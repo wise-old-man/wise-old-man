@@ -54,7 +54,7 @@ export default function recordsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerRecords: false,
-        playerRecords: { ...state.playerRecords, [action.playerId]: action.records }
+        playerRecords: { ...state.playerRecords, [action.username]: action.records }
       };
 
     case FETCH_PLAYER_RECORDS_FAILURE:

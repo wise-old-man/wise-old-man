@@ -14,15 +14,15 @@ export const isFetchingDetails = createSelector(rootSelector, root => root.isFet
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
 export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
-export const getCompetitionsMap = createSelector(competitionsSelector, map => {
+const getCompetitionsMap = createSelector(competitionsSelector, map => {
   return _.mapValues(map, comp => formatCompetition(comp));
 });
 
-export const getPlayerCompetitionsMap = createSelector(playerCompetitionsSelector, map => {
+const getPlayerCompetitionsMap = createSelector(playerCompetitionsSelector, map => {
   return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
 });
 
-export const getGroupCompetitionsMap = createSelector(groupCompetitionsSelector, map => {
+const getGroupCompetitionsMap = createSelector(groupCompetitionsSelector, map => {
   return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
 });
 
@@ -34,7 +34,7 @@ export const getCompetitions = createSelector(competitionsSelector, map => {
 
 export const getCompetition = (state, id) => getCompetitionsMap(state)[id];
 
-export const getPlayerCompetitions = (state, playerId) => getPlayerCompetitionsMap(state)[playerId];
+export const getPlayerCompetitions = (state, username) => getPlayerCompetitionsMap(state)[username];
 
 export const getGroupCompetitions = (state, groupId) => getGroupCompetitionsMap(state)[groupId];
 

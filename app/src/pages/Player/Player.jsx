@@ -37,7 +37,13 @@ import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerR
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { getPlayerIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import {
+  getPlayerIcon,
+  getOfficialHiscoresUrl,
+  getPlayerTooltip,
+  getMeasure,
+  standardizeUsername
+} from '../../utils';
 import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
@@ -139,10 +145,13 @@ function buildQuerySearch(options) {
 }
 
 function Player() {
-  const { id, section, metricType } = useParams();
+  const params = useParams();
   const location = useLocation();
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const { section, metricType } = params;
+  const username = standardizeUsername(params.username);
 
   const selectedTabIndex = getSelectedTabIndex(section);
   const selectedMetricType = getSelectedMetricType(metricType);
@@ -154,13 +163,13 @@ function Player() {
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
-  const player = useSelector(state => getPlayer(state, id));
-  const deltas = useSelector(state => getPlayerDeltas(state, id));
-  const records = useSelector(state => getPlayerRecords(state, id));
-  const achievements = useSelector(state => getPlayerAchievements(state, id));
-  const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, id));
-  const competitions = useSelector(state => getPlayerCompetitions(state, id));
-  const groups = useSelector(state => getPlayerGroups(state, id));
+  const player = useSelector(state => getPlayer(state, username));
+  const deltas = useSelector(state => getPlayerDeltas(state, username));
+  const records = useSelector(state => getPlayerRecords(state, username));
+  const achievements = useSelector(state => getPlayerAchievements(state, username));
+  const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, username));
+  const competitions = useSelector(state => getPlayerCompetitions(state, username));
+  const groups = useSelector(state => getPlayerGroups(state, username));
   const isLoadingDetails = useSelector(state => isFetching(state));
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
@@ -177,11 +186,18 @@ function Player() {
   }, [player]);
 
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric), isReducedChart)
+    getChartData(
+      state,
+      username,
+      selectedPeriod,
+      selectedMetric,
+      getMeasure(selectedMetric),
+      isReducedChart
+    )
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, 'rank', isReducedChart)
+    getChartData(state, username, selectedPeriod, selectedMetric, 'rank', isReducedChart)
   );
 
   const trackPlayer = async () => {
@@ -197,27 +213,27 @@ function Player() {
   };
 
   const fetchAll = () => {
-    // Attempt to fetch player of that id, if it fails redirect to 404
-    dispatch(fetchPlayerAction({ id }))
+    // Attempt to fetch player data, if it fails redirect to 404
+    dispatch(fetchPlayerAction({ username }))
       .then(action => {
         if (action.error) throw new Error();
       })
       .catch(() => router.push('/404'));
 
-    dispatch(fetchAchievementsAction({ playerId: id }));
-    dispatch(fetchCompetitionsAction({ playerId: id }));
-    dispatch(fetchGroupsAction({ playerId: id }));
-    dispatch(fetchRecordsAction({ playerId: id }));
-    dispatch(fetchDeltasAction({ playerId: id }));
+    dispatch(fetchAchievementsAction({ username }));
+    dispatch(fetchCompetitionsAction({ username }));
+    dispatch(fetchGroupsAction({ username }));
+    dispatch(fetchRecordsAction({ username }));
+    dispatch(fetchDeltasAction({ username }));
 
     PERIOD_OPTIONS.forEach(o => {
-      dispatch(fetchSnapshotsAction({ playerId: id, period: o.value }));
+      dispatch(fetchSnapshotsAction({ username, period: o.value }));
     });
   };
 
   const getNextUrl = options => {
     const newOptions = {
-      id,
+      username,
       section: TABS[selectedTabIndex].toLowerCase(),
       metricType: selectedMetricType,
       metric: selectedMetric,
@@ -229,7 +245,7 @@ function Player() {
     newOptions.metric = metricList.includes(newOptions.metric) ? newOptions.metric : metricList[0];
 
     const query = buildQuerySearch(newOptions);
-    return `/players/${newOptions.id}/${newOptions.section}/${newOptions.metricType}${query}`;
+    return `/players/${newOptions.username}/${newOptions.section}/${newOptions.metricType}${query}`;
   };
 
   const handlePeriodSelected = e => {
@@ -254,25 +270,27 @@ function Player() {
 
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
-      await dispatch(assertPlayerTypeAction(player.username, player.id));
+      await dispatch(assertPlayerTypeAction(player.username, player.username));
     } else if (option.value === 'assertName') {
-      await dispatch(assertPlayerNameAction(player.username, player.id));
+      await dispatch(assertPlayerNameAction(player.username, player.username));
     } else if (option.value === 'changeName') {
       router.push(`/names/submit/${player.displayName}`);
     }
   };
 
   const handleDeltasTimerEnded = () => {
-    dispatch(fetchDeltasAction({ playerId: id }));
+    PERIOD_OPTIONS.forEach(o => {
+      dispatch(fetchSnapshotsAction({ username, period: o.value }));
+    });
   };
 
   const onToggleReducedChart = useCallback(toggleReducedChart, []);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
-  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [id]);
+  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [username]);
 
-  useEffect(fetchAll, [dispatch, id]);
+  useEffect(fetchAll, [dispatch, username]);
 
   if (!player) {
     return null;

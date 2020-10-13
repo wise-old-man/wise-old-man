@@ -12,11 +12,11 @@ function fetchCompetitionsRequest() {
   };
 }
 
-function fetchCompetitionsSuccess(data, playerId) {
+function fetchCompetitionsSuccess(data, username) {
   return {
     type: FETCH_PLAYER_COMPETITIONS_SUCCESS,
     competitions: data,
-    playerId
+    username
   };
 }
 
@@ -27,15 +27,15 @@ function fetchCompetitionsFailure(error) {
   };
 }
 
-export default function fetchCompetitions({ playerId }) {
+export default function fetchCompetitions({ username }) {
   return dispatch => {
     dispatch(fetchCompetitionsRequest());
 
-    const url = `${BASE_API_URL}/players/${playerId}/competitions/`;
+    const url = `${BASE_API_URL}/players/username/${username}/competitions/`;
 
     return axios
       .get(url)
-      .then(result => dispatch(fetchCompetitionsSuccess(result.data, playerId)))
+      .then(result => dispatch(fetchCompetitionsSuccess(result.data, username)))
       .catch(error => dispatch(fetchCompetitionsFailure(error)));
   };
 }

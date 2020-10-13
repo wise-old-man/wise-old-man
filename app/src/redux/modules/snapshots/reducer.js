@@ -18,8 +18,8 @@ export default function snapshotsReducer(state = initialState, action) {
         isFetchingSnapshots: false,
         snapshots: {
           ...state.snapshots,
-          [action.playerId]: {
-            ...state.snapshots[action.playerId],
+          [action.username]: {
+            ...state.snapshots[action.username],
             [action.period]: action.snapshotData
           }
         }

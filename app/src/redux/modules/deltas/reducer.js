@@ -54,7 +54,7 @@ export default function deltasReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerDeltas: false,
-        playerDeltas: { ...state.playerDeltas, [action.playerId]: action.deltas }
+        playerDeltas: { ...state.playerDeltas, [action.username]: action.deltas }
       };
 
     case FETCH_PLAYER_DELTAS_FAILURE:

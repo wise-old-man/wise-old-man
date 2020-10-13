@@ -70,7 +70,7 @@ export const ROUTES = [
     component: PlayerSearchPage
   },
   {
-    path: '/players/:id/:section?/:metricType?',
+    path: '/players/:username/:section?/:metricType?',
     component: PlayerPage
   },
   {

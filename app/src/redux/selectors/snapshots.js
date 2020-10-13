@@ -8,10 +8,10 @@ export const getSnapshotsMap = createSelector(snapshotsSelector, map => map);
 
 export const getSnapshots = createSelector(snapshotsSelector, map => Object.values(map));
 
-export const getPlayerSnapshots = (state, playerId) => getSnapshotsMap(state)[playerId];
+export const getPlayerSnapshots = (state, username) => getSnapshotsMap(state)[username];
 
-export const getChartData = (state, playerId, period, skill, measure, reducedMode) => {
-  const snapshotsData = getPlayerSnapshots(state, playerId);
+export const getChartData = (state, username, period, skill, measure, reducedMode) => {
+  const snapshotsData = getPlayerSnapshots(state, username);
 
   if (!snapshotsData || !snapshotsData[period]) {
     return {

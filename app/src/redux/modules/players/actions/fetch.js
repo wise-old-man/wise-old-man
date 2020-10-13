@@ -22,15 +22,14 @@ function fetchPlayerFailure(error) {
   };
 }
 
-export default function fetchPlayer({ id, username }) {
+export default function fetchPlayer({ username }) {
   return dispatch => {
     dispatch(fetchPlayerRequest());
 
-    const path = `${BASE_API_URL}/players/`;
-    const url = id ? `${path}/${id}` : `${path}/username/${username}`;
+    const URL = `${BASE_API_URL}/players/username/${username}`;
 
     return axios
-      .get(url)
+      .get(URL)
       .then(result => dispatch(fetchPlayerSuccess(result.data)))
       .catch(error => dispatch(fetchPlayerFailure(error)));
   };

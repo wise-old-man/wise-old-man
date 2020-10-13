@@ -22,7 +22,7 @@ export default function achievementsReducer(state = initialState, action) {
       return {
         ...state,
         isFetchingPlayerAchievements: false,
-        playerAchievements: { ...state.playerAchievements, [action.playerId]: action.achievements }
+        playerAchievements: { ...state.playerAchievements, [action.username]: action.achievements }
       };
 
     case FETCH_PLAYER_ACHIEVEMENTS_FAILURE:
