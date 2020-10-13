@@ -107,7 +107,7 @@ export default function groupsReducer(state = initialState, action) {
         ...state,
         isFetchingPlayerGroups: false,
         groups: { ...toMap(action.groups, 'id') },
-        playerGroups: { ...state.playerGroups, [action.playerId]: action.groups }
+        playerGroups: { ...state.playerGroups, [action.username]: action.groups }
       };
 
     case FETCH_PLAYER_GROUPS_FAILURE:

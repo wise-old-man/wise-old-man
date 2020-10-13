@@ -18,7 +18,7 @@ const TABLE_CONFIG = {
       key: 'displayName',
       className: () => '-primary',
       transform: (value, row) => (
-        <Link to={`/players/${row.id}`}>
+        <Link to={`/players/${row.username}`}>
           <PlayerTag name={value} type={row.type} flagged={row.flagged} />
         </Link>
       )
@@ -48,7 +48,7 @@ function PlayerSearch() {
       const action = await dispatch(trackAction(username));
 
       if (action && action.data) {
-        router.push(`/players/${action.data.id}`);
+        router.push(`/players/${action.data.username}`);
       }
     } finally {
       setIsTracking(false);

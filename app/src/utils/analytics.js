@@ -4,7 +4,7 @@ export function uniformUrl(url) {
   }
 
   if (/^\/players\/(\d+)/.test(url)) {
-    return '/players/:id';
+    return '/players/:username';
   }
 
   if (/^\/competitions\/(\d+)/.test(url)) {

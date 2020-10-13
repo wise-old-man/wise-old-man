@@ -42,7 +42,7 @@ function getTableConfig(metric) {
         get: row => row.player.displayName,
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={getPlayerURL(row.player.id, metric)}>
+          <Link to={getPlayerURL(row.player.username, metric)}>
             <PlayerTag name={value} type={row.player.type} flagged={row.player.flagged} />
           </Link>
         )
@@ -102,18 +102,18 @@ function useQuery(keys) {
   return result;
 }
 
-function getPlayerURL(playerId, metric) {
+function getPlayerURL(username, metric) {
   let section = '';
 
-  if (isSkill(metric)) {
+  if (isSkill(metric) || metric === 'ehp') {
     section = 'skilling';
-  } else if (isBoss(metric)) {
+  } else if (isBoss(metric) || metric === 'ehb') {
     section = 'bossing';
   } else {
     section = 'activities';
   }
 
-  return `/players/${playerId}/records/${section}`;
+  return `/players/${username}/records/${section}`;
 }
 
 function getNextUrl(nextMetric, nextType, nextBuild) {

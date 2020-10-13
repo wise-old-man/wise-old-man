@@ -30,7 +30,7 @@ function shouldScrollToTop(currentPath, previousPath) {
   const currentSplit = currentPath.split('/').filter(d => d.length > 0);
   const previousSplit = previousPath.split('/').filter(d => d.length > 0);
 
-  // If the second param isn't the same (Ex: /players/123 and /players/4768)
+  // If the second param isn't the same (Ex: /players/zezima and /players/psikoi)
   if (currentSplit.length > 1 && previousSplit.length > 1 && currentSplit[1] !== previousSplit[1]) {
     return true;
   }

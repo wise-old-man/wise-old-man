@@ -8,10 +8,10 @@ function fetchPlayerSnapshotsRequest() {
   };
 }
 
-function fetchPlayerSnapshotsSuccess(playerId, period, data) {
+function fetchPlayerSnapshotsSuccess(username, period, data) {
   return {
     type: FETCH_SNAPSHOTS_SUCCESS,
-    playerId,
+    username,
     period,
     snapshotData: data
   };
@@ -24,16 +24,16 @@ function fetchPlayerSnapshotsFailure(error) {
   };
 }
 
-export default function fetchPlayerSnapshots({ playerId, period }) {
+export default function fetchPlayerSnapshots({ username, period }) {
   return dispatch => {
     dispatch(fetchPlayerSnapshotsRequest());
 
-    const url = `${BASE_API_URL}/players/${playerId}/snapshots/`;
+    const url = `${BASE_API_URL}/players/username/${username}/snapshots/`;
     const params = { period };
 
     return axios
       .get(url, { params })
-      .then(result => dispatch(fetchPlayerSnapshotsSuccess(playerId, period, result.data)))
+      .then(result => dispatch(fetchPlayerSnapshotsSuccess(username, period, result.data)))
       .catch(error => dispatch(fetchPlayerSnapshotsFailure(error)));
   };
 }

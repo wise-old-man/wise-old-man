@@ -131,7 +131,7 @@ export default function competitionsReducer(state = initialState, action) {
         ...state,
         isFetchingPlayerCompetitions: false,
         competitions: { ...toMap(action.competitions, 'id') },
-        playerCompetitions: { ...state.playerCompetitions, [action.playerId]: action.competitions }
+        playerCompetitions: { ...state.playerCompetitions, [action.username]: action.competitions }
       };
 
     case FETCH_PLAYER_COMPETITIONS_FAILURE:

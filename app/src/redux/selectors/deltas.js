@@ -24,5 +24,5 @@ export const getLeaderboards = createSelector(leaderboardsSelector, map => {
   return _.mapValues(map, deltas => deltas && deltas.map((d, i) => ({ ...d, rank: i + 1 })));
 });
 
-export const getPlayerDeltas = (state, playerId) => getPlayerDeltasMap(state)[playerId];
+export const getPlayerDeltas = (state, username) => getPlayerDeltasMap(state)[username];
 export const getGroupDeltas = (state, groupId) => getGroupDeltasMap(state)[groupId];

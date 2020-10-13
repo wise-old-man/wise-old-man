@@ -15,4 +15,4 @@ export const getPlayers = createSelector(playersSelector, map => Object.values(m
 
 export const getSearchResults = createSelector(searchResultsSelector, map => Object.values(map));
 
-export const getPlayer = (state, id) => getPlayersMap(state)[id];
+export const getPlayer = (state, username) => getPlayersMap(state)[username];

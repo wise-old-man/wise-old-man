@@ -23,12 +23,12 @@ export const getGroupAchievementsMap = createSelector(groupAchievementsSelector,
 
 export const getAchievements = createSelector(playerAchievementsSelector, map => Object.values(map));
 
-export const getPlayerAchievements = (state, playerId) => getPlayerAchievementsMap(state)[playerId];
+export const getPlayerAchievements = (state, username) => getPlayerAchievementsMap(state)[username];
 export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
 
-export const getPlayerAchievementsGrouped = (state, playerId) => {
-  const player = getPlayer(state, playerId);
-  const list = getPlayerAchievements(state, playerId);
+export const getPlayerAchievementsGrouped = (state, username) => {
+  const player = getPlayer(state, username);
+  const list = getPlayerAchievements(state, username);
 
   if (!list) {
     return [];

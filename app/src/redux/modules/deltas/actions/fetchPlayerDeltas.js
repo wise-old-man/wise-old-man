@@ -12,10 +12,10 @@ function fetchPlayerDeltasRequest() {
   };
 }
 
-function fetchPlayerDeltasSuccess(playerId, data) {
+function fetchPlayerDeltasSuccess(username, data) {
   return {
     type: FETCH_PLAYER_DELTAS_SUCCESS,
-    playerId,
+    username,
     deltas: data
   };
 }
@@ -27,16 +27,16 @@ function fetchPlayerDeltasFailure(error) {
   };
 }
 
-export default function fetchPlayerDeltas({ playerId, period }) {
+export default function fetchPlayerDeltas({ username, period }) {
   return dispatch => {
     dispatch(fetchPlayerDeltasRequest());
 
-    const url = `${BASE_API_URL}/players/${playerId}/gained`;
+    const url = `${BASE_API_URL}/players/username/${username}/gained`;
     const params = { period };
 
     return axios
       .get(url, { params })
-      .then(result => dispatch(fetchPlayerDeltasSuccess(playerId, result.data)))
+      .then(result => dispatch(fetchPlayerDeltasSuccess(username, result.data)))
       .catch(error => dispatch(fetchPlayerDeltasFailure(error)));
   };
 }

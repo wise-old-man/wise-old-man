@@ -29,7 +29,7 @@ function TopPlayerWidget({ group, isLoading }) {
   const { player } = topPlayer;
 
   return (
-    <Link className="top-player-widget -clickable" to={`/players/${player.id}`}>
+    <Link className="top-player-widget -clickable" to={`/players/${player.username}`}>
       <b className="top__name">{player.displayName}</b>
       <span className="top__gained">{`${gained} exp gained`}</span>
     </Link>

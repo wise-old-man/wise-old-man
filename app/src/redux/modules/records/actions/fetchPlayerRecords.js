@@ -12,10 +12,10 @@ function fetchPlayerRecordsRequest() {
   };
 }
 
-function fetchPlayerRecordsSuccess(playerId, data) {
+function fetchPlayerRecordsSuccess(username, data) {
   return {
     type: FETCH_PLAYER_RECORDS_SUCCESS,
-    playerId,
+    username,
     records: data
   };
 }
@@ -27,15 +27,15 @@ function fetchPlayerRecordsFailure(error) {
   };
 }
 
-export default function fetchPlayerRecords({ playerId }) {
+export default function fetchPlayerRecords({ username }) {
   return dispatch => {
     dispatch(fetchPlayerRecordsRequest());
 
-    const url = `${BASE_API_URL}/players/${playerId}/records/`;
+    const url = `${BASE_API_URL}/players/username/${username}/records/`;
 
     return axios
       .get(url)
-      .then(result => dispatch(fetchPlayerRecordsSuccess(playerId, result.data)))
+      .then(result => dispatch(fetchPlayerRecordsSuccess(username, result.data)))
       .catch(error => dispatch(fetchPlayerRecordsFailure(error)));
   };
 }

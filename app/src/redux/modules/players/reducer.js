@@ -96,7 +96,7 @@ export default function playersReducer(state = initialState, action) {
       return {
         ...state,
         isFetching: false,
-        players: { ...state.players, [action.player.id]: action.player }
+        players: { ...state.players, [action.player.username]: action.player }
       };
 
     case FETCH_PLAYER_FAILURE:
