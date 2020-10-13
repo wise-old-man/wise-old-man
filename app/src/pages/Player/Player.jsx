@@ -218,7 +218,7 @@ function Player() {
       .then(action => {
         if (action.error) throw new Error();
       })
-      .catch(() => router.push('/404'));
+      .catch(() => router.push(`/players/search/${username}`));
 
     dispatch(fetchAchievementsAction({ username }));
     dispatch(fetchCompetitionsAction({ username }));

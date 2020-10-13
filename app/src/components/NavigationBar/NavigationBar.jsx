@@ -104,7 +104,7 @@ function NavigationBar() {
 
       try {
         const { player } = await dispatch(fetchPlayer({ username }));
-        router.push(`/players/${player.id}`);
+        router.push(`/players/${player.username}`);
       } catch (err) {
         router.push(`/players/search/${username}`);
       } finally {
