@@ -33,8 +33,7 @@ const RATES_TABLE_CONFIG = {
 function getTypeOptions() {
   return [
     { label: 'Main', value: 'main' },
-    { label: 'Ironman', value: 'ironman' },
-    { label: 'F2P', value: 'f2p' }
+    { label: 'Ironman', value: 'ironman' }
   ];
 }
 
