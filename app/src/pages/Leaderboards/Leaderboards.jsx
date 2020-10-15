@@ -84,13 +84,11 @@ function useQuery(keys) {
 }
 
 function getPlayerTypeOptions() {
-  const options = PLAYER_TYPES.map(type => ({
+  return PLAYER_TYPES.map(type => ({
     label: capitalize(type),
     icon: getPlayerIcon(type),
     value: type
   }));
-
-  return [{ label: 'All player types', value: null }, ...options];
 }
 
 function getPlayerBuildOptions() {
@@ -119,7 +117,7 @@ function Leaderboards() {
   const [pageIndex, setPageIndex] = useState(0);
 
   const selectedMetric = metric || 'ehp';
-  const selectedPlayerType = type || null;
+  const selectedPlayerType = type || 'regular';
   const selectedPlayerBuild = build || null;
 
   const tableConfig = useMemo(() => getTableConfig(selectedMetric), [selectedMetric]);
