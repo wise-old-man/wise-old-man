@@ -159,7 +159,9 @@ function NavigationBar() {
                       {item.links.map(link => (
                         <li key={link.url} className="dropdown__link">
                           <img src={link.icon} alt="" />
-                          <Link to={link.url}>{link.label}</Link>
+                          <Link to={link.url} onClick={closeMenu}>
+                            {link.label}
+                          </Link>
                         </li>
                       ))}
                     </ul>
