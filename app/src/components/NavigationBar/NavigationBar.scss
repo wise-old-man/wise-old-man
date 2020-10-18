@@ -218,6 +218,12 @@
           padding: 20px;
           margin: 0;
 
+          .dropdown__wrapper {
+            img {
+              display: none;
+            }
+          }
+
           .text-input {
             width: 100% !important;
           }
@@ -236,6 +242,7 @@
 
             .dropdown__link {
               border-color: $gray-12;
+              opacity: 0.5;
             }
           }
         }
