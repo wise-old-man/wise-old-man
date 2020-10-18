@@ -150,7 +150,7 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
 async function getGroupCompetitions(groupId: number, pagination: Pagination): Promise<Competition[]> {
   const competitions = await Competition.findAll({
     where: { groupId },
-    order: [['score', 'DESC']],
+    order: [['id', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset
   });
@@ -173,7 +173,7 @@ async function getPlayerCompetitions(playerId: number, pagination = { limit: 100
   const preparedCompetitions = participations
     .slice(pagination.offset, pagination.offset + pagination.limit)
     .map(p => p.competition)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => b.id - a.id);
 
   const extendedCompetitions = await extendCompetitions(preparedCompetitions);
 
