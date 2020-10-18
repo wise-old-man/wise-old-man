@@ -6,6 +6,7 @@
   @extend %block-text-selection;
   overflow-x: scroll;
   scroll-behavior: smooth;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none !important;
