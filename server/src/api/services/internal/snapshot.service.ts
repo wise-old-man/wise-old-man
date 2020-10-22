@@ -105,7 +105,7 @@ async function getSnapshots(playerId: number, period: string) {
     order: [['createdAt', 'DESC']]
   });
 
-  return result.map(format);
+  return result.map(r => format(r));
 }
 
 /**
