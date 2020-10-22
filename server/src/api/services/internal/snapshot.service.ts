@@ -24,11 +24,11 @@ function format(snapshot: Snapshot, efficiency?: any) {
       [getMeasure(m)]: snapshot[getValueKey(m)]
     };
 
-    // Add individual ehp/ehb values
-    if (efficiency) {
-      if (m === 'overall') {
-        obj[m].ehp = Math.max(0, snapshot.ehpValue);
-      } else if (isSkill(m)) {
+    if (m === 'overall') {
+      obj[m].ehp = Math.max(0, snapshot.ehpValue);
+    } else if (efficiency) {
+      // Add individual ehp/ehb values
+      if (isSkill(m)) {
         obj[m].ehp = efficiency[m];
       } else if (isBoss(m)) {
         obj[m].ehb = efficiency[m];
