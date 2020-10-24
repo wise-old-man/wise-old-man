@@ -5,6 +5,7 @@ const playersSelector = state => state.players.players;
 const updatingSelector = state => state.players.updating;
 const searchResultsSelector = state => state.players.searchResults;
 
+export const isTracking = createSelector(rootSelector, root => root.isTracking);
 export const isFetching = createSelector(rootSelector, root => root.isFetching);
 
 export const getUpdatingUsernames = createSelector(updatingSelector, updating => updating);
