@@ -64,19 +64,7 @@ async function assertName(req: Request, res: Response, next: NextFunction) {
 
 // POST /players/import
 async function importPlayer(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.body, { key: 'username', required: true });
-
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
-    // Attempt to import the player's history from CML
-    const history = await playerService.importCML(player);
-
-    res.json({ message: `${history.length} snapshots imported from CML` });
-  } catch (e) {
-    next(e);
-  }
+  next(new BadRequestError('This endpoint is not available in the TrailBlazer edition of the API.'));
 }
 
 // GET /players/:id

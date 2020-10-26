@@ -3,7 +3,6 @@ import jobs from '../jobs';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
-import * as playerService from '../services/internal/player.service';
 
 function onPlayerCreated(player: Player) {
   // Confirm this player's name capitalization
@@ -29,9 +28,6 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 
   // Update this player's deltas (gains)
   deltaService.syncDeltas(player, snapshot);
-
-  // Attempt to import this player's history from CML
-  playerService.importCML(player);
 }
 
 function onPlayerImported(playerId: number) {
