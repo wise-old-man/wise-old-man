@@ -42,19 +42,7 @@ async function track(req: Request, res: Response, next: NextFunction) {
 
 // POST /players/assert-type
 async function assertType(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.body, { key: 'username', required: true });
-
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
-    // (Forcefully) Assert the player's account type
-    const type = await playerService.assertType(player);
-
-    res.json({ type });
-  } catch (e) {
-    next(e);
-  }
+  next(new BadRequestError('This endpoint is not available in the TrailBlazer edition of the API.'));
 }
 
 // POST /players/assert-name

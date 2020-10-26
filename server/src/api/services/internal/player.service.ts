@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import { NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as cmlService from '../external/cml.service';
@@ -148,11 +148,6 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 
   try {
-    // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === 'unknown') {
-      player.type = await getType(player);
-    }
-
     // Fetch the previous player stats from the database
     const previousStats = await snapshotService.findLatest(player.id);
     // Fetch the new player stats from the hiscores API
@@ -166,6 +161,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // Refresh the player's build
     player.build = getBuild(currentStats);
+    player.type = 'ironman';
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
@@ -251,60 +247,14 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   return savedSnapshots;
 }
 
-async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
+async function fetchStats(player: Player): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username);
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
   return newSnapshot;
-}
-
-/**
- * Gets a player's overall exp in a specific hiscores endpoint.
- * Note: This is an auxilary function for the getType function.
- */
-async function getOverallExperience(player: Player, type: string): Promise<number> {
-  try {
-    return (await fetchStats(player, type)).overallExperience;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    return -1;
-  }
-}
-
-async function getType(player: Player): Promise<string> {
-  const regularExp = await getOverallExperience(player, 'regular');
-
-  // This username is not on the hiscores
-  if (regularExp === -1) {
-    throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
-  }
-
-  const ironmanExp = await getOverallExperience(player, 'ironman');
-  if (ironmanExp < regularExp) return 'regular';
-
-  const hardcoreExp = await getOverallExperience(player, 'hardcore');
-  if (hardcoreExp >= ironmanExp) return 'hardcore';
-
-  const ultimateExp = await getOverallExperience(player, 'ultimate');
-  if (ultimateExp >= ironmanExp) return 'ultimate';
-
-  return 'ironman';
-}
-
-/**
- * Fetch various hiscores endpoints to find the correct player type of a given player.
- */
-async function assertType(player: Player): Promise<string> {
-  const type = await getType(player);
-
-  if (player.type !== type) {
-    await player.update({ type });
-  }
-
-  return type;
 }
 
 /**
@@ -401,7 +351,6 @@ export {
   search,
   update,
   importCML,
-  assertType,
   assertName,
   shouldImport,
   resolve,

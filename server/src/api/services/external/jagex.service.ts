@@ -8,7 +8,7 @@ import proxiesService from './proxies.service';
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username: string, type = 'regular'): Promise<string> {
+async function getHiscoresData(username: string, type = 'seasonal'): Promise<string> {
   const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
