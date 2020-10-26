@@ -50,30 +50,10 @@ const MENU_CONFIG = [
     ]
   },
   {
-    type: 'dropdown',
-    label: 'Efficiency',
-    links: [
-      {
-        icon: '/img/icons/skilling.svg',
-        label: 'EHP Rates',
-        url: '/rates/ehp'
-      },
-      {
-        icon: '/img/icons/sword.svg',
-        label: 'EHB Rates',
-        url: '/rates/ehb'
-      }
-    ]
-  },
-  {
     type: 'link',
-    label: 'API',
-    url: 'https://wiseoldman.net/docs'
-  },
-  {
-    type: 'link',
-    label: 'Discord Bot',
-    url: 'https://bot.wiseoldman.net'
+    label: 'Visit main website',
+    buttonStyle: true,
+    url: 'https://wiseoldman.net'
   }
 ];
 
@@ -148,7 +128,9 @@ function NavigationBar() {
             {MENU_CONFIG.map(item => (
               <li key={item.label} className={itemClass(item)}>
                 {item.type === 'link' ? (
-                  <a href={item.url}>{item.label}</a>
+                  <a className={item.buttonStyle ? '-button-link' : ''} href={item.url}>
+                    {item.label}
+                  </a>
                 ) : (
                   <>
                     <div className="dropdown__wrapper">
