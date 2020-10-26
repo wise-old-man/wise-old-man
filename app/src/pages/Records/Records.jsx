@@ -8,17 +8,8 @@ import PlayerTag from '../../components/PlayerTag';
 import Table from '../../components/Table';
 import NumberLabel from '../../components/NumberLabel';
 import TablePlaceholder from '../../components/TablePlaceholder';
-import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from '../../config';
-import {
-  formatDate,
-  getPlayerIcon,
-  getPlayerBuild,
-  getMetricIcon,
-  capitalize,
-  getMetricName,
-  isSkill,
-  isBoss
-} from '../../utils';
+import { PLAYER_BUILDS, ALL_METRICS } from '../../config';
+import { formatDate, getPlayerBuild, getMetricIcon, getMetricName, isSkill, isBoss } from '../../utils';
 import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
 import {
   getLeaderboards,
@@ -64,20 +55,10 @@ function getTableConfig(metric) {
   };
 }
 
-function getPlayerTypeOptions() {
-  const options = PLAYER_TYPES.map(type => ({
-    label: capitalize(type),
-    icon: getPlayerIcon(type),
-    value: type
-  }));
-
-  return [{ label: 'All player types', value: null }, ...options];
-}
-
 function getPlayerBuildOptions() {
-  const options = PLAYER_BUILDS.map(type => ({
-    label: getPlayerBuild(type),
-    value: type
+  const options = PLAYER_BUILDS.filter(build => build !== 'f2p').map(build => ({
+    label: getPlayerBuild(build),
+    value: build
   }));
 
   return [{ label: 'All player builds', value: null }, ...options];
@@ -116,13 +97,9 @@ function getPlayerURL(username, metric) {
   return `/players/${username}/records/${section}`;
 }
 
-function getNextUrl(nextMetric, nextType, nextBuild) {
+function getNextUrl(nextMetric, nextBuild) {
   const baseUrl = `/records/${nextMetric}?`;
   const queries = [];
-
-  if (nextType !== null) {
-    queries.push(`type=${nextType}`);
-  }
 
   if (nextBuild !== null) {
     queries.push(`build=${nextBuild}`);
@@ -136,18 +113,15 @@ function Records() {
   const dispatch = useDispatch();
 
   const { metric } = useParams();
-  const { type, build } = useQuery(['type', 'build']);
+  const { build } = useQuery(['build']);
 
   const selectedMetric = metric || 'overall';
-  const selectedPlayerType = type || null;
   const selectedPlayerBuild = build || null;
 
   const metricOptions = useMemo(() => getMetricOptions(), []);
-  const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
   const playerBuildOptions = useMemo(() => getPlayerBuildOptions(), []);
 
   const metricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const playerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
@@ -160,26 +134,22 @@ function Records() {
     const periods = ['day', 'week', 'month'];
 
     periods.forEach(p => {
-      dispatch(fetchLeaderboard(selectedMetric, p, selectedPlayerType, selectedPlayerBuild));
+      dispatch(fetchLeaderboard(selectedMetric, p, 'ironman', selectedPlayerBuild));
     });
   };
 
   const handleMetricSelected = e => {
     if (!e || !e.value) return;
-    router.push(getNextUrl(e.value, selectedPlayerType, selectedPlayerBuild));
-  };
-
-  const handleTypeSelected = e => {
-    router.push(getNextUrl(selectedMetric, e.value, selectedPlayerBuild));
+    router.push(getNextUrl(e.value, selectedPlayerBuild));
   };
 
   const handleBuildSelected = e => {
-    router.push(getNextUrl(selectedMetric, selectedPlayerType, e.value));
+    router.push(getNextUrl(selectedMetric, e.value));
   };
 
   const tableConfig = useMemo(() => getTableConfig(selectedMetric), [selectedMetric]);
 
-  useEffect(reloadList, [selectedMetric, selectedPlayerType, selectedPlayerBuild]);
+  useEffect(reloadList, [selectedMetric, selectedPlayerBuild]);
 
   return (
     <div className="records__container container">
@@ -198,13 +168,6 @@ function Records() {
             selectedIndex={metricIndex}
             onSelect={handleMetricSelected}
             search
-          />
-        </div>
-        <div className="col-lg-2 col-md-4">
-          <Selector
-            options={playerTypeOptions}
-            selectedIndex={playerTypeIndex}
-            onSelect={handleTypeSelected}
           />
         </div>
         <div className="col-lg-3 col-md-5">

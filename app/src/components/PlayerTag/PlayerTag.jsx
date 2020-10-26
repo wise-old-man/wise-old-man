@@ -4,7 +4,7 @@ import { getPlayerIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
 
 function PlayerTag({ name, type, flagged }) {
-  const icon = getPlayerIcon(type, flagged);
+  const icon = getPlayerIcon(flagged);
   const tooltip = getPlayerTooltip(type, flagged);
 
   return (
