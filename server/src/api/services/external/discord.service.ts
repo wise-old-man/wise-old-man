@@ -1,6 +1,4 @@
-import axios from 'axios';
 import { Achievement, Competition } from '../../../database/models';
-import env from '../../../env';
 import { EventPeriod } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import * as groupService from '../internal/group.service';
@@ -10,13 +8,7 @@ import * as playerService from '../internal/player.service';
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: any) {
-  const url = env.DISCORD_BOT_API_URL;
-  const api_token = env.DISCORD_BOT_API_TOKEN;
-  const body = { type, api_token, data: payload };
-
-  axios.post(url, body).catch(() => {
-    console.log('Error sending discord event.');
-  });
+  console.log('Cannot dispatch discord events in the TrailBlazer Edition.');
 }
 
 /**
