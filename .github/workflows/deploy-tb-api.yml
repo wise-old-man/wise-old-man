@@ -3,7 +3,7 @@ name: Build Trailblazer API Image
 on:
   push:
     branches:
-      - league/trailblazer
+      - 'league/trailblazer'
     paths:
       - 'server/**'
 
