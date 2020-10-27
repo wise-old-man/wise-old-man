@@ -8,6 +8,8 @@ import './index.scss';
 
 import App from './App';
 
+// Test APP deployment trigger
+
 ReactDOM.render(
   <Provider store={store}>
     <App />
