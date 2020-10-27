@@ -99,9 +99,12 @@ function Home() {
         <title>Wise Old Man - The Open Source Old School Runescape player progress tracker.</title>
       </Helmet>
       <section id="hero" className="hero">
+        <img className="hero-texture" src="/img/landing_page/texture.png" alt="" />
         <div id="intro" className="hero__intro">
           <div className="intro-container">
-            <span className="intro-greeting">Hi, meet the</span>
+            <div className="intro-greeting-wrapper">
+              <span className="intro-greeting">TrailBlazer Edition</span>
+            </div>
             <h1 className="intro-title">Wise Old Man</h1>
             <p className="intro-description">
               The Open Source Old School Runescape player progress tracker.

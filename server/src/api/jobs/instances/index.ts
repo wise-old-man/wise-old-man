@@ -1,5 +1,4 @@
 import AssertPlayerName from './AssertPlayerName';
-import AssertPlayerType from './AssertPlayerType';
 import CompetitionEnded from './CompetitionEnded';
 import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
@@ -17,7 +16,6 @@ export default [
   CompetitionStarting,
   CompetitionEnding,
   CompetitionEnded,
-  AssertPlayerType,
   ReviewNameChange,
   RefreshNameChanges
 ];

@@ -11,26 +11,20 @@ import TablePlaceholder from '../../components/TablePlaceholder';
 import fetchLeaderboardsAction from '../../redux/modules/leaderboards/actions/fetchLeaderboards';
 import { getLeaderboards, isFetchingAll } from '../../redux/selectors/leaderboards';
 import {
-  capitalize,
-  getPlayerIcon,
   getPlayerBuild,
   durationBetween,
   formatNumber,
   getMetricIcon,
   getMetricName
 } from '../../utils';
-import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS } from '../../config';
+import { PLAYER_BUILDS, VIRTUALS } from '../../config';
 import './Leaderboards.scss';
 
 const RESULTS_PER_PAGE = 20;
 
-function getNextUrl(nextMetric, nextType, nextBuild) {
+function getNextUrl(nextMetric, nextBuild) {
   const baseUrl = `/leaderboards/${nextMetric}?`;
   const queries = [];
-
-  if (nextType !== null) {
-    queries.push(`type=${nextType}`);
-  }
 
   if (nextBuild !== null) {
     queries.push(`build=${nextBuild}`);
@@ -83,18 +77,10 @@ function useQuery(keys) {
   return result;
 }
 
-function getPlayerTypeOptions() {
-  return PLAYER_TYPES.map(type => ({
-    label: capitalize(type),
-    icon: getPlayerIcon(type),
-    value: type
-  }));
-}
-
 function getPlayerBuildOptions() {
-  const options = PLAYER_BUILDS.map(type => ({
-    label: getPlayerBuild(type),
-    value: type
+  const options = PLAYER_BUILDS.filter(build => build !== 'f2p').map(build => ({
+    label: getPlayerBuild(build),
+    value: build
   }));
 
   return [{ label: 'All player builds', value: null }, ...options];
@@ -112,21 +98,18 @@ function Leaderboards() {
   const router = useHistory();
   const dispatch = useDispatch();
   const { metric } = useParams();
-  const { type, build } = useQuery(['type', 'build']);
+  const { build } = useQuery(['build']);
 
   const [pageIndex, setPageIndex] = useState(0);
 
   const selectedMetric = metric || 'ehp';
-  const selectedPlayerType = type || 'regular';
   const selectedPlayerBuild = build || null;
 
   const tableConfig = useMemo(() => getTableConfig(selectedMetric), [selectedMetric]);
   const metricOptions = useMemo(() => getMetricOptions(), []);
-  const playerTypeOptions = useMemo(() => getPlayerTypeOptions(), []);
   const playerBuildOptions = useMemo(() => getPlayerBuildOptions(), []);
 
   const metricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const playerTypeIndex = playerTypeOptions.findIndex(o => o.value === selectedPlayerType);
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
@@ -138,7 +121,7 @@ function Leaderboards() {
   const handleFetchData = (resetList = true) => {
     const query = {
       metric: selectedMetric,
-      playerType: selectedPlayerType || null,
+      playerType: 'ironman',
       playerBuild: selectedPlayerBuild || null
     };
 
@@ -163,15 +146,11 @@ function Leaderboards() {
 
   const handleMetricSelected = e => {
     if (!e || !e.value) return;
-    router.push(getNextUrl(e.value, selectedPlayerType, selectedPlayerBuild));
-  };
-
-  const handleTypeSelected = e => {
-    router.push(getNextUrl(selectedMetric, e.value, selectedPlayerBuild));
+    router.push(getNextUrl(e.value, selectedPlayerBuild));
   };
 
   const handleBuildSelected = e => {
-    router.push(getNextUrl(selectedMetric, selectedPlayerType, e.value));
+    router.push(getNextUrl(selectedMetric, e.value));
   };
 
   const handleScrolling = () => {
@@ -201,7 +180,7 @@ function Leaderboards() {
 
   // Submit search each time any of the search variable change
 
-  useEffect(handleFetchData, [selectedMetric, selectedPlayerType, selectedPlayerBuild]);
+  useEffect(handleFetchData, [selectedMetric, selectedPlayerBuild]);
   useEffect(handleFetchData, []);
   useEffect(onLoadMore, [pageIndex]);
   useEffect(handleScrolling, [leaderboards, pageIndex]);
@@ -223,13 +202,6 @@ function Leaderboards() {
             selectedIndex={metricIndex}
             onSelect={handleMetricSelected}
             search
-          />
-        </div>
-        <div className="col-lg-4 col-md-5">
-          <Selector
-            options={playerTypeOptions}
-            selectedIndex={playerTypeIndex}
-            onSelect={handleTypeSelected}
           />
         </div>
         <div className="col-lg-4 col-md-5">

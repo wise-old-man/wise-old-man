@@ -10,11 +10,21 @@
   }
 
   .hero {
-    background-image: linear-gradient(to right, #252e34, #091116);
+    position: relative;
+    background: #1d1917;
     min-height: 500px;
     display: flex;
     flex-direction: row;
     overflow: hidden;
+
+    .hero-texture {
+      position: absolute;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
 
     &__intro {
       align-self: center;
@@ -27,8 +37,18 @@
       .intro-container {
         width: auto;
 
+        .intro-greeting-wrapper {
+          display: flex;
+          justify-content: flex-end;
+        }
+
         .intro-greeting {
-          font-size: 1em;
+          font-family: 'Lobster';
+          font-size: 1.2em;
+          color: #e5d993;
+          background: -webkit-linear-gradient(#e1ddc6, #e2cf60);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
 
         .intro-title {
@@ -52,7 +72,7 @@
         }
 
         .intro-input-wrapper {
-          background: #33414b;
+          background: #2e251f;
           border-radius: 5px;
           padding: 7px;
           display: flex;
@@ -107,7 +127,7 @@
 
           .intro-link {
             margin-top: 40px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.25);
             border-radius: 5px;
             padding: 6px 10px;
             display: flex;
@@ -355,6 +375,10 @@
       &__intro {
         .intro-container {
           max-width: 80%;
+
+          .intro-greeting-wrapper {
+            justify-content: flex-start;
+          }
 
           .intro-title {
             font-size: 2.3em !important;

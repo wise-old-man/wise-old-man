@@ -42,19 +42,7 @@ async function track(req: Request, res: Response, next: NextFunction) {
 
 // POST /players/assert-type
 async function assertType(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.body, { key: 'username', required: true });
-
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
-    // (Forcefully) Assert the player's account type
-    const type = await playerService.assertType(player);
-
-    res.json({ type });
-  } catch (e) {
-    next(e);
-  }
+  next(new BadRequestError('This endpoint is not available in the TrailBlazer edition of the API.'));
 }
 
 // POST /players/assert-name
@@ -76,19 +64,7 @@ async function assertName(req: Request, res: Response, next: NextFunction) {
 
 // POST /players/import
 async function importPlayer(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.body, { key: 'username', required: true });
-
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
-    // Attempt to import the player's history from CML
-    const history = await playerService.importCML(player);
-
-    res.json({ message: `${history.length} snapshots imported from CML` });
-  } catch (e) {
-    next(e);
-  }
+  next(new BadRequestError('This endpoint is not available in the TrailBlazer edition of the API.'));
 }
 
 // GET /players/:id

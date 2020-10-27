@@ -70,8 +70,7 @@ const METRIC_TYPE_OPTIONS = [
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
   { label: 'Reset username capitalization', value: 'assertName' },
-  { label: 'Reassign player type', value: 'assertType' },
-  { label: '[NEW] Change name', value: 'changeName' }
+  { label: 'Change name', value: 'changeName' }
 ];
 
 function getPlayerBadges(build) {
@@ -269,9 +268,7 @@ function Player() {
   };
 
   const handleOptionSelected = async option => {
-    if (option.value === 'assertType') {
-      await dispatch(assertPlayerTypeAction(player.username, player.username));
-    } else if (option.value === 'assertName') {
+    if (option.value === 'assertName') {
       await dispatch(assertPlayerNameAction(player.username, player.username));
     } else if (option.value === 'changeName') {
       router.push(`/names/submit/${player.displayName}`);
@@ -324,7 +321,7 @@ function Player() {
 
           <PageHeader
             title={player.displayName}
-            icon={getPlayerIcon(player.type)}
+            icon={getPlayerIcon(false)}
             iconTooltip={getPlayerTooltip(player.type, player.flagged)}
             badges={getPlayerBadges(player.build)}
           >
