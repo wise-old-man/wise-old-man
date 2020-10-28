@@ -135,7 +135,7 @@ function Home() {
           </div>
         </div>
         <div id="illustration" className="hero__illustration">
-          <img src="/img/landing_page/hero_background.png" alt="" />
+          <img src="/img/landing_page/tb_hero_background.png" alt="" />
         </div>
       </section>
       <section className="about container">
