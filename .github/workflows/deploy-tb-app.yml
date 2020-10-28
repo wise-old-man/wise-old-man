@@ -31,10 +31,10 @@ jobs:
       - name: Restart docker
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.TRAILBLAZER_DO_HOST }}
-          username: ${{ secrets.TRAILBLAZER_DO_USER }}
-          passphrase: ${{ secrets.TRAILBLAZER_DO_SSH_PASS }}
-          key: ${{ secrets.TRAILBLAZER_DO_SSH_KEY }}
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          passphrase: ${{ secrets.DO_SSH_PASS }}
+          key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
             docker-compose pull
