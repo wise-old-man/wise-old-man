@@ -9,8 +9,6 @@ import proxiesService from './proxies.service';
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username: string, type = 'seasonal'): Promise<string> {
-  throw new ServerError('Tracking is disabled until the Trailblazer League starts.');
-  /*
   const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
@@ -28,7 +26,6 @@ async function getHiscoresData(username: string, type = 'seasonal'): Promise<str
     if (e instanceof ServerError) throw e;
     throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
-  */
 }
 
 /**
