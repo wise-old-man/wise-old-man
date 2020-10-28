@@ -1,7 +1,7 @@
 import api from './api';
 import env from './env';
 
-const port = env.PORT || 5000;
+const port = env.PORT || 6000;
 
 // Test API deployment trigger 4
 
