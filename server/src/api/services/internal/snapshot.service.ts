@@ -71,7 +71,9 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
 
-  return ehpDiff + ehbDiff > hoursDiff;
+  const leagueExpModifier = 20;
+
+  return ehpDiff * leagueExpModifier + ehbDiff > hoursDiff;
 }
 
 /**
