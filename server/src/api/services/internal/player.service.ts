@@ -5,6 +5,7 @@ import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
+import * as leagueService from './league.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
@@ -95,10 +96,10 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   const stats = snapshot || (await snapshotService.findLatest(player.id));
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
-
+  const leagueTier = await leagueService.getPlayerTier(stats && stats.overallRank);
   const latestSnapshot = snapshotService.format(stats, efficiency);
 
-  return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
+  return { ...(player.toJSON() as any), combatLevel, leagueTier, latestSnapshot };
 }
 
 /**

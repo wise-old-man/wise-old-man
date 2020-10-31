@@ -32,9 +32,9 @@ services:
   server:
     build: ./server
     expose:
-      - '5000'
+      - '6000'
     ports:
-      - '5000:5000'
+      - '6000:6000'
     networks:
       - webnet
     depends_on:
