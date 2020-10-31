@@ -49,14 +49,14 @@ async function getHiscoresNames(username: string): Promise<string[]> {
       throw new ServerError('Failed to load hiscores: Service is unavailable');
     }
 
-    return getHiscoresTableNames(data.toString('latin1'));
+    return getHiscoresTableColumns(data.toString('latin1'), 1);
   } catch (e) {
     if (e instanceof ServerError) throw e;
     throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
 }
 
-function getHiscoresTableNames(data: string): string[] {
+function getHiscoresTableColumns(data: string, columnIndex: number): string[] {
   const $: any = cheerio.load(data);
   tableParser($);
 
@@ -66,7 +66,37 @@ function getHiscoresTableNames(data: string): string[] {
     return [];
   }
 
-  return tableData[1];
+  return tableData[columnIndex];
 }
 
-export { getHiscoresData, getHiscoresNames };
+async function getLeagueTableRanks(pageIndex: number): Promise<string[]> {
+  const proxy = proxiesService.getNextProxy();
+  const URL = `${OSRS_HISCORES.leagueRankCheck}&page=${pageIndex}`;
+
+  try {
+    // Fetch the data through the API Url
+    const { data } = await axios({
+      url: proxy ? URL.replace('https', 'http') : URL,
+      proxy,
+      responseType: 'arraybuffer'
+    });
+
+    // Validate the response data
+    if (!data || !data.length || data.includes('Unavailable')) {
+      throw new ServerError('Failed to load hiscores: Service is unavailable');
+    }
+
+    const ranks = getHiscoresTableColumns(data.toString('latin1'), 0);
+
+    if (!ranks || ranks.length === 0) {
+      return [];
+    }
+
+    return ranks.slice(2);
+  } catch (e) {
+    if (e instanceof ServerError) throw e;
+    throw new BadRequestError('Failed to load hiscores: Invalid username.');
+  }
+}
+
+export { getHiscoresData, getHiscoresNames, getLeagueTableRanks };

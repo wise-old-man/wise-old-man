@@ -1,4 +1,5 @@
 import AssertPlayerName from './AssertPlayerName';
+import CheckLeagueRanks from './CheckLeagueRanks';
 import CompetitionEnded from './CompetitionEnded';
 import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
@@ -17,5 +18,6 @@ export default [
   CompetitionEnding,
   CompetitionEnded,
   ReviewNameChange,
-  RefreshNameChanges
+  RefreshNameChanges,
+  CheckLeagueRanks
 ];
