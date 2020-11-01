@@ -4,6 +4,7 @@ import competitionRoutes from './routes/competition.routes';
 import deltaRoutes from './routes/delta.routes';
 import efficiencyRoutes from './routes/efficiency.routes';
 import groupRoutes from './routes/group.routes';
+import leagueRoutes from './routes/league.routes';
 import nameRoutes from './routes/name.routes';
 import playerRoutes from './routes/player.routes';
 import recordRoutes from './routes/record.routes';
@@ -37,6 +38,7 @@ class RoutingHandler {
     this.router.use('/groups', groupRoutes);
     this.router.use('/names', nameRoutes);
     this.router.use('/efficiency', efficiencyRoutes);
+    this.router.use('/league', leagueRoutes);
   }
 
   setupFallbacks() {
