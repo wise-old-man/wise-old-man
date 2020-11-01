@@ -1,5 +1,5 @@
-export function getPlayerIcon(flagged) {
-  return `/img/runescape/icons_small/${flagged ? 'flagged' : 'league'}.png`;
+export function getPlayerIcon(leagueTier, flagged) {
+  return `/img/runescape/icons_small/${flagged ? 'flagged' : `league_${leagueTier}`}.png`;
 }
 
 export function getPlayerBuild(build) {
@@ -22,10 +22,10 @@ export function getOfficialHiscoresUrl(player) {
   return `https://secure.runescape.com/m=hiscore_oldschool_seasonal/hiscorepersonal.ws?user1=${username}`;
 }
 
-export function getPlayerTooltip(type, flagged) {
+export function getPlayerTooltip(leagueTier, flagged) {
   if (flagged) {
     return 'This player is flagged. Likely caused by an unregistered name change. Join our Discord to submit one.';
   }
 
-  return `TrailBlazer League player.`;
+  return `TrailBlazer League tier: ${leagueTier}`;
 }

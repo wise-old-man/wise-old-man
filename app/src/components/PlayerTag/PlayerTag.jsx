@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { getPlayerIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
 
-function PlayerTag({ name, type, flagged }) {
-  const icon = getPlayerIcon(flagged);
-  const tooltip = getPlayerTooltip(type, flagged);
+function PlayerTag({ name, type, leagueTier, flagged }) {
+  const icon = getPlayerIcon(leagueTier, flagged);
+  const tooltip = getPlayerTooltip(leagueTier, flagged);
 
   return (
     <div className="player-tag">
@@ -21,6 +21,7 @@ function PlayerTag({ name, type, flagged }) {
 
 PlayerTag.defaultProps = {
   type: undefined,
+  leagueTier: 'bronze',
   flagged: false
 };
 
@@ -30,6 +31,8 @@ PlayerTag.propTypes = {
 
   // The player's type
   type: PropTypes.string,
+
+  leagueTier: PropTypes.string,
 
   flagged: PropTypes.bool
 };
