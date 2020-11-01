@@ -320,8 +320,8 @@ function Player() {
 
           <PageHeader
             title={player.displayName}
-            icon={getPlayerIcon(false)}
-            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
+            icon={getPlayerIcon(player.leagueTier, false, 'regular')}
+            iconTooltip={getPlayerTooltip(player.leagueTier, player.flagged)}
             badges={getPlayerBadges(player.build)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />

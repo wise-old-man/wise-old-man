@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { formatNumber, getMetricIcon } from '../../../../utils';
 import './PlayerCards.scss';
+import { capitalize } from 'lodash';
 
 function getCards(player) {
   if (!player || !player.combatLevel || !player.latestSnapshot) {
@@ -17,6 +18,11 @@ function getCards(player) {
       icon: getMetricIcon('combat'),
       title: `Combat Lvl.`,
       text: player.combatLevel
+    },
+    {
+      icon: getMetricIcon(`league_${player.leagueTier}`),
+      title: 'League Tier',
+      text: capitalize(player.leagueTier)
     },
     {
       icon: getMetricIcon('league', true),
@@ -37,11 +43,6 @@ function getCards(player) {
       icon: getMetricIcon('ehb'),
       title: `${formatNumber(player.ehb)} EHB`,
       text: `Rank ${formatNumber(ehbRank)}`
-    },
-    {
-      icon: getMetricIcon('ttm'),
-      title: 'Time to Max',
-      text: `${formatNumber(player.ttm)} hours`
     }
   ];
 }
