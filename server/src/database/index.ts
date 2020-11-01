@@ -5,6 +5,7 @@ import {
   Delta,
   Group,
   InitialValues,
+  LeaguePage,
   Membership,
   NameChange,
   Participation,
@@ -26,7 +27,8 @@ const models = [
   Record,
   Snapshot,
   NameChange,
-  Delta
+  Delta,
+  LeaguePage
 ];
 
 const sequelize = new Sequelize({

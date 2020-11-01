@@ -5,6 +5,7 @@ import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/level';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
+import * as leagueService from './league.service';
 import * as snapshotService from './snapshot.service';
 
 const YEAR_IN_SECONDS = 31556926;
@@ -95,7 +96,6 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   const stats = snapshot || (await snapshotService.findLatest(player.id));
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
-
   const latestSnapshot = snapshotService.format(stats, efficiency);
 
   return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
@@ -149,6 +149,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
+    const leagueTier = await leagueService.getPlayerTier(currentStats.overallRank);
 
     // Set the player's global virtual data
     player.exp = currentStats.overallExperience;
@@ -156,6 +157,8 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.ehb = virtuals.ehbValue;
     player.ttm = virtuals.ttm;
     player.tt200m = virtuals.tt200m;
+    player.leagueTier = leagueTier;
+    player.leaguePoints = currentStats.league_pointsScore;
 
     // Add the virtual data and save the snapshot
     Object.assign(currentStats, virtuals);

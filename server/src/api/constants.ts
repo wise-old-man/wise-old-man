@@ -20,7 +20,8 @@ export const OSRS_HISCORES = {
   hardcore: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
   ultimate: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
   seasonal: 'https://services.runescape.com/m=hiscore_oldschool_seasonal/index_lite.ws',
-  nameCheck: 'https://secure.runescape.com/m=hiscore_oldschool/overall?table=0'
+  nameCheck: 'https://secure.runescape.com/m=hiscore_oldschool/overall?table=0',
+  leagueRankCheck: 'https://secure.runescape.com/m=hiscore_oldschool_seasonal/overall?table=0' // &page=6699
 };
 
 export const CML = {

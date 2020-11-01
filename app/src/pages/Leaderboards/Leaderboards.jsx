@@ -48,7 +48,12 @@ const getTableConfig = metric => {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.username}`}>
-            <PlayerTag name={row.displayName} type={row.type} flagged={row.flagged} />
+            <PlayerTag
+              name={row.displayName}
+              type={row.type}
+              leagueTier={row.leagueTier}
+              flagged={row.flagged}
+            />
           </Link>
         )
       },

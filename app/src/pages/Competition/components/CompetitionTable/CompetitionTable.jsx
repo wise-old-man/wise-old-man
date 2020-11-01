@@ -36,7 +36,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.username}`}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
+            <PlayerTag name={value} type={row.type} leagueTier={row.leagueTier} flagged={row.flagged} />
           </Link>
         )
       },

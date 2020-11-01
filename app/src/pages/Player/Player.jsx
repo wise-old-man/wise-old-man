@@ -28,7 +28,6 @@ import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
-import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
 import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
@@ -321,8 +320,8 @@ function Player() {
 
           <PageHeader
             title={player.displayName}
-            icon={getPlayerIcon(false)}
-            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
+            icon={getPlayerIcon(player.leagueTier, false, 'regular')}
+            iconTooltip={getPlayerTooltip(player.leagueTier, player.flagged)}
             badges={getPlayerBadges(player.build)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
