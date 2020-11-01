@@ -81,6 +81,12 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.FLOAT, allowNull: false, defaultValue: 0 })
   tt200m: number;
 
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  leaguePoints: number;
+
+  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 'bronze' })
+  leagueTier: string;
+
   @Column({ type: DataType.DATE })
   lastImportedAt: Date;
 

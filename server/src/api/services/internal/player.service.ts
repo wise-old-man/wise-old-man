@@ -150,6 +150,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
+    const leagueTier = await leagueService.getPlayerTier(currentStats.overallRank);
 
     // Set the player's global virtual data
     player.exp = currentStats.overallExperience;
@@ -157,6 +158,8 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.ehb = virtuals.ehbValue;
     player.ttm = virtuals.ttm;
     player.tt200m = virtuals.tt200m;
+    player.leagueTier = leagueTier;
+    player.leaguePoints = currentStats.league_pointsScore;
 
     // Add the virtual data and save the snapshot
     Object.assign(currentStats, virtuals);
