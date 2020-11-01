@@ -96,10 +96,9 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   const stats = snapshot || (await snapshotService.findLatest(player.id));
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
-  const leagueTier = await leagueService.getPlayerTier(stats && stats.overallRank);
   const latestSnapshot = snapshotService.format(stats, efficiency);
 
-  return { ...(player.toJSON() as any), combatLevel, leagueTier, latestSnapshot };
+  return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
 }
 
 /**
