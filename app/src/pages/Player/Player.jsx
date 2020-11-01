@@ -28,7 +28,6 @@ import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
 import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
-import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
 import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
