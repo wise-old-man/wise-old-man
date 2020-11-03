@@ -18,13 +18,17 @@ enum JobPriority {
   Low = 3
 }
 
+function wrapJobName(name) {
+  return `tb_${name}`;
+}
+
 class JobHandler {
   private queues;
 
   constructor() {
     this.queues = jobs.map((job: Job) => ({
-      bull: new Queue(job.name, redisConfig),
-      name: job.name,
+      bull: new Queue(wrapJobName(job.name), redisConfig),
+      name: wrapJobName(job.name),
       handle: job.handle,
       onFailure: job.onFailure,
       onSuccess: job.onSuccess
@@ -39,7 +43,7 @@ class JobHandler {
       return;
     }
 
-    const queue = this.queues.find(q => q.name === name);
+    const queue = this.queues.find(q => q.name === wrapJobName(name));
 
     if (!queue) {
       throw new Error(`No job found for name ${name}`);
