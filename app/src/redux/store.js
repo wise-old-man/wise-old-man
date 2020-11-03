@@ -1,14 +1,20 @@
-import { createStore, applyMiddleware } from 'redux';
-import logger from 'redux-logger';
-import thunk from 'redux-thunk';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import loggerMiddleware from 'redux-logger';
+import thunkMiddleware from 'redux-thunk';
 
-import reducers from './reducers';
 import datesMiddleware from './middlewares/dates';
 import notificationsMiddleware from './middlewares/notifications';
+import reducers from './reducers';
 
-const store = createStore(
-  reducers,
-  applyMiddleware(thunk, logger, datesMiddleware, notificationsMiddleware),
-);
+const store = configureStore({
+  reducer: reducers,
+  middleware: [
+    loggerMiddleware,
+    thunkMiddleware,
+    datesMiddleware,
+    notificationsMiddleware,
+    ...getDefaultMiddleware()
+  ]
+});
 
 export default store;

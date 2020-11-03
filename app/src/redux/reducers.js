@@ -1,5 +1,4 @@
-import { combineReducers } from 'redux';
-
+import { combineReducers } from '@reduxjs/toolkit';
 import notifications from './modules/notifications/reducer';
 import deltas from './modules/deltas/reducer';
 import records from './modules/records/reducer';
@@ -11,9 +10,10 @@ import groups from './modules/groups/reducer';
 import hiscores from './modules/hiscores/reducer';
 import names from './modules/names/reducer';
 import leaderboards from './modules/leaderboards/reducer';
-import rates from './modules/rates/reducer';
 
-export default combineReducers({
+import rates from './rates/reducer';
+
+const reducer = combineReducers({
   notifications,
   deltas,
   records,
@@ -27,3 +27,5 @@ export default combineReducers({
   leaderboards,
   rates
 });
+
+export default reducer;
