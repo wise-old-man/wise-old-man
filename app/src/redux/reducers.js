@@ -7,10 +7,10 @@ import snapshots from './modules/snapshots/reducer';
 import players from './modules/players/reducer';
 import achievements from './modules/achievements/reducer';
 import groups from './modules/groups/reducer';
-import hiscores from './modules/hiscores/reducer';
 import names from './modules/names/reducer';
 import leaderboards from './modules/leaderboards/reducer';
 
+import hiscores from './hiscores/reducer';
 import rates from './rates/reducer';
 
 const reducer = combineReducers({

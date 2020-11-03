@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
+import * as hiscoresActions from 'redux/hiscores/actions';
+import * as hiscoresSelectors from 'redux/hiscores/selectors';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Selector from '../../components/Selector';
@@ -31,14 +33,12 @@ import {
 import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import { getGroupAchievements, isFetchingGroupAchievements } from '../../redux/selectors/achievements';
 import { getGroupDeltas, isFetchingGroupDeltas } from '../../redux/selectors/deltas';
-import { getGroupHiscores, isFetchingGroupHiscores } from '../../redux/selectors/hiscores';
 import { getGroupRecords, isFetchingGroupRecords } from '../../redux/selectors/records';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchGroupAchievements';
-import fetchHiscoresAction from '../../redux/modules/hiscores/actions/fetchGroupHiscores';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchGroupDeltas';
 import fetchRecordsAction from '../../redux/modules/records/actions/fetchGroupRecords';
 import fetchStatisticsAction from '../../redux/modules/groups/actions/fetchStatistics';
@@ -103,14 +103,14 @@ function Group() {
   const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
   const isLoadingStatistics = useSelector(state => isFetchingStatistics(state));
   const isLoadingAchievements = useSelector(state => isFetchingGroupAchievements(state));
-  const isLoadingHiscores = useSelector(state => isFetchingGroupHiscores(state));
+  const isLoadingHiscores = useSelector(hiscoresSelectors.isFetching);
   const isLoadingDeltas = useSelector(state => isFetchingGroupDeltas(state));
   const isLoadingRecords = useSelector(state => isFetchingGroupRecords(state));
 
   const group = useSelector(state => getGroup(state, parseInt(id, 10)));
   const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
   const achievements = useSelector(state => getGroupAchievements(state, parseInt(id, 10)));
-  const hiscores = useSelector(state => getGroupHiscores(state, parseInt(id, 10)));
+  const hiscores = useSelector(state => hiscoresSelectors.getGroupHiscores(state, parseInt(id, 10)));
   const deltas = useSelector(state => getGroupDeltas(state, parseInt(id, 10)));
   const records = useSelector(state => getGroupRecords(state, parseInt(id, 10)));
 
@@ -130,7 +130,7 @@ function Group() {
   };
 
   const fetchHiscores = () => {
-    dispatch(fetchHiscoresAction(id, selectedMetric));
+    dispatch(hiscoresActions.fetchGroupHiscores(id, selectedMetric));
   };
 
   const fetchDeltas = () => {

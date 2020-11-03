@@ -3,12 +3,11 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   isFetching: false,
   error: null,
-  ehpRates: [],
-  ehbRates: []
+  groupHiscores: {}
 };
 
 const slice = createSlice({
-  name: 'rates',
+  name: 'hiscores',
   initialState,
   reducers: {
     onFetchRequest(state) {
@@ -16,16 +15,11 @@ const slice = createSlice({
       state.error = null;
     },
     onFetchSuccess(state, action) {
-      const { metric, rates } = action.payload;
+      const { groupId, hiscores } = action.payload;
 
       state.isFetching = false;
       state.error = null;
-
-      if (metric === 'ehp') {
-        state.ehpRates = rates;
-      } else {
-        state.ehbRates = rates;
-      }
+      state.groupHiscores[groupId] = hiscores;
     },
     onFetchError(state, action) {
       state.isFetching = false;

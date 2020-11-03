@@ -8,7 +8,8 @@ const API = axios.create({
 });
 
 const endpoints = {
-  fetchRates: '/efficiency/rates/'
+  fetchRates: '/efficiency/rates/',
+  fetchGroupHiscores: '/groups/:groupId/hiscores/'
 };
 
 export { endpoints };
