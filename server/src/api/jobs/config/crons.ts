@@ -5,6 +5,6 @@ export default [
   },
   {
     jobName: 'RefreshNameChanges',
-    cronConfig: '0 */6 * * *' // every 6 hours
+    cronConfig: '*/10 * * * *' // every 6 hours
   }
 ];
