@@ -14,13 +14,18 @@ const endpoints = {
   // Record endpoints
   fetchRecordLeaderboards: '/records/leaderboard/',
 
+  // Deltas endpoints
+  fetchDeltasLeaderboards: '/deltas/leaderboard/',
+
   // Group endpoints
   fetchGroupHiscores: '/groups/:groupId/hiscores/',
   fetchGroupRecords: '/groups/:groupId/records/',
+  fetchGroupDeltas: '/groups/:groupId/gained/',
 
   // Player endpoints
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
-  fetchPlayerRecords: '/players/username/:username/records/'
+  fetchPlayerRecords: '/players/username/:username/records/',
+  fetchPlayerDeltas: '/players/username/:username/gained/'
 };
 
 export { endpoints };

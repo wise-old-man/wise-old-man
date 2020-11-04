@@ -1,6 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import notifications from './modules/notifications/reducer';
-import deltas from './modules/deltas/reducer';
 import competitions from './modules/competitions/reducer';
 import players from './modules/players/reducer';
 import achievements from './modules/achievements/reducer';
@@ -12,6 +11,7 @@ import hiscores from './hiscores/reducer';
 import rates from './rates/reducer';
 import snapshots from './snapshots/reducer';
 import records from './records/reducer';
+import deltas from './deltas/reducer';
 
 const reducer = combineReducers({
   notifications,

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import * as deltasActions from 'redux/deltas/actions';
+import * as deltasSelectors from 'redux/deltas/selectors';
 import PageTitle from '../../components/PageTitle';
 import PlayerTag from '../../components/PlayerTag';
 import Selector from '../../components/Selector';
@@ -18,13 +20,6 @@ import {
   isSkill,
   isBoss
 } from '../../utils';
-import fetchLeaderboard from '../../redux/modules/deltas/actions/fetchLeaderboard';
-import {
-  getLeaderboards,
-  isFetchingDay,
-  isFetchingWeek,
-  isFetchingMonth
-} from '../../redux/selectors/deltas';
 import './Top.scss';
 
 function getTableConfig(metric, period) {
@@ -141,16 +136,18 @@ function Top() {
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
-  const leaderboards = useSelector(getLeaderboards);
-  const isLoadingDay = useSelector(isFetchingDay);
-  const isLoadingWeek = useSelector(isFetchingWeek);
-  const isLoadingMonth = useSelector(isFetchingMonth);
+  const leaderboards = useSelector(deltasSelectors.getLeaderboards);
+  const isLoadingDay = useSelector(deltasSelectors.isFetchingDay);
+  const isLoadingWeek = useSelector(deltasSelectors.isFetchingWeek);
+  const isLoadingMonth = useSelector(deltasSelectors.isFetchingMonth);
 
   const reloadList = () => {
     const periods = ['day', 'week', 'month'];
 
     periods.forEach(p => {
-      dispatch(fetchLeaderboard(selectedMetric, p, selectedPlayerType, selectedPlayerBuild));
+      dispatch(
+        deltasActions.fetchLeaderboards(selectedMetric, p, selectedPlayerType, selectedPlayerBuild)
+      );
     });
   };
 
