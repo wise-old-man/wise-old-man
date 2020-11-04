@@ -9,7 +9,8 @@ const API = axios.create({
 
 const endpoints = {
   fetchRates: '/efficiency/rates/',
-  fetchGroupHiscores: '/groups/:groupId/hiscores/'
+  fetchGroupHiscores: '/groups/:groupId/hiscores/',
+  fetchPlayerSnapshots: '/players/username/:username/snapshots/'
 };
 
 export { endpoints };

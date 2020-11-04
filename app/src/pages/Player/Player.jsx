@@ -4,6 +4,8 @@ import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import queryString from 'query-string';
+import * as snapshotsActions from 'redux/snapshots/actions';
+import * as snapshotsSelectors from 'redux/snapshots/selectors';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -26,13 +28,11 @@ import { getPlayerRecords } from '../../redux/selectors/records';
 import { getPlayerAchievementsGrouped, getPlayerAchievements } from '../../redux/selectors/achievements';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
-import { getChartData } from '../../redux/selectors/snapshots';
 import trackPlayerAction from '../../redux/modules/players/actions/track';
 import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
 import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
-import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
 import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerRecords';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
@@ -186,7 +186,7 @@ function Player() {
   }, [player]);
 
   const experienceChartData = useSelector(state =>
-    getChartData(
+    snapshotsSelectors.getChartData(
       state,
       username,
       selectedPeriod,
@@ -197,7 +197,14 @@ function Player() {
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, username, selectedPeriod, selectedMetric, 'rank', isReducedChart)
+    snapshotsSelectors.getChartData(
+      state,
+      username,
+      selectedPeriod,
+      selectedMetric,
+      'rank',
+      isReducedChart
+    )
   );
 
   const trackPlayer = async () => {
@@ -227,7 +234,7 @@ function Player() {
     dispatch(fetchDeltasAction({ username }));
 
     PERIOD_OPTIONS.forEach(o => {
-      dispatch(fetchSnapshotsAction({ username, period: o.value }));
+      dispatch(snapshotsActions.fetchSnapshots(username, o.value));
     });
   };
 
@@ -280,7 +287,7 @@ function Player() {
 
   const handleDeltasTimerEnded = () => {
     PERIOD_OPTIONS.forEach(o => {
-      dispatch(fetchSnapshotsAction({ username, period: o.value }));
+      dispatch(snapshotsActions.fetchSnapshots(username, o.value));
     });
   };
 

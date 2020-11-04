@@ -3,10 +3,7 @@ import { COLORS } from '../../config';
 import { capitalize, distribute } from '../../utils';
 
 const snapshotsSelector = state => state.snapshots.snapshots;
-
-export const getSnapshotsMap = createSelector(snapshotsSelector, map => map);
-
-export const getSnapshots = createSelector(snapshotsSelector, map => Object.values(map));
+const getSnapshotsMap = createSelector(snapshotsSelector, map => map);
 
 export const getPlayerSnapshots = (state, username) => getSnapshotsMap(state)[username];
 
@@ -14,14 +11,7 @@ export const getChartData = (state, username, period, skill, measure, reducedMod
   const snapshotsData = getPlayerSnapshots(state, username);
 
   if (!snapshotsData || !snapshotsData[period]) {
-    return {
-      distribution: {
-        enabled: false,
-        before: 0,
-        after: 0
-      },
-      datasets: []
-    };
+    return { distribution: { enabled: false, before: 0, after: 0 }, datasets: [] };
   }
 
   const snapshots = snapshotsData[period];
