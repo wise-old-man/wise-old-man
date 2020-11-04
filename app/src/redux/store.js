@@ -9,11 +9,13 @@ import reducers from './reducers';
 const store = configureStore({
   reducer: reducers,
   middleware: [
-    loggerMiddleware,
     thunkMiddleware,
     datesMiddleware,
     notificationsMiddleware,
-    ...getDefaultMiddleware()
+    loggerMiddleware,
+    ...getDefaultMiddleware({
+      serializableCheck: false
+    })
   ]
 });
 

@@ -8,9 +8,19 @@ const API = axios.create({
 });
 
 const endpoints = {
+  // Efficiency endpoints
   fetchRates: '/efficiency/rates/',
+
+  // Record endpoints
+  fetchRecordLeaderboards: '/records/leaderboard/',
+
+  // Group endpoints
   fetchGroupHiscores: '/groups/:groupId/hiscores/',
-  fetchPlayerSnapshots: '/players/username/:username/snapshots/'
+  fetchGroupRecords: '/groups/:groupId/records/',
+
+  // Player endpoints
+  fetchPlayerSnapshots: '/players/username/:username/snapshots/',
+  fetchPlayerRecords: '/players/username/:username/records/'
 };
 
 export { endpoints };

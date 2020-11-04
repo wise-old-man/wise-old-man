@@ -6,6 +6,8 @@ import _ from 'lodash';
 import queryString from 'query-string';
 import * as snapshotsActions from 'redux/snapshots/actions';
 import * as snapshotsSelectors from 'redux/snapshots/selectors';
+import * as recordsActions from 'redux/records/actions';
+import * as recordsSelectors from 'redux/records/selectors';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -24,7 +26,6 @@ import PlayerHighlights from './components/PlayerHighlights';
 import PlayerCards from './components/PlayerCards';
 import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerDeltas } from '../../redux/selectors/deltas';
-import { getPlayerRecords } from '../../redux/selectors/records';
 import { getPlayerAchievementsGrouped, getPlayerAchievements } from '../../redux/selectors/achievements';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
@@ -33,7 +34,6 @@ import assertPlayerTypeAction from '../../redux/modules/players/actions/assertTy
 import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
 import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
-import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerRecords';
 import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
@@ -165,7 +165,7 @@ function Player() {
   // Memoized redux variables
   const player = useSelector(state => getPlayer(state, username));
   const deltas = useSelector(state => getPlayerDeltas(state, username));
-  const records = useSelector(state => getPlayerRecords(state, username));
+  const records = useSelector(state => recordsSelectors.getPlayerRecords(state, username));
   const achievements = useSelector(state => getPlayerAchievements(state, username));
   const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, username));
   const competitions = useSelector(state => getPlayerCompetitions(state, username));
@@ -230,7 +230,7 @@ function Player() {
     dispatch(fetchAchievementsAction({ username }));
     dispatch(fetchCompetitionsAction({ username }));
     dispatch(fetchGroupsAction({ username }));
-    dispatch(fetchRecordsAction({ username }));
+    dispatch(recordsActions.fetchPlayerRecords(username));
     dispatch(fetchDeltasAction({ username }));
 
     PERIOD_OPTIONS.forEach(o => {

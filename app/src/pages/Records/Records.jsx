@@ -2,6 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import * as recordsActions from 'redux/records/actions';
+import * as recordsSelectors from 'redux/records/selectors';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import PlayerTag from '../../components/PlayerTag';
@@ -19,13 +21,6 @@ import {
   isSkill,
   isBoss
 } from '../../utils';
-import fetchLeaderboard from '../../redux/modules/records/actions/fetchLeaderboard';
-import {
-  getLeaderboards,
-  isFetchingDay,
-  isFetchingWeek,
-  isFetchingMonth
-} from '../../redux/selectors/records';
 import './Records.scss';
 
 function getTableConfig(metric) {
@@ -151,16 +146,18 @@ function Records() {
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
-  const leaderboards = useSelector(getLeaderboards);
-  const isLoadingDay = useSelector(isFetchingDay);
-  const isLoadingWeek = useSelector(isFetchingWeek);
-  const isLoadingMonth = useSelector(isFetchingMonth);
+  const leaderboards = useSelector(recordsSelectors.getLeaderboards);
+  const isLoadingDay = useSelector(recordsSelectors.isFetchingDay);
+  const isLoadingWeek = useSelector(recordsSelectors.isFetchingWeek);
+  const isLoadingMonth = useSelector(recordsSelectors.isFetchingMonth);
 
   const reloadList = () => {
     const periods = ['day', 'week', 'month'];
 
     periods.forEach(p => {
-      dispatch(fetchLeaderboard(selectedMetric, p, selectedPlayerType, selectedPlayerBuild));
+      dispatch(
+        recordsActions.fetchLeaderboards(selectedMetric, p, selectedPlayerType, selectedPlayerBuild)
+      );
     });
   };
 
