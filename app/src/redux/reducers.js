@@ -4,7 +4,6 @@ import competitions from './modules/competitions/reducer';
 import players from './modules/players/reducer';
 import groups from './modules/groups/reducer';
 import names from './modules/names/reducer';
-import leaderboards from './modules/leaderboards/reducer';
 
 import hiscores from './hiscores/reducer';
 import rates from './rates/reducer';
@@ -12,6 +11,7 @@ import snapshots from './snapshots/reducer';
 import records from './records/reducer';
 import deltas from './deltas/reducer';
 import achievements from './achievements/reducer';
+import leaderboards from './leaderboards/reducer';
 
 const reducer = combineReducers({
   notifications,

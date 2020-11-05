@@ -10,6 +10,7 @@ const API = axios.create({
 const endpoints = {
   // Efficiency endpoints
   fetchRates: '/efficiency/rates/',
+  fetchLeaderboards: '/efficiency/leaderboard/',
 
   // Record endpoints
   fetchRecordLeaderboards: '/records/leaderboard/',
