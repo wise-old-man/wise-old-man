@@ -18,11 +18,13 @@ const endpoints = {
   fetchDeltasLeaderboards: '/deltas/leaderboard/',
 
   // Group endpoints
+  fetchGroupAchievements: '/groups/:groupId/achievements/',
   fetchGroupHiscores: '/groups/:groupId/hiscores/',
   fetchGroupRecords: '/groups/:groupId/records/',
   fetchGroupDeltas: '/groups/:groupId/gained/',
 
   // Player endpoints
+  fetchPlayerAchievements: '/players/username/:username/achievements/',
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
   fetchPlayerRecords: '/players/username/:username/records/',
   fetchPlayerDeltas: '/players/username/:username/gained/'

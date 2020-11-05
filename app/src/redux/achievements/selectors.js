@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
-import _ from 'lodash';
-import { getPlayer } from './players';
+import { mapValues } from 'lodash';
+import { getPlayer } from '../selectors/players';
 import { getTotalLevel } from '../../utils';
 import { ALL_METRICS } from '../../config';
 
@@ -8,20 +8,18 @@ const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
 const groupAchievementsSelector = state => state.achievements.groupAchievements;
 
+const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
+  return mapValues(map, p => p.map(a => formatAchievement(a)));
+});
+
+const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
+  return mapValues(map, p => p.map(a => formatAchievement(a)));
+});
+
 export const isFetchingGroupAchievements = createSelector(
   rootSelector,
   root => root.isFetchingGroupAchievements
 );
-
-export const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
-  return _.mapValues(map, p => p.map(a => formatAchievement(a)));
-});
-
-export const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
-  return _.mapValues(map, p => p.map(a => formatAchievement(a)));
-});
-
-export const getAchievements = createSelector(playerAchievementsSelector, map => Object.values(map));
 
 export const getPlayerAchievements = (state, username) => getPlayerAchievementsMap(state)[username];
 export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
