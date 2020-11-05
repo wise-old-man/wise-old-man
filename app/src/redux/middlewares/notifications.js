@@ -29,7 +29,7 @@ import {
   DELETE_COMPETITION_FAILURE,
   DELETE_COMPETITION_SUCCESS
 } from '../modules/competitions/reducer';
-import { SUBMIT_NAME_CHANGE_FAILURE, SUBMIT_NAME_CHANGE_SUCCESS } from '../modules/names/reducer';
+// import { SUBMIT_NAME_CHANGE_FAILURE, SUBMIT_NAME_CHANGE_SUCCESS } from '../modules/names/reducer';
 
 const notificationsMiddleware = store => next => action => {
   const { type } = action;
@@ -264,6 +264,7 @@ const notificationsMiddleware = store => next => action => {
       break;
     }
 
+    /*
     case SUBMIT_NAME_CHANGE_FAILURE: {
       const notification = {
         text: action.error,
@@ -284,6 +285,8 @@ const notificationsMiddleware = store => next => action => {
       store.dispatch(showNotification({ ...notification }));
       break;
     }
+
+    */
 
     default:
       break;

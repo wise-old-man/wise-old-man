@@ -12,6 +12,10 @@ const endpoints = {
   fetchRates: '/efficiency/rates/',
   fetchLeaderboards: '/efficiency/leaderboard/',
 
+  // Name endpoints
+  fetchNameChanges: '/names/',
+  submitNameChange: '/names/',
+
   // Record endpoints
   fetchRecordLeaderboards: '/records/leaderboard/',
 
