@@ -1,4 +1,5 @@
 import { showNotification } from '../modules/notifications/actions/toggle';
+/*
 import {
   TRACK_PLAYER_SUCCESS,
   TRACK_PLAYER_FAILURE,
@@ -9,6 +10,7 @@ import {
   ASSERT_NAME_FAILURE,
   ASSERT_NAME_REQUEST
 } from '../modules/players/reducer';
+*/
 import {
   UPDATE_MEMBERS_SUCCESS,
   UPDATE_MEMBERS_FAILURE,
@@ -34,7 +36,8 @@ import {
 const notificationsMiddleware = store => next => action => {
   const { type } = action;
   switch (type) {
-    case TRACK_PLAYER_SUCCESS: {
+    /*
+     case TRACK_PLAYER_SUCCESS: {
       const notification = {
         text: `${action.username} has been successfully updated.`,
         type: 'success'
@@ -115,6 +118,7 @@ const notificationsMiddleware = store => next => action => {
       store.dispatch(showNotification({ ...notification }));
       break;
     }
+    */
 
     case CREATE_COMPETITION_FAILURE: {
       const notification = {

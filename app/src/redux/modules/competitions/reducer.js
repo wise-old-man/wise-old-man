@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
 import { toMap } from '../../utils';
-import { TRACK_PLAYER_SUCCESS } from '../players/reducer';
 
 export const CREATE_COMPETITION_REQUEST = 'competitions/CREATE_COMPETITION_REQUEST';
 export const CREATE_COMPETITION_SUCCESS = 'competitions/CREATE_COMPETITION_SUCCESS';
@@ -53,7 +52,7 @@ export default function competitionsReducer(state = initialState, action) {
   switch (action.type) {
     // If a player gets updated, update it's updatedAt field in
     // the participants list of every containing competition
-    case TRACK_PLAYER_SUCCESS:
+    case 'players/onTrackSuccess':
       return { ...state, competitions: playerUpdated(state.competitions, action.username) };
 
     case CREATE_COMPETITION_REQUEST:

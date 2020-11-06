@@ -4,7 +4,7 @@ export const BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 const API = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000
+  timeout: 60000
 });
 
 const endpoints = {
@@ -29,6 +29,11 @@ const endpoints = {
   fetchGroupDeltas: '/groups/:groupId/gained/',
 
   // Player endpoints
+  trackPlayer: '/players/track/',
+  searchPlayers: '/players/search/',
+  assertPlayerType: '/players/assert-type/',
+  assertPlayerName: '/players/assert-name/',
+  fetchPlayerDetails: '/players/username/:username/',
   fetchPlayerAchievements: '/players/username/:username/achievements/',
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
   fetchPlayerRecords: '/players/username/:username/records/',

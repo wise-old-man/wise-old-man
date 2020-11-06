@@ -4,6 +4,8 @@ import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import queryString from 'query-string';
+import * as playersActions from 'redux/players/actions';
+import * as playersSelectors from 'redux/players/selectors';
 import * as snapshotsActions from 'redux/snapshots/actions';
 import * as snapshotsSelectors from 'redux/snapshots/selectors';
 import * as recordsActions from 'redux/records/actions';
@@ -28,13 +30,8 @@ import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
 import PlayerCards from './components/PlayerCards';
-import { getPlayer, isFetching } from '../../redux/selectors/players';
 import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
-import trackPlayerAction from '../../redux/modules/players/actions/track';
-import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
-import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
-import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
 import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import {
@@ -163,7 +160,7 @@ function Player() {
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
-  const player = useSelector(state => getPlayer(state, username));
+  const player = useSelector(state => playersSelectors.getPlayer(state, username));
   const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
   const records = useSelector(state => recordsSelectors.getPlayerRecords(state, username));
   const achievements = useSelector(state =>
@@ -174,7 +171,7 @@ function Player() {
   );
   const competitions = useSelector(state => getPlayerCompetitions(state, username));
   const groups = useSelector(state => getPlayerGroups(state, username));
-  const isLoadingDetails = useSelector(state => isFetching(state));
+  const isLoadingDetails = useSelector(playersSelectors.isFetching);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
@@ -214,7 +211,7 @@ function Player() {
   const trackPlayer = async () => {
     try {
       setIsTracking(true);
-      await dispatch(trackPlayerAction(player.username));
+      await dispatch(playersActions.trackPlayer(player.username));
 
       fetchAll();
       setIsTracking(false);
@@ -225,7 +222,7 @@ function Player() {
 
   const fetchAll = () => {
     // Attempt to fetch player data, if it fails redirect to 404
-    dispatch(fetchPlayerAction({ username }))
+    dispatch(playersActions.fetchPlayer(username))
       .then(action => {
         if (action.error) throw new Error();
       })
@@ -281,9 +278,9 @@ function Player() {
 
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
-      await dispatch(assertPlayerTypeAction(player.username, player.username));
+      await dispatch(playersActions.assertType(player.username, player.username));
     } else if (option.value === 'assertName') {
-      await dispatch(assertPlayerNameAction(player.username, player.username));
+      await dispatch(playersActions.assertName(player.username, player.username));
     } else if (option.value === 'changeName') {
       router.push(`/names/submit/${player.displayName}`);
     }

@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { mapValues } from 'lodash';
-import { getPlayer } from '../selectors/players';
+import { getPlayer } from '../players/selectors';
 import { getTotalLevel } from '../../utils';
 import { ALL_METRICS } from '../../config';
 

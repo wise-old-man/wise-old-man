@@ -2,10 +2,10 @@ import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
+import * as playerActions from 'redux/players/actions';
+import * as playerSelectors from 'redux/players/selectors';
 import AutoSuggestInput from '../AutoSuggestInput';
 import Table from '../Table';
-import { getSearchResults } from '../../redux/selectors/players';
-import searchAction from '../../redux/modules/players/actions/search';
 import './MembersSelector.scss';
 
 function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
@@ -63,11 +63,11 @@ function MembersSelector({
   onMemberRoleSwitched
 }) {
   const dispatch = useDispatch();
-  const searchResults = useSelector(state => getSearchResults(state));
+  const searchResults = useSelector(playerSelectors.getSearchResults);
 
   const suggestions = useMemo(() => searchResults.map(s => mapToSuggestion(s)), [searchResults]);
 
-  const searchPlayer = _.debounce(username => dispatch(searchAction({ username })), 500);
+  const searchPlayer = _.debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {

@@ -2,6 +2,8 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import * as playerActions from 'redux/players/actions';
+import * as playerSelectors from 'redux/players/selectors';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import LineChart from '../../components/LineChart';
@@ -11,9 +13,7 @@ import Tabs from '../../components/Tabs';
 import DeleteCompetitionModal from '../../modals/DeleteCompetitionModal';
 import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
 import updateAllAction from '../../redux/modules/competitions/actions/updateAll';
-import updatePlayerAction from '../../redux/modules/players/actions/track';
 import { getCompetition, getChartData, isFetchingDetails } from '../../redux/selectors/competitions';
-import { getUpdatingUsernames } from '../../redux/selectors/players';
 import CompetitionTable from './components/CompetitionTable';
 import CompetitionInfo from './components/CompetitionInfo';
 import TotalGainedWidget from './components/TotalGainedWidget';
@@ -64,7 +64,7 @@ function Competition() {
   const isLoading = useSelector(state => isFetchingDetails(state));
   const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
   const competitionChartData = useSelector(state => getChartData(state, parseInt(id, 10)));
-  const updatingUsernames = useSelector(state => getUpdatingUsernames(state));
+  const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
   const fetchDetails = () => {
     // Attempt to fetch competition of that id, if it fails redirect to 404
@@ -76,7 +76,7 @@ function Competition() {
   };
 
   const handleUpdatePlayer = username => {
-    dispatch(updatePlayerAction(username));
+    dispatch(playerActions.trackPlayer(username));
   };
 
   const handleUpdateAll = () => {
