@@ -21,7 +21,7 @@ export const OSRS_HISCORES = {
   ultimate: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
   seasonal: 'https://services.runescape.com/m=hiscore_oldschool_seasonal/index_lite.ws',
   nameCheck: 'https://secure.runescape.com/m=hiscore_oldschool/overall?table=0',
-  leagueRankCheck: 'https://secure.runescape.com/m=hiscore_oldschool_seasonal/overall?table=0' // &page=6699
+  leagueRank: 'https://secure.runescape.com/m=hiscore_oldschool_seasonal/overall?category_type=1&table=0' // &page=6699
 };
 
 export const CML = {

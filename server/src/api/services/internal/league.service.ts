@@ -10,11 +10,11 @@ const TIERS = [
   { name: 'dragon', threshold: 1 }
 ];
 
-async function getPlayerTier(overallRank: number) {
-  if (!overallRank) return TIERS[0].name;
+async function getPlayerTier(leaguePointsRank: number) {
+  if (!leaguePointsRank) return TIERS[0].name;
 
   const tierThresholds = await getTierRankThresholds();
-  const playerTier = tierThresholds.reverse().find(tier => tier.threshold > overallRank);
+  const playerTier = tierThresholds.reverse().find(tier => tier.threshold > leaguePointsRank);
 
   return playerTier.name || TIERS[0].name;
 }
