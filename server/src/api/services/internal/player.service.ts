@@ -149,7 +149,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
-    const leagueTier = await leagueService.getPlayerTier(currentStats.overallRank);
+    const leagueTier = await leagueService.getPlayerTier(currentStats.league_pointsRank);
 
     // Set the player's global virtual data
     player.exp = currentStats.overallExperience;

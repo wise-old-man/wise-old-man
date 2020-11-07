@@ -71,7 +71,7 @@ function getHiscoresTableColumns(data: string, columnIndex: number): string[] {
 
 async function getLeagueTableRanks(pageIndex: number): Promise<string[]> {
   const proxy = proxiesService.getNextProxy();
-  const URL = `${OSRS_HISCORES.leagueRankCheck}&page=${pageIndex}`;
+  const URL = `${OSRS_HISCORES.leagueRank}&page=${pageIndex}`;
 
   try {
     // Fetch the data through the API Url
