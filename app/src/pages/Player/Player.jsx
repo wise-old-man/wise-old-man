@@ -14,6 +14,8 @@ import * as deltasActions from 'redux/deltas/actions';
 import * as deltasSelectors from 'redux/deltas/selectors';
 import * as achievementsActions from 'redux/achievements/actions';
 import * as achievementsSelectors from 'redux/achievements/selectors';
+import * as competitionsActions from 'redux/competitions/actions';
+import * as competitionsSelectors from 'redux/competitions/selectors';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -30,9 +32,7 @@ import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
 import PlayerCards from './components/PlayerCards';
-import { getPlayerCompetitions } from '../../redux/selectors/competitions';
 import { getPlayerGroups } from '../../redux/selectors/groups';
-import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
 import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import {
   getPlayerIcon,
@@ -169,7 +169,9 @@ function Player() {
   const groupedAchievements = useSelector(state =>
     achievementsSelectors.getPlayerAchievementsGrouped(state, username)
   );
-  const competitions = useSelector(state => getPlayerCompetitions(state, username));
+  const competitions = useSelector(state =>
+    competitionsSelectors.getPlayerCompetitions(state, username)
+  );
   const groups = useSelector(state => getPlayerGroups(state, username));
   const isLoadingDetails = useSelector(playersSelectors.isFetching);
 
@@ -229,7 +231,7 @@ function Player() {
       .catch(() => router.push(`/players/search/${username}`));
 
     dispatch(achievementsActions.fetchPlayerAchievements(username));
-    dispatch(fetchCompetitionsAction({ username }));
+    dispatch(competitionsActions.fetchPlayerCompetitions(username));
     dispatch(fetchGroupsAction({ username }));
     dispatch(recordsActions.fetchPlayerRecords(username));
     dispatch(deltasActions.fetchPlayerDeltas(username));

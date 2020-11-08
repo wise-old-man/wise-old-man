@@ -4,6 +4,8 @@ import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import * as playerActions from 'redux/players/actions';
 import * as playerSelectors from 'redux/players/selectors';
+import * as competitionActions from 'redux/competitions/actions';
+import * as competitionSelectors from 'redux/competitions/selectors';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import LineChart from '../../components/LineChart';
@@ -11,9 +13,6 @@ import Dropdown from '../../components/Dropdown';
 import Button from '../../components/Button';
 import Tabs from '../../components/Tabs';
 import DeleteCompetitionModal from '../../modals/DeleteCompetitionModal';
-import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
-import updateAllAction from '../../redux/modules/competitions/actions/updateAll';
-import { getCompetition, getChartData, isFetchingDetails } from '../../redux/selectors/competitions';
 import CompetitionTable from './components/CompetitionTable';
 import CompetitionInfo from './components/CompetitionInfo';
 import TotalGainedWidget from './components/TotalGainedWidget';
@@ -54,6 +53,7 @@ function Competition() {
   const router = useHistory();
   const dispatch = useDispatch();
 
+  const competitionId = parseInt(id, 10);
   const selectedSectionIndex = section && section === 'chart' ? 1 : 0;
 
   // State variables
@@ -61,18 +61,18 @@ function Competition() {
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   // Memoized redux variables
-  const isLoading = useSelector(state => isFetchingDetails(state));
-  const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
-  const competitionChartData = useSelector(state => getChartData(state, parseInt(id, 10)));
+  const isLoading = useSelector(competitionSelectors.isFetchingDetails);
+  const competition = useSelector(state => competitionSelectors.getCompetition(state, competitionId));
+  const chartData = useSelector(state => competitionSelectors.getChartData(state, competitionId));
   const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
   const fetchDetails = () => {
     // Attempt to fetch competition of that id, if it fails redirect to 404
-    dispatch(fetchDetailsAction(id))
-      .then(action => {
-        if (action.error) throw new Error();
-      })
-      .catch(() => router.push('/404'));
+    dispatch(competitionActions.fetchDetails(competitionId)).then(action => {
+      if (typeof action.payload === 'string') {
+        router.push('/404');
+      }
+    });
   };
 
   const handleUpdatePlayer = username => {
@@ -80,7 +80,7 @@ function Competition() {
   };
 
   const handleUpdateAll = () => {
-    dispatch(updateAllAction(id));
+    dispatch(competitionActions.updateAll(id));
     setButtonDisabled(true);
   };
 
@@ -169,7 +169,7 @@ function Competition() {
               isLoading={isLoading}
             />
           ) : (
-            <LineChart datasets={competitionChartData} />
+            <LineChart datasets={chartData} />
           )}
         </div>
       </div>

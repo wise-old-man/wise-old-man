@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { Helmet } from 'react-helmet';
+import * as competitionActions from 'redux/competitions/actions';
+import * as competitionSelectors from 'redux/competitions/selectors';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Selector from '../../components/Selector';
@@ -10,8 +12,6 @@ import TextButton from '../../components/TextButton';
 import Table from '../../components/Table';
 import TablePlaceholder from '../../components/TablePlaceholder';
 import StatusDot from '../../components/StatusDot';
-import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchAll';
-import { getCompetitions, isFetchingAll } from '../../redux/selectors/competitions';
 import { capitalize, getMetricIcon, getMetricName } from '../../utils';
 import { COMPETITION_SATUSES, ALL_METRICS } from '../../config';
 import './CompetitionsList.scss';
@@ -96,8 +96,8 @@ function CompetitionsList() {
   const statusOptions = useMemo(getStatusOptions, []);
 
   // Memoized redux variables
-  const competitions = useSelector(state => getCompetitions(state));
-  const isLoading = useSelector(state => isFetchingAll(state));
+  const competitions = useSelector(competitionSelectors.getCompetitions);
+  const isLoading = useSelector(competitionSelectors.isFetchingList);
 
   const isFullyLoaded = competitions.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
@@ -106,14 +106,11 @@ function CompetitionsList() {
 
   const handleSubmitSearch = _.debounce(
     () => {
-      const query = {
-        title: titleSearch,
-        metric: selectedMetric || null,
-        status: selectedStatus || null
-      };
+      const metric = selectedMetric || null;
+      const status = selectedStatus || null;
 
       setPageIndex(0); // Reset pagination when the search changes
-      dispatch(fetchCompetitionsAction(query, RESULTS_PER_PAGE, 0));
+      dispatch(competitionActions.fetchList(titleSearch, metric, status, RESULTS_PER_PAGE, 0));
     },
     500,
     { leading: true, trailing: false }
@@ -122,16 +119,12 @@ function CompetitionsList() {
   const handleLoadMore = () => {
     if (pageIndex === 0) return;
 
-    const query = {
-      title: titleSearch,
-      metric: selectedMetric || null,
-      status: selectedStatus || null
-    };
-
+    const metric = selectedMetric || null;
+    const status = selectedStatus || null;
     const limit = RESULTS_PER_PAGE;
     const offset = RESULTS_PER_PAGE * pageIndex;
 
-    dispatch(fetchCompetitionsAction(query, limit, offset));
+    dispatch(competitionActions.fetchList(titleSearch, metric, status, limit, offset));
   };
 
   const handleNextPage = () => {

@@ -1,5 +1,6 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
+import { reducers as competitionReducers } from '../competitions/reducer';
 
 const fetchPlayer = username => async dispatch => {
   dispatch(reducers.onFetchRequest());
@@ -28,11 +29,14 @@ const searchPlayers = username => async dispatch => {
 };
 
 const trackPlayer = username => async dispatch => {
-  dispatch(reducers.onTrackRequest());
+  dispatch(reducers.onTrackRequest({ username }));
 
   try {
     const body = { username };
     const { data } = await api.post(endpoints.trackPlayer, body);
+
+    // Side effect: Update this player's competitions participations
+    dispatch(competitionReducers.onParticipantUpdated({ username }));
 
     return dispatch(reducers.onTrackSuccess({ username, data }));
   } catch (e) {

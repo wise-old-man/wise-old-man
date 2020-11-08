@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
+import * as competitionActions from 'redux/competitions/actions';
+import * as competitionSelectors from 'redux/competitions/selectors';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -14,9 +16,6 @@ import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
-import fetchDetailsAction from '../../redux/modules/competitions/actions/fetchDetails';
-import editAction from '../../redux/modules/competitions/actions/edit';
-import { getCompetition, isEditing, getError } from '../../redux/selectors/competitions';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
@@ -47,14 +46,14 @@ function EditCompetition() {
 
   const [showingImportModal, toggleImportModal] = useState(false);
 
-  const competition = useSelector(state => getCompetition(state, parseInt(id, 10)));
-  const isSubmitting = useSelector(state => isEditing(state));
-  const error = useSelector(state => getError(state));
+  const competition = useSelector(state => competitionSelectors.getCompetition(state, parseInt(id, 10)));
+  const isSubmitting = useSelector(competitionSelectors.isEditing);
+  const error = useSelector(competitionSelectors.getError);
 
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
   const fetchDetails = () => {
-    dispatch(fetchDetailsAction(id));
+    dispatch(competitionActions.fetchDetails(id));
   };
 
   // Populate all the editable fields
@@ -96,20 +95,21 @@ function EditCompetition() {
   };
 
   const handleSubmit = async () => {
-    const formData = {
-      title,
-      metric,
-      startDate,
-      endDate,
-      participants,
-      verificationCode
-    };
+    const { payload } = await dispatch(
+      competitionActions.edit(
+        competition.id,
+        title,
+        metric,
+        startDate,
+        endDate,
+        participants,
+        verificationCode
+      )
+    );
 
-    dispatch(editAction(competition.id, formData)).then(a => {
-      if (a && a.competition) {
-        router.push(`/competitions/${competition.id}`);
-      }
-    });
+    if (payload && payload.data) {
+      router.push(`/competitions/${competition.id}`);
+    }
   };
 
   const handleImportModalSubmit = (usernames, replace) => {

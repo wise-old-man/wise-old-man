@@ -10,6 +10,8 @@ import * as deltasActions from 'redux/deltas/actions';
 import * as deltasSelectors from 'redux/deltas/selectors';
 import * as achievementsActions from 'redux/achievements/actions';
 import * as achievementsSelectors from 'redux/achievements/selectors';
+import * as competitionActions from 'redux/competitions/actions';
+import * as competitionSelectors from 'redux/competitions/selectors';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Selector from '../../components/Selector';
@@ -36,11 +38,9 @@ import {
   isFetchingMonthlyTop,
   isFetchingStatistics
 } from '../../redux/selectors/groups';
-import { getGroupCompetitions } from '../../redux/selectors/competitions';
 import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
 import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
 import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
-import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchGroupCompetitions';
 import fetchStatisticsAction from '../../redux/modules/groups/actions/fetchStatistics';
 import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import { getMetricName, getMetricIcon } from '../../utils';
@@ -89,6 +89,7 @@ function Group() {
   const router = useHistory();
   const dispatch = useDispatch();
 
+  const groupId = parseInt(id, 10);
   const selectedSectionIndex = getSelectedTabIndex(section);
 
   const [selectedMetric, setSelectedMetric] = useState(ALL_METRICS[0]);
@@ -107,14 +108,12 @@ function Group() {
   const isLoadingDeltas = useSelector(deltasSelectors.isFetchingGroupDeltas);
   const isLoadingRecords = useSelector(recordsSelectors.isFetchingGroupRecords);
 
-  const group = useSelector(state => getGroup(state, parseInt(id, 10)));
-  const competitions = useSelector(state => getGroupCompetitions(state, parseInt(id, 10)));
-  const achievements = useSelector(state =>
-    achievementsSelectors.getGroupAchievements(state, parseInt(id, 10))
-  );
-  const hiscores = useSelector(state => hiscoresSelectors.getGroupHiscores(state, parseInt(id, 10)));
-  const deltas = useSelector(state => deltasSelectors.getGroupDeltas(state, parseInt(id, 10)));
-  const records = useSelector(state => recordsSelectors.getGroupRecords(state, parseInt(id, 10)));
+  const group = useSelector(state => getGroup(state, groupId));
+  const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, groupId));
+  const achievements = useSelector(state => achievementsSelectors.getGroupAchievements(state, groupId));
+  const hiscores = useSelector(state => hiscoresSelectors.getGroupHiscores(state, groupId));
+  const deltas = useSelector(state => deltasSelectors.getGroupDeltas(state, groupId));
+  const records = useSelector(state => recordsSelectors.getGroupRecords(state, groupId));
 
   const fetchAll = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
@@ -126,7 +125,7 @@ function Group() {
 
     dispatch(fetchMembersAction(id));
     dispatch(fetchMonthlyTopAction(id));
-    dispatch(fetchCompetitionsAction(id));
+    dispatch(competitionActions.fetchGroupCompetitions(id));
     dispatch(achievementsActions.fetchGroupAchievements(id));
     dispatch(fetchStatisticsAction(id));
   };

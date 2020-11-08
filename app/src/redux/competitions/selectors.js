@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { mapValues, uniqBy } from 'lodash';
 import { createSelector } from 'reselect';
 import { COLORS } from '../../config';
 import { durationBetween } from '../../utils';
@@ -9,21 +9,21 @@ const playerCompetitionsSelector = state => state.competitions.playerCompetition
 const groupCompetitionsSelector = state => state.competitions.groupCompetitions;
 
 export const getError = createSelector(rootSelector, root => root.error);
-export const isFetchingAll = createSelector(rootSelector, root => root.isFetchingAll);
+export const isFetchingList = createSelector(rootSelector, root => root.isFetchingList);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
 export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
 const getCompetitionsMap = createSelector(competitionsSelector, map => {
-  return _.mapValues(map, comp => formatCompetition(comp));
+  return mapValues(map, comp => formatCompetition(comp));
 });
 
 const getPlayerCompetitionsMap = createSelector(playerCompetitionsSelector, map => {
-  return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
+  return mapValues(map, comps => comps.map(c => formatCompetition(c)));
 });
 
 const getGroupCompetitionsMap = createSelector(groupCompetitionsSelector, map => {
-  return _.mapValues(map, comps => comps.map(c => formatCompetition(c)));
+  return mapValues(map, comps => comps.map(c => formatCompetition(c)));
 });
 
 export const getCompetitions = createSelector(competitionsSelector, map => {
@@ -61,7 +61,7 @@ export const getChartData = (state, id) => {
     const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));
 
     // Include only unique points, and the last point (for visual clarity)
-    const filteredPoints = [..._.uniqBy(diffPoints, 'y'), diffPoints[diffPoints.length - 1]];
+    const filteredPoints = [...uniqBy(diffPoints, 'y'), diffPoints[diffPoints.length - 1]];
 
     datasets.push({
       borderColor: COLORS[i],

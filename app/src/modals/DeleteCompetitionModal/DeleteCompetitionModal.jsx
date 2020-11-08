@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
+import * as competitionActions from 'redux/competitions/actions';
 import Button from '../../components/Button';
-import deleteCompetitionAction from '../../redux/modules/competitions/actions/delete';
 import './DeleteCompetitionModal.scss';
 
 function DeleteCompetitionModal({ competition, onCancel }) {
@@ -17,10 +17,12 @@ function DeleteCompetitionModal({ competition, onCancel }) {
     setVerificationCode(e.target.value);
   };
 
-  const handleDeleteClicked = () => {
-    dispatch(deleteCompetitionAction(competition.id, verificationCode)).then(() => {
+  const handleDeleteClicked = async () => {
+    const { payload } = await dispatch(competitionActions.remove(competition.id, verificationCode));
+
+    if (payload && payload.competitionId) {
       router.push('/competitions');
-    });
+    }
   };
 
   const onVerificationInput = useCallback(handleVerificationInput, []);

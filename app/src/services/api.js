@@ -24,9 +24,18 @@ const endpoints = {
 
   // Group endpoints
   fetchGroupAchievements: '/groups/:groupId/achievements/',
+  fetchGroupCompetitions: '/groups/:groupId/competitions/',
   fetchGroupHiscores: '/groups/:groupId/hiscores/',
   fetchGroupRecords: '/groups/:groupId/records/',
   fetchGroupDeltas: '/groups/:groupId/gained/',
+
+  // Competition endpoints
+  createCompetition: '/competitions/',
+  deleteCompetition: '/competitions/:id',
+  editCompetition: '/competitions/:id',
+  fetchCompetitions: '/competitions/',
+  fetchCompetitionDetails: '/competitions/:id',
+  updateAllParticipants: '/competitions/:id/update-all',
 
   // Player endpoints
   trackPlayer: '/players/track/',
@@ -35,6 +44,7 @@ const endpoints = {
   assertPlayerName: '/players/assert-name/',
   fetchPlayerDetails: '/players/username/:username/',
   fetchPlayerAchievements: '/players/username/:username/achievements/',
+  fetchPlayerCompetitions: '/players/username/:username/competitions/',
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
   fetchPlayerRecords: '/players/username/:username/records/',
   fetchPlayerDeltas: '/players/username/:username/gained/'

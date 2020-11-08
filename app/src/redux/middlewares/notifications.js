@@ -10,7 +10,6 @@ import {
   ASSERT_NAME_FAILURE,
   ASSERT_NAME_REQUEST
 } from '../modules/players/reducer';
-*/
 import {
   UPDATE_MEMBERS_SUCCESS,
   UPDATE_MEMBERS_FAILURE,
@@ -31,6 +30,8 @@ import {
   DELETE_COMPETITION_FAILURE,
   DELETE_COMPETITION_SUCCESS
 } from '../modules/competitions/reducer';
+
+*/
 // import { SUBMIT_NAME_CHANGE_FAILURE, SUBMIT_NAME_CHANGE_SUCCESS } from '../modules/names/reducer';
 
 const notificationsMiddleware = store => next => action => {
@@ -118,7 +119,6 @@ const notificationsMiddleware = store => next => action => {
       store.dispatch(showNotification({ ...notification }));
       break;
     }
-    */
 
     case CREATE_COMPETITION_FAILURE: {
       const notification = {
@@ -182,7 +182,7 @@ const notificationsMiddleware = store => next => action => {
       store.dispatch(showNotification({ ...notification }));
       break;
     }
-
+    
     case DELETE_GROUP_FAILURE: {
       const notification = {
         text: action.error,

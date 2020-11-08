@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
+import * as competitionActions from 'redux/competitions/actions';
+import * as competitionSelectors from 'redux/competitions/selectors';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Switch from '../../components/Switch';
@@ -19,8 +21,6 @@ import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import GroupSelector from './components/GroupSelector';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
-import createCompetitionAction from '../../redux/modules/competitions/actions/create';
-import { isCreating, getError } from '../../redux/selectors/competitions';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
@@ -35,8 +35,8 @@ function CreateCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const isSubmitting = useSelector(state => isCreating(state));
-  const error = useSelector(state => getError(state));
+  const isSubmitting = useSelector(competitionSelectors.isCreating);
+  const error = useSelector(competitionSelectors.getError);
 
   const metricOptions = useMemo(getMetricOptions, []);
 
@@ -106,26 +106,26 @@ function CreateCompetition() {
   };
 
   const handleSubmit = async () => {
-    const formData = {
-      title,
-      metric,
-      startDate,
-      endDate,
-      groupVerificationCode,
-      participants: !groupCompetition ? participants : null,
-      groupId: groupCompetition && selectedGroup ? selectedGroup.id : null
-    };
+    const { payload } = await dispatch(
+      competitionActions.create(
+        title,
+        metric,
+        startDate,
+        endDate,
+        !groupCompetition ? participants : null,
+        groupVerificationCode,
+        groupCompetition && selectedGroup ? selectedGroup.id : null
+      )
+    );
 
-    dispatch(createCompetitionAction(formData)).then(a => {
-      if (a && a.competition) {
-        setVerificationCode(a.competition.verificationCode);
-        setCreatedId(a.competition.id);
+    if (payload && payload.data) {
+      setVerificationCode(payload.data.verificationCode);
+      setCreatedId(payload.data.id);
 
-        if (groupCompetition) {
-          showCustomConfirmationModal();
-        }
+      if (groupCompetition) {
+        showCustomConfirmationModal();
       }
-    });
+    }
   };
 
   const handleToggleGroupCompetition = () => {

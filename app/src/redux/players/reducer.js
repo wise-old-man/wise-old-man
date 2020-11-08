@@ -46,9 +46,10 @@ const slice = createSlice({
       state.isSearching = false;
       state.error = action.payload;
     },
-    onTrackRequest(state) {
+    onTrackRequest(state, action) {
       state.isTracking = true;
       state.error = null;
+      state.updating = [...state.updating, action.payload.username];
     },
     onTrackSuccess(state, action) {
       const { username, data } = action.payload;
