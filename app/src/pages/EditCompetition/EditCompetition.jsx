@@ -16,6 +16,7 @@ import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import './EditCompetition.scss';
+import RemoveParticipantsModal from '../../modals/RemoveParticipantsModal/RemoveParticipantsModal';
 
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
@@ -41,9 +42,14 @@ function EditCompetition() {
   const [startDate, setStartDate] = useState(initialStartMoment.toDate());
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
+  const [removedParticipants, setRemovedParticipants] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
 
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingRemoveParticipantsModal, toggleShowingRemoveParticipantsModal] = useState(false);
+
+  const hideRemoveParticipantsModal = useCallback(() => toggleShowingRemoveParticipantsModal(false), []);
+  const showRemoveParticipantsModal = useCallback(() => toggleShowingRemoveParticipantsModal(true), []);
 
   const competition = useSelector(state => competitionSelectors.getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(competitionSelectors.isEditing);
@@ -63,6 +69,24 @@ function EditCompetition() {
       setStartDate(competition.startsAt);
       setEndDate(competition.endsAt);
       setParticipants(competition.participants.map(p => p.displayName));
+    }
+  };
+
+  const handleEditCompetition = async competitionId => {
+    const { payload } = await dispatch(
+      competitionActions.edit(
+        competitionId,
+        title,
+        metric,
+        startDate,
+        endDate,
+        participants,
+        verificationCode
+      )
+    );
+
+    if (payload && payload.data) {
+      router.push(`/competitions/${competition.id}`);
     }
   };
 
@@ -86,29 +110,40 @@ function EditCompetition() {
   };
 
   const handleRemoveParticipant = username => {
-    setParticipants(ps => [...ps.filter(p => p !== username)]);
+    setParticipants(ps => {
+      const [removedParticipant] = ps.filter(p => p === username);
+
+      setRemovedParticipants(currentRemovedParticipants => [
+        ...currentRemovedParticipants,
+        removedParticipant
+      ]);
+
+      return [...ps.filter(p => p !== username)];
+    });
+  };
+
+  const handleRemoveParticipantsModalClose = () => {
+    hideRemoveParticipantsModal();
+    setParticipants(currentParticipants => [...currentParticipants, ...removedParticipants]);
+    setRemovedParticipants([]);
   };
 
   const handleVerificationCodeChanged = e => {
     setVerificationCode(e.target.value);
   };
 
-  const handleSubmit = async () => {
-    const { payload } = await dispatch(
-      competitionActions.edit(
-        competition.id,
-        title,
-        metric,
-        startDate,
-        endDate,
-        participants,
-        verificationCode
-      )
-    );
-
-    if (payload && payload.data) {
-      router.push(`/competitions/${competition.id}`);
+  const handleSubmit = async competitionId => {
+    if (removedParticipants.length > 0) {
+      showRemoveParticipantsModal();
+      return;
     }
+
+    await onEditCompetition(competitionId);
+  };
+
+  const handleRemoveParticipantsModalSubmit = async competitionId => {
+    hideRemoveParticipantsModal();
+    await onEditCompetition(competitionId);
   };
 
   const handleImportModalSubmit = (usernames, replace) => {
@@ -136,7 +171,14 @@ function EditCompetition() {
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onVerificationCodeChanged = useCallback(handleVerificationCodeChanged, []);
   const onSubmitImportModal = useCallback(handleImportModalSubmit, []);
-  const onSubmit = useCallback(handleSubmit, [
+  const onSubmitRemoveParticipantsModal = useCallback(handleRemoveParticipantsModalSubmit, [
+    competition
+  ]);
+  const onCloseRemoveParticipantsModal = useCallback(handleRemoveParticipantsModalClose, [
+    participants,
+    removedParticipants
+  ]);
+  const onEditCompetition = useCallback(handleEditCompetition, [
     title,
     metric,
     startDate,
@@ -144,6 +186,7 @@ function EditCompetition() {
     participants,
     verificationCode
   ]);
+  const onSubmit = useCallback(handleSubmit, [removedParticipants]);
 
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -232,11 +275,19 @@ function EditCompetition() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button text="Confirm" onClick={() => onSubmit(competition.id)} loading={isSubmitting} />
         </div>
       </div>
       {showingImportModal && (
         <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
+      )}
+      {showingRemoveParticipantsModal && (
+        <RemoveParticipantsModal
+          onClose={onCloseRemoveParticipantsModal}
+          onSubmit={() => onSubmitRemoveParticipantsModal(competition.id)}
+          competitionId={competition.id}
+          participants={removedParticipants}
+        />
       )}
     </div>
   );

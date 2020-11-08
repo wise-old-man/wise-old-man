@@ -11,6 +11,7 @@ import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import './EditGroup.scss';
+import RemoveGroupMembersModal from '../../modals/RemoveGroupMembersModal';
 
 function EditGroup() {
   const { id } = useParams();
@@ -20,7 +21,9 @@ function EditGroup() {
   const [name, setName] = useState('');
   const [clanChat, setClanChat] = useState('');
   const [members, setMembers] = useState([]);
+  const [removedMembers, setRemovedMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingRemoveGroupMembersModal, toggleRemoveGroupMembersModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
   const group = useSelector(state => groupSelectors.getGroup(state, parseInt(id, 10)));
@@ -39,6 +42,16 @@ function EditGroup() {
       setMembers(
         group.members.map(({ username, displayName, role }) => ({ username, displayName, role }))
       );
+    }
+  };
+
+  const handleEditGroup = async groupId => {
+    const { payload } = await dispatch(
+      groupActions.edit(groupId, name, clanChat, members, verificationCode)
+    );
+
+    if (payload && payload.data) {
+      router.push(`/groups/${group.id}`);
     }
   };
 
@@ -67,7 +80,19 @@ function EditGroup() {
   };
 
   const handleRemoveMember = username => {
-    setMembers(currentMembers => [...currentMembers.filter(m => m.username !== username)]);
+    setMembers(currentMembers => {
+      const [removedMember] = currentMembers.filter(m => m.username === username);
+
+      setRemovedMembers(currentRemovedMembers => [...currentRemovedMembers, removedMember]);
+
+      return [...currentMembers.filter(m => m.username !== username)];
+    });
+  };
+
+  const handleRemoveGroupsMembersModalClose = () => {
+    hideRemoveGroupMembersModal();
+    setMembers(currentMembers => [...currentMembers, ...removedMembers]);
+    setRemovedMembers([]);
   };
 
   const handleRoleSwitch = username => {
@@ -107,16 +132,24 @@ function EditGroup() {
     toggleImportModal(false);
   };
 
-  const handleSubmit = async () => {
-    const { payload } = await dispatch(groupActions.edit(id, name, clanChat, members, verificationCode));
+  const handleRemoveMembersModalSubmit = async groupId => {
+    hideRemoveGroupMembersModal();
+    await onEditGroup(groupId);
+  };
 
-    if (payload && payload.data) {
-      router.push(`/groups/${group.id}`);
+  const handleSubmit = async groupId => {
+    if (removedMembers.length > 0) {
+      showRemoveGroupMembersModal();
+      return;
     }
+
+    await handleEditGroup(groupId);
   };
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
+  const hideRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(false), []);
+  const showRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
   const onClanChatChanged = useCallback(handleClanChatChanged, []);
@@ -125,7 +158,13 @@ function EditGroup() {
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
-  const onSubmit = useCallback(handleSubmit, [name, clanChat, members, verificationCode]);
+  const onSubmitRemoveGroupMembersModal = useCallback(handleRemoveMembersModalSubmit, []);
+  const onCloseRemoveGroupMembersModal = useCallback(handleRemoveGroupsMembersModalClose, [
+    members,
+    removedMembers
+  ]);
+  const onEditGroup = useCallback(handleEditGroup, [name, clanChat, members, verificationCode]);
+  const onSubmit = useCallback(handleSubmit, [removedMembers]);
 
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -194,11 +233,19 @@ function EditGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button text="Confirm" onClick={() => onSubmit(group.id)} loading={isSubmitting} />
         </div>
       </div>
       {showingImportModal && (
         <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+      )}
+      {showingRemoveGroupMembersModal && (
+        <RemoveGroupMembersModal
+          onClose={onCloseRemoveGroupMembersModal}
+          onSubmit={() => onSubmitRemoveGroupMembersModal(group.id)}
+          groupId={group.id}
+          members={removedMembers}
+        />
       )}
     </div>
   );
