@@ -1,7 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import notifications from './modules/notifications/reducer';
-import groups from './modules/groups/reducer';
-
 import hiscores from './hiscores/reducer';
 import rates from './rates/reducer';
 import snapshots from './snapshots/reducer';
@@ -12,6 +10,7 @@ import achievements from './achievements/reducer';
 import leaderboards from './leaderboards/reducer';
 import players from './players/reducer';
 import competitions from './competitions/reducer';
+import groups from './groups/reducer';
 
 const reducer = combineReducers({
   notifications,

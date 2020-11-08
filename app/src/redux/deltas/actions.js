@@ -32,7 +32,7 @@ const fetchGroupDeltas = (groupId, metric, period) => async dispatch => {
 
   try {
     const params = { metric, period };
-    const url = endpoints.fetchGroupDeltas.replace(':groupId', groupId);
+    const url = endpoints.fetchGroupDeltas.replace(':id', groupId);
 
     const { data } = await api.get(url, { params });
 

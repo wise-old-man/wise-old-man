@@ -23,11 +23,20 @@ const endpoints = {
   fetchDeltasLeaderboards: '/deltas/leaderboard/',
 
   // Group endpoints
-  fetchGroupAchievements: '/groups/:groupId/achievements/',
-  fetchGroupCompetitions: '/groups/:groupId/competitions/',
-  fetchGroupHiscores: '/groups/:groupId/hiscores/',
-  fetchGroupRecords: '/groups/:groupId/records/',
-  fetchGroupDeltas: '/groups/:groupId/gained/',
+  createGroup: '/groups/',
+  deleteGroup: '/groups/:id',
+  editGroup: '/groups/:id',
+  fetchGroups: '/groups/',
+  fetchGroupDetails: '/groups/:id',
+  fetchGroupDeltas: '/groups/:id/gained/',
+  fetchGroupRecords: '/groups/:id/records/',
+  fetchGroupMembers: '/groups/:id/members/',
+  fetchGroupHiscores: '/groups/:id/hiscores/',
+  fetchGroupStatistics: '/groups/:id/statistics/',
+  fetchGroupMonthlyTop: '/groups/:id/monthly-top/',
+  fetchGroupAchievements: '/groups/:id/achievements/',
+  fetchGroupCompetitions: '/groups/:id/competitions/',
+  updateAllMembers: '/groups/:id/update-all',
 
   // Competition endpoints
   createCompetition: '/competitions/',
@@ -43,6 +52,7 @@ const endpoints = {
   assertPlayerType: '/players/assert-type/',
   assertPlayerName: '/players/assert-name/',
   fetchPlayerDetails: '/players/username/:username/',
+  fetchPlayerGroups: '/players/username/:username/groups/',
   fetchPlayerAchievements: '/players/username/:username/achievements/',
   fetchPlayerCompetitions: '/players/username/:username/competitions/',
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',

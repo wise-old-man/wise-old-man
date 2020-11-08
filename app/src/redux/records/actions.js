@@ -32,7 +32,7 @@ const fetchGroupRecords = (groupId, metric, period) => async dispatch => {
 
   try {
     const params = { metric, period };
-    const url = endpoints.fetchGroupRecords.replace(':groupId', groupId);
+    const url = endpoints.fetchGroupRecords.replace(':id', groupId);
 
     const { data } = await api.get(url, { params });
 

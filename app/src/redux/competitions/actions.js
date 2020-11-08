@@ -15,7 +15,6 @@ const create = (
   try {
     const body = { title, metric, startsAt, endsAt, participants, groupVerificationCode, groupId };
     const { data } = await api.post(endpoints.createCompetition, body);
-    console.log(data);
 
     return dispatch(reducers.onCreateSuccess({ data }));
   } catch (e) {
@@ -83,7 +82,7 @@ const fetchGroupCompetitions = groupId => async dispatch => {
   dispatch(reducers.onFetchGroupCompetitionsRequest());
 
   try {
-    const url = endpoints.fetchGroupCompetitions.replace(':groupId', groupId);
+    const url = endpoints.fetchGroupCompetitions.replace(':id', groupId);
     const { data } = await api.get(url);
 
     dispatch(reducers.onFetchGroupCompetitionsSuccess({ data, groupId }));
@@ -113,9 +112,9 @@ const updateAll = id => async dispatch => {
 
     await api.post(url);
 
-    return dispatch(reducers.onDeleteSuccess());
+    return dispatch(reducers.onUpdateAllSuccess());
   } catch (e) {
-    return dispatch(reducers.onDeleteError(e.message.toString()));
+    return dispatch(reducers.onUpdateAllError(e.message.toString()));
   }
 };
 

@@ -68,11 +68,11 @@ function Competition() {
 
   const fetchDetails = () => {
     // Attempt to fetch competition of that id, if it fails redirect to 404
-    dispatch(competitionActions.fetchDetails(competitionId)).then(action => {
-      if (typeof action.payload === 'string') {
-        router.push('/404');
-      }
-    });
+    dispatch(competitionActions.fetchDetails(competitionId))
+      .then(action => {
+        if (!action.payload.data) throw new Error();
+      })
+      .catch(() => router.push('/404'));
   };
 
   const handleUpdatePlayer = username => {

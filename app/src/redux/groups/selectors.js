@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { mapValues } from 'lodash';
 import { createSelector } from 'reselect';
 
 const rootSelector = state => state.groups;
@@ -14,17 +14,17 @@ export const isFetchingStatistics = createSelector(rootSelector, root => root.is
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
 export const isEditing = createSelector(rootSelector, root => root.isEditing);
 
-export const getGroupsMap = createSelector(groupsSelector, map => {
-  return _.mapValues(map, group => formatGroup(group));
+const getGroupsMap = createSelector(groupsSelector, map => {
+  return mapValues(map, formatGroup);
 });
 
-export const getPlayerGroupsMap = createSelector(playerGroupsSelector, map => {
-  return _.mapValues(map, group => group.map(g => formatGroup(g)));
+const getPlayerGroupsMap = createSelector(playerGroupsSelector, map => {
+  return mapValues(map, group => group.map(formatGroup));
 });
 
 export const getGroups = createSelector(groupsSelector, map => {
   return Object.values(map)
-    .map(g => formatGroup(g))
+    .map(formatGroup)
     .sort((a, b) => b.score - a.score || a.id - b.id);
 });
 

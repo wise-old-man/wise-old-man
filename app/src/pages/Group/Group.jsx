@@ -12,6 +12,8 @@ import * as achievementsActions from 'redux/achievements/actions';
 import * as achievementsSelectors from 'redux/achievements/selectors';
 import * as competitionActions from 'redux/competitions/actions';
 import * as competitionSelectors from 'redux/competitions/selectors';
+import * as groupActions from 'redux/groups/actions';
+import * as groupSelectors from 'redux/groups/selectors';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Selector from '../../components/Selector';
@@ -32,17 +34,6 @@ import GroupStatistics from './components/GroupStatistics';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
 import { ALL_METRICS } from '../../config';
-import {
-  getGroup,
-  isFetchingMembers,
-  isFetchingMonthlyTop,
-  isFetchingStatistics
-} from '../../redux/selectors/groups';
-import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
-import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
-import fetchMonthlyTopAction from '../../redux/modules/groups/actions/fetchMonthlyTop';
-import fetchStatisticsAction from '../../redux/modules/groups/actions/fetchStatistics';
-import updateAllAction from '../../redux/modules/groups/actions/updateAll';
 import { getMetricName, getMetricIcon } from '../../utils';
 import './Group.scss';
 
@@ -100,15 +91,15 @@ function Group() {
   const selectedMetricIndex = ALL_METRICS.indexOf(selectedMetric);
   const selectedPeriodIndex = PERIOD_OPTIONS.findIndex(p => p.value === selectedPeriod);
 
-  const isLoadingMembers = useSelector(state => isFetchingMembers(state));
-  const isLoadingMonthlyTop = useSelector(state => isFetchingMonthlyTop(state));
-  const isLoadingStatistics = useSelector(state => isFetchingStatistics(state));
+  const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
+  const isLoadingMonthlyTop = useSelector(groupSelectors.isFetchingMonthlyTop);
+  const isLoadingStatistics = useSelector(groupSelectors.isFetchingStatistics);
   const isLoadingAchievements = useSelector(achievementsSelectors.isFetchingGroupAchievements);
   const isLoadingHiscores = useSelector(hiscoresSelectors.isFetching);
   const isLoadingDeltas = useSelector(deltasSelectors.isFetchingGroupDeltas);
   const isLoadingRecords = useSelector(recordsSelectors.isFetchingGroupRecords);
 
-  const group = useSelector(state => getGroup(state, groupId));
+  const group = useSelector(state => groupSelectors.getGroup(state, groupId));
   const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, groupId));
   const achievements = useSelector(state => achievementsSelectors.getGroupAchievements(state, groupId));
   const hiscores = useSelector(state => hiscoresSelectors.getGroupHiscores(state, groupId));
@@ -117,17 +108,17 @@ function Group() {
 
   const fetchAll = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
-    dispatch(fetchDetailsAction(id))
+    dispatch(groupActions.fetchDetails(id))
       .then(action => {
-        if (action.error) throw new Error();
+        if (!action.payload.data) throw new Error();
       })
       .catch(() => router.push('/404'));
 
-    dispatch(fetchMembersAction(id));
-    dispatch(fetchMonthlyTopAction(id));
+    dispatch(groupActions.fetchMembers(id));
+    dispatch(groupActions.fetchMonthlyTop(id));
     dispatch(competitionActions.fetchGroupCompetitions(id));
     dispatch(achievementsActions.fetchGroupAchievements(id));
-    dispatch(fetchStatisticsAction(id));
+    dispatch(groupActions.fetchStatistics(id));
   };
 
   const fetchHiscores = () => {
@@ -172,7 +163,7 @@ function Group() {
   };
 
   const handleUpdateAll = () => {
-    dispatch(updateAllAction(id));
+    dispatch(groupActions.updateAll(id));
     setButtonDisabled(true);
   };
 

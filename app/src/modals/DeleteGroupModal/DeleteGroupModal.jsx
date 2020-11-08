@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
+import * as groupActions from 'redux/groups/actions';
 import Button from '../../components/Button';
-import deleteGroupAction from '../../redux/modules/groups/actions/delete';
 import './DeleteGroupModal.scss';
 
 function DeleteGroupModal({ group, onCancel }) {
@@ -17,10 +17,12 @@ function DeleteGroupModal({ group, onCancel }) {
     setVerificationCode(e.target.value);
   };
 
-  const handleDeleteClicked = () => {
-    dispatch(deleteGroupAction(group.id, verificationCode)).then(() => {
+  const handleDeleteClicked = async () => {
+    const { payload } = await dispatch(groupActions.remove(group.id, verificationCode));
+
+    if (payload && payload.groupId) {
       router.push('/groups');
-    });
+    }
   };
 
   const onVerificationInput = useCallback(handleVerificationInput, []);

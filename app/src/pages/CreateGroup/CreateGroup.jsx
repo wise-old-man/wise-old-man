@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import * as groupActions from 'redux/groups/actions';
+import * as groupSelectors from 'redux/groups/selectors';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -11,16 +13,14 @@ import Button from '../../components/Button';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
 import VerificationModal from '../../modals/VerificationModal';
-import createGroupAction from '../../redux/modules/groups/actions/create';
-import { isCreating, getError } from '../../redux/selectors/groups';
 import './CreateGroup.scss';
 
 function CreateGroup() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const isSubmitting = useSelector(state => isCreating(state));
-  const error = useSelector(state => getError(state));
+  const isSubmitting = useSelector(groupSelectors.isCreating);
+  const error = useSelector(groupSelectors.getError);
 
   const [name, setName] = useState('');
   const [clanChat, setClanChat] = useState('');
@@ -92,14 +92,12 @@ function CreateGroup() {
   };
 
   const handleSubmit = async () => {
-    const formData = { name, clanChat, members };
+    const { payload } = await dispatch(groupActions.create(name, clanChat, members));
 
-    dispatch(createGroupAction(formData)).then(a => {
-      if (a && a.group) {
-        setVerificationCode(a.group.verificationCode);
-        setCreatedId(a.group.id);
-      }
-    });
+    if (payload && payload.data) {
+      setVerificationCode(payload.data.verificationCode);
+      setCreatedId(payload.data.id);
+    }
   };
 
   const handleConfirmVerification = () => {

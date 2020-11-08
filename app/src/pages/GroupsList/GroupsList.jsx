@@ -3,14 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
+import * as groupActions from 'redux/groups/actions';
+import * as groupSelectors from 'redux/groups/selectors';
 import PageTitle from '../../components/PageTitle';
 import VerifiedBadge from '../../components/VerifiedBadge';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Table from '../../components/Table';
 import TablePlaceholder from '../../components/TablePlaceholder';
-import fetchGroupsAction from '../../redux/modules/groups/actions/fetchAll';
-import { getGroups, isFetchingAll } from '../../redux/selectors/groups';
 import './GroupsList.scss';
 
 const RESULTS_PER_PAGE = 20;
@@ -51,15 +51,15 @@ function GroupsList() {
   const [pageIndex, setPageIndex] = useState(0);
 
   // Memoized redux variables
-  const groups = useSelector(state => getGroups(state));
-  const isLoading = useSelector(state => isFetchingAll(state));
+  const groups = useSelector(groupSelectors.getGroups);
+  const isLoading = useSelector(groupSelectors.isFetchingAll);
 
   const isFullyLoaded = groups.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
   const handleSubmitSearch = _.debounce(
     () => {
       setPageIndex(0); // Reset pagination when the search changes
-      dispatch(fetchGroupsAction({ name: nameSearch }, RESULTS_PER_PAGE, 0));
+      dispatch(groupActions.fetchList(nameSearch, RESULTS_PER_PAGE, 0));
     },
     500,
     { leading: true, trailing: false }
@@ -70,7 +70,7 @@ function GroupsList() {
 
     const limit = RESULTS_PER_PAGE;
     const offset = RESULTS_PER_PAGE * pageIndex;
-    dispatch(fetchGroupsAction({ name: nameSearch }, limit, offset));
+    dispatch(groupActions.fetchList(nameSearch, limit, offset));
   };
 
   const handleNextPage = () => {

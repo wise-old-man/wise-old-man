@@ -5,7 +5,7 @@ const fetchGroupHiscores = (groupId, metric) => async dispatch => {
   dispatch(reducers.onFetchRequest());
 
   try {
-    const url = endpoints.fetchGroupHiscores.replace(':groupId', groupId);
+    const url = endpoints.fetchGroupHiscores.replace(':id', groupId);
     const { data } = await api.get(url, { params: { metric } });
 
     dispatch(reducers.onFetchSuccess({ groupId, hiscores: data }));

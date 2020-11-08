@@ -20,7 +20,7 @@ const fetchGroupAchievements = groupId => async dispatch => {
   dispatch(reducers.onFetchGroupAchievementsRequest());
 
   try {
-    const url = endpoints.fetchGroupAchievements.replace(':groupId', groupId);
+    const url = endpoints.fetchGroupAchievements.replace(':id', groupId);
     const { data } = await api.get(url);
 
     dispatch(reducers.onFetchGroupAchievementsSuccess({ groupId, data }));

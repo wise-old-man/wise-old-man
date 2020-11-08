@@ -6,6 +6,8 @@ import _ from 'lodash';
 import queryString from 'query-string';
 import * as playersActions from 'redux/players/actions';
 import * as playersSelectors from 'redux/players/selectors';
+import * as groupsActions from 'redux/groups/actions';
+import * as groupsSelectors from 'redux/groups/selectors';
 import * as snapshotsActions from 'redux/snapshots/actions';
 import * as snapshotsSelectors from 'redux/snapshots/selectors';
 import * as recordsActions from 'redux/records/actions';
@@ -32,8 +34,6 @@ import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
 import PlayerCards from './components/PlayerCards';
-import { getPlayerGroups } from '../../redux/selectors/groups';
-import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
 import {
   getPlayerIcon,
   getOfficialHiscoresUrl,
@@ -172,7 +172,7 @@ function Player() {
   const competitions = useSelector(state =>
     competitionsSelectors.getPlayerCompetitions(state, username)
   );
-  const groups = useSelector(state => getPlayerGroups(state, username));
+  const groups = useSelector(state => groupsSelectors.getPlayerGroups(state, username));
   const isLoadingDetails = useSelector(playersSelectors.isFetching);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
@@ -226,13 +226,13 @@ function Player() {
     // Attempt to fetch player data, if it fails redirect to 404
     dispatch(playersActions.fetchPlayer(username))
       .then(action => {
-        if (action.error) throw new Error();
+        if (!action.payload.data) throw new Error();
       })
       .catch(() => router.push(`/players/search/${username}`));
 
     dispatch(achievementsActions.fetchPlayerAchievements(username));
     dispatch(competitionsActions.fetchPlayerCompetitions(username));
-    dispatch(fetchGroupsAction({ username }));
+    dispatch(groupsActions.fetchPlayerGroups(username));
     dispatch(recordsActions.fetchPlayerRecords(username));
     dispatch(deltasActions.fetchPlayerDeltas(username));
 
