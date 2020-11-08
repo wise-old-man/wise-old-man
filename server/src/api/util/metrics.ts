@@ -207,7 +207,7 @@ function getAbbreviation(abbreviation: string): string {
     case 'kree':
     case 'kreearra':
     case 'armadyl':
-    case 'armadyl':
+    case 'arma':
       return 'kreearra';
 
     case 'zammy':
