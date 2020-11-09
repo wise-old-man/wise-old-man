@@ -54,7 +54,7 @@
     "@types/validator": "^13.1.0",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.7.1",
-    "faker": "^4.1.0",
+    "faker": "^5.1.0",
     "jest": "^26.1.0",
     "prettier": "^2.0.5",
     "sequelize-cli": "^5.5.1",
