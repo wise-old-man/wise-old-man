@@ -3,7 +3,7 @@ import loggerMiddleware from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 
 import datesMiddleware from './middlewares/dates';
-import notificationsMiddleware from './middlewares/notifications';
+import notificationsMiddleware from './app/notifications.middleware';
 import reducers from './reducers';
 
 const store = configureStore({

@@ -40,7 +40,7 @@ const trackPlayer = username => async dispatch => {
 
     return dispatch(reducers.onTrackSuccess({ username, data }));
   } catch (e) {
-    return dispatch(reducers.onTrackError(e.message.toString()));
+    return dispatch(reducers.onTrackError(e.response.data.message));
   }
 };
 
@@ -53,7 +53,7 @@ const assertType = (username, playerId) => async dispatch => {
 
     return dispatch(reducers.onAssertTypeSuccess({ username, playerId, playerType: data.type }));
   } catch (e) {
-    return dispatch(reducers.onAssertTypeError(e.message.toString()));
+    return dispatch(reducers.onAssertTypeError(e.response.data.message));
   }
 };
 
@@ -66,7 +66,7 @@ const assertName = (username, playerId) => async dispatch => {
 
     return dispatch(reducers.onAssertNameSuccess({ username, playerId, displayName: data.displayName }));
   } catch (e) {
-    return dispatch(reducers.onAssertNameError(e.message.toString()));
+    return dispatch(reducers.onAssertNameError(e.response.data.message));
   }
 };
 

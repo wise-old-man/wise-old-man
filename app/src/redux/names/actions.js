@@ -25,7 +25,7 @@ const submitNameChange = (oldName, newName) => async dispatch => {
 
     return dispatch(reducers.onSubmitSuccess({ data }));
   } catch (e) {
-    return dispatch(reducers.onFetchError(e));
+    return dispatch(reducers.onSubmitError(e.response.data.message));
   }
 };
 

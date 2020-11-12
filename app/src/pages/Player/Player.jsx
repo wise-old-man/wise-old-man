@@ -211,13 +211,14 @@ function Player() {
   );
 
   const trackPlayer = async () => {
-    try {
-      setIsTracking(true);
-      await dispatch(playersActions.trackPlayer(player.username));
+    setIsTracking(true);
 
+    const { payload } = await dispatch(playersActions.trackPlayer(player.username));
+
+    if (payload.data) {
       fetchAll();
       setIsTracking(false);
-    } catch (e) {
+    } else {
       setIsTracking(false);
     }
   };
@@ -226,6 +227,7 @@ function Player() {
     // Attempt to fetch player data, if it fails redirect to 404
     dispatch(playersActions.fetchPlayer(username))
       .then(action => {
+        console.log(action);
         if (!action.payload.data) throw new Error();
       })
       .catch(() => router.push(`/players/search/${username}`));

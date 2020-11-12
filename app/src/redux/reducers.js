@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import notifications from './modules/notifications/reducer';
+import app from './app/reducer';
 import hiscores from './hiscores/reducer';
 import rates from './rates/reducer';
 import snapshots from './snapshots/reducer';
@@ -13,7 +13,7 @@ import competitions from './competitions/reducer';
 import groups from './groups/reducer';
 
 const reducer = combineReducers({
-  notifications,
+  app,
   deltas,
   records,
   competitions,

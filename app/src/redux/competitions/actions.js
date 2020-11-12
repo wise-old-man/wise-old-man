@@ -18,7 +18,8 @@ const create = (
 
     return dispatch(reducers.onCreateSuccess({ data }));
   } catch (e) {
-    return dispatch(reducers.onCreateError({ error: e.message.toString(), data: e.response.data.data }));
+    const { message, data } = e.response.data;
+    return dispatch(reducers.onCreateError({ error: message, data }));
   }
 };
 
@@ -33,7 +34,8 @@ const edit = (id, title, metric, startsAt, endsAt, participants, verificationCod
 
     return dispatch(reducers.onEditSuccess({ data }));
   } catch (e) {
-    return dispatch(reducers.onEditError({ error: e.message.toString(), data: e.response.data.data }));
+    const { message, data } = e.response.data;
+    return dispatch(reducers.onEditError({ error: message, data }));
   }
 };
 
@@ -46,7 +48,7 @@ const remove = (id, verificationCode) => async dispatch => {
 
     return dispatch(reducers.onDeleteSuccess({ competitionId: id }));
   } catch (e) {
-    return dispatch(reducers.onDeleteError(e.message.toString()));
+    return dispatch(reducers.onDeleteError({ error: e.response.data.message }));
   }
 };
 
@@ -109,12 +111,12 @@ const updateAll = id => async dispatch => {
 
   try {
     const url = endpoints.updateAllParticipants.replace(':id', id);
+    const { data } = await api.post(url);
 
-    await api.post(url);
-
-    return dispatch(reducers.onUpdateAllSuccess());
+    return dispatch(reducers.onUpdateAllSuccess(data));
   } catch (e) {
-    return dispatch(reducers.onUpdateAllError(e.message.toString()));
+    const { message, data } = e.response.data;
+    return dispatch(reducers.onUpdateAllError({ error: message, data }));
   }
 };
 
