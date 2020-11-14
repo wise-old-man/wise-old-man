@@ -8,8 +8,8 @@ function RemoveGroupMembersModal({ groupId, members, onSubmit, onClose }) {
   useEffect(() => Analytics.modalview(`/groups/${groupId}/removeMembers`), [groupId]);
 
   return (
-    <div className="delete-group">
-      <div className="delete-group__modal">
+    <div className="remove-group-members">
+      <div className="remove-group-members__modal">
         <button className="close-btn" type="button" onClick={onClose}>
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
