@@ -14,9 +14,7 @@ function RemoveGroupMembersModal({ groupId, members, onSubmit, onClose }) {
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
         <b className="modal-title">Are you sure you want to remove following members from this group?</b>
-        {members.map(m => (
-          <p key={m.username}>{m.displayName}</p>
-        ))}
+        <p>{members.map(m => m.displayName).join(', ')}</p>
         <Button text="Remove group members" onClick={onSubmit} />
       </div>
     </div>

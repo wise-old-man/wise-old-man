@@ -18,9 +18,7 @@ function RemoveParticipantsModal({ competitionId, participants, onSubmit, onClos
         <b className="modal-title">
           Are you sure you want to remove following participants from this competition?
         </b>
-        {participants.map(participant => (
-          <p key={participant}>{participant}</p>
-        ))}
+        <p>{participants.join(', ')}</p>
         <Button text="Remove participants" onClick={onSubmit} />
       </div>
     </div>
