@@ -282,9 +282,9 @@ function Player() {
 
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
-      await dispatch(playersActions.assertType(player.username, player.username));
+      await dispatch(playersActions.assertType(player.username, player.type));
     } else if (option.value === 'assertName') {
-      await dispatch(playersActions.assertName(player.username, player.username));
+      await dispatch(playersActions.assertName(player.username, player.displayName));
     } else if (option.value === 'changeName') {
       router.push(`/names/submit/${player.displayName}`);
     }

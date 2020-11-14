@@ -44,27 +44,31 @@ const trackPlayer = username => async dispatch => {
   }
 };
 
-const assertType = (username, playerId) => async dispatch => {
+const assertType = (username, currentType) => async dispatch => {
   dispatch(reducers.onAssertTypeRequest());
 
   try {
     const body = { username };
     const { data } = await api.post(endpoints.assertPlayerType, body);
 
-    return dispatch(reducers.onAssertTypeSuccess({ username, playerId, playerType: data.type }));
+    const changed = currentType !== data.type;
+
+    return dispatch(reducers.onAssertTypeSuccess({ username, playerType: data.type, changed }));
   } catch (e) {
     return dispatch(reducers.onAssertTypeError(e.response.data.message));
   }
 };
 
-const assertName = (username, playerId) => async dispatch => {
+const assertName = (username, currentName) => async dispatch => {
   dispatch(reducers.onAssertNameRequest());
 
   try {
     const body = { username };
     const { data } = await api.post(endpoints.assertPlayerName, body);
 
-    return dispatch(reducers.onAssertNameSuccess({ username, playerId, displayName: data.displayName }));
+    const changed = currentName !== data.displayName;
+
+    return dispatch(reducers.onAssertNameSuccess({ username, displayName: data.displayName, changed }));
   } catch (e) {
     return dispatch(reducers.onAssertNameError(e.response.data.message));
   }

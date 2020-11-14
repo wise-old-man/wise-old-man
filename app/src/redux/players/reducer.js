@@ -39,8 +39,8 @@ const slice = createSlice({
       const { data } = action.payload;
 
       state.isSearching = false;
-      state.searchResults = toMap(data, 'id');
-      state.players = { ...state.players, ...toMap(data, 'id') };
+      state.searchResults = toMap(data, 'username');
+      state.players = { ...state.players, ...toMap(data, 'username') };
     },
     onSearchError(state, action) {
       state.isSearching = false;
@@ -56,7 +56,7 @@ const slice = createSlice({
 
       state.isTracking = false;
       state.updating = state.updating.filter(u => u !== username);
-      state.players[data.id] = data;
+      state.players[username] = data;
     },
     onTrackError(state, action) {
       state.isTracking = false;
@@ -68,11 +68,11 @@ const slice = createSlice({
       state.error = null;
     },
     onAssertTypeSuccess(state, action) {
-      const { playerId, playerType } = action.payload;
+      const { username, playerType } = action.payload;
 
       state.error = null;
       state.isAssertingType = false;
-      state.players[playerId].type = playerType;
+      state.players[username].type = playerType;
     },
     onAssertTypeError(state, action) {
       state.isAssertingType = false;
@@ -83,11 +83,11 @@ const slice = createSlice({
       state.error = null;
     },
     onAssertNameSuccess(state, action) {
-      const { playerId, displayName } = action.payload;
+      const { username, displayName } = action.payload;
 
       state.error = null;
       state.isAssertingName = false;
-      state.players[playerId].displayName = displayName;
+      state.players[username].displayName = displayName;
     },
     onAssertNameError(state, action) {
       state.isAssertingName = false;

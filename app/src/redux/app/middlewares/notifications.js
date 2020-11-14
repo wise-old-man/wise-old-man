@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import * as actions from './actions';
+import * as actions from '../actions';
 
 function showError(store, text, duration = 5000) {
   const notification = { type: 'error', text, duration };
@@ -28,12 +28,20 @@ const notificationsMiddleware = store => next => action => {
     }
 
     case 'players/onAssertTypeSuccess': {
-      showSuccess(store, `Player type successfully reassigned to ${action.playerType}.`);
+      if (action.payload.changed) {
+        showSuccess(store, `Player type successfully reassigned to ${action.payload.playerType}.`);
+      } else {
+        showSuccess(store, `Player type confirmed to be ${action.payload.playerType}.`);
+      }
       break;
     }
 
     case 'players/onAssertNameSuccess': {
-      showSuccess(store, `Player name successfully changed to ${action.displayName}.`);
+      if (action.payload.changed) {
+        showSuccess(store, `Player name successfully changed to ${action.payload.displayName}.`);
+      } else {
+        showSuccess(store, `Player name confirmed to be ${action.payload.displayName}.`);
+      }
       break;
     }
 
@@ -74,7 +82,7 @@ const notificationsMiddleware = store => next => action => {
 
     case 'groups/onUpdateAllSuccess':
     case 'competitions/onUpdateAllSuccess': {
-      showSuccess(store, action.payload.message, 10000);
+      showSuccess(store, action.payload.data.message, 10000);
       break;
     }
 

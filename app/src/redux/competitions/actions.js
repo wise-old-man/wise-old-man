@@ -113,7 +113,7 @@ const updateAll = id => async dispatch => {
     const url = endpoints.updateAllParticipants.replace(':id', id);
     const { data } = await api.post(url);
 
-    return dispatch(reducers.onUpdateAllSuccess(data));
+    return dispatch(reducers.onUpdateAllSuccess({ competitionId: id, data }));
   } catch (e) {
     const { message, data } = e.response.data;
     return dispatch(reducers.onUpdateAllError({ error: message, data }));
