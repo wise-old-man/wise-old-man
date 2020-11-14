@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
+import { playerActions, playerSelectors } from 'redux/players';
 import Button from '../../components/Button';
 import TextInput from '../../components/TextInput';
-import { isTracking } from '../../redux/selectors/players';
-import trackPlayerAction from '../../redux/modules/players/actions/track';
 import './Home.scss';
 
 const FEATURES = [
@@ -68,7 +67,7 @@ function Home() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const isLoading = useSelector(isTracking);
+  const isLoading = useSelector(playerSelectors.isTracking);
   const [username, setUsername] = useState('');
 
   const onUsernameChanged = e => {
@@ -80,10 +79,11 @@ function Home() {
 
     if (!username || !username.length) return;
 
-    try {
-      const { data } = await dispatch(trackPlayerAction(username));
-      router.push(`/players/${data.username}`);
-    } catch (err) {
+    const { payload } = await dispatch(playerActions.trackPlayer(username));
+
+    if (payload.username) {
+      router.push(`/players/${payload.username}`);
+    } else {
       router.push(`/players/search/${username}`);
     }
   };

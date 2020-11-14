@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
+import { nameActions, nameSelectors } from 'redux/names';
 import PageTitle from '../../components/PageTitle';
 import TextButton from '../../components/TextButton';
 import Table from '../../components/Table';
 import TablePlaceholder from '../../components/TablePlaceholder';
-import fetchNameChangesAction from '../../redux/modules/names/actions/fetchAll';
-import { getNameChanges, isFetchingAll } from '../../redux/selectors/names';
 import { durationBetween } from '../../utils';
 import './NamesList.scss';
 
@@ -74,15 +73,15 @@ function NamesList() {
   const [pageIndex, setPageIndex] = useState(0);
 
   // Memoized redux variables
-  const nameChanges = useSelector(getNameChanges);
-  const isLoading = useSelector(isFetchingAll);
+  const nameChanges = useSelector(nameSelectors.getNameChanges);
+  const isLoading = useSelector(nameSelectors.isFetching);
 
   const isFullyLoaded = nameChanges.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
   const handleLoadMore = () => {
     const limit = RESULTS_PER_PAGE;
     const offset = RESULTS_PER_PAGE * pageIndex;
-    dispatch(fetchNameChangesAction(limit, offset));
+    dispatch(nameActions.fetchNameChanges(limit, offset));
   };
 
   const handleNextPage = () => {

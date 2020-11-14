@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import classNames from 'classnames';
+import { playerActions } from 'redux/players';
 import TextInput from '../TextInput';
-import fetchPlayer from '../../redux/modules/players/actions/fetch';
 import './NavigationBar.scss';
 
 const MENU_CONFIG = [
@@ -102,14 +102,15 @@ function NavigationBar() {
     if (usernameSearch && usernameSearch.length) {
       const username = usernameSearch;
 
-      try {
-        const { player } = await dispatch(fetchPlayer({ username }));
-        router.push(`/players/${player.username}`);
-      } catch (err) {
+      const { payload } = await dispatch(playerActions.fetchPlayer(username));
+
+      if (payload.data && payload.data.username) {
+        router.push(`/players/${payload.data.username}`);
+      } else {
         router.push(`/players/search/${username}`);
-      } finally {
-        closeMenu();
       }
+
+      closeMenu();
     }
   };
 

@@ -2,12 +2,11 @@ import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { ratesActions, ratesSelectors } from 'redux/rates';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import Table from '../../components/Table';
 import { formatNumber, getMetricIcon, getMetricName } from '../../utils';
-import fetchRatesActions from '../../redux/modules/rates/actions/fetchRates';
-import { getEHPRates } from '../../redux/selectors/rates';
 import './EhpRates.scss';
 
 const RATES_TABLE_CONFIG = {
@@ -32,7 +31,7 @@ const RATES_TABLE_CONFIG = {
 };
 
 const BONUSES_TABLE_CONFIG = {
-  uniqueKeySelector: row => `${row.skill}-${row.startExp}`,
+  uniqueKeySelector: row => `${row.bonusSkill}-${row.startExp}`,
   columns: [
     {
       key: 'startExp',
@@ -87,13 +86,13 @@ function Rates() {
 
   const selectedType = type || 'main';
 
-  const ehpRates = useSelector(getEHPRates);
+  const ehpRates = useSelector(ratesSelectors.getEHPRates);
 
   const typeOptions = useMemo(() => getTypeOptions(), []);
   const typeIndex = typeOptions.findIndex(o => o.value === selectedType);
 
   function handleFetchRates() {
-    dispatch(fetchRatesActions('ehp', selectedType));
+    dispatch(ratesActions.fetchRates('ehp', selectedType));
   }
 
   const handleTypeSelected = e => {
@@ -130,7 +129,7 @@ function Rates() {
             <div className="section__table-wrapper">
               <b>Rates</b>
               <Table
-                rows={e.methods.sort((a, b) => a.startExp - b.startExp)}
+                rows={e.methods.slice().sort((a, b) => a.startExp - b.startExp)}
                 columns={RATES_TABLE_CONFIG.columns}
                 uniqueKeySelector={RATES_TABLE_CONFIG.uniqueKeySelector}
               />
@@ -139,7 +138,7 @@ function Rates() {
               <div className="section__table-wrapper">
                 <b>Bonuses</b>
                 <Table
-                  rows={e.bonuses.sort((a, b) => a.startExp - b.startExp)}
+                  rows={e.bonuses.slice().sort((a, b) => a.startExp - b.startExp)}
                   columns={BONUSES_TABLE_CONFIG.columns}
                   uniqueKeySelector={BONUSES_TABLE_CONFIG.uniqueKeySelector}
                 />

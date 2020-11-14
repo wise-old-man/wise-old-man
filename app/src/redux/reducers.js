@@ -1,20 +1,19 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from '@reduxjs/toolkit';
+import app from './app/reducer';
+import hiscores from './hiscores/reducer';
+import rates from './rates/reducer';
+import snapshots from './snapshots/reducer';
+import records from './records/reducer';
+import deltas from './deltas/reducer';
+import names from './names/reducer';
+import achievements from './achievements/reducer';
+import leaderboards from './leaderboards/reducer';
+import players from './players/reducer';
+import competitions from './competitions/reducer';
+import groups from './groups/reducer';
 
-import notifications from './modules/notifications/reducer';
-import deltas from './modules/deltas/reducer';
-import records from './modules/records/reducer';
-import competitions from './modules/competitions/reducer';
-import snapshots from './modules/snapshots/reducer';
-import players from './modules/players/reducer';
-import achievements from './modules/achievements/reducer';
-import groups from './modules/groups/reducer';
-import hiscores from './modules/hiscores/reducer';
-import names from './modules/names/reducer';
-import leaderboards from './modules/leaderboards/reducer';
-import rates from './modules/rates/reducer';
-
-export default combineReducers({
-  notifications,
+const reducer = combineReducers({
+  app,
   deltas,
   records,
   competitions,
@@ -27,3 +26,5 @@ export default combineReducers({
   leaderboards,
   rates
 });
+
+export default reducer;

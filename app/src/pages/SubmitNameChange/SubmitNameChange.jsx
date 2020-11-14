@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { nameActions, nameSelectors } from 'redux/names';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
-import submitNameChangeAction from '../../redux/modules/names/actions/submit';
-import { isSubmitting } from '../../redux/selectors/names';
 import './SubmitNameChange.scss';
 
 function SubmitNameChange() {
@@ -14,7 +13,7 @@ function SubmitNameChange() {
   const router = useHistory();
   const dispatch = useDispatch();
 
-  const isLoading = useSelector(isSubmitting);
+  const isLoading = useSelector(nameSelectors.isSubmitting);
 
   const [oldName, setOldName] = useState(urlName || '');
   const [newName, setNewName] = useState('');
@@ -28,13 +27,11 @@ function SubmitNameChange() {
   };
 
   const handleSubmit = async () => {
-    const formData = { oldName, newName };
+    const { payload } = await dispatch(nameActions.submitNameChange(oldName, newName));
 
-    dispatch(submitNameChangeAction(formData)).then(a => {
-      if (a && a.nameChange) {
-        router.push(`/names`);
-      }
-    });
+    if (payload && payload.data) {
+      router.push(`/names`);
+    }
   };
 
   return (

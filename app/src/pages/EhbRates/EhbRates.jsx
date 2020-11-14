@@ -2,12 +2,11 @@ import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { ratesActions, ratesSelectors } from 'redux/rates';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import Table from '../../components/Table';
 import { formatNumber, getMetricIcon, getMetricName } from '../../utils';
-import fetchRatesActions from '../../redux/modules/rates/actions/fetchRates';
-import { getEHBRates } from '../../redux/selectors/rates';
 import './EhbRates.scss';
 
 const RATES_TABLE_CONFIG = {
@@ -44,13 +43,13 @@ function Rates() {
 
   const selectedType = type || 'main';
 
-  const ehbRates = useSelector(getEHBRates);
+  const ehbRates = useSelector(ratesSelectors.getEHBRates);
 
   const typeOptions = useMemo(() => getTypeOptions(), []);
   const typeIndex = typeOptions.findIndex(o => o.value === selectedType);
 
   function handleFetchRates() {
-    dispatch(fetchRatesActions('ehb', selectedType));
+    dispatch(ratesActions.fetchRates('ehb', selectedType));
   }
 
   const handleTypeSelected = e => {

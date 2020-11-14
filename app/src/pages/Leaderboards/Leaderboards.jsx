@@ -3,13 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useParams, useHistory } from 'react-router-dom';
 import _ from 'lodash';
 import { Helmet } from 'react-helmet';
+import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import Table from '../../components/Table';
 import PlayerTag from '../../components/PlayerTag';
 import TablePlaceholder from '../../components/TablePlaceholder';
-import fetchLeaderboardsAction from '../../redux/modules/leaderboards/actions/fetchLeaderboards';
-import { getLeaderboards, isFetchingAll } from '../../redux/selectors/leaderboards';
 import {
   capitalize,
   getPlayerIcon,
@@ -130,8 +129,8 @@ function Leaderboards() {
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
-  const leaderboards = useSelector(state => getLeaderboards(state));
-  const isLoading = useSelector(state => isFetchingAll(state));
+  const leaderboards = useSelector(leaderboardsSelectors.getLeaderboards);
+  const isLoading = useSelector(leaderboardsSelectors.isFetching);
 
   const isFullyLoaded = leaderboards.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
@@ -149,7 +148,7 @@ function Leaderboards() {
       setPageIndex(0); // Reset pagination when the search changes
     }
 
-    dispatch(fetchLeaderboardsAction(query, limit, offset));
+    dispatch(leaderboardsActions.fetchLeaderboards(query, limit, offset));
   };
 
   const handleLoadMore = () => {
