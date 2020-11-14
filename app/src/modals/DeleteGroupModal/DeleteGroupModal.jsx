@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
-import * as groupActions from 'redux/groups/actions';
+import { groupActions } from 'redux/groups';
 import Button from '../../components/Button';
 import './DeleteGroupModal.scss';
 

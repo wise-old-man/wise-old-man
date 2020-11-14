@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
-import * as namesActions from 'redux/names/actions';
-import * as namesSelectors from 'redux/names/selectors';
+import { nameActions, nameSelectors } from 'redux/names';
 import PageTitle from '../../components/PageTitle';
 import TextButton from '../../components/TextButton';
 import Table from '../../components/Table';
@@ -74,15 +73,15 @@ function NamesList() {
   const [pageIndex, setPageIndex] = useState(0);
 
   // Memoized redux variables
-  const nameChanges = useSelector(namesSelectors.getNameChanges);
-  const isLoading = useSelector(namesSelectors.isFetching);
+  const nameChanges = useSelector(nameSelectors.getNameChanges);
+  const isLoading = useSelector(nameSelectors.isFetching);
 
   const isFullyLoaded = nameChanges.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
   const handleLoadMore = () => {
     const limit = RESULTS_PER_PAGE;
     const offset = RESULTS_PER_PAGE * pageIndex;
-    dispatch(namesActions.fetchNameChanges(limit, offset));
+    dispatch(nameActions.fetchNameChanges(limit, offset));
   };
 
   const handleNextPage = () => {

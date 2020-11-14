@@ -2,8 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import * as recordsActions from 'redux/records/actions';
-import * as recordsSelectors from 'redux/records/selectors';
+import { recordActions, recordSelectors } from 'redux/records';
 import PageTitle from '../../components/PageTitle';
 import Selector from '../../components/Selector';
 import PlayerTag from '../../components/PlayerTag';
@@ -146,17 +145,17 @@ function Records() {
   const playerBuildIndex = playerBuildOptions.findIndex(o => o.value === selectedPlayerBuild);
 
   // Memoized redux variables
-  const leaderboards = useSelector(recordsSelectors.getLeaderboards);
-  const isLoadingDay = useSelector(recordsSelectors.isFetchingDay);
-  const isLoadingWeek = useSelector(recordsSelectors.isFetchingWeek);
-  const isLoadingMonth = useSelector(recordsSelectors.isFetchingMonth);
+  const leaderboards = useSelector(recordSelectors.getLeaderboards);
+  const isLoadingDay = useSelector(recordSelectors.isFetchingDay);
+  const isLoadingWeek = useSelector(recordSelectors.isFetchingWeek);
+  const isLoadingMonth = useSelector(recordSelectors.isFetchingMonth);
 
   const reloadList = () => {
     const periods = ['day', 'week', 'month'];
 
     periods.forEach(p => {
       dispatch(
-        recordsActions.fetchLeaderboards(selectedMetric, p, selectedPlayerType, selectedPlayerBuild)
+        recordActions.fetchLeaderboards(selectedMetric, p, selectedPlayerType, selectedPlayerBuild)
       );
     });
   };

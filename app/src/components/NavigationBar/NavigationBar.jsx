@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import classNames from 'classnames';
-import * as playerActions from 'redux/players/actions';
+import { playerActions } from 'redux/players';
 import TextInput from '../TextInput';
 import './NavigationBar.scss';
 

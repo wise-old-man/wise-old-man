@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
-import * as appActions from 'redux/app/actions';
-import * as appSelectors from 'redux/app/selectors';
+import { appActions, appSelectors } from 'redux/app';
 import './Notification.scss';
 
 const config = {

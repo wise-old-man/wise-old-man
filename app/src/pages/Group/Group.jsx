@@ -2,18 +2,12 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import * as hiscoresActions from 'redux/hiscores/actions';
-import * as hiscoresSelectors from 'redux/hiscores/selectors';
-import * as recordsActions from 'redux/records/actions';
-import * as recordsSelectors from 'redux/records/selectors';
-import * as deltasActions from 'redux/deltas/actions';
-import * as deltasSelectors from 'redux/deltas/selectors';
-import * as achievementsActions from 'redux/achievements/actions';
-import * as achievementsSelectors from 'redux/achievements/selectors';
-import * as competitionActions from 'redux/competitions/actions';
-import * as competitionSelectors from 'redux/competitions/selectors';
-import * as groupActions from 'redux/groups/actions';
-import * as groupSelectors from 'redux/groups/selectors';
+import { hiscoresActions, hiscoresSelectors } from 'redux/hiscores';
+import { recordActions, recordSelectors } from 'redux/records';
+import { deltasActions, deltasSelectors } from 'redux/deltas';
+import { achievementActions, achievementSelectors } from 'redux/achievements';
+import { competitionActions, competitionSelectors } from 'redux/competitions';
+import { groupActions, groupSelectors } from 'redux/groups';
 import Loading from '../../components/Loading';
 import PageHeader from '../../components/PageHeader';
 import Selector from '../../components/Selector';
@@ -94,17 +88,17 @@ function Group() {
   const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
   const isLoadingMonthlyTop = useSelector(groupSelectors.isFetchingMonthlyTop);
   const isLoadingStatistics = useSelector(groupSelectors.isFetchingStatistics);
-  const isLoadingAchievements = useSelector(achievementsSelectors.isFetchingGroupAchievements);
+  const isLoadingAchievements = useSelector(achievementSelectors.isFetchingGroupAchievements);
   const isLoadingHiscores = useSelector(hiscoresSelectors.isFetching);
   const isLoadingDeltas = useSelector(deltasSelectors.isFetchingGroupDeltas);
-  const isLoadingRecords = useSelector(recordsSelectors.isFetchingGroupRecords);
+  const isLoadingRecords = useSelector(recordSelectors.isFetchingGroupRecords);
 
   const group = useSelector(state => groupSelectors.getGroup(state, groupId));
   const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, groupId));
-  const achievements = useSelector(state => achievementsSelectors.getGroupAchievements(state, groupId));
+  const achievements = useSelector(state => achievementSelectors.getGroupAchievements(state, groupId));
   const hiscores = useSelector(state => hiscoresSelectors.getGroupHiscores(state, groupId));
   const deltas = useSelector(state => deltasSelectors.getGroupDeltas(state, groupId));
-  const records = useSelector(state => recordsSelectors.getGroupRecords(state, groupId));
+  const records = useSelector(state => recordSelectors.getGroupRecords(state, groupId));
 
   const fetchAll = () => {
     // Attempt to fetch group of that id, if it fails redirect to 404
@@ -117,7 +111,7 @@ function Group() {
     dispatch(groupActions.fetchMembers(id));
     dispatch(groupActions.fetchMonthlyTop(id));
     dispatch(competitionActions.fetchGroupCompetitions(id));
-    dispatch(achievementsActions.fetchGroupAchievements(id));
+    dispatch(achievementActions.fetchGroupAchievements(id));
     dispatch(groupActions.fetchStatistics(id));
   };
 
@@ -130,7 +124,7 @@ function Group() {
   };
 
   const fetchRecords = () => {
-    dispatch(recordsActions.fetchGroupRecords(id, selectedMetric, selectedPeriod));
+    dispatch(recordActions.fetchGroupRecords(id, selectedMetric, selectedPeriod));
   };
 
   const handleDeleteModalClosed = () => {

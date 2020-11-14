@@ -4,20 +4,13 @@ import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import queryString from 'query-string';
-import * as playersActions from 'redux/players/actions';
-import * as playersSelectors from 'redux/players/selectors';
-import * as groupsActions from 'redux/groups/actions';
-import * as groupsSelectors from 'redux/groups/selectors';
-import * as snapshotsActions from 'redux/snapshots/actions';
-import * as snapshotsSelectors from 'redux/snapshots/selectors';
-import * as recordsActions from 'redux/records/actions';
-import * as recordsSelectors from 'redux/records/selectors';
-import * as deltasActions from 'redux/deltas/actions';
-import * as deltasSelectors from 'redux/deltas/selectors';
-import * as achievementsActions from 'redux/achievements/actions';
-import * as achievementsSelectors from 'redux/achievements/selectors';
-import * as competitionsActions from 'redux/competitions/actions';
-import * as competitionsSelectors from 'redux/competitions/selectors';
+import { playerActions, playerSelectors } from 'redux/players';
+import { groupActions, groupSelectors } from 'redux/groups';
+import { snapshotActions, snapshotSelectors } from 'redux/snapshots';
+import { recordActions, recordSelectors } from 'redux/records';
+import { deltasActions, deltasSelectors } from 'redux/deltas';
+import { achievementActions, achievementSelectors } from 'redux/achievements';
+import { competitionActions, competitionSelectors } from 'redux/competitions';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -160,20 +153,16 @@ function Player() {
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
-  const player = useSelector(state => playersSelectors.getPlayer(state, username));
+  const player = useSelector(state => playerSelectors.getPlayer(state, username));
   const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
-  const records = useSelector(state => recordsSelectors.getPlayerRecords(state, username));
-  const achievements = useSelector(state =>
-    achievementsSelectors.getPlayerAchievements(state, username)
-  );
+  const records = useSelector(state => recordSelectors.getPlayerRecords(state, username));
+  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
   const groupedAchievements = useSelector(state =>
-    achievementsSelectors.getPlayerAchievementsGrouped(state, username)
+    achievementSelectors.getPlayerAchievementsGrouped(state, username)
   );
-  const competitions = useSelector(state =>
-    competitionsSelectors.getPlayerCompetitions(state, username)
-  );
-  const groups = useSelector(state => groupsSelectors.getPlayerGroups(state, username));
-  const isLoadingDetails = useSelector(playersSelectors.isFetching);
+  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
+  const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
+  const isLoadingDetails = useSelector(playerSelectors.isFetching);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
@@ -189,7 +178,7 @@ function Player() {
   }, [player]);
 
   const experienceChartData = useSelector(state =>
-    snapshotsSelectors.getChartData(
+    snapshotSelectors.getChartData(
       state,
       username,
       selectedPeriod,
@@ -200,7 +189,7 @@ function Player() {
   );
 
   const rankChartData = useSelector(state =>
-    snapshotsSelectors.getChartData(
+    snapshotSelectors.getChartData(
       state,
       username,
       selectedPeriod,
@@ -213,7 +202,7 @@ function Player() {
   const trackPlayer = async () => {
     setIsTracking(true);
 
-    const { payload } = await dispatch(playersActions.trackPlayer(player.username));
+    const { payload } = await dispatch(playerActions.trackPlayer(player.username));
 
     if (payload.data) {
       fetchAll();
@@ -225,21 +214,20 @@ function Player() {
 
   const fetchAll = () => {
     // Attempt to fetch player data, if it fails redirect to 404
-    dispatch(playersActions.fetchPlayer(username))
+    dispatch(playerActions.fetchPlayer(username))
       .then(action => {
-        console.log(action);
         if (!action.payload.data) throw new Error();
       })
       .catch(() => router.push(`/players/search/${username}`));
 
-    dispatch(achievementsActions.fetchPlayerAchievements(username));
-    dispatch(competitionsActions.fetchPlayerCompetitions(username));
-    dispatch(groupsActions.fetchPlayerGroups(username));
-    dispatch(recordsActions.fetchPlayerRecords(username));
+    dispatch(achievementActions.fetchPlayerAchievements(username));
+    dispatch(competitionActions.fetchPlayerCompetitions(username));
+    dispatch(groupActions.fetchPlayerGroups(username));
+    dispatch(recordActions.fetchPlayerRecords(username));
     dispatch(deltasActions.fetchPlayerDeltas(username));
 
     PERIOD_OPTIONS.forEach(o => {
-      dispatch(snapshotsActions.fetchSnapshots(username, o.value));
+      dispatch(snapshotActions.fetchSnapshots(username, o.value));
     });
   };
 
@@ -282,9 +270,9 @@ function Player() {
 
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
-      await dispatch(playersActions.assertType(player.username, player.type));
+      await dispatch(playerActions.assertType(player.username, player.type));
     } else if (option.value === 'assertName') {
-      await dispatch(playersActions.assertName(player.username, player.displayName));
+      await dispatch(playerActions.assertName(player.username, player.displayName));
     } else if (option.value === 'changeName') {
       router.push(`/names/submit/${player.displayName}`);
     }
@@ -292,7 +280,7 @@ function Player() {
 
   const handleDeltasTimerEnded = () => {
     PERIOD_OPTIONS.forEach(o => {
-      dispatch(snapshotsActions.fetchSnapshots(username, o.value));
+      dispatch(snapshotActions.fetchSnapshots(username, o.value));
     });
   };
 

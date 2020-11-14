@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import * as playersActions from 'redux/players/actions';
-import * as playersSelectors from 'redux/players/selectors';
+import { playerActions, playerSelectors } from 'redux/players';
 import Button from '../../components/Button';
 import Table from '../../components/Table';
 import PlayerTag from '../../components/PlayerTag';
@@ -35,16 +34,16 @@ function PlayerSearch() {
   const { username } = useParams();
 
   const [isTracking, setIsTracking] = useState(false);
-  const searchResults = useSelector(playersSelectors.getSearchResults);
+  const searchResults = useSelector(playerSelectors.getSearchResults);
 
   const searchPlayers = () => {
-    dispatch(playersActions.searchPlayers(username));
+    dispatch(playerActions.searchPlayers(username));
   };
 
   const trackPlayer = async () => {
     try {
       setIsTracking(true);
-      const { payload } = await dispatch(playersActions.trackPlayer(username));
+      const { payload } = await dispatch(playerActions.trackPlayer(username));
 
       if (payload.data) {
         router.push(`/players/${payload.data.username}`);

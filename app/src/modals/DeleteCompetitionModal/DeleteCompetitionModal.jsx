@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
-import * as competitionActions from 'redux/competitions/actions';
+import { competitionActions } from 'redux/competitions';
 import Button from '../../components/Button';
 import './DeleteCompetitionModal.scss';
 

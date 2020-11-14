@@ -3,8 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
-import * as playerActions from 'redux/players/actions';
-import * as playerSelectors from 'redux/players/selectors';
+import { playerActions, playerSelectors } from 'redux/players';
 import AutoSuggestInput from '../AutoSuggestInput';
 import './ParticipantsSelector.scss';
 
