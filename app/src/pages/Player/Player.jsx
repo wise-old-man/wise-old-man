@@ -12,12 +12,15 @@ import { deltasActions, deltasSelectors } from 'redux/deltas';
 import { achievementActions, achievementSelectors } from 'redux/achievements';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { nameActions, nameSelectors } from 'redux/names';
-import PageHeader from '../../components/PageHeader';
-import Button from '../../components/Button';
-import Selector from '../../components/Selector';
-import Tabs from '../../components/Tabs';
-import LineChart from '../../components/LineChart';
-import Dropdown from '../../components/Dropdown';
+import { PageHeader, Button, Selector, Tabs, LineChart, Dropdown } from 'components';
+import {
+  getPlayerIcon,
+  getOfficialHiscoresUrl,
+  getPlayerTooltip,
+  getMeasure,
+  standardizeUsername
+} from 'utils';
+import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from 'config';
 import PlayerInfo from './components/PlayerInfo';
 import PlayerStatsTable from './components/PlayerStatsTable';
 import PlayerDeltasTable from './components/PlayerDeltasTable';
@@ -29,14 +32,6 @@ import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
 import PlayerNames from './components/PlayerNames';
 import PlayerCards from './components/PlayerCards';
-import {
-  getPlayerIcon,
-  getOfficialHiscoresUrl,
-  getPlayerTooltip,
-  getMeasure,
-  standardizeUsername
-} from '../../utils';
-import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];

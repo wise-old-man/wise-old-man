@@ -1,7 +1,7 @@
 import { mapValues, uniqBy } from 'lodash';
 import { createSelector } from 'reselect';
-import { COLORS } from '../../config';
-import { durationBetween } from '../../utils';
+import { COLORS } from 'config';
+import { durationBetween } from 'utils';
 
 const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;

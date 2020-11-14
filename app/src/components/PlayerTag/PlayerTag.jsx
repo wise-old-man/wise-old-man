@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getPlayerIcon, getPlayerTooltip } from '../../utils';
+import { getPlayerIcon, getPlayerTooltip } from 'utils';
 import './PlayerTag.scss';
 
 function PlayerTag({ name, type, flagged }) {

@@ -4,11 +4,7 @@ import { Link, useLocation, useParams, useHistory } from 'react-router-dom';
 import _ from 'lodash';
 import { Helmet } from 'react-helmet';
 import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
-import PageTitle from '../../components/PageTitle';
-import Selector from '../../components/Selector';
-import Table from '../../components/Table';
-import PlayerTag from '../../components/PlayerTag';
-import TablePlaceholder from '../../components/TablePlaceholder';
+import { Table, PageTitle, Selector, PlayerTag, TablePlaceholder } from 'components';
 import {
   capitalize,
   getPlayerIcon,
@@ -17,8 +13,8 @@ import {
   formatNumber,
   getMetricIcon,
   getMetricName
-} from '../../utils';
-import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS } from '../../config';
+} from 'utils';
+import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS } from 'config';
 import './Leaderboards.scss';
 
 const RESULTS_PER_PAGE = 20;

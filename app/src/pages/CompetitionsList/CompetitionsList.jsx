@@ -4,15 +4,17 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { Helmet } from 'react-helmet';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import Selector from '../../components/Selector';
-import TextButton from '../../components/TextButton';
-import Table from '../../components/Table';
-import TablePlaceholder from '../../components/TablePlaceholder';
-import StatusDot from '../../components/StatusDot';
-import { capitalize, getMetricIcon, getMetricName } from '../../utils';
-import { COMPETITION_SATUSES, ALL_METRICS } from '../../config';
+import {
+  PageTitle,
+  TextInput,
+  Selector,
+  TextButton,
+  Table,
+  TablePlaceholder,
+  StatusDot
+} from 'components';
+import { capitalize, getMetricIcon, getMetricName } from 'utils';
+import { COMPETITION_SATUSES, ALL_METRICS } from 'config';
 import './CompetitionsList.scss';
 
 const DEFAULT_METRICS_OPTION = { label: 'Any metric', value: null };

@@ -2,12 +2,8 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from '../../../../utils';
-import Table from '../../../../components/Table';
-import PlayerTag from '../../../../components/PlayerTag';
-import NumberLabel from '../../../../components/NumberLabel';
-import TextLabel from '../../../../components/TextLabel';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
+import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
   const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });

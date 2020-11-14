@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Table from '../../../../components/Table';
-import NumberLabel from '../../../../components/NumberLabel';
+import { Table, NumberLabel } from 'components';
 import {
   capitalize,
   getMetricIcon,
@@ -10,8 +9,8 @@ import {
   isSkill,
   isActivity,
   isBoss
-} from '../../../../utils';
-import { ALL_METRICS } from '../../../../config';
+} from 'utils';
+import { ALL_METRICS } from 'config';
 import './PlayerRecords.scss';
 
 const TABLE_CONFIG = {

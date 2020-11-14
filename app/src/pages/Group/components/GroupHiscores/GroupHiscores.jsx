@@ -1,11 +1,8 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Table from '../../../../components/Table';
-import PlayerTag from '../../../../components/PlayerTag';
-import NumberLabel from '../../../../components/NumberLabel';
-import { isSkill, durationBetween, getMeasure } from '../../../../utils';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
+import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
+import { isSkill, durationBetween, getMeasure } from 'utils';
 
 function getTableConfig(metric) {
   const TABLE_CONFIG = {

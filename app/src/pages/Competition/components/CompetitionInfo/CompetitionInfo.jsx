@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
-import InfoPanel from '../../../../components/InfoPanel';
-import { formatDate, capitalize, getType, getMetricName } from '../../../../utils';
+import { InfoPanel } from 'components';
+import { formatDate, capitalize, getType, getMetricName } from 'utils';
 import './CompetitionInfo.scss';
 
 function formatData(competition) {

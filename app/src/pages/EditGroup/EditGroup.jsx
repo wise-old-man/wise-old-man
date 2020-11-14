@@ -5,13 +5,9 @@ import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { standardize } from 'utils/player';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import Button from '../../components/Button';
-import MembersSelector from '../../components/MembersSelector';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import RemovePlayersModal from '../../modals/RemovePlayersModal';
+import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import RemovePlayersModal from 'modals/RemovePlayersModal';
 import './EditGroup.scss';
 
 const mapMember = ({ username, displayName, role }) => ({ username, displayName, role });

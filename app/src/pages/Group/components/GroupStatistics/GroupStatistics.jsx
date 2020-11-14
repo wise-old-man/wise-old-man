@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Table from '../../../../components/Table';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
-import NumberLabel from '../../../../components/NumberLabel';
-import { getMetricIcon, getLevel, getMetricName } from '../../../../utils';
-import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
+import { Table, TablePlaceholder, NumberLabel } from 'components';
+import { getMetricIcon, getLevel, getMetricName } from 'utils';
+import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import './GroupStatistics.scss';
 
 function getValue(row) {

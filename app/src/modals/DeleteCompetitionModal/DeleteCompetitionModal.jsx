@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
 import { competitionActions } from 'redux/competitions';
-import Button from '../../components/Button';
+import { Button } from 'components';
 import './DeleteCompetitionModal.scss';
 
 function DeleteCompetitionModal({ competition, onCancel }) {

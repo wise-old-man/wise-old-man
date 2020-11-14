@@ -1,11 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Table from '../../../../components/Table';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
-import PlayerTag from '../../../../components/PlayerTag';
-import NumberLabel from '../../../../components/NumberLabel';
-import { durationBetween } from '../../../../utils';
+import { Table, TablePlaceholder, PlayerTag, NumberLabel } from 'components';
+import { durationBetween } from 'utils';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,

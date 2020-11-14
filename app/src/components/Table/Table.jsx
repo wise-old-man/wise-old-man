@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { capitalize } from '../../utils';
+import { capitalize } from 'utils';
 import './Table.scss';
 
 const SORT = {

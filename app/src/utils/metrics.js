@@ -1,4 +1,4 @@
-import { METRICS_CONFIG, SKILLS, ACTIVITIES, BOSSES } from '../config/metrics';
+import { METRICS_CONFIG, SKILLS, ACTIVITIES, BOSSES } from 'config/metrics';
 
 export function getMetricIcon(metric, smallVersion) {
   const folder = smallVersion ? 'icons_small' : 'icons';

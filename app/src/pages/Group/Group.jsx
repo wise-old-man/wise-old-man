@@ -8,13 +8,10 @@ import { deltasActions, deltasSelectors } from 'redux/deltas';
 import { achievementActions, achievementSelectors } from 'redux/achievements';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { groupActions, groupSelectors } from 'redux/groups';
-import Loading from '../../components/Loading';
-import PageHeader from '../../components/PageHeader';
-import Selector from '../../components/Selector';
-import Dropdown from '../../components/Dropdown';
-import Button from '../../components/Button';
-import Tabs from '../../components/Tabs';
-import DeleteGroupModal from '../../modals/DeleteGroupModal';
+import { Loading, PageHeader, Selector, Dropdown, Button, Tabs } from 'components';
+import DeleteGroupModal from 'modals/DeleteGroupModal';
+import { ALL_METRICS } from 'config';
+import { getMetricName, getMetricIcon } from 'utils';
 import TopPlayerWidget from './components/TopPlayerWidget';
 import TotalExperienceWidget from './components/TotalExperienceWidget';
 import TotalEHPWidget from './components/TotalEHPWidget';
@@ -27,8 +24,6 @@ import GroupAchievements from './components/GroupAchievements';
 import GroupStatistics from './components/GroupStatistics';
 import GroupInfo from './components/GroupInfo';
 import MembersTable from './components/MembersTable';
-import { ALL_METRICS } from '../../config';
-import { getMetricName, getMetricIcon } from '../../utils';
 import './Group.scss';
 
 const PERIOD_OPTIONS = [

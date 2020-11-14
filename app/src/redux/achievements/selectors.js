@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import { mapValues } from 'lodash';
-import { getPlayer } from '../players/selectors';
-import { getCappedTotalXp } from '../../utils';
-import { ALL_METRICS, CAPPED_MAX_TOTAL_XP } from '../../config';
+import { getPlayer } from 'redux/players/selectors';
+import { getCappedTotalXp } from 'utils';
+import { ALL_METRICS, CAPPED_MAX_TOTAL_XP } from 'config';
 
 const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;

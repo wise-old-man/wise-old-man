@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { formatNumber } from '../../../../utils';
+import { formatNumber } from 'utils';
 import './TopPlayerWidget.scss';
 
 function TopPlayerWidget({ group, isLoading }) {

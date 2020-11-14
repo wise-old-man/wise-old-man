@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import Analytics from 'react-ga';
-import NavigationBar from './components/NavigationBar';
-import Notification from './components/Notification';
-import NotFound from './pages/NotFound';
-import { uniformUrl } from './utils/analytics';
-import { ROUTES, getRoute } from './config/routing';
+import { NavigationBar, Notification } from 'components';
+import NotFound from 'pages/NotFound';
+import { uniformUrl } from 'utils/analytics';
+import { ROUTES, getRoute } from 'config/routing';
 
 function initGoogleAnalytics() {
   const trackingId = process.env.REACT_APP_ANALYTICS_TRACKING_ID;

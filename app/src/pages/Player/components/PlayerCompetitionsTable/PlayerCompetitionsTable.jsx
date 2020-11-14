@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import Table from '../../../../components/Table';
-import StatusDot from '../../../../components/StatusDot';
-import { getMetricIcon } from '../../../../utils';
+import { Table, StatusDot } from 'components';
+import { getMetricIcon } from 'utils';
 
 function convertStatus(status) {
   switch (status) {

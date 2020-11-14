@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { formatNumber } from '../../utils';
+import { formatNumber } from 'utils';
 import './NumberLabel.scss';
 
 function signNumber(value, formattedValue) {

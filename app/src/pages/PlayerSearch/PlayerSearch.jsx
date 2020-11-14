@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { playerActions, playerSelectors } from 'redux/players';
-import Button from '../../components/Button';
-import Table from '../../components/Table';
-import PlayerTag from '../../components/PlayerTag';
-import { durationBetween } from '../../utils';
+import { Table, Button, PlayerTag } from 'components';
+import { durationBetween } from 'utils';
 import './PlayerSearch.scss';
 
 const TABLE_CONFIG = {

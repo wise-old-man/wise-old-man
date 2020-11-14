@@ -3,13 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { recordActions, recordSelectors } from 'redux/records';
-import PageTitle from '../../components/PageTitle';
-import Selector from '../../components/Selector';
-import PlayerTag from '../../components/PlayerTag';
-import Table from '../../components/Table';
-import NumberLabel from '../../components/NumberLabel';
-import TablePlaceholder from '../../components/TablePlaceholder';
-import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from '../../config';
+import { Table, PageTitle, Selector, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
+import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from 'config';
 import {
   formatDate,
   getPlayerIcon,
@@ -19,7 +14,7 @@ import {
   getMetricName,
   isSkill,
   isBoss
-} from '../../utils';
+} from 'utils';
 import './Records.scss';
 
 function getTableConfig(metric) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import className from 'classnames';
-import { formatNumber, isSkill, isBoss, isActivity } from '../../../../utils';
+import { formatNumber, isSkill, isBoss, isActivity } from 'utils';
 import './TopPlayerWidget.scss';
 
 function measureLabel(metric) {

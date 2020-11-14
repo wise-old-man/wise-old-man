@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import InfoPanel from '../../../../components/InfoPanel';
-import { capitalize, formatDate } from '../../../../utils';
+import { InfoPanel } from 'components';
+import { capitalize, formatDate } from 'utils';
 
 function formatData(player) {
   const { id, type, build, registeredAt, updatedAt, lastChangedAt } = player;

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { formatNumber, getMetricIcon } from '../../../../utils';
+import { formatNumber, getMetricIcon } from 'utils';
 import './PlayerCards.scss';
 
 function getCards(player) {

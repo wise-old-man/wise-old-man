@@ -6,16 +6,18 @@ import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { getMetricIcon, getMetricName, standardize } from 'utils';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import Selector from '../../components/Selector';
-import Button from '../../components/Button';
-import DateRangeSelector from '../../components/DateRangeSelector';
-import ParticipantsSelector from '../../components/ParticipantsSelector';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import RemovePlayersModal from '../../modals/RemovePlayersModal';
-import { ALL_METRICS } from '../../config';
+import { ALL_METRICS } from 'config';
+import {
+  PageTitle,
+  TextInput,
+  TextButton,
+  Selector,
+  Button,
+  DateRangeSelector,
+  ParticipantsSelector
+} from 'components';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import RemovePlayersModal from 'modals/RemovePlayersModal';
 import './EditCompetition.scss';
 
 function getMetricOptions() {

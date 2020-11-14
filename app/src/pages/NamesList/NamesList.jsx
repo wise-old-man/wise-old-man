@@ -3,11 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { nameActions, nameSelectors } from 'redux/names';
-import PageTitle from '../../components/PageTitle';
-import TextButton from '../../components/TextButton';
-import Table from '../../components/Table';
-import TablePlaceholder from '../../components/TablePlaceholder';
-import { durationBetween } from '../../utils';
+import { Table, TablePlaceholder, TextButton, PageTitle } from 'components';
+import { durationBetween } from 'utils';
 import './NamesList.scss';
 
 const RESULTS_PER_PAGE = 20;

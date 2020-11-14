@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '../../components/Button';
-import CopyToClipboard from '../../components/CopyToClipboard';
+import { Button, CopyToClipboard } from 'components';
 import './VerificationModal.scss';
 
 function VerificationModal({ verificationCode, entity, onConfirm }) {

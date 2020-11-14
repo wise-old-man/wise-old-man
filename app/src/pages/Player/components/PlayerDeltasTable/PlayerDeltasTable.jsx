@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import Table from '../../../../components/Table';
-import NumberLabel from '../../../../components/NumberLabel';
-import { getLevel, getMetricIcon, getMetricName, round } from '../../../../utils';
-import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
+import { Table, NumberLabel } from 'components';
+import { getLevel, getMetricIcon, getMetricName, round } from 'utils';
+import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 
 function getSkillsTable(delta) {
   const totalLevelDiff = SKILLS.filter(skill => skill !== 'overall')

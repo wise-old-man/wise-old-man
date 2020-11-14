@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { padNumber, durationOf } from '../../utils';
+import { padNumber, durationOf } from 'utils';
 import './Countdown.scss';
 
 function Countdown({ secondsDiff }) {

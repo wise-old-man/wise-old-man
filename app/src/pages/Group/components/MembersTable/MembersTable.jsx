@@ -1,11 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import Table from '../../../../components/Table';
-import PlayerTag from '../../../../components/PlayerTag';
-import NumberLabel from '../../../../components/NumberLabel';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
-import { durationBetween, capitalize } from '../../../../utils';
+import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
+import { durationBetween, capitalize } from 'utils';
 
 function MembersTable({ members, isLoading }) {
   if (!members) {

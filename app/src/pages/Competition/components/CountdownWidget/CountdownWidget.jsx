@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Countdown from '../../../../components/Countdown';
+import { Countdown } from 'components';
 import './CountdownWidget.scss';
 
 function secondsDiff(competition) {

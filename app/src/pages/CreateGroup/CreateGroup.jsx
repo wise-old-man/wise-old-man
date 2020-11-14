@@ -4,14 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import MembersSelector from '../../components/MembersSelector';
-import Button from '../../components/Button';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
-import VerificationModal from '../../modals/VerificationModal';
+import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
+import VerificationModal from 'modals/VerificationModal';
 import './CreateGroup.scss';
 
 function CreateGroup() {

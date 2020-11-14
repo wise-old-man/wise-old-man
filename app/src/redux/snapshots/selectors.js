@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
-import { COLORS } from '../../config';
-import { capitalize, distribute } from '../../utils';
+import { COLORS } from 'config';
+import { capitalize, distribute } from 'utils';
 
 const snapshotsSelector = state => state.snapshots.snapshots;
 const getSnapshotsMap = createSelector(snapshotsSelector, map => map);

@@ -3,13 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { deltasActions, deltasSelectors } from 'redux/deltas';
-import PageTitle from '../../components/PageTitle';
-import PlayerTag from '../../components/PlayerTag';
-import Selector from '../../components/Selector';
-import Table from '../../components/Table';
-import NumberLabel from '../../components/NumberLabel';
-import TablePlaceholder from '../../components/TablePlaceholder';
-import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from '../../config';
+import { Table, Selector, PageTitle, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
+import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from 'config';
 import {
   capitalize,
   getPlayerBuild,
@@ -18,7 +13,7 @@ import {
   getMetricName,
   isSkill,
   isBoss
-} from '../../utils';
+} from 'utils';
 import './Top.scss';
 
 function getTableConfig(metric, period) {

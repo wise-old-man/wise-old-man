@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import CardList from '../../../../components/CardList';
+import { CardList } from 'components';
 import {
   durationBetween,
   formatDate,
@@ -9,8 +9,8 @@ import {
   capitalize,
   formatNumber,
   getExperienceAt
-} from '../../../../utils';
-import { ALL_METRICS, SKILLS } from '../../../../config';
+} from 'utils';
+import { ALL_METRICS, SKILLS } from 'config';
 import './PlayerHighlights.scss';
 
 function getAchievementIcon(type) {

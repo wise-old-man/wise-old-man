@@ -4,12 +4,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import { groupActions, groupSelectors } from 'redux/groups';
-import PageTitle from '../../components/PageTitle';
-import VerifiedBadge from '../../components/VerifiedBadge';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import Table from '../../components/Table';
-import TablePlaceholder from '../../components/TablePlaceholder';
+import { PageTitle, VerifiedBadge, TextInput, TextButton, TablePlaceholder, Table } from 'components';
 import './GroupsList.scss';
 
 const RESULTS_PER_PAGE = 20;

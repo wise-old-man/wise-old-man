@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextButton from '../../components/TextButton';
-import Button from '../../components/Button';
+import { Button, TextButton } from 'components';
 import './EmptyConfirmationModal.scss';
 
 function EmptyConfirmationModal({ entity, onConfirm, onClose }) {

@@ -9,8 +9,8 @@ import {
   getMetricName,
   formatDate,
   formatNumber
-} from '../../../../utils';
-import CardList from '../../../../components/CardList';
+} from 'utils';
+import { CardList } from 'components';
 import './PlayerAchievements.scss';
 import { CAPPED_MAX_TOTAL_XP } from '../../../../config';
 
