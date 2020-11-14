@@ -124,8 +124,6 @@ function EditCompetition() {
 
   const handleRemoveParticipantsModalClose = () => {
     hideRemoveParticipantsModal();
-    setParticipants(currentParticipants => [...currentParticipants, ...removedParticipants]);
-    setRemovedParticipants([]);
   };
 
   const handleVerificationCodeChanged = e => {
@@ -174,10 +172,7 @@ function EditCompetition() {
   const onSubmitRemoveParticipantsModal = useCallback(handleRemoveParticipantsModalSubmit, [
     competition
   ]);
-  const onCloseRemoveParticipantsModal = useCallback(handleRemoveParticipantsModalClose, [
-    participants,
-    removedParticipants
-  ]);
+  const onCloseRemoveParticipantsModal = useCallback(handleRemoveParticipantsModalClose, []);
   const onEditCompetition = useCallback(handleEditCompetition, [
     title,
     metric,

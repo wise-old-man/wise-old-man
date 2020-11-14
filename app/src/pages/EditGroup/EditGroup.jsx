@@ -91,8 +91,6 @@ function EditGroup() {
 
   const handleRemoveGroupsMembersModalClose = () => {
     hideRemoveGroupMembersModal();
-    setMembers(currentMembers => [...currentMembers, ...removedMembers]);
-    setRemovedMembers([]);
   };
 
   const handleRoleSwitch = username => {
@@ -159,10 +157,7 @@ function EditGroup() {
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
   const onSubmitRemoveGroupMembersModal = useCallback(handleRemoveMembersModalSubmit, []);
-  const onCloseRemoveGroupMembersModal = useCallback(handleRemoveGroupsMembersModalClose, [
-    members,
-    removedMembers
-  ]);
+  const onCloseRemoveGroupMembersModal = useCallback(handleRemoveGroupsMembersModalClose, []);
   const onEditGroup = useCallback(handleEditGroup, [name, clanChat, members, verificationCode]);
   const onSubmit = useCallback(handleSubmit, [removedMembers]);
 
