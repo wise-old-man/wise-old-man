@@ -10,8 +10,8 @@ import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import './EditGroup.scss';
 import RemoveGroupMembersModal from '../../modals/RemoveGroupMembersModal';
+import './EditGroup.scss';
 
 function EditGroup() {
   const { id } = useParams();

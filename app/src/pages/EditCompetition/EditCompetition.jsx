@@ -15,8 +15,8 @@ import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
-import './EditCompetition.scss';
 import RemoveParticipantsModal from '../../modals/RemoveParticipantsModal/RemoveParticipantsModal';
+import './EditCompetition.scss';
 
 function getMetricOptions() {
   return ALL_METRICS.map(metric => ({
