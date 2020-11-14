@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useParams, useHistory } from 'react-router-dom';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
 import { Table, PageTitle, Selector, PlayerTag, TablePlaceholder } from 'components';
@@ -172,7 +172,7 @@ function Leaderboards() {
   const handleScrolling = () => {
     const margin = 300;
 
-    window.onscroll = _.debounce(() => {
+    window.onscroll = debounce(() => {
       // If has no more content to load, ignore the scrolling
       if (leaderboards.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
         return;

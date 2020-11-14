@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import './Switch.scss';
 
 function Switch({ on, onToggle }) {
+  const className = classNames('switch', { '-on': on });
+
   return (
-    <button className={classNames('switch', { '-on': on })} type="button" onClick={onToggle}>
+    <button className={className} type="button" onClick={onToggle}>
       <div className="switch-thumb" />
     </button>
   );

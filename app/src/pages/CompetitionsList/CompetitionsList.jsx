@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import {
@@ -105,7 +105,7 @@ function CompetitionsList() {
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
   const selectedStatusIndex = statusOptions.findIndex(o => o.value === selectedStatus);
 
-  const handleSubmitSearch = _.debounce(
+  const handleSubmitSearch = debounce(
     () => {
       const metric = selectedMetric || null;
       const status = selectedStatus || null;
@@ -147,7 +147,7 @@ function CompetitionsList() {
   const handleScrolling = () => {
     const margin = 300;
 
-    window.onscroll = _.debounce(() => {
+    window.onscroll = debounce(() => {
       // If has no more content to load, ignore the scrolling
       if (competitions.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
         return;

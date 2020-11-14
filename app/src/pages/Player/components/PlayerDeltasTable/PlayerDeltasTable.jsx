@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import _ from 'lodash';
+import { filter } from 'lodash';
 import PropTypes from 'prop-types';
 import { Table, NumberLabel } from 'components';
 import { getLevel, getMetricIcon, getMetricName, round } from 'utils';
@@ -186,7 +186,7 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
   const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
   const highlightedIndex = rows.map(r => r.metric).indexOf(highlightedMetric);
 
-  const warning = _.filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
+  const warning = filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
 
   function handleRowClicked(index) {
     if (rows && rows[index]) {

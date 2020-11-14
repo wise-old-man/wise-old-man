@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import _ from 'lodash';
+import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -129,13 +129,13 @@ function EditCompetition() {
   const handleImportModalSubmit = (usernames, replace) => {
     setParticipants(currentParticipants => {
       if (replace) {
-        return [..._.uniq(usernames)];
+        return [...uniq(usernames)];
       }
 
       const existingUsernames = currentParticipants.map(e => e.toLowerCase());
       const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentParticipants, ..._.uniq(newUsernames)];
+      return [...currentParticipants, ...uniq(newUsernames)];
     });
 
     toggleImportModal(false);

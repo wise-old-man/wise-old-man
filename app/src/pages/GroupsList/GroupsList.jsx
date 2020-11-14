@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { PageTitle, VerifiedBadge, TextInput, TextButton, TablePlaceholder, Table } from 'components';
 import './GroupsList.scss';
@@ -50,7 +50,7 @@ function GroupsList() {
 
   const isFullyLoaded = groups.length < RESULTS_PER_PAGE * (pageIndex + 1);
 
-  const handleSubmitSearch = _.debounce(
+  const handleSubmitSearch = debounce(
     () => {
       setPageIndex(0); // Reset pagination when the search changes
       dispatch(groupActions.fetchList(nameSearch, RESULTS_PER_PAGE, 0));
@@ -78,7 +78,7 @@ function GroupsList() {
   const handleScrolling = () => {
     const margin = 300;
 
-    window.onscroll = _.debounce(() => {
+    window.onscroll = debounce(() => {
       // If has no more content to load, ignore the scrolling
       if (groups.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
         return;

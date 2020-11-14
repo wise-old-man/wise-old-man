@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import _ from 'lodash';
+import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -114,7 +114,7 @@ function EditGroup() {
   const handleModalSubmit = (usernames, replace) => {
     setMembers(currentMembers => {
       if (replace) {
-        return [..._.uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
+        return [...uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
       }
 
       const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
@@ -122,7 +122,7 @@ function EditGroup() {
 
       return [
         ...currentMembers,
-        ..._.uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+        ...uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
       ];
     });
 

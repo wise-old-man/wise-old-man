@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,7 +21,7 @@ function ParticipantsSelector({
 
   const suggestions = useMemo(() => searchResults.map(s => mapToSuggestion(s)), [searchResults]);
 
-  const searchPlayer = _.debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
+  const searchPlayer = debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import _ from 'lodash';
+import { sortBy, indexOf } from 'lodash';
 import { Table, StatusDot } from 'components';
 import { getMetricIcon } from 'utils';
 
@@ -56,7 +56,7 @@ const TABLE_CONFIG = {
 
 function PlayerCompetitionsTable({ competitions }) {
   const order = ['ongoing', 'upcoming', 'finished'];
-  const rows = competitions ? _.sortBy(competitions, c => _.indexOf(order, c.status)) : [];
+  const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];
 
   return (
     <Table

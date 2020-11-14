@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import _ from 'lodash';
+import { map } from 'lodash';
 import queryString from 'query-string';
 import { playerActions, playerSelectors } from 'redux/players';
 import { groupActions, groupSelectors } from 'redux/groups';
@@ -128,7 +128,7 @@ function buildQuerySearch(options) {
     obj.period = options.period;
   }
 
-  const str = _.map(obj, (val, key) => `${key}=${val}`).join('&');
+  const str = map(obj, (val, key) => `${key}=${val}`).join('&');
   return str.length > 0 ? `?${str}` : '';
 }
 
