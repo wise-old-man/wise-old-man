@@ -207,6 +207,7 @@ function getAbbreviation(abbreviation: string): string {
     case 'kree':
     case 'kreearra':
     case 'armadyl':
+    case 'arma':
       return 'kreearra';
 
     case 'zammy':
@@ -247,6 +248,52 @@ function getAbbreviation(abbreviation: string): string {
 
     case 'snek':
       return 'zulrah';
+      
+      // Minigames and others
+
+    case 'all-clues':
+    case 'clues':
+      return 'clue_scrolls_all';
+
+    case 'beginner':
+    case 'beginner-clues':
+    case 'beg-clues':
+    case 'beginners':
+      return 'clue_scrolls_beginner';
+
+    case 'easy':
+    case 'easy-clues':
+    case 'easies':
+      return 'clue_scrolls_easy';
+
+    case 'medium':
+    case 'medium-clues':
+    case 'med-clues':
+    case 'mediums':
+      return 'clue_scrolls_medium';
+
+    case 'hard':
+    case 'hard-clues':
+    case 'hards':
+      return 'clue_scrolls_hard';
+
+    case 'elite':
+    case 'elite-clues':
+    case 'elites':
+      return 'clue_scrolls_elite';
+
+    case 'master':
+    case 'master-clues':
+    case 'masters':
+      return 'clue_scrolls_master';
+
+    case 'lms':
+      return 'last_man_standing';
+
+    case 'league':
+    case 'lp':
+    case 'lps':
+      return 'league_points';
 
     default:
       return abbreviation;
