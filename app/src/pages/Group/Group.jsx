@@ -145,7 +145,7 @@ function Group() {
       }
 
       case 'competition': {
-        router.push('/competitions/create', { toggle: true, group });
+        router.push(`/competitions/create?groupId=${group.id}`);
         break;
       }
 

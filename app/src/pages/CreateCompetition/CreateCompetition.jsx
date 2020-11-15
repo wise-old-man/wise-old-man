@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { groupActions } from 'redux/groups';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import PageTitle from '../../components/PageTitle';
@@ -31,10 +31,21 @@ function getMetricOptions() {
   }));
 }
 
-function CreateCompetition(props) {
+function useQuery(keys) {
+  const urlQuery = new URLSearchParams(useLocation().search);
+  const result = {};
+
+  keys.forEach(k => {
+    result[k] = urlQuery.get(k);
+  });
+
+  return result;
+}
+
+function CreateCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
-  const { location } = props;
+  const { groupId } = useQuery(['groupId']);
 
   const isSubmitting = useSelector(competitionSelectors.isCreating);
   const error = useSelector(competitionSelectors.getError);
@@ -50,12 +61,10 @@ function CreateCompetition(props) {
   const [startDate, setStartDate] = useState(initialStartMoment.toDate());
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState((location.state && location.state.group) || null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
   const [groupVerificationCode, setGroupVerificationCode] = useState('');
 
-  const [groupCompetition, setGroupCompetition] = useState(
-    (location.state && location.state.toggle) || false
-  );
+  const [groupCompetition, setGroupCompetition] = useState(groupId || false);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [showingCustomConfirmationModal, toggleCustomMessageModal] = useState(false);
@@ -63,6 +72,13 @@ function CreateCompetition(props) {
   const [createdId, setCreatedId] = useState(-1);
 
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
+
+  async function getDetails(id) {
+    const { payload } = await dispatch(groupActions.fetchDetails(id));
+    if (payload && payload.data) {
+      setSelectedGroup(payload.data);
+    }
+  }
 
   const handleTitleChanged = e => {
     setTitle(e.target.value);
@@ -166,6 +182,10 @@ function CreateCompetition(props) {
     (!groupCompetition && participants.length === 0) ||
     (groupCompetition && !selectedGroup) ||
     (selectedGroup && selectedGroup.memberCount === 0);
+
+  if (groupId && selectedGroup === null) {
+    getDetails(groupId);
+  }
 
   return (
     <div className="create-competition__container container">
@@ -282,15 +302,5 @@ function CreateCompetition(props) {
     </div>
   );
 }
-
-CreateCompetition.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
-    state: PropTypes.shape({
-      toggle: PropTypes.bool,
-      group: PropTypes.objectOf(PropTypes.object)
-    })
-  }).isRequired
-};
 
 export default CreateCompetition;
