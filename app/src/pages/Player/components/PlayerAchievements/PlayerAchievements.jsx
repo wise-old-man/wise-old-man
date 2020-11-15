@@ -12,6 +12,7 @@ import {
 } from '../../../../utils';
 import CardList from '../../../../components/CardList';
 import './PlayerAchievements.scss';
+import { CAPPED_MAX_TOTAL_XP } from '../../../../config';
 
 function getFilteredAchievements(groups, metricType) {
   if (!groups) {
@@ -40,6 +41,10 @@ function formatThreshold(threshold) {
 
   if (threshold === 13034431) {
     return '99';
+  }
+
+  if (threshold === CAPPED_MAX_TOTAL_XP) {
+    return '2277';
   }
 
   return formatNumber(threshold, true);

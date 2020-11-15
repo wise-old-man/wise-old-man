@@ -6,20 +6,16 @@ import {
   ACTIVITY_ACHIEVEMENT_TEMPLATES,
   BOSSES,
   BOSS_ACHIEVEMENT_TEMPLATES,
+  CAPPED_MAX_TOTAL_XP,
   SKILLS,
   SKILL_ACHIEVEMENT_TEMPLATES
 } from '../..//constants';
-import {
-  getDifficultyFactor,
-  getFormattedName,
-  getMeasure,
-  getValueKey,
-  isSkill
-} from '../../util/metrics';
+import { getDifficultyFactor, getFormattedName, getMeasure, getValueKey } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
 
 function formatThreshold(threshold: number): string {
   if (threshold === 13034431) return '99';
+  if (threshold === CAPPED_MAX_TOTAL_XP) return '2277';
   if (threshold < 1000 || threshold === 2277) return String(threshold);
   if (threshold <= 10000) return `${Math.floor(threshold / 1000)}k`;
 
@@ -318,8 +314,8 @@ async function getPlayerAchievements(playerId: number, includeMissing = false) {
     }));
 
   return [...achievements, ...missingAchievements].map((a: any) => {
-    // Only maxed overall and maxed combat are level based
-    const isLevels = (isSkill(a.metric) && a.threshold < 1000000) || a.metric === 'combat';
+    // Only maxed combat is level based
+    const isLevels = a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
     return { ...a, measure, threshold: parseInt(a.threshold) };
   });

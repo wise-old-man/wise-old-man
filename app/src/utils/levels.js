@@ -37,6 +37,12 @@ export function getTotalLevel(snapshot) {
     .reduce((acc, cur) => acc + cur);
 }
 
+export function getCappedTotalXp(snapshot) {
+  return SKILLS.filter(skill => skill !== 'overall')
+    .map(s => (snapshot[s].experience >= 13034431 ? 13034431 : snapshot[s].experience))
+    .reduce((acc, cur) => acc + cur);
+}
+
 function getXpDifferenceTo(level) {
   if (level < 2) {
     return 0;

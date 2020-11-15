@@ -50,8 +50,8 @@ export default [
       {
         type: 'Maxed Overall',
         metric: 'overall',
-        measure: 'levels',
-        thresholds: '2277'
+        measure: 'experience',
+        thresholds: '299791913'
       },
       {
         type: 'Maxed combat',

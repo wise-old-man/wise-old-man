@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import { mapValues } from 'lodash';
 import { getPlayer } from '../players/selectors';
-import { getTotalLevel } from '../../utils';
-import { ALL_METRICS } from '../../config';
+import { getCappedTotalXp } from '../../utils';
+import { ALL_METRICS, CAPPED_MAX_TOTAL_XP } from '../../config';
 
 const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
@@ -42,14 +42,18 @@ export const getPlayerAchievementsGrouped = (state, username) => {
   let previousMeasure = '';
 
   sorted.forEach(s => {
-    if (s.metric === previousMetric && s.measure === previousMeasure) {
-      groups[groups.length - 1].achievements.push(s);
-    } else {
+    if (s.metric === 'overall' && s.measure === 'experience' && s.threshold === CAPPED_MAX_TOTAL_XP) {
       groups.push({ metric: s.metric, measure: s.measure, achievements: [s] });
-    }
+    } else {
+      if (s.metric === previousMetric && s.measure === previousMeasure) {
+        groups[groups.length - 1].achievements.push(s);
+      } else {
+        groups.push({ metric: s.metric, measure: s.measure, achievements: [s] });
+      }
 
-    previousMetric = s.metric;
-    previousMeasure = s.measure;
+      previousMetric = s.metric;
+      previousMeasure = s.measure;
+    }
   });
 
   const processed = groups
@@ -78,14 +82,14 @@ function processGroup(player, group) {
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }
 
-  if (group.metric === 'overall' && group.measure === 'levels') {
-    const totalLevel = getTotalLevel(latestSnapshot);
+  if (group.metric === 'overall' && group.measure === 'experience' && group.achievements.length === 1) {
+    const totalXp = getCappedTotalXp(latestSnapshot);
     const progress = {
-      start: 36,
-      end: 2277,
-      current: totalLevel,
-      percentToNextTier: totalLevel / 2277,
-      absolutePercent: totalLevel / 2277
+      start: 0,
+      end: CAPPED_MAX_TOTAL_XP,
+      current: totalXp,
+      percentToNextTier: totalXp / CAPPED_MAX_TOTAL_XP,
+      absolutePercent: totalXp / CAPPED_MAX_TOTAL_XP
     };
     return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
   }

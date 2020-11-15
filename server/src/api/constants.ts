@@ -1,8 +1,9 @@
 import { Snapshot } from '../database/models';
-import { getCombatLevel, getTotalLevel } from './util/level';
+import { getCappedTotalXp, getCombatLevel } from './util/level';
 
 export const MAX_LEVEL = 99;
 export const MAX_VIRTUAL_LEVEL = 126;
+export const CAPPED_MAX_TOTAL_XP = 299791913;
 
 export const PERIODS = ['day', 'week', 'month', 'year'];
 
@@ -154,9 +155,9 @@ export const SKILL_ACHIEVEMENT_TEMPLATES = [
   {
     type: 'Maxed Overall',
     metric: 'overall',
-    measure: 'levels',
-    thresholds: [2277],
-    validate: (snapshot: Snapshot) => getTotalLevel(snapshot) === 2277
+    measure: 'experience',
+    thresholds: [CAPPED_MAX_TOTAL_XP],
+    validate: (snapshot: Snapshot) => getCappedTotalXp(snapshot) >= CAPPED_MAX_TOTAL_XP
   },
   {
     type: 'Maxed combat',
