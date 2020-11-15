@@ -234,8 +234,8 @@ async function autoReview(id: number): Promise<void> {
     return;
   }
 
-  // If the transition period is over 2 weeks
-  if (hoursDiff > 336) {
+  // If the transition period is over 3 weeks
+  if (hoursDiff > 504) {
     return;
   }
 
@@ -249,7 +249,7 @@ async function autoReview(id: number): Promise<void> {
     .reduce((acc, cur) => acc + cur);
 
   // If is high level enough (high level swaps are harder to fake)
-  if (totalLevel < 1000) {
+  if (totalLevel < 700) {
     return;
   }
 
