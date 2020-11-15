@@ -6,16 +6,11 @@ import {
   ACTIVITY_ACHIEVEMENT_TEMPLATES,
   BOSSES,
   BOSS_ACHIEVEMENT_TEMPLATES,
+  CAPPED_MAX_TOTAL_XP,
   SKILLS,
-  SKILL_ACHIEVEMENT_TEMPLATES,
-  CAPPED_MAX_TOTAL_XP
+  SKILL_ACHIEVEMENT_TEMPLATES
 } from '../..//constants';
-import {
-  getDifficultyFactor,
-  getFormattedName,
-  getMeasure,
-  getValueKey,
-} from '../../util/metrics';
+import { getDifficultyFactor, getFormattedName, getMeasure, getValueKey } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
 
 function formatThreshold(threshold: number): string {

@@ -73,7 +73,7 @@ function getTotalLevel(snapshot) {
 
 function getCappedTotalXp(snapshot) {
   return SKILLS.filter(skill => skill !== 'overall')
-    .map(s => snapshot[getValueKey(s)] >= 13034431 ? 13034431 : snapshot[getValueKey(s)])
+    .map(s => (snapshot[getValueKey(s)] >= 13034431 ? 13034431 : snapshot[getValueKey(s)]))
     .reduce((acc, cur) => acc + cur);
 }
 
@@ -101,4 +101,14 @@ function is10HP(snapshot: Snapshot) {
   return getCombatLevel(snapshot) > 3 && getLevel(snapshot.hitpointsExperience) === 10;
 }
 
-export { getLevel, getCombatLevel, getTotalLevel, getCappedTotalXp, get200msCount, is1Def, isF2p, isLvl3, is10HP };
+export {
+  getLevel,
+  getCombatLevel,
+  getTotalLevel,
+  getCappedTotalXp,
+  get200msCount,
+  is1Def,
+  isF2p,
+  isLvl3,
+  is10HP
+};
