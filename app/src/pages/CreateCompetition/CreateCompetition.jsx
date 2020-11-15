@@ -73,7 +73,7 @@ function CreateCompetition() {
 
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
 
-  async function getDetails(id) {
+  async function fetchDetails(id) {
     const { payload } = await dispatch(groupActions.fetchDetails(id));
     if (payload && payload.data) {
       setSelectedGroup(payload.data);
@@ -184,7 +184,7 @@ function CreateCompetition() {
     (selectedGroup && selectedGroup.memberCount === 0);
 
   if (groupId && selectedGroup === null) {
-    getDetails(groupId);
+    fetchDetails(groupId);
   }
 
   return (
