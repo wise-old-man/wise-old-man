@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -30,9 +31,10 @@ function getMetricOptions() {
   }));
 }
 
-function CreateCompetition() {
+function CreateCompetition(props) {
   const router = useHistory();
   const dispatch = useDispatch();
+  const { location } = props;
 
   const isSubmitting = useSelector(competitionSelectors.isCreating);
   const error = useSelector(competitionSelectors.getError);
@@ -48,10 +50,12 @@ function CreateCompetition() {
   const [startDate, setStartDate] = useState(initialStartMoment.toDate());
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState((location.state && location.state.group) || null);
   const [groupVerificationCode, setGroupVerificationCode] = useState('');
 
-  const [groupCompetition, setGroupCompetition] = useState(false);
+  const [groupCompetition, setGroupCompetition] = useState(
+    (location.state && location.state.toggle) || false
+  );
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [showingCustomConfirmationModal, toggleCustomMessageModal] = useState(false);
@@ -278,5 +282,15 @@ function CreateCompetition() {
     </div>
   );
 }
+
+CreateCompetition.propTypes = {
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+    state: PropTypes.shape({
+      toggle: PropTypes.bool,
+      group: PropTypes.objectOf(PropTypes.object)
+    })
+  }).isRequired
+};
 
 export default CreateCompetition;
