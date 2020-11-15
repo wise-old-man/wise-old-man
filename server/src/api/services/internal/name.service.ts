@@ -229,8 +229,9 @@ async function autoReview(id: number): Promise<void> {
     return;
   }
 
-  // If has lost exp/kills/scores
+  // If has lost exp/kills/scores, deny request
   if (hasNegativeGains) {
+    await deny(id, env.ADMIN_PASSWORD);
     return;
   }
 
