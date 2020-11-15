@@ -1,7 +1,7 @@
 @import '../../../../variables.scss';
 
 .docs__menu {
-  width: 360px;
+  width: 200px;
 
   &-wrapper {
     border-right: 1px solid $gray-17;
@@ -35,6 +35,16 @@
           opacity: 0.5;
         }
       }
+    }
+  }
+}
+
+@media only screen and (max-width: $breakpoint-medium) {
+  .docs__menu {
+    width: 250px;
+
+    &-wrapper {
+      border: none;
     }
   }
 }

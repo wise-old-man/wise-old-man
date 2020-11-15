@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Table from '../../../../components/Table';
 import NumberLabel from '../../../../components/NumberLabel';
-import { getLevel, getMetricIcon, getMetricName } from '../../../../utils';
+import { getLevel, getMetricIcon, getMetricName, round } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function getSkillsTable(delta) {
@@ -14,9 +14,25 @@ function getSkillsTable(delta) {
   const levelDiff = exps => getLevel(exps.end) - getLevel(exps.start);
 
   const rows = SKILLS.map(skill => {
-    const { experience, rank } = delta[skill];
+    const { experience, rank, ehp } = delta[skill];
     const level = skill === 'overall' ? totalLevelDiff : levelDiff(experience);
-    return { metric: skill, level, experience: experience.gained, rank: -rank.gained, ehp: 0 };
+
+    return {
+      metric: skill,
+      level,
+      experience: experience.gained,
+      rank: -rank.gained,
+      ehp: round(ehp.gained, 2)
+    };
+  });
+
+  // Add special case for EHP
+  rows.push({
+    metric: 'ehp',
+    level: '',
+    experience: delta.ehp.value.gained,
+    rank: delta.ehp.rank.gained,
+    ehp: ''
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -35,15 +51,12 @@ function getSkillsTable(delta) {
       )
     },
     {
-      key: 'level',
-      label: 'Levels',
-      className: () => `-break-small`,
-      transform: val => <NumberLabel value={val} isColored isSigned />
-    },
-    {
       key: 'experience',
       label: 'Exp.',
-      transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={50000} />
+      transform: (val, row) => {
+        const lowThreshold = row.metric === 'ehp' ? 10 : 50000;
+        return <NumberLabel value={val} isColored isSigned lowThreshold={lowThreshold} />;
+      }
     },
     {
       key: 'rank',
@@ -51,8 +64,15 @@ function getSkillsTable(delta) {
       transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
-      key: 'EHP',
-      get: row => row.ehp
+      key: 'level',
+      label: 'Levels',
+      className: () => `-break-small`,
+      transform: val => <NumberLabel value={val} isColored isSigned />
+    },
+    {
+      key: 'ehp',
+      label: 'EHP',
+      transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={3} />
     }
   ];
 
@@ -61,8 +81,23 @@ function getSkillsTable(delta) {
 
 function getBossesTable(delta) {
   const rows = BOSSES.map(boss => {
-    const { kills, rank } = delta[boss];
-    return { metric: boss, kills: kills.gained, rank: -rank.gained, ehb: 0 };
+    const { kills, rank, ehb } = delta[boss];
+
+    return {
+      metric: boss,
+      kills: kills.gained,
+      rank: -rank.gained,
+      ehb: round(ehb.gained, 2)
+    };
+  });
+
+  // Add special case for EHB
+  rows.push({
+    metric: 'ehb',
+    level: '',
+    kills: delta.ehb.value.gained,
+    rank: delta.ehb.rank.gained,
+    ehb: ''
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -90,8 +125,9 @@ function getBossesTable(delta) {
       transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
-      key: 'EHB',
-      get: row => row.ehb
+      key: 'ehb',
+      label: 'EHB',
+      transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     }
   ];
 

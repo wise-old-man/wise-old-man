@@ -14,8 +14,8 @@ const TABLE_CONFIG = {
       get: row => row.player.displayName,
       className: () => '-primary',
       transform: (value, row) => (
-        <Link to={`/players/${row.player.id}/achievements`}>
-          <PlayerTag name={value} type={row.player.type} />
+        <Link to={`/players/${row.player.username}/achievements`}>
+          <PlayerTag name={value} type={row.player.type} flagged={row.player.flagged} />
         </Link>
       )
     },

@@ -3,16 +3,13 @@ import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { groupActions, groupSelectors } from 'redux/groups';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import editGroupAction from '../../redux/modules/groups/actions/edit';
-import fetchDetailsAction from '../../redux/modules/groups/actions/fetchDetails';
-import fetchMembersAction from '../../redux/modules/groups/actions/fetchMembers';
-import { getGroup, isEditing, getError } from '../../redux/selectors/groups';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -26,13 +23,13 @@ function EditGroup() {
   const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
-  const group = useSelector(state => getGroup(state, parseInt(id, 10)));
-  const error = useSelector(state => getError(state));
-  const isSubmitting = useSelector(state => isEditing(state));
+  const group = useSelector(state => groupSelectors.getGroup(state, parseInt(id, 10)));
+  const error = useSelector(groupSelectors.getError);
+  const isSubmitting = useSelector(groupSelectors.isEditing);
 
   const fetchDetails = () => {
-    dispatch(fetchDetailsAction(id));
-    dispatch(fetchMembersAction(id));
+    dispatch(groupActions.fetchDetails(id));
+    dispatch(groupActions.fetchMembers(id));
   };
 
   const populate = () => {
@@ -111,13 +108,11 @@ function EditGroup() {
   };
 
   const handleSubmit = async () => {
-    const formData = { name, members, clanChat, verificationCode };
+    const { payload } = await dispatch(groupActions.edit(id, name, clanChat, members, verificationCode));
 
-    dispatch(editGroupAction(group.id, formData)).then(a => {
-      if (a && a.group) {
-        router.push(`/groups/${group.id}`);
-      }
-    });
+    if (payload && payload.data) {
+      router.push(`/groups/${group.id}`);
+    }
   };
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
@@ -151,12 +146,22 @@ function EditGroup() {
 
         <div className="form-row">
           <span className="form-row__label">Group name</span>
-          <TextInput value={name} placeholder="Ex: Varrock Titans" onChange={onNameChanged} />
+          <TextInput
+            value={name}
+            placeholder="Ex: Varrock Titans"
+            onChange={onNameChanged}
+            maxCharacters={30}
+          />
         </div>
 
         <div className="form-row">
           <span className="form-row__label">Clan chat</span>
-          <TextInput placeholder="Ex: titanZ" value={clanChat} onChange={onClanChatChanged} />
+          <TextInput
+            placeholder="Ex: titanZ"
+            value={clanChat}
+            onChange={onClanChatChanged}
+            maxCharacters={12}
+          />
         </div>
 
         <div className="form-row">

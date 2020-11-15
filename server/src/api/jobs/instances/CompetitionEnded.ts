@@ -1,5 +1,5 @@
-import { onCompetitionEnded } from '../../events';
-import * as competitionService from '../../modules/competitions/competition.service';
+import { onCompetitionEnded } from '../../events/competition.events';
+import * as competitionService from '../../services/internal/competition.service';
 import { Job } from '../index';
 
 class CompetitionEnded implements Job {
@@ -11,18 +11,20 @@ class CompetitionEnded implements Job {
 
   async handle(data: any): Promise<void> {
     const { competitionId } = data;
-    const competition: any = await competitionService.getDetails(competitionId);
+
+    const competition = await competitionService.resolve(competitionId, { includeGroup: true });
 
     if (!competition) return;
 
     // Double check the competition just ended, since the
     // competition start date can be changed between the
     // scheduling and execution of this job
-    if (Math.abs((new Date() as any) - competition.endsAt) > 10000) {
+    if (Math.abs(Date.now() - competition.endsAt.getTime()) > 10000) {
       return;
     }
 
-    onCompetitionEnded(competition);
+    const competitionDetails = await competitionService.getDetails(competition);
+    onCompetitionEnded(competitionDetails);
   }
 }
 

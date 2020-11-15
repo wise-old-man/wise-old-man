@@ -4,7 +4,7 @@ import Table from '../../../../components/Table';
 import TablePlaceholder from '../../../../components/TablePlaceholder';
 import NumberLabel from '../../../../components/NumberLabel';
 import TextLabel from '../../../../components/TextLabel';
-import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc } from '../../../../utils';
+import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc, round } from '../../../../utils';
 import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
@@ -13,9 +13,24 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     .reduce((acc, cur) => acc + cur);
 
   const rows = SKILLS.map(skill => {
-    const { experience, rank } = snapshot[skill];
+    const { experience, rank, ehp } = snapshot[skill];
     const level = skill === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels);
-    return { metric: skill, level, experience, rank, ehp: 0 };
+
+    return {
+      metric: skill,
+      level,
+      experience,
+      rank,
+      ehp: round(ehp, 2)
+    };
+  });
+
+  // Add special case for EHP
+  rows.push({
+    metric: 'ehp',
+    level: '',
+    experience: snapshot.ehp.value,
+    rank: snapshot.ehp.rank
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -34,9 +49,6 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       )
     },
     {
-      key: 'level'
-    },
-    {
       key: 'experience',
       transform: val => <NumberLabel value={val} />
     },
@@ -46,8 +58,11 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       transform: val => <NumberLabel value={val} />
     },
     {
-      key: 'EHP',
-      get: row => row.ehp,
+      key: 'level'
+    },
+    {
+      key: 'ehp',
+      label: 'EHP',
       className: () => '-break-small'
     }
   ];
@@ -57,8 +72,15 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
 
 function renderBossesTable(snapshot) {
   const rows = BOSSES.map(boss => {
-    const { kills, rank } = snapshot[boss];
-    return { metric: boss, kills, rank, ehb: 0 };
+    const { kills, rank, ehb } = snapshot[boss];
+    return { metric: boss, kills, rank, ehb: round(ehb, 2) };
+  });
+
+  // Add special case for EHB
+  rows.push({
+    metric: 'ehb',
+    kills: snapshot.ehb.value,
+    rank: snapshot.ehb.rank
   });
 
   const uniqueKeySelector = row => row.metric;

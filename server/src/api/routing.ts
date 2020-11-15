@@ -1,11 +1,14 @@
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import { NotFoundError } from './errors';
-import logger from './logger';
-import competitionRoutes from './modules/competitions/competition.route';
-import deltaRoutes from './modules/deltas/delta.route';
-import groupRoutes from './modules/groups/group.route';
-import playerRoutes from './modules/players/player.route';
-import recordRoutes from './modules/records/record.route';
+import competitionRoutes from './routes/competition.routes';
+import deltaRoutes from './routes/delta.routes';
+import efficiencyRoutes from './routes/efficiency.routes';
+import groupRoutes from './routes/group.routes';
+import nameRoutes from './routes/name.routes';
+import playerRoutes from './routes/player.routes';
+import recordRoutes from './routes/record.routes';
+import logger from './services/external/logger.service';
 import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
@@ -33,9 +36,14 @@ class RoutingHandler {
     this.router.use('/records', recordRoutes);
     this.router.use('/competitions', competitionRoutes);
     this.router.use('/groups', groupRoutes);
+    this.router.use('/names', nameRoutes);
+    this.router.use('/efficiency', efficiencyRoutes);
   }
 
   setupFallbacks() {
+    // Setup Sentry error tracking
+    this.router.use(Sentry.Handlers.errorHandler());
+
     // Handle endpoint not found
     this.router.use((req, res, next) => {
       next(new NotFoundError('Endpoint was not found'));

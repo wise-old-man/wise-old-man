@@ -1,15 +1,15 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { getPlayerTypeIcon, getPlayerTooltip } from '../../utils';
+import { getPlayerIcon, getPlayerTooltip } from '../../utils';
 import './PlayerTag.scss';
 
-function PlayerTag({ name, type }) {
-  const icon = getPlayerTypeIcon(type);
-  const tooltip = useMemo(() => getPlayerTooltip(type), [type]);
+function PlayerTag({ name, type, flagged }) {
+  const icon = getPlayerIcon(type, flagged);
+  const tooltip = getPlayerTooltip(type, flagged);
 
   return (
     <div className="player-tag">
-      {type && (
+      {(type || flagged) && (
         <abbr className="player-tag__type" title={tooltip}>
           <img src={icon} alt="" />
         </abbr>
@@ -20,7 +20,8 @@ function PlayerTag({ name, type }) {
 }
 
 PlayerTag.defaultProps = {
-  type: undefined
+  type: undefined,
+  flagged: false
 };
 
 PlayerTag.propTypes = {
@@ -28,7 +29,9 @@ PlayerTag.propTypes = {
   name: PropTypes.string.isRequired,
 
   // The player's type
-  type: PropTypes.string
+  type: PropTypes.string,
+
+  flagged: PropTypes.bool
 };
 
 export default React.memo(PlayerTag);

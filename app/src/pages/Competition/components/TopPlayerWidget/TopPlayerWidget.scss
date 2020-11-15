@@ -1,7 +1,7 @@
 @import '../../../../variables.scss';
 @import '../../../../styles.scss';
 
-.top-player-widget {
+.top-participant-widget {
   @extend %panel;
   padding: 25px;
   height: 100px;
@@ -35,6 +35,10 @@
     font-size: 0.9em;
     color: $gray-60;
     margin-top: 5px;
+
+    &.-green {
+      color: $positive-green !important;
+    }
 
     &.-placeholder {
       width: 60%;

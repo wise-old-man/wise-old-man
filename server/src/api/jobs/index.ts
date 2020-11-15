@@ -1,6 +1,6 @@
 import Queue from 'bull';
 import env, { isTesting } from '../../env';
-import logger from '../logger';
+import logger from '../services/external/logger.service';
 import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';
@@ -53,11 +53,11 @@ class JobHandler {
    * Adds new scheduled job, to be executed at the specified date.
    */
   schedule(name, data, date) {
-    const secondsTill = date.getTime() - Date.now();
+    const msDiff = date.getTime() - Date.now();
 
     // Don't allow scheduling for past dates
-    if (secondsTill >= 0) {
-      this.add(name, data, { delay: secondsTill, priority: JobPriority.Medium });
+    if (msDiff >= 0) {
+      this.add(name, data, { delay: msDiff, priority: JobPriority.Medium });
     }
   }
 

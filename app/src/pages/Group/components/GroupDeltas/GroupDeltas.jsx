@@ -18,21 +18,15 @@ const TABLE_CONFIG = {
       key: 'displayName',
       label: 'Name',
       className: () => '-primary',
-      transform: (value, row) => (
-        <Link to={`/players/${row.playerId}`}>
-          <PlayerTag name={value} type={row.type} />
+      transform: (_, { player }) => (
+        <Link to={`/players/${player.username}`}>
+          <PlayerTag name={player.displayName} type={player.type} flagged={player.flagged} />
         </Link>
       )
     },
     {
       key: 'gained',
       transform: val => <NumberLabel value={val} isColored isSigned />
-    },
-    {
-      key: 'percentage',
-      label: '%',
-      className: () => '-break-small',
-      transform: val => <NumberLabel value={Math.round(val * 10000) / 100} isColored isSigned />
     },
     {
       key: 'endDate',

@@ -1,4 +1,4 @@
-import * as playerService from '../../modules/players/player.service';
+import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
 
 class UpdatePlayer implements Job {
@@ -9,8 +9,8 @@ class UpdatePlayer implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { username } = data;
-    await playerService.update(username);
+    if (!data.username) return;
+    await playerService.update(data.username);
   }
 }
 

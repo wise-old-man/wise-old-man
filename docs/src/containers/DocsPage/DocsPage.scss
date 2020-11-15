@@ -6,8 +6,12 @@
   flex-direction: row;
   margin-top: 70px;
 
+  .docs-menu {
+    position: fixed;
+  }
+
   .docs-content {
-    margin-left: 80px;
+    margin-left: 280px;
     width: 960px;
     max-width: 100%;
 
@@ -103,6 +107,11 @@
 @media only screen and (max-width: $breakpoint-medium) {
   .docs-page {
     flex-direction: column;
+
+    .docs-menu {
+      position: relative;
+      margin-bottom: 50px;
+    }
 
     .docs__navigation {
       width: 100%;

@@ -9,8 +9,8 @@ function TotalExperienceWidget({ group, isLoading }) {
       <div className="total-exp-widget">
         <img className="total-icon" src={getMetricIcon('overall')} alt="" />
         <div className="total-info">
-          <span className="total-info__metric -placeholder" />
-          <b className="total-info__gained -placeholder" />
+          <b className="total-info__metric -placeholder" />
+          <span className="total-info__gained -placeholder" />
         </div>
       </div>
     );
@@ -22,8 +22,8 @@ function TotalExperienceWidget({ group, isLoading }) {
     <div className="total-exp-widget">
       <img className="total-icon" src={getMetricIcon('overall')} alt="" />
       <div className="total-info">
-        <span className="total-info__metric">Overall exp</span>
-        <b className="total-info__gained">{formatNumber(totalExperience)}</b>
+        <b className="total-info__metric">Overall Exp.</b>
+        <span className="total-info__gained">{formatNumber(totalExperience)}</span>
       </div>
     </div>
   );

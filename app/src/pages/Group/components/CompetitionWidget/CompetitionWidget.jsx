@@ -28,7 +28,7 @@ function CompetitionWidget({ competitions }) {
         <img className="competition-icon" src={getMetricIcon(featured.metric)} alt="" />
         <div className="competition-info">
           <b className="competition-info__title">{featured.title}</b>
-          <span className="competition-info__time">{featured.countdown}</span>
+          <span className="competition-info__time">Ongoing</span>
         </div>
       </Link>
     );
@@ -42,7 +42,7 @@ function CompetitionWidget({ competitions }) {
         <img className="competition-icon" src={getMetricIcon(featured.metric)} alt="" />
         <div className="competition-info">
           <b className="competition-info__title">{featured.title}</b>
-          <span className="competition-info__time">{featured.countdown}</span>
+          <span className="competition-info__time">Upcoming</span>
         </div>
       </Link>
     );

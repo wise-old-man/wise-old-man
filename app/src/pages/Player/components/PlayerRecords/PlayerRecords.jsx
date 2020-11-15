@@ -40,14 +40,14 @@ function getFilteredRecords(records, metricType) {
   }
 
   if (metricType === 'skilling') {
-    return records.filter(r => isSkill(r.metric));
+    return records.filter(r => isSkill(r.metric) || r.metric === 'ehp');
   }
 
-  if (metricType === 'activities') {
-    return records.filter(r => isActivity(r.metric));
+  if (metricType === 'bossing') {
+    return records.filter(r => isBoss(r.metric) || r.metric === 'ehb');
   }
 
-  return records.filter(r => isBoss(r.metric));
+  return records.filter(r => isActivity(r.metric));
 }
 
 function PlayerRecord({ metricRecords, metric }) {
@@ -81,9 +81,13 @@ function PlayerRecord({ metricRecords, metric }) {
 
 function PlayerRecords({ records, metricType }) {
   const typeRecords = getFilteredRecords(records, metricType);
+
   return (
     <div className="player-records__container row">
-      {ALL_METRICS.map(metric => {
+      {ALL_METRICS.sort(a => {
+        // Sort to make sure EHP and EHB always show up first
+        return a.startsWith('eh') ? -5 : 0;
+      }).map(metric => {
         const metricRecords = typeRecords.filter(r => r.metric === metric);
         return (
           metricRecords &&

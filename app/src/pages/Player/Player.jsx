@@ -1,9 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory, useLocation } from 'react-router-dom';
+import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import _ from 'lodash';
 import queryString from 'query-string';
+import { playerActions, playerSelectors } from 'redux/players';
+import { groupActions, groupSelectors } from 'redux/groups';
+import { snapshotActions, snapshotSelectors } from 'redux/snapshots';
+import { recordActions, recordSelectors } from 'redux/records';
+import { deltasActions, deltasSelectors } from 'redux/deltas';
+import { achievementActions, achievementSelectors } from 'redux/achievements';
+import { competitionActions, competitionSelectors } from 'redux/competitions';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -19,24 +26,14 @@ import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
-import { getPlayer, isFetching } from '../../redux/selectors/players';
-import { getPlayerDeltas } from '../../redux/selectors/deltas';
-import { getPlayerRecords } from '../../redux/selectors/records';
-import { getPlayerAchievementsGrouped, getPlayerAchievements } from '../../redux/selectors/achievements';
-import { getPlayerCompetitions } from '../../redux/selectors/competitions';
-import { getPlayerGroups } from '../../redux/selectors/groups';
-import { getChartData } from '../../redux/selectors/snapshots';
-import trackPlayerAction from '../../redux/modules/players/actions/track';
-import assertPlayerTypeAction from '../../redux/modules/players/actions/assertType';
-import assertPlayerNameAction from '../../redux/modules/players/actions/assertName';
-import fetchPlayerAction from '../../redux/modules/players/actions/fetch';
-import fetchDeltasAction from '../../redux/modules/deltas/actions/fetchPlayerDeltas';
-import fetchSnapshotsAction from '../../redux/modules/snapshots/actions/fetch';
-import fetchRecordsAction from '../../redux/modules/records/actions/fetchPlayerRecords';
-import fetchAchievementsAction from '../../redux/modules/achievements/actions/fetchPlayerAchievements';
-import fetchCompetitionsAction from '../../redux/modules/competitions/actions/fetchPlayerCompetitions';
-import fetchGroupsAction from '../../redux/modules/groups/actions/fetchPlayerGroups';
-import { getPlayerTypeIcon, getOfficialHiscoresUrl, getPlayerTooltip, getMeasure } from '../../utils';
+import PlayerCards from './components/PlayerCards';
+import {
+  getPlayerIcon,
+  getOfficialHiscoresUrl,
+  getPlayerTooltip,
+  getMeasure,
+  standardizeUsername
+} from '../../utils';
 import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
@@ -63,8 +60,24 @@ const METRIC_TYPE_OPTIONS = [
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'openOsrsHiscores' },
   { label: 'Reset username capitalization', value: 'assertName' },
-  { label: 'Reassign player type', value: 'assertType' }
+  { label: 'Reassign player type', value: 'assertType' },
+  { label: '[NEW] Change name', value: 'changeName' }
 ];
+
+function getPlayerBadges(build) {
+  switch (build) {
+    case 'lvl3':
+      return [{ text: 'Level 3', hoverText: '' }];
+    case 'f2p':
+      return [{ text: 'F2P', hoverText: '' }];
+    case '1def':
+      return [{ text: '1 Def Pure', hoverText: '' }];
+    case '10hp':
+      return [{ text: '10 HP Pure', hoverText: '' }];
+    default:
+      return [];
+  }
+}
 
 function getSelectedTabIndex(section) {
   const index = TABS.findIndex(t => t.toLowerCase() === section);
@@ -94,11 +107,11 @@ function getSelectedMetric(metricType, location) {
 function getMetricList(metricType) {
   switch (metricType) {
     case 'bossing':
-      return BOSSES;
+      return [...BOSSES, 'ehb'];
     case 'activities':
       return ACTIVITIES;
     default:
-      return SKILLS;
+      return [...SKILLS, 'ehp'];
   }
 }
 
@@ -122,10 +135,13 @@ function buildQuerySearch(options) {
 }
 
 function Player() {
-  const { id, section, metricType } = useParams();
+  const params = useParams();
   const location = useLocation();
   const router = useHistory();
   const dispatch = useDispatch();
+
+  const { section, metricType } = params;
+  const username = standardizeUsername(params.username);
 
   const selectedTabIndex = getSelectedTabIndex(section);
   const selectedMetricType = getSelectedMetricType(metricType);
@@ -137,14 +153,16 @@ function Player() {
   const [selectedLevelType, setSelectedLevelType] = useState('regular');
 
   // Memoized redux variables
-  const player = useSelector(state => getPlayer(state, id));
-  const deltas = useSelector(state => getPlayerDeltas(state, id));
-  const records = useSelector(state => getPlayerRecords(state, id));
-  const achievements = useSelector(state => getPlayerAchievements(state, id));
-  const groupedAchievements = useSelector(state => getPlayerAchievementsGrouped(state, id));
-  const competitions = useSelector(state => getPlayerCompetitions(state, id));
-  const groups = useSelector(state => getPlayerGroups(state, id));
-  const isLoadingDetails = useSelector(state => isFetching(state));
+  const player = useSelector(state => playerSelectors.getPlayer(state, username));
+  const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
+  const records = useSelector(state => recordSelectors.getPlayerRecords(state, username));
+  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+  const groupedAchievements = useSelector(state =>
+    achievementSelectors.getPlayerAchievementsGrouped(state, username)
+  );
+  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
+  const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
+  const isLoadingDetails = useSelector(playerSelectors.isFetching);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
   const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
@@ -160,44 +178,62 @@ function Player() {
   }, [player]);
 
   const experienceChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, getMeasure(selectedMetric), isReducedChart)
+    snapshotSelectors.getChartData(
+      state,
+      username,
+      selectedPeriod,
+      selectedMetric,
+      getMeasure(selectedMetric),
+      isReducedChart
+    )
   );
 
   const rankChartData = useSelector(state =>
-    getChartData(state, id, selectedPeriod, selectedMetric, 'rank', isReducedChart)
+    snapshotSelectors.getChartData(
+      state,
+      username,
+      selectedPeriod,
+      selectedMetric,
+      'rank',
+      isReducedChart
+    )
   );
 
   const trackPlayer = async () => {
-    try {
-      setIsTracking(true);
-      await dispatch(trackPlayerAction(player.username));
+    setIsTracking(true);
 
+    const { payload } = await dispatch(playerActions.trackPlayer(player.username));
+
+    if (payload.data) {
       fetchAll();
       setIsTracking(false);
-    } catch (e) {
+    } else {
       setIsTracking(false);
     }
   };
 
   const fetchAll = () => {
-    // Attempt to fetch player of that id, if it fails redirect to 404
-    dispatch(fetchPlayerAction({ id }))
+    // Attempt to fetch player data, if it fails redirect to 404
+    dispatch(playerActions.fetchPlayer(username))
       .then(action => {
-        if (action.error) throw new Error();
+        if (!action.payload.data) throw new Error();
       })
-      .catch(() => router.push('/404'));
+      .catch(() => router.push(`/players/search/${username}`));
 
-    dispatch(fetchSnapshotsAction({ playerId: id }));
-    dispatch(fetchAchievementsAction({ playerId: id }));
-    dispatch(fetchCompetitionsAction({ playerId: id }));
-    dispatch(fetchGroupsAction({ playerId: id }));
-    dispatch(fetchRecordsAction({ playerId: id }));
-    dispatch(fetchDeltasAction({ playerId: id }));
+    dispatch(achievementActions.fetchPlayerAchievements(username));
+    dispatch(competitionActions.fetchPlayerCompetitions(username));
+    dispatch(groupActions.fetchPlayerGroups(username));
+    dispatch(recordActions.fetchPlayerRecords(username));
+    dispatch(deltasActions.fetchPlayerDeltas(username));
+
+    PERIOD_OPTIONS.forEach(o => {
+      dispatch(snapshotActions.fetchSnapshots(username, o.value));
+    });
   };
 
   const getNextUrl = options => {
     const newOptions = {
-      id,
+      username,
       section: TABS[selectedTabIndex].toLowerCase(),
       metricType: selectedMetricType,
       metric: selectedMetric,
@@ -209,7 +245,7 @@ function Player() {
     newOptions.metric = metricList.includes(newOptions.metric) ? newOptions.metric : metricList[0];
 
     const query = buildQuerySearch(newOptions);
-    return `/players/${newOptions.id}/${newOptions.section}/${newOptions.metricType}${query}`;
+    return `/players/${newOptions.username}/${newOptions.section}/${newOptions.metricType}${query}`;
   };
 
   const handlePeriodSelected = e => {
@@ -234,23 +270,27 @@ function Player() {
 
   const handleOptionSelected = async option => {
     if (option.value === 'assertType') {
-      await dispatch(assertPlayerTypeAction(player.username, player.id));
+      await dispatch(playerActions.assertType(player.username, player.type));
     } else if (option.value === 'assertName') {
-      await dispatch(assertPlayerNameAction(player.username, player.id));
+      await dispatch(playerActions.assertName(player.username, player.displayName));
+    } else if (option.value === 'changeName') {
+      router.push(`/names/submit/${player.displayName}`);
     }
   };
 
   const handleDeltasTimerEnded = () => {
-    dispatch(fetchDeltasAction({ playerId: id }));
+    PERIOD_OPTIONS.forEach(o => {
+      dispatch(snapshotActions.fetchSnapshots(username, o.value));
+    });
   };
 
   const onToggleReducedChart = useCallback(toggleReducedChart, []);
   const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
   const onOptionSelected = useCallback(handleOptionSelected, [player]);
   const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
-  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [id]);
+  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [username]);
 
-  useEffect(fetchAll, [dispatch, id]);
+  useEffect(fetchAll, [dispatch, username]);
 
   if (!player) {
     return null;
@@ -263,10 +303,30 @@ function Player() {
       </Helmet>
       <div className="player__header row">
         <div className="col">
+          {player.flagged && (
+            <div className="warning">
+              <img src="/img/runescape/icons_small/flagged.png" alt="" />
+              <span>
+                This player is flagged. This is likely caused by an unregistered name change or they have
+                become unranked in one or more skills due to lack of progress.
+                <br />
+                <Link to={`/names/submit/${player.displayName}`}>
+                  Click here to submit a name change
+                </Link>
+                &nbsp; or join our &nbsp;
+                <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+                  Discord server
+                </a>
+                &nbsp; for help.
+              </span>
+            </div>
+          )}
+
           <PageHeader
             title={player.displayName}
-            icon={getPlayerTypeIcon(player.type)}
-            iconTooltip={getPlayerTooltip(player.type)}
+            icon={getPlayerIcon(player.type)}
+            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
+            badges={getPlayerBadges(player.build)}
           >
             <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
             <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
@@ -275,6 +335,11 @@ function Player() {
               </button>
             </Dropdown>
           </PageHeader>
+        </div>
+      </div>
+      <div className="player__cards row">
+        <div className="col-md-12">
+          <PlayerCards player={player} />
         </div>
       </div>
       <div className="player__controls row">

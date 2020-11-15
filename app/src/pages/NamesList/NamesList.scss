@@ -1,0 +1,24 @@
+@import '../../styles.scss';
+
+.names__container {
+  @extend %page;
+  width: 800px !important;
+  max-width: 90%;
+
+  .names__header {
+    .text-button {
+      float: right;
+    }
+  }
+
+  .table {
+    font-size: 1.1em;
+  }
+
+  .loading-indicator {
+    width: 100%;
+    display: block;
+    text-align: center;
+    color: $gray-60;
+  }
+}

@@ -19,7 +19,9 @@ function DocsPage({ config }) {
       </Head>
       <NavBar />
       <div className="docs-page">
-        <Menu selectedUrl={config.url} />
+        <div className="docs-menu">
+          <Menu selectedUrl={config.url} />
+        </div>
         <div className="docs-content">
           <h1 className="docs-title row">{config.title}</h1>
           <p className="docs-description row">{config.description}</p>

@@ -1,5 +1,5 @@
-import { onCompetitionStarted } from '../../events';
-import * as competitionService from '../../modules/competitions/competition.service';
+import { onCompetitionStarted } from '../../events/competition.events';
+import * as competitionService from '../../services/internal/competition.service';
 import { Job } from '../index';
 
 class CompetitionStarted implements Job {
@@ -11,18 +11,19 @@ class CompetitionStarted implements Job {
 
   async handle(data: any): Promise<void> {
     const { competitionId } = data;
-    const competition: any = await competitionService.getDetails(competitionId);
+    const competition = await competitionService.resolve(competitionId, { includeGroup: true });
 
     if (!competition) return;
 
     // Double check the competition just started, since the
     // competition start date can be changed between the
     // scheduling and execution of this job
-    if (Math.abs((new Date() as any) - competition.startsAt) > 10000) {
+    if (Math.abs(Date.now() - competition.startsAt.getTime()) > 10000) {
       return;
     }
 
-    onCompetitionStarted(competition);
+    const competitionDetails = await competitionService.getDetails(competition);
+    onCompetitionStarted(competitionDetails);
   }
 }
 

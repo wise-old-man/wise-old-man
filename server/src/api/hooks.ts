@@ -1,59 +1,69 @@
-import { Achievement, Competition, Membership, Player, Snapshot } from '../database';
+import { DestroyOptions, UpdateOptions } from 'sequelize/types';
+import { Achievement, Competition, Delta, Membership, Player, Snapshot } from '../database/models';
+import { onAchievementsCreated } from './events/achievement.events';
+import { onCompetitionCreated, onCompetitionUpdated } from './events/competition.events';
+import { onDeltaUpdated } from './events/delta.events';
+import { onMembersJoined, onMembersLeft } from './events/group.events';
 import {
-  onAchievementsCreated,
-  onCompetitionCreated,
-  onCompetitionUpdated,
-  onMembersJoined,
-  onMembersLeft,
   onPlayerCreated,
   onPlayerImported,
+  onPlayerNameChanged,
   onPlayerUpdated
-} from './events';
+} from './events/player.events';
 
 function setup() {
-  Player.afterCreate(({ username }) => {
-    onPlayerCreated(username);
+  Player.afterUpdate((player: Player, options: UpdateOptions) => {
+    if (!options.fields || !options.fields.includes('username')) return;
+    onPlayerNameChanged(player);
   });
 
-  Snapshot.afterCreate(({ playerId }) => {
-    onPlayerUpdated(playerId);
+  Player.afterCreate((player: Player) => {
+    onPlayerCreated(player);
   });
 
-  Snapshot.afterBulkCreate(snapshots => {
-    if (!snapshots || snapshots.length === 0) return;
+  Snapshot.afterCreate((snapshot: Snapshot) => {
+    onPlayerUpdated(snapshot);
+  });
+
+  Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
     onPlayerImported(snapshots[0].playerId);
   });
 
-  Membership.afterBulkCreate(memberships => {
-    if (!memberships || !memberships.length) return;
+  Delta.afterUpdate((delta: Delta) => {
+    onDeltaUpdated(delta);
+  });
 
+  Delta.afterCreate((delta: Delta) => {
+    onDeltaUpdated(delta);
+  });
+
+  Membership.afterBulkCreate((memberships: Membership[]) => {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
     onMembersJoined(groupId, playerIds);
   });
 
-  Membership.afterBulkDestroy(info => {
-    if (!info || !info.where) return;
+  Membership.afterBulkDestroy((options: DestroyOptions) => {
+    if (!options.where) return;
 
-    const { groupId, playerId }: any = info.where;
+    const { groupId, playerId }: any = options.where;
 
     if (!playerId || playerId.length === 0) return;
 
     onMembersLeft(groupId, playerId);
   });
 
-  Achievement.afterBulkCreate(async achievements => {
-    if (!achievements || achievements.length === 0) return;
+  Achievement.afterBulkCreate((achievements: Achievement[]) => {
     onAchievementsCreated(achievements);
   });
 
-  Competition.beforeUpdate((competition, options) => {
+  Competition.beforeUpdate((competition: Competition, options: UpdateOptions) => {
     if (!options || !options.fields) return;
     onCompetitionUpdated(competition, options.fields);
   });
 
-  Competition.afterCreate(competition => {
+  Competition.afterCreate((competition: Competition) => {
     onCompetitionCreated(competition);
   });
 }

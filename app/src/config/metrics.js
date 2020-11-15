@@ -83,6 +83,10 @@ const metrics = {
     { key: 'wintertodt', name: 'Wintertodt' },
     { key: 'zalcano', name: 'Zalcano' },
     { key: 'zulrah', name: 'Zulrah' }
+  ],
+  VIRTUALS: [
+    { key: 'ehp', name: 'EHP' },
+    { key: 'ehb', name: 'EHB' }
   ]
 };
 
@@ -91,4 +95,5 @@ export const METRICS_CONFIG = metrics;
 export const SKILLS = metrics.SKILLS.map(s => s.key);
 export const ACTIVITIES = metrics.ACTIVITIES.map(s => s.key);
 export const BOSSES = metrics.BOSSES.map(s => s.key);
-export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES];
+export const VIRTUALS = metrics.VIRTUALS.map(s => s.key);
+export const ALL_METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...VIRTUALS];

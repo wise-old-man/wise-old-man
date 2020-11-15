@@ -3,9 +3,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { useDispatch, useSelector } from 'react-redux';
+import { playerActions, playerSelectors } from 'redux/players';
 import AutoSuggestInput from '../AutoSuggestInput';
-import { getSearchResults } from '../../redux/selectors/players';
-import searchAction from '../../redux/modules/players/actions/search';
 import './ParticipantsSelector.scss';
 
 const mapToSuggestion = player => ({ label: player.displayName, value: player.username });
@@ -18,11 +17,11 @@ function ParticipantsSelector({
   onParticipantRemoved
 }) {
   const dispatch = useDispatch();
-  const searchResults = useSelector(state => getSearchResults(state));
+  const searchResults = useSelector(playerSelectors.getSearchResults);
 
   const suggestions = useMemo(() => searchResults.map(s => mapToSuggestion(s)), [searchResults]);
 
-  const searchPlayer = _.debounce(username => dispatch(searchAction({ username })), 500);
+  const searchPlayer = _.debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {

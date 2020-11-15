@@ -1,0 +1,44 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.submit-name-change__container {
+  @extend %page;
+  width: 700px !important;
+  max-width: 90%;
+
+  .page__title {
+    padding-bottom: 15px;
+  }
+
+  .form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .form-row {
+    margin-top: 30px;
+
+    &__label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.8em;
+      font-weight: 700;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      .text-button {
+        font-size: 1em;
+        padding: 0;
+        margin-left: auto;
+      }
+    }
+
+    &__label-info {
+      color: $gray-60;
+      margin-left: 5px;
+    }
+  }
+}

@@ -3,6 +3,13 @@
     "browser": true,
     "es6": true
   },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src/"]
+      }
+    }
+  },
   "extends": ["airbnb", "prettier", "plugin:react/recommended"],
   "plugins": ["react", "jsx-a11y", "import", "prettier"],
   "rules": {
@@ -16,6 +23,7 @@
     "react/no-array-index-key": "warn",
     "jsx-a11y/control-has-associated-label": "off",
     "import/prefer-default-export": "off",
-    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-param-reassign": "off"
   }
 }

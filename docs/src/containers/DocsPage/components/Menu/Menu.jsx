@@ -45,6 +45,10 @@ const sections = [
       {
         label: 'Achievements',
         url: '/docs/achievements'
+      },
+      {
+        label: 'Names',
+        url: '/docs/names'
       }
     ]
   }
@@ -56,10 +60,10 @@ function Menu({ selectedUrl }) {
   return (
     <div className="docs__menu">
       <div className="docs__menu-wrapper">
-        {sections.map((s) => (
+        {sections.map(s => (
           <ul key={s.key} className="menu-list">
             <li className="menu-list__item -title">{s.title}</li>
-            {s.links.map((link) => (
+            {s.links.map(link => (
               <li key={link.url} className={linkClass(link)}>
                 <a href={link.url}>{link.label}</a>
               </li>

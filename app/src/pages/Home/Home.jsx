@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+import { playerActions, playerSelectors } from 'redux/players';
 import Button from '../../components/Button';
+import TextInput from '../../components/TextInput';
 import './Home.scss';
 
 const FEATURES = [
   {
     title: 'Experience tracking',
-    page: '/players/1057', // Lynx Titan
+    page: '/players/Lynx_Titan', // Lynx Titan
     description:
       'Track your skilling progression overtime, browse your recent gains, personal records and more.',
     image: '/img/landing_page/features/player_tracking.png'
@@ -20,7 +23,7 @@ const FEATURES = [
   },
   {
     title: 'Player achievements',
-    page: '/players/128/achievements',
+    page: '/players/Zulu/achievements',
     description: 'Reach your in-game goals to unlock your player achievements.',
     image: '/img/landing_page/features/efficiency_metrics.png'
   },
@@ -45,21 +48,45 @@ const FEATURES = [
   }
 ];
 
+function onScroll() {
+  const { scrollY } = window;
+  const hero = document.getElementById('hero');
+  const intro = document.getElementById('intro');
+  const illustration = document.getElementById('illustration');
+
+  const scrollPercent = scrollY / (hero.offsetHeight * 0.6);
+
+  intro.style.opacity = 1 - scrollPercent;
+  intro.style.transform = `translateY(${scrollPercent * 50}px)`;
+
+  illustration.style.opacity = 1 - scrollPercent;
+  illustration.style.transform = `scale(${1 + scrollPercent * 0.05})`;
+}
+
 function Home() {
-  function onScroll() {
-    const { scrollY } = window;
-    const hero = document.getElementById('hero');
-    const intro = document.getElementById('intro');
-    const illustration = document.getElementById('illustration');
+  const router = useHistory();
+  const dispatch = useDispatch();
 
-    const scrollPercent = scrollY / (hero.offsetHeight * 0.6);
+  const isLoading = useSelector(playerSelectors.isTracking);
+  const [username, setUsername] = useState('');
 
-    intro.style.opacity = 1 - scrollPercent;
-    intro.style.transform = `translateY(${scrollPercent * 50}px)`;
+  const onUsernameChanged = e => {
+    setUsername(e.target.value);
+  };
 
-    illustration.style.opacity = 1 - scrollPercent;
-    illustration.style.transform = `scale(${1 + scrollPercent * 0.05})`;
-  }
+  const onSearchSubmit = async e => {
+    e.preventDefault();
+
+    if (!username || !username.length) return;
+
+    const { payload } = await dispatch(playerActions.trackPlayer(username));
+
+    if (payload.username) {
+      router.push(`/players/${payload.username}`);
+    } else {
+      router.push(`/players/search/${username}`);
+    }
+  };
 
   useEffect(() => {
     window.addEventListener('scroll', onScroll);
@@ -79,19 +106,29 @@ function Home() {
             <p className="intro-description">
               The Open Source Old School Runescape player progress tracker.
             </p>
-            <div className="intro-cta">
-              <Button
-                className="secondary"
-                text="Join our Discord"
-                url="https://wiseoldman.net/discord"
+            <form className="intro-input-wrapper" onSubmit={onSearchSubmit}>
+              <TextInput
+                placeholder="Enter your username"
+                value={username}
+                onChange={onUsernameChanged}
               />
-              <Button text="Contribute" url="https://wiseoldman.net/github" />
+              <Button
+                type="submit"
+                className="intro-input-cta"
+                text="Start tracking"
+                loading={isLoading}
+              />
+            </form>
+            <div className="intro-links-container">
+              <a className="intro-link" href="https://wiseoldman.net/discord">
+                <span className="link-title">Join our Discord</span>
+                <img className="link-icon" src="/img/icons/arrow_right.svg" alt="" />
+              </a>
+              <a className="intro-link" href="https://wiseoldman.net/github">
+                <span className="link-title">Contribute on Github</span>
+                <img className="link-icon" src="/img/icons/arrow_right.svg" alt="" />
+              </a>
             </div>
-            <a className="intro-update" href="https://bot.wiseoldman.net">
-              <b className="update-new-tag">NEW!</b>
-              <span className="update-title">The Wise Old Man Discord Bot!</span>
-              <img className="update-icon" src="/img/icons/arrow_right.svg" alt="" />
-            </a>
           </div>
         </div>
         <div id="illustration" className="hero__illustration">

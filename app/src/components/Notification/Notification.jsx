@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
-import { isVisible, getNotification } from '../../redux/selectors/notifications';
-import { hideNotification } from '../../redux/modules/notifications/actions/toggle';
+import { appActions, appSelectors } from 'redux/app';
 import './Notification.scss';
 
 const config = {
@@ -25,14 +24,14 @@ const config = {
 
 function Notification() {
   const dispatch = useDispatch();
-  const visible = useSelector(state => isVisible(state));
-  const notification = useSelector(state => getNotification(state));
+  const visible = useSelector(appSelectors.isNotificationVisible);
+  const notification = useSelector(appSelectors.getNotification);
   const { text, type, duration } = notification;
 
   const timer = useRef(null);
 
   const closeNotification = () => {
-    dispatch(hideNotification());
+    dispatch(appActions.hideNotification());
   };
 
   const resetTimeout = () => {

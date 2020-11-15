@@ -25,11 +25,12 @@ function TopPlayerWidget({ group, isLoading }) {
     );
   }
 
-  const gained = formatNumber(topPlayer && topPlayer.gained ? topPlayer.gained : 0);
+  const gained = formatNumber(topPlayer.gained || 0);
+  const { player } = topPlayer;
 
   return (
-    <Link className="top-player-widget -clickable" to={`/players/${topPlayer.playerId}`}>
-      <b className="top__name">{topPlayer.displayName}</b>
+    <Link className="top-player-widget -clickable" to={`/players/${player.username}`}>
+      <b className="top__name">{player.displayName}</b>
       <span className="top__gained">{`${gained} exp gained`}</span>
     </Link>
   );

@@ -105,6 +105,8 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
+              flagged: false,
               updatedAt: '2020-04-04T22:35:31.530Z',
               progress: {
                 start: 5481946,
@@ -142,13 +144,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: 'Invalid competition id.'
+          message: "Parameter 'id' is undefined."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
-          message: 'Competition of id 4553 was not found.'
+          message: 'Competition not found.'
         }
       }
     ]
@@ -199,6 +201,8 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
+              flagged: false,
               lastImportedAt: '2020-03-27T21:56:50.000Z',
               registeredAt: '2020-03-13T23:29:57.000Z',
               updatedAt: '2020-03-27T21:56:50.000Z'
@@ -208,6 +212,8 @@ export default [
               username: 'zezima',
               displayName: 'Zezima',
               type: 'regular',
+              build: 'main',
+              flagged: false,
               lastImportedAt: '2020-03-15T02:21:49.000Z',
               registeredAt: '2020-03-15T02:21:46.000Z',
               updatedAt: '2020-03-15T02:21:49.000Z'
@@ -300,6 +306,8 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
+              flagged: false,
               lastImportedAt: '2020-04-04T22:33:53.450Z',
               registeredAt: '2020-04-03T21:43:17.574Z',
               updatedAt: '2020-04-04T22:35:31.530Z'
@@ -309,6 +317,8 @@ export default [
               username: 'zulu',
               displayName: 'Zulu',
               type: 'unknown',
+              build: 'main',
+              flagged: false,
               lastImportedAt: null,
               registeredAt: '2020-04-03T23:48:03.561Z',
               updatedAt: '2020-04-04T16:43:30.787Z'
@@ -318,6 +328,8 @@ export default [
               username: 'another',
               displayName: 'Another',
               type: 'unknown',
+              build: 'main',
+              flagged: false,
               lastImportedAt: null,
               registeredAt: '2020-04-04T23:44:53.755Z',
               updatedAt: '2020-04-04T23:44:53.755Z'
@@ -328,8 +340,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If endsAt is given but not valid.',
@@ -338,10 +358,6 @@ export default [
       {
         description: 'If startsAt is given but not valid.',
         body: { message: 'Invalid start date.' }
-      },
-      {
-        description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' }
       },
       {
         description: 'If the competition has already started and a metric was given.',
@@ -395,12 +411,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
       },
       {
-        description: 'If the competition of an id cannot be found.',
-        body: { message: 'Competition of id 5667 was not found.' }
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If the verification code is not given.',
@@ -437,6 +457,8 @@ export default [
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
+              build: 'main',
+              flagged: false,
               updatedAt: '2020-04-04T23:59:58.661Z',
               registeredAt: '2020-04-04T23:59:58.661Z',
               lastImportedAt: null
@@ -447,16 +469,20 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If participants is invalid or empty.',
         body: { message: 'Invalid participants list' }
-      },
-      {
-        description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -497,16 +523,20 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description: 'If participants is invalid or empty.',
         body: { message: 'Invalid participants list' }
-      },
-      {
-        description: 'If competition of id could not be found.',
-        body: { message: 'Competition of id 7677 was not found.' }
       },
       {
         description: 'If the verification code is not given.',
@@ -566,8 +596,16 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If id is not given.',
-        body: { message: 'Invalid competition id.' }
+        description: 'If no id is given.',
+        body: {
+          message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Competition not found.'
+        }
       },
       {
         description:

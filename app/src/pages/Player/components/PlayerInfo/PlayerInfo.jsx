@@ -1,13 +1,10 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import InfoPanel from '../../../../components/InfoPanel';
-import { capitalize, formatNumber, formatDate } from '../../../../utils';
-import './PlayerInfo.scss';
+import { capitalize, formatDate } from '../../../../utils';
 
 function formatData(player) {
-  const { id, type, combatLevel, registeredAt, updatedAt, lastImportedAt, latestSnapshot } = player;
-
-  const overallRank = latestSnapshot ? latestSnapshot.overall.rank : 'Unknown';
+  const { id, type, build, registeredAt, updatedAt } = player;
 
   return [
     {
@@ -19,12 +16,8 @@ function formatData(player) {
       value: capitalize(type)
     },
     {
-      key: 'Combat Level',
-      value: combatLevel || '-'
-    },
-    {
-      key: 'Overall Rank',
-      value: formatNumber(overallRank)
+      key: 'Build',
+      value: capitalize(build)
     },
     {
       key: 'Registered at',
@@ -33,10 +26,6 @@ function formatData(player) {
     {
       key: 'Last updated at',
       value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm')
-    },
-    {
-      key: 'Last imported at',
-      value: lastImportedAt ? formatDate(lastImportedAt, 'DD MMM YYYY, HH:mm') : '---'
     }
   ];
 }

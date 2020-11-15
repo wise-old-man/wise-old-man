@@ -2,10 +2,11 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween } from '../../../../utils';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from '../../../../utils';
 import Table from '../../../../components/Table';
 import PlayerTag from '../../../../components/PlayerTag';
 import NumberLabel from '../../../../components/NumberLabel';
+import TextLabel from '../../../../components/TextLabel';
 import TablePlaceholder from '../../../../components/TablePlaceholder';
 
 function TableUpdateButton({ username, isUpdating, onUpdate }) {
@@ -34,26 +35,55 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={`/players/${row.id}`}>
-            <PlayerTag name={value} type={row.type} />
+          <Link to={`/players/${row.username}`}>
+            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
           </Link>
         )
       },
       {
         key: 'start',
-        transform: val => <NumberLabel value={val} />,
+        get: row => (row.progress ? row.progress.start : 0),
         className: () => '-break-small',
-        get: row => (row.progress ? row.progress.start : 0)
+        transform: val => {
+          const minKc = getMinimumBossKc(competition.metric);
+          const metricName = getMetricName(competition.metric);
+
+          if (val !== -1) return <NumberLabel value={val} />;
+          if (!isBoss(competition.metric)) return val;
+
+          return (
+            <TextLabel
+              value={`< ${minKc}`}
+              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+            />
+          );
+        }
       },
       {
         key: 'end',
-        transform: val => <NumberLabel value={val} />,
+        get: row => (row.progress ? row.progress.end : 0),
         className: () => '-break-small',
-        get: row => (row.progress ? row.progress.end : 0)
+        transform: val => {
+          const minKc = getMinimumBossKc(competition.metric);
+          const metricName = getMetricName(competition.metric);
+
+          if (val !== -1) return <NumberLabel value={val} />;
+          if (!isBoss(competition.metric)) return val;
+
+          return (
+            <TextLabel
+              value={`< ${minKc}`}
+              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+            />
+          );
+        }
       },
       {
         key: 'gained',
-        transform: val => <NumberLabel value={val} lowThreshold={10000} isColored isSigned />,
+        transform: val => {
+          const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
+          return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
+        },
         get: row => (row.progress ? row.progress.gained : 0)
       },
       {

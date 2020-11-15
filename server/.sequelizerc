@@ -1,8 +1,17 @@
-const path = require("path");
+const path = require('path');
+
+/**
+ We want the migration:generate action to save new files to the src folder,
+ but also the db:migrate action to use files on the dist folder
+ so to toggle between these two, when we're creating a migration,
+ we set an environmental variable MIGRATING to false, this will
+ toggle the migrations path from src to dist
+*/
+const isMigrating = process.env.MIGRATING;
 
 module.exports = {
-  config: path.resolve("dist", "database", "config.js"),
-  "models-path": path.resolve("dist", "database", "models", "index.js"),
-  "seeders-path": path.resolve("dist", "database", "seeders"),
-  "migrations-path": path.resolve("dist", "database", "migrations")
+  config: path.resolve('dist', 'database', 'config.js'),
+  'models-path': path.resolve('dist', 'database', 'index.js'),
+  'seeders-path': path.resolve('dist', 'database', 'seeders'),
+  'migrations-path': path.resolve(isMigrating ? 'src' : 'dist', 'database', 'migrations')
 };
