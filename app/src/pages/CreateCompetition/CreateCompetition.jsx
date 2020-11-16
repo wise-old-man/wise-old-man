@@ -184,7 +184,9 @@ function CreateCompetition() {
         setGroupCompetition(true);
       }
     }
-    getDetails();
+    if (groupId) {
+      getDetails();
+    }
   }, [dispatch, groupId]);
 
   return (
