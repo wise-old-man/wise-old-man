@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -64,7 +64,7 @@ function CreateCompetition() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [groupVerificationCode, setGroupVerificationCode] = useState('');
 
-  const [groupCompetition, setGroupCompetition] = useState(groupId || false);
+  const [groupCompetition, setGroupCompetition] = useState(false);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [showingCustomConfirmationModal, toggleCustomMessageModal] = useState(false);
@@ -72,13 +72,6 @@ function CreateCompetition() {
   const [createdId, setCreatedId] = useState(-1);
 
   const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
-
-  async function fetchDetails(id) {
-    const { payload } = await dispatch(groupActions.fetchDetails(id));
-    if (payload && payload.data) {
-      setSelectedGroup(payload.data);
-    }
-  }
 
   const handleTitleChanged = e => {
     setTitle(e.target.value);
@@ -183,9 +176,16 @@ function CreateCompetition() {
     (groupCompetition && !selectedGroup) ||
     (selectedGroup && selectedGroup.memberCount === 0);
 
-  if (groupId && selectedGroup === null) {
-    fetchDetails(groupId);
-  }
+  useEffect(() => {
+    async function getDetails() {
+      const { payload } = await dispatch(groupActions.fetchDetails(groupId));
+      if (payload && payload.data) {
+        setSelectedGroup(payload.data);
+        setGroupCompetition(true);
+      }
+    }
+    getDetails();
+  }, [dispatch, groupId]);
 
   return (
     <div className="create-competition__container container">
