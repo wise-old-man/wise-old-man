@@ -10,8 +10,8 @@ import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import RemoveGroupMembersModal from '../../modals/RemoveGroupMembersModal';
-import { getRemovedGroupMembers, mapGroupMembers } from '../../utils/users';
+import RemovePlayersModal from '../../modals/RemovePlayersModal';
+import { getRemovedPlayerModels, mapToDisplayName, mapToPlayerModel } from '../../utils';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -24,9 +24,9 @@ function EditGroup() {
   const [clanChat, setClanChat] = useState('');
   const [homeworld, setHomeworld] = useState('');
   const [members, setMembers] = useState([]);
-  const [removedMembers, setRemovedMembers] = useState([]);
+  const [removedPlayers, setRemovedPlayers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
-  const [showingRemoveGroupMembersModal, toggleRemoveGroupMembersModal] = useState(false);
+  const [showingRemovePlayersModal, toggleRemovePlayersModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
   const group = useSelector(state => groupSelectors.getGroup(state, parseInt(id, 10)));
@@ -44,15 +44,15 @@ function EditGroup() {
       setDescription(group.description);
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld);
-      setMembers(mapGroupMembers(group.members));
+      setMembers(mapToPlayerModel(group.members));
     }
   };
 
   const findRemovedMembers = () => {
     if (group) {
-      const mappedGroupMembers = mapGroupMembers(group.members);
+      const mappedGroupMembers = mapToPlayerModel(group.members);
 
-      setRemovedMembers(getRemovedGroupMembers(mappedGroupMembers, members));
+      setRemovedPlayers(mapToDisplayName(getRemovedPlayerModels(mappedGroupMembers, members)));
     }
   };
 
@@ -129,8 +129,8 @@ function EditGroup() {
     toggleImportModal(false);
   };
 
-  const handleRemoveGroupMembersModalConfirm = () => {
-    toggleRemoveGroupMembersModal(false);
+  const handleRemovePlayersModalConfirm = () => {
+    toggleRemovePlayersModal(false);
     onSubmit();
   };
 
@@ -146,8 +146,8 @@ function EditGroup() {
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
-  const hideRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(false), []);
-  const showRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(true), []);
+  const hideRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(false), []);
+  const showRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
   const onDescriptionChanged = useCallback(handleDescriptionChanged, []);
@@ -158,7 +158,7 @@ function EditGroup() {
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
-  const onConfirmRemoveGroupMembersModal = useCallback(handleRemoveGroupMembersModalConfirm, [
+  const onConfirmRemovePlayersModal = useCallback(handleRemovePlayersModalConfirm, [
     name,
     clanChat,
     description,
@@ -266,7 +266,7 @@ function EditGroup() {
         <div className="form-row form-actions">
           <Button
             text="Confirm"
-            onClick={removedMembers.length > 0 ? showRemoveGroupMembersModal : onSubmit}
+            onClick={removedPlayers.length > 0 ? showRemovePlayersModal : onSubmit}
             loading={isSubmitting}
           />
         </div>
@@ -274,12 +274,12 @@ function EditGroup() {
       {showingImportModal && (
         <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
       )}
-      {showingRemoveGroupMembersModal && (
-        <RemoveGroupMembersModal
-          members={removedMembers}
-          groupId={group.id}
-          onClose={hideRemoveGroupMembersModal}
-          onConfirm={onConfirmRemoveGroupMembersModal}
+      {showingRemovePlayersModal && (
+        <RemovePlayersModal
+          modalView={`/groups/${group.id}/removeMembers`}
+          players={removedPlayers}
+          onClose={hideRemovePlayersModal}
+          onConfirm={onConfirmRemovePlayersModal}
         />
       )}
     </div>

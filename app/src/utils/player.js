@@ -52,3 +52,25 @@ export function getPlayerTooltip(type, flagged) {
 
   return `Player type: ${type}.`;
 }
+
+// Groups
+export function mapToPlayerModel(players) {
+  return players.map(({ username, displayName, role }) => ({ username, displayName, role }));
+}
+
+export function getRemovedPlayerModels(initialPlayers, currentPlayers) {
+  return initialPlayers.filter(
+    initial => currentPlayers.find(current => current.username === initial.username) === undefined
+  );
+}
+
+// Competitions
+export function mapToDisplayName(players) {
+  return players.map(({ displayName }) => displayName);
+}
+
+export function getRemovedDisplayNames(initialPlayers, currentPlayers) {
+  return initialPlayers.filter(
+    initial => currentPlayers.find(current => current === initial) === undefined
+  );
+}
