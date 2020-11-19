@@ -10,6 +10,8 @@ import TextButton from '../../components/TextButton';
 import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
+import RemoveGroupMembersModal from '../../modals/RemoveGroupMembersModal';
+import { getRemovedGroupMembers, mapGroupMembers } from '../../utils/users';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -22,7 +24,9 @@ function EditGroup() {
   const [clanChat, setClanChat] = useState('');
   const [homeworld, setHomeworld] = useState('');
   const [members, setMembers] = useState([]);
+  const [removedMembers, setRemovedMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingRemoveGroupMembersModal, toggleRemoveGroupMembersModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
   const group = useSelector(state => groupSelectors.getGroup(state, parseInt(id, 10)));
@@ -40,9 +44,15 @@ function EditGroup() {
       setDescription(group.description);
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld);
-      setMembers(
-        group.members.map(({ username, displayName, role }) => ({ username, displayName, role }))
-      );
+      setMembers(mapGroupMembers(group.members));
+    }
+  };
+
+  const findRemovedMembers = () => {
+    if (group) {
+      const mappedGroupMembers = mapGroupMembers(group.members);
+
+      setRemovedMembers(getRemovedGroupMembers(mappedGroupMembers, members));
     }
   };
 
@@ -119,6 +129,11 @@ function EditGroup() {
     toggleImportModal(false);
   };
 
+  const handleRemoveGroupMembersModalConfirm = () => {
+    toggleRemoveGroupMembersModal(false);
+    onSubmit();
+  };
+
   const handleSubmit = async () => {
     const { payload } = await dispatch(
       groupActions.edit(id, name, description, clanChat, homeworld, members, verificationCode)
@@ -131,6 +146,8 @@ function EditGroup() {
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
+  const hideRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(false), []);
+  const showRemoveGroupMembersModal = useCallback(() => toggleRemoveGroupMembersModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
   const onDescriptionChanged = useCallback(handleDescriptionChanged, []);
@@ -141,6 +158,14 @@ function EditGroup() {
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
+  const onConfirmRemoveGroupMembersModal = useCallback(handleRemoveGroupMembersModalConfirm, [
+    name,
+    clanChat,
+    description,
+    homeworld,
+    members,
+    verificationCode
+  ]);
   const onSubmit = useCallback(handleSubmit, [
     name,
     clanChat,
@@ -153,6 +178,8 @@ function EditGroup() {
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(populate, [group]);
+
+  useEffect(findRemovedMembers, [group, members]);
 
   if (!group) {
     return null;
@@ -237,11 +264,23 @@ function EditGroup() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button
+            text="Confirm"
+            onClick={removedMembers.length > 0 ? showRemoveGroupMembersModal : onSubmit}
+            loading={isSubmitting}
+          />
         </div>
       </div>
       {showingImportModal && (
         <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+      )}
+      {showingRemoveGroupMembersModal && (
+        <RemoveGroupMembersModal
+          members={removedMembers}
+          groupId={group.id}
+          onClose={hideRemoveGroupMembersModal}
+          onConfirm={onConfirmRemoveGroupMembersModal}
+        />
       )}
     </div>
   );
