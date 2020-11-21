@@ -2,8 +2,8 @@ import * as jagexService from '../../services/external/jagex.service';
 import * as leagueService from '../../services/internal/league.service';
 import { Job } from '../index';
 
-const CHECK_DELAY = 5000;
-const CHECK_RANGE = 100;
+const CHECK_DELAY = 20000;
+const CHECK_RANGE = 10;
 
 async function sleep(millis: number) {
   return new Promise(resolve => setTimeout(resolve, millis));

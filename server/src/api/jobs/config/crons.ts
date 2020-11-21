@@ -5,6 +5,6 @@ export default [
   },
   {
     jobName: 'CheckLeagueRanks',
-    cronConfig: '*/5 * * * *'
+    cronConfig: '*/10 * * * *'
   }
 ];
