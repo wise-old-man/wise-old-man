@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { formatNumber, getMetricIcon, getMetricName } from 'utils';
-import './TotalGainedWidget.scss';
+import './TotalGained.scss';
 
-function TotalGainedWidget({ competition }) {
-  const { metric, totalGained } = competition;
-
+function TotalGained({ metric, totalGained }) {
   const label = `${getMetricName(metric)}`;
   const icon = getMetricIcon(metric);
 
@@ -39,8 +37,13 @@ function TotalGainedWidget({ competition }) {
   );
 }
 
-TotalGainedWidget.propTypes = {
-  competition: PropTypes.shape().isRequired
+TotalGained.defaultProps = {
+  totalGained: undefined
 };
 
-export default TotalGainedWidget;
+TotalGained.propTypes = {
+  metric: PropTypes.string.isRequired,
+  totalGained: PropTypes.number
+};
+
+export default TotalGained;

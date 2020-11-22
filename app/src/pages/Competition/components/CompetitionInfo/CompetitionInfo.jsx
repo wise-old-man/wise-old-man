@@ -4,7 +4,11 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { InfoPanel } from 'components';
 import { formatDate, capitalize, getType, getMetricName } from 'utils';
-import './CompetitionInfo.scss';
+
+function CompetitionInfo({ competition }) {
+  const data = useMemo(() => formatData(competition), [competition]);
+  return <InfoPanel data={data} />;
+}
 
 function formatData(competition) {
   const { id, metric, status, participants, duration, startsAt, endsAt, group } = competition;
@@ -16,12 +20,31 @@ function formatData(competition) {
   });
 
   return [
-    { key: 'Id', value: id },
-    { key: capitalize(getType(metric)), value: getMetricName(metric) },
-    { key: 'Status', value: capitalize(status), className: statusClass },
-    { key: 'Group', value: group ? <Link to={`/groups/${group.id}`}>{group.name}</Link> : '---' },
-    { key: 'Participants', value: participants ? participants.length : 'Unknown' },
-    { key: 'Duration', value: capitalize(duration) },
+    {
+      key: 'Id',
+      value: id
+    },
+    {
+      key: capitalize(getType(metric)),
+      value: getMetricName(metric)
+    },
+    {
+      key: 'Status',
+      value: capitalize(status),
+      className: statusClass
+    },
+    {
+      key: 'Group',
+      value: group ? <Link to={`/groups/${group.id}`}>{group.name}</Link> : '---'
+    },
+    {
+      key: 'Participants',
+      value: participants ? participants.length : 'Unknown'
+    },
+    {
+      key: 'Duration',
+      value: capitalize(duration)
+    },
     {
       key: status === 'upcoming' ? 'Starts at' : 'Started at',
       value: formatDate(startsAt, 'DD MMM YYYY, HH:mm')
@@ -31,11 +54,6 @@ function formatData(competition) {
       value: formatDate(endsAt, 'DD MMM YYYY, HH:mm')
     }
   ];
-}
-
-function CompetitionInfo({ competition }) {
-  const data = useMemo(() => formatData(competition), [competition]);
-  return <InfoPanel data={data} />;
 }
 
 CompetitionInfo.propTypes = {

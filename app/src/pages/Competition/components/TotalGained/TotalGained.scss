@@ -1,4 +1,3 @@
-@import '../../../../variables.scss';
 @import '../../../../styles.scss';
 
 .total-gained-widget {
@@ -42,21 +41,6 @@
         margin: 4px 0;
         background: rgba(255, 255, 255, 0.1);
         border-radius: $border-radius;
-      }
-    }
-  }
-}
-
-// Medium or lower
-@media only screen and (max-width: $breakpoint-large) {
-  .total-gained-widget {
-    .total-info {
-      &__metric {
-        font-size: 0.9em;
-      }
-
-      &__gained {
-        font-size: 1.2em;
       }
     }
   }

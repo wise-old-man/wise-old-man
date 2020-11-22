@@ -1,25 +1,22 @@
 import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
 import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
+import { competitionSelectors } from 'redux/competitions';
+import { playerSelectors } from 'redux/players';
 
-function TableUpdateButton({ username, isUpdating, onUpdate }) {
-  const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });
-  const onClick = useCallback(() => onUpdate(username), [username, onUpdate]);
+function ParticipantsTable({ competition, onUpdateClicked }) {
+  const isLoading = useSelector(competitionSelectors.isFetchingDetails);
+  const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
-  return (
-    <button className={btnClass} type="button" onClick={onClick}>
-      <img src="/img/icons/sync.svg" alt="" />
-    </button>
-  );
-}
+  if (isLoading) {
+    return <TablePlaceholder size={10} />;
+  }
 
-function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isLoading }) {
-  const isFinished = competition.endsAt < new Date();
-
-  const TABLE_CONFIG = {
+  const tableConfig = {
     uniqueKeySelector: row => row.username,
     columns: [
       {
@@ -76,11 +73,11 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
       },
       {
         key: 'gained',
+        get: row => (row.progress ? row.progress.gained : 0),
         transform: val => {
           const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
           return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
-        },
-        get: row => (row.progress ? row.progress.gained : 0)
+        }
       },
       {
         key: 'updatedAt',
@@ -93,7 +90,7 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
         label: '',
         isSortable: false,
         transform: (value, row) =>
-          !isFinished && (
+          competition.status !== 'finished' && (
             <TableUpdateButton
               username={row.username}
               isUpdating={updatingUsernames.includes(row.username)}
@@ -104,18 +101,30 @@ function CompetitionTable({ competition, updatingUsernames, onUpdateClicked, isL
     ]
   };
 
-  if (isLoading) {
-    return <TablePlaceholder size={10} />;
-  }
-
   return (
     <Table
       rows={competition.participants}
-      columns={TABLE_CONFIG.columns}
-      uniqueKeySelector={TABLE_CONFIG.uniqueKeySelector}
+      columns={tableConfig.columns}
+      uniqueKeySelector={tableConfig.uniqueKeySelector}
     />
   );
 }
+
+function TableUpdateButton({ username, isUpdating, onUpdate }) {
+  const btnClass = classNames({ 'update-btn': true, '-loading': isUpdating });
+  const onClick = useCallback(() => onUpdate(username), [username, onUpdate]);
+
+  return (
+    <button className={btnClass} type="button" onClick={onClick}>
+      <img src="/img/icons/sync.svg" alt="" />
+    </button>
+  );
+}
+
+ParticipantsTable.propTypes = {
+  competition: PropTypes.shape().isRequired,
+  onUpdateClicked: PropTypes.func.isRequired
+};
 
 TableUpdateButton.propTypes = {
   username: PropTypes.string.isRequired,
@@ -123,11 +132,4 @@ TableUpdateButton.propTypes = {
   onUpdate: PropTypes.func.isRequired
 };
 
-CompetitionTable.propTypes = {
-  competition: PropTypes.shape().isRequired,
-  updatingUsernames: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onUpdateClicked: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool.isRequired
-};
-
-export default CompetitionTable;
+export default ParticipantsTable;

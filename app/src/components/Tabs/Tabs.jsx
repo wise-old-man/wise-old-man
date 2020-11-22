@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import './Tabs.scss';
 
-function Tabs({ tabs, selectedIndex, align, urlSelector }) {
+function Tabs({ tabs, selectedIndex, align, urlSelector, onTabSelected }) {
   const wrapperClass = classNames({
     'tab-bar__wrapper': true,
     '-align-left': align === 'left',
@@ -28,10 +28,20 @@ function Tabs({ tabs, selectedIndex, align, urlSelector }) {
           const tabClass = classNames({ tab: true, '-highlighted': selectedIndex === i });
           const url = urlSelector && urlSelector(i);
 
-          return (
+          return urlSelector ? (
             <Link key={tab} id={`tab-${i}`} to={url} className={tabClass}>
               <span>{tab}</span>
             </Link>
+          ) : (
+            <button
+              type="button"
+              key={tab}
+              id={`tab-${i}`}
+              className={tabClass}
+              onClick={() => onTabSelected(i)}
+            >
+              <span>{tab}</span>
+            </button>
           );
         })}
       </div>
@@ -40,7 +50,9 @@ function Tabs({ tabs, selectedIndex, align, urlSelector }) {
 }
 
 Tabs.defaultProps = {
-  align: 'left'
+  align: 'left',
+  urlSelector: undefined,
+  onTabSelected: undefined
 };
 
 Tabs.propTypes = {
@@ -49,7 +61,9 @@ Tabs.propTypes = {
 
   selectedIndex: PropTypes.number.isRequired,
 
-  urlSelector: PropTypes.func.isRequired,
+  onTabSelected: PropTypes.func,
+
+  urlSelector: PropTypes.func,
 
   // The alignment of the tabs (optional), must be one of (right, left, center, space-between)
   align: PropTypes.string

@@ -42,6 +42,10 @@
       font-size: 0.7em;
       text-align: center;
 
+      &:active {
+        opacity: 0.3;
+      }
+
       &.-highlighted {
         background: $gray-12;
         color: white;

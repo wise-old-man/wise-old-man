@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import className from 'classnames';
 import { formatNumber, isSkill, isBoss, isActivity } from 'utils';
-import './TopPlayerWidget.scss';
+import './TopParticipant.scss';
 
 function measureLabel(metric) {
   if (isSkill(metric)) return 'exp gained';
@@ -12,9 +12,8 @@ function measureLabel(metric) {
   return metric.toUpperCase();
 }
 
-function TopPlayerWidget({ competition }) {
-  const { participants, metric } = competition;
-  const showPlaceholder = !competition || !participants || !participants.length;
+function TopParticipant({ participants, metric }) {
+  const showPlaceholder = !participants || !participants.length;
 
   if (showPlaceholder) {
     return (
@@ -36,9 +35,23 @@ function TopPlayerWidget({ competition }) {
     </Link>
   );
 }
-
-TopPlayerWidget.propTypes = {
-  competition: PropTypes.shape().isRequired
+TopParticipant.defaultProps = {
+  participants: []
 };
 
-export default TopPlayerWidget;
+TopParticipant.propTypes = {
+  metric: PropTypes.string.isRequired,
+  participants: PropTypes.arrayOf(
+    PropTypes.shape({
+      username: PropTypes.string,
+      displayName: PropTypes.string,
+      progress: PropTypes.shape({
+        gained: PropTypes.number,
+        start: PropTypes.number,
+        end: PropTypes.number
+      })
+    })
+  )
+};
+
+export default TopParticipant;
