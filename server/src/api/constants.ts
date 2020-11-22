@@ -174,6 +174,13 @@ export const ACTIVITY_ACHIEVEMENT_TEMPLATES = [
     type: '{threshold} {activity} score',
     measure: 'score',
     thresholds: [1000, 5000, 10000]
+  },
+  {
+    type: '{threshold} League Points',
+    metric: 'league_points',
+    measure: 'score',
+    thresholds: [10_000, 20_000, 40_000, 70_000],
+    validate: (snapshot: Snapshot, threshold: number) => snapshot.league_pointsScore >= threshold
   }
 ];
 
