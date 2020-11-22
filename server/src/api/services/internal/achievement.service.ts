@@ -21,12 +21,12 @@ import * as snapshotService from './snapshot.service';
 function formatThreshold(threshold: number): string {
   if (threshold === 13034431) return '99';
   if (threshold < 1000 || threshold === 2277) return String(threshold);
-  if (threshold <= 10000) return `${Math.floor(threshold / 1000)}k`;
+  if (threshold <= 100_000) return `${Math.floor(threshold / 1000)}k`;
 
-  if (threshold < 1000000000)
-    return `${Math.round((threshold / 1000000 + Number.EPSILON) * 100) / 100}m`;
+  if (threshold < 1_000_000_000)
+    return `${Math.round((threshold / 1_000_000 + Number.EPSILON) * 100) / 100}m`;
 
-  return `${Math.round((threshold / 1000000000 + Number.EPSILON) * 100) / 100}b`;
+  return `${Math.round((threshold / 1_000_000_000 + Number.EPSILON) * 100) / 100}b`;
 }
 
 function formatType(baseType: string, threshold: number, metric: string): string {
@@ -81,6 +81,9 @@ function getDefinitions() {
     // Dynamic threshold/activity templates (Ex: 1k Clues (Hard), 5k Clues (Medium))
     if (!metric) {
       ACTIVITIES.forEach(activity => {
+        // Don't include league points in the default activity achievements
+        if (activity === 'league_points') return;
+
         thresholds
           .map(t => t * getDifficultyFactor(activity))
           .forEach(threshold => {
