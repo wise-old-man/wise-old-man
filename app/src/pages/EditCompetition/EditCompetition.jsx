@@ -14,7 +14,7 @@ import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import RemovePlayersModal from '../../modals/RemovePlayersModal';
-import { getMetricIcon, getMetricName, getRemovedDisplayNames, mapToDisplayName } from '../../utils';
+import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import './EditCompetition.scss';
 
@@ -71,9 +71,11 @@ function EditCompetition() {
 
   const findRemovedParticipants = () => {
     if (competition) {
-      const mappedParticipants = mapToDisplayName(competition.participants);
+      const removedParticipants = competition.participants
+        .map(p => p.displayName)
+        .filter(current => participants.find(initial => initial === current) === undefined);
 
-      setRemovedPlayers(getRemovedDisplayNames(mappedParticipants, participants));
+      setRemovedPlayers(removedParticipants);
     }
   };
 

@@ -11,7 +11,6 @@ import Button from '../../components/Button';
 import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import RemovePlayersModal from '../../modals/RemovePlayersModal';
-import { getRemovedPlayerModels, mapToDisplayName, mapToPlayerModel } from '../../utils';
 import './EditGroup.scss';
 
 function EditGroup() {
@@ -38,21 +37,26 @@ function EditGroup() {
     dispatch(groupActions.fetchMembers(id));
   };
 
+  const mapMembers = groupMembers =>
+    groupMembers.map(({ username, displayName, role }) => ({ username, displayName, role }));
+
   const populate = () => {
     if (group) {
       setName(group.name);
       setDescription(group.description);
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld);
-      setMembers(mapToPlayerModel(group.members));
+      setMembers(mapMembers(group.members));
     }
   };
 
   const findRemovedMembers = () => {
     if (group) {
-      const mappedGroupMembers = mapToPlayerModel(group.members);
+      const removedGroupMembers = mapMembers(group.members).filter(
+        initial => members.find(current => initial.username === current.username) === undefined
+      );
 
-      setRemovedPlayers(mapToDisplayName(getRemovedPlayerModels(mappedGroupMembers, members)));
+      setRemovedPlayers(removedGroupMembers.map(m => m.displayName));
     }
   };
 
