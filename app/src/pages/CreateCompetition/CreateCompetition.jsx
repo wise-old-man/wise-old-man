@@ -159,6 +159,7 @@ function CreateCompetition() {
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onSubmitParticipantsModal = useCallback(handleImportModalSubmit, []);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
+  const onFetch = useCallback(fetchDetails, []);
 
   const onSubmit = useCallback(handleSubmit, [
     title,
@@ -176,18 +177,17 @@ function CreateCompetition() {
     (groupCompetition && !selectedGroup) ||
     (selectedGroup && selectedGroup.memberCount === 0);
 
+  async function fetchDetails() {
+    const { payload } = await dispatch(groupActions.fetchDetails(groupId));
+    if (payload && payload.data) {
+      setSelectedGroup(payload.data);
+      setGroupCompetition(true);
+    }
+  }
+
   useEffect(() => {
-    async function getDetails() {
-      const { payload } = await dispatch(groupActions.fetchDetails(groupId));
-      if (payload && payload.data) {
-        setSelectedGroup(payload.data);
-        setGroupCompetition(true);
-      }
-    }
-    if (groupId) {
-      getDetails();
-    }
-  }, [dispatch, groupId]);
+    onFetch();
+  }, [dispatch, groupId, onFetch]);
 
   return (
     <div className="create-competition__container container">
