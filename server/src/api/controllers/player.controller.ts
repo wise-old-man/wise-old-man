@@ -4,6 +4,7 @@ import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as groupService from '../services/internal/group.service';
+import * as nameService from '../services/internal/name.service';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
@@ -226,6 +227,24 @@ async function snapshots(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /players/:id/names
+// GET /players/username/:username/names
+async function names(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+
+    const playerId = await playerService.resolveId({ id, username });
+
+    // Get all player names (by player id)
+    const playerNames = await nameService.getPlayerNames(playerId);
+
+    res.json(playerNames);
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
   search,
   track,
@@ -238,5 +257,6 @@ export {
   groups,
   gained,
   records,
-  snapshots
+  snapshots,
+  names
 };
