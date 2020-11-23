@@ -46,6 +46,12 @@ export default class Group extends Model<Group> {
   @Column({ type: DataType.STRING(20) })
   clanChat: string;
 
+  @Column({ type: DataType.STRING(100) })
+  description: string;
+
+  @Column({ type: DataType.INTEGER })
+  homeworld: number;
+
   @Column({ type: DataType.INTEGER, defaultValue: 0 })
   score: number;
 

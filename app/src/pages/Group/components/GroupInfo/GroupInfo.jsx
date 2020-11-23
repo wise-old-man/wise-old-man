@@ -5,11 +5,13 @@ import { formatDate } from '../../../../utils';
 import './GroupInfo.scss';
 
 function formatData(group) {
-  const { id, members, clanChat, createdAt, updatedAt } = group;
+  const { id, members, clanChat, homeworld, description, createdAt, updatedAt } = group;
 
   return [
     { key: 'Id', value: id },
+    { key: 'Description', value: description || 'Unknown' },
     { key: 'Clan chat', value: clanChat || 'Unknown' },
+    { key: 'Homeworld', value: homeworld || 'Unknown' },
     { key: 'Members', value: members ? members.length : 'Unknown' },
     { key: 'Created at', value: formatDate(createdAt, 'DD MMM YYYY, HH:mm') },
     { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm') }

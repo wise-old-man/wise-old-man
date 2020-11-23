@@ -18,7 +18,9 @@ function EditGroup() {
   const dispatch = useDispatch();
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [clanChat, setClanChat] = useState('');
+  const [homeworld, setHomeworld] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
@@ -35,7 +37,9 @@ function EditGroup() {
   const populate = () => {
     if (group) {
       setName(group.name);
+      setDescription(group.description);
       setClanChat(group.clanChat || '');
+      setHomeworld(group.homeworld);
       setMembers(
         group.members.map(({ username, displayName, role }) => ({ username, displayName, role }))
       );
@@ -46,8 +50,16 @@ function EditGroup() {
     setName(e.target.value);
   };
 
+  const handleDescriptionChanged = e => {
+    setDescription(e.target.value);
+  };
+
   const handleClanChatChanged = e => {
     setClanChat(e.target.value);
+  };
+
+  const handleHomeworldChanged = e => {
+    setHomeworld(e.target.value);
   };
 
   const handleVerificationChanged = e => {
@@ -108,7 +120,9 @@ function EditGroup() {
   };
 
   const handleSubmit = async () => {
-    const { payload } = await dispatch(groupActions.edit(id, name, clanChat, members, verificationCode));
+    const { payload } = await dispatch(
+      groupActions.edit(id, name, description, clanChat, homeworld, members, verificationCode)
+    );
 
     if (payload && payload.data) {
       router.push(`/groups/${group.id}`);
@@ -119,13 +133,22 @@ function EditGroup() {
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
+  const onDescriptionChanged = useCallback(handleDescriptionChanged, []);
   const onClanChatChanged = useCallback(handleClanChatChanged, []);
+  const onHomeworldChanged = useCallback(handleHomeworldChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
   const onVerificationChanged = useCallback(handleVerificationChanged, []);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
-  const onSubmit = useCallback(handleSubmit, [name, clanChat, members, verificationCode]);
+  const onSubmit = useCallback(handleSubmit, [
+    name,
+    clanChat,
+    description,
+    homeworld,
+    members,
+    verificationCode
+  ]);
 
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
@@ -155,12 +178,32 @@ function EditGroup() {
         </div>
 
         <div className="form-row">
+          <span className="form-row__label">Description</span>
+          <TextInput
+            value={description}
+            placeholder="Ex: This is the summary about the group"
+            onChange={onDescriptionChanged}
+            maxCharacters={100}
+          />
+        </div>
+
+        <div className="form-row">
           <span className="form-row__label">Clan chat</span>
           <TextInput
             placeholder="Ex: titanZ"
             value={clanChat}
             onChange={onClanChatChanged}
             maxCharacters={12}
+          />
+        </div>
+
+        <div className="form-row">
+          <span className="form-row__label">Homeworld</span>
+          <TextInput
+            placeholder="Ex: 492"
+            value={homeworld}
+            onChange={onHomeworldChanged}
+            maxCharacters={4}
           />
         </div>
 
