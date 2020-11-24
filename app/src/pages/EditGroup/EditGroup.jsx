@@ -53,7 +53,9 @@ function EditGroup() {
   const findRemovedMembers = () => {
     if (group) {
       const removedGroupMembers = mapMembers(group.members).filter(
-        initial => members.find(current => initial.username === current.username) === undefined
+        initial =>
+          members.find(current => initial.username.toLowerCase() === current.username.toLowerCase()) ===
+          undefined
       );
 
       setRemovedPlayers(removedGroupMembers.map(m => m.displayName));

@@ -73,7 +73,10 @@ function EditCompetition() {
     if (competition) {
       const removedParticipants = competition.participants
         .map(p => p.displayName)
-        .filter(current => participants.find(initial => initial === current) === undefined);
+        .filter(
+          current =>
+            participants.find(initial => initial.toLowerCase() === current.toLowerCase()) === undefined
+        );
 
       setRemovedPlayers(removedParticipants);
     }
