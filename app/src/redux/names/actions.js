@@ -16,6 +16,19 @@ const fetchNameChanges = (limit, offset) => async dispatch => {
   }
 };
 
+const fetchPlayerNameChanges = username => async dispatch => {
+  dispatch(reducers.onFetchPlayerNameChangesRequest());
+
+  try {
+    const url = endpoints.fetchPlayerNames.replace(':username', username);
+    const { data } = await api.get(url);
+
+    dispatch(reducers.onFetchPlayerNameChangesSuccess({ username, data }));
+  } catch (e) {
+    dispatch(reducers.onFetchPlayerNameChangesError(e.message.toString()));
+  }
+};
+
 const submitNameChange = (oldName, newName) => async dispatch => {
   dispatch(reducers.onSubmitRequest());
 
@@ -29,4 +42,4 @@ const submitNameChange = (oldName, newName) => async dispatch => {
   }
 };
 
-export { fetchNameChanges, submitNameChange };
+export { fetchNameChanges, submitNameChange, fetchPlayerNameChanges };
