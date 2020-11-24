@@ -77,6 +77,8 @@ export default [
           name: 'RSPT',
           score: 120,
           verified: true,
+          description: 'RSPT is a group that produces the best local goods in the Zanaris market.',
+          homeworld: 492,
           clanChat: 'rspt',
           memberCount: 178,
           createdAt: '2020-04-18T09:01:10.630Z',
@@ -759,7 +761,9 @@ export default [
     ],
     body: {
       name: 'Falador Knights',
+      description: 'We are the knights.',
       clanChat: 'fallyK',
+      homeworld: 492,
       members: [
         { username: 'Psikoi', role: 'leader' },
         { username: 'Zezima', role: 'leader' },
@@ -776,6 +780,8 @@ export default [
           score: 0,
           verified: false,
           clanChat: 'fallyK',
+          description: 'We are the knights.',
+          homeworld: 492,
           verificationCode: '107-719-861',
           updatedAt: '2020-04-23T01:53:26.079Z',
           createdAt: '2020-04-23T01:53:26.079Z',
@@ -838,6 +844,10 @@ export default [
         body: { message: "Parameter 'name' is undefined." }
       },
       {
+        description: 'If homeworld is not a number',
+        body: { message: "Parameter 'homeworld' is not a valid number." }
+      },
+      {
         description: 'If name is already taken.',
         body: { message: "Group name 'Hexis' is already taken." }
       },
@@ -870,7 +880,9 @@ export default [
     ],
     body: {
       name: 'Some new name',
+      description: 'The big lebowski',
       clanChat: 'fallyK',
+      homeworld: 490,
       verificationCode: '842-225-748',
       members: ['Psikoi', 'Zezima']
     },
@@ -883,6 +895,8 @@ export default [
           score: 0,
           verified: false,
           clanChat: 'fallyK',
+          description: 'The big lebowski',
+          homeworld: 490,
           createdAt: '2020-04-18T08:45:28.726Z',
           updatedAt: '2020-04-18T15:30:41.380Z',
           members: [
@@ -946,6 +960,10 @@ export default [
       {
         description: 'If the verification code is not correct.',
         body: { message: 'Incorrect verification code.' }
+      },
+      {
+        description: 'If homeworld is not a number',
+        body: { message: "Parameter 'homeworld' is not a valid number." }
       }
     ]
   },

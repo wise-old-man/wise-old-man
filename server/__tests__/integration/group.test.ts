@@ -59,12 +59,14 @@ describe('Group API', () => {
     });
 
     test('1.4 - Create valid group (no members)', async done => {
-      const body = { name: ' Some Group_', clanChat: ' Test ' };
+      const body = { name: ' Some Group_', description: 'Test', clanChat: ' Test ', homeworld: 492 };
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(201);
       expect(response.body.name).toMatch('Some Group');
       expect(response.body.clanChat).toMatch('Test');
+      expect(response.body.description).toMatch('Test');
+      expect(response.body.homeworld).toBe(492);
 
       TEST_DATA.noMembers = response.body;
 
@@ -152,6 +154,20 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid usernames');
       expect(response.body.data).toContain('Some really long username');
+
+      done();
+    });
+
+    test("1.10 - DON'T create (invalid homeworld type)", async done => {
+      const body = {
+        name: ' Some Group_',
+        description: 'Test',
+        clanChat: ' Test ',
+        homeworld: 'BadType'
+      };
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.body.message).toMatch("Parameter 'homeworld' is not a valid number.");
 
       done();
     });
