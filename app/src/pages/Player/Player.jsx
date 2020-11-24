@@ -11,6 +11,7 @@ import { recordActions, recordSelectors } from 'redux/records';
 import { deltasActions, deltasSelectors } from 'redux/deltas';
 import { achievementActions, achievementSelectors } from 'redux/achievements';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
+import { nameActions, nameSelectors } from 'redux/names';
 import PageHeader from '../../components/PageHeader';
 import Button from '../../components/Button';
 import Selector from '../../components/Selector';
@@ -26,6 +27,7 @@ import PlayerGroupsTable from './components/PlayerGroupsTable';
 import PlayerRecords from './components/PlayerRecords';
 import PlayerDeltasInfo from './components/PlayerDeltasInfo';
 import PlayerHighlights from './components/PlayerHighlights';
+import PlayerNames from './components/PlayerNames';
 import PlayerCards from './components/PlayerCards';
 import {
   getPlayerIcon,
@@ -37,7 +39,7 @@ import {
 import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from '../../config';
 import './Player.scss';
 
-const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements'];
+const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];
 
 const PERIOD_OPTIONS = [
   { label: 'Day', value: 'day' },
@@ -162,6 +164,7 @@ function Player() {
   );
   const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
   const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
+  const nameChanges = useSelector(state => nameSelectors.getPlayerNames(state, username));
   const isLoadingDetails = useSelector(playerSelectors.isFetching);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
@@ -225,6 +228,7 @@ function Player() {
     dispatch(groupActions.fetchPlayerGroups(username));
     dispatch(recordActions.fetchPlayerRecords(username));
     dispatch(deltasActions.fetchPlayerDeltas(username));
+    dispatch(nameActions.fetchPlayerNameChanges(username));
 
     PERIOD_OPTIONS.forEach(o => {
       dispatch(snapshotActions.fetchSnapshots(username, o.value));
@@ -402,7 +406,7 @@ function Player() {
             </div>
           </>
         )}
-        {(selectedTabIndex === 2 || selectedTabIndex === 3) && (
+        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 6) && (
           <>
             <div className="col-md-6 col-lg-2">
               <Selector disabled />
@@ -493,6 +497,11 @@ function Player() {
             groupedAchievements={groupedAchievements}
             metricType={selectedMetricType}
           />
+        )}
+        {selectedTabIndex === 6 && (
+          <div className="col">
+            <PlayerNames nameChanges={nameChanges} />
+          </div>
         )}
       </div>
     </div>

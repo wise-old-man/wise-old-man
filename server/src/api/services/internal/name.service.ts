@@ -39,6 +39,15 @@ async function getList(status: number, pagination: Pagination): Promise<NameChan
   return nameChanges;
 }
 
+async function getPlayerNames(playerId: number): Promise<NameChange[]> {
+  const nameChanges = await NameChange.findAll({
+    where: { playerId, status: NameChangeStatus.APPROVED },
+    order: [['resolvedAt', 'DESC']]
+  });
+
+  return nameChanges;
+}
+
 /**
  * Submit a new name change request, from oldName to newName.
  */
@@ -356,4 +365,4 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   );
 }
 
-export { getList, getDetails, submit, deny, approve, autoReview };
+export { getList, getDetails, getPlayerNames, submit, deny, approve, autoReview };

@@ -5,7 +5,8 @@ const initialState = {
   isFetching: false,
   isSubmitting: false,
   error: { message: null, data: null },
-  nameChanges: {}
+  nameChanges: {},
+  playerNameChanges: {}
 };
 
 const slice = createSlice({
@@ -41,6 +42,21 @@ const slice = createSlice({
     onSubmitError(state, action) {
       state.isSubmitting = false;
       state.error = { message: action.error, data: action.data };
+    },
+    onFetchPlayerNameChangesRequest(state) {
+      state.isFetchingList = true;
+      state.error = initialState.error;
+    },
+    onFetchPlayerNameChangesSuccess(state, action) {
+      const { username, data } = action.payload;
+
+      state.isFetchingList = false;
+      state.error = initialState.error;
+      state.playerNameChanges[username] = data;
+    },
+    onFetchPlayerNameChangesError(state, action) {
+      state.isFetchingList = false;
+      state.error = { message: action.payload.error };
     }
   }
 });

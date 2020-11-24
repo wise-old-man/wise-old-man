@@ -1189,5 +1189,73 @@ export default [
         }
       }
     ]
+  },
+  {
+    title: 'View player name change history',
+    urls: ['/players/:id/names', '/players/username/:username/names'],
+    method: 'GET',
+    comments: [
+      {
+        type: 'info',
+        content: 'This endpoint has two valid URLs, by player id or username.'
+      }
+    ],
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The player's id. (Not required if username is supplied)"
+      },
+      {
+        field: 'username',
+        type: 'string',
+        description: "The player's username. (Not required if id is supplied)"
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 3,
+            playerId: 5,
+            oldName: 'Lynx Titan',
+            newName: 'Iron Mammal',
+            status: 2,
+            resolvedAt: '2020-11-23T23:16:49.049Z',
+            createdAt: '2020-11-23T23:16:30.049Z',
+            updatedAt: '2020-11-23T23:16:49.050Z'
+          },
+          {
+            id: 2,
+            playerId: 5,
+            oldName: 'Zezima',
+            newName: 'Lynx Titan',
+            status: 2,
+            resolvedAt: '2020-11-23T23:16:12.463Z',
+            createdAt: '2020-11-23T23:15:55.458Z',
+            updatedAt: '2020-11-23T23:16:12.463Z'
+          },
+          {
+            id: 1,
+            playerId: 5,
+            oldName: 'Psikoi',
+            newName: 'Zezima',
+            status: 2,
+            resolvedAt: '2020-11-23T23:15:44.207Z',
+            createdAt: '2020-11-23T23:15:33.402Z',
+            updatedAt: '2020-11-23T23:15:44.208Z'
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the given id/username is not valid.',
+        body: {
+          message: 'Player not found.'
+        }
+      }
+    ]
   }
 ];
