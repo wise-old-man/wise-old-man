@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
+import { getMetricIcon, getMetricName, standardize } from 'utils';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -14,7 +15,6 @@ import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import RemovePlayersModal from '../../modals/RemovePlayersModal';
-import { getMetricIcon, getMetricName } from '../../utils';
 import { ALL_METRICS } from '../../config';
 import './EditCompetition.scss';
 
@@ -72,11 +72,8 @@ function EditCompetition() {
   const findRemovedParticipants = () => {
     if (competition) {
       const removedParticipants = competition.participants
-        .map(p => p.displayName)
-        .filter(
-          current =>
-            participants.find(initial => initial.toLowerCase() === current.toLowerCase()) === undefined
-        );
+        .map(m => m.displayName)
+        .filter(m => !participants.find(c => standardize(m) === standardize(c)));
 
       setRemovedPlayers(removedParticipants);
     }

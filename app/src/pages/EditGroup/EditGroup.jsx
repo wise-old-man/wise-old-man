@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
+import { standardize } from 'utils/player';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -12,6 +13,8 @@ import MembersSelector from '../../components/MembersSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
 import RemovePlayersModal from '../../modals/RemovePlayersModal';
 import './EditGroup.scss';
+
+const mapMember = ({ username, displayName, role }) => ({ username, displayName, role });
 
 function EditGroup() {
   const { id } = useParams();
@@ -37,28 +40,23 @@ function EditGroup() {
     dispatch(groupActions.fetchMembers(id));
   };
 
-  const mapMembers = groupMembers =>
-    groupMembers.map(({ username, displayName, role }) => ({ username, displayName, role }));
-
   const populate = () => {
     if (group) {
       setName(group.name);
       setDescription(group.description);
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld);
-      setMembers(mapMembers(group.members));
+      setMembers(group.members.map(mapMember));
     }
   };
 
   const findRemovedMembers = () => {
     if (group) {
-      const removedGroupMembers = mapMembers(group.members).filter(
-        initial =>
-          members.find(current => initial.username.toLowerCase() === current.username.toLowerCase()) ===
-          undefined
-      );
+      const removedMembers = group.members
+        .filter(m => !members.find(c => standardize(m.username) === standardize(c.username)))
+        .map(m => m.displayName);
 
-      setRemovedPlayers(removedGroupMembers.map(m => m.displayName));
+      setRemovedPlayers(removedMembers);
     }
   };
 

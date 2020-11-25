@@ -1,3 +1,11 @@
+export function standardize(username) {
+  return sanitize(username).toLowerCase();
+}
+
+export function sanitize(username) {
+  return username.replace(/[-_\s]/g, ' ').trim();
+}
+
 export function getPlayerIcon(type, flagged) {
   return `/img/runescape/icons_small/${flagged ? 'flagged' : type}.png`;
 }
