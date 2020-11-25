@@ -16,10 +16,6 @@ function MembersTable({ members, isLoading }) {
     uniqueKeySelector: row => row.username,
     columns: [
       {
-        key: 'rank',
-        width: 70
-      },
-      {
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
@@ -43,7 +39,13 @@ function MembersTable({ members, isLoading }) {
         key: 'ehp',
         label: 'EHP',
         className: () => '-break-small',
-        transform: val => <NumberLabel value={val} />
+        transform: val => <NumberLabel value={Math.round(val)} />
+      },
+      {
+        key: 'ehb',
+        label: 'EHB',
+        className: () => '-break-small',
+        transform: val => <NumberLabel value={Math.round(val)} />
       },
       {
         key: 'updatedAt',
