@@ -841,9 +841,19 @@ async function calculateScore(group: Group): Promise<number> {
     score += 60;
   }
 
-  // If has valid clan chat
+  // If has a clan chat
   if (group.clanChat && group.clanChat.length > 0) {
     score += 50;
+  }
+
+  // If has a description
+  if (group.description && group.description.length > 0) {
+    score += 40;
+  }
+
+  // If has a homeworld
+  if (group.homeworld && group.homeworld > 0) {
+    score += 20;
   }
 
   // If is verified (clan leader is in our discord)
