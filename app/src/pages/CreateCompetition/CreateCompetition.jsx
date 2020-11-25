@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { groupActions } from 'redux/groups';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import PageTitle from '../../components/PageTitle';
@@ -30,9 +31,21 @@ function getMetricOptions() {
   }));
 }
 
+function useQuery(keys) {
+  const urlQuery = new URLSearchParams(useLocation().search);
+  const result = {};
+
+  keys.forEach(k => {
+    result[k] = urlQuery.get(k);
+  });
+
+  return result;
+}
+
 function CreateCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
+  const { groupId } = useQuery(['groupId']);
 
   const isSubmitting = useSelector(competitionSelectors.isCreating);
   const error = useSelector(competitionSelectors.getError);
@@ -146,6 +159,7 @@ function CreateCompetition() {
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onSubmitParticipantsModal = useCallback(handleImportModalSubmit, []);
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
+  const onFetch = useCallback(fetchDetails, []);
 
   const onSubmit = useCallback(handleSubmit, [
     title,
@@ -162,6 +176,18 @@ function CreateCompetition() {
     (!groupCompetition && participants.length === 0) ||
     (groupCompetition && !selectedGroup) ||
     (selectedGroup && selectedGroup.memberCount === 0);
+
+  async function fetchDetails() {
+    const { payload } = await dispatch(groupActions.fetchDetails(groupId));
+    if (payload && payload.data) {
+      setSelectedGroup(payload.data);
+      setGroupCompetition(true);
+    }
+  }
+
+  useEffect(() => {
+    onFetch();
+  }, [dispatch, groupId, onFetch]);
 
   return (
     <div className="create-competition__container container">

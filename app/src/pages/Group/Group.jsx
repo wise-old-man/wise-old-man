@@ -46,6 +46,7 @@ const VERIFIED_BADGE = {
 const TABS = ['Members', 'Competitions', 'Hiscores', 'Gained', 'Records', 'Achievements', 'Statistics'];
 
 const MENU_OPTIONS = [
+  { label: 'Create competition', value: 'competition' },
   {
     label: 'Edit group',
     value: 'edit'
@@ -132,10 +133,25 @@ function Group() {
   };
 
   const handleOptionSelected = option => {
-    if (option.value === 'delete') {
-      setShowingDeleteModal(true);
-    } else {
-      router.push(`/groups/${group.id}/${option.value}`);
+    switch (option.value) {
+      case 'delete': {
+        setShowingDeleteModal(true);
+        break;
+      }
+
+      case 'edit': {
+        router.push(`/groups/${group.id}/${option.value}`);
+        break;
+      }
+
+      case 'competition': {
+        router.push(`/competitions/create?groupId=${group.id}`);
+        break;
+      }
+
+      default: {
+        // If you hit this, you have the wrong route
+      }
     }
   };
 
