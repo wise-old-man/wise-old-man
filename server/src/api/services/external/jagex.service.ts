@@ -5,6 +5,16 @@ import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
 
+const SCRAPING_HEADERS = {
+  Host: 'secure.runescape.com',
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36',
+  Accept:
+    'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Language': 'pt-PT,pt;q=0.9,en-US;q=0.8,en;q=0.7,la;q=0.6,es;q=0.5'
+};
+
 /**
  * Fetches the player data from the Hiscores API.
  */
@@ -41,7 +51,9 @@ async function getHiscoresNames(username: string): Promise<string[]> {
     const { data } = await axios({
       url: proxy ? URL.replace('https', 'http') : URL,
       proxy,
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
+      withCredentials: true,
+      headers: SCRAPING_HEADERS
     });
 
     // Validate the response data
