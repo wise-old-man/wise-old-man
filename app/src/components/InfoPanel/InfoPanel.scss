@@ -20,6 +20,7 @@
     &__value {
       display: block;
       margin-top: 3px;
+      word-break: break-all;
 
       &.-positive {
         color: $positive-green;

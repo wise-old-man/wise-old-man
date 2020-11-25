@@ -32,12 +32,16 @@ interface ExtendedGroup extends Group {
 interface CreateGroupDTO {
   name: string;
   clanChat?: string;
+  homeworld?: number;
+  description?: string;
   members?: MemberFragment[];
 }
 
 interface EditGroupDTO {
   name?: string;
   clanChat?: string;
+  homeworld?: number;
+  description?: string;
   members?: MemberFragment[];
 }
 
@@ -385,7 +389,7 @@ async function getStatistics(groupId: number) {
 }
 
 async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
-  const { name, clanChat, members } = dto;
+  const { name, clanChat, homeworld, members, description } = dto;
   const sanitizedName = sanitizeName(name);
 
   // Check for duplicate names
@@ -418,11 +422,14 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
   }
 
   const [code, hash] = await cryptService.generateVerification();
+  const sanitizedDescription = description ? playerService.sanitize(description) : null;
   const sanitizedClanChat = clanChat ? playerService.sanitize(clanChat) : null;
 
   const group = await Group.create({
     name: sanitizedName,
+    description: sanitizedDescription,
     clanChat: sanitizedClanChat,
+    homeworld,
     verificationCode: code,
     verificationHash: hash
   });
@@ -439,7 +446,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
  * Note: If "members" is defined, it will replace the existing members.
  */
 async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]> {
-  const { name, members, clanChat } = dto;
+  const { name, description, clanChat, homeworld, members } = dto;
 
   if (name) {
     const sanitizedName = sanitizeName(name);
@@ -478,13 +485,21 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
     }));
   }
 
-  if (name || clanChat) {
+  if (name || description || clanChat || homeworld) {
     if (name && name.length !== 0) {
       group.name = sanitizeName(name);
     }
 
+    if (description && description.length !== 0) {
+      group.description = playerService.sanitize(description);
+    }
+
     if (clanChat && clanChat.length !== 0) {
       group.clanChat = playerService.sanitize(clanChat);
+    }
+
+    if (homeworld && typeof homeworld === 'number') {
+      group.homeworld = homeworld;
     }
 
     await group.save();
@@ -826,9 +841,19 @@ async function calculateScore(group: Group): Promise<number> {
     score += 60;
   }
 
-  // If has valid clan chat
+  // If has a clan chat
   if (group.clanChat && group.clanChat.length > 0) {
     score += 50;
+  }
+
+  // If has a description
+  if (group.description && group.description.length > 0) {
+    score += 40;
+  }
+
+  // If has a homeworld
+  if (group.homeworld && group.homeworld > 0) {
+    score += 20;
   }
 
   // If is verified (clan leader is in our discord)

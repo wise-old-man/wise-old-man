@@ -31,9 +31,11 @@ async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const name = extractString(req.body, { key: 'name', required: true });
     const clanChat = extractString(req.body, { key: 'clanChat' });
+    const homeworld = extractNumber(req.body, { key: 'homeworld' });
+    const description = extractString(req.body, { key: 'description' });
     const members = req.body.members;
 
-    const dto = { name, clanChat, members };
+    const dto = { name, clanChat, homeworld, members, description };
     const [group, newMembers] = await groupService.create(dto);
 
     res.status(201).json({ ...group.toJSON(), members: newMembers });
@@ -62,10 +64,12 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const name = extractString(req.body, { key: 'name' });
     const clanChat = extractString(req.body, { key: 'clanChat' });
+    const homeworld = extractNumber(req.body, { key: 'homeworld' });
+    const description = extractString(req.body, { key: 'description' });
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const members = req.body.members;
 
-    if (!name && !members && !clanChat) {
+    if (!name && !members && !clanChat && !homeworld && !description) {
       throw new BadRequestError('Nothing to update.');
     }
 
@@ -76,7 +80,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const dto = { name, clanChat, members, verificationCode };
+    const dto = { name, clanChat, members, homeworld, description, verificationCode };
     const [editedGroup, newMembers] = await groupService.edit(group, dto);
 
     res.status(200).json({ ...editedGroup.toJSON(), members: newMembers });

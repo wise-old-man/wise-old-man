@@ -22,7 +22,9 @@ function CreateGroup() {
   const error = useSelector(groupSelectors.getError);
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [clanChat, setClanChat] = useState('');
+  const [homeworld, setHomeworld] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
@@ -33,8 +35,16 @@ function CreateGroup() {
     setName(e.target.value);
   };
 
+  const handleDescriptionChanged = e => {
+    setDescription(e.target.value);
+  };
+
   const handleClanChatChanged = e => {
     setClanChat(e.target.value);
+  };
+
+  const handleHomeworldChanged = e => {
+    setHomeworld(e.target.value);
   };
 
   const handleAddMember = username => {
@@ -91,7 +101,9 @@ function CreateGroup() {
   };
 
   const handleSubmit = async () => {
-    const { payload } = await dispatch(groupActions.create(name, clanChat, members));
+    const { payload } = await dispatch(
+      groupActions.create(name, description, clanChat, homeworld, members)
+    );
 
     if (payload && payload.data) {
       setVerificationCode(payload.data.verificationCode);
@@ -109,7 +121,9 @@ function CreateGroup() {
   const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
 
   const onNameChanged = useCallback(handleNameChanged, []);
+  const onDescriptionChanged = useCallback(handleDescriptionChanged, []);
   const onClanChatChanged = useCallback(handleClanChatChanged, []);
+  const onHomeworldChanged = useCallback(handleHomeworldChanged, []);
   const onMemberAdded = useCallback(handleAddMember, [members]);
   const onMemberRemoved = useCallback(handleRemoveMember, [members]);
   const onMemberRoleSwitched = useCallback(handleRoleSwitch, [members]);
@@ -139,12 +153,32 @@ function CreateGroup() {
         </div>
 
         <div className="form-row">
+          <span className="form-row__label">Description</span>
+          <TextInput
+            value={description}
+            placeholder="Ex: This is the summary about the group"
+            onChange={onDescriptionChanged}
+            maxCharacters={100}
+          />
+        </div>
+
+        <div className="form-row">
           <span className="form-row__label">Clan Chat</span>
           <TextInput
             value={clanChat}
             placeholder="Ex: titanZ"
             onChange={onClanChatChanged}
             maxCharacters={12}
+          />
+        </div>
+
+        <div className="form-row">
+          <span className="form-row__label">Homeworld</span>
+          <TextInput
+            value={homeworld}
+            placeholder="Ex: 492"
+            onChange={onHomeworldChanged}
+            maxCharacters={4}
           />
         </div>
 

@@ -1,11 +1,11 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const create = (name, clanChat, members) => async dispatch => {
+const create = (name, description, clanChat, homeworld, members) => async dispatch => {
   dispatch(reducers.onCreateRequest());
 
   try {
-    const body = { name, clanChat, members };
+    const body = { name, description, clanChat, homeworld, members };
     const { data } = await api.post(endpoints.createGroup, body);
 
     return dispatch(reducers.onCreateSuccess({ data }));
@@ -15,11 +15,19 @@ const create = (name, clanChat, members) => async dispatch => {
   }
 };
 
-const edit = (id, name, clanChat, members, verificationCode) => async dispatch => {
+const edit = (
+  id,
+  name,
+  description,
+  clanChat,
+  homeworld,
+  members,
+  verificationCode
+) => async dispatch => {
   dispatch(reducers.onEditRequest());
 
   try {
-    const body = { name, clanChat, members, verificationCode };
+    const body = { name, description, clanChat, homeworld, members, verificationCode };
     const url = endpoints.editGroup.replace(':id', id);
 
     const { data } = await api.put(url, body);
