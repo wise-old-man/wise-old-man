@@ -26,9 +26,9 @@ function TextInput({
       />
       {search && <img className="text-input__icon" src="/img/icons/search.svg" alt="" />}
       {maxCharacters && value && (
-        <div className="text-input__counter">{`${
-          maxCharacters - value.toString().length
-        }/${maxCharacters}`}</div>
+        <div className="text-input__counter">
+          {`${maxCharacters - value.toString().length}/${maxCharacters}`}
+        </div>
       )}
     </div>
   );
