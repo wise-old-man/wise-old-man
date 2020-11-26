@@ -164,6 +164,11 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
+    // The player has gained exp/kc/scores since the last update
+    if (snapshotService.hasChanged(previousStats, currentStats)) {
+      player.lastChangedAt = new Date();
+    }
+
     // Refresh the player's build
     player.build = getBuild(currentStats);
     player.flagged = false;
