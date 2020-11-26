@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
+import { getMetricIcon, getMetricName, standardize } from 'utils';
 import PageTitle from '../../components/PageTitle';
 import TextInput from '../../components/TextInput';
 import TextButton from '../../components/TextButton';
@@ -13,7 +14,7 @@ import Button from '../../components/Button';
 import DateRangeSelector from '../../components/DateRangeSelector';
 import ParticipantsSelector from '../../components/ParticipantsSelector';
 import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import { getMetricIcon, getMetricName } from '../../utils';
+import RemovePlayersModal from '../../modals/RemovePlayersModal';
 import { ALL_METRICS } from '../../config';
 import './EditCompetition.scss';
 
@@ -41,9 +42,11 @@ function EditCompetition() {
   const [startDate, setStartDate] = useState(initialStartMoment.toDate());
   const [endDate, setEndDate] = useState(initialEndMoment.toDate());
   const [participants, setParticipants] = useState([]);
+  const [removedPlayers, setRemovedPlayers] = useState([]);
   const [verificationCode, setVerificationCode] = useState('');
 
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingRemovePlayersModal, toggleRemovePlayersModal] = useState(false);
 
   const competition = useSelector(state => competitionSelectors.getCompetition(state, parseInt(id, 10)));
   const isSubmitting = useSelector(competitionSelectors.isEditing);
@@ -63,6 +66,16 @@ function EditCompetition() {
       setStartDate(competition.startsAt);
       setEndDate(competition.endsAt);
       setParticipants(competition.participants.map(p => p.displayName));
+    }
+  };
+
+  const findRemovedParticipants = () => {
+    if (competition) {
+      const removedParticipants = competition.participants
+        .map(m => m.displayName)
+        .filter(m => !participants.find(c => standardize(m) === standardize(c)));
+
+      setRemovedPlayers(removedParticipants);
     }
   };
 
@@ -126,8 +139,15 @@ function EditCompetition() {
     toggleImportModal(false);
   };
 
+  const handleRemovePlayersModalConfirm = () => {
+    toggleRemovePlayersModal(false);
+    onSubmit();
+  };
+
   const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
   const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
+  const hideRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(false), []);
+  const showRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(true), []);
 
   const onTitleChanged = useCallback(handleTitleChanged, []);
   const onMetricSelected = useCallback(handleMetricSelected, []);
@@ -136,6 +156,14 @@ function EditCompetition() {
   const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
   const onVerificationCodeChanged = useCallback(handleVerificationCodeChanged, []);
   const onSubmitImportModal = useCallback(handleImportModalSubmit, []);
+  const onConfirmRemovePlayersModal = useCallback(handleRemovePlayersModalConfirm, [
+    title,
+    metric,
+    startDate,
+    endDate,
+    participants,
+    verificationCode
+  ]);
   const onSubmit = useCallback(handleSubmit, [
     title,
     metric,
@@ -148,6 +176,8 @@ function EditCompetition() {
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(populate, [competition]);
+
+  useEffect(findRemovedParticipants, [competition, participants]);
 
   if (!competition) {
     return null;
@@ -232,11 +262,23 @@ function EditCompetition() {
         </div>
 
         <div className="form-row form-actions">
-          <Button text="Confirm" onClick={onSubmit} loading={isSubmitting} />
+          <Button
+            text="Confirm"
+            onClick={removedPlayers.length > 0 ? showRemovePlayersModal : onSubmit}
+            loading={isSubmitting}
+          />
         </div>
       </div>
       {showingImportModal && (
         <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
+      )}
+      {showingRemovePlayersModal && (
+        <RemovePlayersModal
+          modalView={`/competitions/${competition.id}/removeParticipants`}
+          players={removedPlayers}
+          onClose={hideRemovePlayersModal}
+          onConfirm={onConfirmRemovePlayersModal}
+        />
       )}
     </div>
   );
