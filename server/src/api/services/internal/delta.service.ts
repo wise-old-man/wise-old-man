@@ -176,7 +176,13 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
+  const query = buildQuery({ type: playerType, build: playerBuild });
   const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
+
+  // When filtering by player type, the ironman filter should include UIM and HCIM
+  if (query.type && query.type === 'ironman') {
+    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  }
 
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
@@ -185,7 +191,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
       indicator: 'value',
       updatedAt: { [Op.gte]: startingDate }
     },
-    include: [{ model: Player, where: buildQuery({ type: playerType, build: playerBuild }) }],
+    include: [{ model: Player, where: query }],
     order: [[metric, 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset
