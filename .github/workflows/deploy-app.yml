@@ -37,5 +37,6 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
+            docker image rm wiseoldman/app
             docker-compose pull
             docker-compose up --build -d
