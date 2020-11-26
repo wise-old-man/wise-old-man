@@ -28,6 +28,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-08-09T09:08:42.573Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-07-31T09:41:00.833Z',
             updatedAt: '2020-08-09T21:16:42.420Z'
           },
@@ -39,6 +40,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: null,
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-07-31T22:33:17.388Z',
             updatedAt: '2020-07-31T22:33:17.388Z'
           },
@@ -50,6 +52,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-09-06T03:50:33.069Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-08-01T03:11:47.081Z',
             updatedAt: '2020-09-06T13:44:34.779Z'
           },
@@ -61,6 +64,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-09-06T19:24:26.611Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-08-01T09:43:11.461Z',
             updatedAt: '2020-09-06T19:24:26.611Z'
           }
@@ -102,6 +106,7 @@ export default [
           build: 'main',
           flagged: false,
           lastImportedAt: '2020-09-13T23:46:06.779Z',
+          lastChangedAt: '2020-11-26T06:30:14.825Z',
           registeredAt: '2020-09-13T23:42:53.316Z',
           updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,
@@ -302,6 +307,7 @@ export default [
           build: 'main',
           flagged: false,
           lastImportedAt: '2020-09-13T23:46:06.779Z',
+          lastChangedAt: '2020-11-26T06:30:14.825Z',
           registeredAt: '2020-09-13T23:42:53.316Z',
           updatedAt: '2020-09-13T23:46:06.779Z',
           combatLevel: 125,

@@ -84,6 +84,9 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.DATE })
   lastImportedAt: Date;
 
+  @Column({ type: DataType.DATE })
+  lastChangedAt: Date;
+
   @CreatedAt
   registeredAt: Date;
 

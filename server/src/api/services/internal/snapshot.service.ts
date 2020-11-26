@@ -75,6 +75,22 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
 }
 
 /**
+ * Checks whether there has been gains between two snapshots
+ */
+function hasChanged(before: Snapshot, after: Snapshot): boolean {
+  if (!before) return true;
+  if (!after) return false;
+
+  // EHP and EHB can fluctuate without the player's envolvement
+  const keysToIgnore = ['ehpValue', 'ehbValue'];
+
+  const isValidKey = key => !keysToIgnore.includes(key);
+  const keys = ALL_METRICS.map(m => getValueKey(m));
+
+  return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
+}
+
+/**
  * Checks whether two snapshots have negative gains in between.
  */
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
@@ -305,6 +321,7 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
 export {
   format,
   withinRange,
+  hasChanged,
   hasExcessiveGains,
   hasNegativeGains,
   findAll,

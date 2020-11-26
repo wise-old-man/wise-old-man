@@ -124,6 +124,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: null,
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-05-02T20:35:05.251Z',
             updatedAt: '2020-05-03T01:08:18.827Z',
             role: 'leader',
@@ -137,6 +138,7 @@ export default [
             flagged: false,
             type: 'regular',
             lastImportedAt: '2020-05-03T01:27:05.764Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-05-02T20:35:06.302Z',
             updatedAt: '2020-05-03T01:49:14.712Z',
             role: 'member',
@@ -300,6 +302,7 @@ export default [
                 build: 'main',
                 flagged: false,
                 lastImportedAt: '2020-08-24T16:29:13.227Z',
+                lastChangedAt: '2020-11-26T06:30:14.825Z',
                 registeredAt: '2020-04-28T18:46:19.553Z',
                 updatedAt: '2020-08-26T22:07:37.104Z'
               }
@@ -316,6 +319,7 @@ export default [
                 build: 'main',
                 flagged: false,
                 lastImportedAt: '2020-08-22T20:20:32.956Z',
+                lastChangedAt: '2020-11-26T06:30:14.825Z',
                 registeredAt: '2020-04-28T19:25:58.626Z',
                 updatedAt: '2020-08-26T22:07:39.384Z'
               }
@@ -332,6 +336,7 @@ export default [
                 build: 'main',
                 flagged: false,
                 lastImportedAt: '2020-08-22T23:41:14.792Z',
+                lastChangedAt: '2020-11-26T06:30:14.825Z',
                 registeredAt: '2020-04-27T20:46:08.951Z',
                 updatedAt: '2020-08-26T22:02:42.961Z'
               }
@@ -411,6 +416,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-05-14T00:21:28.251Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-04-15T13:03:28.396Z',
             updatedAt: '2020-06-02T23:37:26.348Z',
             rank: 171,
@@ -425,6 +431,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-05-13T23:14:52.828Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-04-28T17:56:45.960Z',
             updatedAt: '2020-06-02T23:41:18.937Z',
             rank: 888,
@@ -439,6 +446,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: null,
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-04-28T22:00:09.281Z',
             updatedAt: '2020-06-03T00:58:50.838Z',
             rank: 1141,
@@ -794,6 +802,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-19T17:21:12.258Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
               updatedAt: '2020-04-20T23:55:14.540Z',
               role: 'leader'
@@ -806,6 +815,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-20T23:55:19.286Z',
               role: 'member'
@@ -818,6 +828,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-11T01:02:25.132Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
               updatedAt: '2020-04-20T23:55:24.007Z',
               role: 'leader'
@@ -830,6 +841,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: null,
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-23T01:53:26.156Z',
               updatedAt: '2020-04-23T01:53:26.156Z',
               role: 'member'
@@ -908,6 +920,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-18T02:22:49.364Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:02.544Z',
               updatedAt: '2020-04-18T04:02:42.235Z',
               role: 'member'
@@ -920,6 +933,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-11T01:02:25.132Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-11T01:02:06.424Z',
               updatedAt: '2020-04-18T03:40:17.940Z',
               role: 'member'
@@ -1049,6 +1063,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-18T03:22:36.419Z',
               role: 'leader'
@@ -1061,6 +1076,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-18T03:22:36.419Z',
               role: 'member'
@@ -1194,6 +1210,7 @@ export default [
             build: 'main',
             flagged: false,
             lastImportedAt: '2020-04-18T02:22:49.364Z',
+            lastChangedAt: '2020-11-26T06:30:14.825Z',
             registeredAt: '2020-04-10T18:11:02.544Z',
             updatedAt: '2020-04-18T04:02:42.235Z',
             role: 'leader'

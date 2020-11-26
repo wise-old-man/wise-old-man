@@ -204,6 +204,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-03-27T21:56:50.000Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-03-13T23:29:57.000Z',
               updatedAt: '2020-03-27T21:56:50.000Z'
             },
@@ -215,6 +216,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-03-15T02:21:49.000Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-03-15T02:21:46.000Z',
               updatedAt: '2020-03-15T02:21:49.000Z'
             }
@@ -309,6 +311,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-04-04T22:33:53.450Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-03T21:43:17.574Z',
               updatedAt: '2020-04-04T22:35:31.530Z'
             },
@@ -320,6 +323,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: null,
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-03T23:48:03.561Z',
               updatedAt: '2020-04-04T16:43:30.787Z'
             },
@@ -331,6 +335,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: null,
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-04T23:44:53.755Z',
               updatedAt: '2020-04-04T23:44:53.755Z'
             }
@@ -461,7 +466,8 @@ export default [
               flagged: false,
               updatedAt: '2020-04-04T23:59:58.661Z',
               registeredAt: '2020-04-04T23:59:58.661Z',
-              lastImportedAt: null
+              lastImportedAt: null,
+              lastChangedAt: '2020-11-26T06:30:14.825Z'
             }
           ]
         }

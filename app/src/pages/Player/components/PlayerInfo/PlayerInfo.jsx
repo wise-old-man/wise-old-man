@@ -4,7 +4,7 @@ import InfoPanel from '../../../../components/InfoPanel';
 import { capitalize, formatDate } from '../../../../utils';
 
 function formatData(player) {
-  const { id, type, build, registeredAt, updatedAt } = player;
+  const { id, type, build, registeredAt, updatedAt, lastChangedAt } = player;
 
   return [
     {
@@ -20,12 +20,16 @@ function formatData(player) {
       value: capitalize(build)
     },
     {
-      key: 'Registered at',
-      value: formatDate(registeredAt, 'DD MMM YYYY, HH:mm')
-    },
-    {
       key: 'Last updated at',
       value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm')
+    },
+    {
+      key: 'Last changed at',
+      value: lastChangedAt ? formatDate(lastChangedAt, 'DD MMM YYYY, HH:mm') : 'Unknown'
+    },
+    {
+      key: 'Registered at',
+      value: formatDate(registeredAt, 'DD MMM YYYY, HH:mm')
     }
   ];
 }
