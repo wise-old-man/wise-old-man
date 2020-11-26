@@ -92,6 +92,12 @@
           flex-direction: row;
           align-items: center;
 
+          .-button-link {
+            padding: 6px 10px;
+            border-radius: 5px;
+            border: 2px solid $gray-30;
+          }
+
           &:hover .dropdown__content {
             display: block;
           }
