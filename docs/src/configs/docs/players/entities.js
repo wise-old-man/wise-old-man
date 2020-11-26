@@ -39,6 +39,11 @@ export default [
         description: "The last time this player's history was imported from CML."
       },
       {
+        field: 'lastChangedAt',
+        type: 'date',
+        description: 'The last time this player gained exp/kc/scores.'
+      },
+      {
         field: 'registeredAt',
         type: 'date',
         description: "The player's registration date."

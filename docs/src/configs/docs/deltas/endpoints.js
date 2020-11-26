@@ -42,6 +42,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-08-30T01:41:49.077Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-05-14T14:33:32.249Z',
               updatedAt: '2020-08-30T01:41:49.077Z'
             }
@@ -58,6 +59,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-08-30T23:48:35.941Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-15T13:21:12.033Z',
               updatedAt: '2020-09-03T03:49:14.300Z'
             }
@@ -74,6 +76,7 @@ export default [
               build: 'main',
               flagged: false,
               lastImportedAt: '2020-08-30T01:26:24.762Z',
+              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-05-14T14:33:32.392Z',
               updatedAt: '2020-08-30T01:26:24.762Z'
             }
