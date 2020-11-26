@@ -78,6 +78,9 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
  * Checks whether there has been gains between two snapshots
  */
 function hasChanged(before: Snapshot, after: Snapshot): boolean {
+  if (!before) return true;
+  if (!after) return false;
+
   // EHP and EHB can fluctuate without the player's envolvement
   const keysToIgnore = ['ehpValue', 'ehbValue'];
 

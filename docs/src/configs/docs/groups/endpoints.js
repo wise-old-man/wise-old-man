@@ -1064,7 +1064,6 @@ export default [
               flagged: false,
               lastImportedAt: '2020-04-18T02:23:59.945Z',
               lastChangedAt: '2020-11-26T06:30:14.825Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
               registeredAt: '2020-04-10T18:11:52.333Z',
               updatedAt: '2020-04-18T03:22:36.419Z',
               role: 'leader'
