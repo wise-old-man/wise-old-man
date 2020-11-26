@@ -161,7 +161,7 @@ async function updateAllParticipants(req: Request, res: Response, next: NextFunc
     const id = extractNumber(req.params, { key: 'id', required: true });
 
     const competition = await service.resolve(id);
-    const participants = await service.updateAllParticipants(competition, player => {
+    const participants = await service.updateAll(competition, false, player => {
       // Attempt this 3 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
     });
