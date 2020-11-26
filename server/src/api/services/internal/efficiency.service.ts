@@ -61,9 +61,16 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
 
   const isCombined = metric === 'ehp+ehb';
 
+  const query = buildQuery({ type: playerType, build: filter.playerBuild });
+
+  // When filtering by player type, the ironman filter should include UIM and HCIM
+  if (query.type && query.type === 'ironman') {
+    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  }
+
   const results = await Player.findAll({
     attributes: isCombined && { include: [['(ehp + ehb)', 'ehp+ehb']] },
-    where: buildQuery({ type: playerType, build: filter.playerBuild }),
+    where: query,
     order: isCombined ? [[Sequelize.literal(metric), 'DESC']] : [[metric, 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset

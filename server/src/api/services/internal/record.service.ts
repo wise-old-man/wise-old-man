@@ -1,4 +1,5 @@
 import { forEach } from 'lodash';
+import { Op } from 'sequelize';
 import { Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
@@ -109,12 +110,19 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
+  const query = buildQuery({ type: playerType, build: playerBuild });
+
+  // When filtering by player type, the ironman filter should include UIM and HCIM
+  if (query.type && query.type === 'ironman') {
+    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  }
+
   const records = await Record.findAll({
     where: { period, metric },
     include: [
       {
         model: Player,
-        where: buildQuery({ type: playerType, build: playerBuild })
+        where: query
       }
     ],
     order: [['value', 'DESC']],
