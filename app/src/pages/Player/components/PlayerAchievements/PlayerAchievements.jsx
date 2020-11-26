@@ -57,11 +57,14 @@ function AchievementOrb({ achievement }) {
 
   const { createdAt, progress, type, threshold, unknownDate } = achievement;
 
-  const isCompleted = progress.absolutePercent === 1;
+  const isAchieved = progress.absolutePercent === 1;
 
   const formattedThreshold = formatThreshold(threshold);
-  const className = classNames('achievement-orb', { '-completed': isCompleted });
-  const info = `${type} - ${unknownDate ? 'Unknown date ' : formatDate(createdAt)}`;
+  const className = classNames('achievement-orb', { '-completed': isAchieved });
+
+  const info = isAchieved
+    ? `${type} - ${unknownDate ? 'Unknown date ' : formatDate(createdAt)}`
+    : `${type} - Unachieved`;
 
   return (
     <abbr className={className} title={info}>
