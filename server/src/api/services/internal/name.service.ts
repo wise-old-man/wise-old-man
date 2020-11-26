@@ -235,6 +235,7 @@ async function autoReview(id: number): Promise<void> {
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
+    await deny(id, env.ADMIN_PASSWORD);
     return;
   }
 
