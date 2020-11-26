@@ -634,15 +634,17 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
  * within the service (circular dependency).
  * I'd rather call them from the controller.
  */
-async function updateAllParticipants(competition: Competition, updateAction: (player: Player) => void) {
-  const participants = await getOutdatedParticipants(competition.id);
+async function updateAll(competition: Competition, force: boolean, updateFn: (player: Player) => void) {
+  const participants = force
+    ? await getParticipants(competition.id)
+    : await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
     throw new BadRequestError('This competition has no outdated participants.');
   }
 
   // Execute the update action for every participant
-  participants.forEach(player => updateAction(player));
+  participants.forEach(player => updateFn(player));
 
   return participants;
 }
@@ -824,7 +826,7 @@ export {
   removeParticipants,
   addToGroupCompetitions,
   removeFromGroupCompetitions,
-  updateAllParticipants,
+  updateAll,
   refreshScores,
   syncParticipations
 };

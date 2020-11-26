@@ -2,6 +2,7 @@ import { Competition } from '../../database/models';
 import { EventPeriod } from '../../types';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
+import * as competitionService from '../services/internal/competition.service';
 
 function onCompetitionCreated(competition: Competition) {
   // Schedule all competition started/starting events
@@ -27,6 +28,12 @@ function onCompetitionUpdated(competition: Competition, editedFields: string[]) 
 }
 
 function onCompetitionStarted(competition: Competition) {
+  // Update all players when the competition starts
+  competitionService.updateAll(competition, true, player => {
+    // Attempt this 3 times per player, waiting 65 seconds in between
+    jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+  });
+
   // Dispatch a competition started event to our discord bot API.
   discordService.dispatchCompetitionStarted(competition);
 }
