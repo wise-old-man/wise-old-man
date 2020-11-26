@@ -26,7 +26,9 @@ function TextInput({
       />
       {search && <img className="text-input__icon" src="/img/icons/search.svg" alt="" />}
       {maxCharacters && value && (
-        <div className="text-input__counter">{`${maxCharacters - value.length}/${maxCharacters}`}</div>
+        <div className="text-input__counter">
+          {`${maxCharacters - value.toString().length}/${maxCharacters}`}
+        </div>
       )}
     </div>
   );
@@ -48,7 +50,7 @@ TextInput.propTypes = {
   type: PropTypes.string,
 
   // The input value
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
   // The placeholder text to display
   placeholder: PropTypes.string.isRequired,
