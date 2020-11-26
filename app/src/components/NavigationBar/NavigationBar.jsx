@@ -77,7 +77,7 @@ const MENU_CONFIG = [
   },
   {
     type: 'link',
-    label: 'Trailblazer edition',
+    label: 'TrailBlazer edition',
     buttonStyle: true,
     url: 'https://trailblazer.wiseoldman.net'
   }
