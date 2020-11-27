@@ -74,6 +74,12 @@ const MENU_CONFIG = [
     type: 'link',
     label: 'Discord Bot',
     url: 'https://bot.wiseoldman.net'
+  },
+  {
+    type: 'link',
+    label: 'TrailBlazer edition',
+    buttonStyle: true,
+    url: 'https://trailblazer.wiseoldman.net'
   }
 ];
 
@@ -149,7 +155,9 @@ function NavigationBar() {
             {MENU_CONFIG.map(item => (
               <li key={item.label} className={itemClass(item)}>
                 {item.type === 'link' ? (
-                  <a href={item.url}>{item.label}</a>
+                  <a className={item.buttonStyle ? '-button-link' : ''} href={item.url}>
+                    {item.label}
+                  </a>
                 ) : (
                   <>
                     <div className="dropdown__wrapper">
