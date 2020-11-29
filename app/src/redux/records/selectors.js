@@ -17,6 +17,7 @@ export const isFetching6h = createSelector(rootSelector, root => root.isFetching
 export const isFetchingDay = createSelector(rootSelector, root => root.isFetchingLeaderboards.day);
 export const isFetchingWeek = createSelector(rootSelector, root => root.isFetchingLeaderboards.week);
 export const isFetchingMonth = createSelector(rootSelector, root => root.isFetchingLeaderboards.month);
+export const isFetchingYear = createSelector(rootSelector, root => root.isFetchingLeaderboards.year);
 
 export const isFetchingGroupRecords = createSelector(rootSelector, root => root.isFetchingGroupRecords);
 

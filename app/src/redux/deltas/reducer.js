@@ -7,13 +7,15 @@ const initialState = {
     '6h': false,
     day: false,
     week: false,
-    month: false
+    month: false,
+    year: false
   },
   leaderboards: {
     '6h': null,
     day: null,
     week: null,
-    month: null
+    month: null,
+    year: null
   },
   playerDeltas: {},
   groupDeltas: {},

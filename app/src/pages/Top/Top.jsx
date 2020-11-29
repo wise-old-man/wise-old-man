@@ -140,9 +140,10 @@ function Top() {
   const isLoadingDay = useSelector(deltasSelectors.isFetchingDay);
   const isLoadingWeek = useSelector(deltasSelectors.isFetchingWeek);
   const isLoadingMonth = useSelector(deltasSelectors.isFetchingMonth);
+  const isLoadingYear = useSelector(deltasSelectors.isFetchingYear);
 
   const reloadList = () => {
-    const periods = ['6h', 'day', 'week', 'month'];
+    const periods = ['6h', 'day', 'week', 'month', 'year'];
 
     periods.forEach(p => {
       dispatch(
@@ -168,6 +169,7 @@ function Top() {
   const dayTableConfig = useMemo(() => getTableConfig(selectedMetric, 'day'), [selectedMetric]);
   const weekTableConfig = useMemo(() => getTableConfig(selectedMetric, 'week'), [selectedMetric]);
   const monthTableConfig = useMemo(() => getTableConfig(selectedMetric, 'month'), [selectedMetric]);
+  const yearTableConfig = useMemo(() => getTableConfig(selectedMetric, 'year'), [selectedMetric]);
 
   useEffect(reloadList, [selectedMetric, selectedPlayerType, selectedPlayerBuild]);
 
@@ -260,6 +262,20 @@ function Top() {
               uniqueKeySelector={sixHoursTableConfig.uniqueKey}
               columns={sixHoursTableConfig.columns}
               rows={leaderboards['6h']}
+              listStyle
+            />
+          )}
+        </div>
+        <div className="col-lg-4 col-md-6">
+          <h3 className="period-label">Year</h3>
+          {isLoadingYear && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
+          {!leaderboards || !leaderboards.year ? (
+            <TablePlaceholder size={20} />
+          ) : (
+            <Table
+              uniqueKeySelector={yearTableConfig.uniqueKey}
+              columns={yearTableConfig.columns}
+              rows={leaderboards.year}
               listStyle
             />
           )}
