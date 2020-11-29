@@ -32,6 +32,7 @@ import { getMetricName, getMetricIcon } from '../../utils';
 import './Group.scss';
 
 const PERIOD_OPTIONS = [
+  { label: '6 Hours', value: '6h' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -79,7 +80,7 @@ function Group() {
   const selectedSectionIndex = getSelectedTabIndex(section);
 
   const [selectedMetric, setSelectedMetric] = useState(ALL_METRICS[0]);
-  const [selectedPeriod, setSelectedPeriod] = useState(PERIOD_OPTIONS[1].value);
+  const [selectedPeriod, setSelectedPeriod] = useState(PERIOD_OPTIONS[2].value);
   const [showingDeleteModal, setShowingDeleteModal] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 

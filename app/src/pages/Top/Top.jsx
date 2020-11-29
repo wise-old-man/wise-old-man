@@ -136,12 +136,13 @@ function Top() {
 
   // Memoized redux variables
   const leaderboards = useSelector(deltasSelectors.getLeaderboards);
+  const isLoading6h = useSelector(deltasSelectors.isFetching6h);
   const isLoadingDay = useSelector(deltasSelectors.isFetchingDay);
   const isLoadingWeek = useSelector(deltasSelectors.isFetchingWeek);
   const isLoadingMonth = useSelector(deltasSelectors.isFetchingMonth);
 
   const reloadList = () => {
-    const periods = ['day', 'week', 'month'];
+    const periods = ['6h', 'day', 'week', 'month'];
 
     periods.forEach(p => {
       dispatch(
@@ -163,6 +164,7 @@ function Top() {
     router.push(getNextUrl(selectedMetric, selectedPlayerType, e.value));
   };
 
+  const sixHoursTableConfig = useMemo(() => getTableConfig(selectedMetric, '6h'), [selectedMetric]);
   const dayTableConfig = useMemo(() => getTableConfig(selectedMetric, 'day'), [selectedMetric]);
   const weekTableConfig = useMemo(() => getTableConfig(selectedMetric, 'week'), [selectedMetric]);
   const monthTableConfig = useMemo(() => getTableConfig(selectedMetric, 'month'), [selectedMetric]);
@@ -244,6 +246,20 @@ function Top() {
               uniqueKeySelector={monthTableConfig.uniqueKey}
               columns={monthTableConfig.columns}
               rows={leaderboards.month}
+              listStyle
+            />
+          )}
+        </div>
+        <div className="col-lg-4 col-md-6">
+          <h3 className="period-label">6 Hours</h3>
+          {isLoading6h && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
+          {!leaderboards || !leaderboards['6h'] ? (
+            <TablePlaceholder size={20} />
+          ) : (
+            <Table
+              uniqueKeySelector={sixHoursTableConfig.uniqueKey}
+              columns={sixHoursTableConfig.columns}
+              rows={leaderboards['6h']}
               listStyle
             />
           )}

@@ -42,6 +42,7 @@ import './Player.scss';
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];
 
 const PERIOD_OPTIONS = [
+  { label: '6 Hours', value: '6h' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -96,7 +97,7 @@ function getSelectedPeriod(location) {
   const queryPeriod = params.period;
 
   const index = PERIOD_OPTIONS.findIndex(t => t.value.toLowerCase() === queryPeriod);
-  return PERIOD_OPTIONS[index === -1 ? 1 : index].value;
+  return PERIOD_OPTIONS[index === -1 ? 2 : index].value;
 }
 
 function getSelectedMetric(metricType, location) {
