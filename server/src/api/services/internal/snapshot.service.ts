@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import { Snapshot } from '../../../database/models';
 import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
+import { getSeconds } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
@@ -111,12 +112,12 @@ async function getSnapshots(playerId: number, period: string) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const before = moment().subtract(1, period as any);
+  const before = moment().subtract(getSeconds(period), 'seconds').toDate();
 
   const result = await Snapshot.findAll({
     where: {
       playerId,
-      createdAt: { [Op.gte]: before.toDate() }
+      createdAt: { [Op.gte]: before }
     },
     order: [['createdAt', 'DESC']]
   });

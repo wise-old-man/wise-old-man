@@ -65,4 +65,21 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-export { isValidDate, isPast, durationBetween };
+function getSeconds(period: string) {
+  switch (period) {
+    case '6h':
+      return 3600 * 6;
+    case 'day':
+      return 3600 * 24;
+    case 'week':
+      return 3600 * 24 * 7;
+    case 'month':
+      return 3600 * 24 * 31;
+    case 'year':
+      return 31556926;
+    default:
+      return -1;
+  }
+}
+
+export { isValidDate, isPast, durationBetween, getSeconds };

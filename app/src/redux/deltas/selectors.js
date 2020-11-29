@@ -13,9 +13,11 @@ const getGroupDeltasMap = createSelector(groupDeltasSelector, map => {
   return mapValues(map, hiscores => hiscores.map((d, i) => ({ ...d, rank: i + 1 })));
 });
 
+export const isFetching6h = createSelector(rootSelector, root => root.isFetchingLeaderboards['6h']);
 export const isFetchingDay = createSelector(rootSelector, root => root.isFetchingLeaderboards.day);
 export const isFetchingWeek = createSelector(rootSelector, root => root.isFetchingLeaderboards.week);
 export const isFetchingMonth = createSelector(rootSelector, root => root.isFetchingLeaderboards.month);
+export const isFetchingYear = createSelector(rootSelector, root => root.isFetchingLeaderboards.year);
 
 export const isFetchingGroupDeltas = createSelector(rootSelector, root => root.isFetchingGroupDeltas);
 

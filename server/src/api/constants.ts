@@ -5,7 +5,7 @@ export const MAX_LEVEL = 99;
 export const MAX_VIRTUAL_LEVEL = 126;
 export const CAPPED_MAX_TOTAL_XP = 299791913;
 
-export const PERIODS = ['day', 'week', 'month', 'year'];
+export const PERIODS = ['6h', 'day', 'week', 'month', 'year'];
 
 export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
 

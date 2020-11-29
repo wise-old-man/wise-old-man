@@ -5,6 +5,7 @@ import { Delta, InitialValues, Player, Snapshot } from '../../../database/models
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
+import { getSeconds } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
@@ -23,26 +24,6 @@ interface GroupDeltasFilter {
   playerIds: number[];
   period?: string;
   metric?: string;
-}
-
-export const DAY_IN_SECONDS = 86400;
-export const WEEK_IN_SECONDS = 604800;
-export const MONTH_IN_SECONDS = 2678400; // month = 31 days (like CML)
-export const YEAR_IN_SECONDS = 31556926;
-
-function getSeconds(period: string) {
-  switch (period) {
-    case 'day':
-      return DAY_IN_SECONDS;
-    case 'week':
-      return WEEK_IN_SECONDS;
-    case 'month':
-      return MONTH_IN_SECONDS;
-    case 'year':
-      return YEAR_IN_SECONDS;
-    default:
-      return -1;
-  }
 }
 
 function parseNum(key: string, val: string) {

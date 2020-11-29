@@ -146,12 +146,14 @@ function Records() {
 
   // Memoized redux variables
   const leaderboards = useSelector(recordSelectors.getLeaderboards);
+  const isLoading6h = useSelector(recordSelectors.isFetching6h);
   const isLoadingDay = useSelector(recordSelectors.isFetchingDay);
   const isLoadingWeek = useSelector(recordSelectors.isFetchingWeek);
   const isLoadingMonth = useSelector(recordSelectors.isFetchingMonth);
+  const isLoadingYear = useSelector(recordSelectors.isFetchingYear);
 
   const reloadList = () => {
-    const periods = ['day', 'week', 'month'];
+    const periods = ['6h', 'day', 'week', 'month', 'year'];
 
     periods.forEach(p => {
       dispatch(
@@ -252,6 +254,34 @@ function Records() {
               uniqueKeySelector={tableConfig.uniqueKey}
               columns={tableConfig.columns}
               rows={leaderboards.month}
+              listStyle
+            />
+          )}
+        </div>
+        <div className="col-lg-4 col-md-6">
+          <h3 className="period-label">6 hours</h3>
+          {isLoading6h && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
+          {!leaderboards || !leaderboards['6h'] ? (
+            <TablePlaceholder size={20} />
+          ) : (
+            <Table
+              uniqueKeySelector={tableConfig.uniqueKey}
+              columns={tableConfig.columns}
+              rows={leaderboards['6h']}
+              listStyle
+            />
+          )}
+        </div>
+        <div className="col-lg-4 col-md-6">
+          <h3 className="period-label">Year</h3>
+          {isLoadingYear && <img className="loading-icon" src="/img/icons/loading.png" alt="" />}
+          {!leaderboards || !leaderboards.year ? (
+            <TablePlaceholder size={20} />
+          ) : (
+            <Table
+              uniqueKeySelector={tableConfig.uniqueKey}
+              columns={tableConfig.columns}
+              rows={leaderboards.year}
               listStyle
             />
           )}
