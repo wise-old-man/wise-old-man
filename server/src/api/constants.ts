@@ -1,8 +1,5 @@
 import { Snapshot } from '../database/models';
-import { getCombatLevel, getTotalLevel } from './util/level';
-
-export const MAX_LEVEL = 99;
-export const MAX_VIRTUAL_LEVEL = 126;
+import { getCombatLevel, getTotalLevel } from './util/experience';
 
 export const PERIODS = ['day', 'week', 'month', 'year'];
 
@@ -139,6 +136,7 @@ export const COMBAT_SKILLS = ['attack', 'strength', 'defence', 'hitpoints', 'ran
 export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
+export const REAL_SKILLS = SKILLS.filter(s => s !== 'overall');
 
 export const SKILL_ACHIEVEMENT_TEMPLATES = [
   {
