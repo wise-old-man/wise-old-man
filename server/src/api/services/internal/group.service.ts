@@ -6,7 +6,7 @@ import { sequelize } from '../../../database';
 import { Achievement, Group, Membership, Player, Record, Snapshot } from '../../../database/models';
 import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
-import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/level';
+import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
 import * as achievementService from './achievement.service';
