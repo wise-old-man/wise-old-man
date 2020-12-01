@@ -6,10 +6,10 @@ import {
   ACTIVITY_ACHIEVEMENT_TEMPLATES,
   BOSSES,
   BOSS_ACHIEVEMENT_TEMPLATES,
-  CAPPED_MAX_TOTAL_XP,
   SKILLS,
   SKILL_ACHIEVEMENT_TEMPLATES
 } from '../..//constants';
+import { CAPPED_MAX_TOTAL_XP } from '../../util/experience';
 import { getDifficultyFactor, getFormattedName, getMeasure, getValueKey } from '../../util/metrics';
 import * as snapshotService from './snapshot.service';
 

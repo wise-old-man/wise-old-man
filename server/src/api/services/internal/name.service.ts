@@ -13,7 +13,7 @@ import env from '../../../env';
 import { NameChangeStatus, Pagination } from '../../../types';
 import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
-import { getLevel } from '../../util/level';
+import { getLevel } from '../../util/experience';
 import { buildQuery } from '../../util/query';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
