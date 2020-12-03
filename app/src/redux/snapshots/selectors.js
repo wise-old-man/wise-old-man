@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { COLORS } from 'config';
+import { CHART_COLORS } from 'config/visuals';
 import { capitalize, distribute } from 'utils';
 
 const snapshotsSelector = state => state.snapshots.snapshots;
@@ -33,7 +33,7 @@ export const getChartData = (state, username, period, skill, measure, reducedMod
     },
     datasets: [
       {
-        borderColor: COLORS[measure === 'experience' ? 0 : 1],
+        borderColor: CHART_COLORS[measure === 'experience' ? 0 : 1],
         pointBorderWidth: 4,
         label: capitalize(measure),
         // If showing ranks, don't include any -1 ranks

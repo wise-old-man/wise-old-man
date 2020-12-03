@@ -1,4 +1,4 @@
-export const COLORS = [
+export const CHART_COLORS = [
   '#3498db',
   '#1abc9c',
   '#9b59b6',
@@ -8,5 +8,5 @@ export const COLORS = [
   '#bdc3c7',
   '#ff9ff3',
   '#341f97',
-  '##01a3a4',
+  '##01a3a4'
 ];

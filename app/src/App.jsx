@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import Analytics from 'react-ga';
 import { NavigationBar, Notification } from 'components';
 import NotFound from 'pages/NotFound';
-import { uniformUrl } from 'utils/analytics';
+import { uniformUrl } from 'services/analytics';
 import { ROUTES, getRoute } from 'config/routing';
 
 function initGoogleAnalytics() {
