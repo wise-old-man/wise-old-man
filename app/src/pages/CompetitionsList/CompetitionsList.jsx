@@ -1,115 +1,31 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
-import { competitionActions, competitionSelectors } from 'redux/competitions';
-import {
-  PageTitle,
-  TextInput,
-  Selector,
-  TextButton,
-  Table,
-  TablePlaceholder,
-  StatusDot
-} from 'components';
-import { capitalize, getMetricIcon, getMetricName } from 'utils';
-import { COMPETITION_SATUSES, ALL_METRICS } from 'config';
+import { COMPETITION_STATUSES, ALL_METRICS } from 'config';
+import { useUrlContext } from 'utils/hooks';
+import { Header, Controls, List } from './containers';
+import { CompetitionsListContext } from './context';
 import './CompetitionsList.scss';
 
-const DEFAULT_METRICS_OPTION = { label: 'Any metric', value: null };
-const DEFAULT_STATUS_OPTION = { label: 'Any status', value: null };
-
 const RESULTS_PER_PAGE = 20;
-
-function convertStatus(status) {
-  switch (status) {
-    case 'upcoming':
-      return 'NEUTRAL';
-    case 'ongoing':
-      return 'POSITIVE';
-    case 'finished':
-      return 'NEGATIVE';
-    default:
-      return null;
-  }
-}
-
-const TABLE_CONFIG = {
-  uniqueKey: row => row.id,
-  columns: [
-    {
-      key: 'metric',
-      width: 30,
-      transform: value => <img src={getMetricIcon(value)} alt="" />
-    },
-    {
-      key: 'title',
-      className: () => '-primary',
-      transform: (val, row) => <Link to={`/competitions/${row.id}`}>{val}</Link>
-    },
-    {
-      key: 'status',
-      className: () => '-break-small',
-      transform: (value, row) => {
-        return (
-          <div className="status-cell">
-            <StatusDot status={convertStatus(value)} />
-            <span>{row && row.countdown}</span>
-          </div>
-        );
-      }
-    },
-    {
-      key: 'participantCount',
-      transform: val => `${val} participants`,
-      className: () => '-break-large'
-    }
-  ]
-};
-
-function getStatusOptions() {
-  return [DEFAULT_STATUS_OPTION, ...COMPETITION_SATUSES.map(s => ({ label: capitalize(s), value: s }))];
-}
-
-function getMetricOptions() {
-  return [
-    DEFAULT_METRICS_OPTION,
-    ...ALL_METRICS.map(metric => ({
-      label: getMetricName(metric),
-      icon: getMetricIcon(metric, true),
-      value: metric
-    }))
-  ];
-}
 
 function CompetitionsList() {
   const dispatch = useDispatch();
 
+  const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
+  const { metric, status } = context;
+
   // State variables
   const [titleSearch, setTitleSearch] = useState('');
-  const [selectedMetric, setSelectedMetric] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
 
-  // Memoized variables
-  const metricOptions = useMemo(getMetricOptions, []);
-  const statusOptions = useMemo(getStatusOptions, []);
-
-  // Memoized redux variables
   const competitions = useSelector(competitionSelectors.getCompetitions);
-  const isLoading = useSelector(competitionSelectors.isFetchingList);
-
   const isFullyLoaded = competitions.length < RESULTS_PER_PAGE * (pageIndex + 1);
-
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === selectedMetric);
-  const selectedStatusIndex = statusOptions.findIndex(o => o.value === selectedStatus);
 
   const handleSubmitSearch = debounce(
     () => {
-      const metric = selectedMetric || null;
-      const status = selectedStatus || null;
-
       setPageIndex(0); // Reset pagination when the search changes
       dispatch(competitionActions.fetchList(titleSearch, metric, status, RESULTS_PER_PAGE, 0));
     },
@@ -119,9 +35,6 @@ function CompetitionsList() {
 
   const handleLoadMore = () => {
     if (pageIndex === 0) return;
-
-    const metric = selectedMetric || null;
-    const status = selectedStatus || null;
     const limit = RESULTS_PER_PAGE;
     const offset = RESULTS_PER_PAGE * pageIndex;
 
@@ -134,14 +47,6 @@ function CompetitionsList() {
 
   const handleSearchInput = e => {
     setTitleSearch(e.target.value);
-  };
-
-  const handleMetricSelected = e => {
-    setSelectedMetric((e && e.value) || null);
-  };
-
-  const handleStatusSelected = e => {
-    setSelectedStatus((e && e.value) || null);
   };
 
   const handleScrolling = () => {
@@ -167,75 +72,67 @@ function CompetitionsList() {
   };
 
   // Memoized callbacks
-  const onSubmitSearch = useCallback(handleSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
+  const onSubmitSearch = useCallback(handleSubmitSearch, [titleSearch, metric, status]);
   const onLoadMore = useCallback(handleLoadMore, [pageIndex]);
-  const onSearchInput = useCallback(handleSearchInput, [setTitleSearch]);
-  const onMetricSelected = useCallback(handleMetricSelected, [setSelectedMetric]);
-  const onStatusSelected = useCallback(handleStatusSelected, [setSelectedStatus]);
 
   // Submit search each time any of the search variable change
-  useEffect(onSubmitSearch, [titleSearch, selectedMetric, selectedStatus]);
+  useEffect(onSubmitSearch, [titleSearch, metric, status]);
   useEffect(onLoadMore, [pageIndex]);
   useEffect(handleScrolling, [competitions, pageIndex]);
 
   return (
-    <div className="competitions__container container">
-      <Helmet>
-        <title>Competitions</title>
-      </Helmet>
-      <div className="competitions__header row">
-        <div className="col">
-          <PageTitle title="Competitions" />
+    <CompetitionsListContext.Provider value={{ context, updateContext }}>
+      <div className="competitions__container container">
+        <Helmet>
+          <title>Competitions</title>
+        </Helmet>
+        <div className="competitions__header row">
+          <Header />
         </div>
-        <div className="col">
-          <TextButton text="Create new" url="/competitions/create" />
+        <div className="competitions__options row">
+          <Controls onSearchInputChanged={handleSearchInput} />
         </div>
-      </div>
-      <div className="competitions__options row">
-        <div className="col-md-4 col-sm-12">
-          <TextInput onChange={onSearchInput} placeholder="Search competition" />
+        <div className="competitions__list row">
+          <div className="col">
+            <List />
+          </div>
         </div>
-        <div className="col-md-4 col-sm-6">
-          <Selector
-            options={metricOptions}
-            selectedIndex={selectedMetricIndex}
-            onSelect={onMetricSelected}
-            search
-          />
-        </div>
-        <div className="col-md-4 col-sm-6">
-          <Selector
-            options={statusOptions}
-            selectedIndex={selectedStatusIndex}
-            onSelect={onStatusSelected}
-          />
+        <div className="row">
+          <div className="col">
+            {!isFullyLoaded && (
+              <b id="loading" className="loading-indicator">
+                Loading...
+              </b>
+            )}
+          </div>
         </div>
       </div>
-      <div className="competitions__list row">
-        <div className="col">
-          {isLoading && (!competitions || competitions.length === 0) ? (
-            <TablePlaceholder size={5} />
-          ) : (
-            <Table
-              uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-              columns={TABLE_CONFIG.columns}
-              rows={competitions}
-              listStyle
-            />
-          )}
-        </div>
-      </div>
-      <div className="row">
-        <div className="col">
-          {!isFullyLoaded && (
-            <b id="loading" className="loading-indicator">
-              Loading...
-            </b>
-          )}
-        </div>
-      </div>
-    </div>
+    </CompetitionsListContext.Provider>
   );
+}
+
+function encodeContext(ctx) {
+  const { metric, status } = ctx;
+  const queries = [];
+
+  if (metric && metric !== 'overall') {
+    queries.push(`metric=${metric}`);
+  }
+
+  if (status) {
+    queries.push(`status=${status}`);
+  }
+
+  const queryString = queries.length > 0 ? `?${queries.join('&')}` : '';
+
+  return `/competitions${queryString}`;
+}
+
+function decodeURL(_, query) {
+  const status = query.status && COMPETITION_STATUSES.includes(query.status) ? query.status : null;
+  const metric = query.metric && ALL_METRICS.includes(query.metric) ? query.metric : null;
+
+  return { status, metric };
 }
 
 export default CompetitionsList;

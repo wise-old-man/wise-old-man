@@ -7,7 +7,7 @@ function useQuery() {
   return queryString.parse(location.search);
 }
 
-function usePageContext(encodeToURL, decodeToContext) {
+function useUrlContext(encodeToURL, decodeToContext) {
   const router = useHistory();
   const params = useParams();
   const query = useQuery();
@@ -24,4 +24,4 @@ function usePageContext(encodeToURL, decodeToContext) {
   return { context, updateContext };
 }
 
-export { useQuery, usePageContext };
+export { useQuery, useUrlContext };

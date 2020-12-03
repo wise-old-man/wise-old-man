@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { Loading, Tabs } from 'components';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { playerActions } from 'redux/players';
-import { usePageContext } from 'utils/hooks';
+import { useUrlContext } from 'utils/hooks';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
 import { Header, Widgets, ParticipantsTable, ParticipantsChart } from './containers';
 import { CompetitionInfo } from './components';
@@ -18,11 +18,12 @@ function Competition() {
   const dispatch = useDispatch();
   const router = useHistory();
 
-  const { context, updateContext } = usePageContext(encodeContext, decodeURL);
+  const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
   const { id, section } = context;
 
   const competition = useSelector(state => competitionSelectors.getCompetition(state, id));
   const selectedTabIndex = section === 'chart' ? 1 : 0;
+  const showDeleteModal = section === 'delete' && !!competition;
 
   const handleUpdateAll = () => {
     dispatch(competitionActions.updateAll(id));
@@ -82,7 +83,7 @@ function Competition() {
             )}
           </div>
         </div>
-        {section === 'delete' && competition && (
+        {showDeleteModal && (
           <DeleteCompetitionModal
             competition={competition}
             onCancel={() => updateContext({ section: 'participants' })}

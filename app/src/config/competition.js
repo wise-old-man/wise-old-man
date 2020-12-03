@@ -1,1 +1,1 @@
-export const COMPETITION_SATUSES = ['upcoming', 'ongoing', 'finished'];
+export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];
