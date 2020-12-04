@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useHistory, useParams, useLocation } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { deltasActions, deltasSelectors } from 'redux/deltas';
 import { Table, Selector, PageTitle, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from 'config';
+import { useQuery } from 'hooks';
 import {
   capitalize,
   getPlayerBuild,
@@ -69,17 +70,6 @@ function getMetricOptions() {
     icon: getMetricIcon(metric, true),
     value: metric
   }));
-}
-
-function useQuery(keys) {
-  const urlQuery = new URLSearchParams(useLocation().search);
-  const result = {};
-
-  keys.forEach(k => {
-    result[k] = urlQuery.get(k);
-  });
-
-  return result;
 }
 
 function getPlayerURL(username, metric, period) {

@@ -1,11 +1,6 @@
 import { useCallback } from 'react';
-import { useParams, useLocation, useHistory } from 'react-router-dom';
-import queryString from 'query-string';
-
-function useQuery() {
-  const location = useLocation();
-  return queryString.parse(location.search);
-}
+import { useParams, useHistory } from 'react-router-dom';
+import useQuery from './useQuery';
 
 function useUrlContext(encodeToURL, decodeToContext) {
   const router = useHistory();
@@ -24,4 +19,4 @@ function useUrlContext(encodeToURL, decodeToContext) {
   return { context, updateContext };
 }
 
-export { useQuery, useUrlContext };
+export default useUrlContext;

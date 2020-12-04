@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useParams, useHistory } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
@@ -14,6 +14,7 @@ import {
   getMetricIcon,
   getMetricName
 } from 'utils';
+import { useQuery } from 'hooks';
 import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS } from 'config';
 import './Leaderboards.scss';
 
@@ -66,17 +67,6 @@ const getTableConfig = metric => {
     ]
   };
 };
-
-function useQuery(keys) {
-  const urlQuery = new URLSearchParams(useLocation().search);
-  const result = {};
-
-  keys.forEach(k => {
-    result[k] = urlQuery.get(k);
-  });
-
-  return result;
-}
 
 function getPlayerTypeOptions() {
   return PLAYER_TYPES.map(type => ({

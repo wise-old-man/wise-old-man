@@ -5,7 +5,8 @@ import { Helmet } from 'react-helmet';
 import { Loading, Tabs } from 'components';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { playerActions } from 'redux/players';
-import { useUrlContext } from 'utils/hooks';
+import { useUrlContext } from 'hooks';
+import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
 import { Header, Widgets, ParticipantsTable, ParticipantsChart } from './containers';
 import { CompetitionInfo } from './components';
@@ -103,17 +104,14 @@ const fetchDetails = (id, router, dispatch) => {
     .catch(() => router.push('/404'));
 };
 
-function encodeContext(ctx) {
-  const { id, section } = ctx;
+function encodeContext({ id, section }) {
+  const nextURL = new URL(`/competitions/${id}`);
 
-  switch (section) {
-    case 'chart':
-      return `/competitions/${id}/chart`;
-    case 'delete':
-      return `/competitions/${id}/delete`;
-    default:
-      return `/competitions/${id}/`;
+  if (section === 'chart' || section === 'delete') {
+    nextURL.appendToPath(`/${section}`);
   }
+
+  return nextURL.getPath();
 }
 
 function decodeURL(params) {
