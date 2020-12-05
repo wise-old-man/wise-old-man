@@ -131,7 +131,7 @@ function NavigationBar() {
     <nav className="nav-bar">
       <div className="nav-bar__wrapper">
         <Link className="nav-brand col-md-3 col-8" to="/" onClick={closeMenu}>
-          <img className="nav-logo-img" src="/img/logo.png" alt="" />
+          <img className="nav-logo-img" src="/img/logo_xmas.png" alt="" />
           <div className="nav-logo-text">
             <span>WISE</span>
             <span>OLD MAN</span>
