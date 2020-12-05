@@ -7,7 +7,7 @@ function NavBar() {
       <div className="navigation-bar__wrapper">
         <a href="/">
           <div className="nav-brand">
-            <img className="nav-logo-img" src="/img/logo.png" alt="" />
+            <img className="nav-logo-img" src="/img/logo_xmas.png" alt="" />
             <div className="nav-logo-text">
               <span>WISE</span>
               <span>OLD MAN</span>
