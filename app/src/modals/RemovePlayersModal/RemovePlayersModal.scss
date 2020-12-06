@@ -18,9 +18,10 @@
     width: 300px;
     max-height: 80vh;
     max-width: 90%;
-    overflow-y: scroll;
     text-align: center;
     padding: 40px 25px 25px;
+    display: flex;
+    flex-direction: column;
     position: relative;
 
     .close-btn {
@@ -51,5 +52,9 @@
         background: $negative-red;
       }
     }
+  }
+
+  &__list {
+    overflow-y: scroll;
   }
 }
