@@ -65,11 +65,11 @@ const slice = createSlice({
       state.error = null;
     },
     onFetchGroupDeltasSuccess(state, action) {
-      const { groupId, data } = action.payload;
+      const { groupId, data, refresh } = action.payload;
 
       state.error = null;
       state.isFetchingGroupDeltas = false;
-      state.groupDeltas[groupId] = data;
+      state.groupDeltas[groupId] = refresh ? data : [...state.groupDeltas[groupId], ...data];
     },
     onFetchGroupDeltasError(state, action) {
       state.isFetchingGroupDeltas = false;

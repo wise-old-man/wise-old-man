@@ -1,8 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Table, TablePlaceholder, PlayerTag } from 'components';
 import { getMetricIcon, formatDate } from 'utils';
+import { achievementSelectors } from 'redux/achievements';
+import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -34,7 +36,13 @@ const TABLE_CONFIG = {
   ]
 };
 
-function GroupAchievements({ achievements, isLoading }) {
+function AchievementsTable() {
+  const { context } = useContext(GroupContext);
+  const { id } = context;
+
+  const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
+  const achievements = useSelector(state => achievementSelectors.getGroupAchievements(state, id));
+
   return (
     <>
       <span className="widget-label">Most recent achievements</span>
@@ -52,13 +60,4 @@ function GroupAchievements({ achievements, isLoading }) {
   );
 }
 
-GroupAchievements.defaultProps = {
-  achievements: []
-};
-
-GroupAchievements.propTypes = {
-  achievements: PropTypes.arrayOf(PropTypes.shape()),
-  isLoading: PropTypes.bool.isRequired
-};
-
-export default GroupAchievements;
+export default AchievementsTable;

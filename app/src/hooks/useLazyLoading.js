@@ -6,7 +6,7 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
   const [pageIndex, setPageIndex] = useState(0);
 
   const data = useSelector(selector);
-  const isFullyLoaded = data.length < resultsPerPage * (pageIndex + 1);
+  const isFullyLoaded = data && data.length < resultsPerPage * (pageIndex + 1);
 
   const resetPagination = () => {
     setPageIndex(0);
@@ -28,7 +28,7 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
 
     window.onscroll = debounce(() => {
       // If has no more content to load, ignore the scrolling
-      if (data.length < resultsPerPage * (pageIndex + 1)) {
+      if (isFullyLoaded) {
         return;
       }
 
@@ -48,7 +48,7 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
   useEffect(loadMore, [pageIndex]);
   useEffect(handleScrolling, [data, pageIndex]);
 
-  return { data, isFullyLoaded, reloadData, resetPagination };
+  return { data, isFullyLoaded, reloadData, resetPagination, pageIndex };
 }
 
 export default useLazyLoading;

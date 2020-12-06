@@ -1,22 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { competitionSelectors } from 'redux/competitions';
 import { sortBy, indexOf } from 'lodash';
 import { Table, StatusDot } from 'components';
 import { getMetricIcon } from 'utils';
-
-function convertStatus(status) {
-  switch (status) {
-    case 'upcoming':
-      return 'NEUTRAL';
-    case 'ongoing':
-      return 'POSITIVE';
-    case 'finished':
-      return 'NEGATIVE';
-    default:
-      return null;
-  }
-}
+import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -45,31 +34,46 @@ const TABLE_CONFIG = {
   ]
 };
 
-function GroupCompetitions({ competitions }) {
-  const router = useHistory();
+function CompetitionsTable({ handleRedirect }) {
+  const { context } = useContext(GroupContext);
+  const { id } = context;
+
+  const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, id));
+
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];
 
   const handleRowClicked = index => {
-    router.push(`/competitions/${rows[index].id}`);
+    handleRedirect(`/competitions/${rows[index].id}`);
   };
-
-  const onRowClicked = useCallback(handleRowClicked, [router, competitions]);
 
   return (
     <Table
       uniqueKeySelector={TABLE_CONFIG.uniqueKey}
       rows={rows}
       columns={TABLE_CONFIG.columns}
-      onRowClicked={onRowClicked}
+      onRowClicked={handleRowClicked}
       clickable
       listStyle
     />
   );
 }
 
-GroupCompetitions.propTypes = {
-  competitions: PropTypes.arrayOf(PropTypes.shape).isRequired
+function convertStatus(status) {
+  switch (status) {
+    case 'upcoming':
+      return 'NEUTRAL';
+    case 'ongoing':
+      return 'POSITIVE';
+    case 'finished':
+      return 'NEGATIVE';
+    default:
+      return null;
+  }
+}
+
+CompetitionsTable.propTypes = {
+  handleRedirect: PropTypes.func.isRequired
 };
 
-export default React.memo(GroupCompetitions);
+export default CompetitionsTable;

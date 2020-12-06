@@ -1,9 +1,50 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { groupSelectors } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
 import { getMetricIcon, getLevel, getMetricName } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
-import './GroupStatistics.scss';
+import { GroupContext } from '../context';
+
+function Statistics() {
+  const { context } = useContext(GroupContext);
+  const { id } = context;
+
+  const group = useSelector(state => groupSelectors.getGroup(state, id));
+  const isLoading = useSelector(groupSelectors.isFetchingStatistics);
+
+  const { statistics } = group;
+  const showPlaceholder = isLoading || !group || !statistics;
+
+  return (
+    <div className="group-statistics">
+      <div className="statistics-block__container">
+        <div className="statistics-block">
+          <span className="statistic-label">Maxed overall players</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxedTotalCount}
+          </b>
+        </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Maxed combat players</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxedCombatCount}
+          </b>
+        </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Number of 200ms</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.maxed200msCount}
+          </b>
+        </div>
+      </div>
+      <div className="statistics-table">
+        <span className="widget-label">Average member stats</span>
+        {showPlaceholder ? <TablePlaceholder size={20} /> : renderTable(statistics.averageStats)}
+      </div>
+    </div>
+  );
+}
 
 function getValue(row) {
   if (row.experience) {
@@ -72,46 +113,4 @@ function renderTable(snapshot) {
   return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
 
-function GroupStatistics({ statistics, isLoading }) {
-  const showPlaceholder = isLoading || !statistics;
-
-  return (
-    <div className="group-statistics">
-      <div className="statistics-block__container">
-        <div className="statistics-block">
-          <span className="statistic-label">Maxed overall players</span>
-          <b className="statistic-value">
-            {showPlaceholder ? 'Loading...' : statistics.maxedTotalCount}
-          </b>
-        </div>
-        <div className="statistics-block">
-          <span className="statistic-label">Maxed combat players</span>
-          <b className="statistic-value">
-            {showPlaceholder ? 'Loading...' : statistics.maxedCombatCount}
-          </b>
-        </div>
-        <div className="statistics-block">
-          <span className="statistic-label">Number of 200ms</span>
-          <b className="statistic-value">
-            {showPlaceholder ? 'Loading...' : statistics.maxed200msCount}
-          </b>
-        </div>
-      </div>
-      <div className="statistics-table">
-        <span className="widget-label">Average member stats</span>
-        {showPlaceholder ? <TablePlaceholder size={20} /> : renderTable(statistics.averageStats)}
-      </div>
-    </div>
-  );
-}
-
-GroupStatistics.defaultProps = {
-  statistics: undefined
-};
-
-GroupStatistics.propTypes = {
-  statistics: PropTypes.shape(),
-  isLoading: PropTypes.bool.isRequired
-};
-
-export default React.memo(GroupStatistics);
+export default Statistics;

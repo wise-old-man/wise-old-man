@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { InfoPanel } from 'components';
-import { formatDate } from 'utils';
+import InfoPanel from '../../../../components/InfoPanel';
+import { formatDate } from '../../../../utils';
 import './GroupInfo.scss';
 
 function formatData(group) {

@@ -1,14 +1,16 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const fetchGroupHiscores = (groupId, metric) => async dispatch => {
+const fetchGroupHiscores = (groupId, metric, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchRequest());
 
   try {
     const url = endpoints.fetchGroupHiscores.replace(':id', groupId);
-    const { data } = await api.get(url, { params: { metric } });
+    const params = { metric, limit, offset };
 
-    dispatch(reducers.onFetchSuccess({ groupId, hiscores: data }));
+    const { data } = await api.get(url, { params });
+
+    dispatch(reducers.onFetchSuccess({ groupId, hiscores: data, refresh: !offset }));
   } catch (e) {
     dispatch(reducers.onFetchError(e.message.toString()));
   }

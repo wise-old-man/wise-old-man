@@ -27,16 +27,16 @@ const fetchPlayerDeltas = username => async dispatch => {
   }
 };
 
-const fetchGroupDeltas = (groupId, metric, period) => async dispatch => {
+const fetchGroupDeltas = (groupId, metric, period, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchGroupDeltasRequest());
 
   try {
-    const params = { metric, period };
+    const params = { metric, period, limit, offset };
     const url = endpoints.fetchGroupDeltas.replace(':id', groupId);
 
     const { data } = await api.get(url, { params });
 
-    dispatch(reducers.onFetchGroupDeltasSuccess({ groupId, data }));
+    dispatch(reducers.onFetchGroupDeltasSuccess({ groupId, data, refresh: !offset }));
   } catch (e) {
     dispatch(reducers.onFetchGroupDeltasError(e.message.toString()));
   }

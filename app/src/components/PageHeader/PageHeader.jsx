@@ -38,10 +38,12 @@ PageHeader.propTypes = {
   iconTooltip: PropTypes.string,
 
   // If enabled, a verified badge will be displayed next to the title
-  badges: PropTypes.arrayOf({
-    text: PropTypes.string.isRequired,
-    hoverText: PropTypes.string.isRequired
-  })
+  badges: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      hoverText: PropTypes.string.isRequired
+    })
+  )
 };
 
 export default React.memo(PageHeader);
