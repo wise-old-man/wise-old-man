@@ -14,7 +14,7 @@ function RemovePlayersModal({ modalView, players, onConfirm, onClose }) {
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
         <b className="modal-title">Are you sure you want to remove the following players?</b>
-        <p>{players.join(', ')}</p>
+        <p className="remove-players__list">{players.join(', ')}</p>
         <Button text="Remove players" onClick={onConfirm} />
       </div>
     </div>

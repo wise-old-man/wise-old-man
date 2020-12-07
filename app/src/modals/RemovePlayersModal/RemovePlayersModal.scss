@@ -7,7 +7,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  z-index: 300;
+  z-index: 501;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -16,10 +16,12 @@
   &__modal {
     @extend %panel;
     width: 300px;
+    max-height: 80vh;
     max-width: 90%;
     text-align: center;
-    padding: 25px;
-    padding-top: 40px;
+    padding: 40px 25px 25px;
+    display: flex;
+    flex-direction: column;
     position: relative;
 
     .close-btn {
@@ -50,5 +52,9 @@
         background: $negative-red;
       }
     }
+  }
+
+  &__list {
+    overflow-y: scroll;
   }
 }
