@@ -65,11 +65,11 @@ const slice = createSlice({
       state.error = null;
     },
     onFetchGroupRecordsSuccess(state, action) {
-      const { groupId, data } = action.payload;
+      const { groupId, data, refresh } = action.payload;
 
       state.error = null;
       state.isFetchingGroupRecords = false;
-      state.groupRecords[groupId] = data;
+      state.groupRecords[groupId] = refresh ? data : [...state.groupRecords[groupId], ...data];
     },
     onFetchGroupRecordsError(state, action) {
       state.isFetchingGroupRecords = false;

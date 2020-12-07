@@ -27,16 +27,16 @@ const fetchPlayerRecords = username => async dispatch => {
   }
 };
 
-const fetchGroupRecords = (groupId, metric, period) => async dispatch => {
+const fetchGroupRecords = (groupId, metric, period, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchGroupRecordsRequest());
 
   try {
-    const params = { metric, period };
+    const params = { metric, period, limit, offset };
     const url = endpoints.fetchGroupRecords.replace(':id', groupId);
 
     const { data } = await api.get(url, { params });
 
-    dispatch(reducers.onFetchGroupRecordsSuccess({ groupId, data }));
+    dispatch(reducers.onFetchGroupRecordsSuccess({ groupId, data, refresh: !offset }));
   } catch (e) {
     dispatch(reducers.onFetchGroupRecordsError(e.message.toString()));
   }

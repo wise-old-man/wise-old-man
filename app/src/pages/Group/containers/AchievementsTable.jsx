@@ -1,13 +1,14 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { achievementActions, achievementSelectors } from 'redux/achievements';
 import { Table, TablePlaceholder, PlayerTag } from 'components';
 import { getMetricIcon, formatDate } from 'utils';
-import { achievementSelectors } from 'redux/achievements';
+import { useLazyLoading } from 'hooks';
 import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
-  uniqueKey: row => row.id,
+  uniqueKey: row => `${row.player.id}-${row.type}`,
   columns: [
     {
       key: 'displayName',
@@ -37,16 +38,32 @@ const TABLE_CONFIG = {
 };
 
 function AchievementsTable() {
+  const dispatch = useDispatch();
+
   const { context } = useContext(GroupContext);
   const { id } = context;
 
-  const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
+  const { isFullyLoaded, pageIndex, reloadData } = useLazyLoading({
+    resultsPerPage: 5,
+    action: handleReload,
+    selector: state => achievementSelectors.getGroupAchievements(state, id)
+  });
+
   const achievements = useSelector(state => achievementSelectors.getGroupAchievements(state, id));
+  const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
+  const isReloading = isLoading && pageIndex === 0;
+
+  function handleReload(limit, offset) {
+    dispatch(achievementActions.fetchGroupAchievements(id, limit, offset));
+  }
+
+  // When the selected metric changes, reload the achievements
+  useEffect(reloadData, [id]);
 
   return (
     <>
       <span className="widget-label">Most recent achievements</span>
-      {isLoading ? (
+      {isReloading ? (
         <TablePlaceholder size={20} />
       ) : (
         <Table
@@ -56,6 +73,7 @@ function AchievementsTable() {
           listStyle
         />
       )}
+      {!isFullyLoaded && <b className="loading-indicator">Loading...</b>}
     </>
   );
 }

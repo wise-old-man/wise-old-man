@@ -16,14 +16,16 @@ const fetchPlayerAchievements = username => async dispatch => {
   }
 };
 
-const fetchGroupAchievements = groupId => async dispatch => {
+const fetchGroupAchievements = (groupId, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchGroupAchievementsRequest());
 
   try {
+    const params = { limit, offset };
     const url = endpoints.fetchGroupAchievements.replace(':id', groupId);
-    const { data } = await api.get(url);
 
-    dispatch(reducers.onFetchGroupAchievementsSuccess({ groupId, data }));
+    const { data } = await api.get(url, { params });
+
+    dispatch(reducers.onFetchGroupAchievementsSuccess({ groupId, data, refresh: !offset }));
   } catch (e) {
     dispatch(reducers.onFetchGroupAchievementsError(e.message.toString()));
   }

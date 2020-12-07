@@ -6,7 +6,6 @@ import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
-import { achievementActions } from 'redux/achievements';
 import URL from 'utils/url';
 import DeleteGroupModal from 'modals/DeleteGroupModal';
 import {
@@ -105,7 +104,6 @@ const fetchDetails = (id, router, dispatch) => {
   dispatch(groupActions.fetchMembers(id));
   dispatch(groupActions.fetchMonthlyTop(id));
   dispatch(competitionActions.fetchGroupCompetitions(id));
-  dispatch(achievementActions.fetchGroupAchievements(id));
   dispatch(groupActions.fetchStatistics(id));
 };
 
