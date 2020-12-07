@@ -59,13 +59,7 @@ function CompetitionsList() {
           </div>
         </div>
         <div className="row">
-          <div className="col">
-            {!isFullyLoaded && (
-              <b id="loading" className="loading-indicator">
-                Loading...
-              </b>
-            )}
-          </div>
+          <div className="col">{!isFullyLoaded && <b className="loading-indicator">Loading...</b>}</div>
         </div>
       </div>
     </CompetitionsListContext.Provider>
