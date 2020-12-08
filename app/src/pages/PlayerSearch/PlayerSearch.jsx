@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -34,26 +34,33 @@ function PlayerSearch() {
   const [isTracking, setIsTracking] = useState(false);
   const searchResults = useSelector(playerSelectors.getSearchResults);
 
-  const searchPlayers = () => {
+  const handleCheckResults = () => {
+    const match = searchResults.find(r => r.username === username.toLowerCase());
+
+    if (match) {
+      router.push(`/players/${match.displayName}`);
+    }
+  };
+
+  const handleSearchPlayers = () => {
     dispatch(playerActions.searchPlayers(username));
   };
 
-  const trackPlayer = async () => {
+  const handleTrackPlayer = async () => {
     try {
       setIsTracking(true);
       const { payload } = await dispatch(playerActions.trackPlayer(username));
 
       if (payload.data) {
-        router.push(`/players/${payload.data.username}`);
+        router.push(`/players/${payload.data.displayName}`);
       }
     } finally {
       setIsTracking(false);
     }
   };
 
-  const onButtonClicked = useCallback(trackPlayer, [username]);
-
-  useEffect(searchPlayers, [username]);
+  useEffect(handleSearchPlayers, [username]);
+  useEffect(handleCheckResults, [searchResults]);
 
   return (
     <div className="player-search__container container">
@@ -66,7 +73,7 @@ function PlayerSearch() {
           <p className="header__text">
             This player is not being tracked yet, would you like to start tracking it?
           </p>
-          <Button text={`Track ${username}`} onClick={onButtonClicked} loading={isTracking} />
+          <Button text={`Track ${username}`} onClick={handleTrackPlayer} loading={isTracking} />
         </div>
       </div>
       {searchResults && searchResults.length > 0 && (

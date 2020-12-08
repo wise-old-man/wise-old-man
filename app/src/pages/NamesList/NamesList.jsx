@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
 import { nameActions, nameSelectors } from 'redux/names';
 import { Table, TablePlaceholder, TextButton, PageTitle } from 'components';
 import { durationBetween } from 'utils';
+import { useLazyLoading } from 'hooks';
 import './NamesList.scss';
-
-const RESULTS_PER_PAGE = 20;
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -41,75 +39,22 @@ const TABLE_CONFIG = {
   ]
 };
 
-function statusTransform(status) {
-  switch (status) {
-    case 1:
-      return 'Denied';
-    case 2:
-      return 'Approved';
-    default:
-      return 'Pending';
-  }
-}
-
-function statusClassName(status) {
-  switch (status) {
-    case 1:
-      return '-negative';
-    case 2:
-      return '-positive';
-    default:
-      return '';
-  }
-}
-
 function NamesList() {
   const dispatch = useDispatch();
 
-  // State variables
-  const [pageIndex, setPageIndex] = useState(0);
+  const { isFullyLoaded } = useLazyLoading({
+    resultsPerPage: 20,
+    selector: nameSelectors.getNameChanges,
+    action: handleLoadData
+  });
 
   // Memoized redux variables
   const nameChanges = useSelector(nameSelectors.getNameChanges);
   const isLoading = useSelector(nameSelectors.isFetching);
 
-  const isFullyLoaded = nameChanges.length < RESULTS_PER_PAGE * (pageIndex + 1);
-
-  const handleLoadMore = () => {
-    const limit = RESULTS_PER_PAGE;
-    const offset = RESULTS_PER_PAGE * pageIndex;
+  function handleLoadData(limit, offset) {
     dispatch(nameActions.fetchNameChanges(limit, offset));
-  };
-
-  const handleNextPage = () => {
-    setPageIndex(pageIndex + 1);
-  };
-
-  const handleScrolling = () => {
-    const margin = 300;
-
-    window.onscroll = debounce(() => {
-      // If has no more content to load, ignore the scrolling
-      if (nameChanges.length < RESULTS_PER_PAGE * (pageIndex + 1)) {
-        return;
-      }
-
-      const { innerHeight } = window;
-      const { scrollTop, offsetHeight } = document.documentElement;
-
-      // If has reached the bottom of the page, load more data
-      if (innerHeight + scrollTop + margin > offsetHeight) {
-        // This timeout is simply to wait for the scrolling
-        // inertia to stop, to then load the contents, otherwise
-        // it will resume the inertia and scroll to the bottom of the page again
-        setTimeout(() => handleNextPage(), 1000);
-      }
-    }, 100);
-  };
-
-  // Submit search each time any of the search variable change
-  useEffect(handleLoadMore, [pageIndex]);
-  useEffect(handleScrolling, [nameChanges, pageIndex]);
+  }
 
   return (
     <div className="names__container container">
@@ -139,16 +84,32 @@ function NamesList() {
         </div>
       </div>
       <div className="row">
-        <div className="col">
-          {!isFullyLoaded && (
-            <b id="loading" className="loading-indicator">
-              Loading...
-            </b>
-          )}
-        </div>
+        <div className="col">{!isFullyLoaded && <b className="loading-indicator">Loading...</b>}</div>
       </div>
     </div>
   );
+}
+
+function statusTransform(status) {
+  switch (status) {
+    case 1:
+      return 'Denied';
+    case 2:
+      return 'Approved';
+    default:
+      return 'Pending';
+  }
+}
+
+function statusClassName(status) {
+  switch (status) {
+    case 1:
+      return '-negative';
+    case 2:
+      return '-positive';
+    default:
+      return '';
+  }
 }
 
 export default NamesList;

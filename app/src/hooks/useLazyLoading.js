@@ -24,7 +24,7 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
   };
 
   const handleScrolling = () => {
-    const margin = 300;
+    const margin = 500;
 
     window.onscroll = debounce(() => {
       // If has no more content to load, ignore the scrolling
