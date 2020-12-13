@@ -249,11 +249,10 @@ async function getRecords(
   return records;
 }
 
-// TODO: refactor this function after the efficiency update is finished
 async function getMembersList(group: Group): Promise<Member[]> {
   // Fetch all memberships for the group
   const memberships = await Membership.findAll({
-    attributes: ['groupId', 'playerId', 'role'],
+    attributes: ['groupId', 'playerId', 'role', 'createdAt'],
     where: { groupId: group.id },
     include: [{ model: Player }]
   });
@@ -264,7 +263,7 @@ async function getMembersList(group: Group): Promise<Member[]> {
 
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
-    .map(({ player, role }) => ({ ...(player.toJSON() as any), role }))
+    .map(({ player, role, createdAt }) => ({ ...(player.toJSON() as any), role, joinedAt: createdAt }))
     .sort((a, b) => a.role.localeCompare(b.role));
 }
 
