@@ -30,7 +30,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     metric: 'ehp',
     level: '',
     experience: '',
-    ehp: snapshot.ehp.value,
+    ehp: round(snapshot.ehp.value, 2),
     rank: snapshot.ehp.rank
   });
 
@@ -82,7 +82,7 @@ function renderBossesTable(snapshot) {
     metric: 'ehb',
     kills: '',
     rank: snapshot.ehb.rank,
-    ehb: snapshot.ehb.value
+    ehb: round(snapshot.ehb.value, 2)
   });
 
   const uniqueKeySelector = row => row.metric;
