@@ -30,9 +30,9 @@ function getSkillsTable(delta) {
   rows.push({
     metric: 'ehp',
     level: '',
-    experience: delta.ehp.value.gained,
+    experience: '',
     rank: delta.ehp.rank.gained,
-    ehp: ''
+    ehp: delta.ehp.value.gained
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -95,9 +95,9 @@ function getBossesTable(delta) {
   rows.push({
     metric: 'ehb',
     level: '',
-    kills: delta.ehb.value.gained,
+    kills: '',
     rank: delta.ehb.rank.gained,
-    ehb: ''
+    ehb: delta.ehb.value.gained
   });
 
   const uniqueKeySelector = row => row.metric;
