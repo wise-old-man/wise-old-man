@@ -1,507 +1,195 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useHistory, useLocation, Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { map } from 'lodash';
-import queryString from 'query-string';
+import { useUrlContext } from 'hooks';
+import { Loading } from 'components';
+import { ALL_METRICS } from 'config';
+import { standardizeUsername, isBoss, isSkill } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
-import { groupActions, groupSelectors } from 'redux/groups';
-import { snapshotActions, snapshotSelectors } from 'redux/snapshots';
-import { recordActions, recordSelectors } from 'redux/records';
-import { deltasActions, deltasSelectors } from 'redux/deltas';
-import { achievementActions, achievementSelectors } from 'redux/achievements';
-import { competitionActions, competitionSelectors } from 'redux/competitions';
-import { nameActions, nameSelectors } from 'redux/names';
-import { PageHeader, Button, Selector, Tabs, LineChart, Dropdown } from 'components';
+import { groupActions } from 'redux/groups';
+import { competitionActions } from 'redux/competitions';
+import { nameActions } from 'redux/names';
+import { recordActions } from 'redux/records';
+import { deltasActions } from 'redux/deltas';
+import { snapshotActions } from 'redux/snapshots';
+import { achievementActions } from 'redux/achievements';
+import URL from 'utils/url';
+import { PlayerContext } from './context';
 import {
-  getPlayerIcon,
-  getOfficialHiscoresUrl,
-  getPlayerTooltip,
-  getMeasure,
-  standardizeUsername
-} from 'utils';
-import { SKILLS, ACTIVITIES, BOSSES, ALL_METRICS } from 'config';
-import PlayerInfo from './components/PlayerInfo';
-import PlayerStatsTable from './components/PlayerStatsTable';
-import PlayerDeltasTable from './components/PlayerDeltasTable';
-import PlayerAchievements from './components/PlayerAchievements';
-import PlayerCompetitionsTable from './components/PlayerCompetitionsTable';
-import PlayerGroupsTable from './components/PlayerGroupsTable';
-import PlayerRecords from './components/PlayerRecords';
-import PlayerDeltasInfo from './components/PlayerDeltasInfo';
-import PlayerHighlights from './components/PlayerHighlights';
-import PlayerNames from './components/PlayerNames';
-import PlayerCards from './components/PlayerCards';
+  Header,
+  Highlights,
+  Controls,
+  Overview,
+  Gained,
+  Competitions,
+  Groups,
+  Records,
+  Achievements,
+  Names
+} from './containers';
 import './Player.scss';
 
+const PERIODS = ['6h', 'day', 'week', 'month', 'year'];
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];
 
-const PERIOD_OPTIONS = [
-  { label: '6 Hours', value: '6h' },
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' }
-];
-
-const LEVEL_TYPE_OPTIONS = [
-  { label: 'Show Regular Levels', value: 'regular' },
-  { label: 'Show Virtual Levels', value: 'virtual' }
-];
-
-const METRIC_TYPE_OPTIONS = [
-  { label: 'Skilling', value: 'skilling' },
-  { label: 'Bossing', value: 'bossing' },
-  { label: 'Activities', value: 'activities' }
-];
-
-const MENU_OPTIONS = [
-  { label: 'Open official hiscores', value: 'openOsrsHiscores' },
-  { label: 'Reset username capitalization', value: 'assertName' },
-  { label: 'Reassign player type', value: 'assertType' },
-  { label: '[NEW] Change name', value: 'changeName' }
-];
-
-function getPlayerBadges(build) {
-  switch (build) {
-    case 'lvl3':
-      return [{ text: 'Level 3', hoverText: '' }];
-    case 'f2p':
-      return [{ text: 'F2P', hoverText: '' }];
-    case '1def':
-      return [{ text: '1 Def Pure', hoverText: '' }];
-    case '10hp':
-      return [{ text: '10 HP Pure', hoverText: '' }];
-    default:
-      return [];
-  }
-}
-
-function getSelectedTabIndex(section) {
-  const index = TABS.findIndex(t => t.toLowerCase() === section);
-  return Math.max(0, index);
-}
-
-function getSelectedMetricType(metricType) {
-  const index = METRIC_TYPE_OPTIONS.findIndex(t => t.value.toLowerCase() === metricType);
-  return METRIC_TYPE_OPTIONS[Math.max(0, index)].value;
-}
-
-function getSelectedPeriod(location) {
-  const params = queryString.parse(location.search);
-  const queryPeriod = params.period;
-
-  const index = PERIOD_OPTIONS.findIndex(t => t.value.toLowerCase() === queryPeriod);
-  return PERIOD_OPTIONS[index === -1 ? 2 : index].value;
-}
-
-function getSelectedMetric(metricType, location) {
-  const params = queryString.parse(location.search);
-  const queryMetric = params.metric;
-
-  return ALL_METRICS.includes(queryMetric) ? queryMetric : getMetricList(metricType)[0];
-}
-
-function getMetricList(metricType) {
-  switch (metricType) {
-    case 'bossing':
-      return [...BOSSES, 'ehb'];
-    case 'activities':
-      return ACTIVITIES;
-    default:
-      return [...SKILLS, 'ehp'];
-  }
-}
-
-function buildQuerySearch(options) {
-  const obj = {};
-
-  if (options.virtual) {
-    obj.virtual = true;
-  }
-
-  if (options.metric && options.metric !== getMetricList(options.metricType)[0]) {
-    obj.metric = options.metric;
-  }
-
-  if (options.period && options.period !== 'week') {
-    obj.period = options.period;
-  }
-
-  const str = map(obj, (val, key) => `${key}=${val}`).join('&');
-  return str.length > 0 ? `?${str}` : '';
-}
-
 function Player() {
-  const params = useParams();
-  const location = useLocation();
-  const router = useHistory();
   const dispatch = useDispatch();
+  const router = useHistory();
 
-  const { section, metricType } = params;
-  const username = standardizeUsername(params.username);
+  const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
+  const { username, section } = context;
 
-  const selectedTabIndex = getSelectedTabIndex(section);
-  const selectedMetricType = getSelectedMetricType(metricType);
-  const selectedPeriod = getSelectedPeriod(location);
-  const selectedMetric = getSelectedMetric(selectedMetricType, location);
-
-  const [isReducedChart, setIsReducedChart] = useState(true);
-  const [isTracking, setIsTracking] = useState(false);
-  const [selectedLevelType, setSelectedLevelType] = useState('regular');
-
-  // Memoized redux variables
   const player = useSelector(state => playerSelectors.getPlayer(state, username));
-  const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
-  const records = useSelector(state => recordSelectors.getPlayerRecords(state, username));
-  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
-  const groupedAchievements = useSelector(state =>
-    achievementSelectors.getPlayerAchievementsGrouped(state, username)
-  );
-  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
-  const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
-  const nameChanges = useSelector(state => nameSelectors.getPlayerNames(state, username));
-  const isLoadingDetails = useSelector(playerSelectors.isFetching);
+  const isTracking = useSelector(playerSelectors.isTracking);
 
-  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === selectedMetricType);
-  const levelTypeIndex = LEVEL_TYPE_OPTIONS.findIndex(o => o.value === selectedLevelType);
-  const deltasPeriodIndex = PERIOD_OPTIONS.findIndex(o => o.value === selectedPeriod);
+  const handleUpdate = () => {
+    dispatch(playerActions.trackPlayer(username)).then(({ payload }) => {
+      if (payload.data) fetchAll(username, router, dispatch, true);
+    });
+  };
 
-  useEffect(() => {
-    // Set the player's HiScores URL
-    if (player) {
-      MENU_OPTIONS.find(option => option.value === 'openOsrsHiscores').url = getOfficialHiscoresUrl(
-        player
-      );
-    }
-  }, [player]);
+  const handleAssertName = () => {
+    dispatch(playerActions.assertName(player.username, player.displayName));
+  };
 
-  const experienceChartData = useSelector(state =>
-    snapshotSelectors.getChartData(
-      state,
-      username,
-      selectedPeriod,
-      selectedMetric,
-      getMeasure(selectedMetric),
-      isReducedChart
-    )
-  );
+  const handleAssertType = () => {
+    dispatch(playerActions.assertType(player.username, player.type));
+  };
 
-  const rankChartData = useSelector(state =>
-    snapshotSelectors.getChartData(
-      state,
-      username,
-      selectedPeriod,
-      selectedMetric,
-      'rank',
-      isReducedChart
-    )
-  );
-
-  const trackPlayer = async () => {
-    setIsTracking(true);
-
-    const { payload } = await dispatch(playerActions.trackPlayer(player.username));
-
-    if (payload.data) {
-      fetchAll();
-      setIsTracking(false);
+  const handleRedirect = path => {
+    if (path.includes('http')) {
+      window.open(path, '_blank');
     } else {
-      setIsTracking(false);
+      router.push(path);
     }
   };
 
-  const fetchAll = () => {
-    // Attempt to fetch player data, if it fails redirect to 404
-    dispatch(playerActions.fetchPlayer(username))
-      .then(action => {
-        if (!action.payload.data) throw new Error();
-      })
-      .catch(() => router.push(`/players/search/${username}`));
-
-    dispatch(achievementActions.fetchPlayerAchievements(username));
-    dispatch(competitionActions.fetchPlayerCompetitions(username));
-    dispatch(groupActions.fetchPlayerGroups(username));
-    dispatch(recordActions.fetchPlayerRecords(username));
-    dispatch(deltasActions.fetchPlayerDeltas(username));
-    dispatch(nameActions.fetchPlayerNameChanges(username));
-
-    PERIOD_OPTIONS.forEach(o => {
-      dispatch(snapshotActions.fetchSnapshots(username, o.value));
+  const handleRefreshSnapshots = () => {
+    PERIODS.forEach(period => {
+      dispatch(snapshotActions.fetchSnapshots(username, period));
     });
   };
 
-  const getNextUrl = options => {
-    const newOptions = {
-      username,
-      section: TABS[selectedTabIndex].toLowerCase(),
-      metricType: selectedMetricType,
-      metric: selectedMetric,
-      period: selectedPeriod,
-      ...options
-    };
-
-    const metricList = getMetricList(newOptions.metricType);
-    newOptions.metric = metricList.includes(newOptions.metric) ? newOptions.metric : metricList[0];
-
-    const query = buildQuerySearch(newOptions);
-    return `/players/${newOptions.username}/${newOptions.section}/${newOptions.metricType}${query}`;
-  };
-
-  const handlePeriodSelected = e => {
-    router.push(getNextUrl({ period: e.value }));
-  };
-
-  const handleMetricSelected = metric => {
-    router.push(getNextUrl({ metric }));
-  };
-
-  const handleLevelTypeSelected = e => {
-    setSelectedLevelType((e && e.value) || null);
-  };
-
-  const handleMetricTypeSelected = e => {
-    router.push(getNextUrl({ metricType: e.value }));
-  };
-
-  const toggleReducedChart = () => {
-    setIsReducedChart(val => !val);
-  };
-
-  const handleOptionSelected = async option => {
-    if (option.value === 'assertType') {
-      await dispatch(playerActions.assertType(player.username, player.type));
-    } else if (option.value === 'assertName') {
-      await dispatch(playerActions.assertName(player.username, player.displayName));
-    } else if (option.value === 'changeName') {
-      router.push(`/names/submit/${player.displayName}`);
-    }
-  };
-
-  const handleDeltasTimerEnded = () => {
-    PERIOD_OPTIONS.forEach(o => {
-      dispatch(snapshotActions.fetchSnapshots(username, o.value));
-    });
-  };
-
-  const onToggleReducedChart = useCallback(toggleReducedChart, []);
-  const onLevelTypeSelected = useCallback(handleLevelTypeSelected, [setSelectedLevelType]);
-  const onOptionSelected = useCallback(handleOptionSelected, [player]);
-  const onUpdateButtonClicked = useCallback(trackPlayer, [player]);
-  const onDeltasTimerEnded = useCallback(handleDeltasTimerEnded, [username]);
-
-  useEffect(fetchAll, [dispatch, username]);
+  // Fetch player details, on mount
+  useEffect(() => fetchAll(username, router, dispatch), [router, dispatch, username]);
 
   if (!player) {
-    return null;
+    return <Loading />;
   }
 
   return (
-    <div className="player__container container">
-      <Helmet>
-        <title>{player.displayName}</title>
-      </Helmet>
-      <div className="player__header row">
-        <div className="col">
-          {player.flagged && (
-            <div className="warning">
-              <img src="/img/runescape/icons_small/flagged.png" alt="" />
-              <span>
-                This player is flagged. This is likely caused by an unregistered name change or they have
-                become unranked in one or more skills due to lack of progress.
-                <br />
-                <Link to={`/names/submit/${player.displayName}`}>
-                  Click here to submit a name change
-                </Link>
-                &nbsp; or join our &nbsp;
-                <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
-                  Discord server
-                </a>
-                &nbsp; for help.
-              </span>
-            </div>
-          )}
-
-          <PageHeader
-            title={player.displayName}
-            icon={getPlayerIcon(player.type)}
-            iconTooltip={getPlayerTooltip(player.type, player.flagged)}
-            badges={getPlayerBadges(player.build)}
-          >
-            <Button text="Update" onClick={onUpdateButtonClicked} loading={isTracking} />
-            <Dropdown options={MENU_OPTIONS} onSelect={onOptionSelected}>
-              <button className="header__options-btn" type="button">
-                <img src="/img/icons/options.svg" alt="" />
-              </button>
-            </Dropdown>
-          </PageHeader>
+    <PlayerContext.Provider value={{ context, updateContext }}>
+      <div className="player__container container">
+        <Helmet>
+          <title>{player.displayName}</title>
+        </Helmet>
+        <div className="player__header row">
+          <div className="col">
+            <Header
+              player={player}
+              isTracking={isTracking}
+              handleRedirect={handleRedirect}
+              handleUpdate={handleUpdate}
+              handleAssertName={handleAssertName}
+              handleAssertType={handleAssertType}
+            />
+          </div>
+        </div>
+        <div className="player__cards row">
+          <div className="col-md-12">
+            <Highlights player={player} />
+          </div>
+        </div>
+        <div className="player__controls row">
+          <Controls tabs={TABS} />
+        </div>
+        <div className="player__content row">
+          {section === 'overview' && <Overview />}
+          {section === 'gained' && <Gained onTimerEnded={handleRefreshSnapshots} />}
+          {section === 'competitions' && <Competitions />}
+          {section === 'groups' && <Groups />}
+          {section === 'records' && <Records />}
+          {section === 'achievements' && <Achievements />}
+          {section === 'names' && <Names />}
         </div>
       </div>
-      <div className="player__cards row">
-        <div className="col-md-12">
-          <PlayerCards player={player} />
-        </div>
-      </div>
-      <div className="player__controls row">
-        <div className="col-md-12 col-lg-7">
-          <Tabs
-            tabs={TABS}
-            selectedIndex={selectedTabIndex}
-            urlSelector={i => getNextUrl({ section: TABS[i].toLowerCase() })}
-            align="space-between"
-          />
-        </div>
-        {selectedTabIndex === 0 && (
-          <>
-            <div className="col-md-6 col-lg-2">
-              <Selector
-                options={METRIC_TYPE_OPTIONS}
-                selectedIndex={metricTypeIndex}
-                onSelect={handleMetricTypeSelected}
-              />
-            </div>
-            <div className="col-md-6 col-lg-3">
-              <Selector
-                options={LEVEL_TYPE_OPTIONS}
-                selectedIndex={levelTypeIndex}
-                onSelect={onLevelTypeSelected}
-                disabled={selectedMetricType !== 'skilling'}
-              />
-            </div>
-          </>
-        )}
-        {selectedTabIndex === 1 && (
-          <>
-            <div className="col-md-6 col-lg-2">
-              <Selector
-                options={METRIC_TYPE_OPTIONS}
-                selectedIndex={metricTypeIndex}
-                onSelect={handleMetricTypeSelected}
-              />
-            </div>
-            <div className="col-md-6 col-lg-3">
-              <Selector
-                options={PERIOD_OPTIONS}
-                selectedIndex={deltasPeriodIndex}
-                onSelect={handlePeriodSelected}
-              />
-            </div>
-          </>
-        )}
-        {(selectedTabIndex === 4 || selectedTabIndex === 5) && (
-          <>
-            <div className="col-md-6 col-lg-2">
-              <Selector
-                options={METRIC_TYPE_OPTIONS}
-                selectedIndex={metricTypeIndex}
-                onSelect={handleMetricTypeSelected}
-              />
-            </div>
-            <div className="col-md-6 col-lg-3">
-              <Selector disabled />
-            </div>
-          </>
-        )}
-        {(selectedTabIndex === 2 || selectedTabIndex === 3 || selectedTabIndex === 6) && (
-          <>
-            <div className="col-md-6 col-lg-2">
-              <Selector disabled />
-            </div>
-            <div className="col-md-6 col-lg-3">
-              <Selector disabled />
-            </div>
-          </>
-        )}
-      </div>
-      <div className="player__content row">
-        {selectedTabIndex === 0 && (
-          <>
-            <div className="col-lg-3 col-md-7">
-              <span className="panel-label">Player details</span>
-              <PlayerInfo player={player} />
-            </div>
-            <div className="col-lg-3 col-md-5">
-              {competitions && (
-                <PlayerHighlights
-                  player={player}
-                  competitions={competitions}
-                  achievements={achievements}
-                />
-              )}
-            </div>
-            <div className="col-lg-6 col-md-12">
-              <span className="panel-label">Current stats</span>
-              <PlayerStatsTable
-                player={player}
-                showVirtualLevels={selectedLevelType === 'virtual'}
-                metricType={selectedMetricType}
-                isLoading={isLoadingDetails}
-              />
-            </div>
-          </>
-        )}
-        {selectedTabIndex === 1 && (
-          <>
-            <div className="col-lg-6 col-md-12">
-              <LineChart
-                datasets={experienceChartData.datasets}
-                distribution={experienceChartData.distribution}
-                onDistributionChanged={onToggleReducedChart}
-              />
-              <LineChart
-                datasets={rankChartData.datasets}
-                distribution={experienceChartData.distribution}
-                onDistributionChanged={onToggleReducedChart}
-                invertYAxis
-              />
-            </div>
-            <div className="col-lg-6 col-md-12">
-              <PlayerDeltasInfo
-                deltas={deltas}
-                period={selectedPeriod}
-                onTimerEnded={onDeltasTimerEnded}
-              />
-              {deltas && selectedPeriod && deltas[selectedPeriod] && (
-                <PlayerDeltasTable
-                  deltas={deltas}
-                  period={selectedPeriod}
-                  metricType={selectedMetricType}
-                  highlightedMetric={selectedMetric}
-                  onMetricSelected={handleMetricSelected}
-                />
-              )}
-            </div>
-          </>
-        )}
-        {selectedTabIndex === 2 && (
-          <div className="col">
-            <PlayerCompetitionsTable competitions={competitions} />
-          </div>
-        )}
-        {selectedTabIndex === 3 && (
-          <div className="col">
-            <PlayerGroupsTable groups={groups} />
-          </div>
-        )}
-        {selectedTabIndex === 4 && (
-          <div className="col">
-            <PlayerRecords records={records} metricType={selectedMetricType} />
-          </div>
-        )}
-        {selectedTabIndex === 5 && (
-          <PlayerAchievements
-            groupedAchievements={groupedAchievements}
-            metricType={selectedMetricType}
-          />
-        )}
-        {selectedTabIndex === 6 && (
-          <div className="col">
-            <PlayerNames nameChanges={nameChanges} />
-          </div>
-        )}
-      </div>
-    </div>
+    </PlayerContext.Provider>
   );
+}
+
+const fetchAll = (username, router, dispatch, isReload) => {
+  // Attempt to fetch player data, if it fails redirect to 404
+  dispatch(playerActions.fetchPlayer(username))
+    .then(action => {
+      if (!action.payload.data) throw new Error();
+    })
+    .catch(() => router.push(`/players/search/${username}`));
+
+  dispatch(achievementActions.fetchPlayerAchievements(username));
+  dispatch(recordActions.fetchPlayerRecords(username));
+  dispatch(deltasActions.fetchPlayerDeltas(username));
+
+  PERIODS.forEach(period => {
+    dispatch(snapshotActions.fetchSnapshots(username, period));
+  });
+
+  // These shouldn't be refetched when the player is updated
+  if (!isReload) {
+    dispatch(competitionActions.fetchPlayerCompetitions(username));
+    dispatch(groupActions.fetchPlayerGroups(username));
+    dispatch(nameActions.fetchPlayerNameChanges(username));
+  }
+};
+
+function encodeContext({ username, section, metricType, metric, period, virtual }) {
+  const nextURL = new URL(`/players/${username}`);
+
+  nextURL.appendToPath(`/${section || 'overview'}`);
+
+  if (metricType && section !== 'competitions' && section !== 'groups' && section !== 'names') {
+    nextURL.appendToPath(`/${metricType}`);
+  }
+
+  if (metric && section && section === 'gained') {
+    nextURL.appendSearchParam('metric', metric);
+  }
+
+  if (virtual && (!section || section === 'overview')) {
+    nextURL.appendSearchParam('virtual', true);
+  }
+
+  if (period && period !== 'week' && section && section === 'gained') {
+    nextURL.appendSearchParam('period', period);
+  }
+
+  return nextURL.getPath();
+}
+
+function decodeURL(params, query) {
+  const sections = TABS.map(t => t.toLowerCase());
+  const metricTypes = ['skilling', 'bossing', 'activities'];
+
+  const isValidSection = params.section && sections.includes(params.section.toLowerCase());
+  const isValidMetricType = params.metricType && metricTypes.includes(params.metricType.toLowerCase());
+  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
+  const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
+
+  const username = standardizeUsername(params.username);
+  const section = isValidSection ? params.section : 'overview';
+  const virtual = query.virtual || false;
+  const metric = isValidMetric ? query.metric : null;
+  const period = isValidPeriod ? query.period : 'week';
+
+  const metricType = isValidMetricType ? params.metricType : getMetricType(metric);
+
+  return { username, section, metricType, virtual, metric, period };
+}
+
+function getMetricType(metric) {
+  if (!metric || isSkill(metric) || metric === 'ehp') return 'skilling';
+  if (isBoss(metric) || metric === 'ehb') return 'bossing';
+  return 'activities';
 }
 
 export default Player;

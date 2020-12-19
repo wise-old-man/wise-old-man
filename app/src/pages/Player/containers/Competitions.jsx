@@ -1,22 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { sortBy, indexOf } from 'lodash';
 import { Table, StatusDot } from 'components';
 import { getMetricIcon } from 'utils';
-
-function convertStatus(status) {
-  switch (status) {
-    case 'upcoming':
-      return 'NEUTRAL';
-    case 'ongoing':
-      return 'POSITIVE';
-    case 'finished':
-      return 'NEGATIVE';
-    default:
-      return null;
-  }
-}
+import { competitionSelectors } from 'redux/competitions';
+import { PlayerContext } from '../context';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -54,22 +43,37 @@ const TABLE_CONFIG = {
   ]
 };
 
-function PlayerCompetitionsTable({ competitions }) {
+function Competitions() {
+  const { context } = useContext(PlayerContext);
+  const { username } = context;
+  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
+
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];
 
   return (
-    <Table
-      uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-      rows={rows}
-      columns={TABLE_CONFIG.columns}
-      listStyle
-    />
+    <div className="col">
+      <Table
+        uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+        rows={rows}
+        columns={TABLE_CONFIG.columns}
+        listStyle
+      />
+    </div>
   );
 }
 
-PlayerCompetitionsTable.propTypes = {
-  competitions: PropTypes.arrayOf(PropTypes.shape).isRequired
-};
+function convertStatus(status) {
+  switch (status) {
+    case 'upcoming':
+      return 'NEUTRAL';
+    case 'ongoing':
+      return 'POSITIVE';
+    case 'finished':
+      return 'NEGATIVE';
+    default:
+      return null;
+  }
+}
 
-export default React.memo(PlayerCompetitionsTable);
+export default Competitions;

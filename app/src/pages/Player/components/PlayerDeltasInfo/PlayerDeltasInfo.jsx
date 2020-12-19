@@ -3,23 +3,8 @@ import PropTypes from 'prop-types';
 import { durationBetween, formatDate } from 'utils';
 import './PlayerDeltasInfo.scss';
 
-function getSeconds(period) {
-  switch (period) {
-    case '6h':
-      return 3600 * 6;
-    case 'day':
-      return 3600 * 24;
-    case 'week':
-      return 3600 * 24 * 7;
-    case 'month':
-      return 3600 * 24 * 31;
-    default:
-      return 3600 * 24 * 365;
-  }
-}
-
 /**
- * The refresh behavior of this componente is a bit strange, here's the issue:
+ * The refresh behavior of this component is a bit strange, here's the issue:
  *
  * Sometimes the date on the frontend is a few seconds ahead of the backend,
  * which makes the countdown reach 0 a bit before the deltas actually change.
@@ -95,6 +80,21 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
       </div>
     </div>
   );
+}
+
+function getSeconds(period) {
+  switch (period) {
+    case '6h':
+      return 3600 * 6;
+    case 'day':
+      return 3600 * 24;
+    case 'week':
+      return 3600 * 24 * 7;
+    case 'month':
+      return 3600 * 24 * 31;
+    default:
+      return 3600 * 24 * 365;
+  }
 }
 
 PlayerDeltasInfo.defaultProps = {

@@ -1,9 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { formatNumber, getMetricIcon } from 'utils';
-import './PlayerCards.scss';
 
-function getCards(player) {
+function Highlights({ player }) {
+  const cards = getHighlights(player);
+
+  return (
+    <div className="player-highlights__container">
+      {cards.map(c => (
+        <div key={c.title} className="player-highlight">
+          <div key={c.title} className="player-highlight__wrapper">
+            <img className="player-highlight__icon" src={c.icon} alt="" />
+            <div className="player-highlight__content">
+              <div className="player-highlight__title">{c.title}</div>
+              <div className="player-highlight__text">{c.text}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function getHighlights(player) {
   if (!player || !player.combatLevel || !player.latestSnapshot) {
     return [];
   }
@@ -46,32 +65,16 @@ function getCards(player) {
   ];
 }
 
-function PlayerCards({ player }) {
-  const cards = getCards(player);
-
-  return (
-    <div className="player-cards__container">
-      {cards.map(c => (
-        <div key={c.title} className="player-card">
-          <div key={c.title} className="player-card__wrapper">
-            <img className="player-card__icon" src={c.icon} alt="" />
-            <div className="player-card__content">
-              <div className="player-card__title">{c.title}</div>
-              <div className="player-card__text">{c.text}</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-PlayerCards.defaultProps = {
-  player: undefined
+Highlights.propTypes = {
+  player: PropTypes.shape({
+    latestSnapshot: PropTypes.shape(),
+    combatLevel: PropTypes.number,
+    exp: PropTypes.number,
+    ehp: PropTypes.number,
+    ehb: PropTypes.number,
+    ttm: PropTypes.number,
+    tt200m: PropTypes.number
+  }).isRequired
 };
 
-PlayerCards.propTypes = {
-  player: PropTypes.shape()
-};
-
-export default PlayerCards;
+export default Highlights;

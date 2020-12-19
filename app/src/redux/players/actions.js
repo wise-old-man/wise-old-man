@@ -40,7 +40,7 @@ const trackPlayer = username => async dispatch => {
 
     return dispatch(reducers.onTrackSuccess({ username, data }));
   } catch (e) {
-    return dispatch(reducers.onTrackError(e.response.data.message));
+    return dispatch(reducers.onTrackError(e.response ? e.response.data.message : e.message.toString()));
   }
 };
 
