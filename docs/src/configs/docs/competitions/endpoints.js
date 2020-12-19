@@ -3,14 +3,6 @@ export default [
     title: 'Search competitions',
     url: '/competitions',
     method: 'GET',
-    comments: [
-      {
-        type: 'warning',
-        content:
-          'If a "playerId" query param is given, this will only return competitions of which \
-          that player is a participant and will ignore every other search parameter.'
-      }
-    ],
     query: [
       {
         field: 'title',
@@ -70,6 +62,18 @@ export default [
         body: {
           message: 'Invalid metric.'
         }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
+        }
       }
     ]
   },
@@ -88,51 +92,48 @@ export default [
       {
         description: '',
         body: {
-          id: 1,
-          title: 'SOTW 52 - Firemaking',
-          metric: 'firemaking',
-          score: 120,
-          startsAt: '2020-03-20T23:00:00.000Z',
-          endsAt: '2020-04-16T23:00:00.000Z',
+          id: 681,
+          title: 'Road to 99 Agility',
+          metric: 'agility',
+          score: 210,
+          startsAt: '2020-10-26T21:11:00.000Z',
+          endsAt: '2020-12-28T21:11:00.000Z',
           groupId: null,
-          createdAt: '2020-04-03T23:00:27.184Z',
-          updatedAt: '2020-04-03T23:48:03.502Z',
-          duration: '27 days',
-          totalGained: 26881,
+          createdAt: '2020-10-26T21:09:43.753Z',
+          updatedAt: '2020-10-28T01:13:48.033Z',
+          group: null,
+          duration: '63 days',
+          totalGained: 2872197,
           participants: [
             {
-              id: 37,
-              username: 'psikoi',
-              displayName: 'Psikoi',
-              type: 'regular',
+              exp: 62565175,
+              id: 47596,
+              username: 'dead redhead',
+              displayName: 'Dead RedHead',
+              type: 'ironman',
               build: 'main',
               flagged: false,
-              updatedAt: '2020-04-04T22:35:31.530Z',
+              ehp: 342.76763,
+              ehb: 1.21905,
+              ttm: 1463.00266,
+              tt200m: 22415.99372,
+              lastImportedAt: '2020-12-18T01:09:55.018Z',
+              lastChangedAt: '2020-12-17T00:53:20.425Z',
+              registeredAt: '2020-10-04T19:15:03.810Z',
+              updatedAt: '2020-12-18T01:09:55.018Z',
               progress: {
-                start: 5481946,
-                end: 5505921,
-                gained: 23975
+                start: 5667440,
+                end: 8539637,
+                gained: 2872197
               },
               history: [
                 {
-                  date: '2020-03-22T19:56:09.000Z',
-                  value: 5481946
+                  date: '2020-10-26T21:59:14.660Z',
+                  value: 5667440
                 },
                 {
-                  date: '2020-04-03T23:58:28.554Z',
-                  value: 5492446
-                },
-                {
-                  date: '2020-04-04T00:35:51.715Z',
-                  value: 5494371
-                },
-                {
-                  date: '2020-04-04T16:04:46.000Z',
-                  value: 5498396
-                },
-                {
-                  date: '2020-04-04T22:35:31.463Z',
-                  value: 5505921
+                  date: '2020-12-18T01:09:51.522Z',
+                  value: 8539637
                 }
               ]
             }
@@ -145,6 +146,12 @@ export default [
         description: 'If no id is given.',
         body: {
           message: "Parameter 'id' is undefined."
+        }
+      },
+      {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       },
       {
@@ -178,47 +185,58 @@ export default [
     body: {
       title: 'SOTW 52 - Fishing',
       metric: 'fishing',
-      startsAt: '2020-05-20T19:00:00.000Z',
-      endsAt: '2020-05-27T19:00:00.000Z',
-      participants: ['Zezima', 'Psikoi']
+      startsAt: '2020-12-21T19:00:00.000Z',
+      endsAt: '2020-12-27T19:00:00.000Z',
+      participants: ['Rro', 'Rorro']
     },
     successResponses: [
       {
         description: '',
         body: {
-          id: 56,
-          title: 'SOTW 52 - Fishing',
-          metric: 'fishing',
-          verificationCode: '373-418-957',
-          startsAt: '2020-05-20T19:00:00.000Z',
-          endsAt: '2020-05-27T19:00:00.000Z',
           score: 0,
-          updatedAt: '2020-03-27T23:00:44.588Z',
-          createdAt: '2020-03-27T23:00:44.588Z',
+          id: 977,
+          title: 'Something smells fishy',
+          metric: 'fishing',
+          verificationCode: '368-456-551',
+          startsAt: '2020-12-21T19:00:00.000Z',
+          endsAt: '2020-12-27T19:00:00.000Z',
+          groupId: null,
+          updatedAt: '2020-12-21T15:24:08.864Z',
+          createdAt: '2020-12-21T15:24:08.864Z',
           participants: [
             {
-              id: 37,
-              username: 'psikoi',
-              displayName: 'Psikoi',
+              exp: 488913691,
+              id: 4156,
+              username: 'rro',
+              displayName: 'Rro',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-03-27T21:56:50.000Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-03-13T23:29:57.000Z',
-              updatedAt: '2020-03-27T21:56:50.000Z'
+              ehp: 1730.52779,
+              ehb: 580.18854,
+              ttm: 0,
+              tt200m: 13231.92327,
+              lastImportedAt: '2020-12-21T11:51:46.516Z',
+              lastChangedAt: '2020-12-21T11:51:45.422Z',
+              registeredAt: '2020-05-03T16:55:16.933Z',
+              updatedAt: '2020-12-21T11:51:46.516Z'
             },
             {
-              id: 45,
-              username: 'zezima',
-              displayName: 'Zezima',
-              type: 'regular',
+              exp: 330476,
+              id: 5177,
+              username: 'rorro',
+              displayName: 'rorro',
+              type: 'hardcore',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-03-15T02:21:49.000Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-03-15T02:21:46.000Z',
-              updatedAt: '2020-03-15T02:21:49.000Z'
+              ehp: 6.30959,
+              ehb: 0,
+              ttm: 1797.87267,
+              tt200m: 22752.45176,
+              lastImportedAt: null,
+              lastChangedAt: null,
+              registeredAt: '2020-05-04T23:22:22.779Z',
+              updatedAt: '2020-12-20T23:00:56.775Z'
             }
           ]
         }
@@ -227,35 +245,50 @@ export default [
     errorResponses: [
       {
         description: 'If no title is given,',
-        body: { message: 'Invalid competition title.' }
+        body: { message: "Parameter 'title' is undefined." }
       },
       {
         description: 'If no metric is given,',
-        body: { message: 'Invalid competition metric.' }
+        body: { message: "Parameter 'metric' is undefined." }
+      },
+      {
+        description: 'If the given metric is invalid,',
+        body: { message: "Invalid competition metric." }
       },
       {
         description: 'If startsAt is not a valid date.',
-        body: { message: 'Invalid start date.' }
-      },
-      {
-        description: 'If startsAt is not a valid date.',
-        body: { message: 'Invalid start date.' }
+        body: { message: "Parameter 'startsAt' is not a valid date." }
       },
       {
         description: 'If endsAt is not a valid date.',
-        body: { message: 'Invalid end date.' }
+        body: { message: "Parameter 'endsAt' is not a valid date." }
+      },
+      {
+        description: 'If no startsAt is given.',
+        body: { message: "Parameter 'startsAt' is undefined." }
+      },
+      {
+        description: 'If no endsAt is given.',
+        body: { message: "Parameter 'endsAt' is undefined." }
       },
       {
         description: 'If startsAt OR endsAt is a past date.',
-        body: { message: 'Start date must be before the end date.' }
+        body: { message: "Invalid dates: All start and end dates must be in the future." }
       },
       {
-        description: "If one of the participant' usernames is invalid",
-        body: { message: 'Invalid player username: Crazy@@Name' }
+        description: 'If end date comes before start date.',
+        body: { message: "Start date must be before the end date." }
+      },
+      {
+        description: "If one or more of the participant' usernames is invalid",
+        body: { message: "1 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
+          data: [
+            "Zez%%ima"
+          ] }
       },
       {
         description: 'If a groupId is supplied but does not exist',
-        body: { message: 'Invalid group id.' }
+        body: { message: "Group not found." }
       },
       {
         description: 'If a groupId is supplied but groupVerificationCode is not.',
@@ -294,50 +327,66 @@ export default [
       {
         description: '',
         body: {
-          id: 56,
+          id: 977,
           title: 'New title',
           metric: 'fishing',
           score: 0,
-          startsAt: '2020-05-20T19:00:00.000Z',
-          endsAt: '2020-05-27T19:00:00.000Z',
-          updatedAt: '2020-03-27T23:00:44.588Z',
-          createdAt: '2020-03-27T23:00:44.588Z',
+          startsAt: '2020-12-21T19:00:00.000Z',
+          endsAt: '2020-12-27T19:00:00.000Z',
+          groupId: null,
+          createdAt: '2020-12-21T15:24:08.864Z',
+          updatedAt: '2020-12-21T15:39:35.967Z',
           participants: [
             {
-              id: 37,
+              exp: 290749002,
+              id: 2,
               username: 'psikoi',
               displayName: 'Psikoi',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-04-04T22:33:53.450Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-03T21:43:17.574Z',
-              updatedAt: '2020-04-04T22:35:31.530Z'
+              ehp: 962.17225,
+              ehb: 292.20288,
+              ttm: 460.82115,
+              tt200m: 14000.2788,
+              lastImportedAt: '2020-12-21T10:59:01.411Z',
+              lastChangedAt: '2020-12-19T15:40:34.082Z',
+              registeredAt: '2020-04-02T19:40:06.317Z',
+              updatedAt: '2020-12-21T10:59:01.411Z'
             },
             {
-              id: 42,
+              exp: 3332224567,
+              id: 128,
               username: 'zulu',
               displayName: 'Zulu',
-              type: 'unknown',
+              type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: null,
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-03T23:48:03.561Z',
-              updatedAt: '2020-04-04T16:43:30.787Z'
+              ehp: 7126.71899,
+              ehb: 3536.61133,
+              ttm: 0,
+              tt200m: 7835.73206,
+              lastImportedAt: '2020-12-03T03:36:28.742Z',
+              lastChangedAt: '2020-12-03T03:36:27.713Z',
+              registeredAt: '2020-04-15T13:03:41.763Z',
+              updatedAt: '2020-12-03T03:36:28.742Z'
             },
             {
-              id: 46,
+              exp: 0,
+              id: 116908,
               username: 'another',
               displayName: 'Another',
               type: 'unknown',
               build: 'main',
               flagged: false,
+              ehp: 0,
+              ehb: 0,
+              ttm: 0,
+              tt200m: 0,
               lastImportedAt: null,
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-04T23:44:53.755Z',
-              updatedAt: '2020-04-04T23:44:53.755Z'
+              lastChangedAt: null,
+              registeredAt: '2020-12-21T15:38:31.410Z',
+              updatedAt: '2020-12-21T15:38:31.410Z'
             }
           ]
         }
@@ -351,6 +400,12 @@ export default [
         }
       },
       {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
         description: 'If the given id does not exist.',
         body: {
           message: 'Competition not found.'
@@ -358,11 +413,15 @@ export default [
       },
       {
         description: 'If endsAt is given but not valid.',
-        body: { message: 'Invalid end date.' }
+        body: { message: 'Validation error: End date must be a valid date.' }
       },
       {
         description: 'If startsAt is given but not valid.',
-        body: { message: 'Invalid start date.' }
+        body: { message: "Validation error: Start date must be a valid date." }
+      },
+      {
+        description: 'If end date comes before start date.',
+        body: { message: "Start date must be before the end date." }
       },
       {
         description: 'If the competition has already started and a metric was given.',
@@ -374,7 +433,7 @@ export default [
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -382,7 +441,12 @@ export default [
       },
       {
         description: "If one of the participant' usernames is invalid",
-        body: { message: 'Invalid player username: Crazy@@Name' }
+        body: { message: {
+          "message": "1 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
+          "data": [
+            "Zu@lu"
+          ]
+        }}
       }
     ]
   },
@@ -422,6 +486,12 @@ export default [
         }
       },
       {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
         description: 'If the given id does not exist.',
         body: {
           message: 'Competition not found.'
@@ -429,7 +499,7 @@ export default [
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -450,7 +520,7 @@ export default [
     ],
     body: {
       verificationCode: '373-418-957',
-      participants: ['Psikoi']
+      participants: ['Rorro']
     },
     successResponses: [
       {
@@ -458,16 +528,21 @@ export default [
         body: {
           newParticipants: [
             {
-              id: 37,
-              username: 'psikoi',
-              displayName: 'Psikoi',
-              type: 'regular',
+              exp: 330476,
+              id: 5177,
+              username: 'rorro',
+              displayName: 'rorro',
+              type: 'hardcore',
               build: 'main',
               flagged: false,
-              updatedAt: '2020-04-04T23:59:58.661Z',
-              registeredAt: '2020-04-04T23:59:58.661Z',
+              ehp: 6.30959,
+              ehb: 0,
+              ttm: 1797.87267,
+              tt200m: 22752.45176,
               lastImportedAt: null,
-              lastChangedAt: '2020-11-26T06:30:14.825Z'
+              lastChangedAt: null,
+              registeredAt: '2020-05-04T23:22:22.779Z',
+              updatedAt: '2020-12-20T23:00:56.775Z'
             }
           ]
         }
@@ -481,18 +556,28 @@ export default [
         }
       },
       {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
         description: 'If the given id does not exist.',
         body: {
           message: 'Competition not found.'
         }
       },
       {
-        description: 'If participants is invalid or empty.',
-        body: { message: 'Invalid participants list' }
+        description: 'If no participants list is invalid.',
+        body: { message: "Parameter 'participants' is undefined." }
+      },
+      {
+        description: 'If participants list is empty.',
+        body: { message: 'Empty participants list.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -501,6 +586,10 @@ export default [
       {
         description: 'If all the participants are already participating.',
         body: { message: 'All players given are already competing.' }
+      },
+      {
+        description: "If one or more of the participant' usernames is invalid",
+        body: { message: "Validation error: Username cannot contain any special characters.,\nValidation error: Display name cannot contain any special characters." }
       }
     ]
   },
@@ -535,18 +624,28 @@ export default [
         }
       },
       {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
         description: 'If the given id does not exist.',
         body: {
           message: 'Competition not found.'
         }
       },
       {
-        description: 'If participants is invalid or empty.',
-        body: { message: 'Invalid participants list' }
+        description: 'If participants is invalid.',
+        body: { message: "Parameter 'participants' is undefined." }
+      },
+      {
+        description: 'If participants list is empty.',
+        body: { message: 'Empty participants list.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -596,7 +695,7 @@ export default [
       {
         description: '',
         body: {
-          message: '19 players are being updated. This can take up to a few minutes.'
+          message: "19 outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes."
         }
       }
     ],
@@ -608,6 +707,12 @@ export default [
         }
       },
       {
+        description: 'If the given id is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
         description: 'If the given id does not exist.',
         body: {
           message: 'Competition not found.'
@@ -616,7 +721,7 @@ export default [
       {
         description:
           "If the competition's participants list is invalid, empty or every participant has been updated in the last 60 minutes",
-        body: { message: 'This competition has no participants that should be updated' }
+        body: { message: 'This competition has no outdated participants.' }
       }
     ]
   }
