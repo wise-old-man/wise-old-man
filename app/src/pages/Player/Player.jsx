@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
-import { Loading } from 'components';
+import { Loading, Tabs } from 'components';
 import { ALL_METRICS } from 'config';
 import { standardizeUsername, isBoss, isSkill } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
@@ -19,7 +19,6 @@ import { PlayerContext } from './context';
 import {
   Header,
   Highlights,
-  Controls,
   Overview,
   Gained,
   Competitions,
@@ -42,6 +41,12 @@ function Player() {
 
   const player = useSelector(state => playerSelectors.getPlayer(state, username));
   const isTracking = useSelector(playerSelectors.isTracking);
+
+  const selectedTabIndex = TABS.findIndex(t => t.toLowerCase() === section);
+
+  function handleTabSelected(tabIndex) {
+    updateContext({ section: TABS[tabIndex].toLowerCase() });
+  }
 
   const handleUpdate = () => {
     dispatch(playerActions.trackPlayer(username)).then(({ payload }) => {
@@ -101,8 +106,15 @@ function Player() {
             <Highlights player={player} />
           </div>
         </div>
-        <div className="player__controls row">
-          <Controls tabs={TABS} />
+        <div className="row">
+          <div className="col-md-12">
+            <Tabs
+              tabs={TABS}
+              selectedIndex={selectedTabIndex}
+              align="space-between"
+              onTabSelected={handleTabSelected}
+            />
+          </div>
         </div>
         <div className="player__content row">
           {section === 'overview' && <Overview />}

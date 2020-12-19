@@ -12,52 +12,19 @@
     display: none !important;
   }
 
-  &__wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+  .mdc-tab__text-label {
+    color: white;
+    text-transform: none;
+    font-family: 'Lato' !important;
+    font-size: 0.8em;
+  }
 
-    &.-align-left {
-      justify-content: flex-start;
-    }
+  .mdc-tab__ripple::before,
+  .mdc-tab__ripple::after {
+    background: $brand-color-bright;
+  }
 
-    &.-align-center {
-      justify-content: center;
-    }
-
-    &.-align-right {
-      justify-content: flex-end;
-    }
-
-    &.-align-space-between {
-      justify-content: space-between;
-    }
-
-    .tab {
-      background: none;
-      border: none;
-      color: white;
-      padding: 14px 10px;
-      color: $gray-60;
-      font-size: 0.7em;
-      text-align: center;
-      cursor: pointer;
-
-      &:active {
-        opacity: 0.3;
-      }
-
-      &.-highlighted {
-        background: $gray-12;
-        color: white;
-        font-weight: 500;
-        border-bottom: 1px solid $brand-color;
-
-        &:hover {
-          opacity: 1;
-          cursor: default;
-        }
-      }
-    }
+  .mdc-tab-indicator > .mdc-tab-indicator__content--underline {
+    background: $brand-color;
   }
 }

@@ -56,7 +56,7 @@ function Controls({ tabs }) {
 
   return (
     <>
-      <div className="col-md-12 col-lg-7">
+      <div className="col-md-12">
         <Tabs
           tabs={tabs}
           selectedIndex={selectedTabIndex}
@@ -64,6 +64,8 @@ function Controls({ tabs }) {
           onTabSelected={handleTabSelected}
         />
       </div>
+      <div className="col-7" />
+
       {section === 'overview' && (
         <>
           <div className="col-md-6 col-lg-2">

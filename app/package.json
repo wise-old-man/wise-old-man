@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@material/react-tab": "^0.15.0",
+    "@material/react-tab-bar": "^0.15.0",
+    "@material/react-tab-indicator": "^0.15.0",
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.1",

@@ -92,6 +92,26 @@
   }
 
   .player__content {
+    .overview-controls,
+    .gained-controls {
+      padding: 0 2px;
+      margin-bottom: 10px;
+
+      .col {
+        padding-top: 0px;
+      }
+    }
+
+    .records-controls,
+    .achievements-controls {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .player-achievements__container {
+      margin-top: 20px;
+    }
+
     .panel-label {
       font-size: 0.7em;
       color: $gray-60;

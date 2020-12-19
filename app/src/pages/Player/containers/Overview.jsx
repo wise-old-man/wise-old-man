@@ -10,22 +10,50 @@ import {
   getExperienceAt,
   formatNumber
 } from 'utils';
-import { ALL_METRICS, SKILLS } from 'config';
-import { InfoPanel, CardList } from 'components';
+import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { InfoPanel, CardList, Selector } from 'components';
 import { playerSelectors } from 'redux/players';
 import { competitionSelectors } from 'redux/competitions';
 import { achievementSelectors } from 'redux/achievements';
 import { PlayerStatsTable } from '../components';
 import { PlayerContext } from '../context';
 
+const LEVEL_TYPE_OPTIONS = [
+  { label: 'Show Regular Levels', value: 'regular' },
+  { label: 'Show Virtual Levels', value: 'virtual' }
+];
+
+const METRIC_TYPE_OPTIONS = [
+  { label: 'Skilling', value: 'skilling' },
+  { label: 'Bossing', value: 'bossing' },
+  { label: 'Activities', value: 'activities' }
+];
+
 function Overview() {
-  const { context } = useContext(PlayerContext);
+  const { context, updateContext } = useContext(PlayerContext);
   const { username, virtual, metricType } = context;
+
+  const levelTypeIndex = virtual ? 1 : 0;
+  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
   const player = useSelector(state => playerSelectors.getPlayer(state, username));
   const isLoadingDetails = useSelector(playerSelectors.isFetching);
   const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
   const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+
+  function handleMetricTypeSelected(e) {
+    if (e.value === 'skilling') {
+      updateContext({ metricType: e.value, metric: SKILLS[0] });
+    } else if (e.value === 'bossing') {
+      updateContext({ metricType: e.value, metric: BOSSES[0] });
+    } else if (e.value === 'activities') {
+      updateContext({ metricType: e.value, metric: ACTIVITIES[0] });
+    }
+  }
+
+  function handleLevelTypeSelected(e) {
+    updateContext({ virtual: e.value === 'virtual' });
+  }
 
   if (!player) return null;
 
@@ -42,6 +70,23 @@ function Overview() {
       </div>
       <div className="col-lg-6 col-md-12">
         <span className="panel-label">Current stats</span>
+        <div className="row overview-controls">
+          <div className="col-lg-6 col-md-6 col-sm-12">
+            <Selector
+              options={METRIC_TYPE_OPTIONS}
+              selectedIndex={metricTypeIndex}
+              onSelect={handleMetricTypeSelected}
+            />
+          </div>
+          <div className="col-lg-6 col-md-6 col-sm-12">
+            <Selector
+              options={LEVEL_TYPE_OPTIONS}
+              selectedIndex={levelTypeIndex}
+              onSelect={handleLevelTypeSelected}
+              disabled={metricType !== 'skilling'}
+            />
+          </div>
+        </div>
         <PlayerStatsTable
           player={player}
           showVirtualLevels={virtual}

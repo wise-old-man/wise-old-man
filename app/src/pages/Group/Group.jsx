@@ -71,11 +71,13 @@ function Group() {
           <Widgets />
         </div>
         <div className="group__content row">
+          <div className="col-12">
+            <Tabs tabs={TABS} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
+          </div>
           <div className="col-md-4">
             <GroupInfo group={group} />
           </div>
           <div className="col-md-8">
-            <Tabs tabs={TABS} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
             {(section === 'members' || section === 'delete') && <MembersTable />}
             {section === 'hiscores' && <HiscoresTable />}
             {section === 'gained' && <GainedTable />}
