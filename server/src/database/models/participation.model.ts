@@ -31,11 +31,8 @@ export default class Participation extends Model<Participation> {
   @Column({ type: DataType.INTEGER, primaryKey: true, onDelete: 'CASCADE' })
   competitionId: number;
 
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
+  @Column({ type: DataType.STRING(30) })
+  teamName: string;
 
   @ForeignKey(() => Snapshot)
   @Column({ type: DataType.INTEGER })
@@ -44,6 +41,12 @@ export default class Participation extends Model<Participation> {
   @ForeignKey(() => Snapshot)
   @Column({ type: DataType.INTEGER })
   endSnapshotId: number;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
 
   /* Associations */
 
