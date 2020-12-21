@@ -9,7 +9,7 @@ const store = configureStore({
   middleware: [
     thunkMiddleware,
     ...appMiddlewares,
-    // loggerMiddleware,
+    loggerMiddleware,
     ...getDefaultMiddleware({
       serializableCheck: false
     })
