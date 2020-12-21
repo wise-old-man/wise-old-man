@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { omit } from 'lodash';
 import { ForbiddenError } from '../errors';
 import * as guard from '../guards/competition.guards';
 import jobs from '../jobs';
@@ -51,11 +52,18 @@ async function create(req: Request, res: Response, next: NextFunction) {
     const groupId = extractNumber(req.body, { key: 'groupId' });
     const groupVerificationCode = extractString(req.body, { key: 'groupVerificationCode' });
     const participants = extractStrings(req.body, { key: 'participants' });
+    const teams = req.body.teams;
 
-    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants };
+    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams };
     const competition = await service.create(dto);
 
-    res.status(201).json(competition);
+    // Omit some secrets from the response
+    const response = omit(
+      competition,
+      groupId ? ['verificationHash', 'verificationCode'] : ['verificationHash']
+    );
+
+    res.status(201).json(response);
   } catch (e) {
     next(e);
   }

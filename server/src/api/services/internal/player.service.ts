@@ -29,6 +29,7 @@ interface PlayerDetails extends Player {
  * "Hello_world  " -> "hello world"
  */
 function standardize(username: string): string {
+  if (!username || typeof username !== 'string') return null;
   return sanitize(username).toLowerCase();
 }
 
