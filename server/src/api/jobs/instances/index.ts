@@ -4,15 +4,17 @@ import CompetitionEnded from './CompetitionEnded';
 import CompetitionEnding from './CompetitionEnding';
 import CompetitionStarted from './CompetitionStarted';
 import CompetitionStarting from './CompetitionStarting';
+import RefreshCompetitionRankings from './RefreshCompetitionRankings';
+import RefreshGroupRankings from './RefreshGroupRankings';
 import RefreshNameChanges from './RefreshNameChanges';
-import RefreshRankings from './RefreshRankings';
 import ReviewNameChange from './ReviewNameChange';
 import UpdatePlayer from './UpdatePlayer';
 
 export default [
   UpdatePlayer,
   AssertPlayerName,
-  RefreshRankings,
+  RefreshGroupRankings,
+  RefreshCompetitionRankings,
   CompetitionStarted,
   CompetitionStarting,
   CompetitionEnding,

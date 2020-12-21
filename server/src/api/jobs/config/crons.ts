@@ -1,6 +1,10 @@
 export default [
   {
-    jobName: 'RefreshRankings',
+    jobName: 'RefreshGroupRankings',
+    cronConfig: '0 */6 * * *' // every 6 hours
+  },
+  {
+    jobName: 'RefreshCompetitionRankings',
     cronConfig: '0 */6 * * *' // every 6 hours
   },
   {
