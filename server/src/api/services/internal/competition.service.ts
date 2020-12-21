@@ -332,6 +332,9 @@ async function create(dto: CreateCompetitionDTO) {
   });
 
   if (!groupId && !participants) {
+    // Hide the verificationHash from the response
+    competition.verificationHash = undefined;
+
     return { ...competition.toJSON(), participants: [] };
   }
 
@@ -339,13 +342,13 @@ async function create(dto: CreateCompetitionDTO) {
     ? await addAllGroupMembers(competition, groupId)
     : await setParticipants(competition, participants);
 
-  // Hide the verificationHash from the response
-  competition.verificationHash = undefined;
-
   // If this isa group competition, hide the verificationCode from the response
   if (competition.groupId) {
     competition.verificationCode = undefined;
   }
+
+  // Hide the verificationHash from the response
+  competition.verificationHash = undefined;
 
   return { ...competition.toJSON(), participants: newParticipants };
 }
@@ -406,6 +409,9 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   }
 
   await competition.update(newValues);
+
+  // Hide the verificationHash from the response
+  competition.verificationHash = undefined;
 
   return { ...competition.toJSON(), participants: competitionParticipants };
 }
