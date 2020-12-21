@@ -97,7 +97,8 @@
       padding: 0 2px;
       margin-bottom: 10px;
 
-      .col {
+      .col,
+      [class*='col-'] {
         padding-top: 0px;
       }
     }
