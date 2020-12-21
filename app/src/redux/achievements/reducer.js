@@ -32,11 +32,11 @@ const slice = createSlice({
       state.error = null;
     },
     onFetchGroupAchievementsSuccess(state, action) {
-      const { groupId, data } = action.payload;
+      const { groupId, data, refresh } = action.payload;
 
       state.error = null;
       state.isFetchingGroupAchievements = false;
-      state.groupAchievements[groupId] = data;
+      state.groupAchievements[groupId] = refresh ? data : [...state.groupAchievements[groupId], ...data];
     },
     onFetchGroupAchievementsError(state, action) {
       state.isFetchingGroupAchievements = false;

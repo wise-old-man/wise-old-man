@@ -1,17 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import _ from 'lodash';
+import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import MembersSelector from '../../components/MembersSelector';
-import Button from '../../components/Button';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
-import VerificationModal from '../../modals/VerificationModal';
+import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
+import VerificationModal from 'modals/VerificationModal';
 import './CreateGroup.scss';
 
 function CreateGroup() {
@@ -85,7 +81,7 @@ function CreateGroup() {
   const handleModalSubmit = (usernames, replace) => {
     setMembers(currentMembers => {
       if (replace) {
-        return [..._.uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
+        return [...uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
       }
 
       const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
@@ -93,7 +89,7 @@ function CreateGroup() {
 
       return [
         ...currentMembers,
-        ..._.uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+        ...uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
       ];
     });
 

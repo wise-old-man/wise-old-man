@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { playerActions, playerSelectors } from 'redux/players';
 import AutoSuggestInput from '../AutoSuggestInput';
@@ -66,7 +66,7 @@ function MembersSelector({
 
   const suggestions = useMemo(() => searchResults.map(s => mapToSuggestion(s)), [searchResults]);
 
-  const searchPlayer = _.debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
+  const searchPlayer = debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {

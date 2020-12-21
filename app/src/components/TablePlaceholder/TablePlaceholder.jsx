@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { times } from 'lodash';
 import './TablePlaceholder.scss';
 
 function Row() {
@@ -16,7 +16,7 @@ function Row() {
 function TablePlaceholder({ size }) {
   return (
     <ul className="table-placeholder">
-      {_.times(size, i => (
+      {times(size, i => (
         <Row key={i} />
       ))}
     </ul>

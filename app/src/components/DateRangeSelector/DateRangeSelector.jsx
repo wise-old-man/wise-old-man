@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { enGB } from 'date-fns/locale';
 import { DateRangePicker } from 'react-nice-dates';
-import { durationBetween } from '../../utils';
+import { durationBetween } from 'utils';
 import 'react-nice-dates/build/style.css';
 import './DateRangeSelector.scss';
 

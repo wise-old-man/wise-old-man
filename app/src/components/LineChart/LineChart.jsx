@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Chart from 'chart.js';
-import { formatDate, formatNumber } from '../../utils';
+import { formatDate, formatNumber } from 'utils';
 import './LineChart.scss';
 
 function getConfig(datasets, invertYAxis) {
@@ -20,10 +20,14 @@ function getConfig(datasets, invertYAxis) {
           usePointStyle: true,
           boxWidth: 6,
           fontColor: 'white',
-          padding: 30,
+          padding: 30
         },
-        onHover: (e) => { e.target.style.cursor = 'pointer' },
-        onLeave: (e) => { e.target.style.cursor = 'default' }
+        onHover: e => {
+          e.target.style.cursor = 'pointer';
+        },
+        onLeave: e => {
+          e.target.style.cursor = 'default';
+        }
       },
       hover: {
         mode: 'point'

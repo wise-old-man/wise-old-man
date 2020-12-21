@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { uniqBy } from 'lodash';
 
 export function distribute(snapshots, limit) {
   if (snapshots.length <= limit) {
@@ -30,5 +30,5 @@ export function distribute(snapshots, limit) {
     }
   }
 
-  return _.uniqBy([startSnapshot, ...selected, endSnapshot], s => s.createdAt.getTime());
+  return uniqBy([startSnapshot, ...selected, endSnapshot], s => s.createdAt.getTime());
 }

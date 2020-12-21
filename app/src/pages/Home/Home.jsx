@@ -3,8 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { playerActions, playerSelectors } from 'redux/players';
-import Button from '../../components/Button';
-import TextInput from '../../components/TextInput';
+import { Button, TextInput } from 'components';
 import './Home.scss';
 
 const FEATURES = [

@@ -1,9 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import Selector from '../../components/Selector';
-import Button from '../../components/Button';
-import Switch from '../../components/Switch';
-import TextButton from '../../components/TextButton';
+import { Selector, Button, Switch, TextButton } from 'components';
 import './ImportPlayersModal.scss';
 
 const OPTIONS = [

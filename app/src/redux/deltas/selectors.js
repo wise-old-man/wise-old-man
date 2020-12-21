@@ -13,18 +13,18 @@ const getGroupDeltasMap = createSelector(groupDeltasSelector, map => {
   return mapValues(map, hiscores => hiscores.map((d, i) => ({ ...d, rank: i + 1 })));
 });
 
-export const isFetching6h = createSelector(rootSelector, root => root.isFetchingLeaderboards['6h']);
-export const isFetchingDay = createSelector(rootSelector, root => root.isFetchingLeaderboards.day);
-export const isFetchingWeek = createSelector(rootSelector, root => root.isFetchingLeaderboards.week);
-export const isFetchingMonth = createSelector(rootSelector, root => root.isFetchingLeaderboards.month);
-export const isFetchingYear = createSelector(rootSelector, root => root.isFetchingLeaderboards.year);
+export const isFetching = period => {
+  return createSelector(rootSelector, root => root.isFetchingLeaderboards[period]);
+};
+
+export const getLeaderboards = period => {
+  return createSelector(leaderboardsSelector, map => {
+    // Add a "rank" field to each delta of each period
+    return mapValues(map, deltas => deltas && deltas.map((d, i) => ({ ...d, rank: i + 1 })))[period];
+  });
+};
 
 export const isFetchingGroupDeltas = createSelector(rootSelector, root => root.isFetchingGroupDeltas);
-
-export const getLeaderboards = createSelector(leaderboardsSelector, map => {
-  // Add a "rank" field to each delta of each period
-  return mapValues(map, deltas => deltas && deltas.map((d, i) => ({ ...d, rank: i + 1 })));
-});
 
 export const getPlayerDeltas = (state, username) => getPlayerDeltasMap(state)[username];
 export const getGroupDeltas = (state, groupId) => getGroupDeltasMap(state)[groupId];

@@ -1,26 +1,28 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import _ from 'lodash';
+import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions } from 'redux/groups';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import Switch from '../../components/Switch';
-import TextButton from '../../components/TextButton';
-import Selector from '../../components/Selector';
-import Button from '../../components/Button';
-import DateRangeSelector from '../../components/DateRangeSelector';
-import ParticipantsSelector from '../../components/ParticipantsSelector';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import VerificationModal from '../../modals/VerificationModal';
-import CustomConfirmationModal from '../../modals/CustomConfirmationModal';
-import EmptyConfirmationModal from '../../modals/EmptyConfirmationModal';
+import {
+  Button,
+  PageTitle,
+  TextInput,
+  Switch,
+  TextButton,
+  Selector,
+  DateRangeSelector,
+  ParticipantsSelector
+} from 'components';
+import { getMetricIcon, getMetricName } from 'utils';
+import { ALL_METRICS } from 'config';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import VerificationModal from 'modals/VerificationModal';
+import CustomConfirmationModal from 'modals/CustomConfirmationModal';
+import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
 import GroupSelector from './components/GroupSelector';
-import { getMetricIcon, getMetricName } from '../../utils';
-import { ALL_METRICS } from '../../config';
 import './CreateCompetition.scss';
 
 function getMetricOptions() {
@@ -101,13 +103,13 @@ function CreateCompetition() {
   const handleImportModalSubmit = (usernames, replace) => {
     setParticipants(currentParticipants => {
       if (replace) {
-        return [..._.uniq(usernames)];
+        return [...uniq(usernames)];
       }
 
       const existingUsernames = currentParticipants.map(e => e.toLowerCase());
       const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentParticipants, ..._.uniq(newUsernames)];
+      return [...currentParticipants, ...uniq(newUsernames)];
     });
 
     toggleImportModal(false);

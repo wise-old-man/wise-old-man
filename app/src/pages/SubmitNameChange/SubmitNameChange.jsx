@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { nameActions, nameSelectors } from 'redux/names';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import Button from '../../components/Button';
+import { PageTitle, TextInput, Button } from 'components';
 import './SubmitNameChange.scss';
 
 function SubmitNameChange() {

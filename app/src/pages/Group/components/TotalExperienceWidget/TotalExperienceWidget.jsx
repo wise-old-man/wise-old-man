@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { formatNumber, getMetricIcon } from '../../../../utils';
+import { formatNumber, getMetricIcon } from 'utils';
 import './TotalExperienceWidget.scss';
 
 function TotalExperienceWidget({ group, isLoading }) {

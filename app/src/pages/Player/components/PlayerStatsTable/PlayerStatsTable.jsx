@@ -1,11 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Table from '../../../../components/Table';
-import TablePlaceholder from '../../../../components/TablePlaceholder';
-import NumberLabel from '../../../../components/NumberLabel';
-import TextLabel from '../../../../components/TextLabel';
-import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc, round } from '../../../../utils';
-import { SKILLS, BOSSES, ACTIVITIES } from '../../../../config';
+import { Table, TablePlaceholder, NumberLabel, TextLabel } from 'components';
+import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc, round } from 'utils';
+import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')

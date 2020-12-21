@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { ratesActions, ratesSelectors } from 'redux/rates';
-import PageTitle from '../../components/PageTitle';
-import Selector from '../../components/Selector';
-import Table from '../../components/Table';
-import { formatNumber, getMetricIcon, getMetricName } from '../../utils';
+import { PageTitle, Selector, Table } from 'components';
+import { formatNumber, getMetricIcon, getMetricName } from 'utils';
 import './EhbRates.scss';
 
 const RATES_TABLE_CONFIG = {

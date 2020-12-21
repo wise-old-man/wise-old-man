@@ -1,10 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
-import _ from 'lodash';
+import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupActions, groupSelectors } from 'redux/groups';
-import AutoSuggestInput from '../../../../components/AutoSuggestInput';
-import Table from '../../../../components/Table';
+import { AutoSuggestInput, Table } from 'components';
 import './GroupSelector.scss';
 
 const TABLE_CONFIG = {
@@ -32,7 +31,7 @@ function GroupSelector({ group, onGroupChanged }) {
 
   const suggestions = useMemo(() => searchResults.map(mapToSuggestion), [searchResults]);
 
-  const searchGroup = _.debounce(name => dispatch(groupActions.fetchList(name)), 500);
+  const searchGroup = debounce(name => dispatch(groupActions.fetchList(name)), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {

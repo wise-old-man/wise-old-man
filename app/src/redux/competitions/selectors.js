@@ -1,7 +1,7 @@
 import { mapValues, uniqBy } from 'lodash';
 import { createSelector } from 'reselect';
-import { COLORS } from '../../config';
-import { durationBetween } from '../../utils';
+import { CHART_COLORS } from 'config/visuals';
+import { durationBetween } from 'utils';
 
 const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;
@@ -64,7 +64,7 @@ export const getChartData = (state, id) => {
     const filteredPoints = [...uniqBy(diffPoints, 'y'), diffPoints[diffPoints.length - 1]];
 
     datasets.push({
-      borderColor: COLORS[i],
+      borderColor: CHART_COLORS[i],
       pointBorderWidth: 1,
       label: participant.displayName,
       data: filteredPoints,

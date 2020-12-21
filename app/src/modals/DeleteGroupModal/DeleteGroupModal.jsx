@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Analytics from 'react-ga';
 import { groupActions } from 'redux/groups';
-import Button from '../../components/Button';
+import { Button } from 'components';
 import './DeleteGroupModal.scss';
 
 function DeleteGroupModal({ group, onCancel }) {

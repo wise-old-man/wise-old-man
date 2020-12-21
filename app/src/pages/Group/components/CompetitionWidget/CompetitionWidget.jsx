@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getMetricIcon } from '../../../../utils';
+import { getMetricIcon } from 'utils';
 import './CompetitionWidget.scss';
 
 function CompetitionWidget({ competitions }) {

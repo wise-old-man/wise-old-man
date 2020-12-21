@@ -1,21 +1,23 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import _ from 'lodash';
+import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import moment from 'moment';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { getMetricIcon, getMetricName, standardize } from 'utils';
-import PageTitle from '../../components/PageTitle';
-import TextInput from '../../components/TextInput';
-import TextButton from '../../components/TextButton';
-import Selector from '../../components/Selector';
-import Button from '../../components/Button';
-import DateRangeSelector from '../../components/DateRangeSelector';
-import ParticipantsSelector from '../../components/ParticipantsSelector';
-import ImportPlayersModal from '../../modals/ImportPlayersModal';
-import RemovePlayersModal from '../../modals/RemovePlayersModal';
-import { ALL_METRICS } from '../../config';
+import { ALL_METRICS } from 'config';
+import {
+  PageTitle,
+  TextInput,
+  TextButton,
+  Selector,
+  Button,
+  DateRangeSelector,
+  ParticipantsSelector
+} from 'components';
+import ImportPlayersModal from 'modals/ImportPlayersModal';
+import RemovePlayersModal from 'modals/RemovePlayersModal';
 import './EditCompetition.scss';
 
 function getMetricOptions() {
@@ -127,13 +129,13 @@ function EditCompetition() {
   const handleImportModalSubmit = (usernames, replace) => {
     setParticipants(currentParticipants => {
       if (replace) {
-        return [..._.uniq(usernames)];
+        return [...uniq(usernames)];
       }
 
       const existingUsernames = currentParticipants.map(e => e.toLowerCase());
       const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
-      return [...currentParticipants, ..._.uniq(newUsernames)];
+      return [...currentParticipants, ...uniq(newUsernames)];
     });
 
     toggleImportModal(false);

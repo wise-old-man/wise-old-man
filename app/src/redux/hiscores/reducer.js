@@ -15,11 +15,11 @@ const slice = createSlice({
       state.error = null;
     },
     onFetchSuccess(state, action) {
-      const { groupId, hiscores } = action.payload;
+      const { groupId, hiscores, refresh } = action.payload;
 
       state.isFetching = false;
       state.error = null;
-      state.groupHiscores[groupId] = hiscores;
+      state.groupHiscores[groupId] = refresh ? hiscores : [...state.groupHiscores[groupId], ...hiscores];
     },
     onFetchError(state, action) {
       state.isFetching = false;
