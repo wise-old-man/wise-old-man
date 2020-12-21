@@ -219,6 +219,9 @@ async function competitions(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
+    // Ensure this group Id exists
+    await groupService.resolve(id);
+
     const paginationConfig = getPaginationConfig(limit, offset);
     const groupCompetitions = await competitionService.getGroupCompetitions(id, paginationConfig);
 
@@ -232,6 +235,9 @@ async function competitions(req: Request, res: Response, next: NextFunction) {
 async function monthlyTop(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
+
+    // Ensure this group Id exists
+    await groupService.resolve(id);
 
     // Get the member with the most monthly overall gains
     const topPlayer = await groupService.getMonthlyTopPlayer(id);
@@ -251,6 +257,9 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
+    // Ensure this group Id exists
+    await groupService.resolve(id);
+
     const paginationConfig = getPaginationConfig(limit, offset);
     const results = await groupService.getGained(id, period, metric, paginationConfig);
 
@@ -266,6 +275,9 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
+
+    // Ensure this group Id exists
+    await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
     const results = await groupService.getAchievements(id, paginationConfig);
@@ -285,6 +297,9 @@ async function records(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
+    // Ensure this group Id exists
+    await groupService.resolve(id);
+
     const paginationConfig = getPaginationConfig(limit, offset);
     const results = await groupService.getRecords(id, metric, period, paginationConfig);
 
@@ -302,6 +317,9 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
+    // Ensure this group Id exists
+    await groupService.resolve(id);
+
     const paginationConfig = getPaginationConfig(limit, offset);
     const results = await groupService.getHiscores(id, metric, paginationConfig);
 
@@ -315,6 +333,9 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
 async function statistics(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
+
+    // Ensure this group Id exists
+    await groupService.resolve(id);
 
     const results = await groupService.getStatistics(id);
     res.json(results);
