@@ -19,7 +19,7 @@
     "date-fns": "^2.15.0",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "prop-types": "^15.7.2",
     "query-string": "^6.13.7",
     "react": "^16.13.0",
