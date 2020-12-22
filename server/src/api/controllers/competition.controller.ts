@@ -79,6 +79,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const startsAt = extractDate(req.body, { key: 'startsAt' });
     const endsAt = extractDate(req.body, { key: 'endsAt' });
     const participants = extractStrings(req.body, { key: 'participants' });
+    const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
@@ -87,10 +88,13 @@ async function edit(req: Request, res: Response, next: NextFunction) {
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const dto = { verificationCode, title, metric, startsAt, endsAt, participants };
+    const dto = { verificationCode, title, metric, startsAt, endsAt, participants, teams };
     const editedCompetition = await service.edit(competition, dto);
 
-    res.json(editedCompetition);
+    // Omit the hash from the response
+    const response = omit(editedCompetition, ['verificationHash']);
+
+    res.json(response);
   } catch (e) {
     next(e);
   }

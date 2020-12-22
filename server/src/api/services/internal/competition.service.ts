@@ -1,4 +1,4 @@
-import { filter, includes, uniqBy } from 'lodash';
+import { filter, includes, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
@@ -70,6 +70,7 @@ interface EditCompetitionDTO {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
+  teams?: Team[];
 }
 
 function sanitizeTitle(title: string): string {
@@ -378,6 +379,12 @@ async function create(dto: CreateCompetitionDTO) {
   const isTeamCompetition = teams && teams.length > 0;
   const hasParticipants = participants && participants.length > 0;
 
+  if (hasParticipants && isTeamCompetition) {
+    throw new BadRequestError(
+      "Cannot include both 'participants' and 'teams', they are mutually exclusive."
+    );
+  }
+
   // Check if group verification code is valid
   if (isGroupCompetition) await validateGroupVerification(groupId, groupVerificationCode);
   // Check if every username in the list is valid
@@ -423,7 +430,7 @@ async function create(dto: CreateCompetitionDTO) {
  * Note: If "participants" is defined, it will replace the existing participants.
  */
 async function edit(competition: Competition, dto: EditCompetitionDTO) {
-  const { title, metric, startsAt, endsAt, participants } = dto;
+  const { title, metric, startsAt, endsAt, participants, teams } = dto;
 
   if (startsAt && endsAt && startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
@@ -433,51 +440,80 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     throw new BadRequestError(`Invalid competition metric.`);
   }
 
-  if (metric && metric !== competition.metric && isPast(competition.startsAt)) {
-    throw new BadRequestError(`The competition has started, the metric cannot be changed.`);
+  const hasNewTeams = teams && teams.length > 0;
+  const hasNewParticipants = participants && participants.length > 0;
+
+  if (hasNewParticipants && hasNewTeams) {
+    throw new BadRequestError(
+      "Cannot include both 'participants' and 'teams', they are mutually exclusive."
+    );
   }
 
-  if (
-    startsAt &&
-    startsAt.getTime() !== competition.startsAt.getTime() &&
-    isPast(competition.startsAt)
-  ) {
-    throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
+  // If competition has started
+  if (isPast(competition.startsAt)) {
+    if (metric && metric !== competition.metric) {
+      throw new BadRequestError('The competition has started, the metric cannot be changed.');
+    }
+
+    if (startsAt && startsAt.getTime() !== competition.startsAt.getTime()) {
+      throw new BadRequestError('The competition has started, the start date cannot be changed.');
+    }
+
+    if (competition.type === 'classic' && hasNewTeams) {
+      throw new BadRequestError(
+        'The competition has started, it cannot be changed to a team competition.'
+      );
+    }
+
+    if (competition.type === 'team' && hasNewParticipants) {
+      throw new BadRequestError(
+        'The competition has started, it cannot be changed to a classic competition.'
+      );
+    }
   }
+
+  // Check if every username in the list is valid
+  if (hasNewParticipants) validateParticipantsList(participants);
+  // Check if all teams are valid and correctly formatted
+  if (hasNewTeams) validateTeamsList(teams);
+
+  const newType = hasNewTeams ? 'team' : 'classic';
 
   const newValues = buildQuery({
     title: title && sanitizeTitle(title),
+    type: newType,
     metric,
     startsAt,
     endsAt
   });
 
-  let competitionParticipants;
+  if (hasNewParticipants) {
+    // Update the participant list
+    const newParticipants = await setParticipants(competition, participants);
+    // Update the competition
+    await competition.update(newValues);
 
-  // Check if every username in the list is valid
-  if (participants) {
-    const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
-
-    if (invalidUsernames.length > 0) {
-      throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
-         contain no special characters, and/or contain no space at the beginning or end of the name.`,
-        invalidUsernames
-      );
-    }
-
-    competitionParticipants = await setParticipants(competition, participants);
-  } else {
-    const participations = await competition.$get('participants');
-    competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
+    return { ...competition.toJSON(), participants: newParticipants };
   }
 
+  if (hasNewTeams) {
+    // Delete all existing participations
+    await Participation.destroy({ where: { competitionId: competition.id } });
+    // Add new participations, with associated teams
+    const newTeams = await setTeams(competition, teams);
+    // Update the competition
+    await competition.update(newValues);
+
+    return { ...competition.toJSON(), teams: newTeams };
+  }
+
+  // The participants haven't changed, only update the competition
   await competition.update(newValues);
 
-  // Hide the verificationHash from the response
-  competition.verificationHash = undefined;
+  const participations = await competition.$get('participants');
+  const currentParticipants = participations.map(p => omit(p.toJSON(), ['participations']));
 
-  return { ...competition.toJSON(), participants: competitionParticipants };
+  return { ...competition.toJSON(), participants: currentParticipants };
 }
 
 /**
