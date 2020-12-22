@@ -159,7 +159,52 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     }
 
     const count = await service.removeParticipants(competition, participants);
-    const message = `Successfully removed ${count} participants from competition of id: ${id}.`;
+    const message = `Successfully removed ${count} participants from ${competition.title}.`;
+
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /competitions/:id/add-teams
+async function addTeams(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const teams = req.body.teams;
+
+    const competition = await service.resolve(id, { includeHash: true });
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const result = await service.addTeams(competition, teams);
+
+    res.json({ newTeams: result });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /competitions/:id/remove-teams
+async function removeTeams(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const teamNames = extractStrings(req.body, { key: 'teamNames', required: true });
+
+    const competition = await service.resolve(id, { includeHash: true });
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const count = await service.removeTeams(competition, teamNames);
+    const message = `Successfully removed ${count} participants from ${competition.title}.`;
 
     res.json({ message });
   } catch (e) {
@@ -194,5 +239,7 @@ export {
   remove,
   addParticipants,
   removeParticipants,
+  addTeams,
+  removeTeams,
   updateAllParticipants
 };

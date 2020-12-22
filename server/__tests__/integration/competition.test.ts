@@ -562,9 +562,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `Successfully removed 1 participants from competition of id: ${TEST_DATA.minimal.id}.`
-      );
+      expect(response.body.message).toContain(`Successfully removed 1 participants`);
 
       done();
     });

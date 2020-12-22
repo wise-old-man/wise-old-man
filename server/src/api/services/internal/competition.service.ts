@@ -343,6 +343,12 @@ function validateParticipantsList(participants: string[]) {
     throw new BadRequestError('Invalid or empty participants list.');
   }
 
+  const duplicateUsernames = filter(participants, (val, i, it) => includes(it, val, i + 1));
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
   const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
 
   if (invalidUsernames.length > 0) {
@@ -497,8 +503,6 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   }
 
   if (hasNewTeams) {
-    // Delete all existing participations
-    await Participation.destroy({ where: { competitionId: competition.id } });
     // Add new participations, with associated teams
     const newTeams = await setTeams(competition, teams);
     // Update the competition
@@ -533,6 +537,9 @@ async function setTeams(competition: Competition, teams: Team[]) {
   const allPlayers = await playerService.findAllOrCreate(allUsernames);
 
   const playersMap = Object.fromEntries(allPlayers.map(p => [p.username, p]));
+
+  // Delete all existing participations (and teams)
+  await Participation.destroy({ where: { competitionId: competition.id } });
 
   const formattedTeams = await Promise.all(
     teams.map(async team => {
@@ -580,7 +587,7 @@ async function setParticipants(competition: Competition, usernames: string[]) {
   }
 
   const participants = await competition.$get('participants');
-  return participants.map(p => ({ ...p.toJSON(), participations: undefined }));
+  return participants.map(p => omit(p.toJSON(), ['participations']));
 }
 
 /**
@@ -658,23 +665,107 @@ async function removeParticipants(competition: Competition, usernames: string[])
   return removedPlayersCount;
 }
 
-/**
- * Get all participants for a specific competition id.
- */
-async function getParticipants(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
+async function addTeams(competition: Competition, teams: Team[]) {
+  if (!teams || teams.length === 0) {
+    throw new BadRequestError('Empty teams list.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
+  if (competition.type === 'classic') {
+    throw new BadRequestError("Teams can't be added to a classic competition.");
   }
 
+  // Check if all teams are valid and correctly formatted
+  validateTeamsList(teams);
+
+  // Fetch all current teams
+  const currentTeams = await getTeams(competition);
+
+  const currentTeamNames = currentTeams.map((t: any) => t.name);
+  const currentUsernames = currentTeams.map((t: any) => t.participants.map(p => p.username)).flat();
+
+  const newTeamNames = teams.map(t => t.name);
+  const newUsernames = teams.map(t => t.participants).flat();
+
+  const duplicateTeamNames = newTeamNames.filter(t =>
+    currentTeamNames.map((c: string) => c.toLowerCase()).includes(t.toLowerCase())
+  );
+
+  const duplicateUsernames = newUsernames.filter(t =>
+    currentUsernames.map((c: string) => c).includes(t)
+  );
+
+  if (duplicateTeamNames && duplicateTeamNames.length > 0) {
+    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
+  }
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
+  const newPlayers = await playerService.findAllOrCreate(newUsernames);
+  const playersMap = Object.fromEntries(newPlayers.map(p => [p.username, p]));
+
+  const formattedTeams = await Promise.all(
+    teams.map(async team => {
+      const teamName = team.name;
+      const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
+
+      // Add new team
+      await competition.$add('participants', participants, { through: { teamName } });
+
+      return { teamName, participants };
+    })
+  );
+
+  // Update the "updatedAt" timestamp on the competition model
+  await competition.changed('updatedAt', true);
+  await competition.save();
+
+  return formattedTeams;
+}
+
+async function removeTeams(competition: Competition, teamNames: string[]) {
+  if (teamNames.length === 0) {
+    throw new BadRequestError('Empty team names list.');
+  }
+
+  const removedPlayersCount = await Participation.destroy({
+    where: {
+      competitionId: competition.id,
+      teamName: teamNames.map(sanitizeTitle)
+    }
+  });
+
+  if (!removedPlayersCount) {
+    throw new BadRequestError('No players were removed from the competition.');
+  }
+
+  // Update the "updatedAt" timestamp on the competition model
+  await competition.changed('updatedAt', true);
+  await competition.save();
+
+  return removedPlayersCount;
+}
+
+async function getTeams(competition: Competition) {
   const participants = await competition.$get('participants');
 
-  return participants;
+  const teamsMap = {};
+
+  participants.forEach(p => {
+    const instance: any = p;
+    const { teamName } = instance.participations;
+
+    const player = omit(p.toJSON(), ['participations']);
+
+    if (teamName in teamsMap) {
+      teamsMap[teamName].participants.push(player);
+    } else {
+      teamsMap[teamName] = { name: teamName, participants: [player] };
+    }
+  });
+
+  return Object.values(teamsMap);
 }
 
 /**
@@ -762,7 +853,7 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
  */
 async function updateAll(competition: Competition, force: boolean, updateFn: (player: Player) => void) {
   const participants = force
-    ? await getParticipants(competition.id)
+    ? await competition.$get('participants')
     : await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
@@ -831,12 +922,13 @@ export {
   getGroupCompetitions,
   getPlayerCompetitions,
   getDetails,
-  getParticipants,
   create,
   edit,
   destroy,
   addParticipants,
   removeParticipants,
+  addTeams,
+  removeTeams,
   addToGroupCompetitions,
   removeFromGroupCompetitions,
   updateAll,
