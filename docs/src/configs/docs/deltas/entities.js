@@ -443,6 +443,12 @@ export default [
     values: ['6h', 'day', 'week', 'month', 'year']
   },
   {
+    name: 'Player types',
+    description:
+      'All the possible values for the "playerType" field of the delta model.',
+    values: ['regular', 'ironman', 'ultimate', 'hardcore']
+  },
+  {
     name: 'Metrics',
     description: 'All the possible values for the "metric" field of the leaderboard endpoint.',
     values: [
@@ -524,7 +530,9 @@ export default [
       'vorkath',
       'wintertodt',
       'zalcano',
-      'zulrah'
+      'zulrah',
+      'ehp',
+      'ehb'
     ]
   }
 ];

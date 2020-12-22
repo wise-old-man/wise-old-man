@@ -170,7 +170,9 @@ export default [
       'vorkath',
       'wintertodt',
       'zalcano',
-      'zulrah'
+      'zulrah',
+      'ehp',
+      'ehb'
     ]
   }
 ];
