@@ -218,7 +218,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
   const participations = await Participation.findAll({
-    attributes: ['playerId'],
+    attributes: ['playerId', 'teamName'],
     where: { competitionId: competition.id },
     include: [
       { model: Player },
@@ -230,13 +230,14 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
   const minimumValue = getMinimumBossKc(competition.metric);
 
   const participants = participations
-    .map(({ player, startSnapshot, endSnapshot }) => {
+    .map(({ player, teamName, startSnapshot, endSnapshot }) => {
       const start = startSnapshot ? startSnapshot[metricKey] : -1;
       const end = endSnapshot ? endSnapshot[metricKey] : -1;
       const gained = Math.max(0, round(end - Math.max(minimumValue - 1, start), 5));
 
       return {
         ...player.toJSON(),
+        teamName,
         progress: { start, end, gained },
         history: []
       };
