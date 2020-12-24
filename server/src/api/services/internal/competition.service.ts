@@ -344,12 +344,6 @@ function validateParticipantsList(participants: string[]) {
     throw new BadRequestError('Invalid or empty participants list.');
   }
 
-  const duplicateUsernames = filter(participants, (val, i, it) => includes(it, val, i + 1));
-
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
-  }
-
   const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
 
   if (invalidUsernames.length > 0) {
@@ -358,6 +352,13 @@ function validateParticipantsList(participants: string[]) {
        contain no special characters, and/or contain no space at the beginning or end of the name.`,
       invalidUsernames
     );
+  }
+
+  const allUsernames = participants.map(playerService.standardize);
+  const duplicateUsernames = filter(allUsernames, (val, i, it) => includes(it, val, i + 1));
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
   }
 }
 
@@ -385,6 +386,13 @@ async function create(dto: CreateCompetitionDTO) {
   const isGroupCompetition = !!groupId;
   const isTeamCompetition = teams && teams.length > 0;
   const hasParticipants = participants && participants.length > 0;
+
+  if (hasParticipants && isGroupCompetition) {
+    throw new BadRequestError(
+      `Cannot include both 'participants' and 'groupId', they are mutually exclusive. 
+      All group members will be registered as participants instead.`
+    );
+  }
 
   if (hasParticipants && isTeamCompetition) {
     throw new BadRequestError(
@@ -450,10 +458,12 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   const hasNewTeams = teams && teams.length > 0;
   const hasNewParticipants = participants && participants.length > 0;
 
-  if (hasNewParticipants && hasNewTeams) {
-    throw new BadRequestError(
-      "Cannot include both 'participants' and 'teams', they are mutually exclusive."
-    );
+  if (competition.type === 'classic' && hasNewTeams) {
+    throw new BadRequestError("The competition type cannot be changed to 'teams'");
+  }
+
+  if (competition.type === 'team' && hasNewParticipants) {
+    throw new BadRequestError("The competition type cannot be changed to 'classic'");
   }
 
   // If competition has started
@@ -465,36 +475,18 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     if (startsAt && startsAt.getTime() !== competition.startsAt.getTime()) {
       throw new BadRequestError('The competition has started, the start date cannot be changed.');
     }
-
-    if (competition.type === 'classic' && hasNewTeams) {
-      throw new BadRequestError(
-        'The competition has started, it cannot be changed to a team competition.'
-      );
-    }
-
-    if (competition.type === 'team' && hasNewParticipants) {
-      throw new BadRequestError(
-        'The competition has started, it cannot be changed to a classic competition.'
-      );
-    }
   }
-
-  // Check if every username in the list is valid
-  if (hasNewParticipants) validateParticipantsList(participants);
-  // Check if all teams are valid and correctly formatted
-  if (hasNewTeams) validateTeamsList(teams);
-
-  const newType = hasNewTeams ? 'team' : 'classic';
 
   const newValues = buildQuery({
     title: title && sanitizeTitle(title),
-    type: newType,
     metric,
     startsAt,
     endsAt
   });
 
   if (hasNewParticipants) {
+    // Check if every username in the list is valid
+    validateParticipantsList(participants);
     // Update the participant list
     const newParticipants = await setParticipants(competition, participants);
     // Update the competition
@@ -504,6 +496,8 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   }
 
   if (hasNewTeams) {
+    // Check if all teams are valid and correctly formatted
+    if (hasNewTeams) validateTeamsList(teams);
     // Add new participations, with associated teams
     const newTeams = await setTeams(competition, teams);
     // Update the competition
@@ -512,7 +506,8 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     return { ...competition.toJSON(), teams: newTeams };
   }
 
-  // The participants haven't changed, only update the competition
+  // The participants haven't changed, only update
+  // the competition details and return the existing participants
   await competition.update(newValues);
 
   const participations = await competition.$get('participants');
@@ -614,6 +609,10 @@ async function addAllGroupMembers(competition, groupId) {
  * Adds all the usernames as competition participants.
  */
 async function addParticipants(competition: Competition, usernames: string[]) {
+  if (competition.type === 'team') {
+    throw new BadRequestError('Cannot add participants to a team competition');
+  }
+
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
   }
@@ -642,6 +641,10 @@ async function addParticipants(competition: Competition, usernames: string[]) {
  * Removes all the usernames (participants) from a competition.
  */
 async function removeParticipants(competition: Competition, usernames: string[]) {
+  if (competition.type === 'team') {
+    throw new BadRequestError('Cannot remove participants from a team competition');
+  }
+
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
   }
@@ -726,6 +729,10 @@ async function addTeams(competition: Competition, teams: Team[]) {
 }
 
 async function removeTeams(competition: Competition, teamNames: string[]) {
+  if (competition.type !== 'team') {
+    throw new BadRequestError('Cannot remove teams from a classic competition.');
+  }
+
   if (teamNames.length === 0) {
     throw new BadRequestError('Empty team names list.');
   }

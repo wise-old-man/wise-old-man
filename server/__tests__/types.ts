@@ -3,6 +3,7 @@ export interface TestData {
   hiscores?: any;
   cml?: any;
   minimal?: any;
+  team?: any;
   group?: any;
   noMembers?: any;
   membersNoLeaders?: any;

@@ -183,7 +183,7 @@ async function addTeams(req: Request, res: Response, next: NextFunction) {
 
     const result = await service.addTeams(competition, teams);
 
-    res.json({ newTeams: result });
+    res.json({ teams: result });
   } catch (e) {
     next(e);
   }
