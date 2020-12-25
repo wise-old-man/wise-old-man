@@ -737,6 +737,10 @@ async function removeTeams(competition: Competition, teamNames: string[]) {
     throw new BadRequestError('Empty team names list.');
   }
 
+  if (teamNames.some(t => typeof t !== 'string' || t.length === 0)) {
+    throw new BadRequestError('All teams must have a name property.');
+  }
+
   const removedPlayersCount = await Participation.destroy({
     where: {
       competitionId: competition.id,
