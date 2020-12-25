@@ -158,6 +158,13 @@ async function getDetails(id: number) {
     throw new NotFoundError('Name change id was not found.');
   }
 
+  const oldPlayer = await playerService.find(nameChange.oldName);
+  const newPlayer = await playerService.find(nameChange.newName);
+
+  if (!oldPlayer || nameChange.status !== NameChangeStatus.PENDING) {
+    return { nameChange, data: {} };
+  }
+
   let newHiscores;
   let oldHiscores;
 
@@ -175,9 +182,6 @@ async function getDetails(id: number) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
   }
-
-  const oldPlayer = await playerService.find(nameChange.oldName);
-  const newPlayer = await playerService.find(nameChange.newName);
 
   // Fetch the last snapshot from the old name
   const oldStats = await snapshotService.findLatest(oldPlayer.id);
