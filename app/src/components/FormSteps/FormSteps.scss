@@ -1,0 +1,43 @@
+@import '../../styles.scss';
+
+.form-steps__container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .form-step {
+    border: 1px solid $gray-60;
+    color: $gray-60;
+    width: 31px;
+    height: 31px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-size: 0.9em;
+
+    &.-completed {
+      border: none;
+      color: white;
+      font-weight: 700;
+      background: $brand-color;
+      text-shadow: 2px 1px 2px $brand-color-dark;
+    }
+
+    &.-current {
+      border: 2px solid white;
+      color: white;
+    }
+  }
+
+  .form-step-separator {
+    height: 1px;
+    flex-grow: 1;
+    border: 1px dashed $gray-60;
+
+    &.-completed {
+      border: 1px solid white;
+    }
+  }
+}

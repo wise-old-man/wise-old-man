@@ -1,61 +1,30 @@
-import AutoSuggestInput from './AutoSuggestInput';
-import Button from './Button';
-import CardList from './CardList';
-import CopyToClipboard from './CopyToClipboard';
-import Countdown from './Countdown';
-import DateRangeSelector from './DateRangeSelector';
-import Dropdown from './Dropdown';
-import InfoPanel from './InfoPanel';
-import LineChart from './LineChart';
-import Loading from './Loading';
-import MembersSelector from './MembersSelector';
-import NavigationBar from './NavigationBar';
-import Notification from './Notification';
-import NumberLabel from './NumberLabel';
-import PageBadge from './PageBadge';
-import PageHeader from './PageHeader';
-import PageTitle from './PageTitle';
-import ParticipantsSelector from './ParticipantsSelector';
-import PlayerTag from './PlayerTag';
-import Selector from './Selector';
-import StatusDot from './StatusDot';
-import Switch from './Switch';
-import Table from './Table';
-import TablePlaceholder from './TablePlaceholder';
-import Tabs from './Tabs';
-import TextButton from './TextButton';
-import TextInput from './TextInput';
-import TextLabel from './TextLabel';
-import VerifiedBadge from './VerifiedBadge';
-
-export {
-  AutoSuggestInput,
-  Button,
-  CardList,
-  CopyToClipboard,
-  Countdown,
-  DateRangeSelector,
-  Dropdown,
-  InfoPanel,
-  LineChart,
-  Loading,
-  MembersSelector,
-  NavigationBar,
-  Notification,
-  NumberLabel,
-  PageBadge,
-  PageHeader,
-  PageTitle,
-  ParticipantsSelector,
-  PlayerTag,
-  Selector,
-  StatusDot,
-  Switch,
-  Table,
-  TablePlaceholder,
-  Tabs,
-  TextButton,
-  TextInput,
-  TextLabel,
-  VerifiedBadge
-};
+export { default as AutoSuggestInput } from './AutoSuggestInput';
+export { default as Button } from './Button';
+export { default as CardList } from './AutoSuggestInput';
+export { default as CopyToClipboard } from './CopyToClipboard';
+export { default as Countdown } from './Countdown';
+export { default as DateRangeSelector } from './DateRangeSelector';
+export { default as Dropdown } from './Dropdown';
+export { default as FormSteps } from './FormSteps';
+export { default as InfoPanel } from './InfoPanel';
+export { default as LineChart } from './LineChart';
+export { default as Loading } from './Loading';
+export { default as MembersSelector } from './MembersSelector';
+export { default as NavigationBar } from './NavigationBar';
+export { default as Notification } from './Notification';
+export { default as NumberLabel } from './NumberLabel';
+export { default as PageBadge } from './PageBadge';
+export { default as PageHeader } from './PageHeader';
+export { default as PageTitle } from './PageTitle';
+export { default as ParticipantsSelector } from './ParticipantsSelector';
+export { default as PlayerTag } from './PlayerTag';
+export { default as Selector } from './Selector';
+export { default as StatusDot } from './StatusDot';
+export { default as Switch } from './PageTitle';
+export { default as Table } from './Table';
+export { default as TablePlaceholder } from './TablePlaceholder';
+export { default as Tabs } from './Tabs';
+export { default as TextButton } from './TextButton';
+export { default as TextInput } from './TextInput';
+export { default as TextLabel } from './TextLabel';
+export { default as VerifiedBadge } from './VerifiedBadge';
