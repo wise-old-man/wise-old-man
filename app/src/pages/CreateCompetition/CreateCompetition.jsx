@@ -1,189 +1,81 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { uniq } from 'lodash';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
-import { groupActions } from 'redux/groups';
 import moment from 'moment';
+import { Helmet } from 'react-helmet';
+import { PageTitle, Button, FormSteps } from 'components';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
-import {
-  Button,
-  PageTitle,
-  TextInput,
-  Switch,
-  TextButton,
-  Selector,
-  DateRangeSelector,
-  ParticipantsSelector
-} from 'components';
-import { getMetricIcon, getMetricName } from 'utils';
-import { ALL_METRICS } from 'config';
-import ImportPlayersModal from 'modals/ImportPlayersModal';
+import { groupActions } from 'redux/groups';
+import { useQuery } from 'hooks';
 import VerificationModal from 'modals/VerificationModal';
 import CustomConfirmationModal from 'modals/CustomConfirmationModal';
-import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
-import GroupSelector from './components/GroupSelector';
+import { Step1, Step2, Step3 } from './containers';
+import { CreateCompetitionContext } from './context';
 import './CreateCompetition.scss';
 
-function getMetricOptions() {
-  return ALL_METRICS.map(metric => ({
-    label: getMetricName(metric),
-    icon: getMetricIcon(metric, true),
-    value: metric
-  }));
-}
-
-function useQuery(keys) {
-  const urlQuery = new URLSearchParams(useLocation().search);
-  const result = {};
-
-  keys.forEach(k => {
-    result[k] = urlQuery.get(k);
-  });
-
-  return result;
-}
+const STEP_COUNT = 3;
 
 function CreateCompetition() {
   const router = useHistory();
   const dispatch = useDispatch();
-  const { groupId } = useQuery(['groupId']);
 
-  const isSubmitting = useSelector(competitionSelectors.isCreating);
-  const error = useSelector(competitionSelectors.getError);
-
-  const metricOptions = useMemo(getMetricOptions, []);
+  const { groupId } = useQuery();
 
   const today = useMemo(() => moment().startOf('day'), []);
-  const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
-  const initialEndMoment = useMemo(() => today.clone().add(8, 'days'), [today]);
+  const start = useMemo(() => today.clone().add(1, 'days'), [today]);
+  const end = useMemo(() => today.clone().add(8, 'days'), [today]);
 
-  const [title, setTitle] = useState('');
-  const [metric, setMetric] = useState(metricOptions[0].value);
-  const [startDate, setStartDate] = useState(initialStartMoment.toDate());
-  const [endDate, setEndDate] = useState(initialEndMoment.toDate());
-  const [participants, setParticipants] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
-  const [groupVerificationCode, setGroupVerificationCode] = useState('');
+  const isSubmitting = useSelector(competitionSelectors.isCreating);
 
-  const [groupCompetition, setGroupCompetition] = useState(false);
-  const [showingImportModal, toggleImportModal] = useState(false);
-  const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
-  const [showingCustomConfirmationModal, toggleCustomMessageModal] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
-  const [createdId, setCreatedId] = useState(-1);
+  const [data, setData] = useState(getDefaultState(start, end));
+  const [result, setResult] = useState(null);
+  const [step, setStep] = useState(1);
 
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
+  const onFetch = useCallback(handleGroupFetch, []);
 
-  const handleTitleChanged = e => {
-    setTitle(e.target.value);
-  };
+  async function handleGroupFetch() {
+    const { payload } = await dispatch(groupActions.fetchDetails(groupId));
 
-  const handleMetricSelected = e => {
-    setMetric((e && e.value) || null);
-  };
+    if (payload && payload.data) {
+      setData(d => ({ ...d, groupCompetition: true, group: payload.data }));
+    }
+  }
 
-  const handleDateRangeChanged = dates => {
-    setStartDate(dates[0]);
-    setEndDate(dates[1]);
-  };
+  async function handleSubmit() {
+    const isGroupCompetition = data.groupCompetition && data.group;
+    const isTeamCompetition = data.type === 'team' && data.teams.length > 0;
 
-  const handleGroupVerificationCodeChanged = e => {
-    setGroupVerificationCode(e.target.value);
-  };
-
-  const handleAddParticipant = username => {
-    setParticipants(p => (p.includes(username) ? p : [...p, username]));
-  };
-
-  const handleRemoveParticipant = username => {
-    setParticipants(ps => [...ps.filter(p => p !== username)]);
-  };
-
-  const handleImportModalSubmit = (usernames, replace) => {
-    setParticipants(currentParticipants => {
-      if (replace) {
-        return [...uniq(usernames)];
-      }
-
-      const existingUsernames = currentParticipants.map(e => e.toLowerCase());
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
-
-      return [...currentParticipants, ...uniq(newUsernames)];
-    });
-
-    toggleImportModal(false);
-  };
-
-  const handleConfirmVerification = () => {
-    router.push(`/competitions/${createdId}`);
-  };
-
-  const handleSubmit = async () => {
     const { payload } = await dispatch(
       competitionActions.create(
-        title,
-        metric,
-        startDate,
-        endDate,
-        !groupCompetition ? participants : null,
-        groupVerificationCode,
-        groupCompetition && selectedGroup ? selectedGroup.id : null
+        data.title,
+        data.metric,
+        data.startDate,
+        data.endDate,
+        isGroupCompetition ? null : data.participants,
+        isGroupCompetition ? data.groupVerificationCode : null,
+        isGroupCompetition ? data.group.id : null,
+        isTeamCompetition ? data.teams : null
       )
     );
 
     if (payload && payload.data) {
-      setVerificationCode(payload.data.verificationCode);
-      setCreatedId(payload.data.id);
-
-      if (groupCompetition) {
-        showCustomConfirmationModal();
-      }
+      setResult(payload.data);
     }
-  };
+  }
 
-  const handleToggleGroupCompetition = () => {
-    setGroupCompetition(!groupCompetition);
-  };
+  function handleRedirect() {
+    router.push(`/competitions/${result.id}`);
+  }
 
-  const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
-  const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
-  const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
-  const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
-  const showCustomConfirmationModal = useCallback(() => toggleCustomMessageModal(true), []);
-  const toggleGroupCompetition = useCallback(handleToggleGroupCompetition, [groupCompetition]);
+  function previousStep() {
+    setStep(step - 1);
+  }
 
-  const onTitleChanged = useCallback(handleTitleChanged, []);
-  const onMetricSelected = useCallback(handleMetricSelected, []);
-  const onDateRangeChanged = useCallback(handleDateRangeChanged, []);
-  const onGroupVerificationCodeChanged = useCallback(handleGroupVerificationCodeChanged, []);
-  const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
-  const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
-  const onSubmitParticipantsModal = useCallback(handleImportModalSubmit, []);
-  const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
-  const onFetch = useCallback(fetchDetails, []);
-
-  const onSubmit = useCallback(handleSubmit, [
-    title,
-    metric,
-    startDate,
-    endDate,
-    participants,
-    groupCompetition,
-    groupVerificationCode,
-    selectedGroup
-  ]);
-
-  const isEmpty =
-    (!groupCompetition && participants.length === 0) ||
-    (groupCompetition && !selectedGroup) ||
-    (selectedGroup && selectedGroup.memberCount === 0);
-
-  async function fetchDetails() {
-    const { payload } = await dispatch(groupActions.fetchDetails(groupId));
-    if (payload && payload.data) {
-      setSelectedGroup(payload.data);
-      setGroupCompetition(true);
+  function nextStep() {
+    if (step < STEP_COUNT) {
+      setStep(step + 1);
+    } else {
+      handleSubmit();
     }
   }
 
@@ -192,119 +84,90 @@ function CreateCompetition() {
   }, [dispatch, groupId, onFetch]);
 
   return (
-    <div className="create-competition__container container">
-      <Helmet>
-        <title>Create new competition</title>
-      </Helmet>
+    <CreateCompetitionContext.Provider value={{ data, setData }}>
+      <div className="create-competition__container container">
+        <Helmet>
+          <title>Create new competition</title>
+        </Helmet>
+        <div className="col">
+          <PageTitle title="Create competition" />
+          <FormSteps steps={STEP_COUNT} currentIndex={step - 1} />
 
-      <div className="col">
-        <PageTitle title="Create new competition" />
+          {step === 1 && <Step1 />}
+          {step === 2 && <Step2 />}
+          {step === 3 && <Step3 />}
 
-        <div className="form-row">
-          <span className="form-row__label">Title</span>
-          <TextInput
-            placeholder="Ex: Varrock Titan's firemaking comp"
-            value={title}
-            onChange={onTitleChanged}
-            maxCharacters={50}
-          />
-        </div>
-
-        <div className="form-row">
-          <span className="form-row__label">Metric</span>
-          <Selector
-            options={metricOptions}
-            selectedIndex={selectedMetricIndex}
-            onSelect={onMetricSelected}
-            search
-          />
-        </div>
-
-        <div className="form-row">
-          <span className="form-row__label">Time range</span>
-          <DateRangeSelector start={startDate} end={endDate} onRangeChanged={onDateRangeChanged} />
-        </div>
-
-        <div className="form-row">
-          <hr />
-        </div>
-
-        <div className="form-row">
-          <div className="group-toggle">
-            <Switch on={groupCompetition} onToggle={toggleGroupCompetition} />
-            <span className="group-toggle__label">Group competition</span>
+          <div className="form-row form-actions">
+            <Button text="Previous" onClick={previousStep} disabled={step <= 1} />
+            <Button
+              text="Next"
+              onClick={nextStep}
+              loading={isSubmitting}
+              disabled={!canSkipStep(data, step)}
+            />
           </div>
-          {groupCompetition ? (
-            <>
-              <GroupSelector group={selectedGroup} onGroupChanged={setSelectedGroup} />
-              <div className="form-row">
-                <span className="form-row__label">
-                  Group Verification code
-                  <span className="form-row__label-info -right">
-                    Lost your verification code?
-                    <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
-                      Join our discord
-                    </a>
-                  </span>
-                </span>
-                <TextInput
-                  type="password"
-                  placeholder="Ex: 123-456-789"
-                  onChange={onGroupVerificationCodeChanged}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <span className="form-row__label">
-                Participants
-                <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-                <TextButton text="Import list" onClick={showParticipantsModal} />
-              </span>
-
-              <ParticipantsSelector
-                participants={participants}
-                invalidUsernames={error.data}
-                onParticipantAdded={onParticipantAdded}
-                onParticipantRemoved={onParticipantRemoved}
-              />
-            </>
-          )}
         </div>
-        <div className="form-row form-actions">
-          <Button
-            text="Confirm"
-            onClick={isEmpty ? showEmptyConfirmationModal : onSubmit}
-            loading={isSubmitting}
+        {result && !result.groupId && (
+          <VerificationModal
+            entity="competition"
+            verificationCode={result.verificationCode}
+            onConfirm={handleRedirect}
           />
-        </div>
+        )}
+        {result && result.groupId && (
+          <CustomConfirmationModal
+            title="Verification code"
+            message="To edit this competition in the future, please use your group verification code on submission."
+            onConfirm={handleRedirect}
+          />
+        )}
       </div>
-      {showingImportModal && (
-        <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitParticipantsModal} />
-      )}
-      {verificationCode && !groupCompetition && (
-        <VerificationModal
-          entity="competition"
-          verificationCode={verificationCode}
-          onConfirm={onConfirmVerification}
-        />
-      )}
-      {showingEmptyConfirmationModal && (
-        <EmptyConfirmationModal
-          entity={{ type: 'competition', group: 'participant' }}
-          onClose={hideEmptyConfirmationModal}
-          onConfirm={onSubmit}
-        />
-      )}
-      {showingCustomConfirmationModal && (
-        <CustomConfirmationModal
-          title="Verification code"
-          message="To edit this competition in the future, please use your group verification code on submission."
-          onConfirm={onConfirmVerification}
-        />
-      )}
-    </div>
+    </CreateCompetitionContext.Provider>
   );
+}
+
+function getDefaultState(start, end) {
+  return {
+    title: '',
+    metric: 'overall',
+    startDate: start.toDate(),
+    endDate: end.toDate(),
+    type: null,
+    group: null,
+    groupCompetition: false,
+    groupVerificationCode: '',
+    participants: [],
+    teams: []
+  };
+}
+
+function canSkipStep(data, step) {
+  const {
+    title,
+    startDate,
+    endDate,
+    type,
+    groupCompetition,
+    group,
+    groupVerificationCode,
+    participants,
+    teams
+  } = data;
+
+  if (step === 1) {
+    return title.length > 0 && startDate && endDate;
+  }
+
+  if (step === 2) {
+    return !groupCompetition || (group && groupVerificationCode.length > 0);
+  }
+
+  if (step === 3) {
+    if (type === 'classic' && group) return true;
+    return type && type === 'classic' ? participants.length > 1 : teams.length > 1;
+  }
+
+  return true;
 }
 
 export default CreateCompetition;

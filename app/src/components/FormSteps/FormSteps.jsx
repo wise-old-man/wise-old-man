@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { times } from 'lodash';
 import cn from 'classnames';
@@ -18,10 +18,10 @@ function FormSteps({ steps, currentIndex }) {
         });
 
         return (
-          <>
+          <Fragment key={i}>
             <div className={stepClass}>{i + 1}</div>
             {i < steps - 1 && <div className={separatorClass} />}
-          </>
+          </Fragment>
         );
       })}
     </div>

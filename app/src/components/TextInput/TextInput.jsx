@@ -6,6 +6,7 @@ function TextInput({
   id,
   type,
   value,
+  disabled,
   onChange,
   placeholder,
   search,
@@ -23,6 +24,7 @@ function TextInput({
         onChange={onChange}
         autoComplete={disableAutocomplete ? 'off' : 'on'}
         maxLength={maxCharacters}
+        disabled={disabled}
       />
       {search && <img className="text-input__icon" src="/img/icons/search.svg" alt="" />}
       {maxCharacters && value && (
@@ -39,6 +41,7 @@ TextInput.defaultProps = {
   value: undefined,
   type: 'text',
   search: false,
+  disabled: false,
   disableAutocomplete: true,
   maxCharacters: undefined
 };
@@ -51,6 +54,8 @@ TextInput.propTypes = {
 
   // The input value
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+
+  disabled: PropTypes.bool,
 
   // The placeholder text to display
   placeholder: PropTypes.string.isRequired,

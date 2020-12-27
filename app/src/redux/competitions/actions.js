@@ -8,12 +8,22 @@ const create = (
   endsAt,
   participants,
   groupVerificationCode,
-  groupId
+  groupId,
+  teams
 ) => async dispatch => {
   dispatch(reducers.onCreateRequest());
 
   try {
-    const body = { title, metric, startsAt, endsAt, participants, groupVerificationCode, groupId };
+    const body = {
+      title,
+      metric,
+      startsAt,
+      endsAt,
+      participants,
+      teams,
+      groupVerificationCode,
+      groupId
+    };
     const { data } = await api.post(endpoints.createCompetition, body);
 
     return dispatch(reducers.onCreateSuccess({ data }));

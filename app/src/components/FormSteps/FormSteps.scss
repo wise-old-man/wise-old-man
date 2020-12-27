@@ -18,16 +18,14 @@
     font-size: 0.9em;
 
     &.-completed {
-      border: none;
+      border: 2px solid white;
       color: white;
-      font-weight: 700;
-      background: $brand-color;
-      text-shadow: 2px 1px 2px $brand-color-dark;
     }
 
     &.-current {
-      border: 2px solid white;
+      border: 2px solid $brand-color;
       color: white;
+      font-weight: 700;
     }
   }
 
