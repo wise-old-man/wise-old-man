@@ -71,11 +71,11 @@ const remove = (id, verificationCode) => async dispatch => {
   }
 };
 
-const fetchList = (title, metric, status, limit, offset) => async dispatch => {
+const fetchList = (title, metric, status, type, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchListRequest());
 
   try {
-    const params = { title, metric, status, limit, offset };
+    const params = { title, metric, status, type, limit, offset };
     const { data } = await api.get(endpoints.fetchCompetitions, { params });
 
     const refresh = !offset;
