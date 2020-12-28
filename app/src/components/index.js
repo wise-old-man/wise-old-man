@@ -1,4 +1,5 @@
 export { default as AutoSuggestInput } from './AutoSuggestInput';
+export { default as Badge } from './Badge';
 export { default as Button } from './Button';
 export { default as CardList } from './AutoSuggestInput';
 export { default as CopyToClipboard } from './CopyToClipboard';
@@ -14,7 +15,6 @@ export { default as MembersSelector } from './MembersSelector';
 export { default as NavigationBar } from './NavigationBar';
 export { default as Notification } from './Notification';
 export { default as NumberLabel } from './NumberLabel';
-export { default as PageBadge } from './PageBadge';
 export { default as PageHeader } from './PageHeader';
 export { default as PageTitle } from './PageTitle';
 export { default as ParticipantsSelector } from './ParticipantsSelector';

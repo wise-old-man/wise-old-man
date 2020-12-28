@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import PageBadge from '../PageBadge';
+import Badge from '../Badge';
 import './PageHeader.scss';
 
 function PageHeader({ title, icon, iconTooltip, children, badges }) {
@@ -13,9 +13,7 @@ function PageHeader({ title, icon, iconTooltip, children, badges }) {
       )}
       <h1 className="page-header__title">{title}</h1>
       {badges &&
-        badges.map(badge => (
-          <PageBadge key={badge.text} text={badge.text} hoverText={badge.hoverText} />
-        ))}
+        badges.map(badge => <Badge key={badge.text} text={badge.text} hoverText={badge.hoverText} />)}
       <div className="page-header__actions">{children}</div>
     </div>
   );
