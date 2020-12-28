@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import './SelectableCard.scss';
 
-function SelectableCard({ title, bodyText, iconUrl, selected, onSelected }) {
+function SelectableCard({ title, bodyText, iconUrl, selected, disabled, onSelected }) {
   return (
     <button
-      className={cn('selectable-card', { '-selected': selected })}
+      className={cn('selectable-card', { '-selected': selected, '-disabled': disabled })}
       type="button"
-      onClick={onSelected}
+      onClick={disabled ? undefined : onSelected}
     >
       <div className="left">
         <img src={iconUrl} alt="" />
@@ -21,12 +21,17 @@ function SelectableCard({ title, bodyText, iconUrl, selected, onSelected }) {
   );
 }
 
+SelectableCard.defaultProps = {
+  disabled: false
+};
+
 SelectableCard.propTypes = {
   title: PropTypes.string.isRequired,
   bodyText: PropTypes.string.isRequired,
   iconUrl: PropTypes.string.isRequired,
   selected: PropTypes.bool.isRequired,
-  onSelected: PropTypes.func.isRequired
+  onSelected: PropTypes.func.isRequired,
+  disabled: PropTypes.bool
 };
 
 export default SelectableCard;

@@ -18,6 +18,19 @@
     .right .title {
       color: $brand-color-bright;
     }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &.-disabled {
+    opacity: 0.3;
+    cursor: no-drop;
+
+    &:hover {
+      opacity: 0.3;
+    }
   }
 
   &:hover {

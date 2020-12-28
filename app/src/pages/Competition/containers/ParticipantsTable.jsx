@@ -122,7 +122,11 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
 }
 
 ParticipantsTable.propTypes = {
-  competition: PropTypes.shape().isRequired,
+  competition: PropTypes.shape({
+    metric: PropTypes.string,
+    status: PropTypes.string,
+    participants: PropTypes.arrayOf(PropTypes.string)
+  }).isRequired,
   onUpdateClicked: PropTypes.func.isRequired
 };
 

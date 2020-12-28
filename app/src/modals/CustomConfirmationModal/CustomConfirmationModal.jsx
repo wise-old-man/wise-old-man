@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from 'components';
 import './CustomConfirmationModal.scss';
 
-const WAIT_TIMER = 10;
+const WAIT_TIMER = 5;
 
 function CustomConfirmationModal({ title, message, onConfirm }) {
   const [tick, setTick] = useState(0);

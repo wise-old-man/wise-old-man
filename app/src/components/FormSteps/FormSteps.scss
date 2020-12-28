@@ -9,8 +9,8 @@
   .form-step {
     border: 1px solid $gray-60;
     color: $gray-60;
-    width: 31px;
-    height: 31px;
+    width: 25px;
+    height: 25px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,7 @@
     font-size: 0.9em;
 
     &.-completed {
-      border: 2px solid white;
+      border: 1px solid white;
       color: white;
     }
 

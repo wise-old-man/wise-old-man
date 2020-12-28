@@ -56,5 +56,9 @@
 
   &__list {
     overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }

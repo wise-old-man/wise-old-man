@@ -7,10 +7,10 @@ import { competitionSelectors } from 'redux/competitions';
 import { standardize } from 'utils/player';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
 import TeamComposeModal from 'modals/TeamComposeModal';
-import { CreateCompetitionContext } from '../context';
+import { EditCompetitionContext } from '../context';
 
-function Step3() {
-  const { data, setData } = useContext(CreateCompetitionContext);
+function Step2() {
+  const { data, setData } = useContext(EditCompetitionContext);
   const { type } = data;
 
   function handleSelectClassic() {
@@ -22,7 +22,7 @@ function Step3() {
   }
 
   return (
-    <div className="step3__container">
+    <div className="step2__container">
       <div className="form-row">
         <span className="form-row__label">Competition type</span>
         <div className="cards-container">
@@ -31,6 +31,7 @@ function Step3() {
             bodyText="All participants compete against eachother."
             iconUrl="/img/icons/person.svg"
             selected={type === 'classic'}
+            disabled={type !== 'classic'}
             onSelected={handleSelectClassic}
           />
           <SelectableCard
@@ -38,6 +39,7 @@ function Step3() {
             bodyText="Participants are divided into competing teams."
             iconUrl="/img/icons/group.svg"
             selected={type === 'team'}
+            disabled={type !== 'team'}
             onSelected={handleSelectTeam}
           />
         </div>
@@ -54,7 +56,7 @@ function TeamsSelection() {
   const [composingTeam, setComposingTeam] = useState(null);
   const [showingTeamComposer, setShowingTeamComposer] = useState(false);
 
-  const { data, setData } = useContext(CreateCompetitionContext);
+  const { data, setData } = useContext(EditCompetitionContext);
   const { teams } = data;
 
   const isEmpty = !teams || teams.length === 0;
@@ -130,8 +132,8 @@ function TeamsSelection() {
 }
 
 function ParticipantsSelection() {
-  const { data, setData } = useContext(CreateCompetitionContext);
-  const { group, participants } = data;
+  const { data, setData } = useContext(EditCompetitionContext);
+  const { participants } = data;
 
   const error = useSelector(competitionSelectors.getError);
 
@@ -180,20 +182,14 @@ function ParticipantsSelection() {
       <div className="form-row">
         <span className="form-row__label">
           Participants
-          {!group && <TextButton text="Import list" onClick={() => setShowingImportModal(true)} />}
+          <TextButton text="Import list" onClick={() => setShowingImportModal(true)} />
         </span>
-        {group ? (
-          <span className="no-teams" style={{ marginTop: 20 }}>
-            {`All ${group.name} members will be automatically added as participants.`}
-          </span>
-        ) : (
-          <ParticipantsSelector
-            participants={participants}
-            invalidUsernames={error.data}
-            onParticipantAdded={handleAddParticipant}
-            onParticipantRemoved={handleRemoveParticipant}
-          />
-        )}
+        <ParticipantsSelector
+          participants={participants}
+          invalidUsernames={error.data}
+          onParticipantAdded={handleAddParticipant}
+          onParticipantRemoved={handleRemoveParticipant}
+        />
       </div>
       {showingImportModal && (
         <ImportPlayersModal
@@ -205,4 +201,4 @@ function ParticipantsSelection() {
   );
 }
 
-export default Step3;
+export default Step2;

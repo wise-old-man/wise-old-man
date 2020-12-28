@@ -3,7 +3,8 @@ import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupActions, groupSelectors } from 'redux/groups';
-import { AutoSuggestInput, Table } from 'components';
+import AutoSuggestInput from 'components/AutoSuggestInput';
+import Table from 'components/Table';
 import './GroupSelector.scss';
 
 const TABLE_CONFIG = {
@@ -15,7 +16,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'memberCount',
-      transform: val => `${val} members`,
+      transform: val => (val ? `${val} members` : ''),
       width: 130
     }
   ]

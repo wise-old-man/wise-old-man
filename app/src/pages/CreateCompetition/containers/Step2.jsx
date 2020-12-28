@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { Switch, TextInput } from 'components';
-import { GroupSelector } from '../components';
+import { Switch, TextInput, GroupSelector } from 'components';
 import { CreateCompetitionContext } from '../context';
 
 function Step2() {

@@ -33,11 +33,20 @@ const create = (
   }
 };
 
-const edit = (id, title, metric, startsAt, endsAt, participants, verificationCode) => async dispatch => {
+const edit = (
+  id,
+  title,
+  metric,
+  startsAt,
+  endsAt,
+  participants,
+  teams,
+  verificationCode
+) => async dispatch => {
   dispatch(reducers.onEditRequest());
 
   try {
-    const body = { title, metric, startsAt, endsAt, participants, verificationCode };
+    const body = { title, metric, startsAt, endsAt, participants, teams, verificationCode };
     const url = endpoints.editCompetition.replace(':id', id);
 
     const { data } = await api.put(url, body);
