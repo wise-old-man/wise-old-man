@@ -51,6 +51,7 @@ interface CompetitionListFilter {
   title?: string;
   metric?: string;
   status?: string;
+  type?: string;
 }
 
 interface CreateCompetitionDTO {
@@ -105,7 +106,7 @@ async function resolve(competitionId: number, options?: ResolveOptions): Promise
  * match the query parameters (title, status, metric).
  */
 async function getList(filter: CompetitionListFilter, pagination: Pagination) {
-  const { title, status, metric } = filter;
+  const { title, status, metric, type } = filter;
 
   // The status is optional, however if present, should be valid
   if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
@@ -117,9 +118,15 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
+  // The type is optional, however if present, should be valid
+  if (type && !COMPETITION_TYPES.includes(type.toLowerCase())) {
+    throw new BadRequestError(`Invalid type.`);
+  }
+
   const query = buildQuery({
     title: title && { [Op.iLike]: `%${sanitizeTitle(title)}%` },
-    metric: metric?.toLowerCase()
+    metric: metric?.toLowerCase(),
+    type: type?.toLowerCase()
   });
 
   if (status) {

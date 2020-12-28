@@ -14,11 +14,12 @@ async function index(req: Request, res: Response, next: NextFunction) {
     const title = extractString(req.query, { key: 'title' });
     const status = extractString(req.query, { key: 'status' });
     const metric = extractString(req.query, { key: 'metric' });
+    const type = extractString(req.query, { key: 'type' });
     // Pagination query
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    const filter = { title, status, metric };
+    const filter = { title, status, metric, type };
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     const results = await service.getList(filter, paginationConfig);

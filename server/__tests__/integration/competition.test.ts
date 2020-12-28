@@ -481,6 +481,18 @@ describe('Competition API', () => {
 
       done();
     });
+
+    test('2.5 - Search competitions (with type)', async done => {
+      const query = { type: 'CLASSIC' };
+      const response = await request.get(BASE_URL).query(query);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      response.body.map(c => expect(c.type).toBe('classic'));
+
+      done();
+    });
   });
 
   describe('3. Viewing', () => {
