@@ -46,7 +46,7 @@ export default [
     name: 'Player types',
     description:
       'All the possible values for the "playerType" field of the record model.',
-    values: ['regular', 'ironman', 'ultimate', 'hardcore']
+    values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
   },
   {
     name: 'Player builds',

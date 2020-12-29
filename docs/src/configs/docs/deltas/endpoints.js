@@ -24,6 +24,11 @@ export default [
         field: 'playerType',
         type: 'string',
         description: "The player's type (See accepted values above) - Optional"
+      },
+      {
+        field: 'playerBuild',
+        type: 'string',
+        description: "The player's build (See accepted values above) - Optional"
       }
     ],
     successResponses: [
@@ -128,6 +133,12 @@ export default [
         description: 'If player type is given but it is not valid.',
         body: {
           message: 'Invalid metric: someInvalidPlayerType.'
+        }
+      },
+      {
+        description: 'If player build is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidPlayerBuild.'
         }
       }
     ]
