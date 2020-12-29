@@ -43,6 +43,18 @@ export default [
     values: ['6h', 'day', 'week', 'month', 'year']
   },
   {
+    name: 'Player types',
+    description:
+      'All the possible values for the "playerType" field of the record model.',
+    values: ['regular', 'ironman', 'ultimate', 'hardcore']
+  },
+  {
+    name: 'Player builds',
+    description:
+      'All the possible values for the "playerBuild" field of the record model.',
+    values: ['f2p', 'lvl3', '1def', '10hp', 'main']
+  },
+  {
     name: 'Metrics',
     description: 'All the possible values for the "metric" field of the record model.',
     values: [
@@ -124,7 +136,9 @@ export default [
       'vorkath',
       'wintertodt',
       'zalcano',
-      'zulrah'
+      'zulrah',
+      'ehp',
+      'ehb'
     ]
   }
 ];
