@@ -25,6 +25,13 @@
     border-collapse: separate;
     border-spacing: 0 10px;
 
+    th {
+      background: none;
+      padding-bottom: 0;
+      font-size: 0.7em;
+      font-weight: 400;
+    }
+
     td {
       padding: 10px;
 

@@ -12,12 +12,15 @@ const SORT = {
 
 const DEFAULT_SORTING = { type: SORT.DEFAULT, by: '' };
 
-function getCellValue(row, key, get, transform) {
-  const value = get ? get(row) : row[key];
-  return [transform ? transform(value, row) : value, value];
-}
-
-function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, onRowClicked }) {
+function Table({
+  rows,
+  columns,
+  uniqueKeySelector,
+  highlightedIndex,
+  listStyle,
+  listStyleHeaders,
+  onRowClicked
+}) {
   const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
   const handleHeaderClicked = key => {
@@ -85,7 +88,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
       <colgroup>
         {columns && columns.map(({ key, width }) => <col key={`colgroup-${key}`} width={width} />)}
       </colgroup>
-      {!listStyle && (
+      {(!listStyle || listStyleHeaders) && (
         <thead>
           {/* Column headers */}
           <tr>
@@ -136,10 +139,16 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
   );
 }
 
+function getCellValue(row, key, get, transform) {
+  const value = get ? get(row) : row[key];
+  return [transform ? transform(value, row) : value, value];
+}
+
 Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
   listStyle: false,
+  listStyleHeaders: false,
   highlightedIndex: -1
 };
 
@@ -165,6 +174,8 @@ Table.propTypes = {
 
   // If enabled, the table will be displayed as a list (no headers, seperate rows)
   listStyle: PropTypes.bool,
+
+  listStyleHeaders: PropTypes.bool,
 
   // Event: fired when a row is clicked (if clickable)
   onRowClicked: PropTypes.func
