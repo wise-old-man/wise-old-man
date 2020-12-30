@@ -14,7 +14,7 @@ import { CompetitionContext } from './context';
 import './Competition.scss';
 
 function getTabs(competitionType) {
-  const tabs = ['Progress Table', 'Top 5 progress chart'];
+  const tabs = ['Participants Table', 'Top 5 progress chart'];
 
   if (competitionType === 'team') {
     tabs.unshift('Team standings');
@@ -98,7 +98,7 @@ function Competition() {
           </div>
           <div className="col-md-8">
             <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
-            {section === 'teams' && <TeamsTable />}
+            {section === 'teams' && <TeamsTable competition={competition} />}
             {section === 'chart' && <ParticipantsChart />}
             {section === 'participants' && (
               <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />

@@ -85,7 +85,18 @@ function formatTeams(participants) {
     teamMap[p.teamName].participants.push(p);
   });
 
-  return Object.values(teamMap);
+  const teamsList = Object.values(teamMap).map(t => {
+    // Sort participants by most gained
+    const sortedParticipants = t.participants.sort((a, b) => b.progress.gained - a.progress.gained);
+
+    const totalGained = t.participants.map(p => p.progress.gained).reduce((a, c) => a + c);
+    const avgGained = totalGained / t.participants.length;
+
+    return { ...t, participants: sortedParticipants, totalGained, avgGained };
+  });
+
+  // Sort teams by most total gained
+  return teamsList.sort((a, b) => b.totalGained - a.totalGained).map((t, i) => ({ ...t, rank: i + 1 }));
 }
 
 function formatCompetition(competition) {
