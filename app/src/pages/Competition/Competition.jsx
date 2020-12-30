@@ -68,7 +68,7 @@ function Competition() {
     if (competition && competition.type === 'classic' && section === 'teams') {
       updateContext({ section: 'participants' });
     }
-  }, [section, competition]);
+  }, [section, updateContext, competition]);
 
   if (!competition) {
     return <Loading />;
@@ -98,11 +98,13 @@ function Competition() {
           </div>
           <div className="col-md-8">
             <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
-            {section === 'teams' && <TeamsTable competition={competition} />}
-            {section === 'chart' && <ParticipantsChart />}
+            {section === 'teams' && (
+              <TeamsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+            )}
             {section === 'participants' && (
               <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
             )}
+            {section === 'chart' && <ParticipantsChart />}
           </div>
         </div>
         {showDeleteModal && (

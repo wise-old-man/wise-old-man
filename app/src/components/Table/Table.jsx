@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from 'utils';
@@ -16,7 +16,8 @@ function Table({
   rows,
   columns,
   uniqueKeySelector,
-  highlightedIndex,
+  renderRowDetails,
+  highlightedRowKey,
   listStyle,
   listStyleHeaders,
   onRowClicked
@@ -64,8 +65,11 @@ function Table({
   // When table gets unmounted, reset sorting to defualt
   useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
 
-  const clickable = !!onRowClicked;
-  const tableClass = classNames('table', { '-clickable': clickable, '-list': listStyle });
+  const tableClass = classNames('table', {
+    '-clickable': !!onRowClicked,
+    '-list': listStyle,
+    '-details': !!renderRowDetails
+  });
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
@@ -117,20 +121,27 @@ function Table({
             const onClick = () => onRowClicked && onRowClicked(i);
 
             return (
-              <tr key={rowUniqueKey} onClick={onClick}>
-                {columns.map(({ key, transform, get, className }) => {
-                  const cellUniqueKey = `${rowUniqueKey}/${key}`;
-                  const isHighlighted = i === highlightedIndex;
-                  const [formatted, original] = getCellValue(row, key, get, transform);
-                  const rowClass = baseRowClass(className, original, row);
+              <Fragment key={rowUniqueKey}>
+                <tr onClick={onClick}>
+                  {columns.map(({ key, transform, get, className }) => {
+                    const cellUniqueKey = `${rowUniqueKey}/${key}`;
+                    const isHighlighted = rowUniqueKey === highlightedRowKey;
+                    const [formatted, original] = getCellValue(row, key, get, transform);
+                    const rowClass = baseRowClass(className, original, row);
 
-                  return (
-                    <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
-                      {formatted}
-                    </td>
-                  );
-                })}
-              </tr>
+                    return (
+                      <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
+                        {formatted}
+                      </td>
+                    );
+                  })}
+                </tr>
+                {renderRowDetails && (
+                  <td colSpan="100%" className="details-cell">
+                    {renderRowDetails(row, i)}
+                  </td>
+                )}
+              </Fragment>
             );
           })
         )}
@@ -147,9 +158,10 @@ function getCellValue(row, key, get, transform) {
 Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
+  renderRowDetails: undefined,
   listStyle: false,
   listStyleHeaders: false,
-  highlightedIndex: -1
+  highlightedRowKey: null
 };
 
 Table.propTypes = {
@@ -166,11 +178,13 @@ Table.propTypes = {
   //  - isSortable (true by default) - if false, will not show the sorting arrow (or allow sorting)
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
+  renderRowDetails: PropTypes.func,
+
   // Since not all rows have an "id" field, the unique identifier must be defined
   uniqueKeySelector: PropTypes.func.isRequired,
 
   // The row to be displayed as highlighted (lighter color)
-  highlightedIndex: PropTypes.number,
+  highlightedRowKey: PropTypes.string,
 
   // If enabled, the table will be displayed as a list (no headers, seperate rows)
   listStyle: PropTypes.bool,

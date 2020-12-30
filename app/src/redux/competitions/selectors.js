@@ -86,8 +86,10 @@ function formatTeams(participants) {
   });
 
   const teamsList = Object.values(teamMap).map(t => {
-    // Sort participants by most gained
-    const sortedParticipants = t.participants.sort((a, b) => b.progress.gained - a.progress.gained);
+    // Sort participants by most gained, and add team rank
+    const sortedParticipants = t.participants
+      .sort((a, b) => b.progress.gained - a.progress.gained)
+      .map((p, i) => ({ ...p, teamRank: i + 1 }));
 
     const totalGained = t.participants.map(p => p.progress.gained).reduce((a, c) => a + c);
     const avgGained = totalGained / t.participants.length;
