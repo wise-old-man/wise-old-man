@@ -21,7 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/axios": "^0.14.0",
-    "@types/cheerio": "^0.22.22",
+    "@types/cheerio": "^0.22.23",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.12.1",
     "eslint-config-airbnb": "^18.1.0",
