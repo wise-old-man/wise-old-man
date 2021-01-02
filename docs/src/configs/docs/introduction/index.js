@@ -33,7 +33,7 @@ export default {
     },
     {
       type: 'code',
-      content: 'https://wiseoldman.net/api'
+      content: 'https://api.wiseoldman.net'
     },
     {
       type: 'paragraph',
@@ -53,7 +53,7 @@ export default {
     },
     {
       type: 'code',
-      content: 'https://wiseoldman.net/api/competitions'
+      content: 'https://api.wiseoldman.net/competitions'
     },
     {
       type: 'title',
@@ -63,7 +63,7 @@ export default {
       type: 'paragraph',
       content:
         'Some rate limiting has been applied to the api, currently \
-        you can do up to 200 requests every 5 minutes. (per IP)'
+        you can do up to 500 requests every 5 minutes. (per IP)'
     }
   ]
 };

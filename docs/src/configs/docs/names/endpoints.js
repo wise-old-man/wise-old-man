@@ -73,7 +73,7 @@ export default [
     },
     successResponses: [
       {
-        description: 'Note: Only showing top 3 for demo purposes',
+        description: '',
         body: 
         {
           id: 12,

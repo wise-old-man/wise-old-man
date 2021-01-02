@@ -445,12 +445,12 @@ export default [
   {
     name: 'Player types',
     description:
-      'All the possible values for the "playerType" field of the delta model.',
+      'All the possible values for the "playerType" query parameter.',
     values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
   },
   {
     name: 'Player Builds',
-    description: 'All the possible values for the "build" field of the delta model.',
+    description: 'All the possible values for the "playerBuild" query parameter.',
     values: ['main', '1def', 'lvl3', '10hp', 'f2p']
   },
   {

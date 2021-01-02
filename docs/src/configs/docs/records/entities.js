@@ -45,13 +45,13 @@ export default [
   {
     name: 'Player types',
     description:
-      'All the possible values for the "playerType" field of the record model.',
+      'All the possible values for the "playerType" query parameter.',
     values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
   },
   {
     name: 'Player builds',
     description:
-      'All the possible values for the "playerBuild" field of the record model.',
+      'All the possible values for the "playerBuild" query parameter.',
     values: ['f2p', 'lvl3', '1def', '10hp', 'main']
   },
   {
