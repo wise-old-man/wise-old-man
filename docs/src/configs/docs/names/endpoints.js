@@ -42,7 +42,20 @@ export default [
         ]
       }
     ],
-    errorResponses: []
+    errorResponses: [
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
+        }
+      }
+    ]
   },
   {
     title: 'Submit name change request',
@@ -51,7 +64,7 @@ export default [
     comments: [
       {
         type: 'warning',
-        content: 'These requests still have to be manually approved or denied.'
+        content: 'These requests still have to be approved or denied.'
       }
     ],
     body: {
@@ -60,23 +73,35 @@ export default [
     },
     successResponses: [
       {
-        id: 12,
-        playerId: 13432,
-        status: 0,
-        oldName: 'zezima',
-        newName: 'lynx titan',
-        updatedAt: '2020-08-05T23:58:04.194Z',
-        createdAt: '2020-08-05T23:58:04.194Z',
-        resolvedAt: null
+        description: '',
+        body: 
+        {
+          id: 12,
+          playerId: 13432,
+          status: 0,
+          oldName: 'zezima',
+          newName: 'lynx titan',
+          updatedAt: '2020-08-05T23:58:04.194Z',
+          createdAt: '2020-08-05T23:58:04.194Z',
+          resolvedAt: null
+        }
       }
     ],
     errorResponses: [
       {
-        description: 'If the old name is empty or not a valid RSN.',
+        description: 'If the old name is empty or undefined.',
+        body: { message: "Parameter 'oldName' is undefined." }
+      },
+      {
+        description: 'If the old name is not a valid RSN.',
         body: { message: 'Invalid old name.' }
       },
       {
-        description: 'If the new name is empty or not a valid RSN.',
+        description: 'If the new name is empty or undefined.',
+        body: { message: "Parameter 'newName' is undefined." }
+      },
+      {
+        description: 'If the new name is not a valid RSN.',
         body: { message: 'Invalid new name.' }
       },
       {
@@ -138,7 +163,8 @@ export default [
               importedAt: null,
               overall: {
                 rank: 643297,
-                experience: 27957906
+                experience: 27957906,
+                ehp: 170.56992
               },
               attack: {
                 rank: 663558,
@@ -156,7 +182,8 @@ export default [
             newStats: {
               overall: {
                 rank: 145933,
-                experience: 126187091
+                experience: 126187091,
+                ehp: 14962.45 
               },
               attack: {
                 rank: 177802,
@@ -189,8 +216,8 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If the id param is empty or not a number.',
-        body: { message: 'Invalid name change id.' }
+        description: 'If the id param is not a number.',
+        body: { message: "Parameter 'id' is not a valid number." }
       },
       {
         description: 'If the name change could not be found (by id)',

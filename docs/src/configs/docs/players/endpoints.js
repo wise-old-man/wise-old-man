@@ -18,55 +18,58 @@ export default [
     ],
     successResponses: [
       {
-        description: 'Username param set to "iron".',
+        description: 'Username param set to "iron". (Only showing 3 for demonstration purposes)',
         body: [
           {
+            exp: 0,
             id: 28814,
             username: 'ironic dart',
             displayName: 'Ironic Dart',
             type: 'ironman',
             build: 'main',
             flagged: false,
+            ehp: 0,
+            ehb: 0,
+            ttm: 0,
+            tt200m: 0,
             lastImportedAt: '2020-08-09T09:08:42.573Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
+            lastChangedAt: null,
             registeredAt: '2020-07-31T09:41:00.833Z',
             updatedAt: '2020-08-09T21:16:42.420Z'
           },
           {
+            exp: 0,
             id: 28926,
             username: 'iron dazakio',
             displayName: 'Iron Dazakio',
             type: 'unknown',
             build: 'main',
             flagged: false,
+            ehp: 0,
+            ehb: 0,
+            ttm: 0,
+            tt200m: 0,
             lastImportedAt: null,
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
+            lastChangedAt: null,
             registeredAt: '2020-07-31T22:33:17.388Z',
             updatedAt: '2020-07-31T22:33:17.388Z'
           },
           {
-            id: 29008,
-            username: 'ironman gipi',
-            displayName: 'Ironman Gipi',
-            type: 'ironman',
+            exp: 2330854,
+            id: 55289,
+            username: 'iron lopez',
+            displayName: 'iron lopez',
+            type: 'hardcore',
             build: 'main',
             flagged: false,
-            lastImportedAt: '2020-09-06T03:50:33.069Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-08-01T03:11:47.081Z',
-            updatedAt: '2020-09-06T13:44:34.779Z'
-          },
-          {
-            id: 29062,
-            username: 'iron truno',
-            displayName: 'Iron Truno',
-            type: 'ironman',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: '2020-09-06T19:24:26.611Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-08-01T09:43:11.461Z',
-            updatedAt: '2020-09-06T19:24:26.611Z'
+            ehp: 26.42324,
+            ehb: 0,
+            ttm: 1777.75902,
+            tt200m: 22732.33811,
+            lastImportedAt: null,
+            lastChangedAt: null,
+            registeredAt: '2020-10-22T22:35:02.074Z',
+            updatedAt: '2020-10-22T22:35:30.217Z'
           }
         ]
       }
@@ -99,27 +102,42 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          id: 38833,
+          exp: 291212780,
+          id: 3,
           username: 'psikoi',
           displayName: 'Psikoi',
           type: 'regular',
           build: 'main',
           flagged: false,
-          lastImportedAt: '2020-09-13T23:46:06.779Z',
-          lastChangedAt: '2020-11-26T06:30:14.825Z',
-          registeredAt: '2020-09-13T23:42:53.316Z',
-          updatedAt: '2020-09-13T23:46:06.779Z',
+          ehp: 963.93983,
+          ehb: 292.20288,
+          ttm: 459.05356,
+          tt200m: 13998.51122,
+          lastImportedAt: '2020-12-30T11:48:58.265Z',
+          lastChangedAt: '2020-12-30T11:48:56.787Z',
+          registeredAt: '2020-12-15T12:04:12.669Z',
+          updatedAt: '2020-12-30T11:53:24.316Z',
           combatLevel: 125,
           latestSnapshot: {
-            createdAt: '2020-09-13T23:46:03.370Z',
+            createdAt: '2020-12-30T11:53:24.277Z',
             importedAt: null,
             overall: {
-              rank: 36104,
-              experience: 280543064
+              rank: 37130,
+              experience: 291212780,
+              ehp: 963.93983
             },
             attack: {
-              rank: 14367,
-              experience: 27419373
+              rank: 15800,
+              experience: 27505365,
+              ehp: 84.63189
+            },
+            ehp: {
+              rank: 4,
+              value: 963.93983
+            },
+            ehb: {
+              rank: 3,
+              value: 292.20288
             }
           }
         }
@@ -148,6 +166,18 @@ export default [
         description: 'If the jagex servers failed to respond.',
         body: {
           message: 'Failed to load hiscores: Service is unavailable'
+        }
+      },
+      {
+        description: 'If the given name is not the correct length.',
+        body: {
+          message: "Validation error: Username must be between 1 and 12 characters long.,\nValidation error: Display name must be between 1 and 12 characters long."
+        }
+      },
+      {
+        description: 'If the given name is flagged for an unregistered name change.',
+        body: {
+          message: "Failed to update: Unregistered name change."
         }
       }
     ]
@@ -181,9 +211,9 @@ export default [
         }
       },
       {
-        description: 'If the API fails to fetch initial (regular) hiscores data.',
+        description: 'If the username could not be found in the hiscores.',
         body: {
-          message: "Couldn't find player Psikoi in the hiscores."
+          message: "Failed to load hiscores for Psikoi."
         }
       }
     ]
@@ -300,27 +330,42 @@ export default [
       {
         description: 'Note: parts of the response were ommitted for demo purposes.',
         body: {
-          id: 38833,
+          exp: 291212780,
+          id: 3,
           username: 'psikoi',
           displayName: 'Psikoi',
           type: 'regular',
           build: 'main',
           flagged: false,
-          lastImportedAt: '2020-09-13T23:46:06.779Z',
-          lastChangedAt: '2020-11-26T06:30:14.825Z',
-          registeredAt: '2020-09-13T23:42:53.316Z',
-          updatedAt: '2020-09-13T23:46:06.779Z',
+          ehp: 963.93983,
+          ehb: 292.20288,
+          ttm: 459.05356,
+          tt200m: 13998.51122,
+          lastImportedAt: '2020-12-30T12:22:28.196Z',
+          lastChangedAt: '2020-12-30T11:48:56.787Z',
+          registeredAt: '2020-12-15T12:04:12.669Z',
+          updatedAt: '2020-12-30T12:22:28.196Z',
           combatLevel: 125,
           latestSnapshot: {
-            createdAt: '2020-09-13T23:46:03.370Z',
+            createdAt: '2020-12-30T11:56:27.615Z',
             importedAt: null,
             overall: {
-              rank: 36104,
-              experience: 280543064
+              rank: 37130,
+              experience: 291212780,
+              ehp: 963.93983
             },
             attack: {
-              rank: 14367,
-              experience: 27419373
+              rank: 15800,
+              experience: 27505365,
+              ehp: 84.63189
+            },
+            ehp: {
+              rank: 4,
+              value: 963.93983
+            },
+            ehb: {
+              rank: 3,
+              value: 292.20288
             }
           }
         }
@@ -331,6 +376,12 @@ export default [
         description: 'If an id or username is given but does not exist.',
         body: {
           message: 'Player not found.'
+        }
+      },
+      {
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       }
     ]
@@ -377,7 +428,20 @@ export default [
         ]
       }
     ],
-    errorResponses: []
+    errorResponses: [
+      {
+        description: 'If a username is given but does not exist.',
+        body: {
+          message: 'Player not found.'
+        }
+      },
+      {
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      }
+    ]
   },
   {
     title: 'View player achievements',
@@ -835,15 +899,24 @@ export default [
         description: 'Not showing the whole response for demo purposes.',
         body: [
           {
-            createdAt: '2020-04-04T16:43:36.219Z',
+            createdAt: '2020-12-30T11:56:27.615Z',
             importedAt: null,
             overall: {
-              rank: 30400,
-              experience: 269828205
+              rank: 37130,
+              experience: 291212780,
+              ehp: 963.93983
             },
             attack: {
-              rank: 12158,
-              experience: 27216011
+              rank: 15800,
+              experience: 27505365
+            },
+            ehp: {
+              rank: 3,
+              value: 963.93983
+            },
+            ehb: {
+              rank: 3,
+              value: 292.20288
             }
           }
         ]
@@ -851,9 +924,21 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If period is given but is invalid.',
+        description: 'If period is given but is not valid.',
         body: {
           message: 'Invalid period: someInvalidPeriod'
+        }
+      },
+      {
+        description: 'If a username is given but does not exist.',
+        body: {
+          message: 'Player not found.'
+        }
+      },
+      {
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       }
     ]
@@ -899,126 +984,207 @@ export default [
       {
         description: 'Without any period filtering (Not showing the whole response)',
         body: {
-          month: {
-            period: 'month',
-            startsAt: '2020-03-05T03:19:24.000Z',
-            endsAt: '2020-04-04T16:43:36.219Z',
-            data: {
-              overall: {
-                rank: {
-                  start: 29626,
-                  end: 30400,
-                  gained: 774
+          "6h": {
+            "period": "6h",
+            "startsAt": "2020-12-30T11:48:56.803Z",
+            "endsAt": "2020-12-30T11:56:27.615Z",
+            "data": {
+              "overall": {
+                "rank": {
+                  "start": 37130,
+                  "end": 37130,
+                  "gained": 0
                 },
-                experience: {
-                  start: 268213747,
-                  end: 269828205,
-                  gained: 1614458
+                "experience": {
+                  "start": 291212780,
+                  "end": 291212780,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 963.93983,
+                  "end": 963.93983,
+                  "gained": 0
                 }
               },
-              attack: {
-                rank: {
-                  start: 12097,
-                  end: 12158,
-                  gained: 61
+              "attack": {
+                "rank": {
+                  "start": 15800,
+                  "end": 15800,
+                  "gained": 0
                 },
-                experience: {
-                  start: 26994448,
-                  end: 27216011,
-                  gained: 221563
+                "experience": {
+                  "start": 27505365,
+                  "end": 27505365,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 84.63189,
+                  "end": 84.63189,
+                  "gained": 0
                 }
               }
             }
           },
-          year: {
-            period: 'year',
-            startsAt: '2019-04-04T23:42:16.000Z',
-            endsAt: '2020-04-04T16:43:36.219Z',
-            data: {
-              overall: {
-                rank: {
-                  start: 25166,
-                  end: 30400,
-                  gained: 5234
+          "day": {
+            "period": "day",
+            "startsAt": "2020-12-30T11:48:56.803Z",
+            "endsAt": "2020-12-30T11:56:27.615Z",
+            "data": {
+              "overall": {
+                "rank": {
+                  "start": 37130,
+                  "end": 37130,
+                  "gained": 0
                 },
-                experience: {
-                  start: 236973133,
-                  end: 269828205,
-                  gained: 32855072
+                "experience": {
+                  "start": 291212780,
+                  "end": 291212780,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 963.93983,
+                  "end": 963.93983,
+                  "gained": 0
                 }
               },
-              attack: {
-                rank: {
-                  start: 10989,
-                  end: 12158,
-                  gained: 1169
+              "attack": {
+                "rank": {
+                  "start": 15800,
+                  "end": 15800,
+                  "gained": 0
                 },
-                experience: {
-                  start: 25212878,
-                  end: 27216011,
-                  gained: 2003133
+                "experience": {
+                  "start": 27505365,
+                  "end": 27505365,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 84.63189,
+                  "end": 84.63189,
+                  "gained": 0
                 }
               }
             }
           },
-          day: {
-            period: 'day',
-            startsAt: '2020-04-03T21:43:19.856Z',
-            endsAt: '2020-04-04T16:43:36.219Z',
-            data: {
-              overall: {
-                rank: {
-                  start: 30353,
-                  end: 30400,
-                  gained: 47
+          "week": {
+            "period": "week",
+            "startsAt": "2020-12-30T11:48:56.803Z",
+            "endsAt": "2020-12-30T11:56:27.615Z",
+            "data": {
+              "overall": {
+                "rank": {
+                  "start": 37130,
+                  "end": 37130,
+                  "gained": 0
                 },
-                experience: {
-                  start: 269705120,
-                  end: 269828205,
-                  gained: 123085
+                "experience": {
+                  "start": 291212780,
+                  "end": 291212780,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 963.93983,
+                  "end": 963.93983,
+                  "gained": 0
                 }
               },
-              attack: {
-                rank: {
-                  start: 12144,
-                  end: 12158,
-                  gained: 14
+              "attack": {
+                "rank": {
+                  "start": 15800,
+                  "end": 15800,
+                  "gained": 0
                 },
-                experience: {
-                  start: 27216011,
-                  end: 27216011,
-                  gained: 0
+                "experience": {
+                  "start": 27505365,
+                  "end": 27505365,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 84.63189,
+                  "end": 84.63189,
+                  "gained": 0
                 }
               }
             }
           },
-          week: {
-            period: 'week',
-            startsAt: '2020-04-03T21:43:19.856Z',
-            endsAt: '2020-04-04T16:43:36.219Z',
-            data: {
-              overall: {
-                rank: {
-                  start: 30353,
-                  end: 30400,
-                  gained: 47
+          "month": {
+            "period": "month",
+            "startsAt": "2020-12-15T12:06:13.902Z",
+            "endsAt": "2020-12-30T11:56:27.615Z",
+            "data": {
+              "overall": {
+                "rank": {
+                  "start": 38299,
+                  "end": 37130,
+                  "gained": -1169
                 },
-                experience: {
-                  start: 269705120,
-                  end: 269828205,
-                  gained: 123085
+                "experience": {
+                  "start": 287405870,
+                  "end": 291212780,
+                  "gained": 3806910
+                },
+                "ehp": {
+                  "start": 957.32359,
+                  "end": 963.93983,
+                  "gained": 6.61624
                 }
               },
-              attack: {
-                rank: {
-                  start: 12144,
-                  end: 12158,
-                  gained: 14
+              "attack": {
+                "rank": {
+                  "start": 15583,
+                  "end": 15800,
+                  "gained": 217
                 },
-                experience: {
-                  start: 27216011,
-                  end: 27216011,
-                  gained: 0
+                "experience": {
+                  "start": 27505365,
+                  "end": 27505365,
+                  "gained": 0
+                },
+                "ehp": {
+                  "start": 84.63189,
+                  "end": 84.63189,
+                  "gained": 0
+                }
+              }
+            }
+          },
+          "year": {
+            "period": "year",
+            "startsAt": "2019-12-31T16:13:56.000Z",
+            "endsAt": "2020-12-30T11:56:27.615Z",
+            "data": {
+              "overall": {
+                "rank": {
+                  "start": 27517,
+                  "end": 37130,
+                  "gained": 9613
+                },
+                "experience": {
+                  "start": 263192784,
+                  "end": 291212780,
+                  "gained": 28019996
+                },
+                "ehp": {
+                  "start": 888.52999,
+                  "end": 963.93983,
+                  "gained": 75.40984
+                }
+              },
+              "attack": {
+                "rank": {
+                  "start": 11813,
+                  "end": 15800,
+                  "gained": 3987
+                },
+                "experience": {
+                  "start": 26654876,
+                  "end": 27505365,
+                  "gained": 850489
+                },
+                "ehp": {
+                  "start": 82.015,
+                  "end": 84.63189,
+                  "gained": 2.61689
                 }
               }
             }
@@ -1026,46 +1192,44 @@ export default [
         }
       },
       {
-        description: 'Filtered by the period field (month)',
+        description: 'Filtered by the period field (month) (Not showing the whole response)',
         body: {
-          period: 'month',
-          startsAt: '2020-03-05T03:19:24.000Z',
-          endsAt: '2020-04-04T16:43:36.219Z',
-          data: {
-            overall: {
-              rank: {
-                start: 29626,
-                end: 30400,
-                gained: 774
+          "period": "month",
+          "startsAt": "2020-12-15T12:06:13.902Z",
+          "endsAt": "2020-12-30T11:56:27.615Z",
+          "data": {
+            "overall": {
+              "rank": {
+                "start": 38299,
+                "end": 37130,
+                "gained": -1169
               },
-              experience: {
-                start: 268213747,
-                end: 269828205,
-                gained: 1614458
+              "experience": {
+                "start": 287405870,
+                "end": 291212780,
+                "gained": 3806910
+              },
+              "ehp": {
+                "start": 957.32359,
+                "end": 963.93983,
+                "gained": 6.61624
               }
             },
-            attack: {
-              rank: {
-                start: 12097,
-                end: 12158,
-                gained: 61
+            "attack": {
+              "rank": {
+                "start": 15583,
+                "end": 15800,
+                "gained": 217
               },
-              experience: {
-                start: 26994448,
-                end: 27216011,
-                gained: 221563
-              }
-            },
-            defence: {
-              rank: {
-                start: 16398,
-                end: 16794,
-                gained: 396
+              "experience": {
+                "start": 27505365,
+                "end": 27505365,
+                "gained": 0
               },
-              experience: {
-                start: 20370965,
-                end: 20398429,
-                gained: 27464
+              "ehp": {
+                "start": 84.63189,
+                "end": 84.63189,
+                "gained": 0
               }
             }
           }
@@ -1083,6 +1247,18 @@ export default [
         description: 'If period is given but it is not valid.',
         body: {
           message: 'Invalid period: someInvalidPeriod.'
+        }
+      },
+      {
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
+        description: 'If a username is given but does not exist.',
+        body: {
+          message: 'Player not found.'
         }
       }
     ]
@@ -1126,57 +1302,57 @@ export default [
         description: 'Without any period or metric filtering (Not showing the whole response)',
         body: [
           {
-            period: 'day',
-            metric: 'firemaking',
-            value: 16450,
-            updatedAt: '2020-04-04T16:21:50.974Z'
+            "value": 718830,
+            "id": 128,
+            "playerId": 3,
+            "period": "month",
+            "metric": "cooking",
+            "updatedAt": "2020-12-30T11:48:57.889Z"
           },
           {
-            period: 'month',
-            metric: 'magic',
-            value: 57662,
-            updatedAt: '2020-04-03T23:58:29.522Z'
+            "value": 862247,
+            "id": 81,
+            "playerId": 3,
+            "period": "year",
+            "metric": "attack",
+            "updatedAt": "2020-12-15T12:06:15.751Z"
           },
           {
-            period: 'day',
-            metric: 'fletching',
-            value: 4795,
-            updatedAt: '2020-04-04T16:21:50.974Z'
+            "value": 336416,
+            "id": 82,
+            "playerId": 3,
+            "period": "year",
+            "metric": "defence",
+            "updatedAt": "2020-12-15T12:06:15.751Z"
           },
           {
-            period: 'day',
-            metric: 'overall',
-            value: 123085,
-            updatedAt: '2020-04-04T16:21:50.907Z'
+            "value": 1174525,
+            "id": 83,
+            "playerId": 3,
+            "period": "year",
+            "metric": "strength",
+            "updatedAt": "2020-12-15T12:06:15.751Z"
           }
         ]
       },
       {
-        description: 'Filtered by the metric field (Woodcutting)',
+        description: 'Filtered by the metric field (Woodcutting) (Not showing the whole response)',
         body: [
           {
-            period: 'week',
-            metric: 'woodcutting',
-            value: 101659,
-            updatedAt: '2020-04-04T16:21:51.060Z'
+            "value": 6784830,
+            "id": 89,
+            "playerId": 3,
+            "period": "year",
+            "metric": "woodcutting",
+            "updatedAt": "2020-12-30T11:48:57.938Z"
           },
           {
-            period: 'year',
-            metric: 'woodcutting',
-            value: 3225180,
-            updatedAt: '2020-04-04T16:21:51.291Z'
-          },
-          {
-            period: 'month',
-            metric: 'woodcutting',
-            value: 290949,
-            updatedAt: '2020-04-04T16:21:51.185Z'
-          },
-          {
-            period: 'day',
-            metric: 'woodcutting',
-            value: 101659,
-            updatedAt: '2020-04-04T16:21:50.919Z'
+            "value": 141691,
+            "id": 156,
+            "playerId": 3,
+            "period": "month",
+            "metric": "woodcutting",
+            "updatedAt": "2020-12-30T11:48:57.975Z"
           }
         ]
       }
@@ -1192,6 +1368,18 @@ export default [
         description: 'If metric is given but it is not valid.',
         body: {
           message: 'Invalid metric: someInvalidMetric.'
+        }
+      },
+      {
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
+        description: 'If a username is given but does not exist.',
+        body: {
+          message: 'Player not found.'
         }
       }
     ]
@@ -1257,7 +1445,13 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If the given id/username is not valid.',
+        description: 'If an id is given but is not valid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
+        description: 'If a username is given but does not exist.',
         body: {
           message: 'Player not found.'
         }

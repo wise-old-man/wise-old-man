@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONPretty from 'react-json-pretty';
 
-const MAIN_STYLE = 'background:#1e1e1e; font-family: monospace';
+const MAIN_STYLE = 'background:#1e1e1e; font-family: monospace; white-space: pre-wrap;';
 const KEY_STYLE = 'color:#97e05e';
 const STRING_STYLE = 'color:#f7e160';
 const VALUE_STYLE = 'color:#cc98f5';

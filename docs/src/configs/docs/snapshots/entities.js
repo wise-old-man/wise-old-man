@@ -4,794 +4,444 @@ export default [
     description: "Represents player's stats at a specific date.",
     structure: [
       {
-        field: 'overallRank',
-        type: 'integer',
-        description: 'Overall rank.'
+        field: 'overall',
+        type: 'object',
+        description: 'Overall rank, experience and ehp.'
       },
       {
-        field: 'overallExperience',
-        type: 'integer',
-        description: 'Overall experience.'
+        field: 'attack',
+        type: 'object',
+        description: 'Attack rank and experience.'
       },
       {
-        field: 'attackRank',
-        type: 'integer',
-        description: 'Attack rank.'
+        field: 'attack',
+        type: 'object',
+        description: 'Attack rank and experience.'
       },
       {
-        field: 'attackExperience',
-        type: 'integer',
-        description: 'Attack experience.'
+        field: 'defence',
+        type: 'object',
+        description: 'Defence rank and experience.'
       },
       {
-        field: 'defenceRank',
-        type: 'integer',
-        description: 'Defence rank.'
+        field: 'strength',
+        type: 'object',
+        description: 'Strength rank and experience.'
       },
       {
-        field: 'defenceExperience',
-        type: 'integer',
-        description: 'Defence experience.'
+        field: 'hitpoints',
+        type: 'object',
+        description: 'Hitpoints rank and experience.'
       },
       {
-        field: 'strengthRank',
-        type: 'integer',
-        description: 'Strength rank.'
+        field: 'ranged',
+        type: 'object',
+        description: 'Ranged rank and experience.'
       },
       {
-        field: 'strengthExperience',
-        type: 'integer',
-        description: 'Strength experience.'
+        field: 'prayer',
+        type: 'object',
+        description: 'Prayer rank and experience.'
       },
       {
-        field: 'hitpointsRank',
-        type: 'integer',
-        description: 'Hitpoints rank.'
+        field: 'magic',
+        type: 'object',
+        description: 'Magic rank and experience.'
       },
       {
-        field: 'hitpointsExperience',
-        type: 'integer',
-        description: 'Hitpoints experience.'
+        field: 'cooking',
+        type: 'object',
+        description: 'Cooking rank and experience.'
       },
       {
-        field: 'rangedRank',
-        type: 'integer',
-        description: 'Ranged rank.'
+        field: 'woodcutting',
+        type: 'object',
+        description: 'Woodcutting rank and experience.'
       },
       {
-        field: 'rangedExperience',
-        type: 'integer',
-        description: 'Ranged experience.'
+        field: 'fletching',
+        type: 'object',
+        description: 'Fletching rank and experience.'
       },
       {
-        field: 'prayerRank',
-        type: 'integer',
-        description: 'Prayer rank.'
+        field: 'fishing',
+        type: 'object',
+        description: 'Fishing rank and experience.'
       },
       {
-        field: 'prayerExperience',
-        type: 'integer',
-        description: 'Prayer experience.'
+        field: 'firemaking',
+        type: 'object',
+        description: 'Firemaking rank and experience.'
       },
       {
-        field: 'magicRank',
-        type: 'integer',
-        description: 'Magic rank.'
+        field: 'crafting',
+        type: 'object',
+        description: 'Crafting rank and experience.'
       },
       {
-        field: 'magicExperience',
-        type: 'integer',
-        description: 'Magic experience.'
+        field: 'smithing',
+        type: 'object',
+        description: 'Smithing rank and experience.'
       },
       {
-        field: 'cookingRank',
-        type: 'integer',
-        description: 'Cooking rank.'
+        field: 'mining',
+        type: 'object',
+        description: 'Mining rank and rank and rank and experience.'
       },
       {
-        field: 'cookingExperience',
-        type: 'integer',
-        description: 'Cooking experience.'
+        field: 'herblore',
+        type: 'object',
+        description: 'Herblore rank and experience.'
       },
       {
-        field: 'woodcuttingRank',
-        type: 'integer',
-        description: 'Woodcutting rank.'
+        field: 'agility',
+        type: 'object',
+        description: 'Agility rank and experience.'
       },
       {
-        field: 'woodcuttingExperience',
-        type: 'integer',
-        description: 'Woodcutting experience.'
+        field: 'thieving',
+        type: 'object',
+        description: 'Thieving rank and experience.'
       },
       {
-        field: 'fletchingRank',
-        type: 'integer',
-        description: 'Fletching rank.'
+        field: 'slayer',
+        type: 'object',
+        description: 'Slayer rank and experience.'
       },
       {
-        field: 'fletchingExperience',
-        type: 'integer',
-        description: 'Fletching experience.'
+        field: 'farming',
+        type: 'object',
+        description: 'Farming rank and experience.'
       },
       {
-        field: 'fishingRank',
-        type: 'integer',
-        description: 'Fishing rank.'
+        field: 'runecrafting',
+        type: 'object',
+        description: 'Runecrafting rank and experience.'
       },
       {
-        field: 'fishingExperience',
-        type: 'integer',
-        description: 'Fishing experience.'
+        field: 'hunter',
+        type: 'object',
+        description: 'Hunter rank and experience.'
       },
       {
-        field: 'firemakingRank',
-        type: 'integer',
-        description: 'Firemaking rank.'
+        field: 'construction',
+        type: 'object',
+        description: 'Construction rank and experience.'
       },
       {
-        field: 'firemakingExperience',
-        type: 'integer',
-        description: 'Firemaking experience.'
+        field: 'league_points',
+        type: 'object',
+        description: 'League Points rank and score.'
       },
       {
-        field: 'craftingRank',
-        type: 'integer',
-        description: 'Crafting rank.'
+        field: 'bounty_hunter_hunter',
+        type: 'object',
+        description: 'Bounty Hunter (Hunter) rank and score.'
       },
       {
-        field: 'craftingExperience',
-        type: 'integer',
-        description: 'Crafting experience.'
+        field: 'bounty_hunter_rogue',
+        type: 'object',
+        description: 'Bounty Hunter (Rogue) rank and score.'
       },
       {
-        field: 'smithingRank',
-        type: 'integer',
-        description: 'Smithing rank.'
+        field: 'clue_scrolls_all',
+        type: 'object',
+        description: 'Clue Scrolls (All) rank and score.'
       },
       {
-        field: 'smithingExperience',
-        type: 'integer',
-        description: 'Smithing experience.'
+        field: 'clue_scrolls_beginner',
+        type: 'object',
+        description: 'Clue Scrolls (Beginner) rank and score.'
       },
       {
-        field: 'miningRank',
-        type: 'integer',
-        description: 'Mining rank.'
+        field: 'clue_scrolls_easy',
+        type: 'object',
+        description: 'Clue Scroll (Easy) rank and score.'
       },
       {
-        field: 'miningExperience',
-        type: 'integer',
-        description: 'Mining experience.'
+        field: 'clue_scrolls_medium',
+        type: 'object',
+        description: 'Clue Scroll (Medium) rank and score.'
       },
       {
-        field: 'herbloreRank',
-        type: 'integer',
-        description: 'Herblore rank.'
+        field: 'clue_scrolls_hard',
+        type: 'object',
+        description: 'Clue Scroll (Hard) rank and score.'
       },
       {
-        field: 'herbloreExperience',
-        type: 'integer',
-        description: 'Herblore experience.'
+        field: 'clue_scrolls_elite',
+        type: 'object',
+        description: 'Clue Scroll (Elite) rank and score.'
       },
       {
-        field: 'agilityRank',
-        type: 'integer',
-        description: 'Agility rank.'
+        field: 'clue_scrolls_master',
+        type: 'object',
+        description: 'Clue Scroll (Master) rank and score.'
       },
       {
-        field: 'agilityExperience',
-        type: 'integer',
-        description: 'Agility experience.'
+        field: 'last_man_standing',
+        type: 'object',
+        description: 'Last Man Standing rank and score.'
       },
       {
-        field: 'thievingRank',
-        type: 'integer',
-        description: 'Thieving rank.'
+        field: 'abyssal_sire',
+        type: 'object',
+        description: 'Abyssal Sire rank and kills.'
       },
       {
-        field: 'thievingExperience',
-        type: 'integer',
-        description: 'Thieving experience.'
+        field: 'alchemical_hydra',
+        type: 'object',
+        description: 'Alchemical Hydra rank and kills.'
       },
       {
-        field: 'slayerRank',
-        type: 'integer',
-        description: 'Slayer rank.'
+        field: 'barrows_chests',
+        type: 'object',
+        description: 'Barrows Chests rank and kills.'
       },
       {
-        field: 'slayerExperience',
-        type: 'integer',
-        description: 'Slayer experience.'
+        field: 'bryophyta',
+        type: 'object',
+        description: 'Bryophyta rank and kills.'
       },
       {
-        field: 'farmingRank',
-        type: 'integer',
-        description: 'Farming rank.'
+        field: 'callisto',
+        type: 'object',
+        description: 'Callisto rank and kills.'
       },
       {
-        field: 'farmingExperience',
-        type: 'integer',
-        description: 'Farming experience.'
+        field: 'cerberus',
+        type: 'object',
+        description: 'Cerberus rank and kills.'
       },
       {
-        field: 'runecraftingRank',
-        type: 'integer',
-        description: 'Runecrafting rank.'
+        field: 'chambers_of_xeric',
+        type: 'object',
+        description: 'Chambers Of Xeric rank and kills.'
       },
       {
-        field: 'runecraftingExperience',
-        type: 'integer',
-        description: 'Runecrafting experience.'
+        field: 'chambers_of_xeric_challenge_mode',
+        type: 'object',
+        description: 'Chambers Of Xeric (Challenge Mode) rank and kills.'
       },
       {
-        field: 'hunterRank',
-        type: 'integer',
-        description: 'Hunter rank.'
+        field: 'chaos_elemental',
+        type: 'object',
+        description: 'Chaos Elemental rank and kills.'
       },
       {
-        field: 'hunterExperience',
-        type: 'integer',
-        description: 'Hunter experience.'
+        field: 'chaos_fanatic',
+        type: 'object',
+        description: 'Chaos Fanatic rank and kills.'
       },
       {
-        field: 'constructionRank',
-        type: 'integer',
-        description: 'Construction rank.'
+        field: 'commander_zilyana',
+        type: 'object',
+        description: 'Commander Zilyana rank and kills.'
       },
       {
-        field: 'constructionExperience',
-        type: 'integer',
-        description: 'Construction experience.'
+        field: 'corporeal_beast',
+        type: 'object',
+        description: 'Corporeal Beast rank and kills.'
       },
       {
-        field: 'league_pointsRank',
-        type: 'integer',
-        description: 'League Points rank.'
+        field: 'crazy_archaeologist',
+        type: 'object',
+        description: 'Crazy Archaeologist rank and kills.'
       },
       {
-        field: 'league_pointsScore',
-        type: 'integer',
-        description: 'League Points score.'
+        field: 'dagannoth_prime',
+        type: 'object',
+        description: 'Dagannoth Prime rank and kills.'
       },
       {
-        field: 'bounty_hunter_hunterRank',
-        type: 'integer',
-        description: 'Bounty Hunter (Hunter) rank.'
+        field: 'dagannoth_rex',
+        type: 'object',
+        description: 'Dagannoth Rex rank and kills.'
       },
       {
-        field: 'bounty_hunter_hunterScore',
-        type: 'integer',
-        description: 'Bounty Hunter (Hunter) score.'
+        field: 'dagannoth_supreme',
+        type: 'object',
+        description: 'Dagannoth Supreme rank and kills.'
       },
       {
-        field: 'bounty_hunter_rogueRank',
-        type: 'integer',
-        description: 'Bounty Hunter (Rogue) rank.'
+        field: 'deranged_archaeologist',
+        type: 'object',
+        description: 'Deranged Archaeologist rank and kills.'
       },
       {
-        field: 'bounty_hunter_rogueScore',
-        type: 'integer',
-        description: 'Bounty Hunter (Rogue) score.'
+        field: 'general_graardor',
+        type: 'object',
+        description: 'General Graardor rank and kills.'
       },
       {
-        field: 'clue_scrolls_allRank',
-        type: 'integer',
-        description: 'Clue Scrolls (All) rank.'
+        field: 'giant_mole',
+        type: 'object',
+        description: 'Giant Mole rank and kills.'
       },
       {
-        field: 'clue_scrolls_allScore',
-        type: 'integer',
-        description: 'Clue Scrolls (All) score.'
+        field: 'grotesque_guardians',
+        type: 'object',
+        description: 'Grotesque Guardians rank and kills.'
       },
       {
-        field: 'clue_scrolls_beginnerRank',
-        type: 'integer',
-        description: 'Clue Scrolls (Beginner) rank.'
+        field: 'hespori',
+        type: 'object',
+        description: 'Hespori rank and kills.'
       },
       {
-        field: 'clue_scrolls_beginnerScore',
-        type: 'integer',
-        description: 'Clue Scrolls (Beginner) score.'
+        field: 'kalphite_queen',
+        type: 'object',
+        description: 'Kalphite Queen rank and kills.'
       },
       {
-        field: 'clue_scrolls_easyRank',
-        type: 'integer',
-        description: 'Clue Scroll (Easy) rank.'
+        field: 'king_black_dragon',
+        type: 'object',
+        description: 'King Black Dragon rank and kills.'
       },
       {
-        field: 'clue_scrolls_easyScore',
-        type: 'integer',
-        description: 'Clue Scroll (Easy) score.'
+        field: 'kraken',
+        type: 'object',
+        description: 'Kraken rank and kills.'
       },
       {
-        field: 'clue_scrolls_mediumRank',
-        type: 'integer',
-        description: 'Clue Scroll (Medium) rank.'
+        field: 'kreearra',
+        type: 'object',
+        description: "Kree'Arra rank and kills."
       },
       {
-        field: 'clue_scrolls_mediumScore',
-        type: 'integer',
-        description: 'Clue Scroll (Medium) score.'
+        field: 'kril_tsutsaroth',
+        type: 'object',
+        description: "K'ril Tsutsaroth rank and kills."
       },
       {
-        field: 'clue_scrolls_hardRank',
-        type: 'integer',
-        description: 'Clue Scroll (Hard) rank.'
+        field: 'mimic',
+        type: 'object',
+        description: 'Mimic rank and kills.'
       },
       {
-        field: 'clue_scrolls_hardScore',
-        type: 'integer',
-        description: 'Clue Scroll (Hard) score.'
+        field: 'nightmare',
+        type: 'object',
+        description: 'Nightmare rank and kills.'
       },
       {
-        field: 'clue_scrolls_eliteRank',
-        type: 'integer',
-        description: 'Clue Scroll (Elite) rank.'
+        field: 'obor',
+        type: 'object',
+        description: 'Obor rank and kills.'
       },
       {
-        field: 'clue_scrolls_eliteScore',
-        type: 'integer',
-        description: 'Clue Scroll (Elite) score.'
+        field: 'sarachnis',
+        type: 'object',
+        description: 'Sarachnis rank and kills.'
       },
       {
-        field: 'clue_scrolls_masterRank',
-        type: 'integer',
-        description: 'Clue Scroll (Master) rank.'
+        field: 'scorpia',
+        type: 'object',
+        description: 'Scorpia rank and kills.'
       },
       {
-        field: 'clue_scrolls_masterScore',
-        type: 'integer',
-        description: 'Clue Scroll (Master) score.'
+        field: 'skotizo',
+        type: 'object',
+        description: 'Skotizo rank and kills.'
       },
       {
-        field: 'last_man_standingRank',
-        type: 'integer',
-        description: 'Last Man Standing rank.'
+        field: 'the_gauntlet',
+        type: 'object',
+        description: 'The Gauntlet rank and kills.'
       },
       {
-        field: 'last_man_standingScore',
-        type: 'integer',
-        description: 'Last Man Standing score.'
+        field: 'the_corrupted_gauntlet',
+        type: 'object',
+        description: 'The Corrupted Gauntlet rank and kills.'
       },
       {
-        field: 'abyssal_sireRank',
-        type: 'integer',
-        description: 'Abyssal Sire rank.'
+        field: 'theatre_of_blood',
+        type: 'object',
+        description: 'Theatre Of Blood rank and kills.'
       },
       {
-        field: 'abyssal_sireKills',
-        type: 'integer',
-        description: 'Abyssal Sire kills.'
+        field: 'thermonuclear_smoke_devil',
+        type: 'object',
+        description: 'Thermonuclear Smoke Devil rank and kills.'
       },
       {
-        field: 'alchemical_hydraRank',
-        type: 'integer',
-        description: 'Alchemical Hydra rank.'
+        field: 'tzkal_zuk',
+        type: 'object',
+        description: 'TzKal-Zuk rank and kills.'
       },
       {
-        field: 'alchemical_hydraKills',
-        type: 'integer',
-        description: 'Alchemical Hydra kills.'
+        field: 'tztok_jad',
+        type: 'object',
+        description: 'TzTok-Jad rank and kills.'
       },
       {
-        field: 'barrows_chestsRank',
-        type: 'integer',
-        description: 'Barrows Chests rank.'
+        field: 'venenatis',
+        type: 'object',
+        description: 'Venenatis rank and kills.'
       },
       {
-        field: 'barrows_chestsKills',
-        type: 'integer',
-        description: 'Barrows Chests kills.'
+        field: 'vetion',
+        type: 'object',
+        description: "Vet'ion rank and kills."
       },
       {
-        field: 'bryophytaRank',
-        type: 'integer',
-        description: 'Bryophyta rank.'
+        field: 'vorkath',
+        type: 'object',
+        description: 'Vorkath rank and kills.'
       },
       {
-        field: 'bryophytaKills',
-        type: 'integer',
-        description: 'Bryophyta kills.'
+        field: 'wintertodt',
+        type: 'object',
+        description: 'Wintertodt rank and kills.'
       },
       {
-        field: 'callistoRank',
-        type: 'integer',
-        description: 'Callisto rank.'
+        field: 'zalcano',
+        type: 'object',
+        description: 'Zalcano rank and kills.'
       },
       {
-        field: 'callistoKills',
-        type: 'integer',
-        description: 'Callisto kills.'
+        field: 'zulrah',
+        type: 'object',
+        description: 'Zulrah rank and kills.'
       },
       {
-        field: 'cerberusRank',
-        type: 'integer',
-        description: 'Cerberus rank.'
+        field: 'ehp',
+        type: 'object',
+        description: 'EHP rank and value.'
       },
       {
-        field: 'cerberusKills',
-        type: 'integer',
-        description: 'Cerberus kills.'
-      },
-      {
-        field: 'chambers_of_xericRank',
-        type: 'integer',
-        description: 'Chambers Of Xeric rank.'
-      },
-      {
-        field: 'chambers_of_xericKills',
-        type: 'integer',
-        description: 'Chambers Of Xeric kills.'
-      },
-      {
-        field: 'chambers_of_xeric_challenge_modeRank',
-        type: 'integer',
-        description: 'Chambers Of Xeric (Challenge Mode) rank.'
-      },
-      {
-        field: 'chambers_of_xeric_challenge_modeKills',
-        type: 'integer',
-        description: 'Chambers Of Xeric (Challenge Mode) kills.'
-      },
-      {
-        field: 'chaos_elementalRank',
-        type: 'integer',
-        description: 'Chaos Elemental rank.'
-      },
-      {
-        field: 'chaos_elementalKills',
-        type: 'integer',
-        description: 'Chaos Elemental kills.'
-      },
-      {
-        field: 'chaos_fanaticRank',
-        type: 'integer',
-        description: 'Chaos Fanatic rank.'
-      },
-      {
-        field: 'chaos_fanaticKills',
-        type: 'integer',
-        description: 'Chaos Fanatic kills.'
-      },
-      {
-        field: 'commander_zilyanaRank',
-        type: 'integer',
-        description: 'Commander Zilyana rank.'
-      },
-      {
-        field: 'commander_zilyanaKills',
-        type: 'integer',
-        description: 'Commander Zilyana kills.'
-      },
-      {
-        field: 'corporeal_beastRank',
-        type: 'integer',
-        description: 'Corporeal Beast rank.'
-      },
-      {
-        field: 'corporeal_beastKills',
-        type: 'integer',
-        description: 'Corporeal Beast kills.'
-      },
-      {
-        field: 'crazy_archaeologistRank',
-        type: 'integer',
-        description: 'Crazy Archaeologist rank.'
-      },
-      {
-        field: 'crazy_archaeologistKills',
-        type: 'integer',
-        description: 'Crazy Archaeologist kills.'
-      },
-      {
-        field: 'dagannoth_primeRank',
-        type: 'integer',
-        description: 'Dagannoth Prime rank.'
-      },
-      {
-        field: 'dagannoth_primeKills',
-        type: 'integer',
-        description: 'Dagannoth Prime kills.'
-      },
-      {
-        field: 'dagannoth_rexRank',
-        type: 'integer',
-        description: 'Dagannoth Rex rank.'
-      },
-      {
-        field: 'dagannoth_rexKills',
-        type: 'integer',
-        description: 'Dagannoth Rex kills.'
-      },
-      {
-        field: 'dagannoth_supremeRank',
-        type: 'integer',
-        description: 'Dagannoth Supreme rank.'
-      },
-      {
-        field: 'dagannoth_supremeKills',
-        type: 'integer',
-        description: 'Dagannoth Supreme kills.'
-      },
-      {
-        field: 'deranged_archaeologistRank',
-        type: 'integer',
-        description: 'Deranged Archaeologist rank.'
-      },
-      {
-        field: 'deranged_archaeologistKills',
-        type: 'integer',
-        description: 'Deranged Archaeologist kills.'
-      },
-      {
-        field: 'general_graardorRank',
-        type: 'integer',
-        description: 'General Graardor rank.'
-      },
-      {
-        field: 'general_graardorKills',
-        type: 'integer',
-        description: 'General Graardor kills.'
-      },
-      {
-        field: 'giant_moleRank',
-        type: 'integer',
-        description: 'Giant Mole rank.'
-      },
-      {
-        field: 'giant_moleKills',
-        type: 'integer',
-        description: 'Giant Mole kills.'
-      },
-      {
-        field: 'grotesque_guardiansRank',
-        type: 'integer',
-        description: 'Grotesque Guardians rank.'
-      },
-      {
-        field: 'grotesque_guardiansKills',
-        type: 'integer',
-        description: 'Grotesque Guardians kills.'
-      },
-      {
-        field: 'hesporiRank',
-        type: 'integer',
-        description: 'Hespori rank.'
-      },
-      {
-        field: 'hesporiKills',
-        type: 'integer',
-        description: 'Hespori kills.'
-      },
-      {
-        field: 'kalphite_queenRank',
-        type: 'integer',
-        description: 'Kalphite Queen rank.'
-      },
-      {
-        field: 'kalphite_queenKills',
-        type: 'integer',
-        description: 'Kalphite Queen kills.'
-      },
-      {
-        field: 'king_black_dragonRank',
-        type: 'integer',
-        description: 'King Black Dragon rank.'
-      },
-      {
-        field: 'king_black_dragonKills',
-        type: 'integer',
-        description: 'King Black Dragon kills.'
-      },
-      {
-        field: 'krakenRank',
-        type: 'integer',
-        description: 'Kraken rank.'
-      },
-      {
-        field: 'krakenKills',
-        type: 'integer',
-        description: 'Kraken kills.'
-      },
-      {
-        field: 'kreearraRank',
-        type: 'integer',
-        description: "Kree'Arra rank."
-      },
-      {
-        field: 'kreearraKills',
-        type: 'integer',
-        description: "Kree'Arra kills."
-      },
-      {
-        field: 'kril_tsutsarothRank',
-        type: 'integer',
-        description: "K'ril Tsutsaroth rank."
-      },
-      {
-        field: 'kril_tsutsarothKills',
-        type: 'integer',
-        description: "K'ril Tsutsaroth kills."
-      },
-      {
-        field: 'mimicRank',
-        type: 'integer',
-        description: 'Mimic rank.'
-      },
-      {
-        field: 'mimicKills',
-        type: 'integer',
-        description: 'Mimic kills.'
-      },
-      {
-        field: 'nightmareRank',
-        type: 'integer',
-        description: 'Nightmare rank.'
-      },
-      {
-        field: 'nightmareKills',
-        type: 'integer',
-        description: 'Nightmare kills.'
-      },
-      {
-        field: 'oborRank',
-        type: 'integer',
-        description: 'Obor rank.'
-      },
-      {
-        field: 'oborKills',
-        type: 'integer',
-        description: 'Obor kills.'
-      },
-      {
-        field: 'sarachnisRank',
-        type: 'integer',
-        description: 'Sarachnis rank.'
-      },
-      {
-        field: 'sarachnisKills',
-        type: 'integer',
-        description: 'Sarachnis kills.'
-      },
-      {
-        field: 'scorpiaRank',
-        type: 'integer',
-        description: 'Scorpia rank.'
-      },
-      {
-        field: 'scorpiaKills',
-        type: 'integer',
-        description: 'Scorpia kills.'
-      },
-      {
-        field: 'skotizoRank',
-        type: 'integer',
-        description: 'Skotizo rank.'
-      },
-      {
-        field: 'skotizoKills',
-        type: 'integer',
-        description: 'Skotizo kills.'
-      },
-      {
-        field: 'the_gauntletRank',
-        type: 'integer',
-        description: 'The Gauntlet rank.'
-      },
-      {
-        field: 'the_gauntletKills',
-        type: 'integer',
-        description: 'The Gauntlet kills.'
-      },
-      {
-        field: 'the_corrupted_gauntletRank',
-        type: 'integer',
-        description: 'The Corrupted Gauntlet rank.'
-      },
-      {
-        field: 'the_corrupted_gauntletKills',
-        type: 'integer',
-        description: 'The Corrupted Gauntlet kills.'
-      },
-      {
-        field: 'theatre_of_bloodRank',
-        type: 'integer',
-        description: 'Theatre Of Blood rank.'
-      },
-      {
-        field: 'theatre_of_bloodKills',
-        type: 'integer',
-        description: 'Theatre Of Blood kills.'
-      },
-      {
-        field: 'thermonuclear_smoke_devilRank',
-        type: 'integer',
-        description: 'Thermonuclear Smoke Devil rank.'
-      },
-      {
-        field: 'thermonuclear_smoke_devilKills',
-        type: 'integer',
-        description: 'Thermonuclear Smoke Devil kills.'
-      },
-      {
-        field: 'tzkal_zukRank',
-        type: 'integer',
-        description: 'TzKal-Zuk rank.'
-      },
-      {
-        field: 'tzkal_zukKills',
-        type: 'integer',
-        description: 'TzKal-Zuk kills.'
-      },
-      {
-        field: 'tztok_jadRank',
-        type: 'integer',
-        description: 'TzTok-Jad rank.'
-      },
-      {
-        field: 'tztok_jadKills',
-        type: 'integer',
-        description: 'TzTok-Jad kills.'
-      },
-      {
-        field: 'venenatisRank',
-        type: 'integer',
-        description: 'Venenatis rank.'
-      },
-      {
-        field: 'venenatisKills',
-        type: 'integer',
-        description: 'Venenatis kills.'
-      },
-      {
-        field: 'vetionRank',
-        type: 'integer',
-        description: "Vet'ion rank."
-      },
-      {
-        field: 'vetionKills',
-        type: 'integer',
-        description: "Vet'ion kills."
-      },
-      {
-        field: 'vorkathRank',
-        type: 'integer',
-        description: 'Vorkath rank.'
-      },
-      {
-        field: 'vorkathKills',
-        type: 'integer',
-        description: 'Vorkath kills.'
-      },
+        field: 'ehb',
+        type: 'object',
+        description: 'EHB rank and value.'
+      }
+    ]
+  },
+  {
+    name: 'Types',
+    description: "Type of each field in the snapshot.",
+    structure: [
       {
-        field: 'wintertodtRank',
-        type: 'integer',
-        description: 'Wintertodt rank.'
+        field: 'rank',
+        type: 'integer'
       },
       {
-        field: 'wintertodtKills',
-        type: 'integer',
-        description: 'Wintertodt kills.'
+        field: 'experience',
+        type: 'integer'
       },
       {
-        field: 'zalcanoRank',
-        type: 'integer',
-        description: 'Zalcano rank.'
+        field: 'score',
+        type: 'integer'
       },
       {
-        field: 'zalcanoKills',
-        type: 'integer',
-        description: 'Zalcano kills.'
+        field: 'kills',
+        type: 'integer'
       },
       {
-        field: 'zulrahRank',
-        type: 'integer',
-        description: 'Zulrah rank.'
+        field: 'value',
+        type: 'float'
       },
       {
-        field: 'zulrahKills',
-        type: 'integer',
-        description: 'Zulrah kills.'
+        field: 'ehp',
+        type: 'float'
       }
     ]
   },

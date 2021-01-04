@@ -25,36 +25,56 @@ export default [
         description: '',
         body: [
           {
-            id: 1,
-            name: 'Hexis',
-            score: 120,
+            id: 201,
+            name: 'RuthlessPvM 120+',
+            clanChat: 'RuthlessPvM',
+            description: 'PvM Clan (Cox / Nightmare / Tob)',
+            homeworld: 467,
+            score: 320,
             verified: true,
-            clanChat: null,
-            createdAt: '2020-04-18T08:37:24.190Z',
-            updatedAt: '2020-04-18T08:37:24.190Z',
-            memberCount: 3
+            createdAt: '2020-08-11T03:23:02.631Z',
+            updatedAt: '2020-12-14T17:00:07.840Z',
+            memberCount: 360
           },
           {
-            id: 2,
-            name: 'RSPT',
-            score: 100,
+            id: 396,
+            name: 'Nomads',
+            clanChat: 'Nomads FC',
+            description: 'Social/PVM/Slayer Clan, come & chill with fellow OSRS nerds :)',
+            homeworld: 354,
+            score: 310,
             verified: true,
-            clanChat: 'rspt',
-            createdAt: '2020-04-18T08:45:28.726Z',
-            updatedAt: '2020-04-18T08:47:50.870Z',
-            memberCount: 21
+            createdAt: '2020-11-05T17:30:46.459Z',
+            updatedAt: '2020-12-13T06:00:08.865Z',
+            memberCount: 37
           },
           {
-            id: 4,
-            name: 'Varrock Titans',
-            score: 90,
-            verified: false,
-            clanChat: 'Vrck Titans',
-            createdAt: '2020-04-18T09:01:10.630Z',
-            updatedAt: '2020-04-18T09:07:00.915Z',
-            memberCount: 13
-          }
+            id: 51,
+            name: 'Eternals',
+            clanChat: 'Eternals CC',
+            description: 'A fun clan, with fun people!',
+            homeworld: null,
+            score: 300,
+            verified: true,
+            createdAt: '2020-05-06T08:36:27.420Z',
+            updatedAt: '2020-12-13T06:00:08.793Z',
+            memberCount: 63
+          },
         ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
+        }
       }
     ]
   },
@@ -90,13 +110,19 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
         description: 'If the given id does not exist.',
         body: {
           message: 'Group not found.'
+        }
+      },
+      {
+        description: 'If the given id is invalid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       }
     ]
@@ -275,7 +301,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -283,12 +309,18 @@ export default [
         body: {
           message: 'Group not found.'
         }
+      },
+      {
+        description: 'If the given id is invalid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
       }
     ]
   },
   {
     title: "Get a group's competitions",
-    url: '/group/:id/competitions',
+    url: '/groups/:id/competitions',
     method: 'GET',
     params: [
       {
@@ -321,7 +353,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
+        }
+      },
+      {
+        description: 'If the given id is invalid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       },
       {
@@ -347,17 +385,26 @@ export default [
       {
         description: '',
         body: {
-          playerId: 299,
-          username: 'psikoi',
-          displayName: 'Psikoi',
-          build: 'main',
-          flagged: false,
-          type: 'regular',
-          startDate: '2020-04-18T16:20:05.000Z',
-          endDate: '2020-05-18T14:52:22.213Z',
-          endValue: 963695236,
-          startValue: 889685269,
-          gained: 74009967
+          startDate: '2020-11-15T12:07:55.584Z',
+          endDate: '2020-12-15T14:07:19.395Z',
+          gained: 7112940,
+          player: {
+            exp: 287727070,
+            id: 2,
+            username: 'psikoi',
+            displayName: 'Psikoi',
+            type: 'regular',
+            build: 'main',
+            flagged: false,
+            ehp: 957.66169,
+            ehb: 292.20288,
+            ttm: 465.33077,
+            tt200m: 14004.78936,
+            lastImportedAt: '2020-12-15T14:07:20.609Z',
+            lastChangedAt: '2020-12-15T14:07:19.338Z',
+            registeredAt: '2020-04-02T19:40:06.317Z',
+            updatedAt: '2020-12-15T14:07:20.609Z'
+          }
         }
       }
     ],
@@ -365,7 +412,13 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
+        }
+      },
+      {
+        description: 'If the given id is invalid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
         }
       },
       {
@@ -413,59 +466,72 @@ export default [
       {
         description: '',
         body: [
-          [
-            {
-              startDate: '2020-07-28T18:43:24.339Z',
-              endDate: '2020-08-26T22:07:37.065Z',
-              gained: 8370924,
-              player: {
-                id: 1163,
-                username: 'knock',
-                displayName: 'Knock',
-                type: 'regular',
-                build: 'main',
-                flagged: false,
-                lastImportedAt: '2020-08-24T16:29:13.227Z',
-                lastChangedAt: '2020-11-26T06:30:14.825Z',
-                registeredAt: '2020-04-28T18:46:19.553Z',
-                updatedAt: '2020-08-26T22:07:37.104Z'
-              }
-            },
-            {
-              startDate: '2020-07-27T01:14:45.528Z',
-              endDate: '2020-08-26T22:07:39.353Z',
-              gained: 6036661,
-              player: {
-                id: 1201,
-                username: 'ice juice',
-                displayName: 'Ice Juice',
-                type: 'ironman',
-                build: 'main',
-                flagged: false,
-                lastImportedAt: '2020-08-22T20:20:32.956Z',
-                lastChangedAt: '2020-11-26T06:30:14.825Z',
-                registeredAt: '2020-04-28T19:25:58.626Z',
-                updatedAt: '2020-08-26T22:07:39.384Z'
-              }
-            },
-            {
-              startDate: '2020-07-28T18:43:35.745Z',
-              endDate: '2020-08-26T22:02:42.823Z',
-              gained: 3201759,
-              player: {
-                id: 1155,
-                username: 'paposeco',
-                displayName: 'Paposeco',
-                type: 'regular',
-                build: 'main',
-                flagged: false,
-                lastImportedAt: '2020-08-22T23:41:14.792Z',
-                lastChangedAt: '2020-11-26T06:30:14.825Z',
-                registeredAt: '2020-04-27T20:46:08.951Z',
-                updatedAt: '2020-08-26T22:02:42.961Z'
-              }
+          {
+            startDate: '2020-12-08T16:59:38.230Z',
+            endDate: '2020-12-15T14:07:19.395Z',
+            gained: 1655928,
+            player: {
+              exp: 287727070,
+              id: 2,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T14:07:20.609Z',
+              lastChangedAt: '2020-12-15T14:07:19.338Z',
+              registeredAt: '2020-04-02T19:40:06.317Z',
+              updatedAt: '2020-12-15T14:07:20.609Z'
             }
-          ]
+          },
+          {
+            startDate: '2020-12-06T13:09:32.613Z',
+            endDate: '2020-12-13T10:16:36.930Z',
+            gained: 0,
+            player: {
+              exp: 676544234,
+              id: 1152,
+              username: 'shrew 1549',
+              displayName: 'Shrew 1549',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 2017.43678,
+              ehb: 1786.82067,
+              ttm: 0,
+              tt200m: 12945.01427,
+              lastImportedAt: null,
+              lastChangedAt: '2020-12-13T00:28:52.155Z',
+              registeredAt: '2020-04-27T17:06:38.966Z',
+              updatedAt: '2020-12-13T10:16:36.950Z'
+            }
+          },
+          {
+            startDate: '2020-12-09T07:50:12.117Z',
+            endDate: '2020-12-09T07:50:12.117Z',
+            gained: 0,
+            player: {
+              exp: 261126311,
+              id: 1122,
+              username: 'alexsuperfly',
+              displayName: 'Alexsuperfly',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 1157.99115,
+              ehb: 78.87472,
+              ttm: 142.04775,
+              tt200m: 13804.4599,
+              lastImportedAt: '2020-12-09T07:50:12.927Z',
+              lastChangedAt: null,
+              registeredAt: '2020-04-18T17:18:17.028Z',
+              updatedAt: '2020-12-09T07:50:12.928Z'
+            }
+          }
         ]
       }
     ],
@@ -473,7 +539,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -498,6 +564,30 @@ export default [
         description: 'If the given id does not exist or has no members.',
         body: {
           message: 'That group has no members.'
+        }
+      },
+      {
+        description: 'If the given id does not exist or has no members.',
+        body: {
+          message: 'That group has no members.'
+        }
+      },
+      {
+        description: 'If the given id is invalid.',
+        body: {
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
         }
       }
     ]
@@ -533,49 +623,70 @@ export default [
         description: '',
         body: [
           {
-            id: 125,
-            username: 'windows10',
-            displayName: 'Windows10',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: '2020-05-14T00:21:28.251Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-04-15T13:03:28.396Z',
-            updatedAt: '2020-06-02T23:37:26.348Z',
-            rank: 171,
-            experience: 76257923,
-            level: 99
+            player: {
+              exp: 676544234,
+              id: 1152,
+              username: 'shrew 1549',
+              displayName: 'Shrew 1549',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 2017.43678,
+              ehb: 1786.82067,
+              ttm: 0,
+              tt200m: 12945.01427,
+              lastImportedAt: null,
+              lastChangedAt: '2020-12-13T00:28:52.155Z',
+              registeredAt: '2020-04-27T17:06:38.966Z',
+              updatedAt: '2020-12-13T10:16:36.950Z'
+            },
+            rank: 2172,
+            experience: 676544234,
+            level: 2277
           },
           {
-            id: 1161,
-            username: 'ze punheteir',
-            displayName: 'Ze Punheteir',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: '2020-05-13T23:14:52.828Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-04-28T17:56:45.960Z',
-            updatedAt: '2020-06-02T23:41:18.937Z',
-            rank: 888,
-            experience: 39924786,
-            level: 99
+            player: {
+              exp: 287727070,
+              id: 2,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T14:07:20.609Z',
+              lastChangedAt: '2020-12-15T14:07:19.338Z',
+              registeredAt: '2020-04-02T19:40:06.317Z',
+              updatedAt: '2020-12-15T14:07:20.609Z'
+            },
+            rank: 38303,
+            experience: 287727070,
+            level: 2166
           },
           {
-            id: 1286,
-            username: 'melisma',
-            displayName: 'Melisma',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            lastImportedAt: null,
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-04-28T22:00:09.281Z',
-            updatedAt: '2020-06-03T00:58:50.838Z',
-            rank: 1141,
-            experience: 36893876,
-            level: 99
+            player: {
+              exp: 261126311,
+              id: 1122,
+              username: 'alexsuperfly',
+              displayName: 'Alexsuperfly',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 1157.99115,
+              ehb: 78.87472,
+              ttm: 142.04775,
+              tt200m: 13804.4599,
+              lastImportedAt: '2020-12-09T07:50:12.927Z',
+              lastChangedAt: null,
+              registeredAt: '2020-04-18T17:18:17.028Z',
+              updatedAt: '2020-12-09T07:50:12.928Z'
+            },
+            rank: 22429,
+            experience: 261126311,
+            level: 2229
           }
         ]
       }
@@ -584,13 +695,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
-        }
-      },
-      {
-        description: 'If the given id does not exist.',
-        body: {
-          message: 'Group not found.'
+          message: "Invalid group id."
         }
       },
       {
@@ -600,9 +705,27 @@ export default [
         }
       },
       {
-        description: 'If the given id does not exist or has no members.',
+        description: 'If the given id is invalid.',
         body: {
-          message: 'That group has no members.'
+          message: "Parameter 'id' is not a valid number."
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
         }
       }
     ]
@@ -643,34 +766,79 @@ export default [
         description: '',
         body: [
           {
-            playerId: 1188,
-            username: 'unequalized',
-            displayName: 'Unequalized',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            value: 76566869,
-            updatedAt: '2020-06-02T23:38:37.203Z'
+            value: 6104396,
+            id: 98107,
+            playerId: 1152,
+            period: 'week',
+            metric: 'overall',
+            updatedAt: '2020-05-18T23:48:05.144Z',
+            player: {
+              exp: 676595646,
+              id: 1152,
+              username: 'shrew 1549',
+              displayName: 'Shrew 1549',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 2017.52327,
+              ehb: 1787.15401,
+              ttm: 0,
+              tt200m: 12944.92778,
+              lastImportedAt: null,
+              lastChangedAt: '2020-12-15T16:51:19.310Z',
+              registeredAt: '2020-04-27T17:06:38.966Z',
+              updatedAt: '2020-12-15T16:51:19.415Z'
+            }
           },
           {
-            playerId: 1191,
-            username: '8 feb 2020',
-            displayName: '8 Feb 2020',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            value: 57448742,
-            updatedAt: '2020-04-29T10:20:34.052Z'
+            value: 5144963,
+            id: 169,
+            playerId: 2,
+            period: 'week',
+            metric: 'overall',
+            updatedAt: '2020-04-18T09:30:11.710Z',
+            player: {
+              exp: 287727070,
+              id: 2,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T14:07:20.609Z',
+              lastChangedAt: '2020-12-15T14:07:19.338Z',
+              registeredAt: '2020-04-02T19:40:06.317Z',
+              updatedAt: '2020-12-15T14:07:20.609Z'
+            }
           },
           {
-            playerId: 125,
-            username: 'windows10',
-            displayName: 'Windows10',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            value: 54337702,
-            updatedAt: '2020-05-13T23:08:14.112Z'
+            value: 3694645,
+            id: 142819,
+            playerId: 1709,
+            period: 'week',
+            metric: 'overall',
+            updatedAt: '2020-08-03T00:29:14.989Z',
+            player: {
+              exp: 107530768,
+              id: 1709,
+              username: 'sethmare',
+              displayName: 'Sethmare',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 488.45315,
+              ehb: 104.738,
+              ttm: 805.30886,
+              tt200m: 14473.9979,
+              lastImportedAt: '2020-12-15T07:50:30.930Z',
+              lastChangedAt: '2020-12-15T07:50:29.280Z',
+              registeredAt: '2020-05-01T23:51:10.042Z',
+              updatedAt: '2020-12-15T07:50:30.930Z'
+            }
           }
         ]
       }
@@ -679,7 +847,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -701,9 +869,21 @@ export default [
         }
       },
       {
-        description: 'If the given id does not exist or has no members.',
+        description: 'If the group with the given id has no members.',
         body: {
           message: 'That group has no members.'
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
         }
       }
     ]
@@ -735,44 +915,74 @@ export default [
         body: [
           {
             threshold: 13034431,
-            playerId: 1236,
-            type: '99 Strength',
-            metric: 'strength',
-            createdAt: '2020-06-03T00:58:57.019Z',
+            playerId: 1709,
+            type: '99 Hitpoints',
+            metric: 'hitpoints',
+            createdAt: '2020-10-25T22:13:33.547Z',
             player: {
-              id: 1236,
-              username: 'j onys',
-              displayName: 'J Onys',
+              exp: 107530768,
+              id: 1709,
+              username: 'sethmare',
+              displayName: 'Sethmare',
               type: 'regular',
-              flagged: false
+              build: 'main',
+              flagged: false,
+              ehp: 488.45315,
+              ehb: 104.738,
+              ttm: 805.30886,
+              tt200m: 14473.9979,
+              lastImportedAt: '2020-12-15T07:50:30.930Z',
+              lastChangedAt: '2020-12-15T07:50:29.280Z',
+              registeredAt: '2020-05-01T23:51:10.042Z',
+              updatedAt: '2020-12-15T07:50:30.930Z'
+            }
+          },
+          {
+            threshold: 100,
+            playerId: 1709,
+            type: '100 Chambers Of Xeric kills',
+            metric: 'chambers_of_xeric',
+            createdAt: '2020-10-21T16:05:54.100Z',
+            player: {
+              exp: 107530768,
+              id: 1709,
+              username: 'sethmare',
+              displayName: 'Sethmare',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 488.45315,
+              ehb: 104.738,
+              ttm: 805.30886,
+              tt200m: 14473.9979,
+              lastImportedAt: '2020-12-15T07:50:30.930Z',
+              lastChangedAt: '2020-12-15T07:50:29.280Z',
+              registeredAt: '2020-05-01T23:51:10.042Z',
+              updatedAt: '2020-12-15T07:50:30.930Z'
             }
           },
           {
             threshold: 13034431,
-            playerId: 1177,
-            type: '99 Hitpoints',
-            metric: 'hitpoints',
-            createdAt: '2020-06-03T00:57:47.202Z',
+            playerId: 1340,
+            type: '99 Cooking',
+            metric: 'cooking',
+            createdAt: '2020-10-11T12:42:57.955Z',
             player: {
-              id: 1177,
-              username: 'o joao',
-              displayName: 'O Joao',
-              type: 'regular',
-              flagged: false
-            }
-          },
-          {
-            threshold: 1000000000,
-            playerId: 1188,
-            type: '1b Overall Exp.',
-            metric: 'overall',
-            createdAt: '2020-06-02T23:38:27.305Z',
-            player: {
-              id: 1188,
-              username: 'unequalized',
-              displayName: 'Unequalized',
-              type: 'regular',
-              flagged: false
+              exp: 112303464,
+              id: 1340,
+              username: 'usbc',
+              displayName: 'USBC',
+              type: 'ultimate',
+              build: 'lvl3',
+              flagged: false,
+              ehp: 556.98921,
+              ehb: 0,
+              ttm: 1288.69431,
+              tt200m: 22201.77214,
+              lastImportedAt: '2020-12-09T07:50:13.173Z',
+              lastChangedAt: '2020-12-09T07:50:12.053Z',
+              registeredAt: '2020-04-28T23:24:02.299Z',
+              updatedAt: '2020-12-09T07:50:13.174Z'
             }
           }
         ]
@@ -782,7 +992,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -792,9 +1002,21 @@ export default [
         }
       },
       {
-        description: 'If the given id does not exist or has no members.',
+        description: 'If the group with the given id has no members.',
         body: {
           message: 'That group has no members.'
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: "Invalid limit: must be > 0"
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: "Invalid offset: must a positive number."
         }
       }
     ]
@@ -813,56 +1035,61 @@ export default [
     successResponses: [
       {
         description: '',
-        body: {
-          maxedCombatCount: 25,
-          maxedTotalCount: 14,
-          maxed200msCount: 12,
-          averageStats: {
-            overall: {
-              rank: 279828,
-              experience: 163384710
-            },
-            attack: {
-              rank: 331434,
-              experience: 10254244
-            },
-            defence: {
-              rank: 310463,
-              experience: 8164334
-            },
-            clue_scrolls_easy: {
-              rank: 265551,
-              score: 25
-            },
-            clue_scrolls_medium: {
-              rank: 195706,
-              score: 58
-            },
-            clue_scrolls_hard: {
-              rank: 138079,
-              score: 68
-            },
-            chambers_of_xeric_challenge_mode: {
-              rank: 166,
-              kills: 2
-            },
-            chaos_elemental: {
-              rank: 897,
-              kills: 23
-            },
-            chaos_fanatic: {
-              rank: 2492,
-              kills: 28
+        body: [
+          {
+            maxedCombatCount: 43,
+            maxedTotalCount: 10,
+            maxed200msCount: 2,
+            averageStats: {
+              createdAt: null,
+              importedAt: null,
+              overall: {
+                rank: 226273,
+                experience: 154787903,
+                ehp: 571
+              },
+              attack: {
+                rank: 258999,
+                experience: 10985324
+              },
+              league_points: {
+                rank: -1,
+                score: -1
+              },
+              clue_scrolls_easy: {
+                rank: 339337,
+                score: 21
+              },
+              clue_scrolls_master: {
+                rank: 46764,
+                score: 9
+              },
+              chambers_of_xeric_challenge_mode: {
+                rank: 439,
+                kills: 1
+              },
+              zulrah: {
+                rank: 51521,
+                kills: 391
+              },
+              ehp: {
+                rank: 22537,
+                value: 571
+              },
+              ehb: {
+                rank: 26967,
+                value: 132
+              }
             }
           }
-        }
+        ]
       }
     ],
     errorResponses: [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -872,7 +1099,7 @@ export default [
         }
       },
       {
-        description: 'If the given id does not exist or has no members.',
+        description: 'If the group with the given id has no members.',
         body: {
           message: "Couldn't find any stats for this group."
         }
@@ -889,6 +1116,16 @@ export default [
         content:
           'The response will contain a "verificationCode", this code must be stored \
            as it is not possible to edit or delete the group at a later date without it.'
+      },
+      {
+        type: 'warning',
+        content:
+          "If no role has been specified for a member, it will default the role to 'member'."
+      },
+      {
+        type: 'warning',
+        content:
+          "If no description, clanChat or homeworld has been specified, they will default to 'null'."
       }
     ],
     body: {
@@ -907,67 +1144,87 @@ export default [
       {
         description: '',
         body: {
-          id: 23,
-          name: 'Falador Knights',
           score: 0,
           verified: false,
-          clanChat: 'fallyK',
+          id: 8,
+          name: 'Fally Knights',
           description: 'We are the knights.',
+          clanChat: 'fallyK',
           homeworld: 492,
-          verificationCode: '107-719-861',
-          updatedAt: '2020-04-23T01:53:26.079Z',
-          createdAt: '2020-04-23T01:53:26.079Z',
+          verificationCode: '857-291-364',
+          updatedAt: '2020-12-15T17:35:57.425Z',
+          createdAt: '2020-12-15T17:35:57.425Z',
           members: [
             {
-              id: 61,
-              username: 'psikoi',
-              displayName: 'Psikoi',
-              type: 'regular',
-              build: 'main',
-              flagged: false,
-              lastImportedAt: '2020-04-19T17:21:12.258Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-10T18:11:02.544Z',
-              updatedAt: '2020-04-20T23:55:14.540Z',
-              role: 'leader'
-            },
-            {
-              id: 62,
-              username: 'zulu',
-              displayName: 'Zulu',
-              type: 'regular',
-              build: 'main',
-              flagged: false,
-              lastImportedAt: '2020-04-18T02:23:59.945Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-10T18:11:52.333Z',
-              updatedAt: '2020-04-20T23:55:19.286Z',
-              role: 'member'
-            },
-            {
-              id: 77,
+              exp: 27957906,
+              id: 2,
               username: 'zezima',
               displayName: 'Zezima',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-04-11T01:02:25.132Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-11T01:02:06.424Z',
-              updatedAt: '2020-04-20T23:55:24.007Z',
+              ehp: 170.56992,
+              ehb: 0,
+              ttm: 1123.18632,
+              tt200m: 14791.88113,
+              lastImportedAt: '2020-12-15T12:06:37.857Z',
+              lastChangedAt: '2020-12-15T12:06:35.467Z',
+              registeredAt: '2020-12-15T12:04:12.671Z',
+              updatedAt: '2020-12-15T12:06:37.864Z',
               role: 'leader'
             },
             {
-              id: 298,
+              exp: 0,
+              id: 4,
               username: 'lynx titan',
               displayName: 'Lynx Titan',
               type: 'unknown',
               build: 'main',
               flagged: false,
+              ehp: 0,
+              ehb: 0,
+              ttm: 0,
+              tt200m: 0,
               lastImportedAt: null,
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-23T01:53:26.156Z',
-              updatedAt: '2020-04-23T01:53:26.156Z',
+              lastChangedAt: null,
+              registeredAt: '2020-12-15T12:40:28.496Z',
+              updatedAt: '2020-12-15T12:40:29.779Z',
+              role: 'member'
+            },
+            {
+              exp: 287727070,
+              id: 3,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T15:40:06.388Z',
+              lastChangedAt: '2020-12-15T15:40:02.052Z',
+              registeredAt: '2020-12-15T12:04:12.669Z',
+              updatedAt: '2020-12-15T15:40:06.388Z',
+              role: 'leader'
+            },
+            {
+              exp: 3332232052,
+              id: 5,
+              username: 'zulu',
+              displayName: 'Zulu',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 7126.74163,
+              ehb: 3536.61133,
+              ttm: 0,
+              tt200m: 7835.70942,
+              lastImportedAt: '2020-12-15T15:41:09.270Z',
+              lastChangedAt: '2020-12-15T15:32:21.940Z',
+              registeredAt: '2020-12-15T12:40:28.486Z',
+              updatedAt: '2020-12-15T15:41:09.270Z',
               role: 'member'
             }
           ]
@@ -988,12 +1245,22 @@ export default [
         body: { message: "Group name 'Hexis' is already taken." }
       },
       {
-        description: "If one of the members' usernames is invalid",
-        body: { message: 'Invalid player username: Crazy@@Name' }
+        description: "If one or more of the members' usernames are invalid",
+        body: { 
+          message: "2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
+          data: [
+            "Ps@ikoi",
+            "Zez?ima"
+          ]
+        }
       },
       {
         description: 'If members is given but does not respect the correct format.',
         body: { message: 'Invalid members list. Each array element must have a username key.' }
+      },
+      {
+        description: 'If an invalid role has been specified.',
+        body: { message: "Invalid member roles. Must be 'member' or 'leader'."}
       }
     ]
   },
@@ -1005,6 +1272,10 @@ export default [
       {
         type: 'error',
         content: 'If a list of members is supplied, it will replace any existing members list.'
+      },
+      {
+        type: 'warning',
+        content: "If no role has been specified for a member, it will default the role to 'member'."
       }
     ],
     params: [
@@ -1020,47 +1291,60 @@ export default [
       clanChat: 'fallyK',
       homeworld: 490,
       verificationCode: '842-225-748',
-      members: ['Psikoi', 'Zezima']
+      members: [
+        { username: 'Psikoi', role: 'leader' },
+        { username: 'Zezima', role: 'member' }
+      ]
     },
     successResponses: [
       {
         description: '',
         body: {
-          id: 2,
-          name: 'Some new name',
+          id: 9,
+          name: "Some new name",
+          clanChat: "fallyK",
+          description: "The big lebowski",
+          homeworld: 490,
           score: 0,
           verified: false,
-          clanChat: 'fallyK',
-          description: 'The big lebowski',
-          homeworld: 490,
-          createdAt: '2020-04-18T08:45:28.726Z',
-          updatedAt: '2020-04-18T15:30:41.380Z',
+          createdAt: "2020-12-15T17:54:06.251Z",
+          updatedAt: "2020-12-15T17:55:57.669Z",
           members: [
             {
-              id: 61,
-              username: 'psikoi',
-              displayName: 'Psikoi',
-              type: 'regular',
-              build: 'main',
+              exp: 27957906,
+              id: 2,
+              username: "zezima",
+              displayName: "Zezima",
+              type: "regular",
+              build: "main",
               flagged: false,
-              lastImportedAt: '2020-04-18T02:22:49.364Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-10T18:11:02.544Z',
-              updatedAt: '2020-04-18T04:02:42.235Z',
-              role: 'member'
+              ehp: 170.56992,
+              ehb: 0,
+              ttm: 1123.18632,
+              tt200m: 14791.88113,
+              lastImportedAt: "2020-12-15T12:06:37.857Z",
+              lastChangedAt: "2020-12-15T12:06:35.467Z",
+              registeredAt: "2020-12-15T12:04:12.671Z",
+              updatedAt: "2020-12-15T12:06:37.864Z",
+              role: "member"
             },
             {
-              id: 77,
-              username: 'zezima',
-              displayName: 'Zezima',
-              type: 'regular',
-              build: 'main',
+              exp: 287727070,
+              id: 3,
+              username: "psikoi",
+              displayName: "Psikoi",
+              type: "regular",
+              build: "main",
               flagged: false,
-              lastImportedAt: '2020-04-11T01:02:25.132Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-11T01:02:06.424Z',
-              updatedAt: '2020-04-18T03:40:17.940Z',
-              role: 'member'
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: "2020-12-15T15:40:06.388Z",
+              lastChangedAt: "2020-12-15T15:40:02.052Z",
+              registeredAt: "2020-12-15T12:04:12.669Z",
+              updatedAt: "2020-12-15T15:40:06.388Z",
+              role: "leader"
             }
           ]
         }
@@ -1070,7 +1354,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -1080,20 +1364,22 @@ export default [
         }
       },
       {
-        description: 'If name or members are given.',
-        body: { message: 'You must either include a new name or a new member list.' }
-      },
-      {
         description: 'If name is given but is already taken.',
         body: { message: "Group name 'Some taken name' is already taken." }
       },
       {
-        description: "If one of the members' usernames is invalid",
-        body: { message: 'Invalid player username: Crazy@@Name' }
+        description: "If one or more of the members' usernames are invalid.",
+        body: {
+          message: "2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
+          data: [
+            "Ps@ikoi",
+            "Ze?zima"
+          ]
+        }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -1137,7 +1423,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -1148,7 +1434,7 @@ export default [
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -1160,6 +1446,12 @@ export default [
     title: 'Add members',
     url: '/groups/:id/add-members',
     method: 'POST',
+    comments: [
+      {
+        type: 'warning',
+        content: "If no role has been specified for a member, it will default the role to 'member'."
+      }
+    ],
     params: [
       {
         field: 'id',
@@ -1180,30 +1472,40 @@ export default [
         body: {
           members: [
             {
-              id: 37,
-              username: 'psikoi',
-              displayName: 'Psikoi',
-              type: 'regular',
-              build: 'main',
-              flagged: false,
-              lastImportedAt: '2020-04-18T02:23:59.945Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-10T18:11:52.333Z',
-              updatedAt: '2020-04-18T03:22:36.419Z',
-              role: 'leader'
-            },
-            {
-              id: 62,
+              exp: 3332232052,
+              id: 5,
               username: 'zulu',
               displayName: 'Zulu',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-04-18T02:23:59.945Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-10T18:11:52.333Z',
-              updatedAt: '2020-04-18T03:22:36.419Z',
+              ehp: 7126.74163,
+              ehb: 3536.61133,
+              ttm: 0,
+              tt200m: 7835.70942,
+              lastImportedAt: '2020-12-15T15:41:09.270Z',
+              lastChangedAt: '2020-12-15T15:32:21.940Z',
+              registeredAt: '2020-12-15T12:40:28.486Z',
+              updatedAt: '2020-12-15T15:41:09.270Z',
               role: 'member'
+            },
+            {
+              exp: 287727070,
+              id: 3,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T15:40:06.388Z',
+              lastChangedAt: '2020-12-15T15:40:02.052Z',
+              registeredAt: '2020-12-15T12:04:12.669Z',
+              updatedAt: '2020-12-15T15:40:06.388Z',
+              role: 'leader'
             }
           ]
         }
@@ -1213,7 +1515,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -1223,12 +1525,12 @@ export default [
         }
       },
       {
-        description: 'If members is invalid or empty.',
-        body: { message: 'Invalid member list.' }
+        description: 'If members is empty.',
+        body: { message: 'Invalid or empty members list.' }
       },
       {
         description: 'If members does not respect the correct format.',
-        body: { message: 'Invalid members list. Each array element must have a username key.' }
+        body: { message: 'Invalid members list. Each array element must have a "username" key.' }
       },
       {
         description: 'If group of id could not be found.',
@@ -1236,7 +1538,7 @@ export default [
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -1275,7 +1577,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -1286,11 +1588,11 @@ export default [
       },
       {
         description: 'If members is invalid or empty.',
-        body: { message: 'Invalid members list' }
+        body: { message: 'Invalid or empty members list.' }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -1319,36 +1621,38 @@ export default [
     ],
     body: {
       verificationCode: '291-226-419',
-      username: 'Psikoi',
+      username: 'Zulu',
       role: 'leader'
     },
     successResponses: [
       {
         description: '',
-        body: {
-          player: {
-            id: 61,
-            username: 'psikoi',
-            displayName: 'Psikoi',
+        body: 
+          {
+            exp: 3332232052,
+            id: 5,
+            username: 'zulu',
+            displayName: 'Zulu',
             type: 'regular',
             build: 'main',
             flagged: false,
-            lastImportedAt: '2020-04-18T02:22:49.364Z',
-            lastChangedAt: '2020-11-26T06:30:14.825Z',
-            registeredAt: '2020-04-10T18:11:02.544Z',
-            updatedAt: '2020-04-18T04:02:42.235Z',
+            ehp: 7126.74163,
+            ehb: 3536.61133,
+            ttm: 0,
+            tt200m: 7835.70942,
+            lastImportedAt: '2020-12-15T15:41:09.270Z',
+            lastChangedAt: '2020-12-15T15:32:21.940Z',
+            registeredAt: '2020-12-15T12:40:28.486Z',
+            updatedAt: '2020-12-15T15:41:09.270Z',
             role: 'leader'
-          },
-          newRole: 'leader',
-          oldRole: 'member'
-        }
+          }
       }
     ],
     errorResponses: [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {
@@ -1359,15 +1663,15 @@ export default [
       },
       {
         description: 'If username is not given.',
-        body: { message: 'Invalid username.' }
+        body: { message: "Parameter 'username' is undefined." }
       },
       {
         description: 'If role is not given.',
-        body: { message: 'Invalid group role.' }
+        body: { message: "Parameter 'role' is undefined." }
       },
       {
         description: 'If the verification code is not given.',
-        body: { message: 'Invalid verification code.' }
+        body: { message: "Parameter 'verificationCode' is undefined." }
       },
       {
         description: 'If the verification code is not correct.',
@@ -1379,7 +1683,11 @@ export default [
       },
       {
         description: 'If player already has the given role.',
-        body: { message: "'Psikoi' already has the role of leader." }
+        body: { message: "Psikoi is already a leader." }
+      },
+      {
+        description: 'If the role is not valid',
+        body: { message: 'Validation error: Invalid role.' }
       }
     ]
   },
@@ -1388,10 +1696,6 @@ export default [
     url: '/groups/:id/update-all',
     method: 'POST',
     comments: [
-      {
-        type: 'warning',
-        content: "This action will perform a soft-update, meaning it won't import the player from CML."
-      },
       {
         type: 'warning',
         content:
@@ -1415,7 +1719,7 @@ export default [
       {
         description: '',
         body: {
-          message: '19 players are being updated. This can take up to a few minutes.'
+          message: '19 outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.'
         }
       }
     ],
@@ -1423,7 +1727,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Parameter 'id' is undefined."
+          message: "Invalid group id."
         }
       },
       {

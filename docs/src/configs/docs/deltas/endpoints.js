@@ -23,7 +23,12 @@ export default [
       {
         field: 'playerType',
         type: 'string',
-        description: "The player's type (regular, ironman, ultimate, hardcore) - Optional"
+        description: "The player's type (See accepted values above) - Optional"
+      },
+      {
+        field: 'playerBuild',
+        type: 'string',
+        description: "The player's build (See accepted values above) - Optional"
       }
     ],
     successResponses: [
@@ -31,54 +36,69 @@ export default [
         description: 'Note: Only showing top 3 for demo purposes',
         body: [
           {
-            startDate: '2020-08-23T02:21:21.307Z',
-            endDate: '2020-08-30T01:38:31.883Z',
-            gained: 1284150,
+            startDate: '2020-12-14T12:03:19.303Z',
+            endDate: '2020-12-15T15:40:02.625Z',
+            gained: 479679,
             player: {
-              id: 8143,
-              username: 'dabzmckush',
-              displayName: 'Dabzmckush',
+              exp: 487942259,
+              id: 1,
+              username: 'rro',
+              displayName: 'Rro',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-08-30T01:41:49.077Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-05-14T14:33:32.249Z',
-              updatedAt: '2020-08-30T01:41:49.077Z'
+              ehp: 1725.64923,
+              ehb: 580.18854,
+              ttm: 0,
+              tt200m: 13236.80182,
+              lastImportedAt: '2020-12-15T15:40:06.467Z',
+              lastChangedAt: '2020-12-15T15:40:02.220Z',
+              registeredAt: '2020-12-14T12:03:15.437Z',
+              updatedAt: '2020-12-15T15:40:06.467Z'
             }
           },
           {
-            startDate: '2020-08-27T23:10:33.921Z',
-            endDate: '2020-09-03T03:49:14.132Z',
-            gained: 1281389,
+            startDate: '2020-12-15T12:06:13.902Z',
+            endDate: '2020-12-15T15:40:02.592Z',
+            gained: 321200,
             player: {
-              id: 272,
-              username: 's ebbe',
-              displayName: 'S ebbe',
+              exp: 287727070,
+              id: 3,
+              username: 'psikoi',
+              displayName: 'Psikoi',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-08-30T23:48:35.941Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-04-15T13:21:12.033Z',
-              updatedAt: '2020-09-03T03:49:14.300Z'
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T15:40:06.388Z',
+              lastChangedAt: '2020-12-15T15:40:02.052Z',
+              registeredAt: '2020-12-15T12:04:12.669Z',
+              updatedAt: '2020-12-15T15:40:06.388Z'
             }
           },
           {
-            startDate: '2020-08-23T03:20:04.393Z',
-            endDate: '2020-08-30T01:26:23.326Z',
-            gained: 1052955,
+            startDate: '2020-12-15T12:06:35.473Z',
+            endDate: '2020-12-15T12:06:35.473Z',
+            gained: 0,
             player: {
-              id: 8237,
-              username: 'illmatiic',
-              displayName: 'Illmatiic',
+              exp: 27957906,
+              id: 2,
+              username: 'zezima',
+              displayName: 'Zezima',
               type: 'regular',
               build: 'main',
               flagged: false,
-              lastImportedAt: '2020-08-30T01:26:24.762Z',
-              lastChangedAt: '2020-11-26T06:30:14.825Z',
-              registeredAt: '2020-05-14T14:33:32.392Z',
-              updatedAt: '2020-08-30T01:26:24.762Z'
+              ehp: 170.56992,
+              ehb: 0,
+              ttm: 1123.18632,
+              tt200m: 14791.88113,
+              lastImportedAt: '2020-12-15T12:06:37.857Z',
+              lastChangedAt: '2020-12-15T12:06:35.467Z',
+              registeredAt: '2020-12-15T12:04:12.671Z',
+              updatedAt: '2020-12-15T12:06:37.864Z'
             }
           }
         ]
@@ -86,9 +106,21 @@ export default [
     ],
     errorResponses: [
       {
-        description: 'If period is not given but.',
+        description: 'If period is not given.',
         body: {
-          message: "Parameter 'period' is undefined."
+          message: 'Invalid period: undefined.'
+        }
+      },
+      {
+        description: 'If period is given but it is not valid.',
+        body: {
+          message: 'Invalid period: someInvalidPeriod.'
+        }
+      },
+      {
+        description: 'If metric is not given.',
+        body: {
+          message: 'Invalid metric: undefined.'
         }
       },
       {
@@ -100,7 +132,13 @@ export default [
       {
         description: 'If player type is given but it is not valid.',
         body: {
-          message: 'Invalid metric: somethingElse.'
+          message: 'Invalid metric: someInvalidPlayerType.'
+        }
+      },
+      {
+        description: 'If player build is given but it is not valid.',
+        body: {
+          message: 'Invalid metric: someInvalidPlayerBuild.'
         }
       }
     ]

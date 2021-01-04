@@ -443,6 +443,17 @@ export default [
     values: ['6h', 'day', 'week', 'month', 'year']
   },
   {
+    name: 'Player types',
+    description:
+      'All the possible values for the "playerType" query parameter.',
+    values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
+  },
+  {
+    name: 'Player Builds',
+    description: 'All the possible values for the "playerBuild" query parameter.',
+    values: ['main', '1def', 'lvl3', '10hp', 'f2p']
+  },
+  {
     name: 'Metrics',
     description: 'All the possible values for the "metric" field of the leaderboard endpoint.',
     values: [
@@ -524,7 +535,9 @@ export default [
       'vorkath',
       'wintertodt',
       'zalcano',
-      'zulrah'
+      'zulrah',
+      'ehp',
+      'ehb'
     ]
   }
 ];

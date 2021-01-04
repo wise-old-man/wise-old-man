@@ -43,6 +43,16 @@ export default [
         field: 'updatedAt',
         type: 'date',
         description: "The group's last update date."
+      },
+      {
+        field: 'homeworld',
+        type: 'integer',
+        description: "The groups' homeworld (1-4 numbers) (Optional)."
+      },
+      {
+        field: 'description',
+        type: 'string',
+        description: "The groups' description (1-100 characters) (Optional)."
       }
     ]
   },
@@ -160,7 +170,9 @@ export default [
       'vorkath',
       'wintertodt',
       'zalcano',
-      'zulrah'
+      'zulrah',
+      'ehp',
+      'ehb'
     ]
   }
 ];
