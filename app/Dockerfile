@@ -1,5 +1,5 @@
 # setup react production build
-FROM node:13 as builder
+FROM node:14 as builder
 
 WORKDIR /wise-old-man/app
 
