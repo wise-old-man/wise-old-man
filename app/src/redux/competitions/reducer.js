@@ -86,11 +86,8 @@ const slice = createSlice({
     onCreateRequest(state) {
       state.isCreating = true;
     },
-    onCreateSuccess(state, action) {
-      const { data } = action.payload;
-
+    onCreateSuccess(state) {
       state.isCreating = false;
-      state.competitions = replaceDetails(state.competitions, data);
     },
     onCreateError(state, action) {
       const { error, data } = action.payload;
@@ -101,11 +98,8 @@ const slice = createSlice({
     onEditRequest(state) {
       state.isEditing = true;
     },
-    onEditSuccess(state, action) {
-      const { data } = action.payload;
-
+    onEditSuccess(state) {
       state.isEditing = false;
-      state.competitions = replaceDetails(state.competitions, data);
     },
     onEditError(state, action) {
       const { error, data } = action.payload;

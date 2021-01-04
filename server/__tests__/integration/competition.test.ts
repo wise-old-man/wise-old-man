@@ -423,15 +423,10 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.type).toBe('team');
-      expect(response.body.teams.length).toBe(2);
+      expect(response.body.participants.length).toBe(2);
 
-      expect(response.body.teams[0].teamName).toBe('Warriors');
-      expect(response.body.teams[0].participants.length).toBe(1);
-      expect(response.body.teams[0].participants[0].username).toBe('test player');
-
-      expect(response.body.teams[1].teamName).toBe('Spartans');
-      expect(response.body.teams[1].participants.length).toBe(1);
-      expect(response.body.teams[1].participants[0].username).toBe('alt player');
+      expect(response.body.participants.filter(p => p.teamName === 'Warriors').length).toBe(1);
+      expect(response.body.participants.filter(p => p.teamName === 'Spartans').length).toBe(1);
 
       done();
     }, 10000);
@@ -778,16 +773,11 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(200);
-      expect(response.body.teams.length).toBe(2);
+      expect(response.body.participants.length).toBe(3);
 
-      expect(response.body.teams[0].teamName).toBe('Warriors');
-      expect(response.body.teams[0].participants.length).toBe(2);
-      expect(response.body.teams[0].participants[0].username).toBe('test player');
-      expect(response.body.teams[0].participants[1].username).toBe('epic player');
+      expect(response.body.participants.filter(p => p.teamName === 'Warriors').length).toBe(2);
+      expect(response.body.participants.filter(p => p.teamName === 'Spartans').length).toBe(1);
 
-      expect(response.body.teams[1].teamName).toBe('Spartans');
-      expect(response.body.teams[1].participants.length).toBe(1);
-      expect(response.body.teams[1].participants[0].username).toBe('alt player');
       done();
     });
   });

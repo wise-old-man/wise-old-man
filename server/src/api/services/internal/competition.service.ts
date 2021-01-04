@@ -433,8 +433,8 @@ async function create(dto: CreateCompetitionDTO) {
   }
 
   if (isTeamCompetition) {
-    const newTeams = await setTeams(competition, teams);
-    return { ...competition.toJSON(), teams: newTeams };
+    const newParticipants = await setTeams(competition, teams);
+    return { ...competition.toJSON(), participants: newParticipants };
   }
 
   if (isGroupCompetition) {
@@ -506,11 +506,11 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     // Check if all teams are valid and correctly formatted
     if (hasNewTeams) validateTeamsList(teams);
     // Add new participations, with associated teams
-    const newTeams = await setTeams(competition, teams);
+    const newParticipants = await setTeams(competition, teams);
     // Update the competition
     await competition.update(newValues);
 
-    return { ...competition.toJSON(), teams: newTeams };
+    return { ...competition.toJSON(), participants: newParticipants };
   }
 
   // The participants haven't changed, only update
@@ -544,7 +544,7 @@ async function setTeams(competition: Competition, teams: Team[]) {
   // Delete all existing participations (and teams)
   await Participation.destroy({ where: { competitionId: competition.id } });
 
-  const formattedTeams = await Promise.all(
+  await Promise.all(
     teams.map(async team => {
       const teamName = team.name;
       const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
@@ -555,7 +555,12 @@ async function setTeams(competition: Competition, teams: Team[]) {
     })
   );
 
-  return formattedTeams;
+  const participants = await competition.$get('participants');
+
+  return participants.map((p: any) => ({
+    ...omit(p.toJSON(), ['participations']),
+    teamName: p.participations.teamName
+  }));
 }
 
 /**
