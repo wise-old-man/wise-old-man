@@ -466,74 +466,72 @@ export default [
       {
         description: '',
         body: [
-          [
-            {
-              startDate: '2020-12-08T16:59:38.230Z',
-              endDate: '2020-12-15T14:07:19.395Z',
-              gained: 1655928,
-              player: {
-                exp: 287727070,
-                id: 2,
-                username: 'psikoi',
-                displayName: 'Psikoi',
-                type: 'regular',
-                build: 'main',
-                flagged: false,
-                ehp: 957.66169,
-                ehb: 292.20288,
-                ttm: 465.33077,
-                tt200m: 14004.78936,
-                lastImportedAt: '2020-12-15T14:07:20.609Z',
-                lastChangedAt: '2020-12-15T14:07:19.338Z',
-                registeredAt: '2020-04-02T19:40:06.317Z',
-                updatedAt: '2020-12-15T14:07:20.609Z'
-              }
-            },
-            {
-              startDate: '2020-12-06T13:09:32.613Z',
-              endDate: '2020-12-13T10:16:36.930Z',
-              gained: 0,
-              player: {
-                exp: 676544234,
-                id: 1152,
-                username: 'shrew 1549',
-                displayName: 'Shrew 1549',
-                type: 'regular',
-                build: 'main',
-                flagged: false,
-                ehp: 2017.43678,
-                ehb: 1786.82067,
-                ttm: 0,
-                tt200m: 12945.01427,
-                lastImportedAt: null,
-                lastChangedAt: '2020-12-13T00:28:52.155Z',
-                registeredAt: '2020-04-27T17:06:38.966Z',
-                updatedAt: '2020-12-13T10:16:36.950Z'
-              }
-            },
-            {
-              startDate: '2020-12-09T07:50:12.117Z',
-              endDate: '2020-12-09T07:50:12.117Z',
-              gained: 0,
-              player: {
-                exp: 261126311,
-                id: 1122,
-                username: 'alexsuperfly',
-                displayName: 'Alexsuperfly',
-                type: 'regular',
-                build: 'main',
-                flagged: false,
-                ehp: 1157.99115,
-                ehb: 78.87472,
-                ttm: 142.04775,
-                tt200m: 13804.4599,
-                lastImportedAt: '2020-12-09T07:50:12.927Z',
-                lastChangedAt: null,
-                registeredAt: '2020-04-18T17:18:17.028Z',
-                updatedAt: '2020-12-09T07:50:12.928Z'
-              }
+          {
+            startDate: '2020-12-08T16:59:38.230Z',
+            endDate: '2020-12-15T14:07:19.395Z',
+            gained: 1655928,
+            player: {
+              exp: 287727070,
+              id: 2,
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 957.66169,
+              ehb: 292.20288,
+              ttm: 465.33077,
+              tt200m: 14004.78936,
+              lastImportedAt: '2020-12-15T14:07:20.609Z',
+              lastChangedAt: '2020-12-15T14:07:19.338Z',
+              registeredAt: '2020-04-02T19:40:06.317Z',
+              updatedAt: '2020-12-15T14:07:20.609Z'
             }
-          ]
+          },
+          {
+            startDate: '2020-12-06T13:09:32.613Z',
+            endDate: '2020-12-13T10:16:36.930Z',
+            gained: 0,
+            player: {
+              exp: 676544234,
+              id: 1152,
+              username: 'shrew 1549',
+              displayName: 'Shrew 1549',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 2017.43678,
+              ehb: 1786.82067,
+              ttm: 0,
+              tt200m: 12945.01427,
+              lastImportedAt: null,
+              lastChangedAt: '2020-12-13T00:28:52.155Z',
+              registeredAt: '2020-04-27T17:06:38.966Z',
+              updatedAt: '2020-12-13T10:16:36.950Z'
+            }
+          },
+          {
+            startDate: '2020-12-09T07:50:12.117Z',
+            endDate: '2020-12-09T07:50:12.117Z',
+            gained: 0,
+            player: {
+              exp: 261126311,
+              id: 1122,
+              username: 'alexsuperfly',
+              displayName: 'Alexsuperfly',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 1157.99115,
+              ehb: 78.87472,
+              ttm: 142.04775,
+              tt200m: 13804.4599,
+              lastImportedAt: '2020-12-09T07:50:12.927Z',
+              lastChangedAt: null,
+              registeredAt: '2020-04-18T17:18:17.028Z',
+              updatedAt: '2020-12-09T07:50:12.928Z'
+            }
+          }
         ]
       }
     ],
@@ -1698,10 +1696,6 @@ export default [
     url: '/groups/:id/update-all',
     method: 'POST',
     comments: [
-      {
-        type: 'warning',
-        content: "This action will perform a soft-update, meaning it won't import the player from CML."
-      },
       {
         type: 'warning',
         content:

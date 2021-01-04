@@ -64,6 +64,16 @@ export default [
         field: 'competitionId',
         type: 'integer',
         description: "The competition's id."
+      },
+      {
+        field: 'startSnapshotId',
+        type: 'integer',
+        description: "The start snapshot's id."
+      },
+      {
+        field: 'endSnapshotId',
+        type: 'integer',
+        description: "The end snapshot's id."
       }
     ]
   },

@@ -170,8 +170,9 @@ export default [
       {
         type: 'error',
         content:
-          'The response will contain a "verificationCode", this code must be stored \
-          as it is not possible to edit or delete the competition at a later date without it.'
+          'For non-group competitions, the response will contain a "verificationCode". \
+          This code must be stored as it is not possible to edit or delete the \
+          competition at a later date without it.'
       },
       {
         type: 'info',
@@ -666,12 +667,6 @@ export default [
     url: '/competitions/:id/update-all',
     method: 'POST',
     comments: [
-      {
-        type: 'warning',
-        content:
-          "This action will perform a soft-update, meaning it won't \
-          import the player from CML or determine it's type."
-      },
       {
         type: 'warning',
         content:
