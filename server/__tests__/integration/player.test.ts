@@ -251,36 +251,6 @@ describe('Player API', () => {
 
       done();
     });
-
-    test("7.3 - DON'T assert name for unknown username", async done => {
-      const body = { username: 'assert_guy' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
-
-      done();
-    });
-
-    test('7.4 - Assert name for correct username', async done => {
-      const body = { username: 'Psikoi' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
-
-      expect(response.status).toBe(200);
-      expect(response.body.displayName).toMatch('Psikoi');
-
-      done();
-    }, 90000);
-
-    test('7.5 - Assert name for correct unformatted username', async done => {
-      const body = { username: 'iron_mammal' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
-
-      expect(response.status).toBe(200);
-      expect(response.body.displayName).toMatch('Iron Mammal');
-
-      done();
-    }, 90000);
   });
 
   describe('6. Asserting Type', () => {
