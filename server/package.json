@@ -22,7 +22,7 @@
     "@sentry/tracing": "^5.29.2",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
-    "bull": "^3.16.0",
+    "bull": "^3.20.0",
     "cheerio": "^1.0.0-rc.3",
     "cheerio-tableparser": "^1.0.1",
     "cors": "^2.8.5",
