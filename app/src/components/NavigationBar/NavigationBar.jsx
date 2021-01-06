@@ -74,12 +74,6 @@ const MENU_CONFIG = [
     type: 'link',
     label: 'Discord Bot',
     url: 'https://bot.wiseoldman.net'
-  },
-  {
-    type: 'link',
-    label: 'TrailBlazer edition',
-    buttonStyle: true,
-    url: 'https://trailblazer.wiseoldman.net'
   }
 ];
 
