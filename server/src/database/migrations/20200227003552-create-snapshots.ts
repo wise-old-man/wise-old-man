@@ -1,6 +1,32 @@
 import { QueryInterface } from 'sequelize/types';
-import { SKILLS } from '../../api/constants';
 import { getRankKey, getValueKey } from '../../api/util/metrics';
+
+const SKILLS = [
+  'overall',
+  'attack',
+  'defence',
+  'strength',
+  'hitpoints',
+  'ranged',
+  'prayer',
+  'magic',
+  'cooking',
+  'woodcutting',
+  'fletching',
+  'fishing',
+  'firemaking',
+  'crafting',
+  'smithing',
+  'mining',
+  'herblore',
+  'agility',
+  'thieving',
+  'slayer',
+  'farming',
+  'runecrafting',
+  'hunter',
+  'construction'
+];
 
 function buildDynamicSchema(DataTypes: any) {
   const obj = {};
