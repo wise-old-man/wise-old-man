@@ -196,7 +196,7 @@ function getAbbreviation(abbreviation: string): string {
     case 'dawn':
     case 'gargs':
     case 'guardians':
-    case 'ggs':      
+    case 'ggs':
       return 'grotesque_guardians';
 
     case 'kq':
@@ -254,8 +254,8 @@ function getAbbreviation(abbreviation: string): string {
     case 'snek':
     case 'zul':
       return 'zulrah';
-      
-      // Minigames and others
+
+    // Minigames and others
 
     case 'all-clues':
     case 'clues':
@@ -303,7 +303,12 @@ function getAbbreviation(abbreviation: string): string {
     case 'lps':
       return 'league_points';
 
-      // Skills
+    case 'sw':
+    case 'zeal':
+    case 'soul_wars':
+      return 'soul_wars_zeal';
+
+    // Skills
 
     case 'runecraft':
     case 'rc':
@@ -317,16 +322,16 @@ function getAbbreviation(abbreviation: string): string {
     case 'def':
     case 'defense':
       return 'defence';
-    
+
     case 'str':
       return 'strength';
 
     case 'hp':
       return 'hitpoints';
-      
+
     case 'range':
       return 'ranged';
-      
+
     case 'pray':
       return 'prayer';
 
@@ -341,14 +346,14 @@ function getAbbreviation(abbreviation: string): string {
 
     case 'fletch':
       return 'fletching';
-    
+
     case 'fish':
       return 'fishing';
 
     case 'fm':
     case 'burning':
       return 'firemaking';
-    
+
     case 'craft':
       return 'crafting';
 
@@ -362,7 +367,7 @@ function getAbbreviation(abbreviation: string): string {
 
     case 'herb':
       return 'herblore';
-    
+
     case 'agi':
     case 'agil':
       return 'agility';
