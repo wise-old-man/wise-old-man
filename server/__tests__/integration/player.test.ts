@@ -86,7 +86,7 @@ describe('Player API', () => {
         expect(response.body.username).toBe('psikoi');
         expect(response.body.displayName).toBe('Psikoi');
       } else {
-        expect(response.body.message).toMatch('Failed to load hiscores: Service is unavailable');
+        expect(response.body.message).toMatch('Failed to load hiscores: Jagex service is unavailable');
       }
 
       done();
