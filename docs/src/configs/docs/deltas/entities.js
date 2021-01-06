@@ -215,6 +215,11 @@ export default [
         description: ''
       },
       {
+        field: 'soul_wars_zeal',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'abyssal_sire',
         type: 'integer',
         description: ''
@@ -444,8 +449,7 @@ export default [
   },
   {
     name: 'Player types',
-    description:
-      'All the possible values for the "playerType" query parameter.',
+    description: 'All the possible values for the "playerType" query parameter.',
     values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
   },
   {

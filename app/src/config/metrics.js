@@ -37,7 +37,6 @@ const metrics = {
     { key: 'clue_scrolls_elite', name: 'Clue Scroll (Elite)' },
     { key: 'clue_scrolls_master', name: 'Clue Scroll (Master)' },
     { key: 'last_man_standing', name: 'Last Man Standing' },
-
     { key: 'soul_wars_zeal', name: 'Soul Wars Zeal' }
   ],
   BOSSES: [
