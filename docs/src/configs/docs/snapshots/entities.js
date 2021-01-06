@@ -184,6 +184,11 @@ export default [
         description: 'Last Man Standing rank and score.'
       },
       {
+        field: 'soul_wars_zeal',
+        type: 'object',
+        description: 'Soul Wars Zeal rank and score.'
+      },
+      {
         field: 'abyssal_sire',
         type: 'object',
         description: 'Abyssal Sire rank and kills.'
@@ -417,7 +422,7 @@ export default [
   },
   {
     name: 'Types',
-    description: "Type of each field in the snapshot.",
+    description: 'Type of each field in the snapshot.',
     structure: [
       {
         field: 'rank',

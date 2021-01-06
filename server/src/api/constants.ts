@@ -61,7 +61,8 @@ export const ACTIVITIES_MAP = [
   { key: 'clue_scrolls_hard', name: 'Clue Scrolls (Hard)' },
   { key: 'clue_scrolls_elite', name: 'Clue Scrolls (Elite)' },
   { key: 'clue_scrolls_master', name: 'Clue Scrolls (Master)' },
-  { key: 'last_man_standing', name: 'Last Man Standing' }
+  { key: 'last_man_standing', name: 'Last Man Standing' },
+  { key: 'soul_wars_zeal', name: 'Soul Wars Zeal' }
 ];
 
 export const BOSSES_MAP = [

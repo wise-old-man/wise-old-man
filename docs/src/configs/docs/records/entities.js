@@ -44,14 +44,12 @@ export default [
   },
   {
     name: 'Player types',
-    description:
-      'All the possible values for the "playerType" query parameter.',
+    description: 'All the possible values for the "playerType" query parameter.',
     values: ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']
   },
   {
     name: 'Player builds',
-    description:
-      'All the possible values for the "playerBuild" query parameter.',
+    description: 'All the possible values for the "playerBuild" query parameter.',
     values: ['f2p', 'lvl3', '1def', '10hp', 'main']
   },
   {
@@ -93,6 +91,7 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'soul_wars_zeal',
       'abyssal_sire',
       'alchemical_hydra',
       'barrows_chests',
