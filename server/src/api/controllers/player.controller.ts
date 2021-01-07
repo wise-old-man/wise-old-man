@@ -124,6 +124,11 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     // Get all player achievements (by player id)
     const playerAchievements = await achievementService.getPlayerAchievements(playerId, includeMissing);
 
+    if (id && playerAchievements.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
+
     res.json(playerAchievements);
   } catch (e) {
     next(e);
@@ -141,6 +146,11 @@ async function competitions(req: Request, res: Response, next: NextFunction) {
 
     // Get all player competitions (by player id)
     const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
+
+    if (id && playerCompetitions.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
 
     res.json(playerCompetitions);
   } catch (e) {
@@ -163,6 +173,11 @@ async function groups(req: Request, res: Response, next: NextFunction) {
     // Get all player groups (by player id)
     const playerGroups = await groupService.getPlayerGroups(playerId, paginationConfig);
 
+    if (id && playerGroups.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
+
     res.json(playerGroups);
   } catch (e) {
     next(e);
@@ -182,6 +197,13 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     const playerDeltas = period
       ? await deltaService.getPlayerPeriodDeltas(playerId, period)
       : await deltaService.getPlayerDeltas(playerId);
+
+    const hasNoGains = period ? !playerDeltas.startsAt : !playerDeltas['week'].startsAt;
+
+    if (id && hasNoGains) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
 
     res.json(playerDeltas);
   } catch (e) {
@@ -203,6 +225,11 @@ async function records(req: Request, res: Response, next: NextFunction) {
     // Fetch all player records for the given period and metric
     const playerRecords = await recordService.getPlayerRecords(playerId, { period, metric });
 
+    if (id && playerRecords.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
+
     res.json(playerRecords);
   } catch (e) {
     next(e);
@@ -221,6 +248,11 @@ async function snapshots(req: Request, res: Response, next: NextFunction) {
 
     const playerSnapshots = await snapshotService.getSnapshots(playerId, period);
 
+    if (id && playerSnapshots.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
+
     res.json(playerSnapshots);
   } catch (e) {
     next(e);
@@ -238,6 +270,11 @@ async function names(req: Request, res: Response, next: NextFunction) {
 
     // Get all player names (by player id)
     const playerNames = await nameService.getPlayerNames(playerId);
+
+    if (id && playerNames.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
 
     res.json(playerNames);
   } catch (e) {
