@@ -60,31 +60,56 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     throw new BadRequestError('Invalid new name.');
   }
 
-  if (playerService.standardize(oldName) === playerService.standardize(newName)) {
+  const stOldName = playerService.standardize(oldName);
+  const stNewName = playerService.standardize(newName);
+
+  if (stOldName === stNewName) {
     throw new BadRequestError('Old and new names must be different.');
   }
 
   // Check if a player with the "oldName" username is registered
-  const oldPlayer = await playerService.find(oldName);
+  const oldPlayer = await playerService.find(stOldName);
 
   if (!oldPlayer) {
     throw new BadRequestError(`Player '${oldName}' is not tracked yet.`);
   }
 
   // Check if there's any pending name changes for these names
-  const pendingRequest = await NameChange.findOne({
-    where: { oldName, newName, status: NameChangeStatus.PENDING }
+  const pending = await NameChange.findOne({
+    where: {
+      oldName: stOldName,
+      newName: stNewName,
+      status: NameChangeStatus.PENDING
+    }
   });
 
-  if (pendingRequest) {
-    throw new BadRequestError("There's already a similar pending name change request.");
+  if (pending) {
+    throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
+  }
+
+  const newPlayer = await playerService.find(stNewName);
+
+  // To prevent people from submitting duplicate name change requests, which then
+  // will waste time and resources to process and deny, it's best to check if this
+  // exact same name change has been approved.
+  if (newPlayer) {
+    const lastChange = await NameChange.findOne({
+      where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
+      order: [['createdAt', 'DESC']]
+    });
+
+    if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
+      throw new BadRequestError(
+        `Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`
+      );
+    }
   }
 
   // Create a new instance (a new name change request)
-  const nameChange = NameChange.create({
+  const nameChange = await NameChange.create({
     playerId: oldPlayer.id,
-    oldName,
-    newName
+    oldName: stOldName,
+    newName: stNewName
   });
 
   return nameChange;

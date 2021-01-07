@@ -46,13 +46,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -74,8 +74,7 @@ export default [
     successResponses: [
       {
         description: '',
-        body: 
-        {
+        body: {
           id: 12,
           playerId: 13432,
           status: 0,
@@ -114,7 +113,11 @@ export default [
       },
       {
         description: 'If there already is a similar pending name change request (same names).',
-        body: { message: "There's already a similar pending name change request." }
+        body: { message: "There's already a similar pending name change. (Id: 1456)" }
+      },
+      {
+        description: "If this exact name change has been approved. (newName's last name was oldName)",
+        body: { message: 'Cannot submit a duplicate (approved) name change. (Id: 1456)' }
       }
     ]
   },
@@ -183,7 +186,7 @@ export default [
               overall: {
                 rank: 145933,
                 experience: 126187091,
-                ehp: 14962.45 
+                ehp: 14962.45
               },
               attack: {
                 rank: 177802,
