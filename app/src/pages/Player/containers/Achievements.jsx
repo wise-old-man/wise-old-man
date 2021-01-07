@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { isSkill, isActivity, isBoss, getMetricIcon } from 'utils';
+import { isSkill, isActivity, isBoss, getMetricIcon, formatDate } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { CardList, Selector } from 'components';
 import { achievementSelectors } from 'redux/achievements';
@@ -21,6 +21,8 @@ function Achievements() {
     achievementSelectors.getPlayerAchievementsGrouped(state, username)
   );
 
+  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+
   const groups = getFilteredAchievements(groupedAchievements, metricType);
 
   const nearest = groups
@@ -28,12 +30,23 @@ function Achievements() {
     .flat()
     .filter(a => a.progress.absolutePercent < 1 && a.measure !== 'levels')
     .sort((a, b) => b.progress.absolutePercent - a.progress.absolutePercent)
-    .slice(0, 10);
+    .slice(0, 20);
+
+  const completedAchievements = achievements
+    .filter(a => a.createdAt !== null)
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, 20);
 
   const nearestItems = nearest.map(i => ({
     icon: getMetricIcon(i.metric),
     title: i.type,
     subtitle: `${Math.round(i.progress.absolutePercent * 10000) / 100}% completed`
+  }));
+
+  const achievementItems = completedAchievements.map(a => ({
+    icon: getMetricIcon(a.metric),
+    title: a.type,
+    subtitle: a.unknownDate ? 'Unknown date' : formatDate(a.createdAt, 'DD MMM, YYYY')
   }));
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
@@ -60,6 +73,8 @@ function Achievements() {
         </div>
       </div>
       <div className="player-nearest-achievements__container col-lg-3 col-md-12">
+        <span className="panel-label">Recent achievements</span>
+        <CardList items={achievementItems} emptyMessage="Nothing else to achieve!" />
         <span className="panel-label">{`Nearest ${metricType} achievements`}</span>
         <CardList items={nearestItems} emptyMessage="Nothing else to achieve!" />
       </div>
