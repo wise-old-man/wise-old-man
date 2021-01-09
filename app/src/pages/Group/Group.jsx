@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import saveCsv from 'save-csv';
 import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -51,6 +52,10 @@ const MENU_OPTIONS = [
   {
     label: 'Edit group',
     value: 'edit'
+  },
+  {
+    label: 'Export member list',
+    value: 'export'
   },
   {
     label: 'Delete group',
@@ -133,6 +138,14 @@ function Group() {
     setShowingDeleteModal(false);
   };
 
+  const handleExportMembers = async () => {
+    const filename = `${group.name} Member List.csv`;
+    const namesOnly = group.members.map(member => {
+      return { name: member.displayName };
+    });
+    saveCsv(namesOnly, { filename });
+  };
+
   const handleOptionSelected = option => {
     switch (option.value) {
       case 'delete': {
@@ -147,6 +160,11 @@ function Group() {
 
       case 'competition': {
         router.push(`/competitions/create?groupId=${group.id}`);
+        break;
+      }
+
+      case 'export': {
+        handleExportMembers();
         break;
       }
 
