@@ -122,6 +122,57 @@ export default [
     ]
   },
   {
+    title: 'Submit multiple name change requests (bulk)',
+    url: '/names/bulk',
+    method: 'POST',
+    comments: [
+      {
+        type: 'warning',
+        content: 'These requests still have to be approved or denied.'
+      }
+    ],
+    body: [
+      {
+        oldName: 'cometz',
+        newName: 'zezima'
+      },
+      {
+        oldName: 'Psikoi',
+        newName: 'Psikoi V2'
+      },
+      {
+        oldName: 'lynx titan',
+        newName: 'Zulu'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          message: 'Successfully submitted 2/3 name changes.'
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the list provided is undefined or not an array.',
+        body: { message: 'Invalid name change list format.' }
+      },
+      {
+        description: 'If the list provided is empty.',
+        body: { message: 'Empty name change list.' }
+      },
+      {
+        description: 'If one of the name change objects does not have the correct format.',
+        body: { message: 'All name change objects must have "oldName" and "newName" properties.' }
+      },
+      {
+        description: 'If none of the name changes were successfully submitted.',
+        body: { message: 'Could not find any valid name changes to submit.' }
+      }
+    ]
+  },
+  {
     title: 'View name change details',
     url: '/names/:id',
     method: 'GET',
