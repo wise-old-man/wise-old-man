@@ -5,6 +5,7 @@ import CopyToClipboard from './CopyToClipboard';
 import Countdown from './Countdown';
 import DateRangeSelector from './DateRangeSelector';
 import Dropdown from './Dropdown';
+import GlobalMessage from './GlobalMessage';
 import InfoPanel from './InfoPanel';
 import LineChart from './LineChart';
 import Loading from './Loading';
@@ -36,6 +37,7 @@ export {
   Countdown,
   DateRangeSelector,
   Dropdown,
+  GlobalMessage,
   InfoPanel,
   LineChart,
   Loading,
