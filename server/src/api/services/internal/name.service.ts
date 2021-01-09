@@ -48,6 +48,38 @@ async function getPlayerNames(playerId: number): Promise<NameChange[]> {
   return nameChanges;
 }
 
+async function bulkSubmit(nameChanges: { oldName: string; newName: string }[]) {
+  if (!nameChanges || !Array.isArray(nameChanges)) {
+    throw new BadRequestError('Invalid name change list format.');
+  }
+
+  if (nameChanges.length === 0) {
+    throw new BadRequestError('Empty name change list.');
+  }
+
+  if (nameChanges.some(n => !n.oldName || !n.newName)) {
+    throw new BadRequestError('All name change objects must have "oldName" and "newName" properties.');
+  }
+
+  const submitted = await Promise.all(
+    nameChanges.map(async ({ oldName, newName }) => {
+      try {
+        return await submit(oldName, newName);
+      } catch (error) {
+        return null;
+      }
+    })
+  );
+
+  const submittedCount = submitted.filter(s => !!s).length;
+
+  if (submittedCount === 0) {
+    throw new BadRequestError(`Could not find any valid name changes to submit.`);
+  }
+
+  return `Successfully submitted ${submittedCount}/${nameChanges.length} name changes.`;
+}
+
 /**
  * Submit a new name change request, from oldName to newName.
  */
@@ -395,4 +427,4 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   );
 }
 
-export { getList, getDetails, getPlayerNames, submit, deny, approve, autoReview };
+export { getList, getDetails, getPlayerNames, submit, bulkSubmit, deny, approve, autoReview };
