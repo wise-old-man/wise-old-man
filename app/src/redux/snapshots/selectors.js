@@ -16,28 +16,30 @@ export const getChartData = (state, username, period, skill, measure, reducedMod
 
   const snapshots = snapshotsData[period];
 
+  // Ignore -1 values
+  const validSnapshots = snapshots.filter(s => s[skill][measure] > 0);
+
+  const enableReduction = reducedMode && validSnapshots.length > 30;
+
   // If enabled, this will evenly distribute the snapshots to a maximum of 30,
   // to make the charts cleaner by not displaying snapshots that are too near eachother
-  const distributedSnapshots = distribute(snapshots, reducedMode ? 30 : 100000);
-
-  const data = distributedSnapshots.map(s => ({
+  const data = distribute(validSnapshots, enableReduction ? 30 : 100000).map(s => ({
     x: s.createdAt,
     y: s[skill][measure]
   }));
 
   return {
     distribution: {
-      enabled: reducedMode && snapshots.length !== distributedSnapshots.length,
-      before: snapshots.length,
-      after: distributedSnapshots.length
+      enabled: enableReduction,
+      before: validSnapshots.length,
+      after: data.length
     },
     datasets: [
       {
         borderColor: CHART_COLORS[measure === 'experience' ? 0 : 1],
         pointBorderWidth: 4,
         label: capitalize(measure),
-        // If showing ranks, don't include any -1 ranks
-        data: measure === 'rank' ? data.filter(d => d.y > 0) : data,
+        data,
         fill: false
       }
     ]
