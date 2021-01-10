@@ -35,6 +35,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
+    "save-csv": "^4.1.0",
     "traverse": "^0.6.6"
   },
   "scripts": {

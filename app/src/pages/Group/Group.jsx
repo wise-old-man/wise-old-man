@@ -6,6 +6,7 @@ import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
+import saveCsv from 'save-csv';
 import URL from 'utils/url';
 import DeleteGroupModal from 'modals/DeleteGroupModal';
 import {
@@ -45,6 +46,14 @@ function Group() {
     router.push(path);
   };
 
+  const handleExport = () => {
+    const filename = `${group.name} Members.csv`;
+    const namesOnly = group.members.map(member => {
+      return { name: member.displayName };
+    });
+    saveCsv(namesOnly, { filename });
+  };
+
   const handleTabSelected = index => {
     updateContext({ section: TABS[index].toLowerCase() });
   };
@@ -64,7 +73,12 @@ function Group() {
         </Helmet>
         <div className="group__header row">
           <div className="col">
-            <Header group={group} handleUpdateAll={handleUpdateAll} handleRedirect={handleRedirect} />
+            <Header
+              group={group}
+              handleUpdateAll={handleUpdateAll}
+              handleRedirect={handleRedirect}
+              handleExport={handleExport}
+            />
           </div>
         </div>
         <div className="group__widgets row">

@@ -11,10 +11,11 @@ const VERIFIED_BADGE = {
 const MENU_OPTIONS = [
   { label: 'Create competition', value: 'CREATE_GROUP_COMPETITION' },
   { label: 'Edit group', value: 'EDIT_GROUP' },
+  { label: 'Export members list', value: 'EXPORT_MEMBERS' },
   { label: 'Delete group', value: 'DELETE_GROUP' }
 ];
 
-function Header({ group, handleUpdateAll, handleRedirect }) {
+function Header({ group, handleUpdateAll, handleRedirect, handleExport }) {
   const { context, updateContext } = useContext(GroupContext);
   const [isButtonDisabled, setButtonDisabled] = useState(false);
 
@@ -30,6 +31,8 @@ function Header({ group, handleUpdateAll, handleRedirect }) {
       handleRedirect(`/groups/${context.id}/edit`);
     } else if (option.value === 'CREATE_GROUP_COMPETITION') {
       handleRedirect(`/competitions/create?groupId=${context.id}`);
+    } else if (option.value === 'EXPORT_MEMBERS') {
+      handleExport();
     }
   };
 
@@ -59,7 +62,8 @@ Header.propTypes = {
     verified: PropTypes.bool
   }),
   handleUpdateAll: PropTypes.func.isRequired,
-  handleRedirect: PropTypes.func.isRequired
+  handleRedirect: PropTypes.func.isRequired,
+  handleExport: PropTypes.func.isRequired
 };
 
 export default Header;
