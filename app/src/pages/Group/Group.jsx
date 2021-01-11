@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import saveCsv from 'save-csv';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
-import saveCsv from 'save-csv';
 import URL from 'utils/url';
 import DeleteGroupModal from 'modals/DeleteGroupModal';
 import {
