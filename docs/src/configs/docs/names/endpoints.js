@@ -46,13 +46,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -74,8 +74,7 @@ export default [
     successResponses: [
       {
         description: '',
-        body: 
-        {
+        body: {
           id: 12,
           playerId: 13432,
           status: 0,
@@ -114,7 +113,62 @@ export default [
       },
       {
         description: 'If there already is a similar pending name change request (same names).',
-        body: { message: "There's already a similar pending name change request." }
+        body: { message: "There's already a similar pending name change. (Id: 1456)" }
+      },
+      {
+        description: "If this exact name change has been approved. (newName's last name was oldName)",
+        body: { message: 'Cannot submit a duplicate (approved) name change. (Id: 1456)' }
+      }
+    ]
+  },
+  {
+    title: 'Submit multiple name change requests (bulk)',
+    url: '/names/bulk',
+    method: 'POST',
+    comments: [
+      {
+        type: 'warning',
+        content: 'These requests still have to be approved or denied.'
+      }
+    ],
+    body: [
+      {
+        oldName: 'cometz',
+        newName: 'zezima'
+      },
+      {
+        oldName: 'Psikoi',
+        newName: 'Psikoi V2'
+      },
+      {
+        oldName: 'lynx titan',
+        newName: 'Zulu'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: {
+          message: 'Successfully submitted 2/3 name changes.'
+        }
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the list provided is undefined or not an array.',
+        body: { message: 'Invalid name change list format.' }
+      },
+      {
+        description: 'If the list provided is empty.',
+        body: { message: 'Empty name change list.' }
+      },
+      {
+        description: 'If one of the name change objects does not have the correct format.',
+        body: { message: 'All name change objects must have "oldName" and "newName" properties.' }
+      },
+      {
+        description: 'If none of the name changes were successfully submitted.',
+        body: { message: 'Could not find any valid name changes to submit.' }
       }
     ]
   },
@@ -183,7 +237,7 @@ export default [
               overall: {
                 rank: 145933,
                 experience: 126187091,
-                ehp: 14962.45 
+                ehp: 14962.45
               },
               attack: {
                 rank: 177802,

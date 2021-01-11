@@ -32,6 +32,16 @@ async function submit(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// POST /names/bulk
+async function bulkSubmit(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await nameService.bulkSubmit(req.body);
+    res.status(201).json({ message: result });
+  } catch (e) {
+    next(e);
+  }
+}
+
 // GET /names/:id
 async function details(req: Request, res: Response, next: NextFunction) {
   try {
@@ -70,4 +80,4 @@ async function deny(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, details, approve, deny };
+export { index, submit, bulkSubmit, details, approve, deny };
