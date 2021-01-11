@@ -54,7 +54,7 @@ export default [
         thresholds: '299791913'
       },
       {
-        type: 'Maxed combat',
+        type: '126 Combat',
         metric: 'combat',
         measure: 'levels',
         thresholds: '126'

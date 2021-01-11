@@ -26,7 +26,7 @@ function Statistics() {
           </b>
         </div>
         <div className="statistics-block">
-          <span className="statistic-label">Maxed combat players</span>
+          <span className="statistic-label">126 Combat players</span>
           <b className="statistic-value">
             {showPlaceholder ? 'Loading...' : statistics.maxedCombatCount}
           </b>

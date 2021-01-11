@@ -230,7 +230,7 @@ function getAchievementIcon(type) {
     }
   }
 
-  if (type === 'Maxed combat') {
+  if (type === '126 Combat') {
     return getMetricIcon('combat');
   }
 
