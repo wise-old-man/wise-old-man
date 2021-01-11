@@ -158,7 +158,7 @@ export const SKILL_ACHIEVEMENT_TEMPLATES = [
     validate: (snapshot: Snapshot) => getCappedTotalXp(snapshot) >= CAPPED_MAX_TOTAL_XP
   },
   {
-    type: 'Maxed combat',
+    type: '126 Combat',
     metric: 'combat',
     measure: 'levels',
     thresholds: [126],

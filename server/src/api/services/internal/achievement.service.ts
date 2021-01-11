@@ -65,7 +65,7 @@ function getDefinitions() {
           definitions.push({ type: newType, metric, threshold, validate: newValidate });
         });
     } else {
-      // Fixed threshold & metric (Ex: Maxed combat, Maxed overall)
+      // Fixed threshold & metric (Ex: 126 Combat, Maxed Overall)
       const threshold = thresholds[0] * getDifficultyFactor(metric);
       definitions.push({ type, metric, threshold, validate });
     }
@@ -314,7 +314,7 @@ async function getPlayerAchievements(playerId: number, includeMissing = false) {
     }));
 
   return [...achievements, ...missingAchievements].map((a: any) => {
-    // Only maxed combat is level based
+    // Only 126 combat is level based
     const isLevels = a.metric === 'combat';
     const measure = isLevels ? 'levels' : getMeasure(a.metric);
     return { ...a, measure, threshold: parseInt(a.threshold) };
