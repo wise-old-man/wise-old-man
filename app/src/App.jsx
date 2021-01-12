@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import Analytics from 'react-ga';
-import { NavigationBar, Notification, GlobalMessage } from 'components';
+import { NavigationBar, Notification } from 'components';
 import NotFound from 'pages/NotFound';
 import { uniformUrl } from 'services/analytics';
 import { ROUTES, getRoute } from 'config/routing';
@@ -76,7 +76,6 @@ function App() {
       <Notification />
       <div className="content">
         <AppWrapper>
-          <GlobalMessage message="The OSRS Hiscores are down since the 6th of January, causing WOM's updates to fail. Please check back in a few days." />
           <Switch>
             {ROUTES.map(({ path, component }) => (
               <Route key={path} exact path={path} component={component} />
