@@ -504,7 +504,7 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
 
   if (hasNewTeams) {
     // Check if all teams are valid and correctly formatted
-    if (hasNewTeams) validateTeamsList(teams);
+    validateTeamsList(teams);
     // Add new participations, with associated teams
     const newParticipants = await setTeams(competition, teams);
     // Update the competition

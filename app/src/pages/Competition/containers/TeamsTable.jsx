@@ -125,7 +125,8 @@ TeamsTable.propTypes = {
     metric: PropTypes.string,
     status: PropTypes.string,
     teams: PropTypes.arrayOf(PropTypes.shape())
-  }).isRequired
+  }).isRequired,
+  onUpdateClicked: PropTypes.func.isRequired
 };
 
 export default TeamsTable;
