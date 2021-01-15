@@ -113,9 +113,23 @@
       margin-top: 20px;
     }
 
+    .panel-header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
     .panel-label {
       font-size: 0.7em;
       color: $gray-60;
+      display: block;
+      margin-bottom: 10px;
+      margin-top: -2px;
+    }
+
+    .panel-label-link {
+      font-size: 0.7em;
+      color: white;
       display: block;
       margin-bottom: 10px;
       margin-top: -2px;

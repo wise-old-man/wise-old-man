@@ -54,7 +54,7 @@ export default [
         thresholds: '299791913'
       },
       {
-        type: 'Maxed combat',
+        type: '126 Combat',
         metric: 'combat',
         measure: 'levels',
         thresholds: '126'
@@ -113,6 +113,7 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'soul_wars_zeal',
       'abyssal_sire',
       'alchemical_hydra',
       'barrows_chests',

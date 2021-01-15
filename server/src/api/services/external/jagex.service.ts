@@ -27,8 +27,8 @@ async function getHiscoresData(username: string, type = 'regular'): Promise<stri
     const { data } = await axios({ url: proxy ? URL.replace('https', 'http') : URL, proxy });
 
     // Validate the response data
-    if (!data || !data.length || data.includes('Unavailable')) {
-      throw new ServerError('Failed to load hiscores: Service is unavailable');
+    if (!data || !data.length || data.includes('Unavailable') || data.includes('<')) {
+      throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
     }
 
     return data;
@@ -58,7 +58,7 @@ async function getHiscoresNames(username: string): Promise<string[]> {
 
     // Validate the response data
     if (!data || !data.length || data.includes('Unavailable')) {
-      throw new ServerError('Failed to load hiscores: Service is unavailable');
+      throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
     }
 
     return getHiscoresTableNames(data.toString('latin1'));

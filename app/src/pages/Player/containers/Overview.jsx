@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   formatDate,
   capitalize,
@@ -64,8 +65,8 @@ function Overview() {
         <Info player={player} />
       </div>
       <div className="col-lg-3 col-md-5">
-        {competitions && <Competitions competitions={competitions} />}
-        {achievements && <RecentAchievements achievements={achievements} />}
+        {competitions && <Competitions player={player} competitions={competitions} />}
+        {achievements && <RecentAchievements player={player} achievements={achievements} />}
         {player.latestSnapshot && <ClosestSkills player={player} />}
       </div>
       <div className="col-lg-6 col-md-12">
@@ -126,11 +127,11 @@ function ClosestSkills({ player }) {
   );
 }
 
-function RecentAchievements({ achievements }) {
+function RecentAchievements({ player, achievements }) {
   const completedAchievements = achievements
     .filter(a => a.createdAt !== null)
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 5);
+    .slice(0, 3);
 
   if (completedAchievements.length === 0) {
     return null;
@@ -144,13 +145,18 @@ function RecentAchievements({ achievements }) {
 
   return (
     <>
-      <span className="panel-label">Most recent achievements</span>
+      <div className="panel-header">
+        <span className="panel-label">Recent achievements</span>
+        <Link to={`/players/${player.displayName}/achievements`} className="panel-label-link">
+          Show more
+        </Link>
+      </div>
       <CardList items={achievementItems} />
     </>
   );
 }
 
-function Competitions({ competitions }) {
+function Competitions({ player, competitions }) {
   if (competitions.length === 0) return null;
 
   const ongoing = competitions
@@ -177,13 +183,23 @@ function Competitions({ competitions }) {
     <>
       {ongoing && ongoing.length > 0 && (
         <>
-          <span className="panel-label">Ongoing competitions</span>
+          <div className="panel-header">
+            <span className="panel-label">Ongoing competitions</span>
+            <Link to={`/players/${player.displayName}/competitions`} className="panel-label-link">
+              Show more
+            </Link>
+          </div>
           <CardList items={ongoing} urlSelector={item => `/competitions/${item.id}`} />
         </>
       )}
       {upcoming && upcoming.length > 0 && (
         <>
-          <span className="panel-label">Upcoming competitions</span>
+          <div className="panel-header">
+            <span className="panel-label">Upcoming competitions</span>
+            <Link to={`/players/${player.displayName}/competitions`} className="panel-label-link">
+              Show more
+            </Link>
+          </div>
           <CardList items={upcoming} urlSelector={item => `/competitions/${item.id}`} />
         </>
       )}
@@ -214,7 +230,7 @@ function getAchievementIcon(type) {
     }
   }
 
-  if (type === 'Maxed combat') {
+  if (type === '126 Combat') {
     return getMetricIcon('combat');
   }
 

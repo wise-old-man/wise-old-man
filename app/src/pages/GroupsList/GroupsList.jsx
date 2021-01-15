@@ -45,7 +45,7 @@ function GroupsList() {
       </div>
       <div className="groups__options row">
         <div className="col-12">
-          <TextInput onChange={e => setNameSearch(e.target.value)} placeholder="Search competition" />
+          <TextInput onChange={e => setNameSearch(e.target.value)} placeholder="Search group" />
         </div>
       </div>
       <div className="groups__list row">

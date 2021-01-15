@@ -219,7 +219,7 @@ async function competitions(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
@@ -236,7 +236,7 @@ async function monthlyTop(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     // Get the member with the most monthly overall gains
@@ -257,7 +257,7 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
@@ -276,7 +276,7 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
@@ -297,7 +297,7 @@ async function records(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
@@ -317,7 +317,7 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
@@ -334,7 +334,7 @@ async function statistics(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
 
-    // Ensure this group Id exists
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
     await groupService.resolve(id);
 
     const results = await groupService.getStatistics(id);

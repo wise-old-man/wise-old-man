@@ -4,6 +4,7 @@ export { default as Button } from './Button';
 export { default as CardList } from './CardList';
 export { default as CopyToClipboard } from './CopyToClipboard';
 export { default as Countdown } from './Countdown';
+export { default as GlobalMessage } from './GlobalMessage';
 export { default as DateRangeSelector } from './DateRangeSelector';
 export { default as Dropdown } from './Dropdown';
 export { default as FormSteps } from './FormSteps';

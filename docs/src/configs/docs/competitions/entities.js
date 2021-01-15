@@ -116,6 +116,7 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'soul_wars_zeal',
       'abyssal_sire',
       'alchemical_hydra',
       'barrows_chests',

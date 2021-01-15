@@ -62,7 +62,8 @@ export const ACTIVITIES_MAP = [
   { key: 'clue_scrolls_hard', name: 'Clue Scrolls (Hard)' },
   { key: 'clue_scrolls_elite', name: 'Clue Scrolls (Elite)' },
   { key: 'clue_scrolls_master', name: 'Clue Scrolls (Master)' },
-  { key: 'last_man_standing', name: 'Last Man Standing' }
+  { key: 'last_man_standing', name: 'Last Man Standing' },
+  { key: 'soul_wars_zeal', name: 'Soul Wars Zeal' }
 ];
 
 export const BOSSES_MAP = [
@@ -158,7 +159,7 @@ export const SKILL_ACHIEVEMENT_TEMPLATES = [
     validate: (snapshot: Snapshot) => getCappedTotalXp(snapshot) >= CAPPED_MAX_TOTAL_XP
   },
   {
-    type: 'Maxed combat',
+    type: '126 Combat',
     metric: 'combat',
     measure: 'levels',
     thresholds: [126],
