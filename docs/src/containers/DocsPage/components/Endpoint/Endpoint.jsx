@@ -55,6 +55,13 @@ function Endpoint({ endpoint }) {
         </div>
       )}
 
+      {endpoint.altBody && (
+        <div className="endpoint__body block">
+          <b className="block-title">Example request body (alternate)</b>
+          <JsonBlock json={JSON.stringify(endpoint.altBody)} />
+        </div>
+      )}
+
       {endpoint.successResponses &&
         endpoint.successResponses.map((response, i) => (
           <div key={i} className="endpoint__response block">

@@ -843,7 +843,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Cannot add participants to a team competition');
+      expect(response.body.message).toBe('Cannot add participants to a team competition.');
 
       done();
     });
@@ -925,7 +925,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Cannot remove participants from a team competition');
+      expect(response.body.message).toBe('Cannot remove participants from a team competition.');
 
       done();
     });
@@ -1173,7 +1173,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch('All team names must be non-empty strings.');
 
       done();
     });
@@ -1185,7 +1185,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toMatch('Successfully removed 2 participants from test.');
+      expect(response.body.message).toMatch('Successfully removed 2 participants from "test".');
 
       done();
     });

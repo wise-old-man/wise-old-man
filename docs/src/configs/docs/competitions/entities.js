@@ -78,6 +78,17 @@ export default [
     ]
   },
   {
+    name: 'Status',
+    description:
+      'All the possible values for the "status" query parameter of the competition endpoints.',
+    values: ['upcoming', 'ongoing', 'finished']
+  },
+  {
+    name: 'Type',
+    description: 'All the possible values for the "type" property of the Competition model.',
+    values: ['classic', 'team']
+  },
+  {
     name: 'Metrics',
     description: 'All the possible values for the "metric" field of the competition model.',
     values: [
@@ -164,11 +175,5 @@ export default [
       'ehp',
       'ehb'
     ]
-  },
-  {
-    name: 'Status',
-    description:
-      'All the possible values for the "status" query parameter of the competition endpoints.',
-    values: ['upcoming', 'ongoing', 'finished']
   }
 ];

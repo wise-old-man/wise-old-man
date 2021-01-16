@@ -160,7 +160,7 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     }
 
     const count = await service.removeParticipants(competition, participants);
-    const message = `Successfully removed ${count} participants from ${competition.title}.`;
+    const message = `Successfully removed ${count} participants from "${competition.title}".`;
 
     res.json({ message });
   } catch (e) {
@@ -184,7 +184,7 @@ async function addTeams(req: Request, res: Response, next: NextFunction) {
 
     const result = await service.addTeams(competition, teams);
 
-    res.json({ teams: result });
+    res.json({ newTeams: result });
   } catch (e) {
     next(e);
   }
@@ -205,7 +205,7 @@ async function removeTeams(req: Request, res: Response, next: NextFunction) {
     }
 
     const count = await service.removeTeams(competition, teamNames);
-    const message = `Successfully removed ${count} participants from ${competition.title}.`;
+    const message = `Successfully removed ${count} participants from "${competition.title}".`;
 
     res.json({ message });
   } catch (e) {

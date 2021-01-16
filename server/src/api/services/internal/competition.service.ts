@@ -396,14 +396,14 @@ async function create(dto: CreateCompetitionDTO) {
 
   if (hasParticipants && isGroupCompetition) {
     throw new BadRequestError(
-      `Cannot include both 'participants' and 'groupId', they are mutually exclusive. 
+      `Cannot include both "participants" and "groupId", they are mutually exclusive. 
       All group members will be registered as participants instead.`
     );
   }
 
   if (hasParticipants && isTeamCompetition) {
     throw new BadRequestError(
-      "Cannot include both 'participants' and 'teams', they are mutually exclusive."
+      'Cannot include both "participants" and "teams", they are mutually exclusive.'
     );
   }
 
@@ -466,11 +466,11 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   const hasNewParticipants = participants && participants.length > 0;
 
   if (competition.type === 'classic' && hasNewTeams) {
-    throw new BadRequestError("The competition type cannot be changed to 'teams'");
+    throw new BadRequestError("The competition type cannot be changed to 'team'.");
   }
 
   if (competition.type === 'team' && hasNewParticipants) {
-    throw new BadRequestError("The competition type cannot be changed to 'classic'");
+    throw new BadRequestError("The competition type cannot be changed to 'classic'.");
   }
 
   // If competition has started
@@ -622,7 +622,7 @@ async function addAllGroupMembers(competition, groupId) {
  */
 async function addParticipants(competition: Competition, usernames: string[]) {
   if (competition.type === 'team') {
-    throw new BadRequestError('Cannot add participants to a team competition');
+    throw new BadRequestError('Cannot add participants to a team competition.');
   }
 
   if (usernames.length === 0) {
@@ -654,7 +654,7 @@ async function addParticipants(competition: Competition, usernames: string[]) {
  */
 async function removeParticipants(competition: Competition, usernames: string[]) {
   if (competition.type === 'team') {
-    throw new BadRequestError('Cannot remove participants from a team competition');
+    throw new BadRequestError('Cannot remove participants from a team competition.');
   }
 
   if (usernames.length === 0) {
@@ -750,7 +750,7 @@ async function removeTeams(competition: Competition, teamNames: string[]) {
   }
 
   if (teamNames.some(t => typeof t !== 'string' || t.length === 0)) {
-    throw new BadRequestError('All teams must have a name property.');
+    throw new BadRequestError('All team names must be non-empty strings.');
   }
 
   const removedPlayersCount = await Participation.destroy({
