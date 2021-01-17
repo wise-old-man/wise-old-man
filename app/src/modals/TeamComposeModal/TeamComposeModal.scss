@@ -52,6 +52,19 @@
       color: white;
     }
 
+    .modal-group {
+      display: flex;
+      flex-direction: row;
+      align-content: center;
+      justify-content: space-between;
+
+      .text-button {
+        padding: 0;
+        margin-bottom: 10px;
+        font-size: 0.8em;
+      }
+    }
+
     .text-input {
       background: $gray-00;
     }
