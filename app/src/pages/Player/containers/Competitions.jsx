@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { sortBy, indexOf } from 'lodash';
-import { Table, StatusDot } from 'components';
+import { Table, StatusDot, Badge } from 'components';
 import { getMetricIcon } from 'utils';
 import { competitionSelectors } from 'redux/competitions';
 import { PlayerContext } from '../context';
@@ -38,7 +38,22 @@ const TABLE_CONFIG = {
     {
       key: 'duration',
       className: () => '-break-large',
-      transform: val => `Lasts for ${val}`
+      transform: val => `Duration: ${val}`
+    },
+    {
+      key: 'type',
+      className: () => '-break-small',
+      transform: value => {
+        return (
+          value === 'team' && (
+            <Badge
+              text="Teams"
+              hoverText="Team competition: Players are divided into competing teams."
+              color="#898989"
+            />
+          )
+        );
+      }
     }
   ]
 };

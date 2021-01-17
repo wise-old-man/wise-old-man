@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { omit } from 'lodash';
 import { ForbiddenError } from '../errors';
 import * as guard from '../guards/competition.guards';
 import jobs from '../jobs';
@@ -13,11 +14,12 @@ async function index(req: Request, res: Response, next: NextFunction) {
     const title = extractString(req.query, { key: 'title' });
     const status = extractString(req.query, { key: 'status' });
     const metric = extractString(req.query, { key: 'metric' });
+    const type = extractString(req.query, { key: 'type' });
     // Pagination query
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
-    const filter = { title, status, metric };
+    const filter = { title, status, metric, type };
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
     const results = await service.getList(filter, paginationConfig);
@@ -51,11 +53,18 @@ async function create(req: Request, res: Response, next: NextFunction) {
     const groupId = extractNumber(req.body, { key: 'groupId' });
     const groupVerificationCode = extractString(req.body, { key: 'groupVerificationCode' });
     const participants = extractStrings(req.body, { key: 'participants' });
+    const teams = req.body.teams;
 
-    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants };
+    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams };
     const competition = await service.create(dto);
 
-    res.status(201).json(competition);
+    // Omit some secrets from the response
+    const response = omit(
+      competition,
+      groupId ? ['verificationHash', 'verificationCode'] : ['verificationHash']
+    );
+
+    res.status(201).json(response);
   } catch (e) {
     next(e);
   }
@@ -71,6 +80,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const startsAt = extractDate(req.body, { key: 'startsAt' });
     const endsAt = extractDate(req.body, { key: 'endsAt' });
     const participants = extractStrings(req.body, { key: 'participants' });
+    const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
     const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
@@ -79,10 +89,13 @@ async function edit(req: Request, res: Response, next: NextFunction) {
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const dto = { verificationCode, title, metric, startsAt, endsAt, participants };
+    const dto = { verificationCode, title, metric, startsAt, endsAt, participants, teams };
     const editedCompetition = await service.edit(competition, dto);
 
-    res.json(editedCompetition);
+    // Omit the hash from the response
+    const response = omit(editedCompetition, ['verificationHash']);
+
+    res.json(response);
   } catch (e) {
     next(e);
   }
@@ -147,7 +160,52 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     }
 
     const count = await service.removeParticipants(competition, participants);
-    const message = `Successfully removed ${count} participants from competition of id: ${id}.`;
+    const message = `Successfully removed ${count} participants from "${competition.title}".`;
+
+    res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /competitions/:id/add-teams
+async function addTeams(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const teams = req.body.teams;
+
+    const competition = await service.resolve(id, { includeHash: true });
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const result = await service.addTeams(competition, teams);
+
+    res.json({ newTeams: result });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// POST /competitions/:id/remove-teams
+async function removeTeams(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+    const teamNames = extractStrings(req.body, { key: 'teamNames', required: true });
+
+    const competition = await service.resolve(id, { includeHash: true });
+    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
+    const count = await service.removeTeams(competition, teamNames);
+    const message = `Successfully removed ${count} participants from "${competition.title}".`;
 
     res.json({ message });
   } catch (e) {
@@ -182,5 +240,7 @@ export {
   remove,
   addParticipants,
   removeParticipants,
+  addTeams,
+  removeTeams,
   updateAllParticipants
 };

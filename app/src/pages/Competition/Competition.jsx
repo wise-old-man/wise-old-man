@@ -8,12 +8,20 @@ import { playerActions } from 'redux/players';
 import { useUrlContext } from 'hooks';
 import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
-import { Header, Widgets, ParticipantsTable, ParticipantsChart } from './containers';
+import { Header, Widgets, ParticipantsTable, TeamsTable, ParticipantsChart } from './containers';
 import { CompetitionInfo } from './components';
 import { CompetitionContext } from './context';
 import './Competition.scss';
 
-const TABS = ['Progress Table', 'Top 5 progress chart'];
+function getTabs(competitionType) {
+  const tabs = ['Participants Table', 'Top 5 progress chart'];
+
+  if (competitionType === 'team') {
+    tabs.unshift('Team standings');
+  }
+
+  return tabs;
+}
 
 function Competition() {
   const dispatch = useDispatch();
@@ -23,7 +31,10 @@ function Competition() {
   const { id, section } = context;
 
   const competition = useSelector(state => competitionSelectors.getCompetition(state, id));
-  const selectedTabIndex = section === 'chart' ? 1 : 0;
+  const competitionType = competition ? competition.type : 'classic';
+
+  const tabs = getTabs(competitionType);
+  const selectedTabIndex = getSelectedTabIndex(competitionType, section);
   const showDeleteModal = section === 'delete' && !!competition;
 
   const handleUpdateAll = () => {
@@ -39,15 +50,25 @@ function Competition() {
   };
 
   const handleTabSelected = index => {
-    if (index === 1) {
-      updateContext({ section: 'chart' });
-    } else {
+    if (competitionType === 'classic') {
+      updateContext({ section: index === 0 ? 'participants' : 'chart' });
+    } else if (index === 0) {
+      updateContext({ section: 'teams' });
+    } else if (index === 1) {
       updateContext({ section: 'participants' });
+    } else {
+      updateContext({ section: 'chart' });
     }
   };
 
   // Fetch competition details, on mount
   useEffect(() => fetchDetails(id, router, dispatch), [router, dispatch, id]);
+
+  useEffect(() => {
+    if (competition && competition.type === 'classic' && section === 'teams') {
+      updateContext({ section: 'participants' });
+    }
+  }, [section, updateContext, competition]);
 
   if (!competition) {
     return <Loading />;
@@ -76,18 +97,20 @@ function Competition() {
             <CompetitionInfo competition={competition} />
           </div>
           <div className="col-md-8">
-            <Tabs tabs={TABS} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
-            {section === 'chart' ? (
-              <ParticipantsChart />
-            ) : (
+            <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
+            {section === 'teams' && (
+              <TeamsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+            )}
+            {section === 'participants' && (
               <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
             )}
+            {section === 'chart' && <ParticipantsChart />}
           </div>
         </div>
         {showDeleteModal && (
           <DeleteCompetitionModal
             competition={competition}
-            onCancel={() => updateContext({ section: 'participants' })}
+            onCancel={() => updateContext({ section: 'teams' })}
           />
         )}
       </div>
@@ -104,22 +127,37 @@ const fetchDetails = (id, router, dispatch) => {
     .catch(() => router.push('/404'));
 };
 
-function encodeContext({ id, section }) {
-  const nextURL = new URL(`/competitions/${id}`);
-
-  if (section === 'chart' || section === 'delete') {
-    nextURL.appendToPath(`/${section}`);
+function getSelectedTabIndex(competitionType, section) {
+  if (competitionType === 'classic') {
+    return section === 'chart' ? 1 : 0;
   }
 
-  return nextURL.getPath();
+  switch (section) {
+    case 'participants':
+      return 1;
+    case 'chart':
+      return 2;
+    default:
+      return 0;
+  }
+}
+
+function encodeContext({ id, section }) {
+  return new URL(`/competitions/${id}/${section}`).getPath();
 }
 
 function decodeURL(params) {
-  if (params.section && (params.section === 'chart' || params.section === 'delete')) {
-    return { id: parseInt(params.id, 10), section: params.section };
+  const id = parseInt(params.id, 10);
+  const { section } = params;
+
+  // Since these decode/encode functions don't have access to the competition type
+  // by default, try to render the "teams" display, and if it isn't a
+  // team competition, a useEffect will correct the section to 'participants'
+  if (!section) {
+    return { id, section: 'teams' };
   }
 
-  return { id: parseInt(params.id, 10), section: 'participants' };
+  return { id, section };
 }
 
 export default Competition;

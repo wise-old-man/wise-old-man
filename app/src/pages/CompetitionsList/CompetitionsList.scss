@@ -2,7 +2,7 @@
 
 .competitions__container {
   @extend %page;
-  width: 800px !important;
+  width: 900px !important;
   max-width: 90%;
 
   .competitions__header {
@@ -17,6 +17,10 @@
 
   .table {
     font-size: 1.1em;
+
+    .badge {
+      font-size: 0.8em;
+    }
   }
 
   .loading-indicator {

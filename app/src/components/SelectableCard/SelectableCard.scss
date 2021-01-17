@@ -1,0 +1,65 @@
+@import '../../styles.scss';
+
+.selectable-card {
+  border: 2px solid $gray-40;
+  border-radius: 5px;
+  background: none;
+  width: 230px;
+  height: 100px;
+  display: flex;
+  padding: 15px;
+  flex-direction: row;
+  transition: 0.2s;
+
+  &.-selected {
+    background: #151b1f;
+    border: 2px solid $brand-color;
+
+    .right .title {
+      color: $brand-color-bright;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &.-disabled {
+    opacity: 0.3;
+    cursor: no-drop;
+
+    &:hover {
+      opacity: 0.3;
+    }
+  }
+
+  &:hover {
+    opacity: 0.5;
+  }
+
+  .left {
+    margin-right: 15px;
+
+    img {
+      width: 30px;
+    }
+  }
+
+  .right {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .title {
+      color: white;
+      font-size: 1.2em;
+      margin: 4px 0;
+    }
+
+    .text {
+      color: $gray-60;
+      margin-top: 2px;
+    }
+  }
+}

@@ -25,6 +25,14 @@
     border-collapse: separate;
     border-spacing: 0 10px;
 
+    & > thead > tr > th {
+      background: none;
+      padding-bottom: 5px;
+      padding-top: 0;
+      font-size: 0.7em;
+      font-weight: 400;
+    }
+
     td {
       padding: 10px;
 
@@ -59,6 +67,10 @@
         margin-bottom: -4px;
       }
     }
+  }
+
+  &.-details {
+    border-spacing: 0 5px;
   }
 
   &.-clickable {
@@ -177,6 +189,21 @@
     @extend %block-text-selection;
     margin-bottom: -4px;
   }
+
+  .details-cell {
+    cursor: default !important;
+    height: 0px;
+    margin: 0;
+    font-size: 1em;
+    background: none;
+    padding: 0 !important;
+    font-size: 1em;
+    height: 0px;
+
+    thead {
+      color: white;
+    }
+  }
 }
 
 @media only screen and (max-width: $breakpoint-large) {
@@ -186,8 +213,14 @@
     td,
     th {
       &.-break-large {
+        display: none;
+        font-size: 0;
         padding: 0;
         font-size: 0;
+
+        .arrow {
+          display: none;
+        }
 
         * {
           padding: 0;
@@ -203,8 +236,14 @@
     td,
     th {
       &.-break-medium {
+        display: none;
+        font-size: 0;
         padding: 0;
         font-size: 0;
+
+        .arrow {
+          display: none;
+        }
 
         * {
           padding: 0;
@@ -227,8 +266,11 @@
         padding: 0;
         font-size: 0;
 
+        .arrow {
+          display: none;
+        }
+
         * {
-          font-size: 0;
           padding: 0;
           font-size: 0;
         }

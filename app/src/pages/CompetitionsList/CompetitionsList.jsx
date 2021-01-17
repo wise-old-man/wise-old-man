@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
-import { COMPETITION_STATUSES, ALL_METRICS } from 'config';
+import { COMPETITION_STATUSES, COMPETITION_TYPES, ALL_METRICS } from 'config';
 import { useUrlContext, useLazyLoading } from 'hooks';
 import { PageTitle, TextButton } from 'components';
 import URL from 'utils/url';
@@ -18,7 +18,7 @@ function CompetitionsList() {
   const [titleSearch, setTitleSearch] = useState('');
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { metric, status } = context;
+  const { metric, type, status } = context;
 
   const { isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 20,
@@ -27,14 +27,14 @@ function CompetitionsList() {
   });
 
   function handleLoadData(limit, offset) {
-    dispatch(competitionActions.fetchList(titleSearch, metric, status, limit, offset));
+    dispatch(competitionActions.fetchList(titleSearch, metric, status, type, limit, offset));
   }
 
   // Debounce search input keystrokes by 500ms
   const handleSubmitSearch = debounce(reloadData, 500, { leading: true, trailing: false });
 
   // Submit search each time any of the search variable change
-  useEffect(handleSubmitSearch, [titleSearch, metric, status]);
+  useEffect(handleSubmitSearch, [titleSearch, metric, type, status]);
 
   return (
     <CompetitionsListContext.Provider value={{ context, updateContext }}>
@@ -54,9 +54,7 @@ function CompetitionsList() {
           <Controls onSearchInputChanged={e => setTitleSearch(e.target.value)} />
         </div>
         <div className="competitions__list row">
-          <div className="col">
-            <List />
-          </div>
+          <List />
         </div>
         <div className="row">
           <div className="col">{!isFullyLoaded && <b className="loading-indicator">Loading...</b>}</div>
@@ -66,20 +64,23 @@ function CompetitionsList() {
   );
 }
 
-function encodeContext({ metric, status }) {
+function encodeContext({ metric, status, type }) {
   const nextURL = new URL('/competitions');
 
   if (metric) nextURL.appendSearchParam('metric', metric);
   if (status) nextURL.appendSearchParam('status', status);
+  if (type) nextURL.appendSearchParam('type', type);
 
   return nextURL.getPath();
 }
 
 function decodeURL(_, query) {
+  const isValidType = query.type && COMPETITION_TYPES.includes(query.type);
   const isValidStatus = query.status && COMPETITION_STATUSES.includes(query.status);
   const isValidMetric = query.metric && ALL_METRICS.includes(query.metric);
 
   return {
+    type: isValidType ? query.type : null,
     status: isValidStatus ? query.status : null,
     metric: isValidMetric ? query.metric : null
   };

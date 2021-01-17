@@ -22,6 +22,12 @@
     &:focus {
       outline: none;
     }
+
+    &:disabled,
+    &[disabled] {
+      opacity: 0.3;
+      cursor: auto;
+    }
   }
 
   &__icon {

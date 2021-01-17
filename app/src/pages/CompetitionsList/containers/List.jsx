@@ -3,20 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { competitionSelectors } from 'redux/competitions';
 import { getMetricIcon } from 'utils';
-import { Table, TablePlaceholder, StatusDot } from 'components';
-
-function convertStatus(status) {
-  switch (status) {
-    case 'upcoming':
-      return 'NEUTRAL';
-    case 'ongoing':
-      return 'POSITIVE';
-    case 'finished':
-      return 'NEGATIVE';
-    default:
-      return null;
-  }
-}
+import { Table, TablePlaceholder, StatusDot, Badge } from 'components';
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -47,6 +34,21 @@ const TABLE_CONFIG = {
       key: 'participantCount',
       transform: val => `${val} participants`,
       className: () => '-break-large'
+    },
+    {
+      key: 'type',
+      className: () => '-break-small',
+      transform: value => {
+        return (
+          value === 'team' && (
+            <Badge
+              text="Teams"
+              hoverText="Team competition: Players are divided into competing teams."
+              color="#898989"
+            />
+          )
+        );
+      }
     }
   ]
 };
@@ -69,6 +71,19 @@ function List() {
       )}
     </div>
   );
+}
+
+function convertStatus(status) {
+  switch (status) {
+    case 'upcoming':
+      return 'NEUTRAL';
+    case 'ongoing':
+      return 'POSITIVE';
+    case 'finished':
+      return 'NEGATIVE';
+    default:
+      return null;
+  }
 }
 
 export default List;

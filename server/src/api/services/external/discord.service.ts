@@ -107,10 +107,10 @@ function dispatchCompetitionEnded(competition: Competition) {
 
   // Map the competition's end standings
   const standings = participants.map((p: any) => {
-    const displayName = p.displayName;
+    const { displayName, teamName } = p;
     const gained = p.progress.gained;
 
-    return { displayName, gained };
+    return { displayName, teamName, gained };
   });
 
   dispatch('COMPETITION_ENDED', { groupId, competition, standings });

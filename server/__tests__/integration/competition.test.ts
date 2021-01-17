@@ -144,7 +144,7 @@ describe('Competition API', () => {
       done();
     });
 
-    test("1.7 - DON'T create ( start & end date in the past )", async done => {
+    test("1.7 - DON'T create (start & end date in the past)", async done => {
       const body = {
         title: 'test',
         metric: 'overall',
@@ -165,16 +165,23 @@ describe('Competition API', () => {
         title: 'test',
         metric: 'overall',
         startsAt: '2025-05-17T22:00:00.000Z',
-        endsAt: '2025-05-17T22:00:00.000Z'
+        endsAt: '2025-05-17T22:00:00.000Z',
+        participants: ['test player', 'alt player']
       };
 
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(201);
       expect(response.body.title).toMatch('test');
+      expect(response.body.type).toMatch('classic');
       expect(response.body.metric).toMatch('overall');
       expect(response.body.startsAt).toMatch('2025-05-17T22:00:00.000Z');
       expect(response.body.endsAt).toMatch('2025-05-17T22:00:00.000Z');
+      expect(response.body.participants.length).toBe(2);
+      expect(response.body.participants[0].username).toBe('test player');
+      expect(response.body.participants[1].username).toBe('alt player');
+      expect(response.body.verificationCode).not.toBe(undefined);
+      expect(response.body.verificationHash).toBe(undefined);
 
       TEST_DATA.minimal = response.body;
 
@@ -194,7 +201,11 @@ describe('Competition API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(201);
+      expect(response.body.type).toMatch('classic');
       expect(response.body.participants.length).toBe(2);
+      expect(response.body.groupId).toBe(TEST_GROUP_ID);
+      expect(response.body.verificationCode).toBe(undefined);
+      expect(response.body.verificationHash).toBe(undefined);
 
       TEST_DATA.group = response.body;
 
@@ -254,6 +265,171 @@ describe('Competition API', () => {
 
       done();
     });
+
+    test("1.14 - DON'T create (including participants and groupId)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        groupId: TEST_GROUP_ID,
+        groupVerificationCode: TEST_GROUP_VERIFICATION_CODE,
+        participants: ['Psikoi', 'zezima', 'lynx titan']
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Cannot include both');
+
+      done();
+    });
+
+    test("1.15 - DON'T create (including participants and teams)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        participants: ['Psikoi', 'zezima', 'lynx titan'],
+        teams: [{}]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Cannot include both');
+
+      done();
+    });
+
+    test("1.16 - DON'T create (invalid teams list)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: ['hey', 123, {}]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('All teams must have a name property');
+
+      done();
+    });
+
+    test("1.17 - DON'T create (repeated team names)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: [{ name: 'Warriors' }, { name: 'warriors ' }]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Found repeated team names:');
+
+      done();
+    });
+
+    test("1.18 - DON'T create (invalid team participants list)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: [
+          { name: 'Warriors', participants: [] },
+          { name: 'Spartans', participants: undefined }
+        ]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'All teams must have a valid (non-empty) array of participants.'
+      );
+
+      done();
+    });
+
+    test("1.19 - DON'T create (invalid team participants)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: [
+          { name: 'Warriors', participants: [123, {}] },
+          { name: 'Spartans', participants: ['hey'] }
+        ]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All participant names must be valid strings.');
+
+      done();
+    });
+
+    test("1.20 - DON'T create (repeated team participants)", async done => {
+      const body = {
+        title: 'test',
+        metric: 'overall',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: [
+          { name: 'Warriors', participants: ['Psikoi', 'Cometz'] },
+          { name: 'Spartans', participants: ['psikOI  ', 'Zezima'] }
+        ]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Found repeated usernames:');
+
+      done();
+    });
+
+    test('1.21 - Create team competition', async done => {
+      const body = {
+        title: 'test',
+        metric: 'firemaking',
+        startsAt: '2025-05-17T22:00:00.000Z',
+        endsAt: '2025-05-17T22:00:00.000Z',
+        teams: [
+          {
+            name: 'Warriors',
+            participants: ['test player']
+          },
+          {
+            name: 'Spartans',
+            participants: ['alt player']
+          }
+        ]
+      };
+
+      const response = await request.post(BASE_URL).send(body);
+
+      TEST_DATA.team = response.body;
+
+      expect(response.status).toBe(201);
+      expect(response.body.type).toBe('team');
+      expect(response.body.participants.length).toBe(2);
+
+      expect(response.body.participants.filter(p => p.teamName === 'Warriors').length).toBe(1);
+      expect(response.body.participants.filter(p => p.teamName === 'Spartans').length).toBe(1);
+
+      done();
+    }, 10000);
   });
 
   describe('2. Searching', () => {
@@ -261,7 +437,10 @@ describe('Competition API', () => {
       const response = await request.get(BASE_URL).send();
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
+      expect(response.body.length).toBe(4);
+
+      expect(response.body.filter(c => c.type === 'classic').length).toBe(3);
+      expect(response.body.filter(c => c.type === 'team').length).toBe(1);
 
       done();
     });
@@ -297,6 +476,18 @@ describe('Competition API', () => {
 
       done();
     });
+
+    test('2.5 - Search competitions (with type)', async done => {
+      const query = { type: 'CLASSIC' };
+      const response = await request.get(BASE_URL).query(query);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      response.body.map(c => expect(c.type).toBe('classic'));
+
+      done();
+    });
   });
 
   describe('3. Viewing', () => {
@@ -306,6 +497,7 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.title).toBe('test competition');
       expect(response.body.metric).toBe('overall');
+      expect(response.body.type).toBe('classic');
       expect(response.body.duration).toBe('3 days');
       expect(response.body.verificationCode).toBe(undefined);
 
@@ -323,7 +515,7 @@ describe('Competition API', () => {
   });
 
   describe('4. Updating', () => {
-    test("4.1 - DON'T update ( incorrect verificationCode )", async done => {
+    test("4.1 - DON'T update (incorrect verificationCode)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.minimal.id}`;
       const body = { title: 'update-title', verificationCode: '123-123' };
 
@@ -433,6 +625,161 @@ describe('Competition API', () => {
 
       done();
     });
+
+    test("4.8 - DON'T update (cannot change type after competition started)", async done => {
+      const url = `${BASE_URL}/${TEST_ID}`;
+
+      const body = {
+        title: 'my competition',
+        teams: [{ name: 'Warriors', participants: ['test player'] }],
+        verificationCode: TEST_VERIFICATION_CODE
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('The competition type cannot be changed');
+
+      done();
+    });
+
+    test("4.9 - DON'T update (invalid participant type data)", async done => {
+      const url = `${BASE_URL}/${TEST_ID}`;
+
+      const body = {
+        title: 'my competition',
+        verificationCode: TEST_VERIFICATION_CODE,
+        participants: [{}, 123, 'valid']
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain(
+        '2 Invalid usernames: Names must be 1-12 characters long,'
+      );
+
+      done();
+    });
+
+    test("4.10 - DON'T update (invalid teams list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        teams: ['hey', 123, {}],
+        verificationCode: TEST_DATA.team.verificationCode
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('All teams must have a name property');
+
+      done();
+    });
+
+    test("4.11 - DON'T update (repeated team names)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        teams: [{ name: 'Warriors' }, { name: 'warriors ' }],
+        verificationCode: TEST_DATA.team.verificationCode
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Found repeated team names:');
+
+      done();
+    });
+
+    test("4.12 - DON'T update (invalid team participants list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: [] },
+          { name: 'Spartans', participants: undefined }
+        ]
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'All teams must have a valid (non-empty) array of participants.'
+      );
+
+      done();
+    });
+
+    test("4.13 - DON'T update (invalid team participants)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: [123, {}] },
+          { name: 'Spartans', participants: ['hey'] }
+        ]
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All participant names must be valid strings.');
+
+      done();
+    });
+
+    test("4.14 - DON'T update (repeated team participants)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: ['Psikoi', 'Cometz'] },
+          { name: 'Spartans', participants: ['psikOI  ', 'Zezima'] }
+        ]
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Found repeated usernames:');
+
+      done();
+    });
+
+    test('4.14 - Update teams', async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          {
+            name: 'Warriors',
+            participants: ['test player', 'epic player']
+          },
+          {
+            name: 'Spartans',
+            participants: ['alt player']
+          }
+        ]
+      };
+
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.participants.length).toBe(3);
+
+      expect(response.body.participants.filter(p => p.teamName === 'Warriors').length).toBe(2);
+      expect(response.body.participants.filter(p => p.teamName === 'Spartans').length).toBe(1);
+
+      done();
+    });
   });
 
   describe('5. Adding participants', () => {
@@ -481,6 +828,22 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('All players given are already competing.');
+
+      done();
+    });
+
+    test("5.4 - DON'T add participant to a team competition", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-participants`;
+
+      const body = {
+        participants: ['new player'],
+        verificationCode: TEST_DATA.team.verificationCode
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Cannot add participants to a team competition.');
 
       done();
     });
@@ -551,7 +914,23 @@ describe('Competition API', () => {
       done();
     });
 
-    test('6.5 - Remove participant', async done => {
+    test("6.5 - DON'T remove participant from a team competition", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/remove-participants`;
+
+      const body = {
+        participants: ['test player'],
+        verificationCode: TEST_DATA.team.verificationCode
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Cannot remove participants from a team competition.');
+
+      done();
+    });
+
+    test('6.6 - Remove participant', async done => {
       const url = `${BASE_URL}/${TEST_DATA.minimal.id}/remove-participants`;
 
       const body = {
@@ -562,16 +941,258 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `Successfully removed 1 participants from competition of id: ${TEST_DATA.minimal.id}.`
-      );
+      expect(response.body.message).toContain(`Successfully removed 1 participants`);
 
       done();
     });
   });
 
-  describe('7. Deleting', () => {
-    test("7.1 - DON'T delete (undefined verification code)", async done => {
+  describe('7. Adding teams', () => {
+    test("7.1 - DON'T add teams (undefined verification code)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const response = await request.post(url).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+
+      done();
+    });
+
+    test("7.2 - DON'T add teams (incorrect verification code)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+      const body = { verificationCode: 'invalid' };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toMatch('Incorrect verification code.');
+
+      done();
+    });
+
+    test("7.3 - DON'T add teams (undefined teams list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+      const body = { verificationCode: TEST_DATA.team.verificationCode };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Empty teams list.');
+
+      done();
+    });
+
+    test("7.4 - DON'T add teams (empty teams list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: []
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Empty teams list.');
+
+      done();
+    });
+
+    test("7.5 - DON'T add teams (competition is classic)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.minimal.verificationCode,
+        teams: [{}]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Teams can't be added to a classic competition.");
+
+      done();
+    });
+
+    test("7.6 - DON'T add teams (invalid teams list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: ['hey', 123, {}]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All teams must have a name property.');
+
+      done();
+    });
+
+    test("7.7 - DON'T add teams (repeated team names)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [{ name: 'Warriors' }, { name: 'warriors ' }]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toContain('Found repeated team names:');
+
+      done();
+    });
+
+    test("7.8 - DON'T add teams (repeated team names)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: [] },
+          { name: 'Spartans', participants: undefined }
+        ]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'All teams must have a valid (non-empty) array of participants.'
+      );
+
+      done();
+    });
+
+    test("7.9 - DON'T add teams (invalid team participants)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: [123, {}] },
+          { name: 'Spartans', participants: ['hey'] }
+        ]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All participant names must be valid strings.');
+
+      done();
+    });
+
+    test("7.10 - DON'T add teams (repeated team participants)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/add-teams`;
+
+      const body = {
+        verificationCode: TEST_DATA.team.verificationCode,
+        teams: [
+          { name: 'Warriors', participants: ['Psikoi', 'Cometz'] },
+          { name: 'Spartans', participants: ['psikOI  ', 'Zezima'] }
+        ]
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Found repeated usernames:');
+
+      done();
+    });
+  });
+
+  describe('8. Removing teams', () => {
+    test("8.1 - DON'T remove teams (undefined verification code)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/remove-teams`;
+      const response = await request.post(url).send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+
+      done();
+    });
+
+    test("8.2 - DON'T remove teams (undefined team names)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/remove-teams`;
+      const body = { verificationCode: 'something' };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'teamNames' is undefined.");
+
+      done();
+    });
+
+    test("8.3 - DON'T remove teams (incorrect verification code)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/remove-teams`;
+      const body = { verificationCode: 'invalid', teamNames: [] };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toMatch('Incorrect verification code.');
+
+      done();
+    });
+
+    test("8.4 - DON'T remove teams (classic competition)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/remove-teams`;
+      const body = { verificationCode: TEST_DATA.minimal.verificationCode, teamNames: [] };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Cannot remove teams from a classic competition.');
+
+      done();
+    });
+
+    test("8.5 - DON'T remove teams (empty team names list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/remove-teams`;
+      const body = { verificationCode: TEST_DATA.team.verificationCode, teamNames: [] };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Empty team names list.');
+
+      done();
+    });
+
+    test("8.6 - DON'T remove teams (invalid team names list)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/remove-teams`;
+      const body = { verificationCode: TEST_DATA.team.verificationCode, teamNames: [123, {}, 'hey'] };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('All team names must be non-empty strings.');
+
+      done();
+    });
+
+    test('8.7 - Remove teams', async done => {
+      const url = `${BASE_URL}/${TEST_DATA.team.id}/remove-teams`;
+      const body = { verificationCode: TEST_DATA.team.verificationCode, teamNames: ['Warriors'] };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully removed 2 participants from "test".');
+
+      done();
+    });
+  });
+
+  describe('9. Deleting', () => {
+    test("9.1 - DON'T delete (undefined verification code)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.minimal.id}`;
       const response = await request.delete(url).send({});
 
@@ -581,7 +1202,7 @@ describe('Competition API', () => {
       done();
     });
 
-    test("7.2 - DON'T delete ( Invalid verification code )", async done => {
+    test("9.2 - DON'T delete (invalid verification code)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.minimal.id}`;
       const body = { verificationCode: 'invalid' };
 
@@ -593,7 +1214,7 @@ describe('Competition API', () => {
       done();
     });
 
-    test('7.3 - Delete competition', async done => {
+    test('9.3 - Delete competition', async done => {
       const url = `${BASE_URL}/${TEST_DATA.minimal.id}`;
       const body = { verificationCode: TEST_DATA.minimal.verificationCode };
 

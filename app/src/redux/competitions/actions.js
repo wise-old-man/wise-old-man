@@ -8,12 +8,22 @@ const create = (
   endsAt,
   participants,
   groupVerificationCode,
-  groupId
+  groupId,
+  teams
 ) => async dispatch => {
   dispatch(reducers.onCreateRequest());
 
   try {
-    const body = { title, metric, startsAt, endsAt, participants, groupVerificationCode, groupId };
+    const body = {
+      title,
+      metric,
+      startsAt,
+      endsAt,
+      participants,
+      teams,
+      groupVerificationCode,
+      groupId
+    };
     const { data } = await api.post(endpoints.createCompetition, body);
 
     return dispatch(reducers.onCreateSuccess({ data }));
@@ -23,11 +33,20 @@ const create = (
   }
 };
 
-const edit = (id, title, metric, startsAt, endsAt, participants, verificationCode) => async dispatch => {
+const edit = (
+  id,
+  title,
+  metric,
+  startsAt,
+  endsAt,
+  participants,
+  teams,
+  verificationCode
+) => async dispatch => {
   dispatch(reducers.onEditRequest());
 
   try {
-    const body = { title, metric, startsAt, endsAt, participants, verificationCode };
+    const body = { title, metric, startsAt, endsAt, participants, teams, verificationCode };
     const url = endpoints.editCompetition.replace(':id', id);
 
     const { data } = await api.put(url, body);
@@ -52,11 +71,11 @@ const remove = (id, verificationCode) => async dispatch => {
   }
 };
 
-const fetchList = (title, metric, status, limit, offset) => async dispatch => {
+const fetchList = (title, metric, status, type, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchListRequest());
 
   try {
-    const params = { title, metric, status, limit, offset };
+    const params = { title, metric, status, type, limit, offset };
     const { data } = await api.get(endpoints.fetchCompetitions, { params });
 
     const refresh = !offset;

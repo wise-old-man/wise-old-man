@@ -3,31 +3,23 @@
 
 .edit-competition__container {
   @extend %page;
-  width: 700px !important;
+  width: 500px !important;
   max-width: 90%;
 
-  .warning {
-    margin: 20px 0;
-    padding: 10px;
-    border: 1px solid $neutral-orange;
-    font-size: 0.9em;
-    border-radius: 5px;
-    color: $gray-60;
-
-    b {
-      color: white;
-      margin-right: 7px;
-    }
-  }
-
   .page__title {
-    padding-bottom: 15px;
+    padding-bottom: 25px;
   }
 
   .form-actions {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    padding-top: 10px;
+
+    .button:first-child {
+      margin-right: 10px;
+      background: $gray-17;
+    }
   }
 
   .form-row {
@@ -67,9 +59,51 @@
     }
   }
 
-  hr {
-    background-color: $gray-17;
-    height: 1px;
-    border: 0;
+  .info-title {
+    font-size: 1.1em;
+  }
+
+  .info-body {
+    color: $gray-60;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+
+  .cards-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .team-selection__container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    .team-card {
+      margin-bottom: 15px;
+    }
+  }
+
+  .no-teams {
+    display: block;
+    padding: 15px;
+    width: 100%;
+    font-size: 0.9em;
+    color: $gray-60;
+    border-radius: 5px;
+    border: 1px dashed $gray-60;
+  }
+
+  .group-toggle {
+    margin-bottom: 30px;
+
+    &__label {
+      font-size: 0.9em;
+      display: inline-block;
+      margin-left: 10px;
+      margin-bottom: 2px;
+    }
   }
 }

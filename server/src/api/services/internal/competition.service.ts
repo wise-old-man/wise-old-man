@@ -1,18 +1,23 @@
-import { uniqBy } from 'lodash';
+import { filter, includes, omit, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
+import { ALL_METRICS, COMPETITION_STATUSES, COMPETITION_TYPES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, isPast } from '../../util/dates';
-import { getMinimumBossKc, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
+import { getMinimumBossKc, getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+
+interface Team {
+  name: string;
+  participants: string[];
+}
 
 interface CompetitionParticipant extends Player {
   progress: {
@@ -46,6 +51,7 @@ interface CompetitionListFilter {
   title?: string;
   metric?: string;
   status?: string;
+  type?: string;
 }
 
 interface CreateCompetitionDTO {
@@ -56,6 +62,7 @@ interface CreateCompetitionDTO {
   groupId?: number;
   groupVerificationCode?: string;
   participants?: string[];
+  teams?: Team[];
 }
 
 interface EditCompetitionDTO {
@@ -64,6 +71,7 @@ interface EditCompetitionDTO {
   startsAt?: Date;
   endsAt?: Date;
   participants?: string[];
+  teams?: Team[];
 }
 
 function sanitizeTitle(title: string): string {
@@ -98,7 +106,7 @@ async function resolve(competitionId: number, options?: ResolveOptions): Promise
  * match the query parameters (title, status, metric).
  */
 async function getList(filter: CompetitionListFilter, pagination: Pagination) {
-  const { title, status, metric } = filter;
+  const { title, status, metric, type } = filter;
 
   // The status is optional, however if present, should be valid
   if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
@@ -110,9 +118,15 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
+  // The type is optional, however if present, should be valid
+  if (type && !COMPETITION_TYPES.includes(type.toLowerCase())) {
+    throw new BadRequestError(`Invalid type.`);
+  }
+
   const query = buildQuery({
     title: title && { [Op.iLike]: `%${sanitizeTitle(title)}%` },
-    metric: metric?.toLowerCase()
+    metric: metric?.toLowerCase(),
+    type: type?.toLowerCase()
   });
 
   if (status) {
@@ -211,7 +225,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
   const participations = await Participation.findAll({
-    attributes: ['playerId'],
+    attributes: ['playerId', 'teamName'],
     where: { competitionId: competition.id },
     include: [
       { model: Player },
@@ -223,13 +237,14 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
   const minimumValue = getMinimumBossKc(competition.metric);
 
   const participants = participations
-    .map(({ player, startSnapshot, endSnapshot }) => {
+    .map(({ player, teamName, startSnapshot, endSnapshot }) => {
       const start = startSnapshot ? startSnapshot[metricKey] : -1;
       const end = endSnapshot ? endSnapshot[metricKey] : -1;
       const gained = Math.max(0, round(end - Math.max(minimumValue - 1, start), 5));
 
       return {
         ...player.toJSON(),
+        teamName,
         progress: { start, end, gained },
         history: []
       };
@@ -271,6 +286,89 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
   return { ...competition.toJSON(), duration, totalGained, participants, group: competition.group };
 }
 
+async function validateGroupVerification(groupId: number, groupVerificationCode: string) {
+  if (!groupVerificationCode) {
+    throw new BadRequestError('Invalid verification code.');
+  }
+
+  const group = await groupService.resolve(groupId, true);
+  const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
+
+  if (!verified) {
+    throw new ForbiddenError('Incorrect group verification code.');
+  }
+}
+
+function validateTeamsList(teams: Team[]) {
+  if (!teams || teams.length === 0) {
+    throw new BadRequestError('Invalid or empty teams list.');
+  }
+
+  if (teams.some(t => !t.name || typeof t.name !== 'string' || t.name.length === 0)) {
+    throw new BadRequestError('All teams must have a name property.');
+  }
+
+  // Sanitize each team's name
+  teams.forEach(t => {
+    t.name = sanitizeTitle(t.name);
+  });
+
+  // Find duplicate team names
+  const teamNames = teams.map(t => t.name.toLowerCase());
+  const duplicateTeams = filter(teamNames, (val, i, it) => includes(it, val, i + 1));
+
+  if (duplicateTeams && duplicateTeams.length > 0) {
+    throw new BadRequestError(`Found repeated team names: [${duplicateTeams.join(', ')}]`);
+  }
+
+  if (teams.some(t => !t.participants || t.participants.length === 0)) {
+    throw new BadRequestError('All teams must have a valid (non-empty) array of participants.');
+  }
+
+  // standardize each player's username
+  teams.forEach(t => {
+    t.participants = t.participants.map(playerService.standardize);
+  });
+
+  const allUsernames = teams.map(t => t.participants).flat();
+
+  if (allUsernames.some(username => !username || typeof username !== 'string')) {
+    throw new BadRequestError('All participant names must be valid strings.');
+  }
+
+  // Find duplicate usernames across all teams
+  const duplicateUsernames = filter(allUsernames, (val, i, it) => includes(it, val, i + 1));
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
+  validateParticipantsList(allUsernames);
+}
+
+function validateParticipantsList(participants: string[]) {
+  if (!participants || participants.length === 0) {
+    throw new BadRequestError('Invalid or empty participants list.');
+  }
+
+  const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
+
+  if (invalidUsernames.length > 0) {
+    throw new BadRequestError(
+      `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
+       contain no special characters, and/or contain no space at the beginning or end of the name.`,
+      invalidUsernames
+    );
+  }
+
+  const allUsernames = participants.map(playerService.standardize);
+  const duplicateUsernames = filter(allUsernames, (val, i, it) => includes(it, val, i + 1));
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+}
+
 /**
  * Create a new competition.
  *
@@ -278,7 +376,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
  * the group's members, and the "participants" argument will be ignored.
  */
 async function create(dto: CreateCompetitionDTO) {
-  const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants } = dto;
+  const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams } = dto;
 
   if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError('Invalid competition metric.');
@@ -292,64 +390,59 @@ async function create(dto: CreateCompetitionDTO) {
     throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
   }
 
-  if (groupId) {
-    if (!groupVerificationCode) {
-      throw new BadRequestError('Invalid verification code.');
-    }
+  const isGroupCompetition = !!groupId;
+  const isTeamCompetition = teams && teams.length > 0;
+  const hasParticipants = participants && participants.length > 0;
 
-    const group = await groupService.resolve(groupId, true);
-    const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
-
-    if (!verified) {
-      throw new ForbiddenError('Incorrect group verification code.');
-    }
+  if (hasParticipants && isGroupCompetition) {
+    throw new BadRequestError(
+      `Cannot include both "participants" and "groupId", they are mutually exclusive. 
+      All group members will be registered as participants instead.`
+    );
   }
 
+  if (hasParticipants && isTeamCompetition) {
+    throw new BadRequestError(
+      'Cannot include both "participants" and "teams", they are mutually exclusive.'
+    );
+  }
+
+  // Check if group verification code is valid
+  if (isGroupCompetition) await validateGroupVerification(groupId, groupVerificationCode);
   // Check if every username in the list is valid
-  if (participants && participants.length > 0) {
-    const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
-
-    if (invalidUsernames.length > 0) {
-      throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
-         contain no special characters, and/or contain no space at the beginning or end of the name.`,
-        invalidUsernames
-      );
-    }
-  }
+  if (hasParticipants) validateParticipantsList(participants);
+  // Check if all teams are valid and correctly formatted
+  if (isTeamCompetition) validateTeamsList(teams);
 
   const [code, hash] = await cryptService.generateVerification();
-  const sanitizedTitle = sanitizeTitle(title);
 
   const competition = await Competition.create({
-    title: sanitizedTitle,
-    metric: metric.toLowerCase(),
+    title: sanitizeTitle(title),
+    metric,
     verificationCode: code,
     verificationHash: hash,
+    type: COMPETITION_TYPES[isTeamCompetition ? 1 : 0],
     startsAt,
     endsAt,
     groupId
   });
 
-  if (!groupId && !participants) {
-    // Hide the verificationHash from the response
-    competition.verificationHash = undefined;
-
+  // If is empty competition
+  if (!isGroupCompetition && !hasParticipants && !isTeamCompetition) {
     return { ...competition.toJSON(), participants: [] };
   }
 
-  const newParticipants = groupId
-    ? await addAllGroupMembers(competition, groupId)
-    : await setParticipants(competition, participants);
-
-  // If this isa group competition, hide the verificationCode from the response
-  if (competition.groupId) {
-    competition.verificationCode = undefined;
+  if (isTeamCompetition) {
+    const newParticipants = await setTeams(competition, teams);
+    return { ...competition.toJSON(), participants: newParticipants };
   }
 
-  // Hide the verificationHash from the response
-  competition.verificationHash = undefined;
+  if (isGroupCompetition) {
+    const newParticipants = await addAllGroupMembers(competition, groupId);
+    return { ...competition.toJSON(), participants: newParticipants };
+  }
 
+  const newParticipants = await setParticipants(competition, participants);
   return { ...competition.toJSON(), participants: newParticipants };
 }
 
@@ -359,7 +452,7 @@ async function create(dto: CreateCompetitionDTO) {
  * Note: If "participants" is defined, it will replace the existing participants.
  */
 async function edit(competition: Competition, dto: EditCompetitionDTO) {
-  const { title, metric, startsAt, endsAt, participants } = dto;
+  const { title, metric, startsAt, endsAt, participants, teams } = dto;
 
   if (startsAt && endsAt && startsAt.getTime() - endsAt.getTime() > 0) {
     throw new BadRequestError('Start date must be before the end date.');
@@ -369,16 +462,26 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     throw new BadRequestError(`Invalid competition metric.`);
   }
 
-  if (metric && metric !== competition.metric && isPast(competition.startsAt)) {
-    throw new BadRequestError(`The competition has started, the metric cannot be changed.`);
+  const hasNewTeams = teams && teams.length > 0;
+  const hasNewParticipants = participants && participants.length > 0;
+
+  if (competition.type === 'classic' && hasNewTeams) {
+    throw new BadRequestError("The competition type cannot be changed to 'team'.");
   }
 
-  if (
-    startsAt &&
-    startsAt.getTime() !== competition.startsAt.getTime() &&
-    isPast(competition.startsAt)
-  ) {
-    throw new BadRequestError(`The competition has started, the start date cannot be changed.`);
+  if (competition.type === 'team' && hasNewParticipants) {
+    throw new BadRequestError("The competition type cannot be changed to 'classic'.");
+  }
+
+  // If competition has started
+  if (isPast(competition.startsAt)) {
+    if (metric && metric !== competition.metric) {
+      throw new BadRequestError('The competition has started, the metric cannot be changed.');
+    }
+
+    if (startsAt && startsAt.getTime() !== competition.startsAt.getTime()) {
+      throw new BadRequestError('The competition has started, the start date cannot be changed.');
+    }
   }
 
   const newValues = buildQuery({
@@ -388,32 +491,36 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     endsAt
   });
 
-  let competitionParticipants;
+  if (hasNewParticipants) {
+    // Check if every username in the list is valid
+    validateParticipantsList(participants);
+    // Update the participant list
+    const newParticipants = await setParticipants(competition, participants);
+    // Update the competition
+    await competition.update(newValues);
 
-  // Check if every username in the list is valid
-  if (participants) {
-    const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
-
-    if (invalidUsernames.length > 0) {
-      throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
-         contain no special characters, and/or contain no space at the beginning or end of the name.`,
-        invalidUsernames
-      );
-    }
-
-    competitionParticipants = await setParticipants(competition, participants);
-  } else {
-    const participations = await competition.$get('participants');
-    competitionParticipants = participations.map(p => ({ ...p.toJSON(), participations: undefined }));
+    return { ...competition.toJSON(), participants: newParticipants };
   }
 
+  if (hasNewTeams) {
+    // Check if all teams are valid and correctly formatted
+    validateTeamsList(teams);
+    // Add new participations, with associated teams
+    const newParticipants = await setTeams(competition, teams);
+    // Update the competition
+    await competition.update(newValues);
+
+    return { ...competition.toJSON(), participants: newParticipants };
+  }
+
+  // The participants haven't changed, only update
+  // the competition details and return the existing participants
   await competition.update(newValues);
 
-  // Hide the verificationHash from the response
-  competition.verificationHash = undefined;
+  const participations = await competition.$get('participants');
+  const currentParticipants = participations.map(p => omit(p.toJSON(), ['participations']));
 
-  return { ...competition.toJSON(), participants: competitionParticipants };
+  return { ...competition.toJSON(), participants: currentParticipants };
 }
 
 /**
@@ -426,15 +533,43 @@ async function destroy(competition: Competition) {
   return competitionTitle;
 }
 
+async function setTeams(competition: Competition, teams: Team[]) {
+  if (!competition) throw new BadRequestError('Invalid competition.');
+
+  const allUsernames = teams.map(t => t.participants.map(playerService.standardize)).flat();
+  const allPlayers = await playerService.findAllOrCreate(allUsernames);
+
+  const playersMap = Object.fromEntries(allPlayers.map(p => [p.username, p]));
+
+  // Delete all existing participations (and teams)
+  await Participation.destroy({ where: { competitionId: competition.id } });
+
+  await Promise.all(
+    teams.map(async team => {
+      const teamName = team.name;
+      const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
+
+      await competition.$add('participants', participants, { through: { teamName } });
+
+      return { teamName, participants };
+    })
+  );
+
+  const participants = await competition.$get('participants');
+
+  return participants.map((p: any) => ({
+    ...omit(p.toJSON(), ['participations']),
+    teamName: p.participations.teamName
+  }));
+}
+
 /**
  * Set the participants of a competition.
  *
  * This will replace any existing participants.
  */
 async function setParticipants(competition: Competition, usernames: string[]) {
-  if (!competition) {
-    throw new BadRequestError(`Invalid competition.`);
-  }
+  if (!competition) throw new BadRequestError(`Invalid competition.`);
 
   const uniqueUsernames = uniqBy(usernames, u => playerService.standardize(u));
 
@@ -460,7 +595,7 @@ async function setParticipants(competition: Competition, usernames: string[]) {
   }
 
   const participants = await competition.$get('participants');
-  return participants.map(p => ({ ...p.toJSON(), participations: undefined }));
+  return participants.map(p => omit(p.toJSON(), ['participations']));
 }
 
 /**
@@ -486,6 +621,10 @@ async function addAllGroupMembers(competition, groupId) {
  * Adds all the usernames as competition participants.
  */
 async function addParticipants(competition: Competition, usernames: string[]) {
+  if (competition.type === 'team') {
+    throw new BadRequestError('Cannot add participants to a team competition.');
+  }
+
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
   }
@@ -514,6 +653,10 @@ async function addParticipants(competition: Competition, usernames: string[]) {
  * Removes all the usernames (participants) from a competition.
  */
 async function removeParticipants(competition: Competition, usernames: string[]) {
+  if (competition.type === 'team') {
+    throw new BadRequestError('Cannot remove participants from a team competition.');
+  }
+
   if (usernames.length === 0) {
     throw new BadRequestError('Empty participants list.');
   }
@@ -538,23 +681,115 @@ async function removeParticipants(competition: Competition, usernames: string[])
   return removedPlayersCount;
 }
 
-/**
- * Get all participants for a specific competition id.
- */
-async function getParticipants(id) {
-  if (!id) {
-    throw new BadRequestError('Invalid competition id.');
+async function addTeams(competition: Competition, teams: Team[]) {
+  if (!teams || teams.length === 0) {
+    throw new BadRequestError('Empty teams list.');
   }
 
-  const competition = await Competition.findOne({ where: { id } });
-
-  if (!competition) {
-    throw new NotFoundError(`Competition of id ${id} was not found.`);
+  if (competition.type === 'classic') {
+    throw new BadRequestError("Teams can't be added to a classic competition.");
   }
 
+  // Check if all teams are valid and correctly formatted
+  validateTeamsList(teams);
+
+  // Fetch all current teams
+  const currentTeams = await getTeams(competition);
+
+  const currentTeamNames = currentTeams.map((t: any) => t.name);
+  const currentUsernames = currentTeams.map((t: any) => t.participants.map(p => p.username)).flat();
+
+  const newTeamNames = teams.map(t => t.name);
+  const newUsernames = teams.map(t => t.participants).flat();
+
+  const duplicateTeamNames = newTeamNames.filter(t =>
+    currentTeamNames.map((c: string) => c.toLowerCase()).includes(t.toLowerCase())
+  );
+
+  const duplicateUsernames = newUsernames.filter(t =>
+    currentUsernames.map((c: string) => c).includes(t)
+  );
+
+  if (duplicateTeamNames && duplicateTeamNames.length > 0) {
+    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
+  }
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
+  const newPlayers = await playerService.findAllOrCreate(newUsernames);
+  const playersMap = Object.fromEntries(newPlayers.map(p => [p.username, p]));
+
+  const formattedTeams = await Promise.all(
+    teams.map(async team => {
+      const teamName = team.name;
+      const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
+
+      // Add new team
+      await competition.$add('participants', participants, { through: { teamName } });
+
+      return { teamName, participants };
+    })
+  );
+
+  // Update the "updatedAt" timestamp on the competition model
+  await competition.changed('updatedAt', true);
+  await competition.save();
+
+  return formattedTeams;
+}
+
+async function removeTeams(competition: Competition, teamNames: string[]) {
+  if (competition.type !== 'team') {
+    throw new BadRequestError('Cannot remove teams from a classic competition.');
+  }
+
+  if (teamNames.length === 0) {
+    throw new BadRequestError('Empty team names list.');
+  }
+
+  if (teamNames.some(t => typeof t !== 'string' || t.length === 0)) {
+    throw new BadRequestError('All team names must be non-empty strings.');
+  }
+
+  const removedPlayersCount = await Participation.destroy({
+    where: {
+      competitionId: competition.id,
+      teamName: teamNames.map(sanitizeTitle)
+    }
+  });
+
+  if (!removedPlayersCount) {
+    throw new BadRequestError('No players were removed from the competition.');
+  }
+
+  // Update the "updatedAt" timestamp on the competition model
+  await competition.changed('updatedAt', true);
+  await competition.save();
+
+  return removedPlayersCount;
+}
+
+async function getTeams(competition: Competition) {
   const participants = await competition.$get('participants');
 
-  return participants;
+  const teamsMap = {};
+
+  participants.forEach(p => {
+    const instance: any = p;
+    const { teamName } = instance.participations;
+
+    const player = omit(p.toJSON(), ['participations']);
+
+    if (teamName in teamsMap) {
+      teamsMap[teamName].participants.push(player);
+    } else {
+      teamsMap[teamName] = { name: teamName, participants: [player] };
+    }
+  });
+
+  return Object.values(teamsMap);
 }
 
 /**
@@ -642,7 +877,7 @@ async function removeFromGroupCompetitions(groupId, playerIds) {
  */
 async function updateAll(competition: Competition, force: boolean, updateFn: (player: Player) => void) {
   const participants = force
-    ? await getParticipants(competition.id)
+    ? await competition.$get('participants')
     : await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
@@ -653,119 +888,6 @@ async function updateAll(competition: Competition, force: boolean, updateFn: (pl
   participants.forEach(player => updateFn(player));
 
   return participants;
-}
-
-async function refreshScores() {
-  const allCompetitions = await Competition.findAll();
-
-  await Promise.all(
-    allCompetitions.map(async competition => {
-      const currentScore = competition.score;
-      const newScore = await calculateScore(competition);
-
-      if (newScore !== currentScore) {
-        await competition.update({ score: newScore });
-      }
-    })
-  );
-}
-
-async function calculateScore(competition: Competition): Promise<number> {
-  const now = new Date();
-  let score = 0;
-
-  // If has ended
-  if (competition.endsAt < now) {
-    return score;
-  }
-
-  const details = await getDetails(competition);
-  const activeParticipants = details.participants.filter(p => p.progress.gained > 0);
-  const averageGained = details.totalGained / activeParticipants.length;
-
-  // If is ongoing
-  if (competition.startsAt <= now && competition.endsAt >= now) {
-    score += 100;
-  }
-
-  // If is upcoming
-  if (competition.startsAt > now) {
-    const daysLeft = (competition.startsAt.getTime() - now.getTime()) / 1000 / 3600 / 24;
-
-    if (daysLeft > 7) {
-      score += 60;
-    } else {
-      score += 80;
-    }
-  }
-
-  // If is group competition
-  if (details.group) {
-    // The highest of 30, or 30% of the group's score
-    score += Math.max(40, details.group.score * 0.4);
-
-    if (details.group.verified) {
-      score += 50;
-    }
-  }
-
-  // If has atleast 10 active participants
-  if (activeParticipants.length >= 10) {
-    score += 60;
-  }
-
-  // If has atleast 50 active participants
-  if (activeParticipants.length >= 50) {
-    score += 80;
-  }
-
-  if (isSkill(competition.metric)) {
-    // If the average active participant has gained > 10k exp
-    if (averageGained > 10000) {
-      score += 30;
-    }
-
-    // If the average active participant has gained > 100k exp
-    if (averageGained > 100000) {
-      score += 50;
-    }
-  }
-
-  if (isBoss(competition.metric)) {
-    // If the average active participant has gained > 5 kc
-    if (averageGained > 5) {
-      score += 30;
-    }
-
-    // If the average active participant has gained > 30 kc
-    if (averageGained > 20) {
-      score += 50;
-    }
-  }
-
-  if (isActivity(competition.metric)) {
-    // If the average active participant has gained > 5 score
-    if (averageGained > 5) {
-      score += 30;
-    }
-
-    // If the average active participant has gained > 50 score
-    if (averageGained > 20) {
-      score += 50;
-    }
-  }
-
-  // Discourage "overall" competitions, they are often tests
-  if (competition.metric !== 'overall') {
-    score += 30;
-  }
-
-  // Discourage "over 2 weeks long" competitions
-  if (competition.endsAt.getTime() - competition.startsAt.getTime() < 1209600000) {
-    score += 50;
-  }
-
-  return score;
 }
 
 /**
@@ -824,15 +946,15 @@ export {
   getGroupCompetitions,
   getPlayerCompetitions,
   getDetails,
-  getParticipants,
   create,
   edit,
   destroy,
   addParticipants,
   removeParticipants,
+  addTeams,
+  removeTeams,
   addToGroupCompetitions,
   removeFromGroupCompetitions,
   updateAll,
-  refreshScores,
   syncParticipations
 };

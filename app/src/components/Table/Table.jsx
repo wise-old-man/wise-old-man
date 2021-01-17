@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from 'utils';
@@ -12,12 +12,16 @@ const SORT = {
 
 const DEFAULT_SORTING = { type: SORT.DEFAULT, by: '' };
 
-function getCellValue(row, key, get, transform) {
-  const value = get ? get(row) : row[key];
-  return [transform ? transform(value, row) : value, value];
-}
-
-function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, onRowClicked }) {
+function Table({
+  rows,
+  columns,
+  uniqueKeySelector,
+  renderRowDetails,
+  highlightedRowKey,
+  listStyle,
+  listStyleHeaders,
+  onRowClicked
+}) {
   const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
   const handleHeaderClicked = key => {
@@ -61,8 +65,11 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
   // When table gets unmounted, reset sorting to defualt
   useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
 
-  const clickable = !!onRowClicked;
-  const tableClass = classNames('table', { '-clickable': clickable, '-list': listStyle });
+  const tableClass = classNames('table', {
+    '-clickable': !!onRowClicked,
+    '-list': listStyle,
+    '-details': !!renderRowDetails
+  });
 
   const columnClass = className => (className && className()) || '';
   const columnLabel = (label, key) => (label || label === '' ? label : capitalize(key));
@@ -85,7 +92,7 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
       <colgroup>
         {columns && columns.map(({ key, width }) => <col key={`colgroup-${key}`} width={width} />)}
       </colgroup>
-      {!listStyle && (
+      {(!listStyle || listStyleHeaders) && (
         <thead>
           {/* Column headers */}
           <tr>
@@ -114,20 +121,27 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
             const onClick = () => onRowClicked && onRowClicked(i);
 
             return (
-              <tr key={rowUniqueKey} onClick={onClick}>
-                {columns.map(({ key, transform, get, className }) => {
-                  const cellUniqueKey = `${rowUniqueKey}/${key}`;
-                  const isHighlighted = i === highlightedIndex;
-                  const [formatted, original] = getCellValue(row, key, get, transform);
-                  const rowClass = baseRowClass(className, original, row);
+              <Fragment key={rowUniqueKey}>
+                <tr onClick={onClick}>
+                  {columns.map(({ key, transform, get, className }) => {
+                    const cellUniqueKey = `${rowUniqueKey}/${key}`;
+                    const isHighlighted = rowUniqueKey === highlightedRowKey;
+                    const [formatted, original] = getCellValue(row, key, get, transform);
+                    const rowClass = baseRowClass(className, original, row);
 
-                  return (
-                    <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
-                      {formatted}
-                    </td>
-                  );
-                })}
-              </tr>
+                    return (
+                      <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
+                        {formatted}
+                      </td>
+                    );
+                  })}
+                </tr>
+                {renderRowDetails && (
+                  <td colSpan="100%" className="details-cell">
+                    {renderRowDetails(row, i)}
+                  </td>
+                )}
+              </Fragment>
             );
           })
         )}
@@ -136,11 +150,18 @@ function Table({ rows, columns, uniqueKeySelector, highlightedIndex, listStyle, 
   );
 }
 
+function getCellValue(row, key, get, transform) {
+  const value = get ? get(row) : row[key];
+  return [transform ? transform(value, row) : value, value];
+}
+
 Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
+  renderRowDetails: undefined,
   listStyle: false,
-  highlightedIndex: -1
+  listStyleHeaders: false,
+  highlightedRowKey: null
 };
 
 Table.propTypes = {
@@ -157,14 +178,18 @@ Table.propTypes = {
   //  - isSortable (true by default) - if false, will not show the sorting arrow (or allow sorting)
   columns: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
+  renderRowDetails: PropTypes.func,
+
   // Since not all rows have an "id" field, the unique identifier must be defined
   uniqueKeySelector: PropTypes.func.isRequired,
 
   // The row to be displayed as highlighted (lighter color)
-  highlightedIndex: PropTypes.number,
+  highlightedRowKey: PropTypes.string,
 
   // If enabled, the table will be displayed as a list (no headers, seperate rows)
   listStyle: PropTypes.bool,
+
+  listStyleHeaders: PropTypes.bool,
 
   // Event: fired when a row is clicked (if clickable)
   onRowClicked: PropTypes.func

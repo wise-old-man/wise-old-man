@@ -37,7 +37,7 @@ function DateRangeSelector({ onRangeChanged, start, end }) {
             className={classNames({ 'date-input': true, '-focus': focus })}
             {...endDateInputProps}
           />
-          <span className="duration-label">{`Duration: ${diff}`}</span>
+          <span className="duration-label">{`Duration: ${diff || 'Unknown'}`}</span>
         </div>
       )}
     </DateRangePicker>

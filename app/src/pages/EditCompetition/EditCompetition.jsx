@@ -1,60 +1,35 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { uniq } from 'lodash';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import moment from 'moment';
+import { Helmet } from 'react-helmet';
+import { PageTitle, Button, FormSteps, Loading } from 'components';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
-import { getMetricIcon, getMetricName, standardize } from 'utils';
-import { ALL_METRICS } from 'config';
-import {
-  PageTitle,
-  TextInput,
-  TextButton,
-  Selector,
-  Button,
-  DateRangeSelector,
-  ParticipantsSelector
-} from 'components';
-import ImportPlayersModal from 'modals/ImportPlayersModal';
+import { standardize } from 'utils';
 import RemovePlayersModal from 'modals/RemovePlayersModal';
+import { Step1, Step2, Step3 } from './containers';
+import { EditCompetitionContext } from './context';
 import './EditCompetition.scss';
 
-function getMetricOptions() {
-  return ALL_METRICS.map(metric => ({
-    label: getMetricName(metric),
-    icon: getMetricIcon(metric, true),
-    value: metric
-  }));
-}
+const STEP_COUNT = 3;
 
 function EditCompetition() {
-  const { id } = useParams();
   const router = useHistory();
+  const params = useParams();
   const dispatch = useDispatch();
 
-  const metricOptions = useMemo(getMetricOptions, []);
+  const id = parseInt(params.id, 10);
 
   const today = useMemo(() => moment().startOf('day'), []);
-  const initialStartMoment = useMemo(() => today.clone().add(1, 'days'), [today]);
-  const initialEndMoment = useMemo(() => today.clone().add(8, 'days'), [today]);
+  const start = useMemo(() => today.clone().add(1, 'days'), [today]);
+  const end = useMemo(() => today.clone().add(8, 'days'), [today]);
 
-  const [title, setTitle] = useState('');
-  const [metric, setMetric] = useState(metricOptions[0].value);
-  const [startDate, setStartDate] = useState(initialStartMoment.toDate());
-  const [endDate, setEndDate] = useState(initialEndMoment.toDate());
-  const [participants, setParticipants] = useState([]);
-  const [removedPlayers, setRemovedPlayers] = useState([]);
-  const [verificationCode, setVerificationCode] = useState('');
-
-  const [showingImportModal, toggleImportModal] = useState(false);
-  const [showingRemovePlayersModal, toggleRemovePlayersModal] = useState(false);
-
-  const competition = useSelector(state => competitionSelectors.getCompetition(state, parseInt(id, 10)));
+  const competition = useSelector(state => competitionSelectors.getCompetition(state, id));
   const isSubmitting = useSelector(competitionSelectors.isEditing);
-  const error = useSelector(competitionSelectors.getError);
 
-  const selectedMetricIndex = metricOptions.findIndex(o => o.value === metric);
+  const [data, setData] = useState(getDefaultState(start, end));
+  const [removedPlayers, setRemovedPlayers] = useState([]);
+  const [step, setStep] = useState(1);
 
   const fetchDetails = () => {
     dispatch(competitionActions.fetchDetails(id));
@@ -63,227 +38,147 @@ function EditCompetition() {
   // Populate all the editable fields
   const populate = () => {
     if (competition) {
-      setTitle(competition.title);
-      setMetric(competition.metric);
-      setStartDate(competition.startsAt);
-      setEndDate(competition.endsAt);
-      setParticipants(competition.participants.map(p => p.displayName));
+      const { title, metric, type, startsAt, endsAt, groupId, participants, teams } = competition;
+
+      const formatParticipant = p => p.displayName;
+      const formatTeam = t => ({ ...t, participants: t.participants.map(formatParticipant) });
+
+      setData(d => ({
+        ...d,
+        title,
+        metric,
+        startDate: startsAt,
+        endDate: endsAt,
+        groupCompetition: !!groupId,
+        type,
+        participants: type === 'classic' ? participants.map(formatParticipant) : [],
+        teams: type === 'team' ? teams.map(formatTeam) : []
+      }));
     }
   };
 
-  const findRemovedParticipants = () => {
-    if (competition) {
-      const removedParticipants = competition.participants
-        .map(m => m.displayName)
-        .filter(m => !participants.find(c => standardize(m) === standardize(c)));
+  async function handleSubmit(skipRemovedCheck = false) {
+    const removedParticipants = competition.participants
+      .map(m => m.displayName)
+      .filter(m => !data.participants.find(c => standardize(m) === standardize(c)));
 
+    if (
+      !skipRemovedCheck &&
+      competition.type === 'classic' &&
+      removedParticipants &&
+      removedParticipants.length > 0
+    ) {
       setRemovedPlayers(removedParticipants);
+      return;
     }
-  };
 
-  const handleTitleChanged = e => {
-    setTitle(e.target.value);
-  };
+    setRemovedPlayers([]);
 
-  const handleMetricSelected = e => {
-    setMetric((e && e.value) || null);
-  };
-
-  const handleDateRangeChanged = dates => {
-    setStartDate(dates[0]);
-    setEndDate(dates[1]);
-  };
-
-  const handleAddParticipant = username => {
-    setParticipants(p =>
-      p.map(f => f.toLowerCase()).includes(username.toLowerCase()) ? p : [...p, username]
-    );
-  };
-
-  const handleRemoveParticipant = username => {
-    setParticipants(ps => [...ps.filter(p => p !== username)]);
-  };
-
-  const handleVerificationCodeChanged = e => {
-    setVerificationCode(e.target.value);
-  };
-
-  const handleSubmit = async () => {
     const { payload } = await dispatch(
       competitionActions.edit(
         competition.id,
-        title,
-        metric,
-        startDate,
-        endDate,
-        participants,
-        verificationCode
+        data.title,
+        data.metric,
+        data.startDate,
+        data.endDate,
+        data.participants,
+        data.teams,
+        data.verificationCode
       )
     );
 
     if (payload && payload.data) {
       router.push(`/competitions/${competition.id}`);
     }
-  };
+  }
 
-  const handleImportModalSubmit = (usernames, replace) => {
-    setParticipants(currentParticipants => {
-      if (replace) {
-        return [...uniq(usernames)];
-      }
+  function previousStep() {
+    setStep(step - 1);
+  }
 
-      const existingUsernames = currentParticipants.map(e => e.toLowerCase());
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
-
-      return [...currentParticipants, ...uniq(newUsernames)];
-    });
-
-    toggleImportModal(false);
-  };
-
-  const handleRemovePlayersModalConfirm = () => {
-    toggleRemovePlayersModal(false);
-    onSubmit();
-  };
-
-  const hideParticipantsModal = useCallback(() => toggleImportModal(false), []);
-  const showParticipantsModal = useCallback(() => toggleImportModal(true), []);
-  const hideRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(false), []);
-  const showRemovePlayersModal = useCallback(() => toggleRemovePlayersModal(true), []);
-
-  const onTitleChanged = useCallback(handleTitleChanged, []);
-  const onMetricSelected = useCallback(handleMetricSelected, []);
-  const onDateRangeChanged = useCallback(handleDateRangeChanged, []);
-  const onParticipantAdded = useCallback(handleAddParticipant, [participants]);
-  const onParticipantRemoved = useCallback(handleRemoveParticipant, [participants]);
-  const onVerificationCodeChanged = useCallback(handleVerificationCodeChanged, []);
-  const onSubmitImportModal = useCallback(handleImportModalSubmit, []);
-  const onConfirmRemovePlayersModal = useCallback(handleRemovePlayersModalConfirm, [
-    title,
-    metric,
-    startDate,
-    endDate,
-    participants,
-    verificationCode
-  ]);
-  const onSubmit = useCallback(handleSubmit, [
-    title,
-    metric,
-    startDate,
-    endDate,
-    participants,
-    verificationCode
-  ]);
+  function nextStep() {
+    if (step < STEP_COUNT) {
+      setStep(step + 1);
+    } else {
+      handleSubmit();
+    }
+  }
 
   // Fetch competition details, on mount
   useEffect(fetchDetails, [dispatch, id]);
   useEffect(populate, [competition]);
 
-  useEffect(findRemovedParticipants, [competition, participants]);
-
   if (!competition) {
-    return null;
+    return <Loading />;
   }
 
   return (
-    <div className="edit-competition__container container">
-      <Helmet>
-        <title>{`Edit: ${competition.title}`}</title>
-      </Helmet>
+    <EditCompetitionContext.Provider value={{ data, setData }}>
+      <div className="edit-competition__container container">
+        <Helmet>
+          <title>Edit competition</title>
+        </Helmet>
+        <div className="col">
+          <PageTitle title={`Edit competition: ${competition.title}`} />
+          <FormSteps steps={STEP_COUNT} currentIndex={step - 1} />
 
-      <div className="col">
-        <PageTitle title="Edit competition" />
+          {step === 1 && <Step1 />}
+          {step === 2 && <Step2 />}
+          {step === 3 && <Step3 />}
 
-        <div className="form-row">
-          <span className="form-row__label">Title</span>
-          <TextInput
-            value={title}
-            placeholder="Ex: Varrock Titan's firemaking comp"
-            onChange={onTitleChanged}
-            maxCharacters={50}
-          />
-        </div>
-
-        <div className="form-row">
-          <span className="form-row__label">Metric</span>
-          <Selector
-            options={metricOptions}
-            onSelect={onMetricSelected}
-            selectedIndex={selectedMetricIndex}
-            search
-          />
-        </div>
-
-        <div className="form-row">
-          <span className="form-row__label">Time range</span>
-          <DateRangeSelector start={startDate} end={endDate} onRangeChanged={onDateRangeChanged} />
-        </div>
-
-        <div className="form-row">
-          <hr />
-        </div>
-
-        <div className="form-row">
-          <span className="form-row__label">
-            Participants
-            <span className="form-row__label-info">{`(${participants.length} selected)`}</span>
-            <TextButton text="Import list" onClick={showParticipantsModal} />
-          </span>
-
-          <ParticipantsSelector
-            participants={participants}
-            invalidUsernames={error.data}
-            onParticipantAdded={onParticipantAdded}
-            onParticipantRemoved={onParticipantRemoved}
-          />
-        </div>
-
-        {competition.createdAt < new Date('2020-07-11 00:00') && (
-          <div className="warning">
-            <b>Attention:</b>
-            As of the 11th of July, group competitions use the group&quot;s verification code, and not
-            the competition verification code you were given when you created it.
+          <div className="form-row form-actions">
+            <Button text="Previous" onClick={previousStep} disabled={step <= 1} />
+            <Button
+              text="Next"
+              onClick={nextStep}
+              loading={isSubmitting}
+              disabled={!canSkipStep(data, step)}
+            />
           </div>
+        </div>
+        {removedPlayers && removedPlayers.length > 0 && (
+          <RemovePlayersModal
+            modalView={`/competitions/${competition.id}/removeParticipants`}
+            players={removedPlayers}
+            onClose={() => setRemovedPlayers([])}
+            onConfirm={() => handleSubmit(true)}
+          />
         )}
-
-        <div className="form-row">
-          <span className="form-row__label">
-            {competition.groupId ? 'Group verification code' : 'Verification code'}
-            <span className="form-row__label-info -right">
-              {`Lost your${competition.groupId ? ' group' : ''} verification code?`}
-              <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
-                Join our discord
-              </a>
-            </span>
-          </span>
-          <TextInput
-            type="password"
-            placeholder="Ex: 123-456-789"
-            onChange={onVerificationCodeChanged}
-          />
-        </div>
-
-        <div className="form-row form-actions">
-          <Button
-            text="Confirm"
-            onClick={removedPlayers.length > 0 ? showRemovePlayersModal : onSubmit}
-            loading={isSubmitting}
-          />
-        </div>
       </div>
-      {showingImportModal && (
-        <ImportPlayersModal onClose={hideParticipantsModal} onConfirm={onSubmitImportModal} />
-      )}
-      {showingRemovePlayersModal && (
-        <RemovePlayersModal
-          modalView={`/competitions/${competition.id}/removeParticipants`}
-          players={removedPlayers}
-          onClose={hideRemovePlayersModal}
-          onConfirm={onConfirmRemovePlayersModal}
-        />
-      )}
-    </div>
+    </EditCompetitionContext.Provider>
   );
+}
+
+function getDefaultState(start, end) {
+  return {
+    title: '',
+    metric: 'overall',
+    startDate: start.toDate(),
+    endDate: end.toDate(),
+    type: null,
+    groupCompetition: false,
+    verificationCode: '',
+    participants: [],
+    teams: []
+  };
+}
+
+function canSkipStep(data, step) {
+  const { title, startDate, endDate, type, verificationCode, participants, teams } = data;
+
+  if (step === 1) {
+    return title.length > 0 && startDate && endDate;
+  }
+
+  if (step === 2) {
+    return type && type === 'classic' ? participants.length > 1 : teams.length > 1;
+  }
+
+  if (step === 3) {
+    return verificationCode.length > 0;
+  }
+
+  return true;
 }
 
 export default EditCompetition;

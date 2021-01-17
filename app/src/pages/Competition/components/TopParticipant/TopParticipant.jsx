@@ -26,7 +26,7 @@ function TopParticipant({ participants, metric }) {
 
   const topPlayer = participants[0];
   const gained = topPlayer && topPlayer.progress ? topPlayer.progress.gained : 0;
-  const label = `+${formatNumber(gained)} ${measureLabel(metric)}`;
+  const label = `${gained === 0 ? '' : '+'}${formatNumber(gained)} ${measureLabel(metric)}`;
 
   return (
     <Link className="top-participant-widget -clickable" to={`/players/${topPlayer.username}`}>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { competitionSelectors } from 'redux/competitions';
 import { sortBy, indexOf } from 'lodash';
-import { Table, StatusDot } from 'components';
+import { Table, StatusDot, Badge } from 'components';
 import { getMetricIcon } from 'utils';
 import { GroupContext } from '../context';
 
@@ -30,6 +30,21 @@ const TABLE_CONFIG = {
       key: 'participantCount',
       className: () => '-break-medium',
       transform: val => `${val} participants`
+    },
+    {
+      key: 'type',
+      className: () => '-break-small',
+      transform: value => {
+        return (
+          value === 'team' && (
+            <Badge
+              text="Teams"
+              hoverText="Team competition: Players are divided into competing teams."
+              color="#898989"
+            />
+          )
+        );
+      }
     }
   ]
 };
