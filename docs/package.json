@@ -15,9 +15,9 @@
   "dependencies": {
     "@zeit/next-sass": "^1.0.1",
     "classnames": "^2.2.6",
-    "next": "10.0.3",
+    "next": "^10.0.5",
     "next-fonts": "^1.5.1",
-    "node-sass": "^4.13.1",
+    "node-sass": "^5.0.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
