@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:14
 WORKDIR /wise-old-man/docs
 
 COPY package*.json ./
