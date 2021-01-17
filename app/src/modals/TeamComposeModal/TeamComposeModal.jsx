@@ -12,6 +12,12 @@ function TeamComposeModal({ team, onSubmit, onCancel }) {
   const [showingImportModal, toggleImportModal] = useState(false);
 
   function handleAddPlayer(username) {
+    // If multiple names were typed (command-separated)
+    if (username.length > 0 && username.split(',').length > 1) {
+      handleAddMultiplePlayers(username.split(','));
+      return;
+    }
+
     setPlayers(currentPlayers => {
       if (currentPlayers.map(standardize).includes(standardize(username))) {
         return currentPlayers;
@@ -25,20 +31,32 @@ function TeamComposeModal({ team, onSubmit, onCancel }) {
     setPlayers(currentPlayers => currentPlayers.filter(p => p !== username));
   }
 
-  function handleNameChanged(e) {
-    setName(e.target.value);
-  }
-
-  const handleModalSubmit = (usernames, replace) => {
+  function handleAddMultiplePlayers(usernames) {
     const uniqueUsernames = uniqBy(
       usernames.filter(c => c && c.length > 0),
       e => standardize(e)
     );
 
     setPlayers(currentPlayers => {
-      if (replace) return uniqueUsernames;
       return uniqBy([...currentPlayers, ...uniqueUsernames], e => standardize(e));
     });
+  }
+
+  function handleNameChanged(e) {
+    setName(e.target.value);
+  }
+
+  const handleModalSubmit = (usernames, replace) => {
+    if (replace) {
+      setPlayers(
+        uniqBy(
+          usernames.filter(c => c && c.length > 0),
+          standardize
+        )
+      );
+    } else {
+      handleAddMultiplePlayers(usernames);
+    }
 
     toggleImportModal(false);
   };
