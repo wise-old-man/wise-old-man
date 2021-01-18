@@ -12,8 +12,7 @@ export default [
       {
         field: 'status',
         type: 'integer',
-        description:
-          'The name change status - Optional (Default is 0) (0 = pending, 1 = denied, 2 = approved)'
+        description: 'The name change status - Optional (0 = pending, 1 = denied, 2 = approved)'
       },
       {
         field: 'limit',
