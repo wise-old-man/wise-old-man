@@ -59,7 +59,7 @@ export default [
             createdAt: '2020-05-06T08:36:27.420Z',
             updatedAt: '2020-12-13T06:00:08.793Z',
             memberCount: 63
-          },
+          }
         ]
       }
     ],
@@ -67,13 +67,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -110,7 +110,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -301,7 +301,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -353,7 +353,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -412,7 +412,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -539,7 +539,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -581,13 +581,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -695,7 +695,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -719,13 +719,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -847,7 +847,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -877,13 +877,13 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -992,7 +992,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1010,13 +1010,155 @@ export default [
       {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
+        }
+      }
+    ]
+  },
+  {
+    title: "Get a group's recent name changes",
+    url: '/groups/:id/name-changes',
+    method: 'GET',
+    params: [
+      {
+        field: 'id',
+        type: 'integer',
+        description: "The group's id."
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
+      }
+    ],
+    successResponses: [
+      {
+        description: '',
+        body: [
+          {
+            id: 1609,
+            playerId: 15293,
+            oldName: 'tugassassino',
+            newName: 'lary9',
+            status: 0,
+            resolvedAt: null,
+            createdAt: '2021-01-17T21:13:16.009Z',
+            updatedAt: '2021-01-17T21:13:16.009Z',
+            player: {
+              exp: 81364290,
+              id: 15293,
+              username: 'tugassassino',
+              displayName: 'tugassassino',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 328.09792,
+              ehb: 56.85112,
+              ttm: 965.68161,
+              tt200m: 14634.35313,
+              lastImportedAt: '2021-01-13T14:00:12.332Z',
+              lastChangedAt: '2021-01-13T14:00:08.503Z',
+              registeredAt: '2020-06-09T18:01:58.643Z',
+              updatedAt: '2021-01-13T14:00:12.333Z'
+            }
+          },
+          {
+            id: 1608,
+            playerId: 135826,
+            oldName: 'tricky hypah',
+            newName: '0 purp hypah',
+            status: 0,
+            resolvedAt: null,
+            createdAt: '2021-01-17T21:13:16.007Z',
+            updatedAt: '2021-01-17T21:13:16.007Z',
+            player: {
+              exp: 45916120,
+              id: 135826,
+              username: 'tricky hypah',
+              displayName: 'tricky hypah',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 210.8715,
+              ehb: 70.0381,
+              ttm: 1082.88445,
+              tt200m: 14751.57955,
+              lastImportedAt: null,
+              lastChangedAt: '2021-01-13T13:58:49.322Z',
+              registeredAt: '2021-01-12T19:55:14.802Z',
+              updatedAt: '2021-01-13T13:58:49.938Z'
+            }
+          },
+          {
+            id: 1607,
+            playerId: 13678,
+            oldName: 'also rng',
+            newName: 'rajit0',
+            status: 0,
+            resolvedAt: null,
+            createdAt: '2021-01-17T21:13:16.005Z',
+            updatedAt: '2021-01-17T21:13:16.005Z',
+            player: {
+              exp: 70957320,
+              id: 13678,
+              username: 'also rng',
+              displayName: 'Also RNG',
+              type: 'regular',
+              build: 'main',
+              flagged: false,
+              ehp: 312.08797,
+              ehb: 20.84375,
+              ttm: 981.66799,
+              tt200m: 14650.36308,
+              lastImportedAt: '2020-10-20T09:27:05.480Z',
+              lastChangedAt: null,
+              registeredAt: '2020-06-03T15:42:08.609Z',
+              updatedAt: '2020-10-20T09:27:05.481Z'
+            }
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If no id is given.',
+        body: {
+          message: 'Invalid group id.'
+        }
+      },
+      {
+        description: 'If the given id does not exist.',
+        body: {
+          message: 'Group not found.'
+        }
+      },
+      {
+        description: 'If the group with the given id has no members.',
+        body: {
+          message: 'That group has no members.'
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: 'Invalid limit: must be > 0'
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]
@@ -1089,7 +1231,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1119,8 +1261,7 @@ export default [
       },
       {
         type: 'warning',
-        content:
-          "If no role has been specified for a member, it will default the role to 'member'."
+        content: "If no role has been specified for a member, it will default the role to 'member'."
       },
       {
         type: 'warning',
@@ -1246,12 +1387,10 @@ export default [
       },
       {
         description: "If one or more of the members' usernames are invalid",
-        body: { 
-          message: "2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
-          data: [
-            "Ps@ikoi",
-            "Zez?ima"
-          ]
+        body: {
+          message:
+            '2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.',
+          data: ['Ps@ikoi', 'Zez?ima']
         }
       },
       {
@@ -1260,7 +1399,7 @@ export default [
       },
       {
         description: 'If an invalid role has been specified.',
-        body: { message: "Invalid member roles. Must be 'member' or 'leader'."}
+        body: { message: "Invalid member roles. Must be 'member' or 'leader'." }
       }
     ]
   },
@@ -1301,50 +1440,50 @@ export default [
         description: '',
         body: {
           id: 9,
-          name: "Some new name",
-          clanChat: "fallyK",
-          description: "The big lebowski",
+          name: 'Some new name',
+          clanChat: 'fallyK',
+          description: 'The big lebowski',
           homeworld: 490,
           score: 0,
           verified: false,
-          createdAt: "2020-12-15T17:54:06.251Z",
-          updatedAt: "2020-12-15T17:55:57.669Z",
+          createdAt: '2020-12-15T17:54:06.251Z',
+          updatedAt: '2020-12-15T17:55:57.669Z',
           members: [
             {
               exp: 27957906,
               id: 2,
-              username: "zezima",
-              displayName: "Zezima",
-              type: "regular",
-              build: "main",
+              username: 'zezima',
+              displayName: 'Zezima',
+              type: 'regular',
+              build: 'main',
               flagged: false,
               ehp: 170.56992,
               ehb: 0,
               ttm: 1123.18632,
               tt200m: 14791.88113,
-              lastImportedAt: "2020-12-15T12:06:37.857Z",
-              lastChangedAt: "2020-12-15T12:06:35.467Z",
-              registeredAt: "2020-12-15T12:04:12.671Z",
-              updatedAt: "2020-12-15T12:06:37.864Z",
-              role: "member"
+              lastImportedAt: '2020-12-15T12:06:37.857Z',
+              lastChangedAt: '2020-12-15T12:06:35.467Z',
+              registeredAt: '2020-12-15T12:04:12.671Z',
+              updatedAt: '2020-12-15T12:06:37.864Z',
+              role: 'member'
             },
             {
               exp: 287727070,
               id: 3,
-              username: "psikoi",
-              displayName: "Psikoi",
-              type: "regular",
-              build: "main",
+              username: 'psikoi',
+              displayName: 'Psikoi',
+              type: 'regular',
+              build: 'main',
               flagged: false,
               ehp: 957.66169,
               ehb: 292.20288,
               ttm: 465.33077,
               tt200m: 14004.78936,
-              lastImportedAt: "2020-12-15T15:40:06.388Z",
-              lastChangedAt: "2020-12-15T15:40:02.052Z",
-              registeredAt: "2020-12-15T12:04:12.669Z",
-              updatedAt: "2020-12-15T15:40:06.388Z",
-              role: "leader"
+              lastImportedAt: '2020-12-15T15:40:06.388Z',
+              lastChangedAt: '2020-12-15T15:40:02.052Z',
+              registeredAt: '2020-12-15T12:04:12.669Z',
+              updatedAt: '2020-12-15T15:40:06.388Z',
+              role: 'leader'
             }
           ]
         }
@@ -1354,7 +1493,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1370,11 +1509,9 @@ export default [
       {
         description: "If one or more of the members' usernames are invalid.",
         body: {
-          message: "2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.",
-          data: [
-            "Ps@ikoi",
-            "Ze?zima"
-          ]
+          message:
+            '2 Invalid usernames: Names must be 1-12 characters long,\n         contain no special characters, and/or contain no space at the beginning or end of the name.',
+          data: ['Ps@ikoi', 'Ze?zima']
         }
       },
       {
@@ -1423,7 +1560,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1515,7 +1652,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1577,7 +1714,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1627,32 +1764,31 @@ export default [
     successResponses: [
       {
         description: '',
-        body: 
-          {
-            exp: 3332232052,
-            id: 5,
-            username: 'zulu',
-            displayName: 'Zulu',
-            type: 'regular',
-            build: 'main',
-            flagged: false,
-            ehp: 7126.74163,
-            ehb: 3536.61133,
-            ttm: 0,
-            tt200m: 7835.70942,
-            lastImportedAt: '2020-12-15T15:41:09.270Z',
-            lastChangedAt: '2020-12-15T15:32:21.940Z',
-            registeredAt: '2020-12-15T12:40:28.486Z',
-            updatedAt: '2020-12-15T15:41:09.270Z',
-            role: 'leader'
-          }
+        body: {
+          exp: 3332232052,
+          id: 5,
+          username: 'zulu',
+          displayName: 'Zulu',
+          type: 'regular',
+          build: 'main',
+          flagged: false,
+          ehp: 7126.74163,
+          ehb: 3536.61133,
+          ttm: 0,
+          tt200m: 7835.70942,
+          lastImportedAt: '2020-12-15T15:41:09.270Z',
+          lastChangedAt: '2020-12-15T15:32:21.940Z',
+          registeredAt: '2020-12-15T12:40:28.486Z',
+          updatedAt: '2020-12-15T15:41:09.270Z',
+          role: 'leader'
+        }
       }
     ],
     errorResponses: [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {
@@ -1683,7 +1819,7 @@ export default [
       },
       {
         description: 'If player already has the given role.',
-        body: { message: "Psikoi is already a leader." }
+        body: { message: 'Psikoi is already a leader.' }
       },
       {
         description: 'If the role is not valid',
@@ -1719,7 +1855,8 @@ export default [
       {
         description: '',
         body: {
-          message: '19 outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.'
+          message:
+            '19 outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.'
         }
       }
     ],
@@ -1727,7 +1864,7 @@ export default [
       {
         description: 'If no id is given.',
         body: {
-          message: "Invalid group id."
+          message: 'Invalid group id.'
         }
       },
       {

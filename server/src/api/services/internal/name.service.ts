@@ -57,6 +57,18 @@ async function getPlayerNames(playerId: number): Promise<NameChange[]> {
   return nameChanges;
 }
 
+async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<NameChange[]> {
+  const nameChanges = await NameChange.findAll({
+    where: { playerId: playerIds },
+    include: [{ model: Player }],
+    order: [['createdAt', 'DESC']],
+    limit: pagination.limit,
+    offset: pagination.offset
+  });
+
+  return nameChanges;
+}
+
 async function bulkSubmit(nameChanges: { oldName: string; newName: string }[]) {
   if (!nameChanges || !Array.isArray(nameChanges)) {
     throw new BadRequestError('Invalid name change list format.');
@@ -448,4 +460,14 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   );
 }
 
-export { getList, getDetails, getPlayerNames, submit, bulkSubmit, deny, approve, autoReview };
+export {
+  getList,
+  getDetails,
+  getPlayerNames,
+  findAllForGroup,
+  submit,
+  bulkSubmit,
+  deny,
+  approve,
+  autoReview
+};

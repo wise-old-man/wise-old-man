@@ -22,6 +22,7 @@ api.get('/:id/gained', controller.gained);
 api.get('/:id/achievements', controller.achievements);
 api.get('/:id/records', controller.records);
 api.get('/:id/hiscores', controller.hiscores);
+api.get('/:id/name-changes', controller.nameChanges);
 api.get('/:id/statistics', controller.statistics);
 
 export default api;

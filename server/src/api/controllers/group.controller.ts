@@ -329,6 +329,25 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /groups/:id/name-changes
+async function nameChanges(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const limit = extractNumber(req.query, { key: 'limit' });
+    const offset = extractNumber(req.query, { key: 'offset' });
+
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
+    await groupService.resolve(id);
+
+    const paginationConfig = getPaginationConfig(limit, offset);
+    const results = await groupService.getNameChanges(id, paginationConfig);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 // GET /groups/:id/statistics
 async function statistics(req: Request, res: Response, next: NextFunction) {
   try {
@@ -357,6 +376,7 @@ export {
   achievements,
   records,
   hiscores,
+  nameChanges,
   statistics,
   competitions,
   listMembers,
