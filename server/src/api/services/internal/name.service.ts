@@ -306,8 +306,11 @@ async function autoReview(id: number): Promise<void> {
     return;
   }
 
-  // If the transition period is over 3 weeks
-  if (hoursDiff > 504) {
+  const baseMaxHours = 504;
+  const extraHours = (oldStats['overall'].experience / 2_000_000) * 168;
+
+  // If the transition period is over (3 weeks + 1 week per each 2m exp)
+  if (hoursDiff > baseMaxHours + extraHours) {
     return;
   }
 
