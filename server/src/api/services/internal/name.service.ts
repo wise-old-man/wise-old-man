@@ -288,7 +288,16 @@ async function getDetails(id: number) {
 }
 
 async function autoReview(id: number): Promise<void> {
-  const details = await getDetails(id);
+  let details;
+
+  try {
+    details = await getDetails(id);
+  } catch (error) {
+    if (error.message === 'Old stats could not be found.') {
+      await deny(id, env.ADMIN_PASSWORD);
+      return;
+    }
+  }
 
   if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
