@@ -34,7 +34,7 @@ function Names() {
   const { context } = useContext(PlayerContext);
   const { username } = context;
 
-  const nameChanges = useSelector(state => nameSelectors.getPlayerNames(state, username));
+  const nameChanges = useSelector(state => nameSelectors.getPlayerNames(state, username)) || [];
   const adjustedNames = [...nameChanges];
 
   if (nameChanges.length > 0) {

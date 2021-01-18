@@ -59,7 +59,7 @@ async function getPlayerNames(playerId: number): Promise<NameChange[]> {
 
 async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<NameChange[]> {
   const nameChanges = await NameChange.findAll({
-    where: { playerId: playerIds },
+    where: { playerId: playerIds, status: NameChangeStatus.APPROVED },
     include: [{ model: Player }],
     order: [['createdAt', 'DESC']],
     limit: pagination.limit,
