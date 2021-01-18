@@ -6,12 +6,13 @@ import * as pagination from '../util/pagination';
 // GET /names
 async function index(req: Request, res: Response, next: NextFunction) {
   try {
+    const username = extractString(req.query, { key: 'username' });
     const status = extractNumber(req.query, { key: 'status' });
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
     const paginationConfig = pagination.getPaginationConfig(limit, offset);
-    const results = await nameService.getList(status, paginationConfig);
+    const results = await nameService.getList(username, status, paginationConfig);
 
     res.json(results);
   } catch (e) {

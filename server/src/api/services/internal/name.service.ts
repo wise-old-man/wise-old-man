@@ -23,14 +23,23 @@ import * as snapshotService from './snapshot.service';
 /**
  * List all name changes, filtered by a specific status
  */
-async function getList(status: number, pagination: Pagination): Promise<NameChange[]> {
+async function getList(username: string, status: number, pagination: Pagination): Promise<NameChange[]> {
   // Isn't a valid NameChangeStatus
   if (status && !NameChangeStatus[status]) {
     throw new BadRequestError('Invalid status.');
   }
 
+  const query = buildQuery({ status });
+
+  if (username && username.length > 0) {
+    query[Op.or] = [
+      { oldName: { [Op.like]: `${username}%` } },
+      { newName: { [Op.like]: `${username}%` } }
+    ];
+  }
+
   const nameChanges = await NameChange.findAll({
-    where: buildQuery({ status }),
+    where: query,
     order: [['createdAt', 'DESC']],
     limit: pagination.limit,
     offset: pagination.offset

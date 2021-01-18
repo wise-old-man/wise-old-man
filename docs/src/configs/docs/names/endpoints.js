@@ -5,6 +5,17 @@ export default [
     method: 'GET',
     query: [
       {
+        field: 'username',
+        type: 'string',
+        description: 'A partial username search, for either the old or new username - Optional'
+      },
+      {
+        field: 'status',
+        type: 'integer',
+        description:
+          'The name change status - Optional (Default is 0) (0 = pending, 1 = denied, 2 = approved)'
+      },
+      {
         field: 'limit',
         type: 'integer',
         description: 'The maximum amount of results to return - Optional (Default is 20)'
