@@ -16,7 +16,7 @@ class RefreshNameChanges implements Job {
   }
 
   async handle(): Promise<void> {
-    const pending = await nameService.getList(NameChangeStatus.PENDING, { limit: 100, offset: 0 });
+    const pending = await nameService.getList(null, NameChangeStatus.PENDING, { limit: 100, offset: 0 });
 
     pending.forEach((p, i) => {
       const delay = (i + 1) * REVIEW_COOLDOWN;
