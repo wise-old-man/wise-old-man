@@ -69,6 +69,27 @@ async function findAllForGroup(playerIds: number[], pagination: Pagination): Pro
   return nameChanges;
 }
 
+/**
+ * Finds any neighbouring name changes (submitted around the same time),
+ * the lower the date gap is, the more likely the name changes have
+ * actually been submitted in bulk.
+ */
+async function findAllBundled(id: number, createdAt: Date) {
+  const DATE_GAP_MS = 500;
+  const minDate = createdAt.getTime() - DATE_GAP_MS / 2;
+  const maxDate = createdAt.getTime() + DATE_GAP_MS / 2;
+
+  const nameChanges = await NameChange.findAll({
+    where: {
+      [Op.not]: [{ id }],
+      createdAt: { [Op.between]: [minDate, maxDate] }
+    },
+    limit: 50
+  });
+
+  return nameChanges;
+}
+
 async function bulkSubmit(nameChanges: { oldName: string; newName: string }[]) {
   if (!nameChanges || !Array.isArray(nameChanges)) {
     throw new BadRequestError('Invalid name change list format.');
@@ -308,6 +329,27 @@ async function getDetails(id: number) {
   };
 }
 
+/**
+ * Checks a name change for it's neighbours, to decide if it
+ * should have a boost in approval rate due to having been submitted in bulk.
+ * (Bulk submissions are more likely legit, as they were likely submitted via RL plugin)
+ */
+async function getBundleModifier(nameChange: NameChange): Promise<number> {
+  const REGULAR_MODIFIER = 1;
+  const BOOSTED_MODIFIER = 2;
+
+  const neighbours = await findAllBundled(nameChange.id, nameChange.createdAt);
+
+  if (!neighbours || neighbours.length === 0) {
+    return REGULAR_MODIFIER;
+  }
+
+  const approvedCount = neighbours.filter(n => n.status === NameChangeStatus.APPROVED).length;
+  const approvedRate = approvedCount / neighbours.length;
+
+  return approvedRate >= 0.5 ? BOOSTED_MODIFIER : REGULAR_MODIFIER;
+}
+
 async function autoReview(id: number): Promise<void> {
   let details;
 
@@ -323,6 +365,12 @@ async function autoReview(id: number): Promise<void> {
   if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
   const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = details.data;
+
+  // If this name change was submitted in a bulk submission, likely via
+  // the RL plugin, and most of its "neighbour"/"bundled" name changes
+  // have been approved, then let's assume this one is more likely to be legit
+  // for this, we use a modifier to lower the approval requirements.
+  const bundleModifier = await getBundleModifier(details.nameChange);
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
@@ -340,12 +388,12 @@ async function autoReview(id: number): Promise<void> {
   const extraHours = (oldStats['overall'].experience / 2_000_000) * 168;
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
-  if (hoursDiff > baseMaxHours + extraHours) {
+  if (hoursDiff > (baseMaxHours + extraHours) * bundleModifier) {
     return;
   }
 
   // If has gained too much exp/kills
-  if (ehpDiff + ehbDiff > hoursDiff) {
+  if (ehpDiff + ehbDiff > hoursDiff * bundleModifier) {
     return;
   }
 
@@ -354,7 +402,7 @@ async function autoReview(id: number): Promise<void> {
     .reduce((acc, cur) => acc + cur);
 
   // If is high level enough (high level swaps are harder to fake)
-  if (totalLevel < 700) {
+  if (totalLevel < 700 / bundleModifier) {
     return;
   }
 
