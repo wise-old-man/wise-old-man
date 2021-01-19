@@ -35,6 +35,7 @@ const endpoints = {
   fetchGroupStatistics: '/groups/:id/statistics/',
   fetchGroupMonthlyTop: '/groups/:id/monthly-top/',
   fetchGroupAchievements: '/groups/:id/achievements/',
+  fetchGroupNameChanges: '/groups/:id/name-changes/',
   fetchGroupCompetitions: '/groups/:id/competitions/',
   updateAllMembers: '/groups/:id/update-all',
 

@@ -1,43 +1,43 @@
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { achievementActions, achievementSelectors } from 'redux/achievements';
+import { nameActions, nameSelectors } from 'redux/names';
 import { Table, TablePlaceholder, PlayerTag } from 'components';
-import { getMetricIcon, formatDate } from 'utils';
+import { durationBetween } from 'utils';
 import { useLazyLoading } from 'hooks';
 import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
-  uniqueKey: row => `${row.player.id}-${row.type}`,
+  uniqueKey: row => row.id,
   columns: [
+    {
+      key: 'oldName',
+      className: () => '-primary'
+    },
+    {
+      key: 'arrow',
+      className: () => '-break-small',
+      transform: () => '→'
+    },
     {
       key: 'displayName',
       get: row => row.player.displayName,
       className: () => '-primary',
       transform: (value, row) => (
-        <Link to={`/players/${row.player.username}/achievements`}>
+        <Link to={`/players/${row.player.username}/names`}>
           <PlayerTag name={value} type={row.player.type} flagged={row.player.flagged} />
         </Link>
       )
     },
     {
-      key: 'metric',
-      className: () => '-no-padding -break-small',
-      transform: value => <img src={getMetricIcon(value, true)} alt="" />
-    },
-    {
-      key: 'type',
-      className: () => '-no-padding'
-    },
-    {
-      key: 'createdAt',
+      key: 'resolvedAt',
       className: () => '-break-medium',
-      transform: value => formatDate(value, 'DD MMM, YYYY')
+      transform: value => `Approved ${durationBetween(value, new Date(), 2, true)} ago`
     }
   ]
 };
 
-function AchievementsTable() {
+function NameChangesTable() {
   const dispatch = useDispatch();
 
   const { context } = useContext(GroupContext);
@@ -46,29 +46,29 @@ function AchievementsTable() {
   const { isFullyLoaded, pageIndex, reloadData } = useLazyLoading({
     resultsPerPage: 20,
     action: handleReload,
-    selector: state => achievementSelectors.getGroupAchievements(state, id)
+    selector: state => nameSelectors.getGroupNameChanges(state, id)
   });
 
-  const achievements = useSelector(state => achievementSelectors.getGroupAchievements(state, id));
-  const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
+  const nameChanges = useSelector(state => nameSelectors.getGroupNameChanges(state, id));
+  const isLoading = useSelector(nameSelectors.isFetching);
   const isReloading = isLoading && pageIndex === 0;
 
   function handleReload(limit, offset) {
-    dispatch(achievementActions.fetchGroupAchievements(id, limit, offset));
+    dispatch(nameActions.fetchGroupNameChanges(id, limit, offset));
   }
 
-  // When the selected metric changes, reload the achievements
+  // When the selected metric changes, reload the name changes
   useEffect(reloadData, [id]);
 
   return (
     <>
-      <span className="widget-label">Most recent achievements</span>
+      <span className="widget-label">Most recent name changes</span>
       {isReloading ? (
         <TablePlaceholder size={20} />
       ) : (
         <Table
           uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-          rows={achievements}
+          rows={nameChanges}
           columns={TABLE_CONFIG.columns}
           listStyle
         />
@@ -78,4 +78,4 @@ function AchievementsTable() {
   );
 }
 
-export default AchievementsTable;
+export default NameChangesTable;

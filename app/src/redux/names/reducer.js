@@ -6,7 +6,8 @@ const initialState = {
   isSubmitting: false,
   error: { message: null, data: null },
   nameChanges: {},
-  playerNameChanges: {}
+  playerNameChanges: {},
+  groupNameChanges: {}
 };
 
 const slice = createSlice({
@@ -55,6 +56,21 @@ const slice = createSlice({
       state.playerNameChanges[username] = data;
     },
     onFetchPlayerNameChangesError(state, action) {
+      state.isFetchingList = false;
+      state.error = { message: action.payload.error };
+    },
+    onFetchGroupNameChangesRequest(state) {
+      state.isFetchingList = true;
+      state.error = initialState.error;
+    },
+    onFetchGroupNameChangesSuccess(state, action) {
+      const { groupId, data, refresh } = action.payload;
+
+      state.isFetchingList = false;
+      state.error = initialState.error;
+      state.groupNameChanges[groupId] = refresh ? data : [...state.groupNameChanges[groupId], ...data];
+    },
+    onFetchGroupNameChangesError(state, action) {
       state.isFetchingList = false;
       state.error = { message: action.payload.error };
     }

@@ -3,13 +3,22 @@ import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { Pagination } from 'src/types';
 import { sequelize } from '../../../database';
-import { Achievement, Group, Membership, Player, Record, Snapshot } from '../../../database/models';
+import {
+  Achievement,
+  Group,
+  Membership,
+  NameChange,
+  Player,
+  Record,
+  Snapshot
+} from '../../../database/models';
 import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as cryptService from '../external/crypt.service';
 import * as achievementService from './achievement.service';
+import * as nameService from './name.service';
 import * as deltaService from './delta.service';
 import * as playerService from './player.service';
 import * as recordService from './record.service';
@@ -369,6 +378,22 @@ async function getMembersStats(groupId: number): Promise<Snapshot[]> {
   return memberships
     .filter(({ playerId }) => playerId in snapshotMap)
     .map(({ playerId }) => Snapshot.build({ ...snapshotMap[playerId] }));
+}
+
+async function getNameChanges(groupId: number, pagination: Pagination): Promise<NameChange[]> {
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    attributes: ['playerId']
+  });
+
+  if (!memberships.length) {
+    throw new BadRequestError(`That group has no members.`);
+  }
+
+  const memberIds = memberships.map(m => m.playerId);
+  const nameChanges = await nameService.findAllForGroup(memberIds, pagination);
+
+  return nameChanges;
 }
 
 async function getStatistics(groupId: number) {
@@ -800,6 +825,7 @@ export {
   getHiscores,
   getMembersList,
   getStatistics,
+  getNameChanges,
   create,
   edit,
   destroy,

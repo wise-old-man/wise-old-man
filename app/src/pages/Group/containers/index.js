@@ -4,6 +4,7 @@ export { default as GainedTable } from './GainedTable';
 export { default as Header } from './Header';
 export { default as HiscoresTable } from './HiscoresTable';
 export { default as MembersTable } from './MembersTable';
+export { default as NameChangesTable } from './NameChangesTable';
 export { default as RecordsTable } from './RecordsTable';
 export { default as Statistics } from './Statistics';
 export { default as Widgets } from './Widgets';

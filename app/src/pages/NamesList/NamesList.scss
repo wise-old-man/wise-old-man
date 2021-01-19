@@ -5,6 +5,10 @@
   width: 800px !important;
   max-width: 90%;
 
+  .text-input {
+    border: 1px solid $gray-12;
+  }
+
   .names__header {
     .text-button {
       float: right;

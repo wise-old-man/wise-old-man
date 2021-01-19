@@ -1,11 +1,11 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const fetchNameChanges = (limit, offset) => async dispatch => {
+const fetchNameChanges = (username, status, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchRequest());
 
   try {
-    const params = { limit, offset };
+    const params = { username, status, limit, offset };
     const { data } = await api.get(endpoints.fetchNameChanges, { params });
 
     const refresh = !offset;
@@ -29,6 +29,21 @@ const fetchPlayerNameChanges = username => async dispatch => {
   }
 };
 
+const fetchGroupNameChanges = (groupId, limit, offset) => async dispatch => {
+  dispatch(reducers.onFetchGroupNameChangesRequest());
+
+  try {
+    const params = { limit, offset };
+    const url = endpoints.fetchGroupNameChanges.replace(':id', groupId);
+
+    const { data } = await api.get(url, { params });
+
+    dispatch(reducers.onFetchGroupNameChangesSuccess({ groupId, data, refresh: !offset }));
+  } catch (e) {
+    dispatch(reducers.onFetchGroupNameChangesError(e.message.toString()));
+  }
+};
+
 const submitNameChange = (oldName, newName) => async dispatch => {
   dispatch(reducers.onSubmitRequest());
 
@@ -42,4 +57,4 @@ const submitNameChange = (oldName, newName) => async dispatch => {
   }
 };
 
-export { fetchNameChanges, submitNameChange, fetchPlayerNameChanges };
+export { fetchNameChanges, submitNameChange, fetchPlayerNameChanges, fetchGroupNameChanges };

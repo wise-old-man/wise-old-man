@@ -1,9 +1,18 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import { Achievement, Competition, Delta, Membership, Player, Snapshot } from '../database/models';
+import {
+  Achievement,
+  Competition,
+  Delta,
+  Membership,
+  Player,
+  Snapshot,
+  NameChange
+} from '../database/models';
 import { onAchievementsCreated } from './events/achievement.events';
 import { onCompetitionCreated, onCompetitionUpdated } from './events/competition.events';
 import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
+import { onNameChangeCreated } from './events/name.events';
 import {
   onPlayerCreated,
   onPlayerImported,
@@ -12,6 +21,10 @@ import {
 } from './events/player.events';
 
 function setup() {
+  NameChange.afterCreate((nameChange: NameChange) => {
+    onNameChangeCreated(nameChange);
+  });
+
   Player.afterUpdate((player: Player, options: UpdateOptions) => {
     if (!options.fields || !options.fields.includes('username')) return;
     onPlayerNameChanged(player);

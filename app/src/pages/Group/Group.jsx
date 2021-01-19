@@ -18,13 +18,23 @@ import {
   GainedTable,
   HiscoresTable,
   RecordsTable,
-  Statistics
+  Statistics,
+  NameChangesTable
 } from './containers';
 import { GroupInfo } from './components';
 import { GroupContext } from './context';
 import './Group.scss';
 
-const TABS = ['Members', 'Competitions', 'Hiscores', 'Gained', 'Records', 'Achievements', 'Statistics'];
+const TABS = [
+  'Members',
+  'Competitions',
+  'Hiscores',
+  'Gained',
+  'Records',
+  'Achievements',
+  'Name Changes',
+  'Statistics'
+];
 
 function Group() {
   const dispatch = useDispatch();
@@ -97,6 +107,7 @@ function Group() {
             {section === 'gained' && <GainedTable />}
             {section === 'records' && <RecordsTable />}
             {section === 'achievements' && <AchievementsTable />}
+            {section === 'name changes' && <NameChangesTable />}
             {section === 'statistics' && <Statistics />}
             {section === 'competitions' && <CompetitionsTable handleRedirect={handleRedirect} />}
           </div>
@@ -132,7 +143,7 @@ function encodeContext({ id, section }) {
   const nextURL = new URL(`/groups/${id}`);
 
   if (section && section !== 'members') {
-    nextURL.appendToPath(`/${section}`);
+    nextURL.appendToPath(`/${section.replace(' ', '-')}`);
   }
 
   return nextURL.getPath();
@@ -142,9 +153,11 @@ function decodeURL(params) {
   const { id, section } = params;
   const validSections = ['delete', ...TABS.map(t => t.toLowerCase())];
 
+  const formattedSection = section ? section.replace('-', ' ') : undefined;
+
   return {
     id: parseInt(id, 10),
-    section: section && validSections.includes(section) ? section : 'members'
+    section: section && validSections.includes(formattedSection) ? formattedSection : 'members'
   };
 }
 
