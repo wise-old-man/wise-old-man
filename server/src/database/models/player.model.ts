@@ -60,8 +60,11 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
   type: string;
 
-  @Column({ type: DataType.STRING, allowNull: false, defaultValue: 'main' })
+  @Column({ type: DataType.STRING(10), allowNull: false, defaultValue: 'main' })
   build: string;
+
+  @Column({ type: DataType.STRING(3) })
+  country: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   flagged: boolean;
