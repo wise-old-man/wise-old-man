@@ -249,7 +249,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
         history: []
       };
     })
-    .sort((a, b) => b.progress.gained - a.progress.gained);
+    .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
 
   // Select the top 5 players
   const top5Ids = participants.slice(0, 5).map((p: any) => p.id);
@@ -908,7 +908,6 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
         model: Competition,
         attributes: ['startsAt', 'endsAt'],
         where: {
-          startsAt: { [Op.lt]: currentDate },
           endsAt: { [Op.gte]: currentDate }
         }
       }
@@ -921,15 +920,19 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
 
   await Promise.all(
     participations.map(async participation => {
+      const { competition } = participation;
+
       // Update this participation's latest (end) snapshot
       participation.endSnapshotId = latestSnapshot.id;
 
-      // If this participation's starting snapshot has not been set,
-      // find the first snapshot created since the start date and set it
-      if (!participation.startSnapshot) {
-        const startDate = participation.competition.startsAt;
-        const start = await snapshotService.findFirstSince(playerId, startDate);
-
+      // If is upcoming competition, set the latestSnapshot as the start and end snapshots
+      // This allows "Start exp." and "End exp." to salways how the current exp values
+      if (competition.startsAt.getTime() > currentDate.getTime()) {
+        participation.startSnapshotId = latestSnapshot.id;
+      } else if (!participation.startSnapshot) {
+        // If this participation's starting snapshot has not been set,
+        // find the first snapshot created since the start date and set it
+        const start = await snapshotService.findFirstSince(playerId, competition.startsAt);
         participation.startSnapshotId = start.id;
       }
 
