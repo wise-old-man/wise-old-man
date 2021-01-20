@@ -101,6 +101,13 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
     ]
   };
 
+  if (competition.type === 'team') {
+    tableConfig.columns.splice(2, 0, {
+      key: 'teamName',
+      label: 'Team'
+    });
+  }
+
   return (
     <Table
       rows={competition.participants}
@@ -123,9 +130,10 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
 
 ParticipantsTable.propTypes = {
   competition: PropTypes.shape({
+    type: PropTypes.string,
     metric: PropTypes.string,
     status: PropTypes.string,
-    participants: PropTypes.arrayOf(PropTypes.string)
+    participants: PropTypes.arrayOf(PropTypes.shape({}))
   }).isRequired,
   onUpdateClicked: PropTypes.func.isRequired
 };

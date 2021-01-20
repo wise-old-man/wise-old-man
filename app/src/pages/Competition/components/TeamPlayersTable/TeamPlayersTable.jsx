@@ -123,7 +123,7 @@ TeamPlayersTable.propTypes = {
     status: PropTypes.string
   }).isRequired,
   team: PropTypes.shape({
-    participants: PropTypes.arrayOf(PropTypes.string)
+    participants: PropTypes.arrayOf(PropTypes.shape({}))
   }).isRequired,
   updatingUsernames: PropTypes.arrayOf(PropTypes.string),
   onUpdateClicked: PropTypes.func.isRequired
