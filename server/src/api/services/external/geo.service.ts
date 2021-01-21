@@ -230,6 +230,7 @@ export const COUNTRIES = [
   { code: 'TZ', name: 'Tanzania' },
   { code: 'UA', name: 'Ukraine' },
   { code: 'UG', name: 'Uganda' },
+  { code: 'UK', name: 'United Kingdom' },
   { code: 'UM', name: 'United States Minor Outlying Islands' },
   { code: 'US', name: 'United States of America' },
   { code: 'UY', name: 'Uruguay' },
