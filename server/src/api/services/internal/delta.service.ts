@@ -12,12 +12,14 @@ import { buildQuery } from '../../util/query';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+import * as geoService from '../external/geo.service';
 
 interface GlobalDeltasFilter {
   period?: string;
   metric?: string;
   playerType?: string;
   playerBuild?: string;
+  country?: string;
 }
 
 interface GroupDeltasFilter {
@@ -139,7 +141,8 @@ async function getPlayerDeltas(playerId: number) {
  * Optionally, these deltas can be filtered by player type and build.
  */
 async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination) {
-  const { metric, period, playerBuild, playerType } = filter;
+  const { metric, period, playerBuild, playerType, country } = filter;
+  const countryCode = country ? geoService.find(country)?.code : null;
 
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
@@ -157,7 +160,14 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
-  const query = buildQuery({ type: playerType, build: playerBuild });
+  if (country && !countryCode) {
+    throw new BadRequestError(
+      `Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. \
+      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+    );
+  }
+
+  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
   const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
