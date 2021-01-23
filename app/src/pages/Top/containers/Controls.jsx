@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Selector } from 'components';
-import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from 'config';
+import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS, COUNTRIES } from 'config';
 import { capitalize, getPlayerTypeIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
 import { TopContext } from '../context';
 
@@ -27,13 +27,23 @@ const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
   value: metric
 }));
 
+const COUNTRY_OPTIONS = [
+  { label: 'All countries', value: null },
+  ...COUNTRIES.map(c => ({
+    label: c.name,
+    icon: `/img/flags/${c.code}.svg`,
+    value: c.code
+  }))
+];
+
 function Controls() {
   const { context, updateContext } = useContext(TopContext);
-  const { metric, type, build } = context;
+  const { metric, type, build, country } = context;
 
   const metricIndex = METRIC_OPTIONS.findIndex(o => o.value === metric);
   const playerTypeIndex = PLAYER_TYPES_OPTIONS.findIndex(o => o.value === type);
   const playerBuildIndex = PLAYER_BUILDS_OPTIONS.findIndex(o => o.value === build);
+  const countryIndex = COUNTRY_OPTIONS.findIndex(o => o.value === country);
 
   const handleMetricSelected = e => {
     if (!e || !e.value) return;
@@ -46,6 +56,10 @@ function Controls() {
 
   const handleBuildSelected = e => {
     updateContext({ build: e.value });
+  };
+
+  const handleCountrySelected = e => {
+    updateContext({ country: e.value });
   };
 
   return (
@@ -70,6 +84,14 @@ function Controls() {
           options={PLAYER_BUILDS_OPTIONS}
           selectedIndex={playerBuildIndex}
           onSelect={handleBuildSelected}
+        />
+      </div>
+      <div className="col-lg-3 col-md-5">
+        <Selector
+          options={COUNTRY_OPTIONS}
+          selectedIndex={countryIndex}
+          onSelect={handleCountrySelected}
+          search
         />
       </div>
     </>
