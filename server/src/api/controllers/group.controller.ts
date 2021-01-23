@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { Player } from '../../database/models';
 import { BadRequestError, ForbiddenError } from '../errors';
-import * as guard from '../guards/group.guards';
 import jobs from '../jobs';
+import * as verificationGuard from '../guards/verification.guard';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import { extractNumber, extractString, extractStrings } from '../util/http';
@@ -74,7 +74,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     }
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await guard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -96,7 +96,7 @@ async function remove(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await guard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -120,7 +120,7 @@ async function changeRole(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await guard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -161,7 +161,7 @@ async function addMembers(req: Request, res: Response, next: NextFunction) {
     const members = req.body.members;
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await guard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -183,7 +183,7 @@ async function removeMembers(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await guard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');

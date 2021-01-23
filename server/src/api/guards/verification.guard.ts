@@ -1,6 +1,11 @@
-import { Competition } from '../../database/models';
+import { Competition, Group } from '../../database/models';
 import { ServerError } from '../errors';
 import * as cryptService from '../services/external/crypt.service';
+
+async function verifyGroupCode(group: Group, verificationCode: string) {
+  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
+  return verified;
+}
 
 async function verifyCompetitionCode(competition: Competition, verificationCode: string) {
   const { groupId, verificationHash } = competition;
@@ -20,4 +25,4 @@ async function verifyCompetitionCode(competition: Competition, verificationCode:
   return verified;
 }
 
-export { verifyCompetitionCode };
+export { verifyCompetitionCode, verifyGroupCode };

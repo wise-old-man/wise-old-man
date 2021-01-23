@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import { ForbiddenError } from '../errors';
 import * as nameService from '../services/internal/name.service';
-import { extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
+import * as adminGuard from '../guards/admin.guard';
+import { extractNumber, extractString } from '../util/http';
 
 // GET /names
 async function index(req: Request, res: Response, next: NextFunction) {
@@ -56,12 +58,17 @@ async function details(req: Request, res: Response, next: NextFunction) {
 }
 
 // POST /names/:id/approve
+// REQUIRES ADMIN PASSWORD
 async function approve(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    const result = await nameService.approve(id, adminPassword);
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const result = await nameService.approve(id);
     res.json(result);
   } catch (e) {
     next(e);
@@ -69,12 +76,17 @@ async function approve(req: Request, res: Response, next: NextFunction) {
 }
 
 // POST /names/:id/deny
+// REQUIRES ADMIN PASSWORD
 async function deny(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    const result = await nameService.deny(id, adminPassword);
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const result = await nameService.deny(id);
     res.json(result);
   } catch (e) {
     next(e);
