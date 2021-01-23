@@ -29,6 +29,22 @@ export default [
         field: 'playerBuild',
         type: 'string',
         description: "The player's build (See accepted values above) - Optional"
+      },
+      {
+        field: 'country',
+        type: 'string',
+        description:
+          "The player's country (Accepts any 2 character country code in https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) - Optional"
+      },
+      {
+        field: 'limit',
+        type: 'integer',
+        description: 'The maximum amount of results to return - Optional (Default is 20)'
+      },
+      {
+        field: 'offset',
+        type: 'integer',
+        description: 'The amount of results to offset the response by - Optional (Default is 0)'
       }
     ],
     successResponses: [
@@ -46,6 +62,7 @@ export default [
               displayName: 'Rro',
               type: 'regular',
               build: 'main',
+              country: null,
               flagged: false,
               ehp: 1725.64923,
               ehb: 580.18854,
@@ -68,6 +85,7 @@ export default [
               displayName: 'Psikoi',
               type: 'regular',
               build: 'main',
+              country: null,
               flagged: false,
               ehp: 957.66169,
               ehb: 292.20288,
@@ -90,6 +108,7 @@ export default [
               displayName: 'Zezima',
               type: 'regular',
               build: 'main',
+              country: null,
               flagged: false,
               ehp: 170.56992,
               ehb: 0,
@@ -139,6 +158,25 @@ export default [
         description: 'If player build is given but it is not valid.',
         body: {
           message: 'Invalid metric: someInvalidPlayerBuild.'
+        }
+      },
+      {
+        description: 'If player country is given but it is not valid.',
+        body: {
+          message:
+            'Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2'
+        }
+      },
+      {
+        description: 'If the given limit is lower than 1.',
+        body: {
+          message: 'Invalid limit: must be > 0'
+        }
+      },
+      {
+        description: 'If the given offset is negative.',
+        body: {
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]

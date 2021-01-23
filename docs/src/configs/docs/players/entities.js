@@ -29,6 +29,12 @@ export default [
         description: "The player's account build. (See possible values below)"
       },
       {
+        field: 'country',
+        type: 'string',
+        description:
+          "The player's country. Accepts any 2 character country code from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2"
+      },
+      {
         field: 'flagged',
         type: 'boolean',
         description: 'Whether or not this player has had an unregistered name change.'
