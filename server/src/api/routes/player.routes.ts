@@ -17,6 +17,7 @@ api.get('/username/:username/snapshots', controller.snapshots);
 api.get('/username/:username/achievements', controller.achievements);
 api.get('/username/:username/competitions', controller.competitions);
 api.get('/username/:username/names', controller.names);
+api.put('/username/:username/country', controller.updateCountry);
 
 api.get('/:id', controller.details);
 api.get('/:id/groups', controller.groups);
