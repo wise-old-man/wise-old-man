@@ -230,7 +230,6 @@ export const COUNTRIES = [
   { code: 'TZ', name: 'Tanzania' },
   { code: 'UA', name: 'Ukraine' },
   { code: 'UG', name: 'Uganda' },
-  { code: 'UK', name: 'United Kingdom' },
   { code: 'UM', name: 'United States Minor Outlying Islands' },
   { code: 'US', name: 'United States of America' },
   { code: 'UY', name: 'Uruguay' },
@@ -256,9 +255,22 @@ export function find(countryIdentifier: string) {
 }
 
 export function findByName(countryName: string) {
-  return COUNTRIES.find(c => c.name.toLowerCase() === countryName.toLowerCase());
+  return COUNTRIES.find(c => c.name.toUpperCase() === countryName.toUpperCase());
 }
 
 export function findByCode(countryCode: string) {
-  return COUNTRIES.find(c => c.code.toLowerCase() === countryCode.toLowerCase());
+  return COUNTRIES.find(c => c.code === replaceCommon(countryCode.toUpperCase()));
+}
+
+function replaceCommon(countryCode: string) {
+  if (!countryCode) return null;
+
+  switch (countryCode.toUpperCase()) {
+    case 'UK':
+      return 'GB';
+    case 'USA':
+      return 'US';
+    default:
+      return countryCode;
+  }
 }
