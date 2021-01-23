@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import { Selector } from 'components';
 import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS } from 'config';
-import { capitalize, getPlayerIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
+import { capitalize, getPlayerTypeIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
 import { LeaderboardContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.map(type => ({
   label: capitalize(type),
-  icon: getPlayerIcon(type),
+  icon: getPlayerTypeIcon(type),
   value: type
 }));
 

@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
 import { Selector } from 'components';
 import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS } from 'config';
-import { capitalize, getPlayerIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
+import { capitalize, getPlayerTypeIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
 import { TopContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = [
   { label: 'All player types', value: null },
   ...PLAYER_TYPES.map(type => ({
     label: capitalize(type),
-    icon: getPlayerIcon(type),
+    icon: getPlayerTypeIcon(type),
     value: type
   }))
 ];

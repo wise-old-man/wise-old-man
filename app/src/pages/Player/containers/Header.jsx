@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { getPlayerIcon, getPlayerTooltip, getOfficialHiscoresUrl } from 'utils';
+import { getPlayerTypeIcon, getPlayerTooltip, getOfficialHiscoresUrl } from 'utils';
 import { PageHeader, Dropdown, Button } from 'components';
 
 const MENU_OPTIONS = [
@@ -31,7 +31,7 @@ function Header(props) {
       {player.flagged && <FlaggedWarning displayName={player.displayName} />}
       <PageHeader
         title={player.displayName}
-        icon={getPlayerIcon(player.type)}
+        icon={getPlayerTypeIcon(player.type)}
         iconTooltip={getPlayerTooltip(player.type, player.flagged)}
         badges={getPlayerBadges(player.build)}
       >

@@ -100,6 +100,7 @@ function getTableConfig(metric, period) {
               name={row.player.displayName}
               type={row.player.type}
               flagged={row.player.flagged}
+              country={row.player.country}
             />
           </Link>
         )

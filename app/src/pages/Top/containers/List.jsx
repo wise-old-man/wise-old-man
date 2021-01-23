@@ -55,7 +55,12 @@ function getTableConfig(metric, period) {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={getPlayerURL(row.player.displayName, metric, period)}>
-            <PlayerTag name={value} type={row.player.type} flagged={row.player.flagged} />
+            <PlayerTag
+              name={value}
+              type={row.player.type}
+              flagged={row.player.flagged}
+              country={row.player.country}
+            />
           </Link>
         )
       },

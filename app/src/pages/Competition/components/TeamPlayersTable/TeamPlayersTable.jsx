@@ -20,7 +20,7 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.username}`}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} />
+            <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
           </Link>
         )
       },
