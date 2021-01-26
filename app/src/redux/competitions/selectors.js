@@ -1,7 +1,7 @@
 import { mapValues, uniqBy, uniq } from 'lodash';
 import { createSelector } from 'reselect';
-import { CHART_COLORS } from 'config/visuals';
-import { durationBetween } from 'utils';
+import { CHART_COLORS, SKILLS } from 'config';
+import { durationBetween, getLevel } from 'utils';
 
 const rootSelector = state => state.competitions;
 const competitionsSelector = state => state.competitions.competitions;
@@ -101,14 +101,31 @@ function formatTeams(participants) {
   return teamsList.sort((a, b) => b.totalGained - a.totalGained).map((t, i) => ({ ...t, rank: i + 1 }));
 }
 
+function formatParticipant(participant, index, calcLevels) {
+  const formatted = { ...participant, rank: index + 1 };
+
+  if (calcLevels) {
+    const startLevel = getLevel(participant.progress.start);
+    const endLevel = getLevel(participant.progress.end);
+    formatted.levelsGained = endLevel - startLevel;
+  }
+
+  return formatted;
+}
+
 function formatCompetition(competition) {
   if (!competition) {
     return null;
   }
 
-  const { startsAt, endsAt, participants } = competition;
+  const { startsAt, endsAt, participants, metric } = competition;
 
-  const formattedParticipants = participants ? participants.map((p, i) => ({ ...p, rank: i + 1 })) : [];
+  const calcLevels = SKILLS.filter(s => s !== 'overall').includes(metric);
+
+  const formattedParticipants = participants
+    ? participants.map((p, i) => formatParticipant(p, i, calcLevels))
+    : [];
+
   const formattedTeams = participants ? formatTeams(formattedParticipants) : [];
 
   const formattedCompetition = {

@@ -93,10 +93,10 @@ function Competition() {
           <Widgets competition={competition} />
         </div>
         <div className="competition__content row">
-          <div className="col-md-4">
+          <div className="col-md-3">
             <CompetitionInfo competition={competition} />
           </div>
-          <div className="col-md-8">
+          <div className="col-md-9">
             <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
             {section === 'teams' && (
               <TeamsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />

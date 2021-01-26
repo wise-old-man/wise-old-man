@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
+import { SKILLS } from 'config';
 import { Table, PlayerTag, NumberLabel, TextLabel } from 'components';
 
 function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicked }) {
@@ -74,7 +75,7 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         key: 'updatedAt',
         label: 'Last updated',
         className: () => '-break-large',
-        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+        transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
       },
       {
         key: 'update',
@@ -92,6 +93,16 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
       }
     ]
   };
+
+  if (SKILLS.filter(s => s !== 'overall').includes(competition.metric)) {
+    tableConfig.columns.splice(tableConfig.columns.length - 2, 0, {
+      key: 'levels',
+      get: row => (row.levelsGained ? row.levelsGained : 0),
+      transform: val => {
+        return <NumberLabel value={val} isColored isSigned />;
+      }
+    });
+  }
 
   return (
     <Table
