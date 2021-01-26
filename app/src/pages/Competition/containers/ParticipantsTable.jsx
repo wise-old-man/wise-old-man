@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { SKILLS } from 'config';
 import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
 import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
@@ -83,7 +84,7 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
         key: 'updatedAt',
         label: 'Last updated',
         className: () => '-break-small',
-        transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+        transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
       },
       {
         key: 'update',
@@ -105,6 +106,16 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
     tableConfig.columns.splice(2, 0, {
       key: 'teamName',
       label: 'Team'
+    });
+  }
+
+  if (SKILLS.filter(s => s !== 'overall').includes(competition.metric)) {
+    tableConfig.columns.splice(tableConfig.columns.length - 2, 0, {
+      key: 'levels',
+      get: row => (row.levelsGained ? row.levelsGained : 0),
+      transform: val => {
+        return <NumberLabel value={val} isColored isSigned />;
+      }
     });
   }
 
