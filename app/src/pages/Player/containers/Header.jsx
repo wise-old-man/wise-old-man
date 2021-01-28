@@ -39,7 +39,10 @@ function Header(props) {
             <>
               {buildBadge && <Badge text={buildBadge.text} hoverText={buildBadge.hoverText} />}
               {player.country && (
-                <abbr className="flag" title={`Country: ${player.country}`}>
+                <abbr
+                  className="flag"
+                  title={`Country: ${player.country}. Set your own flag at wiseoldman.net/flags`}
+                >
                   <img src={`/img/flags/${player.country}.svg`} alt={player.country} />
                 </abbr>
               )}

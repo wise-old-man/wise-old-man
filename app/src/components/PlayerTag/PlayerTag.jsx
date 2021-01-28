@@ -20,7 +20,10 @@ function PlayerTag({ name, type, country, flagged }) {
         <span className="player-tag__name">{name}</span>
       </div>
       {country && (
-        <abbr className="player-tag__flag" title={`Country: ${country}`}>
+        <abbr
+          className="player-tag__flag"
+          title={`Country: ${country}. Set your own flag at wiseoldman.net/flags`}
+        >
           <img src={`/img/flags/${country}.svg`} alt={country} />
         </abbr>
       )}
