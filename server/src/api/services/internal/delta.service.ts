@@ -118,14 +118,18 @@ async function getPlayerPeriodDeltas(
   initial?: InitialValues,
   player?: Player
 ) {
-  if (!PERIODS.includes(period)) {
+  const [periodStr, durationMs] = parsePeriod(period);
+
+  if (!periodStr) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const startDate = new Date(Date.now() - getMilliseconds(period));
-  const delta = await getPlayerTimeRangeDeltas(playerId, startDate, new Date(), latest, initial, player);
+  const startDate = new Date(Date.now() - durationMs);
+  const endDate = new Date();
 
-  return { ...delta, period };
+  const deltas = await getPlayerTimeRangeDeltas(playerId, startDate, endDate, latest, initial, player);
+
+  return { period: periodStr, ...deltas };
 }
 
 /**

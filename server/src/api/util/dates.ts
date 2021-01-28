@@ -13,7 +13,7 @@ function parsePeriod(period: string): [string, number] | null {
   const result = fixed.match(CUSTOM_PERIOD_REGEX);
 
   if (!result || result.length === 0 || result[0] !== fixed) {
-    return null;
+    return [null, null];
   }
 
   const years = result[1] ? parseInt(result[1].replace(/\D/g, '')) : null;

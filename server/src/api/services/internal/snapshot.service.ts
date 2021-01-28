@@ -2,9 +2,9 @@ import csv from 'csvtojson';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import { Snapshot } from '../../../database/models';
-import { ACTIVITIES, ALL_METRICS, BOSSES, PERIODS, SKILLS } from '../../constants';
+import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import { getMilliseconds } from '../../util/dates';
+import { parsePeriod } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
@@ -108,11 +108,13 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
  * Finds all snapshots within a time period, for a given player.
  */
 async function getSnapshots(playerId: number, period: string) {
-  if (!PERIODS.includes(period)) {
+  const [periodStr, durationMs] = parsePeriod(period);
+
+  if (!periodStr) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const before = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
+  const before = moment().subtract(durationMs, 'milliseconds').toDate();
 
   const result = await Snapshot.findAll({
     where: {
