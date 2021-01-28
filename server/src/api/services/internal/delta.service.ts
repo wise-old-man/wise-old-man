@@ -5,7 +5,7 @@ import { Delta, InitialValues, Player, Snapshot } from '../../../database/models
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getSeconds } from '../../util/dates';
+import { getMilliseconds, parsePeriod } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
@@ -37,7 +37,7 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
 
   await Promise.all(
     PERIODS.map(async period => {
-      const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
+      const startingDate = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
       const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
 
       const currentDelta = await Delta.findOne({
@@ -122,7 +122,7 @@ async function getPlayerPeriodDeltas(
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const startDate = new Date(Date.now() - getSeconds(period) * 1000);
+  const startDate = new Date(Date.now() - getMilliseconds(period));
   const delta = await getPlayerTimeRangeDeltas(playerId, startDate, new Date(), latest, initial, player);
 
   return { ...delta, period };
@@ -180,7 +180,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   }
 
   const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
-  const startingDate = moment().subtract(getSeconds(period), 'seconds').toDate();
+  const startingDate = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === 'ironman') {
