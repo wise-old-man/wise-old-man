@@ -83,6 +83,31 @@ async function syncInitialValues(playerId: number, latest: Snapshot) {
   return initial;
 }
 
+async function getPlayerTimeRangeDeltas(
+  playerId: number,
+  startDate: Date,
+  endDate: Date,
+  latest?: Snapshot,
+  initial?: InitialValues,
+  player?: Player
+) {
+  const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
+  const latestSnapshot = latest || (await snapshotService.findLatest(playerId, endDate));
+  const targetPlayer = player || (await playerService.findById(playerId));
+
+  const startSnapshot = await snapshotService.findFirstSince(playerId, startDate);
+
+  if (!startSnapshot || !latestSnapshot) {
+    return { startsAt: null, endsAt: null, data: emptyDiff() };
+  }
+
+  return {
+    startsAt: startSnapshot.createdAt,
+    endsAt: latestSnapshot.createdAt,
+    data: diff(startSnapshot, latestSnapshot, initialValues, targetPlayer)
+  };
+}
+
 /**
  * Get all the player deltas (gains) for a specific time period.
  */
@@ -97,23 +122,10 @@ async function getPlayerPeriodDeltas(
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const periodStartDate = new Date(Date.now() - getSeconds(period) * 1000);
-  const initialValues = initial || (await InitialValues.findOne({ where: { playerId } }));
-  const latestSnapshot = latest || (await snapshotService.findLatest(playerId));
-  const targetPlayer = player || (await playerService.findById(playerId));
+  const startDate = new Date(Date.now() - getSeconds(period) * 1000);
+  const delta = await getPlayerTimeRangeDeltas(playerId, startDate, new Date(), latest, initial, player);
 
-  const startSnapshot = await snapshotService.findFirstSince(playerId, periodStartDate);
-
-  if (!startSnapshot || !latestSnapshot) {
-    return { period, startsAt: null, endsAt: null, data: emptyDiff() };
-  }
-
-  return {
-    period,
-    startsAt: startSnapshot.createdAt,
-    endsAt: latestSnapshot.createdAt,
-    data: diff(startSnapshot, latestSnapshot, initialValues, targetPlayer)
-  };
+  return { ...delta, period };
 }
 
 /**
@@ -351,6 +363,7 @@ function emptyDiff() {
 export {
   getPlayerDeltas,
   getPlayerPeriodDeltas,
+  getPlayerTimeRangeDeltas,
   getGroupLeaderboard,
   getLeaderboard,
   syncInitialValues,

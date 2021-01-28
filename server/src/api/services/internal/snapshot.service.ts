@@ -145,9 +145,9 @@ async function findAll(playerId: number, limit: number): Promise<Snapshot[]> {
 /**
  * Finds the latest snapshot for a given player.
  */
-async function findLatest(playerId: number): Promise<Snapshot | null> {
+async function findLatest(playerId: number, maxDate = new Date()): Promise<Snapshot | null> {
   const result = await Snapshot.findOne({
-    where: { playerId },
+    where: { playerId, createdAt: { [Op.lte]: maxDate } },
     order: [['createdAt', 'DESC']]
   });
 

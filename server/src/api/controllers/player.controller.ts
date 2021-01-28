@@ -9,7 +9,7 @@ import * as nameService from '../services/internal/name.service';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
-import { extractBoolean, extractNumber, extractString } from '../util/http';
+import { extractBoolean, extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
 
 // GET /players/search?username={username}
@@ -192,14 +192,21 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
     const period = extractString(req.query, { key: 'period' });
+    const startDate = extractDate(req.query, { key: 'startDate' });
+    const endDate = extractDate(req.query, { key: 'endDate' });
 
     const playerId = await playerService.resolveId({ id, username });
+    let playerDeltas = null;
 
-    const playerDeltas = period
-      ? await deltaService.getPlayerPeriodDeltas(playerId, period)
-      : await deltaService.getPlayerDeltas(playerId);
+    if (startDate && endDate) {
+      playerDeltas = await deltaService.getPlayerTimeRangeDeltas(playerId, startDate, endDate);
+    } else if (period) {
+      playerDeltas = await deltaService.getPlayerPeriodDeltas(playerId, period);
+    } else {
+      playerDeltas = await deltaService.getPlayerDeltas(playerId);
+    }
 
-    const hasNoGains = period ? !playerDeltas.startsAt : !playerDeltas['week'].startsAt;
+    const hasNoGains = period ? !playerDeltas.startsAt : !playerDeltas['week']?.startsAt;
 
     if (id && hasNoGains) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
