@@ -251,10 +251,14 @@ async function snapshots(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
     const period = extractString(req.query, { key: 'period' });
+    const startDate = extractDate(req.query, { key: 'startDate', required: !period });
+    const endDate = extractDate(req.query, { key: 'endDate', required: !period });
 
     const playerId = await playerService.resolveId({ id, username });
 
-    const playerSnapshots = await snapshotService.getSnapshots(playerId, period);
+    const playerSnapshots = period
+      ? await snapshotService.getPlayerPeriodSnapshots(playerId, period)
+      : await snapshotService.getPlayerTimeRangeSnapshots(id, startDate, endDate);
 
     if (id && playerSnapshots.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)

@@ -1,5 +1,4 @@
 import csv from 'csvtojson';
-import moment from 'moment';
 import { Op } from 'sequelize';
 import { Snapshot } from '../../../database/models';
 import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
@@ -107,24 +106,24 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
 /**
  * Finds all snapshots within a time period, for a given player.
  */
-async function getSnapshots(playerId: number, period: string) {
+async function getPlayerPeriodSnapshots(playerId: number, period: string) {
   const [periodStr, durationMs] = parsePeriod(period);
 
   if (!periodStr) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const before = moment().subtract(durationMs, 'milliseconds').toDate();
+  const startDate = new Date(Date.now() - durationMs);
+  const endDate = new Date();
 
-  const result = await Snapshot.findAll({
-    where: {
-      playerId,
-      createdAt: { [Op.gte]: before }
-    },
-    order: [['createdAt', 'DESC']]
-  });
+  const snapshots = await getPlayerTimeRangeSnapshots(playerId, startDate, endDate);
 
-  return result.map(r => format(r));
+  return snapshots;
+}
+
+async function getPlayerTimeRangeSnapshots(playerId: number, startDate: Date, endDate: Date) {
+  const snapshots = await findAllBetween([playerId], startDate, endDate);
+  return snapshots.map(format);
 }
 
 /**
@@ -335,5 +334,6 @@ export {
   saveAll,
   fromCML,
   fromRS,
-  getSnapshots
+  getPlayerPeriodSnapshots,
+  getPlayerTimeRangeSnapshots
 };
