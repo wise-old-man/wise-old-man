@@ -877,6 +877,12 @@ export default [
       {
         type: 'info',
         content: 'This endpoint has two valid URLs, by player id or username.'
+      },
+      {
+        type: 'warning',
+        content:
+          'To see values within a specific custom time period, you can use the "startDate" and "endDate" query params. \
+          Or to simply see values within the last fixed time period, use the "period" param.'
       }
     ],
     params: [
@@ -895,7 +901,18 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: 'The time period to filter the snapshots by (See accepted values above)'
+        description:
+          'The time period to filter the snapshots by - Optional only if supplying "startDate" and "endDate"'
+      },
+      {
+        field: 'startDate',
+        type: 'string',
+        description: "The snapshot history's start date - Optional"
+      },
+      {
+        field: 'endDate',
+        type: 'string',
+        description: "The snapshot history's end date - Optional"
       }
     ],
     successResponses: [
@@ -958,11 +975,14 @@ export default [
       },
       {
         type: 'warning',
-        content: 'The response will be formatted into a json-friendlier format. See example below.'
+        content:
+          'If the "period", "startDate" and "endDate" params are not supplied, it will return the deltas for all fixed periods.'
       },
       {
         type: 'warning',
-        content: 'If the "period" param is not supplied, it will return the deltas for all periods.'
+        content:
+          'To see values within a specific custom time period, you can use the "startDate" and "endDate" query params. \
+          Or to simply see values within the last fixed time period, use the "period" param.'
       }
     ],
     params: [
@@ -981,7 +1001,17 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: "The delta's period (See accepted values above) - Optional"
+        description: "The delta's period - Optional"
+      },
+      {
+        field: 'startDate',
+        type: 'string',
+        description: "The delta's start date - Optional"
+      },
+      {
+        field: 'endDate',
+        type: 'string',
+        description: "The delta's end date - Optional"
       }
     ],
     successResponses: [
@@ -1293,7 +1323,7 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: "The record's period (See accepted values above) - Optional"
+        description: "The record's period - Optional"
       },
       {
         field: 'metric',
