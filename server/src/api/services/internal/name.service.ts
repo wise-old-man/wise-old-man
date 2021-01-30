@@ -192,7 +192,7 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
 /**
  * Denies a pending name change request.
  */
-async function deny(id: number, adminPassword: string): Promise<NameChange> {
+async function deny(id: number): Promise<NameChange> {
   const nameChange = await NameChange.findOne({ where: { id } });
 
   if (!nameChange) {
@@ -201,10 +201,6 @@ async function deny(id: number, adminPassword: string): Promise<NameChange> {
 
   if (nameChange.status !== NameChangeStatus.PENDING) {
     throw new BadRequestError('Name change status must be PENDING');
-  }
-
-  if (adminPassword !== env.ADMIN_PASSWORD) {
-    throw new BadRequestError('Incorrect password.');
   }
 
   nameChange.status = NameChangeStatus.DENIED;
@@ -217,7 +213,7 @@ async function deny(id: number, adminPassword: string): Promise<NameChange> {
  * Approves a pending name change request,
  * and transfer all the oldName's data to the newName.
  */
-async function approve(id: number, adminPassword: string): Promise<NameChange> {
+async function approve(id: number): Promise<NameChange> {
   const nameChange = await NameChange.findOne({ where: { id } });
 
   if (!nameChange) {
@@ -226,10 +222,6 @@ async function approve(id: number, adminPassword: string): Promise<NameChange> {
 
   if (nameChange.status !== NameChangeStatus.PENDING) {
     throw new BadRequestError('Name change status must be PENDING');
-  }
-
-  if (adminPassword !== env.ADMIN_PASSWORD) {
-    throw new BadRequestError('Incorrect password.');
   }
 
   const oldPlayer = await playerService.find(nameChange.oldName);
@@ -357,7 +349,7 @@ async function autoReview(id: number): Promise<void> {
     details = await getDetails(id);
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
-      await deny(id, env.ADMIN_PASSWORD);
+      await deny(id);
       return;
     }
   }
@@ -374,13 +366,13 @@ async function autoReview(id: number): Promise<void> {
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
-    await deny(id, env.ADMIN_PASSWORD);
+    await deny(id);
     return;
   }
 
   // If has lost exp/kills/scores, deny request
   if (hasNegativeGains) {
-    await deny(id, env.ADMIN_PASSWORD);
+    await deny(id);
     return;
   }
 
@@ -407,7 +399,7 @@ async function autoReview(id: number): Promise<void> {
   }
 
   // All seems to be fine, auto approve
-  await approve(id, env.ADMIN_PASSWORD);
+  await approve(id);
 }
 
 async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {

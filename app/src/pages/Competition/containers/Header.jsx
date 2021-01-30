@@ -27,16 +27,21 @@ function Header({ competition, handleUpdateAll, handleEditRedirect }) {
   }
 
   return (
-    <PageHeader title={competition.title}>
-      {competition.status !== 'finished' && (
-        <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
+    <PageHeader
+      title={competition.title}
+      renderRight={() => (
+        <>
+          {competition.status !== 'finished' && (
+            <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
+          )}
+          <Dropdown options={menuOptions} onSelect={handleOptionSelected}>
+            <button className="header__options-btn" type="button">
+              <img src="/img/icons/options.svg" alt="" />
+            </button>
+          </Dropdown>
+        </>
       )}
-      <Dropdown options={menuOptions} onSelect={handleOptionSelected}>
-        <button className="header__options-btn" type="button">
-          <img src="/img/icons/options.svg" alt="" />
-        </button>
-      </Dropdown>
-    </PageHeader>
+    />
   );
 }
 

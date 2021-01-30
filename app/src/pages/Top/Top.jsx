@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
 import { getMetricName } from 'utils';
-import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES } from 'config';
+import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES, COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { deltasActions } from 'redux/deltas';
 import URL from 'utils/url';
@@ -17,15 +17,15 @@ function Top() {
   const dispatch = useDispatch();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { metric, type, build } = context;
+  const { metric, type, build, country } = context;
 
   const reloadList = () => {
     PERIODS.forEach(period => {
-      dispatch(deltasActions.fetchLeaderboards(metric, period, type, build));
+      dispatch(deltasActions.fetchLeaderboards(metric, period, type, build, country));
     });
   };
 
-  useEffect(reloadList, [metric, type, build]);
+  useEffect(reloadList, [metric, type, build, country]);
 
   return (
     <TopContext.Provider value={{ context, updateContext }}>
@@ -53,7 +53,7 @@ function Top() {
   );
 }
 
-function encodeContext({ metric, type, build }) {
+function encodeContext({ metric, type, build, country }) {
   const nextURL = new URL(`/top`);
 
   if (metric && metric !== 'overall' && ALL_METRICS.includes(metric)) {
@@ -68,17 +68,27 @@ function encodeContext({ metric, type, build }) {
     nextURL.appendSearchParam('build', build.toLowerCase());
   }
 
+  if (country && COUNTRIES.map(c => c.code).includes(country)) {
+    nextURL.appendSearchParam('country', country);
+  }
+
   return nextURL.getPath();
 }
 
 function decodeURL(params, query) {
   const { metric } = params;
-  const { type, build } = query;
+  const { type, build, country } = query;
+
+  const isValidMetric = metric && ALL_METRICS.includes(metric.toLowerCase());
+  const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
+  const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
+  const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
 
   return {
-    metric: metric && ALL_METRICS.includes(metric.toLowerCase()) ? metric.toLowerCase() : 'overall',
-    type: type && PLAYER_TYPES.includes(type.toLowerCase()) ? type.toLowerCase() : null,
-    build: build && PLAYER_BUILDS.includes(build.toLowerCase()) ? build.toLowerCase() : null
+    metric: isValidMetric ? metric.toLowerCase() : 'overall',
+    type: isValidType ? type.toLowerCase() : null,
+    build: isValidBuild ? build.toLowerCase() : null,
+    country: isValidCountry ? country.toUpperCase() : null
   };
 }
 

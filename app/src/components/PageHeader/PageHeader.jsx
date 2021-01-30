@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Badge from '../Badge';
 import './PageHeader.scss';
 
-function PageHeader({ title, icon, iconTooltip, children, badges }) {
+function PageHeader({ title, icon, iconTooltip, renderRight, renderLeft }) {
   return (
     <div className="page-header">
       {icon && (
@@ -12,9 +11,8 @@ function PageHeader({ title, icon, iconTooltip, children, badges }) {
         </abbr>
       )}
       <h1 className="page-header__title">{title}</h1>
-      {badges &&
-        badges.map(badge => <Badge key={badge.text} text={badge.text} hoverText={badge.hoverText} />)}
-      <div className="page-header__actions">{children}</div>
+      {renderLeft && <div className="page-header__left">{renderLeft()}</div>}
+      {renderRight && <div className="page-header__right">{renderRight()}</div>}
     </div>
   );
 }
@@ -22,7 +20,8 @@ function PageHeader({ title, icon, iconTooltip, children, badges }) {
 PageHeader.defaultProps = {
   icon: undefined,
   iconTooltip: undefined,
-  badges: []
+  renderLeft: undefined,
+  renderRight: undefined
 };
 
 PageHeader.propTypes = {
@@ -35,13 +34,11 @@ PageHeader.propTypes = {
   // The tooltip for the icon
   iconTooltip: PropTypes.string,
 
-  // If enabled, a verified badge will be displayed next to the title
-  badges: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string.isRequired,
-      hoverText: PropTypes.string.isRequired
-    })
-  )
+  // A renderable function to add left-aligned components
+  renderLeft: PropTypes.func,
+
+  // A renderable function to add right-aligned components
+  renderRight: PropTypes.func
 };
 
 export default React.memo(PageHeader);

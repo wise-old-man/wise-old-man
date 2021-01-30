@@ -18,11 +18,16 @@
     padding: 0;
     font-family: 'Lato';
     font-size: 1.6em;
-    padding-right: 20px;
     white-space: pre;
   }
 
-  &__actions {
+  &__left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__right {
     flex-grow: 1;
     display: flex;
     align-items: center;
@@ -31,6 +36,10 @@
     .button {
       margin-right: 15px;
     }
+  }
+
+  .badge {
+    margin-left: 15px;
   }
 }
 

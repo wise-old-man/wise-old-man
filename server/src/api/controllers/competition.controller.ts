@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
 import { ForbiddenError } from '../errors';
-import * as guard from '../guards/competition.guards';
 import jobs from '../jobs';
+import * as verificationGuard from '../guards/verification.guard';
 import * as service from '../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import * as pagination from '../util/pagination';
@@ -83,7 +83,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -108,7 +108,7 @@ async function remove(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -131,7 +131,7 @@ async function addParticipants(req: Request, res: Response, next: NextFunction) 
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -153,7 +153,7 @@ async function removeParticipants(req: Request, res: Response, next: NextFunctio
     const participants = extractStrings(req.body, { key: 'participants', required: true });
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -176,7 +176,7 @@ async function addTeams(req: Request, res: Response, next: NextFunction) {
     const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -198,7 +198,7 @@ async function removeTeams(req: Request, res: Response, next: NextFunction) {
     const teamNames = extractStrings(req.body, { key: 'teamNames', required: true });
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await guard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');

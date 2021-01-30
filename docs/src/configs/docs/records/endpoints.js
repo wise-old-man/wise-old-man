@@ -25,6 +25,12 @@ export default [
         description: "The player's build (See accepted values above) - Optional (Default returns all)"
       },
       {
+        field: 'country',
+        type: 'string',
+        description:
+          "The player's country (Accepts any 2 character country code in https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) - Optional"
+      },
+      {
         field: 'limit',
         type: 'integer',
         description: 'The maximum amount of results to return - Optional (Default is 20)'
@@ -37,81 +43,85 @@ export default [
     ],
     successResponses: [
       {
-        description: 'Filtered by the fields metric (herblore) and period (6h) (Only showing top 3 for demo purposes)',
+        description:
+          'Filtered by the fields metric (herblore) and period (6h) (Only showing top 3 for demo purposes)',
         body: [
           {
             value: 4296285,
             id: 10078478,
             playerId: 20400,
-            period: "6h",
-            metric: "herblore",
-            updatedAt: "2020-12-14T10:25:30.960Z",
+            period: '6h',
+            metric: 'herblore',
+            updatedAt: '2020-12-14T10:25:30.960Z',
             player: {
               exp: 1275683046,
               id: 20400,
-              username: "clouds",
-              displayName: "clouds",
-              type: "regular",
-              build: "main",
+              username: 'clouds',
+              displayName: 'clouds',
+              type: 'regular',
+              build: 'main',
+              country: null,
               flagged: false,
               ehp: 4879.6876,
               ehb: 11.48485,
               ttm: 0,
               tt200m: 10082.76345,
-              lastImportedAt: "2020-12-29T06:42:02.776Z",
-              lastChangedAt: "2020-12-29T06:42:00.825Z",
-              registeredAt: "2020-07-02T06:53:13.168Z",
-              updatedAt: "2020-12-29T06:42:02.777Z"
+              lastImportedAt: '2020-12-29T06:42:02.776Z',
+              lastChangedAt: '2020-12-29T06:42:00.825Z',
+              registeredAt: '2020-07-02T06:53:13.168Z',
+              updatedAt: '2020-12-29T06:42:02.777Z'
             }
           },
           {
             value: 3954060,
             id: 10081998,
             playerId: 71872,
-            period: "6h",
-            metric: "herblore",
-            updatedAt: "2020-12-14T22:10:32.523Z",
+            period: '6h',
+            metric: 'herblore',
+            updatedAt: '2020-12-14T22:10:32.523Z',
             player: {
               exp: 206296613,
               id: 71872,
-              username: "crazy duckk",
-              displayName: "Crazy Duckk",
-              type: "regular",
-              build: "lvl3",
+              username: 'crazy duckk',
+              displayName: 'Crazy Duckk',
+              type: 'regular',
+              build: 'lvl3',
+              country: null,
               flagged: false,
               ehp: 978.34318,
               ehb: 0,
               ttm: 385.66642,
               tt200m: 12893.77735,
-              lastImportedAt: "2020-12-19T12:28:30.645Z",
-              lastChangedAt: "2020-12-19T12:28:28.894Z",
-              registeredAt: "2020-11-02T16:42:01.176Z",
-              updatedAt: "2020-12-19T12:28:30.645Z"
+              lastImportedAt: '2020-12-19T12:28:30.645Z',
+              lastChangedAt: '2020-12-19T12:28:28.894Z',
+              registeredAt: '2020-11-02T16:42:01.176Z',
+              updatedAt: '2020-12-19T12:28:30.645Z'
             }
           },
           {
             value: 3219800,
             id: 9775625,
             playerId: 5390,
-            period: "6h",
-            metric: "herblore",
-            updatedAt: "2020-12-28T14:50:15.119Z",
+            period: '6h',
+            metric: 'herblore',
+            updatedAt: '2020-12-28T14:50:15.119Z',
             player: {
               exp: 1194753165,
               id: 5390,
-              username: "max botter",
-              displayName: "Max Botter",
-              type: "regular",
-              build: "main",
+              username: 'max botter',
+              displayName: 'Max Botter',
+              type: 'regular',
+              build: 'main',
+              country: null,
               flagged: false,
               ehp: 2570.31532,
               ehb: 608.90027,
               ttm: 0,
               tt200m: 12392.13573,
-              lastImportedAt: "2020-12-28T14:50:15.296Z",
-              lastChangedAt: "2020-12-28T14:50:14.278Z",
-              registeredAt: "2020-05-05T18:12:26.380Z",
-              updatedAt: "2020-12-28T14:50:15.296Z"
+              lastImportedAt: '2020-12-28T14:50:15.296Z',
+              lastChangedAt: '2020-12-28T14:50:14.278Z',
+              registeredAt: '2020-05-05T18:12:26.380Z',
+              updatedAt: '2020-12-28T14:50:15.296Z'
             }
           }
         ]
@@ -155,15 +165,22 @@ export default [
         }
       },
       {
+        description: 'If player country is given but it is not valid.',
+        body: {
+          message:
+            'Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2'
+        }
+      },
+      {
         description: 'If the given limit is lower than 1.',
         body: {
-          message: "Invalid limit: must be > 0"
+          message: 'Invalid limit: must be > 0'
         }
       },
       {
         description: 'If the given offset is negative.',
         body: {
-          message: "Invalid offset: must a positive number."
+          message: 'Invalid offset: must a positive number.'
         }
       }
     ]

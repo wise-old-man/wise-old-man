@@ -27,6 +27,7 @@ export default [
             displayName: 'Ironic Dart',
             type: 'ironman',
             build: 'main',
+            country: 'US',
             flagged: false,
             ehp: 0,
             ehb: 0,
@@ -44,6 +45,7 @@ export default [
             displayName: 'Iron Dazakio',
             type: 'unknown',
             build: 'main',
+            country: 'FR',
             flagged: false,
             ehp: 0,
             ehb: 0,
@@ -61,6 +63,7 @@ export default [
             displayName: 'iron lopez',
             type: 'hardcore',
             build: 'main',
+            country: 'PT',
             flagged: false,
             ehp: 26.42324,
             ehb: 0,
@@ -171,13 +174,14 @@ export default [
       {
         description: 'If the given name is not the correct length.',
         body: {
-          message: "Validation error: Username must be between 1 and 12 characters long.,\nValidation error: Display name must be between 1 and 12 characters long."
+          message:
+            'Validation error: Username must be between 1 and 12 characters long.,\nValidation error: Display name must be between 1 and 12 characters long.'
         }
       },
       {
         description: 'If the given name is flagged for an unregistered name change.',
         body: {
-          message: "Failed to update: Unregistered name change."
+          message: 'Failed to update: Unregistered name change.'
         }
       }
     ]
@@ -213,7 +217,7 @@ export default [
       {
         description: 'If the username could not be found in the hiscores.',
         body: {
-          message: "Failed to load hiscores for Psikoi."
+          message: 'Failed to load hiscores for Psikoi.'
         }
       }
     ]
@@ -984,207 +988,207 @@ export default [
       {
         description: 'Without any period filtering (Not showing the whole response)',
         body: {
-          "6h": {
-            "period": "6h",
-            "startsAt": "2020-12-30T11:48:56.803Z",
-            "endsAt": "2020-12-30T11:56:27.615Z",
-            "data": {
-              "overall": {
-                "rank": {
-                  "start": 37130,
-                  "end": 37130,
-                  "gained": 0
+          '6h': {
+            period: '6h',
+            startsAt: '2020-12-30T11:48:56.803Z',
+            endsAt: '2020-12-30T11:56:27.615Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 37130,
+                  end: 37130,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 291212780,
-                  "end": 291212780,
-                  "gained": 0
+                experience: {
+                  start: 291212780,
+                  end: 291212780,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 963.93983,
-                  "end": 963.93983,
-                  "gained": 0
+                ehp: {
+                  start: 963.93983,
+                  end: 963.93983,
+                  gained: 0
                 }
               },
-              "attack": {
-                "rank": {
-                  "start": 15800,
-                  "end": 15800,
-                  "gained": 0
+              attack: {
+                rank: {
+                  start: 15800,
+                  end: 15800,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 27505365,
-                  "end": 27505365,
-                  "gained": 0
+                experience: {
+                  start: 27505365,
+                  end: 27505365,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 84.63189,
-                  "end": 84.63189,
-                  "gained": 0
+                ehp: {
+                  start: 84.63189,
+                  end: 84.63189,
+                  gained: 0
                 }
               }
             }
           },
-          "day": {
-            "period": "day",
-            "startsAt": "2020-12-30T11:48:56.803Z",
-            "endsAt": "2020-12-30T11:56:27.615Z",
-            "data": {
-              "overall": {
-                "rank": {
-                  "start": 37130,
-                  "end": 37130,
-                  "gained": 0
+          day: {
+            period: 'day',
+            startsAt: '2020-12-30T11:48:56.803Z',
+            endsAt: '2020-12-30T11:56:27.615Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 37130,
+                  end: 37130,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 291212780,
-                  "end": 291212780,
-                  "gained": 0
+                experience: {
+                  start: 291212780,
+                  end: 291212780,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 963.93983,
-                  "end": 963.93983,
-                  "gained": 0
+                ehp: {
+                  start: 963.93983,
+                  end: 963.93983,
+                  gained: 0
                 }
               },
-              "attack": {
-                "rank": {
-                  "start": 15800,
-                  "end": 15800,
-                  "gained": 0
+              attack: {
+                rank: {
+                  start: 15800,
+                  end: 15800,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 27505365,
-                  "end": 27505365,
-                  "gained": 0
+                experience: {
+                  start: 27505365,
+                  end: 27505365,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 84.63189,
-                  "end": 84.63189,
-                  "gained": 0
+                ehp: {
+                  start: 84.63189,
+                  end: 84.63189,
+                  gained: 0
                 }
               }
             }
           },
-          "week": {
-            "period": "week",
-            "startsAt": "2020-12-30T11:48:56.803Z",
-            "endsAt": "2020-12-30T11:56:27.615Z",
-            "data": {
-              "overall": {
-                "rank": {
-                  "start": 37130,
-                  "end": 37130,
-                  "gained": 0
+          week: {
+            period: 'week',
+            startsAt: '2020-12-30T11:48:56.803Z',
+            endsAt: '2020-12-30T11:56:27.615Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 37130,
+                  end: 37130,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 291212780,
-                  "end": 291212780,
-                  "gained": 0
+                experience: {
+                  start: 291212780,
+                  end: 291212780,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 963.93983,
-                  "end": 963.93983,
-                  "gained": 0
+                ehp: {
+                  start: 963.93983,
+                  end: 963.93983,
+                  gained: 0
                 }
               },
-              "attack": {
-                "rank": {
-                  "start": 15800,
-                  "end": 15800,
-                  "gained": 0
+              attack: {
+                rank: {
+                  start: 15800,
+                  end: 15800,
+                  gained: 0
                 },
-                "experience": {
-                  "start": 27505365,
-                  "end": 27505365,
-                  "gained": 0
+                experience: {
+                  start: 27505365,
+                  end: 27505365,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 84.63189,
-                  "end": 84.63189,
-                  "gained": 0
+                ehp: {
+                  start: 84.63189,
+                  end: 84.63189,
+                  gained: 0
                 }
               }
             }
           },
-          "month": {
-            "period": "month",
-            "startsAt": "2020-12-15T12:06:13.902Z",
-            "endsAt": "2020-12-30T11:56:27.615Z",
-            "data": {
-              "overall": {
-                "rank": {
-                  "start": 38299,
-                  "end": 37130,
-                  "gained": -1169
+          month: {
+            period: 'month',
+            startsAt: '2020-12-15T12:06:13.902Z',
+            endsAt: '2020-12-30T11:56:27.615Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 38299,
+                  end: 37130,
+                  gained: -1169
                 },
-                "experience": {
-                  "start": 287405870,
-                  "end": 291212780,
-                  "gained": 3806910
+                experience: {
+                  start: 287405870,
+                  end: 291212780,
+                  gained: 3806910
                 },
-                "ehp": {
-                  "start": 957.32359,
-                  "end": 963.93983,
-                  "gained": 6.61624
+                ehp: {
+                  start: 957.32359,
+                  end: 963.93983,
+                  gained: 6.61624
                 }
               },
-              "attack": {
-                "rank": {
-                  "start": 15583,
-                  "end": 15800,
-                  "gained": 217
+              attack: {
+                rank: {
+                  start: 15583,
+                  end: 15800,
+                  gained: 217
                 },
-                "experience": {
-                  "start": 27505365,
-                  "end": 27505365,
-                  "gained": 0
+                experience: {
+                  start: 27505365,
+                  end: 27505365,
+                  gained: 0
                 },
-                "ehp": {
-                  "start": 84.63189,
-                  "end": 84.63189,
-                  "gained": 0
+                ehp: {
+                  start: 84.63189,
+                  end: 84.63189,
+                  gained: 0
                 }
               }
             }
           },
-          "year": {
-            "period": "year",
-            "startsAt": "2019-12-31T16:13:56.000Z",
-            "endsAt": "2020-12-30T11:56:27.615Z",
-            "data": {
-              "overall": {
-                "rank": {
-                  "start": 27517,
-                  "end": 37130,
-                  "gained": 9613
+          year: {
+            period: 'year',
+            startsAt: '2019-12-31T16:13:56.000Z',
+            endsAt: '2020-12-30T11:56:27.615Z',
+            data: {
+              overall: {
+                rank: {
+                  start: 27517,
+                  end: 37130,
+                  gained: 9613
                 },
-                "experience": {
-                  "start": 263192784,
-                  "end": 291212780,
-                  "gained": 28019996
+                experience: {
+                  start: 263192784,
+                  end: 291212780,
+                  gained: 28019996
                 },
-                "ehp": {
-                  "start": 888.52999,
-                  "end": 963.93983,
-                  "gained": 75.40984
+                ehp: {
+                  start: 888.52999,
+                  end: 963.93983,
+                  gained: 75.40984
                 }
               },
-              "attack": {
-                "rank": {
-                  "start": 11813,
-                  "end": 15800,
-                  "gained": 3987
+              attack: {
+                rank: {
+                  start: 11813,
+                  end: 15800,
+                  gained: 3987
                 },
-                "experience": {
-                  "start": 26654876,
-                  "end": 27505365,
-                  "gained": 850489
+                experience: {
+                  start: 26654876,
+                  end: 27505365,
+                  gained: 850489
                 },
-                "ehp": {
-                  "start": 82.015,
-                  "end": 84.63189,
-                  "gained": 2.61689
+                ehp: {
+                  start: 82.015,
+                  end: 84.63189,
+                  gained: 2.61689
                 }
               }
             }
@@ -1194,42 +1198,42 @@ export default [
       {
         description: 'Filtered by the period field (month) (Not showing the whole response)',
         body: {
-          "period": "month",
-          "startsAt": "2020-12-15T12:06:13.902Z",
-          "endsAt": "2020-12-30T11:56:27.615Z",
-          "data": {
-            "overall": {
-              "rank": {
-                "start": 38299,
-                "end": 37130,
-                "gained": -1169
+          period: 'month',
+          startsAt: '2020-12-15T12:06:13.902Z',
+          endsAt: '2020-12-30T11:56:27.615Z',
+          data: {
+            overall: {
+              rank: {
+                start: 38299,
+                end: 37130,
+                gained: -1169
               },
-              "experience": {
-                "start": 287405870,
-                "end": 291212780,
-                "gained": 3806910
+              experience: {
+                start: 287405870,
+                end: 291212780,
+                gained: 3806910
               },
-              "ehp": {
-                "start": 957.32359,
-                "end": 963.93983,
-                "gained": 6.61624
+              ehp: {
+                start: 957.32359,
+                end: 963.93983,
+                gained: 6.61624
               }
             },
-            "attack": {
-              "rank": {
-                "start": 15583,
-                "end": 15800,
-                "gained": 217
+            attack: {
+              rank: {
+                start: 15583,
+                end: 15800,
+                gained: 217
               },
-              "experience": {
-                "start": 27505365,
-                "end": 27505365,
-                "gained": 0
+              experience: {
+                start: 27505365,
+                end: 27505365,
+                gained: 0
               },
-              "ehp": {
-                "start": 84.63189,
-                "end": 84.63189,
-                "gained": 0
+              ehp: {
+                start: 84.63189,
+                end: 84.63189,
+                gained: 0
               }
             }
           }
@@ -1302,36 +1306,36 @@ export default [
         description: 'Without any period or metric filtering (Not showing the whole response)',
         body: [
           {
-            "value": 718830,
-            "id": 128,
-            "playerId": 3,
-            "period": "month",
-            "metric": "cooking",
-            "updatedAt": "2020-12-30T11:48:57.889Z"
+            value: 718830,
+            id: 128,
+            playerId: 3,
+            period: 'month',
+            metric: 'cooking',
+            updatedAt: '2020-12-30T11:48:57.889Z'
           },
           {
-            "value": 862247,
-            "id": 81,
-            "playerId": 3,
-            "period": "year",
-            "metric": "attack",
-            "updatedAt": "2020-12-15T12:06:15.751Z"
+            value: 862247,
+            id: 81,
+            playerId: 3,
+            period: 'year',
+            metric: 'attack',
+            updatedAt: '2020-12-15T12:06:15.751Z'
           },
           {
-            "value": 336416,
-            "id": 82,
-            "playerId": 3,
-            "period": "year",
-            "metric": "defence",
-            "updatedAt": "2020-12-15T12:06:15.751Z"
+            value: 336416,
+            id: 82,
+            playerId: 3,
+            period: 'year',
+            metric: 'defence',
+            updatedAt: '2020-12-15T12:06:15.751Z'
           },
           {
-            "value": 1174525,
-            "id": 83,
-            "playerId": 3,
-            "period": "year",
-            "metric": "strength",
-            "updatedAt": "2020-12-15T12:06:15.751Z"
+            value: 1174525,
+            id: 83,
+            playerId: 3,
+            period: 'year',
+            metric: 'strength',
+            updatedAt: '2020-12-15T12:06:15.751Z'
           }
         ]
       },
@@ -1339,20 +1343,20 @@ export default [
         description: 'Filtered by the metric field (Woodcutting) (Not showing the whole response)',
         body: [
           {
-            "value": 6784830,
-            "id": 89,
-            "playerId": 3,
-            "period": "year",
-            "metric": "woodcutting",
-            "updatedAt": "2020-12-30T11:48:57.938Z"
+            value: 6784830,
+            id: 89,
+            playerId: 3,
+            period: 'year',
+            metric: 'woodcutting',
+            updatedAt: '2020-12-30T11:48:57.938Z'
           },
           {
-            "value": 141691,
-            "id": 156,
-            "playerId": 3,
-            "period": "month",
-            "metric": "woodcutting",
-            "updatedAt": "2020-12-30T11:48:57.975Z"
+            value: 141691,
+            id: 156,
+            playerId: 3,
+            period: 'month',
+            metric: 'woodcutting',
+            updatedAt: '2020-12-30T11:48:57.975Z'
           }
         ]
       }

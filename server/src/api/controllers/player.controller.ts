@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { BadRequestError } from '../errors';
+import { BadRequestError, ForbiddenError } from '../errors';
+import * as adminGuard from '../guards/admin.guard';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
@@ -282,6 +283,27 @@ async function names(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// PUT /players/username/:username/country
+// REQUIRES ADMIN PASSWORD
+async function updateCountry(req: Request, res: Response, next: NextFunction) {
+  try {
+    const username = extractString(req.params, { key: 'username', required: true });
+    const country = extractString(req.body, { key: 'country', required: true });
+    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
+
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const player = await playerService.resolve({ username });
+    const { code, name } = await playerService.updateCountry(player, country);
+
+    res.json({ message: `Successfully changed country to: ${name} (${code})` });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
   search,
   track,
@@ -295,5 +317,6 @@ export {
   gained,
   records,
   snapshots,
-  names
+  names,
+  updateCountry
 };

@@ -10,6 +10,7 @@ import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
+import * as geoService from '../external/geo.service';
 
 interface PlayerVirtuals {
   ehpValue: number;
@@ -28,6 +29,7 @@ interface LeaderboardFilter {
   metric: string;
   playerType: string;
   playerBuild?: string;
+  country?: string;
 }
 
 async function getRates(metric = 'ehp', type = 'main') {
@@ -48,12 +50,22 @@ async function getRates(metric = 'ehp', type = 'main') {
 }
 
 async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
+  const { playerBuild, country } = filter;
+  const countryCode = country ? geoService.find(country)?.code : null;
+
   if (filter.metric && ![...VIRTUAL, 'ehp+ehb'].includes(filter.metric)) {
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
   }
 
-  if (filter.playerBuild && !PLAYER_BUILDS.includes(filter.playerBuild)) {
-    throw new BadRequestError(`Invalid player build: ${filter.playerBuild}.`);
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+    throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
+  }
+
+  if (country && !countryCode) {
+    throw new BadRequestError(
+      `Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. \
+      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+    );
   }
 
   const metric = filter.metric || 'ehp';
@@ -61,7 +73,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
 
   const isCombined = metric === 'ehp+ehb';
 
-  const query = buildQuery({ type: playerType, build: filter.playerBuild });
+  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === 'ironman') {

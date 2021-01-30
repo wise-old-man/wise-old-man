@@ -7,6 +7,7 @@ import { BadRequestError } from '../../errors';
 import { getMeasure } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import { getPlayerPeriodDeltas } from './delta.service';
+import * as geoService from '../external/geo.service';
 
 interface PlayerRecordsFilter {
   period?: string;
@@ -20,6 +21,7 @@ interface GroupRecordsFilter extends PlayerRecordsFilter {
 interface GlobalRecordsFilter extends PlayerRecordsFilter {
   playerType?: string;
   playerBuild?: string;
+  country?: string;
 }
 
 /**
@@ -92,7 +94,8 @@ async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): 
  * Optionally, the records can be filtered by the playerType and playerBuild.
  */
 async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Pagination): Promise<Record[]> {
-  const { metric, period, playerBuild, playerType } = filter;
+  const { metric, period, playerBuild, playerType, country } = filter;
+  const countryCode = country ? geoService.find(country)?.code : null;
 
   if (!period || !PERIODS.includes(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
@@ -110,7 +113,14 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
-  const query = buildQuery({ type: playerType, build: playerBuild });
+  if (country && !countryCode) {
+    throw new BadRequestError(
+      `Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. \
+      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+    );
+  }
+
+  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === 'ironman') {

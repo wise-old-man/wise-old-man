@@ -4,6 +4,7 @@ import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
+import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
@@ -339,6 +340,21 @@ async function assertName(player: Player): Promise<string> {
   return newDisplayName;
 }
 
+async function updateCountry(player: Player, country: string) {
+  const countryObj = country ? geoService.find(country) : null;
+  const countryCode = countryObj?.code;
+
+  if (country && !countryCode) {
+    throw new BadRequestError(
+      `Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. \
+      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+    );
+  }
+
+  await player.update({ country: countryCode });
+  return countryObj;
+}
+
 function getBuild(snapshot: Snapshot): string {
   if (isF2p(snapshot)) return 'f2p';
   if (isLvl3(snapshot)) return 'lvl3';
@@ -409,6 +425,7 @@ export {
   importCML,
   assertType,
   assertName,
+  updateCountry,
   shouldImport,
   resolve,
   resolveId

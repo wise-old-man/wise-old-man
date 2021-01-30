@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { PageHeader, Dropdown, Button } from 'components';
+import { PageHeader, Dropdown, Button, Badge } from 'components';
 import { GroupContext } from '../context';
 
 const VERIFIED_BADGE = {
@@ -41,14 +41,24 @@ function Header({ group, handleUpdateAll, handleRedirect, handleExport }) {
   }
 
   return (
-    <PageHeader title={group.name} badges={group.verified ? [VERIFIED_BADGE] : []}>
-      <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
-      <Dropdown options={MENU_OPTIONS} onSelect={handleOptionSelected}>
-        <button className="header__options-btn" type="button">
-          <img src="/img/icons/options.svg" alt="" />
-        </button>
-      </Dropdown>
-    </PageHeader>
+    <PageHeader
+      title={group.name}
+      badges={group.verified ? [VERIFIED_BADGE] : []}
+      renderLeft={() => {
+        if (!group.verified) return null;
+        return <Badge text={VERIFIED_BADGE.text} hoverText={VERIFIED_BADGE.hoverText} />;
+      }}
+      renderRight={() => (
+        <>
+          <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
+          <Dropdown options={MENU_OPTIONS} onSelect={handleOptionSelected}>
+            <button className="header__options-btn" type="button">
+              <img src="/img/icons/options.svg" alt="" />
+            </button>
+          </Dropdown>
+        </>
+      )}
+    />
   );
 }
 
