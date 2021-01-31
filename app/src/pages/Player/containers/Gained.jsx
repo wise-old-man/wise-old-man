@@ -172,9 +172,12 @@ function InvalidRanksWarning() {
 }
 
 function hasInvalidRanks(periodDeltas) {
-  return some(periodDeltas, ({ rank }) => {
-    return rank && rank.start !== rank.end && rank.gained === 0;
-  });
+  return (
+    periodDeltas &&
+    some(periodDeltas, data => {
+      return data && data.rank && data.rank.start !== data.rank.end && data.rank.gained === 0;
+    })
+  );
 }
 
 function getSelectedMetric(metric, metricType) {

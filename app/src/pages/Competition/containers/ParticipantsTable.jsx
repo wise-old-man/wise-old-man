@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { SKILLS } from 'config';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
+import URL from 'utils/url';
 import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';
@@ -29,7 +30,7 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={`/players/${row.username}`}>
+          <Link to={getPlayerRedirectURL(row, competition)}>
             <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
           </Link>
         )
@@ -137,6 +138,26 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
       <img src="/img/icons/sync.svg" alt="" />
     </button>
   );
+}
+
+function getPlayerRedirectURL(player, competition) {
+  const { displayName } = player;
+  const { startsAt, endsAt, metric } = competition;
+
+  let metricType = 'skilling';
+  if (isBoss(metric) || metric === 'ehb') metricType = 'bossing';
+  if (isActivity(metric)) metricType = 'activities';
+
+  const nextURL = new URL(`/players`);
+  nextURL.appendToPath(`/${displayName.replace(' ', '_')}`);
+  nextURL.appendToPath('/gained');
+  nextURL.appendToPath(`/${metricType}`);
+
+  nextURL.appendSearchParam('period', 'custom');
+  nextURL.appendSearchParam('startDate', startsAt.toISOString());
+  nextURL.appendSearchParam('endDate', endsAt.toISOString());
+
+  return nextURL.getPath();
 }
 
 ParticipantsTable.propTypes = {
