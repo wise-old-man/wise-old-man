@@ -9,7 +9,6 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import env from '../../../env';
 import { NameChangeStatus, Pagination } from '../../../types';
 import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';

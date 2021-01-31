@@ -1,4 +1,37 @@
 import moment from 'moment';
+import { PERIODS } from '../constants';
+
+const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
+
+function parsePeriod(period: string): [string, number] | null {
+  const fixed = period.toLowerCase();
+
+  if (PERIODS.includes(fixed)) {
+    return [fixed, getMilliseconds(fixed)];
+  }
+
+  const result = fixed.match(CUSTOM_PERIOD_REGEX);
+
+  if (!result || result.length === 0 || result[0] !== fixed) {
+    return [null, null];
+  }
+
+  const years = result[1] ? parseInt(result[1].replace(/\D/g, '')) : null;
+  const months = result[2] ? parseInt(result[2].replace(/\D/g, '')) : null;
+  const weeks = result[3] ? parseInt(result[3].replace(/\D/g, '')) : null;
+  const days = result[4] ? parseInt(result[4].replace(/\D/g, '')) : null;
+  const hours = result[5] ? parseInt(result[5].replace(/\D/g, '')) : null;
+
+  const yearsMs = years ? years * getMilliseconds('year') : 0;
+  const monthsMs = months ? months * getMilliseconds('month') : 0;
+  const weeksMs = weeks ? weeks * getMilliseconds('week') : 0;
+  const daysMs = days ? days * getMilliseconds('day') : 0;
+  const hoursMs = hours ? hours * getMilliseconds('hour') : 0;
+
+  const totalMs = yearsMs + monthsMs + weeksMs + daysMs + hoursMs;
+
+  return [result[0], totalMs];
+}
 
 // TODO: This should be removed after TS migration is done
 // and we're using Date types for the other methods in this file
@@ -65,21 +98,23 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-function getSeconds(period: string) {
+function getMilliseconds(period: string) {
   switch (period) {
+    case 'hour':
+      return 3600 * 1000;
     case '6h':
-      return 3600 * 6;
+      return 3600 * 6 * 1000;
     case 'day':
-      return 3600 * 24;
+      return 3600 * 24 * 1000;
     case 'week':
-      return 3600 * 24 * 7;
+      return 3600 * 24 * 7 * 1000;
     case 'month':
-      return 3600 * 24 * 31;
+      return 3600 * 24 * 31 * 1000;
     case 'year':
-      return 31556926;
+      return 31556926 * 1000;
     default:
       return -1;
   }
 }
 
-export { isValidDate, isPast, durationBetween, getSeconds };
+export { parsePeriod, isValidDate, isPast, durationBetween, getMilliseconds };

@@ -2,7 +2,8 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill } from 'utils';
+import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
+import URL from 'utils/url';
 import { SKILLS } from 'config';
 import { Table, PlayerTag, NumberLabel, TextLabel } from 'components';
 
@@ -20,7 +21,7 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={`/players/${row.username}`}>
+          <Link to={getPlayerRedirectURL(row, competition)}>
             <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
           </Link>
         )
@@ -122,6 +123,26 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
       <img src="/img/icons/sync.svg" alt="" />
     </button>
   );
+}
+
+function getPlayerRedirectURL(player, competition) {
+  const { displayName } = player;
+  const { startsAt, endsAt, metric } = competition;
+
+  let metricType = 'skilling';
+  if (isBoss(metric) || metric === 'ehb') metricType = 'bossing';
+  if (isActivity(metric)) metricType = 'activities';
+
+  const nextURL = new URL(`/players`);
+  nextURL.appendToPath(`/${displayName.replace(' ', '_')}`);
+  nextURL.appendToPath('/gained');
+  nextURL.appendToPath(`/${metricType}`);
+
+  nextURL.appendSearchParam('period', 'custom');
+  nextURL.appendSearchParam('startDate', startsAt.toISOString());
+  nextURL.appendSearchParam('endDate', endsAt.toISOString());
+
+  return nextURL.getPath();
 }
 
 TeamPlayersTable.defaultProps = {

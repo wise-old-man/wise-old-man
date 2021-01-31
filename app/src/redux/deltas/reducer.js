@@ -51,10 +51,13 @@ const slice = createSlice({
     },
     onFetchPlayerDeltasSuccess(state, action) {
       const { username, data } = action.payload;
+      const customPeriod = 'startsAt' in data;
 
       state.error = null;
       state.isFetchingPlayerDeltas = false;
-      state.playerDeltas[username] = data;
+      state.playerDeltas[username] = customPeriod
+        ? { ...state.playerDeltas[username], custom: data }
+        : data;
     },
     onFetchPlayerDeltasError(state, action) {
       state.isFetchingPlayerDeltas = false;

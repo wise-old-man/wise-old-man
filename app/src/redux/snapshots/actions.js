@@ -1,12 +1,12 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const fetchSnapshots = (username, period) => async dispatch => {
+const fetchSnapshots = (username, period, startDate, endDate) => async dispatch => {
   dispatch(reducers.onFetchRequest());
 
   try {
     const url = endpoints.fetchPlayerSnapshots.replace(':username', username);
-    const { data } = await api.get(url, { params: { period } });
+    const { data } = await api.get(url, { params: { period, startDate, endDate } });
 
     dispatch(reducers.onFetchSuccess({ username, period, data }));
   } catch (e) {

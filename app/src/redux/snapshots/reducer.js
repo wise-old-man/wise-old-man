@@ -19,7 +19,7 @@ const slice = createSlice({
 
       state.isFetching = false;
       state.error = null;
-      state.snapshots[username] = { ...state.snapshots[username], [period]: data };
+      state.snapshots[username] = { ...state.snapshots[username], [period || 'custom']: data };
     },
     onFetchError(state, action) {
       state.isFetching = false;

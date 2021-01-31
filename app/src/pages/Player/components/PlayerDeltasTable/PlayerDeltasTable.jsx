@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { filter } from 'lodash';
 import PropTypes from 'prop-types';
 import { Table, NumberLabel } from 'components';
 import { getLevel, getMetricIcon, getMetricName, round } from 'utils';
@@ -7,10 +6,7 @@ import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
   const { data } = deltas[period];
-
   const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
-
-  const warning = filter(data, ({ rank }) => rank.start !== rank.end && rank.gained === 0).length > 0;
 
   function handleRowClicked(index) {
     if (rows && rows[index]) {
@@ -25,24 +21,13 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
   }
 
   return (
-    <>
-      {warning && (
-        <div className="deltas-warning">
-          <img src="/img/icons/warn_orange.svg" alt="" />
-          <span>
-            If your skill ranks wrongfuly show 0 gained, don&apos;t worry, this was caused by a bug and
-            it will go away on its own within a few days/weeks.
-          </span>
-        </div>
-      )}
-      <Table
-        rows={rows}
-        columns={columns}
-        uniqueKeySelector={uniqueKeySelector}
-        onRowClicked={onRowClicked}
-        highlightedRowKey={highlightedMetric}
-      />
-    </>
+    <Table
+      rows={rows}
+      columns={columns}
+      uniqueKeySelector={uniqueKeySelector}
+      onRowClicked={onRowClicked}
+      highlightedRowKey={highlightedMetric}
+    />
   );
 }
 
