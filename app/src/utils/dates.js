@@ -1,5 +1,9 @@
 import moment from 'moment';
 
+export function isValidDate(date) {
+  return date && moment(date, moment.ISO_8601).isValid();
+}
+
 export function formatDate(date, mask = 'MM-DD-YYYY HH:mm') {
   return moment(date).format(mask);
 }

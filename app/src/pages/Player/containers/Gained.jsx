@@ -1,12 +1,14 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { some } from 'lodash';
 import { useSelector } from 'react-redux';
-import { getMeasure } from 'utils';
+import { getMeasure, formatDate } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { LineChart, Selector } from 'components';
 import { snapshotSelectors } from 'redux/snapshots';
 import { deltasSelectors } from 'redux/deltas';
+import CustomPeriodSelectionModal from 'modals/CustomPeriodSelectionModal';
 import { PlayerDeltasInfo, PlayerDeltasTable } from '../components';
 import { PlayerContext } from '../context';
 
@@ -15,7 +17,8 @@ const PERIOD_OPTIONS = [
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' }
+  { label: 'Year', value: 'year' },
+  { label: 'Custom Period', value: 'custom' }
 ];
 
 const METRIC_TYPE_OPTIONS = [
@@ -26,16 +29,19 @@ const METRIC_TYPE_OPTIONS = [
 
 function Gained({ onTimerEnded }) {
   const { context, updateContext } = useContext(PlayerContext);
-  const { username, period, metricType } = context;
+  const { username, period, metricType, startDate, endDate } = context;
 
   const [isReducedChart, setReducedChart] = useState(true);
-
-  const metric = getSelectedMetric(context.metric, metricType);
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
   const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
 
   const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
+  const metric = getSelectedMetric(context.metric, metricType);
+
+  const showInvalidRanksWarning = deltas && hasInvalidRanks(deltas[period]);
+  const showCustomPeriodInfo = period === 'custom' && startDate && endDate;
+  const showPeriodSelectionModal = period === 'custom' && (!startDate || !endDate);
 
   const experienceChartData = useSelector(state =>
     snapshotSelectors.getChartData(state, username, period, metric, getMeasure(metric), isReducedChart)
@@ -61,6 +67,18 @@ function Gained({ onTimerEnded }) {
 
   function handlePeriodSelected(e) {
     updateContext({ period: e.value });
+  }
+
+  function handleCustomPeriodSelected(dates) {
+    updateContext({ startDate: dates.startDate, endDate: dates.endDate });
+  }
+
+  function handleCustomPeriodCanceled() {
+    updateContext({ period: 'week' });
+  }
+
+  function handleResetCustomPeriodDates() {
+    updateContext({ startDate: null, endDate: null });
   }
 
   return (
@@ -95,7 +113,17 @@ function Gained({ onTimerEnded }) {
             />
           </div>
         </div>
-        <PlayerDeltasInfo deltas={deltas} period={period} onTimerEnded={onTimerEnded} />
+        {showInvalidRanksWarning && <InvalidRanksWarning />}
+        {showCustomPeriodInfo && (
+          <CustomPeriodInfo
+            startDate={startDate}
+            endDate={endDate}
+            onChangePeriodClicked={handleResetCustomPeriodDates}
+          />
+        )}
+        {period !== 'custom' && (
+          <PlayerDeltasInfo deltas={deltas} period={period} onTimerEnded={onTimerEnded} />
+        )}
         {deltas && period && deltas[period] && (
           <PlayerDeltasTable
             deltas={deltas}
@@ -105,9 +133,48 @@ function Gained({ onTimerEnded }) {
             onMetricSelected={handleMetricSelected}
           />
         )}
+        {showPeriodSelectionModal && (
+          <CustomPeriodSelectionModal
+            onConfirm={handleCustomPeriodSelected}
+            onCancel={handleCustomPeriodCanceled}
+          />
+        )}
       </div>
     </>
   );
+}
+
+function CustomPeriodInfo({ startDate, endDate, onChangePeriodClicked }) {
+  return (
+    <div className="deltas-warning -info">
+      <img src="/img/icons/warn_blue.svg" alt="" />
+      <span>
+        {`Showing player gains from ${formatDate(startDate)} to ${formatDate(endDate)}.`}
+        <br />
+        <button type="button" onClick={onChangePeriodClicked}>
+          Click here to change
+        </button>
+      </span>
+    </div>
+  );
+}
+
+function InvalidRanksWarning() {
+  return (
+    <div className="deltas-warning">
+      <img src="/img/icons/warn_orange.svg" alt="" />
+      <span>
+        If your skill ranks wrongfuly show 0 gained, don&apos;t worry, this was caused by a bug and it
+        will go away on its own within a few days/weeks.
+      </span>
+    </div>
+  );
+}
+
+function hasInvalidRanks(periodDeltas) {
+  return some(periodDeltas, ({ rank }) => {
+    return rank && rank.start !== rank.end && rank.gained === 0;
+  });
 }
 
 function getSelectedMetric(metric, metricType) {
@@ -119,6 +186,12 @@ function getSelectedMetric(metric, metricType) {
 
 Gained.propTypes = {
   onTimerEnded: PropTypes.func.isRequired
+};
+
+CustomPeriodInfo.propTypes = {
+  startDate: PropTypes.instanceOf(Date).isRequired,
+  endDate: PropTypes.instanceOf(Date).isRequired,
+  onChangePeriodClicked: PropTypes.func.isRequired
 };
 
 export default Gained;

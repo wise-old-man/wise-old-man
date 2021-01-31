@@ -6,6 +6,10 @@ class URL {
     this.basePath = basePath;
   }
 
+  getSearchParam(key) {
+    return this.params && this.params.find(p => p.key === key);
+  }
+
   appendSearchParam(key, value) {
     if (!this.params) {
       this.params = [];

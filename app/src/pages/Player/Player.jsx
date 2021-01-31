@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { ALL_METRICS } from 'config';
-import { standardizeUsername, isBoss, isSkill } from 'utils';
+import { standardizeUsername, isBoss, isSkill, isValidDate } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
 import { groupActions } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
@@ -37,7 +37,7 @@ function Player() {
   const router = useHistory();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { username, section } = context;
+  const { username, section, period, startDate, endDate } = context;
 
   const player = useSelector(state => playerSelectors.getPlayer(state, username));
   const isTracking = useSelector(playerSelectors.isTracking);
@@ -50,7 +50,13 @@ function Player() {
 
   const handleUpdate = () => {
     dispatch(playerActions.trackPlayer(username)).then(({ payload }) => {
-      if (payload.data) fetchAll(username, router, dispatch, true);
+      if (!payload.data) return;
+
+      fetchAll(username, router, dispatch, true);
+
+      if (period && period === 'custom') {
+        fetchCustomPeriodData(username, dispatch, startDate, endDate);
+      }
     });
   };
 
@@ -71,13 +77,20 @@ function Player() {
   };
 
   const handleRefreshSnapshots = () => {
-    PERIODS.forEach(period => {
-      dispatch(snapshotActions.fetchSnapshots(username, period));
+    PERIODS.forEach(p => {
+      dispatch(snapshotActions.fetchSnapshots(username, p));
     });
   };
 
   // Fetch player details, on mount
-  useEffect(() => fetchAll(username, router, dispatch), [router, dispatch, username]);
+  useEffect(() => {
+    fetchAll(username, router, dispatch);
+  }, [router, dispatch, username]);
+
+  // Fetch custom player deltas, when start or end date changes
+  useEffect(() => {
+    fetchCustomPeriodData(username, dispatch, startDate, endDate);
+  }, [dispatch, startDate, endDate, username]);
 
   if (!player) {
     return <Loading />;
@@ -130,6 +143,13 @@ function Player() {
   );
 }
 
+const fetchCustomPeriodData = (username, dispatch, startDate, endDate) => {
+  if (!startDate || !endDate) return;
+
+  dispatch(deltasActions.fetchPlayerDeltas(username, startDate, endDate));
+  dispatch(snapshotActions.fetchSnapshots(username, null, startDate, endDate));
+};
+
 const fetchAll = (username, router, dispatch, isReload) => {
   // Attempt to fetch player data, if it fails redirect to 404
   dispatch(playerActions.fetchPlayer(username))
@@ -154,7 +174,7 @@ const fetchAll = (username, router, dispatch, isReload) => {
   }
 };
 
-function encodeContext({ username, section, metricType, metric, period, virtual }) {
+function encodeContext({ username, section, metricType, metric, period, virtual, startDate, endDate }) {
   const nextURL = new URL(`/players/${username}`);
 
   nextURL.appendToPath(`/${section || 'overview'}`);
@@ -175,6 +195,20 @@ function encodeContext({ username, section, metricType, metric, period, virtual 
     nextURL.appendSearchParam('period', period);
   }
 
+  const periodUrlParam = nextURL.getSearchParam('period');
+
+  if (
+    periodUrlParam &&
+    periodUrlParam.value === 'custom' &&
+    startDate &&
+    endDate &&
+    isValidDate(startDate) &&
+    isValidDate(endDate)
+  ) {
+    nextURL.appendSearchParam('startDate', startDate.toISOString());
+    nextURL.appendSearchParam('endDate', endDate.toISOString());
+  }
+
   return nextURL.getPath();
 }
 
@@ -187,15 +221,20 @@ function decodeURL(params, query) {
   const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
   const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
 
+  const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);
+  const isValidEndDate = query.endDate && !isValidPeriod && isValidDate(query.endDate);
+
   const username = standardizeUsername(params.username);
   const section = isValidSection ? params.section : 'overview';
   const virtual = query.virtual || false;
   const metric = isValidMetric ? query.metric : null;
-  const period = isValidPeriod ? query.period : 'week';
+  const period = isValidPeriod || query.period === 'custom' ? query.period : 'week';
+  const startDate = isValidStartDate ? new Date(query.startDate) : null;
+  const endDate = isValidEndDate ? new Date(query.endDate) : null;
 
   const metricType = isValidMetricType ? params.metricType : getMetricType(metric);
 
-  return { username, section, metricType, virtual, metric, period };
+  return { username, section, metricType, virtual, metric, period, startDate, endDate };
 }
 
 function getMetricType(metric) {

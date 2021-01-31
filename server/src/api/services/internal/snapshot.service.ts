@@ -123,7 +123,7 @@ async function getPlayerPeriodSnapshots(playerId: number, period: string) {
 
 async function getPlayerTimeRangeSnapshots(playerId: number, startDate: Date, endDate: Date) {
   const snapshots = await findAllBetween([playerId], startDate, endDate);
-  return snapshots.map(format);
+  return snapshots.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(format);
 }
 
 /**

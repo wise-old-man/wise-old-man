@@ -14,12 +14,14 @@ const fetchLeaderboards = (metric, period, type, build, country) => async dispat
   }
 };
 
-const fetchPlayerDeltas = username => async dispatch => {
+const fetchPlayerDeltas = (username, startDate = null, endDate = null) => async dispatch => {
   dispatch(reducers.onFetchPlayerDeltasRequest());
 
   try {
     const url = endpoints.fetchPlayerDeltas.replace(':username', username);
-    const { data } = await api.get(url);
+    const params = { startDate, endDate };
+
+    const { data } = await api.get(url, { params });
 
     dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data }));
   } catch (e) {

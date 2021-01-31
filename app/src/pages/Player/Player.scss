@@ -181,6 +181,30 @@
         opacity: 0.6;
         margin-right: 10px;
       }
+
+      &.-info {
+        border: 1px dashed $brand-color;
+        color: $gray-60;
+
+        button {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          color: white;
+          font-weight: 700;
+
+          &:hover {
+            opacity: 0.5;
+            cursor: pointer;
+          }
+        }
+
+        img {
+          filter: none;
+          opacity: 1;
+        }
+      }
     }
 
     .chart__container {
