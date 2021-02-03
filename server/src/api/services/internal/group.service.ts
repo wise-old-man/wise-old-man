@@ -23,6 +23,7 @@ import * as deltaService from './delta.service';
 import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
+import * as templeService from '../external/temple.service';
 
 interface Member extends Player {
   role: string;
@@ -811,6 +812,15 @@ async function getOutdatedMembers(groupId) {
   return membersToUpdate.map(({ player }) => player);
 }
 
+async function importTempleMembers(templeGroupId: number) {
+  if (!templeGroupId) {
+    throw new BadRequestError('Invalid temple group ID');
+  }
+  const members = await templeService.getGroupMembers(templeGroupId);
+
+  return members;
+}
+
 export {
   resolve,
   getMembers,
@@ -832,5 +842,6 @@ export {
   addMembers,
   removeMembers,
   changeRole,
-  updateAllMembers
+  updateAllMembers,
+  importTempleMembers
 };

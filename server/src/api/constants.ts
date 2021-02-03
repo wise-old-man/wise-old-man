@@ -24,6 +24,13 @@ export const CML = {
   HISTORY: 'https://crystalmathlabs.com/tracker/api.php?type=datapoints'
 };
 
+export const TEMPLE_OSRS = {
+  // Limited to 200 datapoints
+  HISTORY: 'https://templeosrs.com/api/player_datapoints.php',
+  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php',
+  MEMBERS: 'https://templeosrs.com/api/groupmembers.php'
+};
+
 export const SKILLS_MAP = [
   { key: 'overall', name: 'Overall' },
   { key: 'attack', name: 'Attack' },

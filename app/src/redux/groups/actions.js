@@ -146,6 +146,19 @@ const updateAll = id => async dispatch => {
   }
 };
 
+const fetchTempleMembers = templeId => async dispatch => {
+  dispatch(reducers.onTempleMigrateRequest());
+  try {
+    const url = endpoints.migrateFromTemple.replace(':id', templeId);
+    const { data } = await api.get(url);
+
+    return dispatch(reducers.onTempleMigrateSuccess({ groupId: templeId, data }));
+  } catch (e) {
+    const { message, data } = e.response.data;
+    return dispatch(reducers.onTempleMigrateError({ error: message, data }));
+  }
+};
+
 export {
   create,
   edit,
@@ -156,5 +169,6 @@ export {
   fetchMembers,
   fetchStatistics,
   fetchMonthlyTop,
-  fetchPlayerGroups
+  fetchPlayerGroups,
+  fetchTempleMembers
 };

@@ -25,4 +25,6 @@ api.get('/:id/hiscores', controller.hiscores);
 api.get('/:id/name-changes', controller.nameChanges);
 api.get('/:id/statistics', controller.statistics);
 
+api.get('/migrate/temple/:id', controller.migrateTemple);
+
 export default api;
