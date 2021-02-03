@@ -59,7 +59,8 @@ const endpoints = {
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
   fetchPlayerRecords: '/players/username/:username/records/',
   fetchPlayerDeltas: '/players/username/:username/gained/',
-  fetchPlayerNames: '/players/username/:username/names/'
+  fetchPlayerNames: '/players/username/:username/names/',
+  fetchCounts: '/players/counts/'
 };
 
 export { endpoints };

@@ -315,6 +315,18 @@ async function updateCountry(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /players/counts
+async function playerCount(req: Request, res: Response, next: NextFunction) {
+  try {
+    const players = await playerService.getPlayerCount();
+    const snapshots = await snapshotService.getSnapshotCount();
+
+    res.json({ players: players, snapshots: snapshots });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
   search,
   track,
@@ -329,5 +341,6 @@ export {
   records,
   snapshots,
   names,
-  updateCountry
+  updateCountry,
+  playerCount
 };

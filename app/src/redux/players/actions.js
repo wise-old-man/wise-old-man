@@ -74,4 +74,16 @@ const assertName = (username, currentName) => async dispatch => {
   }
 };
 
-export { fetchPlayer, searchPlayers, trackPlayer, assertType, assertName };
+const getCounts = () => async dispatch => {
+  dispatch(reducers.onCountsRequest());
+
+  try {
+    const { data }  = await api.get(endpoints.fetchCounts);
+    console.log(data)
+    return dispatch(reducers.onCountsSuccess({ data }));
+  } catch (e) {
+    return dispatch(reducers.onCountsError(e.message.toString()));
+  }
+};
+
+export { fetchPlayer, searchPlayers, trackPlayer, assertType, assertName, getCounts };

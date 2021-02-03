@@ -9,14 +9,14 @@ import './Home.scss';
 const FEATURES = [
   {
     title: 'Experience tracking',
-    page: '/players/Lynx_Titan', // Lynx Titan
+    page: '/players/Lynx_Titan',
     description:
       'Track your skilling progression overtime, browse your recent gains, personal records and more.',
     image: '/img/landing_page/features/player_tracking.png'
   },
   {
     title: 'Boss killcount tracking',
-    page: '/top/general_graardor/', // Lynx Titan
+    page: '/top/general_graardor/',
     description: 'Track your boss kills and take your rightful place in the global PvM leaderboards.',
     image: '/img/landing_page/features/boss_tracking.png'
   },
@@ -68,6 +68,19 @@ function Home() {
 
   const isLoading = useSelector(playerSelectors.isTracking);
   const [username, setUsername] = useState('');
+  const [playerCount, setPlayerCount] = useState(0);
+  const [snapshotCount, setSnapshotCount] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      const { payload } = await dispatch(playerActions.getCounts());
+
+      if (payload && payload.data) {
+        setPlayerCount(payload.data.players);
+        setSnapshotCount(payload.data.snapshots);
+      }
+    })();
+  }, []);
 
   const onUsernameChanged = e => {
     setUsername(e.target.value);
@@ -118,6 +131,13 @@ function Home() {
                 loading={isLoading}
               />
             </form>
+            <div className="intro-counts">
+              Currently tracking
+              <b>{` ${playerCount} `}</b>
+              players with
+              <b>{` ${snapshotCount} `}</b>
+              snapshots.
+            </div>
             <div className="intro-links-container">
               <a className="intro-link" href="https://wiseoldman.net/discord">
                 <span className="link-title">Join our Discord</span>
