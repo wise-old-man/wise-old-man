@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { CML } from '../../constants';
-import { ServerError } from '../../errors';
+import { NotFoundError, ServerError } from '../../errors';
+import cheerio from 'cheerio';
 
 /**
  * Fetches the player history from the CML API.
@@ -24,4 +25,30 @@ async function getCMLHistory(username: string, time: number): Promise<string[]> 
   }
 }
 
-export { getCMLHistory };
+/**
+ * Fetches the player history from the CML API.
+ */
+async function getGroupMembers(gid: number): Promise<string[]> {
+  const URL = `${CML.MEMBERS}?group=${gid}`;
+
+  try {
+    const { data } = await axios.get(URL);
+
+    if (!data || !data.length) {
+      throw new Error();
+    }
+
+    const $: any = cheerio.load(data.toString('latin1'));
+    const players = $('textarea[name=players]').val();
+
+    if (!players) {
+      throw new Error();
+    }
+
+    return players.split('\n').filter(n => !!n);
+  } catch (e) {
+    throw new NotFoundError('Found no members to import');
+  }
+}
+
+export { getCMLHistory, getGroupMembers };

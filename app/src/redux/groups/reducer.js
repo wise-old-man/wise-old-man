@@ -160,9 +160,9 @@ const slice = createSlice({
     onUpdateAllError(state, action) {
       state.error = { message: action.payload.error };
     },
-    onTempleMigrateRequest() {},
-    onTempleMigrateSuccess() {},
-    onTempleMigrateError(state, action) {
+    onMigrateRequest() {},
+    onMigrateSuccess() {},
+    onMigrateError(state, action) {
       state.error = { message: action.payload.error };
     }
   }

@@ -26,5 +26,6 @@ api.get('/:id/name-changes', controller.nameChanges);
 api.get('/:id/statistics', controller.statistics);
 
 api.get('/migrate/temple/:id', controller.migrateTemple);
+api.get('/migrate/cml/:id', controller.migrateCML);
 
 export default api;

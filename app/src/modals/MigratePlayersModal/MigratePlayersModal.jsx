@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
-import { Selector, Button, Switch, TextButton, TextInput } from 'components';
-import { groupActions, groupSelectors } from 'redux/groups';
+import { useDispatch } from 'react-redux';
+import { Button, Switch, TextButton, TextInput, TextLabel } from 'components';
+import { groupActions } from 'redux/groups';
 import './MigratePlayersModal.scss';
 
 function MigratePlayersModal({ onConfirm, onClose }) {
@@ -21,13 +21,16 @@ function MigratePlayersModal({ onConfirm, onClose }) {
 
     if (!matches.length) {
       setGroupId(0);
-      return;
+      setSite('');
+      return [null, null];
     }
 
     const gid = parseInt(matches[2]);
     const shortSite = calcShortName(matches[1]);
     setGroupId(gid);
     setSite(shortSite);
+
+    return [gid, shortSite];
   };
 
   const calcShortName = s => {
@@ -43,7 +46,9 @@ function MigratePlayersModal({ onConfirm, onClose }) {
 
   const handleLinkChange = e => {
     setLink(e.target.value);
-    validateLink(e.target.value);
+    const [gid, name] = validateLink(e.target.value);
+
+    handleFetch(gid, name);
   };
 
   const toggleReplace = () => {
@@ -54,36 +59,46 @@ function MigratePlayersModal({ onConfirm, onClose }) {
     onConfirm(usernames, replace);
   };
 
-  const handleFetch = async () => {
-    console.log(groupId);
-    const { payload } = await dispatch(groupActions.fetchTempleMembers(groupId));
+  const handleFetch = async (groupId, site) => {
+    if (!groupId || !site) {
+      return;
+    }
+
+    const { payload } =
+      site === 'CML'
+        ? await dispatch(groupActions.fetchCMLMembers(groupId))
+        : await dispatch(groupActions.fetchTempleMembers(groupId));
 
     if (payload && payload.data) {
       setUsernames(payload.data);
       setText(payload.data.join('\n'));
-      console.log(payload.data);
     }
   };
 
-  const onLinkChange = useCallback(handleLinkChange, [link, groupId, site, usernames]);
+  const onLinkChange = useCallback(handleLinkChange, [link]);
   const onSwitchChanged = useCallback(toggleReplace, [replace]);
   const onSubmit = useCallback(handleSubmit, [usernames, replace]);
-  const onImport = useCallback(handleFetch, [groupId, text]);
 
   return (
     <div className="migrate-players">
       <div className="migrate-players__modal">
         <h4 className="modal-title">Migrate from site</h4>
-        <TextInput placeholder="Link to group" onChange={onLinkChange} />
-        <div className="import-actions">
-          <TextButton text={`${site} Group ${groupId || ''}`} />
-          <Button text="Import" onClick={onImport} />
-        </div>
-        <textarea className="modal-text" placeholder="# Imported members" value={text} readOnly />
-        <div className="modal-replace">
-          <span className="modal-replace__label">Replace existing usernames</span>
-          <Switch on={replace} onToggle={onSwitchChanged} />
-        </div>
+        <TextInput placeholder="Link to CML or TempleOSRS group" onChange={onLinkChange} />
+        {usernames.length ? (
+          <div>
+            <div className="import-info">
+              <TextLabel value={`${site} Group ${groupId}`} />
+              <TextLabel value={`${usernames.length} Members`} />
+            </div>
+
+            <textarea className="modal-text" placeholder="# Imported members" value={text} readOnly />
+            <div className="modal-replace">
+              <span className="modal-replace__label">Replace existing usernames</span>
+              <Switch on={replace} onToggle={onSwitchChanged} />
+            </div>
+          </div>
+        ) : null}
+
         <div className="modal-actions">
           <TextButton text="Cancel" onClick={onClose} />
           <Button text="Confirm" onClick={onSubmit} />

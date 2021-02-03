@@ -203,10 +203,15 @@ function CreateGroup() {
 
         <div className="form-row">
           <span className="form-row__label">
-            Members
-            <span className="form-row__label-info">{`(${members.length} selected)`}</span>
-            <TextButton text="Migrate" onClick={showMigrateModal} />
-            <TextButton text="Import list" onClick={showMembersModal} />
+            <div>
+              Members
+              <span className="form-row__label-info">{`(${members.length} selected)`}</span>
+            </div>
+            <div>
+              <TextButton text="Migrate" onClick={showMigrateModal} />
+              {' | '}
+              <TextButton text="Import list" onClick={showMembersModal} />
+            </div>
           </span>
 
           <MembersSelector

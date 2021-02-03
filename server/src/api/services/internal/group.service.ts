@@ -24,6 +24,7 @@ import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
 import * as templeService from '../external/temple.service';
+import * as cmlService from '../external/cml.service';
 
 interface Member extends Player {
   role: string;
@@ -821,6 +822,15 @@ async function importTempleMembers(templeGroupId: number) {
   return members;
 }
 
+async function importCMLMembers(templeGroupId: number) {
+  if (!templeGroupId) {
+    throw new BadRequestError('Invalid temple group ID');
+  }
+  const members = await cmlService.getGroupMembers(templeGroupId);
+
+  return members;
+}
+
 export {
   resolve,
   getMembers,
@@ -843,5 +853,6 @@ export {
   removeMembers,
   changeRole,
   updateAllMembers,
-  importTempleMembers
+  importTempleMembers,
+  importCMLMembers
 };

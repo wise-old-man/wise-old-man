@@ -147,15 +147,28 @@ const updateAll = id => async dispatch => {
 };
 
 const fetchTempleMembers = templeId => async dispatch => {
-  dispatch(reducers.onTempleMigrateRequest());
+  dispatch(reducers.onMigrateRequest());
   try {
     const url = endpoints.migrateFromTemple.replace(':id', templeId);
     const { data } = await api.get(url);
 
-    return dispatch(reducers.onTempleMigrateSuccess({ groupId: templeId, data }));
+    return dispatch(reducers.onMigrateSuccess({ groupId: templeId, data }));
   } catch (e) {
     const { message, data } = e.response.data;
-    return dispatch(reducers.onTempleMigrateError({ error: message, data }));
+    return dispatch(reducers.onMigrateError({ error: message, data }));
+  }
+};
+
+const fetchCMLMembers = cmlId => async dispatch => {
+  dispatch(reducers.onMigrateRequest());
+  try {
+    const url = endpoints.migrateFromCML.replace(':id', cmlId);
+    const { data } = await api.get(url);
+
+    return dispatch(reducers.onMigrateSuccess({ groupId: cmlId, data }));
+  } catch (e) {
+    const { message, data } = e.response.data;
+    return dispatch(reducers.onMigrateError({ error: message, data }));
   }
 };
 
@@ -170,5 +183,6 @@ export {
   fetchStatistics,
   fetchMonthlyTop,
   fetchPlayerGroups,
-  fetchTempleMembers
+  fetchTempleMembers,
+  fetchCMLMembers
 };
