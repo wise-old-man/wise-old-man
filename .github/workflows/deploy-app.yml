@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'app/**'
+      - "app/**"
 
 jobs:
   build-app:
@@ -38,5 +38,5 @@ jobs:
           script: |
             cd wise-old-man
             docker image rm wiseoldman/app
-            docker-compose pull
-            docker-compose up --build -d
+            docker-compose pull nginx
+            docker-compose restart nginx
