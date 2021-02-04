@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'server/**'
+      - "server/**"
 
 jobs:
   build-api:
@@ -35,5 +35,5 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker-compose pull
-            docker-compose up --build -d
+            docker-compose pull api
+            docker-compose restart api

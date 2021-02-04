@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'docs/**'
+      - "docs/**"
 
 jobs:
   build-docs:
@@ -35,5 +35,5 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker-compose pull
-            docker-compose up --build -d
+            docker-compose pull docs
+            docker-compose restart docs
