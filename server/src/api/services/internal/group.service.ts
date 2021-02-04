@@ -817,16 +817,18 @@ async function importTempleMembers(templeGroupId: number) {
   if (!templeGroupId) {
     throw new BadRequestError('Invalid temple group ID');
   }
-  const members = await templeService.getGroupMembers(templeGroupId);
+
+  const members = await templeService.fetchGroupMembers(templeGroupId);
 
   return members;
 }
 
-async function importCMLMembers(templeGroupId: number) {
-  if (!templeGroupId) {
-    throw new BadRequestError('Invalid temple group ID');
+async function importCMLMembers(cmlGroupId: number) {
+  if (!cmlGroupId) {
+    throw new BadRequestError('Invalid CML group ID');
   }
-  const members = await cmlService.getGroupMembers(templeGroupId);
+
+  const members = await cmlService.fetchGroupMembers(cmlGroupId);
 
   return members;
 }

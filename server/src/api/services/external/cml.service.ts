@@ -1,7 +1,7 @@
 import axios from 'axios';
+import cheerio from 'cheerio';
 import { CML } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
-import cheerio from 'cheerio';
 
 /**
  * Fetches the player history from the CML API.
@@ -28,7 +28,7 @@ async function getCMLHistory(username: string, time: number): Promise<string[]> 
 /**
  * Fetches the player history from the CML API.
  */
-async function getGroupMembers(gid: number): Promise<string[]> {
+async function fetchGroupMembers(gid: number): Promise<string[]> {
   const URL = `${CML.MEMBERS}?group=${gid}`;
 
   try {
@@ -51,4 +51,4 @@ async function getGroupMembers(gid: number): Promise<string[]> {
   }
 }
 
-export { getCMLHistory, getGroupMembers };
+export { getCMLHistory, fetchGroupMembers };

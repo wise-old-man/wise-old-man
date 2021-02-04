@@ -5,7 +5,7 @@ import { NotFoundError } from '../../errors';
 /**
  * Fetches the group members from the temple API
  */
-async function getGroupMembers(gid: number): Promise<string[]> {
+async function fetchGroupMembers(gid: number): Promise<string[]> {
   const URL = `${TEMPLE_OSRS.MEMBERS}?id=${gid}`;
 
   try {
@@ -21,4 +21,4 @@ async function getGroupMembers(gid: number): Promise<string[]> {
   }
 }
 
-export { getGroupMembers };
+export { fetchGroupMembers };

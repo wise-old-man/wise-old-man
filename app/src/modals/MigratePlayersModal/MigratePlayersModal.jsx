@@ -15,7 +15,7 @@ function MigratePlayersModal({ onConfirm, onClose }) {
   const dispatch = useDispatch();
 
   const validateLink = l => {
-    let re = /https:\/\/(?:www\.)?(crystalmathlabs|templeosrs)\.com\/(?:tracker\/virtualhiscores\.php\?page=statistics&group=|groups\/(?:stats|overview|members)\.php\?id=)(\d+)/;
+    let re = /https:\/\/(?:www\.)?(crystalmathlabs|templeosrs)\.com\/(?:tracker\/virtualhiscores\.php\?page=statistics&group=|groups\/(?:stats|overview|members|records)\.php\?id=)(\d+)/;
 
     let matches = l.match(re) || [];
 
@@ -61,6 +61,7 @@ function MigratePlayersModal({ onConfirm, onClose }) {
 
   const handleFetch = async (groupId, site) => {
     if (!groupId || !site) {
+      setUsernames([]);
       return;
     }
 
@@ -84,7 +85,7 @@ function MigratePlayersModal({ onConfirm, onClose }) {
       <div className="migrate-players__modal">
         <h4 className="modal-title">Migrate from site</h4>
         <TextInput placeholder="Link to CML or TempleOSRS group" onChange={onLinkChange} />
-        {usernames.length ? (
+        {usernames.length > 0 && (
           <div>
             <div className="import-info">
               <TextLabel value={`${site} Group ${groupId}`} />
@@ -97,7 +98,7 @@ function MigratePlayersModal({ onConfirm, onClose }) {
               <Switch on={replace} onToggle={onSwitchChanged} />
             </div>
           </div>
-        ) : null}
+        )}
 
         <div className="modal-actions">
           <TextButton text="Cancel" onClick={onClose} />
