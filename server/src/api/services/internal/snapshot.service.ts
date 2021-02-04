@@ -4,7 +4,7 @@ import { Snapshot } from '../../../database/models';
 import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { parsePeriod } from '../../util/dates';
-import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
+import { getMeasure, getRankKey, getValueKey, isActivity, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
 /**
@@ -33,6 +33,47 @@ function format(snapshot: Snapshot, efficiency?: any) {
       } else if (isBoss(m)) {
         obj[m].ehb = efficiency[m];
       }
+    }
+  });
+
+  return obj;
+}
+
+/**
+ * Converts a Snapshot instance into a format easier to deserialize
+ */
+function bumpyFormat(snapshot: Snapshot, efficiency?: any) {
+  if (!snapshot) return null;
+
+  const obj = {
+    createdAt: snapshot.createdAt,
+    importedAt: snapshot.importedAt,
+    skills: [],
+    bosses: [],
+    activities: []
+  };
+
+  ALL_METRICS.forEach(m => {
+    const e = {
+      name: m,
+      [getMeasure(m)]: snapshot[getValueKey(m)],
+      rank: snapshot[getRankKey(m)]
+    };
+    if (m === 'overall') {
+      e.ehp = Math.max(0, snapshot.ehpValue);
+      obj.skills.push(e);
+    } else if (isSkill(m)) {
+      if (efficiency) {
+        e.ehp = efficiency[m];
+      }
+      obj.skills.push(e);
+    } else if (isBoss(m)) {
+      if (efficiency) {
+        e.ehb = efficiency[m];
+      }
+      obj.bosses.push(e);
+    } else if (isActivity(m)) {
+      obj.activities.push(e);
     }
   });
 
@@ -322,6 +363,7 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
 
 export {
   format,
+  bumpyFormat,
   withinRange,
   hasChanged,
   hasExcessiveGains,

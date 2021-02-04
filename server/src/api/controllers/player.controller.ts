@@ -93,18 +93,19 @@ async function importPlayer(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// GET /players/:id
-// GET /players/username/:username
+// GET /players/:id/:bumpy?
+// GET /players/username/:username/:bumpy?
 async function details(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
+    const bumpy = extractBoolean(req.query, { key: 'bumpy' });
 
     // Find the player by either the id or the username
     const player = await playerService.resolve({ id, username });
 
     // Fetch the player's details
-    const playerDetails = await playerService.getDetails(player);
+    const playerDetails = await playerService.getDetails(player, bumpy);
 
     res.json(playerDetails);
   } catch (e) {

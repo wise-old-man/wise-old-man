@@ -109,12 +109,14 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
 /**
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
+async function getDetails(player: Player, bumpy?: Boolean, snapshot?: Snapshot): Promise<PlayerDetails> {
   const stats = snapshot || (await snapshotService.findLatest(player.id));
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
 
-  const latestSnapshot = snapshotService.format(stats, efficiency);
+  const latestSnapshot = bumpy
+    ? snapshotService.bumpyFormat(stats, efficiency)
+    : snapshotService.format(stats, efficiency);
 
   return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
 }
@@ -191,7 +193,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     await player.changed('updatedAt', true);
     await player.save();
 
-    const playerDetails = await getDetails(player, currentStats);
+    const playerDetails = await getDetails(player, false, currentStats);
 
     return [playerDetails, isNew];
   } catch (e) {
