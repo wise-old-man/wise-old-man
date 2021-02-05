@@ -9,7 +9,8 @@ import {
   durationBetween,
   getMetricName,
   getExperienceAt,
-  formatNumber
+  formatNumber,
+  getPlayerBuild
 } from 'utils';
 import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { InfoPanel, CardList, Selector } from 'components';
@@ -214,7 +215,7 @@ function Info({ player }) {
   const data = [
     { key: 'Id', value: id },
     { key: 'Type', value: capitalize(type) },
-    { key: 'Build', value: capitalize(build) },
+    { key: 'Build', value: getPlayerBuild(build) },
     { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm') },
     { key: 'Last changed at', value: lastChangedDate },
     { key: 'Registered at', value: formatDate(registeredAt, 'DD MMM YYYY, HH:mm') }
