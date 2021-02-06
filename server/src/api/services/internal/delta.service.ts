@@ -41,12 +41,11 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
       const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
 
       const currentDelta = await Delta.findOne({
-        where: { playerId: player.id, period, indicator: 'value' }
+        where: { playerId: player.id, period }
       });
 
       const newDelta = {
         playerId: player.id,
-        indicator: 'value',
         period,
         startedAt: startSnapshot.createdAt,
         endedAt: latestSnapshot.createdAt
@@ -195,7 +194,6 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     attributes: [metric, 'startedAt', 'endedAt'],
     where: {
       period,
-      indicator: 'value',
       updatedAt: { [Op.gte]: startingDate }
     },
     include: [{ model: Player, where: query }],
@@ -222,7 +220,7 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
   // Fetch all deltas for group members
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, indicator: 'value', playerId: playerIds },
+    where: { period, playerId: playerIds },
     order: [[metric, 'DESC']],
     include: [{ model: Player }],
     limit: pagination.limit,

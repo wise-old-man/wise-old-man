@@ -12,16 +12,13 @@ const options = {
     },
     {
       unique: true,
-      fields: ['playerId', 'period', 'indicator']
+      fields: ['playerId', 'period']
     },
     {
       fields: ['playerId']
     },
     {
       fields: ['period']
-    },
-    {
-      fields: ['indicator']
     }
   ]
 };
@@ -37,9 +34,6 @@ export default class Delta extends Model<Delta> {
 
   @Column({ type: DataType.STRING(20), allowNull: false })
   period: string;
-
-  @Column({ type: DataType.STRING(20), allowNull: false })
-  indicator: string;
 
   @Column({ type: DataType.DATE, allowNull: false })
   startedAt: Date;
