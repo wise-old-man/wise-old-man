@@ -36,4 +36,4 @@ jobs:
           script: |
             cd wise-old-man
             docker-compose pull docs
-            docker-compose restart docs
+            docker-compose up -d --no-deps --build docs
