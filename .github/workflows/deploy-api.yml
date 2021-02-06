@@ -36,4 +36,4 @@ jobs:
           script: |
             cd wise-old-man
             docker-compose pull api
-            docker-compose restart api
+            docker-compose up -d --no-deps --build api
