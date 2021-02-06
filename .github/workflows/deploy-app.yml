@@ -39,4 +39,4 @@ jobs:
             cd wise-old-man
             docker image rm wiseoldman/app
             docker-compose pull nginx
-            docker-compose restart nginx
+            docker-compose up -d --no-deps --build nginx
