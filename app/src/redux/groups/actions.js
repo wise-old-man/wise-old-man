@@ -148,11 +148,12 @@ const updateAll = id => async dispatch => {
 
 const fetchTempleMembers = templeId => async dispatch => {
   dispatch(reducers.onMigrateRequest());
+
   try {
     const url = endpoints.migrateFromTemple.replace(':id', templeId);
     const { data } = await api.get(url);
 
-    return dispatch(reducers.onMigrateSuccess({ groupId: templeId, data }));
+    return dispatch(reducers.onMigrateSuccess({ templeId, data }));
   } catch (e) {
     const { message, data } = e.response.data;
     return dispatch(reducers.onMigrateError({ error: message, data }));
@@ -161,11 +162,12 @@ const fetchTempleMembers = templeId => async dispatch => {
 
 const fetchCMLMembers = cmlId => async dispatch => {
   dispatch(reducers.onMigrateRequest());
+
   try {
     const url = endpoints.migrateFromCML.replace(':id', cmlId);
     const { data } = await api.get(url);
 
-    return dispatch(reducers.onMigrateSuccess({ groupId: cmlId, data }));
+    return dispatch(reducers.onMigrateSuccess({ cmlId, data }));
   } catch (e) {
     const { message, data } = e.response.data;
     return dispatch(reducers.onMigrateError({ error: message, data }));

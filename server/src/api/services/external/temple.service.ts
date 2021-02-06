@@ -3,7 +3,7 @@ import { TEMPLE_OSRS } from '../../constants';
 import { NotFoundError } from '../../errors';
 
 /**
- * Fetches the group members from the temple API
+ * Fetches the group members from the TempleOSRS API
  */
 async function fetchGroupMembers(gid: number): Promise<string[]> {
   const URL = `${TEMPLE_OSRS.MEMBERS}?id=${gid}`;
@@ -17,7 +17,7 @@ async function fetchGroupMembers(gid: number): Promise<string[]> {
 
     return data;
   } catch (e) {
-    throw new NotFoundError(`Found no members to import`);
+    throw new NotFoundError(`Found no TempleOSRS members to import.`);
   }
 }
 

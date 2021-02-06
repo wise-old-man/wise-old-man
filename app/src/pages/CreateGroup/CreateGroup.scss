@@ -29,6 +29,10 @@
       align-items: center;
       justify-content: space-between;
 
+      .separator {
+        padding: 0 20px;
+      }
+
       .text-button {
         font-size: 1em;
         padding: 0;

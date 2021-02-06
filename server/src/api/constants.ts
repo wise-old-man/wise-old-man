@@ -28,8 +28,8 @@ export const CML = {
 export const TEMPLE_OSRS = {
   // Limited to 200 datapoints
   HISTORY: 'https://templeosrs.com/api/player_datapoints.php',
-  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php',
-  MEMBERS: 'https://templeosrs.com/api/groupmembers.php'
+  MEMBERS: 'https://templeosrs.com/api/groupmembers.php',
+  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php'
 };
 
 export const SKILLS_MAP = [

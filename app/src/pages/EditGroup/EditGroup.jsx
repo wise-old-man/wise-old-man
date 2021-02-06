@@ -186,7 +186,7 @@ function EditGroup() {
   }
 
   return (
-    <div className="create-group__container container">
+    <div className="edit-group__container container">
       <Helmet>
         <title>{`Edit: ${group.name}`}</title>
       </Helmet>
