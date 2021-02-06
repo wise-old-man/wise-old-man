@@ -21,7 +21,15 @@ export const OSRS_HISCORES = {
 };
 
 export const CML = {
-  HISTORY: 'https://crystalmathlabs.com/tracker/api.php?type=datapoints'
+  HISTORY: 'https://crystalmathlabs.com/tracker/api.php?type=datapoints',
+  MEMBERS: 'https://www.crystalmathlabs.com/tracker/compcreate.php'
+};
+
+export const TEMPLE_OSRS = {
+  // Limited to 200 datapoints
+  HISTORY: 'https://templeosrs.com/api/player_datapoints.php',
+  MEMBERS: 'https://templeosrs.com/api/groupmembers.php',
+  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php'
 };
 
 export const SKILLS_MAP = [

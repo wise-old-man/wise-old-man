@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
+import MigratePlayersModal from 'modals/MigratePlayersModal';
 import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
 import VerificationModal from 'modals/VerificationModal';
 import './CreateGroup.scss';
@@ -23,6 +24,7 @@ function CreateGroup() {
   const [homeworld, setHomeworld] = useState('');
   const [members, setMembers] = useState([]);
   const [showingImportModal, toggleImportModal] = useState(false);
+  const [showingMigrateModal, toggleMigrateModal] = useState(false);
   const [showingEmptyConfirmationModal, toggleEmptyConfirmationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [createdId, setCreatedId] = useState(-1);
@@ -45,7 +47,6 @@ function CreateGroup() {
 
   const handleAddMember = username => {
     setMembers(currentMembers => {
-      // If username is already member
       if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
         return currentMembers;
       }
@@ -96,6 +97,24 @@ function CreateGroup() {
     toggleImportModal(false);
   };
 
+  const handleMigrateModalSubmit = (usernames, replace) => {
+    setMembers(currentMembers => {
+      if (replace) {
+        return [...uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
+      }
+
+      const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
+      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
+
+      return [
+        ...currentMembers,
+        ...uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+      ];
+    });
+
+    toggleMigrateModal(false);
+  };
+
   const handleSubmit = async () => {
     const { payload } = await dispatch(
       groupActions.create(name, description, clanChat, homeworld, members)
@@ -113,6 +132,9 @@ function CreateGroup() {
 
   const hideMembersModal = useCallback(() => toggleImportModal(false), []);
   const showMembersModal = useCallback(() => toggleImportModal(true), []);
+
+  const hideMigrateModal = useCallback(() => toggleMigrateModal(false), []);
+  const showMigrateModal = useCallback(() => toggleMigrateModal(true), []);
   const hideEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(false), []);
   const showEmptyConfirmationModal = useCallback(() => toggleEmptyConfirmationModal(true), []);
 
@@ -126,6 +148,7 @@ function CreateGroup() {
   const onConfirmVerification = useCallback(handleConfirmVerification, [createdId]);
   const onSubmit = useCallback(handleSubmit, [name, clanChat, members]);
   const onSubmitMembersModal = useCallback(handleModalSubmit, []);
+  const onSubmitMigrateModal = useCallback(handleMigrateModalSubmit, []);
 
   const isEmpty = members.length === 0;
 
@@ -180,9 +203,15 @@ function CreateGroup() {
 
         <div className="form-row">
           <span className="form-row__label">
-            Members
-            <span className="form-row__label-info">{`(${members.length} selected)`}</span>
-            <TextButton text="Import list" onClick={showMembersModal} />
+            <div>
+              Members
+              <span className="form-row__label-info">{`(${members.length} selected)`}</span>
+            </div>
+            <div>
+              <TextButton text="Import list" onClick={showMembersModal} />
+              <span className="separator">|</span>
+              <TextButton text="Migrate from..." onClick={showMigrateModal} />
+            </div>
           </span>
 
           <MembersSelector
@@ -204,6 +233,9 @@ function CreateGroup() {
       </div>
       {showingImportModal && (
         <ImportPlayersModal onClose={hideMembersModal} onConfirm={onSubmitMembersModal} />
+      )}
+      {showingMigrateModal && (
+        <MigratePlayersModal onClose={hideMigrateModal} onConfirm={onSubmitMigrateModal} />
       )}
       {verificationCode && (
         <VerificationModal

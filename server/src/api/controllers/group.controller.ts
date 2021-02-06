@@ -363,6 +363,34 @@ async function statistics(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /groups/migrate/temple/:id
+async function migrateTemple(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
+    const results = await groupService.importTempleMembers(id);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /groups/migrate/cml/:id
+async function migrateCML(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+
+    // Ensure this group Id exists (if not, it'll throw a 404 error)
+    const results = await groupService.importCMLMembers(id);
+
+    res.json(results);
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
   index,
   create,
@@ -381,5 +409,7 @@ export {
   competitions,
   listMembers,
   addMembers,
-  removeMembers
+  removeMembers,
+  migrateTemple,
+  migrateCML
 };

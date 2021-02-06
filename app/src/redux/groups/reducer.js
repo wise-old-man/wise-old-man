@@ -159,6 +159,11 @@ const slice = createSlice({
     onUpdateAllSuccess() {},
     onUpdateAllError(state, action) {
       state.error = { message: action.payload.error };
+    },
+    onMigrateRequest() {},
+    onMigrateSuccess() {},
+    onMigrateError(state, action) {
+      state.error = { message: action.payload.error };
     }
   }
 });

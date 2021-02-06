@@ -38,6 +38,8 @@ const endpoints = {
   fetchGroupNameChanges: '/groups/:id/name-changes/',
   fetchGroupCompetitions: '/groups/:id/competitions/',
   updateAllMembers: '/groups/:id/update-all',
+  migrateFromTemple: '/groups/migrate/temple/:id',
+  migrateFromCML: '/groups/migrate/cml/:id',
 
   // Competition endpoints
   createCompetition: '/competitions/',
