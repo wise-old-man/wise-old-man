@@ -210,7 +210,7 @@ function CreateGroup() {
             <div>
               <TextButton text="Import list" onClick={showMembersModal} />
               <span className="separator">|</span>
-              <TextButton text="Migrate from..." onClick={showMigrateModal} />
+              <TextButton text="Migrate" onClick={showMigrateModal} />
             </div>
           </span>
 
