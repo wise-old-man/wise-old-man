@@ -1,6 +1,6 @@
 import { Snapshot } from '../../../database/models';
 import { CAPPED_MAX_TOTAL_XP, getCappedTotalXp, getCombatLevel } from '../../util/experience';
-import { AchievementTemplate } from '../../services/internal/achiev.service';
+import { AchievementTemplate } from '../../services/internal/achievement.service';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
