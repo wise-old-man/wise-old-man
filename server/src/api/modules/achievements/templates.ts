@@ -24,7 +24,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Overall Exp.',
     metric: 'overall',
     measure: 'experience',
-    thresholds: [500_000_000, 1_000_000_000, 2_000_000_000, 4_600_000_000],
+    thresholds: [100_000_000, 200_000_000, 500_000_000, 1_000_000_000, 2_000_000_000, 4_600_000_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.overallExperience >= threshold
   },
   {
