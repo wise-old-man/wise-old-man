@@ -237,14 +237,14 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Chambers Of Xeric kills',
     metric: 'chambers_of_xeric',
     measure: 'kills',
-    thresholds: [100, 200, 1000, 2000],
+    thresholds: [100, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.chambers_of_xericKills >= threshold
   },
   {
     name: '{threshold} Chambers Of Xeric (CM) kills',
     metric: 'chambers_of_xeric_challenge_mode',
     measure: 'kills',
-    thresholds: [100, 200, 1000, 2000],
+    thresholds: [100, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) =>
       snapshot.chambers_of_xeric_challenge_modeKills >= threshold
   },
@@ -379,7 +379,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Mimic kills',
     metric: 'mimic',
     measure: 'kills',
-    thresholds: [25, 50, 250, 500],
+    thresholds: [10, 50, 100, 200],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.mimicKills >= threshold
   },
   {
@@ -436,7 +436,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Theatre Of Blood kills',
     metric: 'theatre_of_blood',
     measure: 'kills',
-    thresholds: [100, 200, 1000, 2000],
+    thresholds: [100, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.theatre_of_bloodKills >= threshold
   },
   {
@@ -451,14 +451,14 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} TzKal-Zuk kills',
     metric: 'tzkal_zuk',
     measure: 'kills',
-    thresholds: [25, 50, 250, 500],
+    thresholds: [10, 50, 100, 200],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.tzkal_zukKills >= threshold
   },
   {
     name: '{threshold} TzTok-Jad kills',
     metric: 'tztok_jad',
     measure: 'kills',
-    thresholds: [100, 200, 1000, 2000],
+    thresholds: [50, 100, 500, 1000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.tztok_jadKills >= threshold
   },
   {
@@ -507,13 +507,6 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ACTIVITY ACHIEVEMENTS
   // ---------------------
   {
-    name: '{threshold} League Points score',
-    metric: 'league_points',
-    measure: 'score',
-    thresholds: [1000, 5000, 10_000],
-    validate: (snapshot: Snapshot, threshold: number) => snapshot.league_pointsScore >= threshold
-  },
-  {
     name: '{threshold} Bounty Hunter (Hunter) score',
     metric: 'bounty_hunter_hunter',
     measure: 'score',
@@ -531,63 +524,63 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} Clue Scrolls (All)',
     metric: 'clue_scrolls_all',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [500, 1000, 5000, 10_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_allScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Beginner)',
     metric: 'clue_scrolls_beginner',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [200, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_beginnerScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Easy)',
     metric: 'clue_scrolls_easy',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [500, 1000, 5000, 10_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_easyScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Medium)',
     metric: 'clue_scrolls_medium',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [500, 1000, 5000, 10_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_mediumScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Hard)',
     metric: 'clue_scrolls_hard',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [500, 1000, 5000, 10_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_hardScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Elite)',
     metric: 'clue_scrolls_elite',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [100, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_eliteScore >= threshold
   },
   {
     name: '{threshold} Clue Scrolls (Master)',
     metric: 'clue_scrolls_master',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [100, 500, 1000, 5000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.clue_scrolls_masterScore >= threshold
   },
   {
     name: '{threshold} Last Man Standing score',
     metric: 'last_man_standing',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [2000, 5000, 10_000, 15_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.last_man_standingScore >= threshold
   },
   {
     name: '{threshold} Soul Wars Zeal',
     metric: 'soul_wars_zeal',
     measure: 'score',
-    thresholds: [1000, 5000, 10000],
+    thresholds: [5000, 10_000, 20_000],
     validate: (snapshot: Snapshot, threshold: number) => snapshot.soul_wars_zealScore >= threshold
   }
 ];
