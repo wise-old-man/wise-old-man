@@ -254,11 +254,15 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues, player: Pl
     const initialRank = initial ? initial[rankKey] : -1;
     const initialValue = initial ? initial[valueKey] : -1;
 
-    const startValue = parseNum(metric, start[valueKey] === -1 ? initialValue : start[valueKey]);
-    const startRank = start[rankKey] === -1 && !isSkill(metric) ? initialRank : start[rankKey];
+    const startRank = start[rankKey];
+    const startValue = start[valueKey];
 
-    fixedStart[rankKey] = startRank;
-    fixedStart[valueKey] = startValue;
+    // Any value below initialValue is invalid and should not be used
+    // Except for skills since they can be imported from CML after initialValue has been set
+    const isInvalidStartValue = startValue === -1 || (startValue < initialValue && !isSkill(metric));
+
+    fixedStart[rankKey] = startRank === -1 && !isSkill(metric) ? initialRank : startRank;
+    fixedStart[valueKey] = parseNum(metric, isInvalidStartValue ? initialValue : startValue);
   });
 
   // After fixing the start values, we convert it into a temporary snapshot
