@@ -138,6 +138,7 @@ function getPlayerRedirectURL(player, competition) {
   nextURL.appendToPath('/gained');
   nextURL.appendToPath(`/${metricType}`);
 
+  nextURL.appendSearchParam('metric', metric);
   nextURL.appendSearchParam('period', 'custom');
   nextURL.appendSearchParam('startDate', startsAt.toISOString());
   nextURL.appendSearchParam('endDate', endsAt.toISOString());

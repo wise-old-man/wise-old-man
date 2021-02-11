@@ -39,9 +39,9 @@ function EditGroup() {
   const populate = () => {
     if (group) {
       setName(group.name);
-      setDescription(group.description);
+      setDescription(group.description || '');
       setClanChat(group.clanChat || '');
-      setHomeworld(group.homeworld);
+      setHomeworld(group.homeworld || '');
       setMembers(group.members.map(mapMember));
     }
   };
