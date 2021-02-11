@@ -73,10 +73,18 @@ function Achievements() {
         </div>
       </div>
       <div className="player-nearest-achievements__container col-lg-3 col-md-12">
-        <span className="panel-label">Recent achievements</span>
-        <CardList items={achievementItems} emptyMessage="Nothing else to achieve!" />
-        <span className="panel-label">{`Nearest ${metricType} achievements`}</span>
-        <CardList items={nearestItems} emptyMessage="Nothing else to achieve!" />
+        {achievementItems && achievementItems.length > 0 && (
+          <>
+            <span className="panel-label">Recent achievements</span>
+            <CardList items={achievementItems} />
+          </>
+        )}
+        {nearestItems && nearestItems.length > 0 && (
+          <>
+            <span className="panel-label">{`Nearest ${metricType} achievements`}</span>
+            <CardList items={nearestItems} />
+          </>
+        )}
       </div>
       <div className="player-achievements__container col-lg-9 col-md-12">
         {groups.map(group => (
