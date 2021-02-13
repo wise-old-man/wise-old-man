@@ -3,7 +3,7 @@ import { sequelize } from '../../../database';
 import { Achievement, Snapshot, Player } from '../../../database/models';
 import { isSkill, isActivity, isBoss, isVirtual, getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
-import { CAPPED_MAX_TOTAL_XP, getCappedTotalXp, getCombatLevel } from '../../util/experience';
+import { getLevel } from '../../util/experience';
 import { ACHIEVEMENT_TEMPLATES } from '../../modules/achievements/templates';
 import * as snapshotService from './snapshot.service';
 
@@ -18,7 +18,7 @@ export interface AchievementTemplate {
   metric: string;
   measure: string;
   thresholds: number[];
-  validate: (snapshot: Snapshot, threshold: number) => boolean;
+  getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
 }
 interface AchievementDefinition {
   name: string;
@@ -26,6 +26,7 @@ interface AchievementDefinition {
   measure: string;
   threshold: number;
   validate: (snapshot: Snapshot) => boolean;
+  getCurrentValue: (snapshot: Snapshot) => number;
 }
 
 async function getPlayerAchievements(playerId: number) {
@@ -46,28 +47,30 @@ async function getPlayerAchievementsProgress(playerId: number) {
   const clamp = (val: number) => round(Math.min(Math.max(val, 0), 1), 4);
   const findDate = (d: AchievementDefinition) => achievements.find(a => a.name === d.name)?.createdAt;
 
-  // These achievements might share metrics/measures with others, but should be
-  // handled seperately (ex: Maxed Overall should not be clustered with 500m Overall Exp.)
-  const uniqueAchievements = ['Maxed Overall', '126 Combat'];
-
   return definitions.map((d, i) => {
-    const wasPrevUnique = uniqueAchievements.includes(definitions[i - 1]?.name);
-    const isFirstInCluster = i === 0 || wasPrevUnique || definitions[i - 1].metric !== d.metric;
+    const { name, metric, measure, threshold, getCurrentValue } = d;
+
+    const prevDef = definitions[i - 1];
+    const isFirstInCluster = i === 0 || prevDef.metric !== metric || prevDef.measure !== measure;
 
     const startValue = getAchievementStartValue(d);
-    const currentValue = getAchievementValue(d, latestSnapshot);
-    const prevThreshold = isFirstInCluster ? startValue : definitions[i - 1].threshold;
+    const currentValue = getCurrentValue(latestSnapshot);
+    const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
+
+    const absoluteProgress = clamp((currentValue - startValue) / (threshold - startValue));
+    const relativeProgress = clamp((currentValue - prevThreshold) / (threshold - prevThreshold));
+    const createdAt = findDate(d) || null;
 
     return {
       playerId,
-      name: d.name,
-      metric: d.metric,
-      measure: d.measure,
-      threshold: d.threshold,
+      name,
+      metric,
+      measure,
+      threshold,
       currentValue,
-      absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
-      relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold)),
-      createdAt: findDate(d) || null
+      absoluteProgress,
+      relativeProgress,
+      createdAt
     };
   });
 }
@@ -193,12 +196,26 @@ async function calculatePastDates(playerId: number, definitions: AchievementDefi
 function getDefinitions(): AchievementDefinition[] {
   const definitions = [];
 
-  ACHIEVEMENT_TEMPLATES.forEach(({ thresholds, name, validate, metric, measure }) => {
+  ACHIEVEMENT_TEMPLATES.forEach(({ thresholds, name, metric, measure, getCurrentValue }) => {
     thresholds.forEach(threshold => {
-      const newName = name.replace('{threshold}', formatThreshold(threshold));
-      const validateFn = (snapshot: Snapshot) => validate(snapshot, threshold);
+      const newName = getAchievemenName(name, threshold);
 
-      definitions.push({ name: newName, metric, measure, threshold, validate: validateFn });
+      const getCurrentValueFn = (snapshot: Snapshot) => {
+        return getCurrentValue ? getCurrentValue(snapshot, threshold) : snapshot[getValueKey(metric)];
+      };
+
+      const validateFn = (snapshot: Snapshot) => {
+        return getCurrentValueFn(snapshot) >= threshold;
+      };
+
+      definitions.push({
+        name: newName,
+        metric,
+        measure,
+        threshold,
+        validate: validateFn,
+        getCurrentValue: getCurrentValueFn
+      });
     });
   });
 
@@ -206,29 +223,29 @@ function getDefinitions(): AchievementDefinition[] {
 }
 
 function format(achievement: Achievement): ExtendedAchievement {
-  return { ...(achievement.toJSON() as any), measure: getAchievementMeasure(achievement.metric) };
+  const measure = getAchievementMeasure(achievement.metric, achievement.threshold);
+  return { ...(achievement.toJSON() as any), measure };
 }
 
-function getAchievementMeasure(metric: string): string {
+function getAchievemenName(name: string, threshold: number): string {
+  const newName = name
+    .replace('{threshold}', formatThreshold(threshold))
+    .replace('{level}', formatThreshold(threshold));
+
+  if (newName === 'Base 99 Stats') {
+    return 'Maxed Overall';
+  }
+
+  return newName;
+}
+
+function getAchievementMeasure(metric: string, threshold: number): string {
+  if (metric === 'overall' && threshold <= 13_034_431) return 'levels';
   if (isBoss(metric)) return 'kills';
   if (isSkill(metric)) return 'experience';
   if (isActivity(metric)) return 'score';
   if (isVirtual(metric)) return 'value';
   return 'levels';
-}
-
-function getAchievementValue(definition: AchievementDefinition, snapshot: Snapshot) {
-  const { metric, measure, threshold } = definition;
-
-  if (metric === 'combat') {
-    return getCombatLevel(snapshot);
-  }
-
-  if (metric === 'overall' && measure === 'experience' && threshold === CAPPED_MAX_TOTAL_XP) {
-    return getCappedTotalXp(snapshot);
-  }
-
-  return snapshot[getValueKey(metric)];
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
@@ -240,10 +257,12 @@ function getAchievementStartValue(definition: AchievementDefinition) {
 }
 
 function formatThreshold(threshold: number): string {
-  if (threshold === 13_034_431) return '99';
-  if (threshold === CAPPED_MAX_TOTAL_XP) return '2277';
-  if (threshold < 1000 || threshold === 2277) return String(threshold);
+  if (threshold < 1000) return String(threshold);
   if (threshold <= 10_000) return `${Math.floor(threshold / 1000)}k`;
+
+  if ([737_627, 1_986_068, 5_346_332, 13_034_431].includes(threshold)) {
+    return getLevel(threshold).toString();
+  }
 
   if (threshold < 1_000_000_000)
     return `${Math.round((threshold / 1_000_000 + Number.EPSILON) * 100) / 100}m`;
