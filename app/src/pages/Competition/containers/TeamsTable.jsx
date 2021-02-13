@@ -54,7 +54,7 @@ function TeamsTable({ competition, onUpdateClicked }) {
         className: () => '-break-small',
         transform: val => {
           const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
-          return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
+          return <NumberLabel value={Math.floor(val)} lowThreshold={lowThreshold} isColored isSigned />;
         }
       },
       {
