@@ -829,6 +829,7 @@ async function addToGroupCompetitions(groupId, playerIds) {
     attributes: ['id'],
     where: {
       groupId,
+      type: 'classic',
       endsAt: { [Op.gt]: new Date() }
     }
   });
