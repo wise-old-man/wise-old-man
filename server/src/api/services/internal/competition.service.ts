@@ -536,6 +536,10 @@ async function destroy(competition: Competition) {
 async function setTeams(competition: Competition, teams: Team[]) {
   if (!competition) throw new BadRequestError('Invalid competition.');
 
+  const existingParticipations = await Participation.findAll({
+    where: { competitionId: competition.id }
+  });
+
   const allUsernames = teams.map(t => t.participants.map(playerService.standardize)).flat();
   const allPlayers = await playerService.findAllOrCreate(allUsernames);
 
@@ -544,16 +548,24 @@ async function setTeams(competition: Competition, teams: Team[]) {
   // Delete all existing participations (and teams)
   await Participation.destroy({ where: { competitionId: competition.id } });
 
-  await Promise.all(
-    teams.map(async team => {
-      const teamName = team.name;
-      const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
+  // Recalculate team and participant placements
+  const editedTeams = teams.map(team => {
+    return team.participants.map(p => {
+      const player = playersMap[playerService.standardize(p)];
+      const participation = player && existingParticipations.find(e => e.playerId === player.id);
 
-      await competition.$add('participants', participants, { through: { teamName } });
+      return {
+        competitionId: competition.id,
+        playerId: player.id,
+        teamName: team.name,
+        startSnapshotId: participation?.startSnapshotId || null,
+        endSnapshotId: participation?.endSnapshotId || null
+      };
+    });
+  });
 
-      return { teamName, participants };
-    })
-  );
+  // Re-create the newly edited participations
+  await Participation.bulkCreate(editedTeams.flat());
 
   const participants = await competition.$get('participants');
 
