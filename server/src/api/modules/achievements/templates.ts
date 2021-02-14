@@ -10,7 +10,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: 'Base {level} Stats',
     metric: 'overall',
     measure: 'levels',
-    thresholds: [737_627, 1_986_068, 5_346_332, 13_034_431],
+    thresholds: [101_333, 273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
     getCurrentValue: (snapshot: Snapshot) => {
       return getMinimumExp(snapshot);
     }

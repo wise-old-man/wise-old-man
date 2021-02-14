@@ -260,7 +260,7 @@ function formatThreshold(threshold: number): string {
   if (threshold < 1000) return String(threshold);
   if (threshold <= 10_000) return `${Math.floor(threshold / 1000)}k`;
 
-  if ([737_627, 1_986_068, 5_346_332, 13_034_431].includes(threshold)) {
+  if ([101_333, 273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].includes(threshold)) {
     return getLevel(threshold).toString();
   }
 
