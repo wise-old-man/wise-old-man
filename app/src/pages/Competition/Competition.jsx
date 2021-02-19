@@ -66,9 +66,9 @@ function Competition() {
 
   useEffect(() => {
     if (competition && competition.type === 'classic' && section === 'teams') {
-      updateContext({ section: 'participants' });
+      router.replace(encodeContext({ id, section: 'participants' }));
     }
-  }, [section, updateContext, competition]);
+  }, [section, id, router, competition]);
 
   if (!competition) {
     return <Loading />;

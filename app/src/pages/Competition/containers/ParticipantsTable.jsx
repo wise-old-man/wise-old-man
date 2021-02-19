@@ -114,6 +114,7 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
     tableConfig.columns.splice(tableConfig.columns.length - 2, 0, {
       key: 'levels',
       get: row => (row.levelsGained ? row.levelsGained : 0),
+      className: () => '-break-medium',
       transform: val => {
         return <NumberLabel value={val} isColored isSigned />;
       }
