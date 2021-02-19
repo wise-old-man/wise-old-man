@@ -12,17 +12,26 @@ const TABLE_CONFIG = {
   columns: [
     {
       key: 'oldName',
+      label: 'Old name',
       className: () => '-primary'
     },
     {
       key: 'arrow',
-      className: () => '-break-small',
+      label: '',
+      isSortable: false,
+      className: () => '-break-medium',
       transform: () => '→'
     },
     {
+      key: 'newName',
+      label: 'New name',
+      className: () => '-primary'
+    },
+    {
       key: 'displayName',
+      label: 'Current name',
       get: row => row.player.displayName,
-      className: () => '-primary',
+      className: () => '-primary -break-medium',
       transform: (value, row) => (
         <Link to={`/players/${row.player.username}/names`}>
           <PlayerTag
@@ -36,8 +45,9 @@ const TABLE_CONFIG = {
     },
     {
       key: 'resolvedAt',
-      className: () => '-break-medium',
-      transform: value => `Approved ${durationBetween(value, new Date(), 2, true)} ago`
+      label: 'Approval date',
+      className: () => '-break-small',
+      transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
     }
   ]
 };
@@ -67,7 +77,6 @@ function NameChangesTable() {
 
   return (
     <>
-      <span className="widget-label">Most recent name changes</span>
       {isReloading ? (
         <TablePlaceholder size={20} />
       ) : (
@@ -76,6 +85,7 @@ function NameChangesTable() {
           rows={nameChanges}
           columns={TABLE_CONFIG.columns}
           listStyle
+          listStyleHeaders
         />
       )}
       {!isFullyLoaded && <b className="loading-indicator">Loading...</b>}
