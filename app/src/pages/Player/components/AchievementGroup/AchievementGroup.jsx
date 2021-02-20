@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { getMetricIcon, getMetricName, formatDate, formatNumber } from 'utils';
-import { CAPPED_MAX_TOTAL_XP } from 'config';
+import { getMetricIcon, getMetricName, formatDate, formatNumber, getLevel } from 'utils';
 import './AchievementGroup.scss';
 
 function AchievementGroup({ group, metricType }) {
@@ -13,17 +12,12 @@ function AchievementGroup({ group, metricType }) {
       <div className="group-icon">
         <img src={getMetricIcon(metric)} alt="" />
       </div>
-      <b className={`group-title -${metricType}`}>
-        {achievements.length > 1 ? getMetricName(metric) : achievements[0].type}
-      </b>
+      <b className={`group-title -${metricType}`}>{getGroupTitle(group)}</b>
       <div className="group-progress">
         <AchievementOrb achievement={null} />
         {achievements.map(achievement => (
-          <Fragment key={achievement.type}>
-            <ProgressBar
-              progress={achievement.progress.percentToNextTier}
-              equalSizes={isEqualSizes(achievements)}
-            />
+          <Fragment key={achievement.name}>
+            <ProgressBar achievement={achievement} equalSizes={isEqualSizes(achievements)} />
             <AchievementOrb achievement={achievement} />
           </Fragment>
         ))}
@@ -32,15 +26,19 @@ function AchievementGroup({ group, metricType }) {
   );
 }
 
-function ProgressBar({ progress, equalSizes }) {
+function ProgressBar({ achievement, equalSizes }) {
+  const { relativeProgress, currentValue, threshold } = achievement;
+
   const className = classNames('achievement-progress', {
-    '-full': equalSizes || (progress >= 0 && progress < 1)
+    '-full': equalSizes || (relativeProgress > 0 && relativeProgress < 1)
   });
 
-  const progressInt = Math.floor(progress * 100);
+  const progressInt = Math.floor(relativeProgress * 100);
+  const current = formatNumber(currentValue, true);
+  const goal = formatNumber(threshold, true);
 
   return (
-    <abbr className={className} title={`${progressInt} %`}>
+    <abbr className={className} title={`${current} / ${goal}\n(${progressInt}% to next tier)`}>
       <div className="achievement-progress__fill" style={{ width: `${progressInt}%` }} />
     </abbr>
   );
@@ -51,16 +49,15 @@ function AchievementOrb({ achievement }) {
     return <div className="achievement-orb -zero">0</div>;
   }
 
-  const { createdAt, progress, type, threshold, unknownDate } = achievement;
-
-  const isAchieved = progress.absolutePercent === 1;
+  const { createdAt, absoluteProgress, name, threshold, unknownDate } = achievement;
 
   const formattedThreshold = formatThreshold(threshold);
-  const className = classNames('achievement-orb', { '-completed': isAchieved });
+  const className = classNames('achievement-orb', { '-completed': absoluteProgress === 1 });
 
-  const info = isAchieved
-    ? `${type} - ${unknownDate ? 'Unknown date ' : formatDate(createdAt)}`
-    : `${type} - Unachieved`;
+  const info =
+    absoluteProgress === 1
+      ? `${name} - ${unknownDate ? 'Unknown date ' : formatDate(createdAt)}`
+      : `${name} - Unachieved`;
 
   return (
     <abbr className={className} title={info}>
@@ -72,14 +69,18 @@ function AchievementOrb({ achievement }) {
 function isEqualSizes(achievements) {
   return (
     achievements.length === 1 ||
-    achievements.filter(g => g.progress.percentToNextTier === 1).length === achievements.length ||
-    achievements.filter(g => g.progress.percentToNextTier === 0).length === achievements.length
+    achievements.filter(g => g.relativeProgress === 1).length === achievements.length ||
+    achievements.filter(g => g.relativeProgress === 0).length === achievements.length
   );
 }
 
 function formatThreshold(threshold) {
-  if (threshold < 1000 || threshold === 2277) {
+  if (threshold < 1000) {
     return threshold;
+  }
+
+  if ([273742, 737627, 1986068, 5346332, 13034431].includes(threshold)) {
+    return getLevel(threshold + 100).toString();
   }
 
   if (threshold <= 10000) {
@@ -90,11 +91,15 @@ function formatThreshold(threshold) {
     return '99';
   }
 
-  if (threshold === CAPPED_MAX_TOTAL_XP) {
-    return '2277';
+  return formatNumber(threshold, true);
+}
+
+function getGroupTitle(group) {
+  if (group.metric === 'overall') {
+    return group.measure === 'levels' ? 'Base Stats' : 'Overall Exp.';
   }
 
-  return formatNumber(threshold, true);
+  return group.achievements.length > 1 ? getMetricName(group.metric) : group.achievements[0].name;
 }
 
 AchievementGroup.propTypes = {
@@ -107,12 +112,16 @@ AchievementGroup.propTypes = {
 };
 
 ProgressBar.defaultProps = {
-  progress: undefined,
+  achievement: undefined,
   equalSizes: false
 };
 
 ProgressBar.propTypes = {
-  progress: PropTypes.number,
+  achievement: PropTypes.shape({
+    relativeProgress: PropTypes.number,
+    currentValue: PropTypes.number,
+    threshold: PropTypes.number
+  }),
   equalSizes: PropTypes.bool
 };
 

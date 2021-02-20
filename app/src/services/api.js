@@ -56,7 +56,7 @@ const endpoints = {
   assertPlayerName: '/players/assert-name/',
   fetchPlayerDetails: '/players/username/:username/',
   fetchPlayerGroups: '/players/username/:username/groups/',
-  fetchPlayerAchievements: '/players/username/:username/achievements/',
+  fetchPlayerAchievements: '/players/username/:username/achievements/progress',
   fetchPlayerCompetitions: '/players/username/:username/competitions/',
   fetchPlayerSnapshots: '/players/username/:username/snapshots/',
   fetchPlayerRecords: '/players/username/:username/records/',

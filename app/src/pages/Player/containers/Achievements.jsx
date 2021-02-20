@@ -21,33 +21,15 @@ function Achievements() {
     achievementSelectors.getPlayerAchievementsGrouped(state, username)
   );
 
-  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+  const allAchievements = useSelector(state =>
+    achievementSelectors.getPlayerAchievements(state, username, true)
+  );
+
+  const completedAchievements = useSelector(state =>
+    achievementSelectors.getPlayerAchievements(state, username)
+  );
 
   const groups = getFilteredAchievements(groupedAchievements, metricType);
-
-  const nearest = groups
-    .map(g => g.achievements)
-    .flat()
-    .filter(a => a.progress.absolutePercent < 1 && a.measure !== 'levels')
-    .sort((a, b) => b.progress.absolutePercent - a.progress.absolutePercent)
-    .slice(0, 20);
-
-  const completedAchievements = achievements
-    .filter(a => a.createdAt !== null)
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 20);
-
-  const nearestItems = nearest.map(i => ({
-    icon: getMetricIcon(i.metric),
-    title: i.type,
-    subtitle: `${Math.round(i.progress.absolutePercent * 10000) / 100}% completed`
-  }));
-
-  const achievementItems = completedAchievements.map(a => ({
-    icon: getMetricIcon(a.metric),
-    title: a.type,
-    subtitle: a.unknownDate ? 'Unknown date' : formatDate(a.createdAt, 'DD MMM, YYYY')
-  }));
 
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
@@ -61,6 +43,29 @@ function Achievements() {
     }
   }
 
+  if (!groupedAchievements || !completedAchievements || !allAchievements) {
+    return null;
+  }
+
+  const nearestItems = allAchievements
+    .filter(a => a.absoluteProgress < 1)
+    .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
+    .slice(0, 20)
+    .map(i => ({
+      icon: getMetricIcon(i.metric),
+      title: i.name,
+      subtitle: `${Math.round(i.absoluteProgress * 10000) / 100}% completed`
+    }));
+
+  const recentItems = completedAchievements
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, 20)
+    .map(a => ({
+      icon: getMetricIcon(a.metric),
+      title: a.name,
+      subtitle: a.unknownDate ? 'Unknown date' : formatDate(a.createdAt, 'DD MMM, YYYY')
+    }));
+
   return (
     <>
       <div className="row achievements-controls">
@@ -73,10 +78,10 @@ function Achievements() {
         </div>
       </div>
       <div className="player-nearest-achievements__container col-lg-3 col-md-12">
-        {achievementItems && achievementItems.length > 0 && (
+        {recentItems && recentItems.length > 0 && (
           <>
             <span className="panel-label">Recent achievements</span>
-            <CardList items={achievementItems} />
+            <CardList items={recentItems} />
           </>
         )}
         {nearestItems && nearestItems.length > 0 && (

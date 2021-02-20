@@ -3,7 +3,7 @@
 .achievement-group {
   @extend %panel;
   background: $gray-07;
-  padding: 10px 15px;
+  padding: 10px 12px;
   margin-bottom: 15px;
   display: flex;
   flex-direction: row;
@@ -11,12 +11,12 @@
 
   .group-icon {
     width: 30px;
-    margin-right: 10px;
+    margin-right: 5px;
   }
 
   .group-title {
-    font-size: 0.9em;
-    min-width: 130px;
+    font-size: 0.8em;
+    min-width: 80px;
 
     &.-bossing {
       min-width: 181px;
