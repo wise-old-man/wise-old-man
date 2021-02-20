@@ -75,7 +75,7 @@ function TeamsTable({ competition, onUpdateClicked }) {
           <button
             type="button"
             onClick={() => toggleExpandedTeam(row.name)}
-            style={{ background: 'none', border: 'none', color: 'white', fontSize: '0.9em' }}
+            className="table-toggle-btn"
           >
             {expandedTeam === row.name ? 'Hide details' : 'Show details'}
           </button>
