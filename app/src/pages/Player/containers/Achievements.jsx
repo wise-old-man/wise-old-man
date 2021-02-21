@@ -29,8 +29,6 @@ function Achievements() {
     achievementSelectors.getPlayerAchievements(state, username)
   );
 
-  const groups = getFilteredAchievements(groupedAchievements, metricType);
-
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
   function handleMetricTypeSelected(e) {
@@ -47,8 +45,10 @@ function Achievements() {
     return null;
   }
 
+  const groups = groupedAchievements.filter(a => isOfMetricType(a, metricType));
+
   const nearestItems = allAchievements
-    .filter(a => a.absoluteProgress < 1)
+    .filter(a => isOfMetricType(a, metricType) && a.absoluteProgress < 1)
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 20)
     .map(i => ({
@@ -57,7 +57,8 @@ function Achievements() {
       subtitle: `${Math.round(i.absoluteProgress * 10000) / 100}% completed`
     }));
 
-  const recentItems = completedAchievements
+  const latestItems = completedAchievements
+    .filter(a => isOfMetricType(a, metricType))
     .sort((a, b) => b.createdAt - a.createdAt)
     .slice(0, 20)
     .map(a => ({
@@ -78,10 +79,10 @@ function Achievements() {
         </div>
       </div>
       <div className="player-nearest-achievements__container col-lg-3 col-md-12">
-        {recentItems && recentItems.length > 0 && (
+        {latestItems && latestItems.length > 0 && (
           <>
-            <span className="panel-label">Recent achievements</span>
-            <CardList items={recentItems} />
+            <span className="panel-label">Latest achievements</span>
+            <CardList items={latestItems} />
           </>
         )}
         {nearestItems && nearestItems.length > 0 && (
@@ -104,20 +105,10 @@ function Achievements() {
   );
 }
 
-function getFilteredAchievements(groups, metricType) {
-  if (!groups) {
-    return [];
-  }
-
-  if (metricType === 'skilling') {
-    return groups.filter(r => isSkill(r.metric) || r.metric === 'combat');
-  }
-
-  if (metricType === 'activities') {
-    return groups.filter(r => isActivity(r.metric));
-  }
-
-  return groups.filter(r => isBoss(r.metric) || r.metric === 'bossing');
+function isOfMetricType(achievement, metricType) {
+  if (metricType === 'skilling') return isSkill(achievement.metric) || achievement.metric === 'combat';
+  if (metricType === 'activities') return isActivity(achievement.metric);
+  return isBoss(achievement.metric) || achievement.metric === 'bossing';
 }
 
 export default Achievements;

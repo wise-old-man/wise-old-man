@@ -1,12 +1,18 @@
 import { createSelector } from 'reselect';
+import { mapValues } from 'lodash';
 import { ALL_METRICS } from 'config';
 
 const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
 const groupAchievementsSelector = state => state.achievements.groupAchievements;
 
-const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => map);
-const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => map);
+const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
+  return mapValues(map, p => p.map(formatAchievement));
+});
+
+const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
+  return mapValues(map, p => p.map(formatAchievement));
+});
 
 export const isFetchingGroupAchievements = createSelector(
   rootSelector,
@@ -47,3 +53,8 @@ export const getPlayerAchievementsGrouped = (state, username) => {
 
   return groups.sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric));
 };
+
+function formatAchievement(a) {
+  const isDateUnknown = a.createdAt && a.createdAt.getFullYear() < 2000;
+  return { ...a, unknownDate: !!isDateUnknown };
+}
