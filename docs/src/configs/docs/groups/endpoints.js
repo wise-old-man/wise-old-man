@@ -923,7 +923,8 @@ export default [
           {
             threshold: 13034431,
             playerId: 1709,
-            type: '99 Hitpoints',
+            name: '99 Hitpoints',
+            measure: 'experience',
             metric: 'hitpoints',
             createdAt: '2020-10-25T22:13:33.547Z',
             player: {
@@ -947,7 +948,8 @@ export default [
           {
             threshold: 100,
             playerId: 1709,
-            type: '100 Chambers Of Xeric kills',
+            name: '100 Chambers Of Xeric kills',
+            measure: 'kills',
             metric: 'chambers_of_xeric',
             createdAt: '2020-10-21T16:05:54.100Z',
             player: {
@@ -971,7 +973,8 @@ export default [
           {
             threshold: 13034431,
             playerId: 1340,
-            type: '99 Cooking',
+            name: '99 Cooking',
+            measure: 'experience',
             metric: 'cooking',
             createdAt: '2020-10-11T12:42:57.955Z',
             player: {

@@ -12,9 +12,6 @@ export const MAX_VIRTUAL_LEVEL = 126;
 // The maximum skill experience (200M experience).
 export const MAX_SKILL_EXP = 200_000_000;
 
-// The minimum amount of experience required to have maxed stats
-export const CAPPED_MAX_TOTAL_XP = 299791913;
-
 // Builds a lookup table for each level's required experience
 // exp = XP_FOR_LEVEL[level - 1] || 13m = XP_FOR_LEVEL[98]
 export const XP_FOR_LEVEL = (function () {
@@ -58,6 +55,15 @@ export function getLevel(exp: number, virtual = false): number {
   return high + 1;
 }
 
+export function getMinimumExp(snapshot: Snapshot) {
+  return REAL_SKILLS.map(s => Math.max(0, snapshot[getValueKey(s)])).sort((a, b) => a - b)[0];
+}
+
+export function getCappedExp(snapshot: Snapshot, max: number) {
+  const cappedExp = REAL_SKILLS.map(s => Math.min(snapshot[getValueKey(s)], max));
+  return cappedExp.reduce((acc, cur) => acc + cur);
+}
+
 export function getCombatLevel(snapshot: any): number {
   const combatSkillKeys = COMBAT_SKILLS.map(s => getValueKey(s));
   const combatExperiences = pick(snapshot, combatSkillKeys);
@@ -87,11 +93,6 @@ export function getCombatLevel(snapshot: any): number {
 export function getTotalLevel(snapshot) {
   const levels = REAL_SKILLS.map(s => getLevel(snapshot[getValueKey(s)]));
   return levels.reduce((acc, cur) => acc + cur);
-}
-
-export function getCappedTotalXp(snapshot) {
-  const cappedExp = REAL_SKILLS.map(s => Math.min(snapshot[getValueKey(s)], getXpForLevel(99)));
-  return cappedExp.reduce((acc, cur) => acc + cur);
 }
 
 export function get200msCount(snapshot: any) {

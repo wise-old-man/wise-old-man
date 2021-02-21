@@ -8,7 +8,7 @@ const options = {
   indexes: [
     {
       unique: true,
-      fields: ['playerId', 'type']
+      fields: ['playerId', 'name']
     },
     {
       fields: ['playerId']
@@ -23,7 +23,7 @@ export default class Achievement extends Model<Achievement> {
   playerId: number;
 
   @Column({ type: DataType.STRING, primaryKey: true, allowNull: false })
-  type: string;
+  name: string;
 
   @Column({ type: DataType.STRING })
   metric: string;

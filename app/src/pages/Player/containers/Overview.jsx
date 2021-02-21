@@ -7,7 +7,6 @@ import {
   capitalize,
   getMetricIcon,
   durationBetween,
-  getMetricName,
   getExperienceAt,
   formatNumber,
   getPlayerBuild
@@ -129,20 +128,16 @@ function ClosestSkills({ player }) {
 }
 
 function RecentAchievements({ player, achievements }) {
-  const completedAchievements = achievements
-    .filter(a => a.createdAt !== null)
+  if (!achievements || achievements.length === 0) return null;
+
+  const achievementItems = achievements
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 3);
-
-  if (completedAchievements.length === 0) {
-    return null;
-  }
-
-  const achievementItems = completedAchievements.map(a => ({
-    icon: getAchievementIcon(a.type),
-    title: a.type,
-    subtitle: a.unknownDate ? 'Unknown date' : formatDate(a.createdAt, 'DD MMM, YYYY')
-  }));
+    .slice(0, 3)
+    .map(a => ({
+      icon: getAchievementIcon(a.metric),
+      title: a.name,
+      subtitle: a.unknownDate ? 'Unknown date' : formatDate(a.createdAt, 'DD MMM, YYYY')
+    }));
 
   return (
     <>
@@ -224,18 +219,12 @@ function Info({ player }) {
   return <InfoPanel data={data} />;
 }
 
-function getAchievementIcon(type) {
-  for (let i = 0; i < ALL_METRICS.length; i++) {
-    if (type.includes(getMetricName(ALL_METRICS[i]))) {
-      return getMetricIcon(ALL_METRICS[i]);
-    }
+function getAchievementIcon(metric) {
+  if (ALL_METRICS.includes(metric)) {
+    return getMetricIcon(metric);
   }
 
-  if (type === '126 Combat') {
-    return getMetricIcon('combat');
-  }
-
-  return getMetricIcon('overall');
+  return getMetricIcon('combat');
 }
 
 ClosestSkills.propTypes = {
@@ -245,10 +234,16 @@ ClosestSkills.propTypes = {
 };
 
 RecentAchievements.propTypes = {
+  player: PropTypes.shape({
+    displayName: PropTypes.string
+  }).isRequired,
   achievements: PropTypes.arrayOf(PropTypes.shape({})).isRequired
 };
 
 Competitions.propTypes = {
+  player: PropTypes.shape({
+    displayName: PropTypes.string
+  }).isRequired,
   competitions: PropTypes.arrayOf(PropTypes.shape({})).isRequired
 };
 

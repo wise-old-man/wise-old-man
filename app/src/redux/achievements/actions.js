@@ -5,10 +5,9 @@ const fetchPlayerAchievements = username => async dispatch => {
   dispatch(reducers.onFetchPlayerAchievementsRequest());
 
   try {
-    const params = { includeMissing: true };
     const url = endpoints.fetchPlayerAchievements.replace(':username', username);
 
-    const { data } = await api.get(url, { params });
+    const { data } = await api.get(url);
 
     dispatch(reducers.onFetchPlayerAchievementsSuccess({ username, data }));
   } catch (e) {

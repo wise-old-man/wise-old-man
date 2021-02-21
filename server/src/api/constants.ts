@@ -1,6 +1,3 @@
-import { Snapshot } from '../database/models';
-import { CAPPED_MAX_TOTAL_XP, getCappedTotalXp, getCombatLevel } from './util/experience';
-
 export const PERIODS = ['6h', 'day', 'week', 'month', 'year'];
 
 export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
@@ -145,51 +142,6 @@ export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
 export const REAL_SKILLS = SKILLS.filter(s => s !== 'overall');
-
-export const SKILL_ACHIEVEMENT_TEMPLATES = [
-  {
-    type: '{threshold} {skill}',
-    measure: 'experience',
-    thresholds: [13034431, 50000000, 100000000, 200000000]
-  },
-  {
-    type: '{threshold} Overall Exp.',
-    metric: 'overall',
-    measure: 'experience',
-    thresholds: [500000000, 1000000000, 2000000000, 4600000000],
-    validate: (snapshot: Snapshot, threshold: number) => snapshot.overallExperience >= threshold
-  },
-  {
-    type: 'Maxed Overall',
-    metric: 'overall',
-    measure: 'experience',
-    thresholds: [CAPPED_MAX_TOTAL_XP],
-    validate: (snapshot: Snapshot) => getCappedTotalXp(snapshot) >= CAPPED_MAX_TOTAL_XP
-  },
-  {
-    type: '126 Combat',
-    metric: 'combat',
-    measure: 'levels',
-    thresholds: [126],
-    validate: (snapshot: Snapshot) => getCombatLevel(snapshot) === 126
-  }
-];
-
-export const ACTIVITY_ACHIEVEMENT_TEMPLATES = [
-  {
-    type: '{threshold} {activity} score',
-    measure: 'score',
-    thresholds: [1000, 5000, 10000]
-  }
-];
-
-export const BOSS_ACHIEVEMENT_TEMPLATES = [
-  {
-    type: '{threshold} {boss} kills',
-    measure: 'kills',
-    thresholds: [500, 1000, 5000, 10000]
-  }
-];
 
 export const VIRTUAL = VIRTUAL_MAP.map(s => s.key);
 

@@ -15,6 +15,7 @@ api.get('/username/:username/gained', controller.gained);
 api.get('/username/:username/records', controller.records);
 api.get('/username/:username/snapshots', controller.snapshots);
 api.get('/username/:username/achievements', controller.achievements);
+api.get('/username/:username/achievements/progress', controller.achievementsProgress);
 api.get('/username/:username/competitions', controller.competitions);
 api.get('/username/:username/names', controller.names);
 api.put('/username/:username/country', controller.updateCountry);
@@ -25,6 +26,7 @@ api.get('/:id/gained', controller.gained);
 api.get('/:id/records', controller.records);
 api.get('/:id/snapshots', controller.snapshots);
 api.get('/:id/achievements', controller.achievements);
+api.get('/:id/achievements/progress', controller.achievementsProgress);
 api.get('/:id/competitions', controller.competitions);
 api.get('/:id/names', controller.names);
 

@@ -1,19 +1,17 @@
 import { createSelector } from 'reselect';
 import { mapValues } from 'lodash';
-import { getPlayer } from 'redux/players/selectors';
-import { getCappedTotalXp } from 'utils';
-import { ALL_METRICS, CAPPED_MAX_TOTAL_XP } from 'config';
+import { ALL_METRICS } from 'config';
 
 const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
 const groupAchievementsSelector = state => state.achievements.groupAchievements;
 
 const getPlayerAchievementsMap = createSelector(playerAchievementsSelector, map => {
-  return mapValues(map, p => p.map(a => formatAchievement(a)));
+  return mapValues(map, p => p.map(formatAchievement));
 });
 
 const getGroupAchievementsMap = createSelector(groupAchievementsSelector, map => {
-  return mapValues(map, p => p.map(a => formatAchievement(a)));
+  return mapValues(map, p => p.map(formatAchievement));
 });
 
 export const isFetchingGroupAchievements = createSelector(
@@ -21,116 +19,40 @@ export const isFetchingGroupAchievements = createSelector(
   root => root.isFetchingGroupAchievements
 );
 
-export const getPlayerAchievements = (state, username) => getPlayerAchievementsMap(state)[username];
 export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
 
-export const getPlayerAchievementsGrouped = (state, username) => {
-  const player = getPlayer(state, username);
-  const list = getPlayerAchievements(state, username);
+export const getPlayerAchievements = (state, username, includeMissing = false) => {
+  const achievements = getPlayerAchievementsMap(state)[username];
 
-  if (!list) {
+  if (!achievements || achievements.length === 0 || includeMissing) {
+    return achievements;
+  }
+
+  return achievements.filter(a => !!a.createdAt);
+};
+
+export const getPlayerAchievementsGrouped = (state, username) => {
+  const achievements = getPlayerAchievementsMap(state)[username];
+
+  if (!achievements) {
     return [];
   }
 
-  const sorted = list.sort(
-    (a, b) =>
-      a.metric.localeCompare(b.metric) || a.measure.localeCompare(b.measure) || a.threshold - b.threshold
-  );
-
   const groups = [];
-  let previousMetric = '';
-  let previousMeasure = '';
 
-  sorted.forEach(s => {
-    if (s.metric === 'overall' && s.measure === 'experience' && s.threshold === CAPPED_MAX_TOTAL_XP) {
-      groups.push({ metric: s.metric, measure: s.measure, achievements: [s] });
-    } else {
-      if (s.metric === previousMetric && s.measure === previousMeasure) {
-        groups[groups.length - 1].achievements.push(s);
-      } else {
-        groups.push({ metric: s.metric, measure: s.measure, achievements: [s] });
-      }
+  achievements.forEach(a => {
+    let group = groups.find(g => g.measure === a.measure && g.metric === a.metric);
 
-      previousMetric = s.metric;
-      previousMeasure = s.measure;
+    if (!group) {
+      group = { metric: a.metric, measure: a.measure, achievements: [] };
+      groups.push(group);
     }
+
+    group.achievements.push(a);
   });
 
-  const processed = groups
-    .map(group => processGroup(player, group))
-    .sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric))
-    .sort((a, b) => a.achievements.length - b.achievements.length);
-
-  return processed;
+  return groups.sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric));
 };
-
-function processGroup(player, group) {
-  if (!player || !player.latestSnapshot) {
-    return group;
-  }
-
-  const { latestSnapshot } = player;
-
-  if (group.metric === 'combat') {
-    const progress = {
-      start: 0,
-      end: 126,
-      current: player.combatLevel,
-      percentToNextTier: player.combatLevel / 126,
-      absolutePercent: player.combatLevel / 126
-    };
-    return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
-  }
-
-  if (group.metric === 'overall' && group.measure === 'experience' && group.achievements.length === 1) {
-    const totalXp = getCappedTotalXp(latestSnapshot);
-    const progress = {
-      start: 0,
-      end: CAPPED_MAX_TOTAL_XP,
-      current: totalXp,
-      percentToNextTier: totalXp / CAPPED_MAX_TOTAL_XP,
-      absolutePercent: totalXp / CAPPED_MAX_TOTAL_XP
-    };
-    return { ...group, achievements: [...group.achievements.map(a => ({ ...a, progress }))] };
-  }
-
-  if (latestSnapshot[group.metric]) {
-    const currentValue = latestSnapshot[group.metric][group.measure];
-
-    const processedAchievements = group.achievements.map((achievement, i) => {
-      if (currentValue >= achievement.threshold) {
-        return {
-          ...achievement,
-          progress: {
-            start: 0,
-            end: achievement.threshold,
-            current: currentValue,
-            percentToNextTier: 1,
-            absolutePercent: 1
-          }
-        };
-      }
-
-      const prevStart = i === 0 ? 0 : group.achievements[i - 1].threshold;
-      const nextTierProgress = (currentValue - prevStart) / (achievement.threshold - prevStart);
-
-      return {
-        ...achievement,
-        progress: {
-          start: 0,
-          end: achievement.threshold,
-          current: currentValue,
-          percentToNextTier: Math.max(0, nextTierProgress),
-          absolutePercent: currentValue / achievement.threshold
-        }
-      };
-    });
-
-    return { ...group, achievements: processedAchievements };
-  }
-
-  return group;
-}
 
 function formatAchievement(a) {
   const isDateUnknown = a.createdAt && a.createdAt.getFullYear() < 2000;

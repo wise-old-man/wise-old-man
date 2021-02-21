@@ -9,7 +9,7 @@ import * as nameService from '../services/internal/name.service';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
-import { extractBoolean, extractDate, extractNumber, extractString } from '../util/http';
+import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
 
 // GET /players/search?username={username}
@@ -118,12 +118,34 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
-    const includeMissing = extractBoolean(req.query, { key: 'includeMissing' });
 
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
-    const playerAchievements = await achievementService.getPlayerAchievements(playerId, includeMissing);
+    const playerAchievements = await achievementService.getPlayerAchievements(playerId);
+
+    if (id && playerAchievements.length === 0) {
+      // Ensure this player Id exists (if not, it'll throw a 404 error)
+      await playerService.resolve({ id });
+    }
+
+    res.json(playerAchievements);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// GET /players/:id/achievements/progress
+// GET /players/username/:username/achievements/progress
+async function achievementsProgress(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id' });
+    const username = extractString(req.params, { key: 'username' });
+
+    const playerId = await playerService.resolveId({ id, username });
+
+    // Get all player achievements (by player id)
+    const playerAchievements = await achievementService.getPlayerAchievementsProgress(playerId);
 
     if (id && playerAchievements.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
@@ -323,6 +345,7 @@ export {
   importPlayer,
   details,
   achievements,
+  achievementsProgress,
   competitions,
   groups,
   gained,

@@ -31,7 +31,7 @@ const TABLE_CONFIG = {
       transform: value => <img src={getMetricIcon(value, true)} alt="" />
     },
     {
-      key: 'type',
+      key: 'name',
       className: () => '-no-padding'
     },
     {

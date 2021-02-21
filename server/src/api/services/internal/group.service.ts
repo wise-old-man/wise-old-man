@@ -221,7 +221,7 @@ async function getAchievements(groupId: number, pagination: Pagination): Promise
   }
 
   const memberIds = memberships.map(m => m.playerId);
-  const achievements = await achievementService.findAllForGroup(memberIds, pagination);
+  const achievements = await achievementService.getGroupAchievements(memberIds, pagination);
 
   return achievements;
 }
