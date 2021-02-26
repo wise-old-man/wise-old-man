@@ -67,8 +67,18 @@ function AchievementOrb({ achievement }) {
 }
 
 function isEqualSizes(achievements) {
+  // If someone has just reached a threshold (ex: 1k zulrah kills), their 1k zulrah
+  // achiev will be at relativeProgress:1 but their 5k zulrah will be at relativeProgress:0
+  // because that progress is rounded after a few decimal cases.
+  // To prevent this, we should just check if there's any "started" tier, even if at 0% progress
+  const hasStartedTier = achievements.some((a, i) => {
+    if (i === 0) return false;
+    return a.relativeProgress === 0 && achievements[i - 1].relativeProgress === 1;
+  });
+
   return (
     achievements.length === 1 ||
+    hasStartedTier ||
     achievements.filter(g => g.relativeProgress === 1).length === achievements.length ||
     achievements.filter(g => g.relativeProgress === 0).length === achievements.length
   );
