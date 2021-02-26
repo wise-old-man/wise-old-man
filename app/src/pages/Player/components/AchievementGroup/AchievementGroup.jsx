@@ -72,8 +72,7 @@ function isEqualSizes(achievements) {
   // because that progress is rounded after a few decimal cases.
   // To prevent this, we should just check if there's any "started" tier, even if at 0% progress
   const hasStartedTier = achievements.some((a, i) => {
-    if (i === 0) return false;
-    return a.relativeProgress === 0 && achievements[i - 1].relativeProgress === 1;
+    return i > 0 && a.relativeProgress === 0 && achievements[i - 1].relativeProgress === 1;
   });
 
   return (
