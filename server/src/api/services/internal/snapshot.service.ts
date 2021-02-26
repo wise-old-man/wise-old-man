@@ -299,8 +299,10 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
+    const expNum = parseInt(experience);
+
     stats[getRankKey(s)] = parseInt(rank);
-    stats[getValueKey(s)] = parseInt(experience);
+    stats[getValueKey(s)] = s === 'overall' && expNum === 0 ? -1 : expNum;
   });
 
   // Populate the activities' values with the values from the csv

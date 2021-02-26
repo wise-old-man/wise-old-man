@@ -287,8 +287,8 @@ function diff(start: Snapshot, end: Snapshot, initial: InitialValues, player: Pl
     const endValue = parseNum(metric, end[valueKey]);
     const endRank = end[rankKey];
 
-    // Do not use initial ranks for skill, to prevent -1 ranks
-    // introduced by https://github.com/wise-old-man/wise-old-man/pull/93 from creating crazy diffs
+    // Do not use initial ranks for skill, to prevent -1 ranks from creating crazy diffs
+    // (introduced by https://github.com/wise-old-man/wise-old-man/pull/93)
     const gainedRank = isSkill(metric) && start[rankKey] === -1 ? 0 : endRank - startRank;
     const gainedValue = round(endValue - startValue, 5);
 
