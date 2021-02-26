@@ -272,12 +272,12 @@ async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
  * Gets a player's overall exp in a specific hiscores endpoint.
  * Note: This is an auxilary function for the getType function.
  */
-async function getOverallExperience(player: Player, type: string): Promise<number> {
+async function getOverallExperience(player: Player, type: string): Promise<number | null> {
   try {
     return (await fetchStats(player, type)).overallExperience;
   } catch (e) {
     if (e instanceof ServerError) throw e;
-    return -1;
+    return null;
   }
 }
 
@@ -285,18 +285,18 @@ async function getType(player: Player): Promise<string> {
   const regularExp = await getOverallExperience(player, 'regular');
 
   // This username is not on the hiscores
-  if (regularExp === -1) {
+  if (!regularExp) {
     throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
   }
 
   const ironmanExp = await getOverallExperience(player, 'ironman');
-  if (ironmanExp < regularExp) return 'regular';
+  if (!ironmanExp || ironmanExp < regularExp) return 'regular';
 
   const hardcoreExp = await getOverallExperience(player, 'hardcore');
-  if (hardcoreExp >= ironmanExp) return 'hardcore';
+  if (hardcoreExp && hardcoreExp >= ironmanExp) return 'hardcore';
 
   const ultimateExp = await getOverallExperience(player, 'ultimate');
-  if (ultimateExp >= ironmanExp) return 'ultimate';
+  if (hardcoreExp && ultimateExp >= ironmanExp) return 'ultimate';
 
   return 'ironman';
 }
