@@ -28,7 +28,7 @@ function setup() {
 
   Player.afterUpdate((player: Player, options: UpdateOptions) => {
     if (!options.fields) return;
-    if (options.fields.includes('username')) onPlayerNameChanged(player);
+    if (options.fields.includes('username')) onPlayerNameChanged(player, player.previous('displayName'));
     if (options.fields.includes('type')) onPlayerTypeChanged(player, player.previous('type'));
   });
 

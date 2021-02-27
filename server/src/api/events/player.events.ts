@@ -18,13 +18,16 @@ function onPlayerTypeChanged(player: Player, previousType: string) {
   }
 }
 
-function onPlayerNameChanged(player: Player) {
+function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
   achievementService.syncAchievements(player.id);
 
   // Setup jobs to assert the player's name capitalization and account type
   jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
   jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30000 });
+
+  // Dispatch a "Player name changed" event to our discord bot API.
+  discordService.dispatchNameChanged(player, previousDisplayName);
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {

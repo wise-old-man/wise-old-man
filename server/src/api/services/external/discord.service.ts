@@ -62,6 +62,23 @@ async function dispatchHardcoreDied(player: Player) {
 }
 
 /**
+ * Send a "Player Name Changed" notification to our discord API,
+ * so that it can notify any relevant guilds/servers.
+ */
+async function dispatchNameChanged(player: Player, previousDisplayName: string) {
+  // Find all the groups for which this player is a member
+  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+
+  // The following actions are only relevant to players
+  // that are group members, so ignore any that aren't
+  if (!groups || groups.length === 0) return;
+
+  groups.forEach(({ id }) => {
+    dispatch('MEMBER_NAME_CHANGED', { groupId: id, player, previousName: previousDisplayName });
+  });
+}
+
+/**
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
@@ -161,6 +178,7 @@ export {
   dispatch,
   dispatchAchievements,
   dispatchHardcoreDied,
+  dispatchNameChanged,
   dispatchMembersJoined,
   dispatchMembersLeft,
   dispatchCompetitionCreated,
