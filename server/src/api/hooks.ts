@@ -16,6 +16,7 @@ import { onNameChangeCreated } from './events/name.events';
 import {
   onPlayerCreated,
   onPlayerImported,
+  onPlayerTypeChanged,
   onPlayerNameChanged,
   onPlayerUpdated
 } from './events/player.events';
@@ -26,8 +27,9 @@ function setup() {
   });
 
   Player.afterUpdate((player: Player, options: UpdateOptions) => {
-    if (!options.fields || !options.fields.includes('username')) return;
-    onPlayerNameChanged(player);
+    if (!options.fields) return;
+    if (options.fields.includes('username')) onPlayerNameChanged(player);
+    if (options.fields.includes('type')) onPlayerTypeChanged(player, player.previous('type'));
   });
 
   Player.afterCreate((player: Player) => {

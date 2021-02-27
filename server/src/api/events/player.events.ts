@@ -1,5 +1,6 @@
 import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
+import * as discordService from '../services/external/discord.service';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
@@ -8,6 +9,13 @@ import * as playerService from '../services/internal/player.service';
 function onPlayerCreated(player: Player) {
   // Confirm this player's name capitalization
   jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
+}
+
+function onPlayerTypeChanged(player: Player, previousType: string) {
+  if (previousType === 'hardcore' && player.type === 'ironman') {
+    // Dispatch a "HCIM player died" event to our discord bot API.
+    discordService.dispatchHardcoreDied(player);
+  }
 }
 
 function onPlayerNameChanged(player: Player) {
@@ -39,4 +47,4 @@ function onPlayerImported(playerId: number) {
   achievementService.reevaluateAchievements(playerId);
 }
 
-export { onPlayerCreated, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerCreated, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

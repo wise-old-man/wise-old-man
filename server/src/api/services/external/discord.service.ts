@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Achievement, Competition } from '../../../database/models';
+import { Achievement, Competition, Player } from '../../../database/models';
 import env from '../../../env';
 import { EventPeriod } from '../../../types';
 import { durationBetween } from '../../util/dates';
@@ -31,7 +31,7 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   if (recent.length === 0) return;
 
   // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(playerId, { limit: 20, offset: 0 });
+  const groups = await groupService.getPlayerGroups(playerId, { limit: 200, offset: 0 });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
@@ -41,6 +41,23 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
 
   groups.forEach(({ id }) => {
     dispatch('MEMBER_ACHIEVEMENTS', { groupId: id, player, achievements: recent });
+  });
+}
+
+/**
+ * Send a "HCIM Player Died" notification to our discord API,
+ * so that it can notify any relevant guilds/servers.
+ */
+async function dispatchHardcoreDied(player: Player) {
+  // Find all the groups for which this player is a member
+  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+
+  // The following actions are only relevant to players
+  // that are group members, so ignore any that aren't
+  if (!groups || groups.length === 0) return;
+
+  groups.forEach(({ id }) => {
+    dispatch('MEMBER_HCIM_DIED', { groupId: id, player });
   });
 }
 
@@ -143,6 +160,7 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 export {
   dispatch,
   dispatchAchievements,
+  dispatchHardcoreDied,
   dispatchMembersJoined,
   dispatchMembersLeft,
   dispatchCompetitionCreated,
