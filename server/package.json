@@ -60,7 +60,7 @@
     "sequelize-cli": "^5.5.1",
     "sqlite3": "^5.0.0",
     "supertest": "^6.0.1",
-    "ts-jest": "^26.4.4",
+    "ts-jest": "^26.5.2",
     "ts-node-dev": "^1.1.1",
     "typescript": "^3.9.7"
   }
