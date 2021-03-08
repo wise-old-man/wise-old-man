@@ -1,5 +1,6 @@
 import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
+import * as discordService from '../services/external/discord.service';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
@@ -10,13 +11,23 @@ function onPlayerCreated(player: Player) {
   jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
 }
 
-function onPlayerNameChanged(player: Player) {
+function onPlayerTypeChanged(player: Player, previousType: string) {
+  if (previousType === 'hardcore' && player.type === 'ironman') {
+    // Dispatch a "HCIM player died" event to our discord bot API.
+    discordService.dispatchHardcoreDied(player);
+  }
+}
+
+function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
   achievementService.syncAchievements(player.id);
 
   // Setup jobs to assert the player's name capitalization and account type
   jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
   jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30000 });
+
+  // Dispatch a "Player name changed" event to our discord bot API.
+  discordService.dispatchNameChanged(player, previousDisplayName);
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {
@@ -39,4 +50,4 @@ function onPlayerImported(playerId: number) {
   achievementService.reevaluateAchievements(playerId);
 }
 
-export { onPlayerCreated, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerCreated, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
