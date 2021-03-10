@@ -56,7 +56,7 @@ function getSkillsTable(delta) {
     metric: 'ehp',
     level: '',
     experience: '',
-    rank: delta.ehp.rank.gained,
+    rank: -delta.ehp.rank.gained,
     ehp: delta.ehp.value.gained
   });
 
@@ -121,7 +121,7 @@ function getBossesTable(delta) {
     metric: 'ehb',
     level: '',
     kills: '',
-    rank: delta.ehb.rank.gained,
+    rank: -delta.ehb.rank.gained,
     ehb: delta.ehb.value.gained
   });
 
