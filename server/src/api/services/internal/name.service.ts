@@ -423,6 +423,11 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
       await transferMemberships(createdFilter, oldPlayer.id, transaction);
       await transferParticipations(createdFilter, oldPlayer.id, transaction);
 
+      // Transfer the player's country, if needed/possible
+      if (newPlayer.country && !oldPlayer.country) {
+        oldPlayer.country = newPlayer.country;
+      }
+
       // Delete the new player account
       await newPlayer.destroy({ transaction });
     }
@@ -430,6 +435,8 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
     // Update the player to the new username & displayName
     oldPlayer.username = standardizedName;
     oldPlayer.displayName = standardizedName;
+    oldPlayer.flagged = false;
+
     await oldPlayer.save({ transaction });
   });
 }
