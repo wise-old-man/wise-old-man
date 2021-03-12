@@ -296,7 +296,7 @@ async function getType(player: Player): Promise<string> {
   if (hardcoreExp && hardcoreExp >= ironmanExp) return 'hardcore';
 
   const ultimateExp = await getOverallExperience(player, 'ultimate');
-  if (hardcoreExp && ultimateExp >= ironmanExp) return 'ultimate';
+  if (ultimateExp && ultimateExp >= ironmanExp) return 'ultimate';
 
   return 'ironman';
 }
