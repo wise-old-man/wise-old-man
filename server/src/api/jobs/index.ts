@@ -21,13 +21,13 @@ export enum JobPriority {
 export interface JobQueue extends Job {
   bull: any;
 }
-export interface JobRunCache {
+export interface JobDebounceMap {
   [key: string]: number;
 }
 
 class JobHandler {
   private queues: JobQueue[];
-  private cachedRuns: JobRunCache;
+  private debouncedRuns: JobDebounceMap;
 
   constructor() {
     this.queues = jobs.map((job: Job) => ({
@@ -38,7 +38,7 @@ class JobHandler {
       onSuccess: job.onSuccess
     }));
 
-    this.cachedRuns = {};
+    this.debouncedRuns = {};
   }
 
   /**
@@ -51,11 +51,12 @@ class JobHandler {
 
     if (!queue) throw new Error(`No job found for name ${name}`);
 
-    if (options?.cache) {
-      const lastExecutionTime = this.cachedRuns[options.cache.identifier];
+    if (options?.debounce) {
+      const debounceToken = `${name}/${options.debounce.id}`;
+      const lastExecutionTime = this.debouncedRuns[debounceToken];
 
-      // Skipping execution, the cooldown time hasn't passed yet
-      if (lastExecutionTime && lastExecutionTime > Date.now() - options.cache.cooldown) return;
+      // Skipping execution, the timeout hasn't ended yet
+      if (lastExecutionTime && lastExecutionTime > Date.now() - options.debounce.timeout) return;
     }
 
     const priority = (options && options.priority) || JobPriority.MEDIUM;
@@ -85,9 +86,10 @@ class JobHandler {
           queue.onSuccess(job.data);
         }
 
-        // If this job has cache configs, update this run's "last executed" timestamp
-        if (job?.opts?.cache) {
-          this.cachedRuns[job.opts.cache.identifier] = Date.now();
+        // If this job has debounce configs, update this run's "last executed" timestamp
+        if (job?.opts?.debounce) {
+          const debounce = `${job.queue.name}/${job.opts.debounce.id}`;
+          this.debouncedRuns[debounce] = Date.now();
         }
       });
 

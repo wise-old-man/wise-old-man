@@ -39,6 +39,13 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   const player = await snapshot.$get('player');
   if (!player) return;
 
+  if (playerService.shouldReviewType(player)) {
+    // After reviewing this player's type, ensure this action
+    // isn't repeated again in the next 3 days
+    const debounce = { id: player.id, timeout: 86_400_000 * 3 };
+    jobs.add('ReviewPlayerType', { id: player.id }, { debounce });
+  }
+
   // Update this player's deltas (gains)
   deltaService.syncDeltas(player, snapshot);
 

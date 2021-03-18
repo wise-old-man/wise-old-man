@@ -8,6 +8,7 @@ import RefreshCompetitionRankings from './RefreshCompetitionRankings';
 import RefreshGroupRankings from './RefreshGroupRankings';
 import RefreshNameChanges from './RefreshNameChanges';
 import ReviewNameChange from './ReviewNameChange';
+import ReviewPlayerType from './ReviewPlayerType';
 import UpdatePlayer from './UpdatePlayer';
 
 export default [
@@ -21,5 +22,6 @@ export default [
   CompetitionEnded,
   AssertPlayerType,
   ReviewNameChange,
-  RefreshNameChanges
+  RefreshNameChanges,
+  ReviewPlayerType
 ];
