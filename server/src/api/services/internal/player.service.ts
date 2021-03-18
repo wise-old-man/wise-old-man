@@ -9,7 +9,8 @@ import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
-const YEAR_IN_SECONDS = 31556926;
+const DAY_IN_SECONDS = 86_400;
+const YEAR_IN_SECONDS = 31_556_926;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
 interface PlayerResolvable {
@@ -53,6 +54,18 @@ function isValidUsername(username: string): boolean {
   if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) return false;
 
   return true;
+}
+
+/**
+ * Checks if a given player should have their player type reviewed.
+ * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
+ */
+function shouldReviewType(player: Player): boolean {
+  if (player.type === 'regular') return false;
+  const lastChangedDiff = Math.floor((Date.now() - player.lastChangedAt.getTime()) / 1000);
+
+  // If player hasn't gained exp in over 24h, despite being updated recently
+  return lastChangedDiff > DAY_IN_SECONDS;
 }
 
 /**
@@ -427,6 +440,7 @@ export {
   assertName,
   updateCountry,
   shouldImport,
+  shouldReviewType,
   resolve,
   resolveId
 };

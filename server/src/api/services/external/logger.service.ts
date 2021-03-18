@@ -1,25 +1,29 @@
 import winston from 'winston';
 
 class Logger {
-  private logger;
+  private errorLogger: winston.Logger;
+  private infoLogger: winston.Logger;
 
   constructor() {
-    this.logger = winston.createLogger({
+    this.errorLogger = winston.createLogger({
+      level: 'error',
+      format: winston.format.json(),
+      transports: [new winston.transports.File({ filename: 'error.log', level: 'error' })]
+    });
+
+    this.infoLogger = winston.createLogger({
       level: 'info',
       format: winston.format.json(),
-      transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' })
-      ]
+      transports: [new winston.transports.File({ filename: 'info.log', level: 'info' })]
     });
   }
 
   error(message, data) {
-    this.logger.error(message, { ...data, date: new Date() });
+    this.errorLogger.error(message, { ...data, date: new Date() });
   }
 
   info(message, data) {
-    this.logger.info(message, { ...data, date: new Date() });
+    this.infoLogger.info(message, { ...data, date: new Date() });
   }
 }
 

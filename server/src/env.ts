@@ -13,4 +13,12 @@ export function isTesting() {
   return process.env.NODE_ENV === 'test';
 }
 
+export function isDevelopment() {
+  return process.env.NODE_ENV === 'development';
+}
+
+export function isRunningInMainCPUCore() {
+  return process.env.pm_id && parseInt(process.env.pm_id, 10) === 0;
+}
+
 export default process.env;
