@@ -199,10 +199,11 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // Add the virtual data and save the snapshot
     Object.assign(currentStats, virtuals);
-    await currentStats.save();
 
     await player.changed('updatedAt', true);
     await player.save();
+
+    await currentStats.save();
 
     const playerDetails = await getDetails(player, currentStats);
 

@@ -43,7 +43,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
     // After reviewing this player's type, ensure this action
     // isn't repeated again in the next 3 days
     const debounce = { id: player.id, timeout: 86_400_000 * 3 };
-    jobs.add('ReviewPlayerType', { id: player.id }, { debounce });
+    jobs.add('ReviewPlayerType', { id: player.id }, { delay: 30_000, debounce });
   }
 
   // Update this player's deltas (gains)
