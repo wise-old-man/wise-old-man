@@ -3,6 +3,7 @@ import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
 import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
+import logger from './logger.service';
 import proxiesService from './proxies.service';
 
 const SCRAPING_HEADERS = {
@@ -34,6 +35,7 @@ async function getHiscoresData(username: string, type = 'regular'): Promise<stri
     return data;
   } catch (e) {
     if (e instanceof ServerError) throw e;
+    logger.debug(`Hiscores error`, { username, error: e });
     throw new BadRequestError('Failed to load hiscores: Invalid username.');
   }
 }
