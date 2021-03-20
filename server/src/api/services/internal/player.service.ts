@@ -6,6 +6,7 @@ import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3 } from '../../util/experi
 import * as cmlService from '../external/cml.service';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
+import logger from '../external/logger.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
@@ -297,6 +298,7 @@ async function getOverallExperience(player: Player, type: string): Promise<numbe
 
 async function getType(player: Player): Promise<string> {
   const regularExp = await getOverallExperience(player, 'regular');
+  logger.debug(`Checking regular ${regularExp}`, { id: player.id, username: player.username });
 
   // This username is not on the hiscores
   if (!regularExp) {
@@ -304,12 +306,15 @@ async function getType(player: Player): Promise<string> {
   }
 
   const ironmanExp = await getOverallExperience(player, 'ironman');
+  logger.debug(`Checking ironman ${ironmanExp}`, { id: player.id, username: player.username });
   if (!ironmanExp || ironmanExp < regularExp) return 'regular';
 
   const hardcoreExp = await getOverallExperience(player, 'hardcore');
+  logger.debug(`Checking hardcore ${hardcoreExp}`, { id: player.id, username: player.username });
   if (hardcoreExp && hardcoreExp >= ironmanExp) return 'hardcore';
 
   const ultimateExp = await getOverallExperience(player, 'ultimate');
+  logger.debug(`Checking ultimate ${ultimateExp}`, { id: player.id, username: player.username });
   if (ultimateExp && ultimateExp >= ironmanExp) return 'ultimate';
 
   return 'ironman';

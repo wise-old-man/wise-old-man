@@ -1,6 +1,7 @@
 import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
+import logger from '../services/external/logger.service';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
@@ -42,6 +43,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   if (playerService.shouldReviewType(player)) {
     // After reviewing this player's type, ensure this action
     // isn't repeated again in the next 3 days
+    logger.debug(`Scheduling ${player.id}`, { username: player.username });
     const debounce = { id: player.id, timeout: 86_400_000 * 3 };
     jobs.add('ReviewPlayerType', { id: player.id }, { delay: 30_000, debounce });
   }
