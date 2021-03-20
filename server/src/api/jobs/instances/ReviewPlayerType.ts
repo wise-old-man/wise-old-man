@@ -12,6 +12,7 @@ class ReviewPlayerType implements Job {
   async handle(data: any): Promise<void> {
     const { id } = data;
 
+    logger.debug(`Reviewing ${id}`, {});
     const player = await playerService.findById(id);
 
     const previousType = player.type;
@@ -22,6 +23,7 @@ class ReviewPlayerType implements Job {
       return;
     }
 
+    logger.debug(`Updated ${id}`, { id: player.id, username: player.username });
     logger.info('De-ironed player', { username: player.username, previousType, newType });
   }
 }
