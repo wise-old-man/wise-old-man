@@ -292,6 +292,7 @@ async function getOverallExperience(player: Player, type: string): Promise<numbe
     return (await fetchStats(player, type)).overallExperience;
   } catch (e) {
     if (e instanceof ServerError) throw e;
+    logger.debug(`Failed ${type}`, { id: player.id, username: player.username, error: e });
     return null;
   }
 }
