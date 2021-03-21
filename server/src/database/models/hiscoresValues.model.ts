@@ -410,6 +410,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   skotizoKills: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  temporossRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  temporossKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   the_gauntletRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })

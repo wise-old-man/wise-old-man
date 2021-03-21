@@ -249,6 +249,9 @@ export default class Delta extends Model<Delta> {
   skotizo: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  tempoross: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   the_gauntlet: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
