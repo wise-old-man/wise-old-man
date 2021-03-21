@@ -380,6 +380,11 @@ export default [
         description: ''
       },
       {
+        field: 'tempoross',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'the_gauntlet',
         type: 'integer',
         description: ''
@@ -528,6 +533,7 @@ export default [
       'sarachnis',
       'scorpia',
       'skotizo',
+      'tempoross',
       'the_gauntlet',
       'the_corrupted_gauntlet',
       'theatre_of_blood',
