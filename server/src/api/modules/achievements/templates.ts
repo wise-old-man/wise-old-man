@@ -1,6 +1,6 @@
 import { Snapshot } from '../../../database/models';
-import { getCombatLevel, getMinimumExp } from '../../util/experience';
 import { AchievementTemplate } from '../../services/internal/achievement.service';
+import { getCombatLevel, getMinimumExp } from '../../util/experience';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
@@ -365,6 +365,12 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     metric: 'skotizo',
     measure: 'kills',
     thresholds: [50, 100, 500, 1000]
+  },
+  {
+    name: '{threshold} Tempoross kills',
+    metric: 'tempoross',
+    measure: 'kills',
+    thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} The Gauntlet kills',
