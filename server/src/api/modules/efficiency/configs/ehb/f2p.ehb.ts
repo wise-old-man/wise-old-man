@@ -31,6 +31,7 @@ export default [
   { boss: 'sarachnis', rate: 0 },
   { boss: 'scorpia', rate: 0 },
   { boss: 'skotizo', rate: 0 },
+  { boss: 'tempoross', rate: 0 },
   { boss: 'the_gauntlet', rate: 0 },
   { boss: 'the_corrupted_gauntlet', rate: 0 },
   { boss: 'theatre_of_blood', rate: 0 },

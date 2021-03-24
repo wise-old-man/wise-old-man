@@ -389,6 +389,12 @@ export default [
         thresholds: '50, 100, 500, 1k'
       },
       {
+        name: '{threshold} Tempoross kills',
+        metric: 'tempoross',
+        measure: 'kills',
+        thresholds: '500, 1k, 5k, 10k'
+      },
+      {
         name: '{threshold} The Gauntlet kills',
         metric: 'the_gauntlet',
         measure: 'kills',

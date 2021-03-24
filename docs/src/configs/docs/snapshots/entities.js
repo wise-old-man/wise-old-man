@@ -349,6 +349,11 @@ export default [
         description: 'Skotizo rank and kills.'
       },
       {
+        field: 'tempoross',
+        type: 'object',
+        description: 'Tempoross rank and kills.'
+      },
+      {
         field: 'the_gauntlet',
         type: 'object',
         description: 'The Gauntlet rank and kills.'

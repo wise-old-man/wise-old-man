@@ -104,6 +104,7 @@ export const BOSSES_MAP = [
   { key: 'sarachnis', name: 'Sarachnis' },
   { key: 'scorpia', name: 'Scorpia' },
   { key: 'skotizo', name: 'Skotizo' },
+  { key: 'tempoross', name: 'Tempoross' },
   { key: 'the_gauntlet', name: 'The Gauntlet' },
   { key: 'the_corrupted_gauntlet', name: 'The Corrupted Gauntlet' },
   { key: 'theatre_of_blood', name: 'Theatre Of Blood' },

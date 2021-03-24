@@ -160,6 +160,7 @@ export default [
       'sarachnis',
       'scorpia',
       'skotizo',
+      'tempoross',
       'the_gauntlet',
       'the_corrupted_gauntlet',
       'theatre_of_blood',
