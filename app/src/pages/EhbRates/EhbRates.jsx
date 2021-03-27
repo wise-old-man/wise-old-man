@@ -8,7 +8,7 @@ import { formatNumber, getMetricIcon, getMetricName } from 'utils';
 import './EhbRates.scss';
 
 const RATES_TABLE_CONFIG = {
-  uniqueKeySelector: row => row.startExp,
+  uniqueKeySelector: row => row.boss,
   columns: [
     {
       key: 'boss',

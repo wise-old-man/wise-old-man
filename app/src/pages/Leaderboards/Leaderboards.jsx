@@ -24,13 +24,14 @@ function Leaderboards() {
     action: handleLoadData
   });
 
-  function handleLoadData(limit, offset) {
-    const query = { metric, playerType: type, playerBuild: build, country };
-    dispatch(leaderboardsActions.fetchLeaderboards(query, limit, offset));
+  function handleLoadData(limit, offset, query) {
+    if (!query) return;
+    const searchQuery = { metric, playerType: type, playerBuild: build, country };
+    dispatch(leaderboardsActions.fetchLeaderboards(searchQuery, limit, offset));
   }
 
-  // Reload the data each time any of the search variable change
-  useEffect(reloadData, [metric, type, build, country]);
+  // Reload the data each time any of the search query variables change
+  useEffect(() => reloadData({ metric, type, build, country }), [metric, type, build, country]);
 
   if (!data) {
     return <Loading />;

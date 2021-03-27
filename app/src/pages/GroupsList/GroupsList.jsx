@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { debounce } from 'lodash';
@@ -20,15 +20,16 @@ function GroupsList() {
     action: handleLoadData
   });
 
-  function handleLoadData(limit, offset) {
-    dispatch(groupActions.fetchList(nameSearch, limit, offset));
+  function handleLoadData(limit, offset, query) {
+    if (!query) return;
+    dispatch(groupActions.fetchList(query, limit, offset));
   }
 
   // Debounce search input keystrokes by 500ms
-  const handleSubmitSearch = debounce(reloadData, 500, { leading: true, trailing: false });
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true, trailing: true }), []);
 
-  // Submit search each time any of the search variable change
-  useEffect(handleSubmitSearch, [nameSearch]);
+  // Submit search each time any of the search query variables change
+  useEffect(() => debouncedReload({ name: nameSearch }), [nameSearch]);
 
   return (
     <div className="groups__container container">

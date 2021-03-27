@@ -1,11 +1,11 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const fetchNameChanges = (username, status, limit, offset) => async dispatch => {
+const fetchNameChanges = (query, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchRequest());
 
   try {
-    const params = { username, status, limit, offset };
+    const params = { ...query, limit, offset };
     const { data } = await api.get(endpoints.fetchNameChanges, { params });
 
     const refresh = !offset;

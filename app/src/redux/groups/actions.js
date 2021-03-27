@@ -52,11 +52,11 @@ const remove = (id, verificationCode) => async dispatch => {
   }
 };
 
-const fetchList = (name, limit, offset) => async dispatch => {
+const fetchList = (query, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchListRequest());
 
   try {
-    const params = { name, limit, offset };
+    const params = { ...query, limit, offset };
     const { data } = await api.get(endpoints.fetchGroups, { params });
 
     const refresh = !offset;
