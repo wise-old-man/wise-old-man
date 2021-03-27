@@ -12,15 +12,15 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
     setPageIndex(0);
   };
 
-  const reloadData = () => {
+  const reloadData = query => {
     setPageIndex(0);
-    loadMore();
+    loadMore(query);
   };
 
-  const loadMore = () => {
+  const loadMore = query => {
     const limit = resultsPerPage;
     const offset = resultsPerPage * pageIndex;
-    action(limit, offset);
+    action(limit, offset, query);
   };
 
   const handleScrolling = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { debounce } from 'lodash';
@@ -26,15 +26,18 @@ function CompetitionsList() {
     action: handleLoadData
   });
 
-  function handleLoadData(limit, offset) {
-    dispatch(competitionActions.fetchList(titleSearch, metric, status, type, limit, offset));
+  function handleLoadData(limit, offset, query) {
+    if (!query) return;
+    dispatch(competitionActions.fetchList(query, limit, offset));
   }
 
   // Debounce search input keystrokes by 500ms
-  const handleSubmitSearch = debounce(reloadData, 500, { leading: true, trailing: false });
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true, trailing: true }), []);
 
-  // Submit search each time any of the search variable change
-  useEffect(handleSubmitSearch, [titleSearch, metric, type, status]);
+  // Submit search each time any of the search query variables change
+  useEffect(() => {
+    debouncedReload({ title: titleSearch, metric, type, status });
+  }, [titleSearch, metric, type, status]);
 
   return (
     <CompetitionsListContext.Provider value={{ context, updateContext }}>
