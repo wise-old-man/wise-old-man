@@ -37,7 +37,7 @@ function CompetitionsList() {
   // Submit search each time any of the search query variables change
   useEffect(() => {
     debouncedReload({ title: titleSearch, metric, type, status });
-  }, [titleSearch, metric, type, status]);
+  }, [titleSearch, metric, type, status, debouncedReload]);
 
   return (
     <CompetitionsListContext.Provider value={{ context, updateContext }}>

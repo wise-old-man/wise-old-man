@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { useUrlContext, useLazyLoading } from 'hooks';
@@ -26,12 +26,23 @@ function Leaderboards() {
 
   function handleLoadData(limit, offset, query) {
     if (!query) return;
-    const searchQuery = { metric, playerType: type, playerBuild: build, country };
+
+    const searchQuery = {
+      metric: query.metric,
+      country: query.country,
+      playerType: query.type,
+      playerBuild: query.build
+    };
+
     dispatch(leaderboardsActions.fetchLeaderboards(searchQuery, limit, offset));
   }
 
+  const handleReloadData = useCallback(reloadData, []);
+
   // Reload the data each time any of the search query variables change
-  useEffect(() => reloadData({ metric, type, build, country }), [metric, type, build, country]);
+  useEffect(() => {
+    handleReloadData({ metric, type, build, country });
+  }, [metric, type, build, country, handleReloadData]);
 
   if (!data) {
     return <Loading />;

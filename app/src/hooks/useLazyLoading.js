@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { debounce } from 'lodash';
 
 function useLazyLoading({ resultsPerPage, selector, action }) {
   const [pageIndex, setPageIndex] = useState(0);
+  const previousQuery = useRef(null);
 
   const data = useSelector(selector);
   const isFullyLoaded = data && data.length < resultsPerPage * (pageIndex + 1);
@@ -20,7 +21,13 @@ function useLazyLoading({ resultsPerPage, selector, action }) {
   const loadMore = query => {
     const limit = resultsPerPage;
     const offset = resultsPerPage * pageIndex;
-    action(limit, offset, query);
+
+    if (query) {
+      action(limit, offset, query);
+      previousQuery.current = query;
+    } else {
+      action(limit, offset, previousQuery.current);
+    }
   };
 
   const handleScrolling = () => {
