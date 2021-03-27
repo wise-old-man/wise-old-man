@@ -73,7 +73,7 @@ function NamesList() {
   // Submit search each time any of the search query variables change
   useEffect(() => {
     debouncedReload({ username: usernameSearch, status });
-  }, [usernameSearch, status]);
+  }, [usernameSearch, status, debouncedReload]);
 
   return (
     <NamesListContext.Provider value={{ context, updateContext }}>

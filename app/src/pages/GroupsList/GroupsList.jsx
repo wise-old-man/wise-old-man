@@ -29,7 +29,7 @@ function GroupsList() {
   const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true, trailing: true }), []);
 
   // Submit search each time any of the search query variables change
-  useEffect(() => debouncedReload({ name: nameSearch }), [nameSearch]);
+  useEffect(() => debouncedReload({ name: nameSearch }), [nameSearch, debouncedReload]);
 
   return (
     <div className="groups__container container">
