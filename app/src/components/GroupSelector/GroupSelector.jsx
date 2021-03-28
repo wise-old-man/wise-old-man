@@ -32,7 +32,7 @@ function GroupSelector({ group, onGroupChanged }) {
 
   const suggestions = useMemo(() => searchResults.map(mapToSuggestion), [searchResults]);
 
-  const searchGroup = debounce(name => dispatch(groupActions.fetchList(name)), 500);
+  const searchGroup = debounce(name => dispatch(groupActions.fetchList({ name })), 500);
 
   const handleInputChange = text => {
     if (text && text.length) {
