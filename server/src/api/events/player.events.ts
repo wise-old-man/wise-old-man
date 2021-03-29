@@ -45,7 +45,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
     // isn't repeated again in the next 3 days
     logger.debug(`Scheduling ${player.id}`, { username: player.username });
     const debounce = { id: player.id, timeout: 86_400_000 * 3 };
-    jobs.add('ReviewPlayerType', { id: player.id }, { delay: 30_000, debounce });
+    // jobs.add('ReviewPlayerType', { id: player.id }, { delay: 30_000, debounce });
   }
 
   // Update this player's deltas (gains)
