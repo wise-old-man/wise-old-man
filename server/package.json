@@ -35,6 +35,7 @@
     "moment": "^2.26.0",
     "pg": "^8.2.1",
     "pg-hstore": "^2.3.3",
+    "prom-client": "^13.1.0",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.21.13",
     "sequelize-typescript": "^1.1.0",

@@ -1,4 +1,5 @@
 import { Competition } from '../../../database/models';
+import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import { isActivity, isBoss, isSkill } from '../../util/metrics';
 import { Job } from '../index';
@@ -11,18 +12,27 @@ class RefreshCompetitionRankings implements Job {
   }
 
   async handle(): Promise<void> {
-    const allCompetitions = await Competition.findAll();
+    const endTimer = metricsService.trackJobStarted();
 
-    await Promise.all(
-      allCompetitions.map(async competition => {
-        const currentScore = competition.score;
-        const newScore = await calculateScore(competition);
+    try {
+      const allCompetitions = await Competition.findAll();
 
-        if (newScore !== currentScore) {
-          await competition.update({ score: newScore });
-        }
-      })
-    );
+      await Promise.all(
+        allCompetitions.map(async competition => {
+          const currentScore = competition.score;
+          const newScore = await calculateScore(competition);
+
+          if (newScore !== currentScore) {
+            await competition.update({ score: newScore });
+          }
+        })
+      );
+
+      metricsService.trackJobEnded(endTimer, this.name, 1);
+    } catch (error) {
+      metricsService.trackJobEnded(endTimer, this.name, 0);
+      throw error;
+    }
   }
 }
 

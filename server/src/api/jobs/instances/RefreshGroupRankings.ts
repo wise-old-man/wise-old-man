@@ -1,4 +1,5 @@
 import { Group } from '../../../database/models';
+import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import * as groupService from '../../services/internal/group.service';
 import { Job } from '../index';
@@ -11,18 +12,27 @@ class RefreshGroupRankings implements Job {
   }
 
   async handle(): Promise<void> {
-    const allGroups = await Group.findAll();
+    const endTimer = metricsService.trackJobStarted();
 
-    await Promise.all(
-      allGroups.map(async group => {
-        const currentScore = group.score;
-        const newScore = await calculateScore(group);
+    try {
+      const allGroups = await Group.findAll();
 
-        if (newScore !== currentScore) {
-          await group.update({ score: newScore });
-        }
-      })
-    );
+      await Promise.all(
+        allGroups.map(async group => {
+          const currentScore = group.score;
+          const newScore = await calculateScore(group);
+
+          if (newScore !== currentScore) {
+            await group.update({ score: newScore });
+          }
+        })
+      );
+
+      metricsService.trackJobEnded(endTimer, this.name, 1);
+    } catch (error) {
+      metricsService.trackJobEnded(endTimer, this.name, 0);
+      throw error;
+    }
   }
 }
 
