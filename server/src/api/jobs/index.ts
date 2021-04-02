@@ -1,5 +1,5 @@
 import Queue from 'bull';
-import { isDevelopment, isRunningInMainCPUCore, isTesting } from '../../env';
+import { getThreadIndex, isTesting } from '../../env';
 import logger from '../services/external/logger.service';
 import crons from './config/crons';
 import redisConfig from './config/redis';
@@ -108,7 +108,7 @@ class JobHandler {
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (isRunningInMainCPUCore() || isDevelopment()) {
+    if (getThreadIndex() === 0) {
       // Remove any active cron jobs
       this.queues.forEach(async ({ bull }) => {
         const activeQueues = await bull.getRepeatableJobs();

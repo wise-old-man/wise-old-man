@@ -1,4 +1,5 @@
 import logger from '../../services/external/logger.service';
+import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
 
@@ -10,21 +11,24 @@ class ReviewPlayerType implements Job {
   }
 
   async handle(data: any): Promise<void> {
-    const { id } = data;
+    const endTimer = metricsService.trackJobStarted();
 
-    logger.debug(`Reviewing ${id}`, {});
-    const player = await playerService.findById(id);
+    try {
+      const player = await playerService.findById(data.id);
 
-    const previousType = player.type;
-    const newType = await playerService.assertType(player);
+      const previousType = player.type;
+      const newType = await playerService.assertType(player);
 
-    // Player type hasn't changed, player is just inactive
-    if (previousType === newType) {
-      return;
+      // Player type hasn't changed, player is just inactive
+      if (previousType !== newType) {
+        logger.info('De-ironed player', { username: player.username, previousType, newType });
+      }
+
+      metricsService.trackJobEnded(endTimer, this.name, 1);
+    } catch (error) {
+      metricsService.trackJobEnded(endTimer, this.name, 0);
+      throw error;
     }
-
-    logger.debug(`Updated ${id}`, { id: player.id, username: player.username });
-    logger.info('De-ironed player', { username: player.username, previousType, newType });
   }
 }
 

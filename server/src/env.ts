@@ -17,8 +17,12 @@ export function isDevelopment() {
   return process.env.NODE_ENV === 'development';
 }
 
-export function isRunningInMainCPUCore() {
-  return process.env.pm_id && parseInt(process.env.pm_id, 10) === 0;
+export function getThreadIndex() {
+  if (process.env.pm_id === undefined) {
+    return null;
+  }
+
+  return parseInt(process.env.pm_id, 10);
 }
 
 export default process.env;

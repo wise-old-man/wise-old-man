@@ -1,3 +1,4 @@
+import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
 
@@ -10,7 +11,16 @@ class UpdatePlayer implements Job {
 
   async handle(data: any): Promise<void> {
     if (!data.username) return;
-    await playerService.update(data.username);
+
+    const endTimer = metricsService.trackJobStarted();
+
+    try {
+      await playerService.update(data.username);
+      metricsService.trackJobEnded(endTimer, this.name, 1);
+    } catch (error) {
+      metricsService.trackJobEnded(endTimer, this.name, 0);
+      throw error;
+    }
   }
 }
 

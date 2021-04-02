@@ -7,6 +7,7 @@ import env, { isTesting } from '../env';
 import hooks from './hooks';
 import jobs from './jobs';
 import router from './routing';
+import metricsService from './services/external/metrics.service';
 
 const RATE_LIMIT_MINUTES = 5;
 const RATE_LIMIT_REQUESTS = 500;
@@ -42,6 +43,20 @@ class API {
         max: RATE_LIMIT_REQUESTS
       })
     );
+
+    // Register each http request for metrics processing
+    this.express.use((req, res, next) => {
+      const endTimer = metricsService.trackHttpRequestStarted();
+
+      res.on('finish', () => {
+        const route = `${req.baseUrl}${req.route.path}`;
+        if (route === '/api/metrics/') return;
+
+        metricsService.trackHttpRequestEnded(endTimer, route, res.statusCode, req.method);
+      });
+
+      next();
+    });
   }
 
   setupRouting() {
