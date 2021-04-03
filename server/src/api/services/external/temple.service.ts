@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { TEMPLE_OSRS } from '../../constants';
-import { NotFoundError } from '../../errors';
+import { NotFoundError, ServerError } from '../../errors';
 
 /**
  * Fetches the group members from the TempleOSRS API
@@ -17,7 +17,11 @@ async function fetchGroupMembers(gid: number): Promise<string[]> {
 
     return data;
   } catch (e) {
-    throw new NotFoundError(`Found no TempleOSRS members to import.`);
+    if (e.response?.status === 503) {
+      throw new ServerError(`Failed to load TempleOSRS. Possible server failure on their end.`);
+    } else {
+      throw new NotFoundError(`Found no TempleOSRS members to import.`);
+    }
   }
 }
 
