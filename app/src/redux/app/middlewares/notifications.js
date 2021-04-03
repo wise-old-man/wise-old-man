@@ -103,6 +103,7 @@ const notificationsMiddleware = store => next => action => {
     case 'groups/onCreateError':
     case 'groups/onEditError':
     case 'groups/onDeleteError':
+    case 'groups/onMigrateError':
     case 'groups/onUpdateAllError':
     case 'competitions/onDeleteError':
     case 'competitions/onCreateError':
