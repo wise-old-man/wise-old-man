@@ -3,6 +3,7 @@ import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import express, { Express } from 'express';
 import rateLimit from 'express-rate-limit';
+import userAgent from 'express-useragent';
 import env, { isTesting } from '../env';
 import hooks from './hooks';
 import jobs from './jobs';
@@ -32,6 +33,7 @@ class API {
 
     this.express.set('trust proxy', 1);
 
+    this.express.use(userAgent.express());
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cors());
@@ -49,10 +51,19 @@ class API {
       const endTimer = metricsService.trackHttpRequestStarted();
 
       res.on('finish', () => {
+        if (!req.route) return;
+
         const route = `${req.baseUrl}${req.route.path}`;
         if (route === '/api/metrics/') return;
 
-        metricsService.trackHttpRequestEnded(endTimer, route, res.statusCode, req.method);
+        const status = res.statusCode;
+        const method = req.method;
+
+        // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
+        const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
+        const userAgent = metricsService.reduceUserAgent(userAgentHeader, req.useragent);
+
+        metricsService.trackHttpRequestEnded(endTimer, route, status, method, userAgent);
       });
 
       next();

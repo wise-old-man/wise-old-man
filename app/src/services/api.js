@@ -4,7 +4,8 @@ export const BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 const API = axios.create({
   baseURL: BASE_URL,
-  timeout: 60000
+  timeout: 60000,
+  headers: { 'X-User-Agent': 'WiseOldMan Webapp' }
 });
 
 const endpoints = {
