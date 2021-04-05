@@ -11,7 +11,7 @@
     "predev": "npm run build && sequelize db:migrate",
     "dev": "cross-env NODE_ENV=development ts-node-dev --poll --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "pretest": "cross-env NODE_ENV=test sequelize db:migrate",
-    "test": "cross-env NODE_ENV=test jest __tests__/integration --detectOpenHandles --verbose",
+    "test": "cross-env NODE_ENV=test jest __tests__/integration --detectOpenHandles --verbose --force-exit",
     "posttest": "cross-env NODE_ENV=test sequelize db:migrate:undo:all",
     "migration:generate": "cross-env MIGRATING=false npx sequelize-cli migration:generate --name "
   },
