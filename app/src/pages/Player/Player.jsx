@@ -78,7 +78,7 @@ function Player() {
   };
 
   const fetchPlayerDetails = useCallback(() => {
-    if (!player || !player.latestSnapshot) {
+    if (!player || player.latestSnapshot === undefined) {
       // Load player details, if not fully loaded yet
       dispatch(playerActions.fetchPlayer(username)).then(action => {
         // Player not found, redirect to search
@@ -89,7 +89,7 @@ function Player() {
 
   useEffect(fetchPlayerDetails, [fetchPlayerDetails]);
 
-  if (!player || !player.latestSnapshot) {
+  if (!player || player.latestSnapshot === undefined) {
     return <Loading />;
   }
 
