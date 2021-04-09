@@ -4,9 +4,9 @@
   @extend %panel;
   padding: 20px;
 
-  .not-enough-data {
+  .message {
     color: $gray-60;
-    font-size: 2em;
+    font-size: 1.7em;
     text-align: center;
     display: block;
     width: 100%;

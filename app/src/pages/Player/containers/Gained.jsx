@@ -1,16 +1,18 @@
 /* eslint-disable react/destructuring-assignment */
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { some } from 'lodash';
-import { useSelector } from 'react-redux';
-import { getMeasure, formatDate } from 'utils';
+import { useSelector, useDispatch } from 'react-redux';
+import { getMeasure, formatDate, getDeltasChartData } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
-import { LineChart, Selector } from 'components';
-import { snapshotSelectors } from 'redux/snapshots';
-import { deltasSelectors } from 'redux/deltas';
+import { LineChart, Selector, TablePlaceholder } from 'components';
+import { snapshotSelectors, snapshotActions } from 'redux/snapshots';
+import { deltasSelectors, deltasActions } from 'redux/deltas';
 import CustomPeriodSelectionModal from 'modals/CustomPeriodSelectionModal';
 import { PlayerDeltasInfo, PlayerDeltasTable } from '../components';
 import { PlayerContext } from '../context';
+
+const DEFAULT_PERIOD = 'week';
 
 const PERIOD_OPTIONS = [
   { label: '6 Hours', value: '6h' },
@@ -27,35 +29,35 @@ const METRIC_TYPE_OPTIONS = [
   { label: 'Activities', value: 'activities' }
 ];
 
-function Gained({ onTimerEnded }) {
+function Gained() {
+  const dispatch = useDispatch();
   const { context, updateContext } = useContext(PlayerContext);
   const { username, period, metricType, startDate, endDate } = context;
 
   const [isReducedChart, setReducedChart] = useState(true);
 
-  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
-  const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
-
-  const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
   const metric = getSelectedMetric(context.metric, metricType);
+  const measure = getMeasure(metric);
+  const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
+  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
-  const showInvalidRanksWarning = deltas && hasInvalidRanks(deltas[period]);
+  const isLoadingDeltas = useSelector(deltasSelectors.isFetchingPlayerDeltas);
+  const isLoadingSnapshots = useSelector(snapshotSelectors.isFetchingPlayerSnapshots);
+
+  const deltas = useSelector(deltasSelectors.getPlayerDeltas(username));
+  const snapshots = useSelector(snapshotSelectors.getPlayerSnapshots(username));
+
+  const periodSnapshots = snapshots && snapshots[period];
   const showCustomPeriodInfo = period === 'custom' && startDate && endDate;
+  const showInvalidRanksWarning = deltas && hasInvalidRanks(deltas[period]);
   const showPeriodSelectionModal = period === 'custom' && (!startDate || !endDate);
 
-  const experienceChartData = useSelector(state =>
-    snapshotSelectors.getChartData(state, username, period, metric, getMeasure(metric), isReducedChart)
-  );
+  const rankChartData = getDeltasChartData(periodSnapshots, metric, 'rank', isReducedChart);
+  const experienceChartData = getDeltasChartData(periodSnapshots, metric, measure, isReducedChart);
 
-  const rankChartData = useSelector(state =>
-    snapshotSelectors.getChartData(state, username, period, metric, 'rank', isReducedChart)
-  );
+  const showDeltasTable = deltas && period && deltas[period];
 
-  function handleMetricSelected(newMetric) {
-    updateContext({ metric: newMetric });
-  }
-
-  function handleMetricTypeSelected(e) {
+  const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {
       updateContext({ metricType: e.value, metric: SKILLS[0] });
     } else if (e.value === 'bossing') {
@@ -63,23 +65,46 @@ function Gained({ onTimerEnded }) {
     } else if (e.value === 'activities') {
       updateContext({ metricType: e.value, metric: ACTIVITIES[0] });
     }
-  }
+  };
 
-  function handlePeriodSelected(e) {
-    updateContext({ period: e.value });
-  }
+  const handleTimerEndedRefresh = () => {
+    // Clear any currently loaded snapshots
+    dispatch(snapshotActions.invalidateSnapshots(username));
+    // Clear any currently loaded deltas
+    dispatch(deltasActions.invalidateDeltas(username));
+  };
 
-  function handleCustomPeriodSelected(dates) {
+  const handleCustomPeriodSelected = dates => {
+    // Clear any currently loaded "custom period" snapshots
+    dispatch(snapshotActions.invalidateSnapshots(username, period));
+    // Clear any currently loaded "custom period" deltas
+    dispatch(deltasActions.invalidateDeltas(username, period));
+
     updateContext({ startDate: dates.startDate, endDate: dates.endDate });
-  }
+  };
 
-  function handleCustomPeriodCanceled() {
-    updateContext({ period: 'week' });
-  }
+  const fetchSnapshots = useCallback(() => {
+    if (snapshots && snapshots[period]) return;
 
-  function handleResetCustomPeriodDates() {
-    updateContext({ startDate: null, endDate: null });
-  }
+    if (period !== 'custom') {
+      dispatch(snapshotActions.fetchSnapshots(username, period));
+    } else if (startDate && endDate) {
+      dispatch(snapshotActions.fetchSnapshots(username, null, startDate, endDate));
+    }
+  }, [dispatch, username, period, startDate, endDate, snapshots]);
+
+  const fetchDeltas = useCallback(() => {
+    if (deltas && deltas[period]) return;
+
+    if (period !== 'custom') {
+      dispatch(deltasActions.fetchPlayerDeltas(username));
+    } else if (startDate && endDate) {
+      dispatch(deltasActions.fetchPlayerDeltas(username, startDate, endDate));
+    }
+  }, [dispatch, username, period, startDate, endDate, deltas]);
+
+  useEffect(fetchSnapshots, [fetchSnapshots]);
+  useEffect(fetchDeltas, [fetchDeltas]);
 
   return (
     <>
@@ -88,11 +113,13 @@ function Gained({ onTimerEnded }) {
           datasets={experienceChartData.datasets}
           distribution={experienceChartData.distribution}
           onDistributionChanged={() => setReducedChart(val => !val)}
+          isLoading={isLoadingSnapshots}
         />
         <LineChart
           datasets={rankChartData.datasets}
           distribution={experienceChartData.distribution}
           onDistributionChanged={() => setReducedChart(val => !val)}
+          isLoading={isLoadingSnapshots}
           invertYAxis
         />
       </div>
@@ -109,7 +136,7 @@ function Gained({ onTimerEnded }) {
             <Selector
               options={PERIOD_OPTIONS}
               selectedIndex={periodIndex}
-              onSelect={handlePeriodSelected}
+              onSelect={e => updateContext({ period: e.value, startDate: null, endDate: null })}
             />
           </div>
         </div>
@@ -118,25 +145,30 @@ function Gained({ onTimerEnded }) {
           <CustomPeriodInfo
             startDate={startDate}
             endDate={endDate}
-            onChangePeriodClicked={handleResetCustomPeriodDates}
+            onChangePeriodClicked={() => updateContext({ startDate: null, endDate: null })}
           />
         )}
         {period !== 'custom' && (
-          <PlayerDeltasInfo deltas={deltas} period={period} onTimerEnded={onTimerEnded} />
+          <PlayerDeltasInfo deltas={deltas} period={period} onTimerEnded={handleTimerEndedRefresh} />
         )}
-        {deltas && period && deltas[period] && (
-          <PlayerDeltasTable
-            deltas={deltas}
-            period={period}
-            metricType={metricType}
-            highlightedMetric={metric}
-            onMetricSelected={handleMetricSelected}
-          />
+        {isLoadingDeltas ? (
+          <TablePlaceholder size={20} />
+        ) : (
+          showDeltasTable && (
+            <PlayerDeltasTable
+              deltas={deltas}
+              period={period}
+              metricType={metricType}
+              highlightedMetric={metric}
+              onMetricSelected={newMetric => updateContext({ metric: newMetric })}
+              isLoading={isLoadingDeltas}
+            />
+          )
         )}
         {showPeriodSelectionModal && (
           <CustomPeriodSelectionModal
             onConfirm={handleCustomPeriodSelected}
-            onCancel={handleCustomPeriodCanceled}
+            onCancel={() => updateContext({ period: DEFAULT_PERIOD })}
           />
         )}
       </div>
@@ -186,10 +218,6 @@ function getSelectedMetric(metric, metricType) {
   if (metricType === 'activities') return ACTIVITIES[0];
   return SKILLS[0];
 }
-
-Gained.propTypes = {
-  onTimerEnded: PropTypes.func.isRequired
-};
 
 CustomPeriodInfo.propTypes = {
   startDate: PropTypes.instanceOf(Date).isRequired,

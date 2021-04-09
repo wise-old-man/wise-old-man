@@ -10,7 +10,7 @@ function Statistics() {
   const { context } = useContext(GroupContext);
   const { id } = context;
 
-  const group = useSelector(state => groupSelectors.getGroup(state, id));
+  const group = useSelector(groupSelectors.getGroup(id));
   const isLoading = useSelector(groupSelectors.isFetchingStatistics);
 
   const { statistics } = group;

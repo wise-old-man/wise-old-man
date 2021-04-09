@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   formatDate,
@@ -14,8 +14,8 @@ import {
 import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { InfoPanel, CardList, Selector } from 'components';
 import { playerSelectors } from 'redux/players';
-import { competitionSelectors } from 'redux/competitions';
-import { achievementSelectors } from 'redux/achievements';
+import { competitionSelectors, competitionActions } from 'redux/competitions';
+import { achievementSelectors, achievementActions } from 'redux/achievements';
 import { PlayerStatsTable } from '../components';
 import { PlayerContext } from '../context';
 
@@ -31,18 +31,18 @@ const METRIC_TYPE_OPTIONS = [
 ];
 
 function Overview() {
+  const dispatch = useDispatch();
   const { context, updateContext } = useContext(PlayerContext);
   const { username, virtual, metricType } = context;
 
   const levelTypeIndex = virtual ? 1 : 0;
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
-  const player = useSelector(state => playerSelectors.getPlayer(state, username));
-  const isLoadingDetails = useSelector(playerSelectors.isFetching);
-  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
-  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+  const player = useSelector(playerSelectors.getPlayer(username));
+  const competitions = useSelector(competitionSelectors.getPlayerCompetitions(username));
+  const achievements = useSelector(achievementSelectors.getPlayerAchievements(username));
 
-  function handleMetricTypeSelected(e) {
+  const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {
       updateContext({ metricType: e.value, metric: SKILLS[0] });
     } else if (e.value === 'bossing') {
@@ -50,11 +50,28 @@ function Overview() {
     } else if (e.value === 'activities') {
       updateContext({ metricType: e.value, metric: ACTIVITIES[0] });
     }
-  }
+  };
 
-  function handleLevelTypeSelected(e) {
+  const handleLevelTypeSelected = e => {
     updateContext({ virtual: e.value === 'virtual' });
-  }
+  };
+
+  const fetchAchievements = useCallback(() => {
+    // Fetch player achievements, if not loaded yet
+    if (!achievements) {
+      dispatch(achievementActions.fetchPlayerAchievements(username));
+    }
+  }, [dispatch, username, achievements]);
+
+  const fetchCompetitions = useCallback(() => {
+    // Fetch player competitions, if not loaded yet
+    if (!competitions) {
+      dispatch(competitionActions.fetchPlayerCompetitions(username));
+    }
+  }, [dispatch, username, competitions]);
+
+  useEffect(fetchAchievements, [fetchAchievements]);
+  useEffect(fetchCompetitions, [fetchCompetitions]);
 
   if (!player) return null;
 
@@ -88,12 +105,7 @@ function Overview() {
             />
           </div>
         </div>
-        <PlayerStatsTable
-          player={player}
-          showVirtualLevels={virtual}
-          metricType={metricType}
-          isLoading={isLoadingDetails}
-        />
+        <PlayerStatsTable player={player} showVirtualLevels={virtual} metricType={metricType} />
       </div>
     </>
   );

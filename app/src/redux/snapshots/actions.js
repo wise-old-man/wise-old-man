@@ -14,4 +14,8 @@ const fetchSnapshots = (username, period, startDate, endDate) => async dispatch 
   }
 };
 
-export { fetchSnapshots };
+const invalidateSnapshots = (username, period) => async dispatch => {
+  dispatch(reducers.onInvalidate({ username, period }));
+};
+
+export { fetchSnapshots, invalidateSnapshots };

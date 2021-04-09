@@ -9,6 +9,16 @@ export const getError = createSelector(rootSelector, root => root.error);
 export const isFetching = createSelector(rootSelector, root => root.isFetching);
 export const isSubmitting = createSelector(rootSelector, root => root.isSubmitting);
 
+export const isFetchingGroupNameChanges = createSelector(
+  rootSelector,
+  root => root.isFetchingGroupNameChanges
+);
+
+export const isFetchingPlayerNameChanges = createSelector(
+  rootSelector,
+  root => root.isFetchingPlayerNameChanges
+);
+
 export const getNameChanges = createSelector(namesSelector, map => {
   return Object.values(map).sort((a, b) => b.createdAt - a.createdAt);
 });
@@ -16,5 +26,10 @@ export const getNameChanges = createSelector(namesSelector, map => {
 const getPlayerNamesMap = createSelector(playerNamesSelector, map => map);
 const getGroupNameChangesMap = createSelector(groupNamesSelector, map => map);
 
-export const getPlayerNames = (state, username) => getPlayerNamesMap(state)[username];
-export const getGroupNameChanges = (state, groupId) => getGroupNameChangesMap(state)[groupId];
+export function getGroupNameChanges(groupId) {
+  return state => getGroupNameChangesMap(state)[groupId];
+}
+
+export function getPlayerNames(username) {
+  return state => getPlayerNamesMap(state)[username];
+}

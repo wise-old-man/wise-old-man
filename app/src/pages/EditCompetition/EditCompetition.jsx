@@ -24,7 +24,7 @@ function EditCompetition() {
   const start = useMemo(() => today.clone().add(1, 'days'), [today]);
   const end = useMemo(() => today.clone().add(8, 'days'), [today]);
 
-  const competition = useSelector(state => competitionSelectors.getCompetition(state, id));
+  const competition = useSelector(competitionSelectors.getCompetition(id));
   const isSubmitting = useSelector(competitionSelectors.isEditing);
 
   const [data, setData] = useState(getDefaultState(start, end));

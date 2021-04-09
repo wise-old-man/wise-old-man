@@ -33,7 +33,7 @@ function RecordsTable() {
   const { data, pageIndex, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 50,
     action: handleReload,
-    selector: state => recordSelectors.getGroupRecords(state, id)
+    selector: recordSelectors.getGroupRecords(id)
   });
 
   const isLoading = useSelector(recordSelectors.isFetchingGroupRecords);

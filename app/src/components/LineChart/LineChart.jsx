@@ -4,6 +4,54 @@ import Chart from 'chart.js';
 import { formatDate, formatNumber } from 'utils';
 import './LineChart.scss';
 
+function LineChart({ datasets, distribution, onDistributionChanged, isLoading, invertYAxis }) {
+  const hasEnoughData = datasets.filter(d => d.data.length > 1).length > 0;
+
+  const chartObjectRef = useRef(null);
+  const chartRef = useRef(null);
+
+  function setupChart() {
+    if (!hasEnoughData) {
+      return;
+    }
+
+    if (chartObjectRef.current) {
+      chartObjectRef.current.destroy();
+    }
+
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext('2d');
+
+      chartObjectRef.current = new Chart(ctx, getConfig(datasets, invertYAxis));
+    }
+  }
+
+  useEffect(setupChart, [datasets]);
+
+  if (isLoading) {
+    return (
+      <div className="chart__container">
+        <span className="message">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!hasEnoughData) {
+    return (
+      <div className="chart__container">
+        <span className="message">Not enough data to display</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="chart__container">
+      {renderDistributionLabel(distribution, onDistributionChanged)}
+      <canvas id="line-chart" ref={chartRef} />
+    </div>
+  );
+}
+
 function getConfig(datasets, invertYAxis) {
   return {
     type: 'line',
@@ -107,47 +155,9 @@ function renderDistributionLabel(distribution, callback) {
   );
 }
 
-function LineChart({ datasets, distribution, onDistributionChanged, invertYAxis }) {
-  const hasEnoughData = datasets.filter(d => d.data.length > 1).length > 0;
-
-  const chartObjectRef = useRef(null);
-  const chartRef = useRef(null);
-
-  function setupChart() {
-    if (!hasEnoughData) {
-      return;
-    }
-
-    if (chartObjectRef.current) {
-      chartObjectRef.current.destroy();
-    }
-
-    const ctx = chartRef.current.getContext('2d');
-
-    // eslint-disable-next-line
-    chartObjectRef.current = new Chart(ctx, getConfig(datasets, invertYAxis));
-  }
-
-  useEffect(setupChart, [datasets]);
-
-  if (!hasEnoughData) {
-    return (
-      <div className="chart__container">
-        <b className="not-enough-data">Not enough data to display</b>
-      </div>
-    );
-  }
-
-  return (
-    <div className="chart__container">
-      {renderDistributionLabel(distribution, onDistributionChanged)}
-      <canvas id="line-chart" ref={chartRef} />
-    </div>
-  );
-}
-
 LineChart.defaultProps = {
   invertYAxis: false,
+  isLoading: false,
   distribution: undefined,
   onDistributionChanged: undefined
 };
@@ -159,6 +169,8 @@ LineChart.propTypes = {
   distribution: PropTypes.shape(PropTypes.shape()),
 
   onDistributionChanged: PropTypes.func,
+
+  isLoading: PropTypes.bool,
 
   // If true, the Y axis will be inverted (Useful for displaying rank progress)
   invertYAxis: PropTypes.bool

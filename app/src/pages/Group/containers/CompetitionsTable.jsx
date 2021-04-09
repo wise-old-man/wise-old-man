@@ -53,7 +53,7 @@ function CompetitionsTable({ handleRedirect }) {
   const { context } = useContext(GroupContext);
   const { id } = context;
 
-  const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, id));
+  const competitions = useSelector(competitionSelectors.getGroupCompetitions(id));
 
   const order = ['ongoing', 'upcoming', 'finished'];
   const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];

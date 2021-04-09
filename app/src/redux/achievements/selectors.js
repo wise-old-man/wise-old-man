@@ -19,40 +19,51 @@ export const isFetchingGroupAchievements = createSelector(
   root => root.isFetchingGroupAchievements
 );
 
-export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
+export const isFetchingPlayerAchievements = createSelector(
+  rootSelector,
+  root => root.isFetchingPlayerAchievements
+);
 
-export const getPlayerAchievements = (state, username, includeMissing = false) => {
-  const achievements = getPlayerAchievementsMap(state)[username];
+export function getGroupAchievements(groupId) {
+  return state => getGroupAchievementsMap(state)[groupId];
+}
 
-  if (!achievements || achievements.length === 0 || includeMissing) {
-    return achievements;
-  }
+export function getPlayerAchievements(username, includeMissing = false) {
+  return state => {
+    const achievements = getPlayerAchievementsMap(state)[username];
 
-  return achievements.filter(a => !!a.createdAt);
-};
-
-export const getPlayerAchievementsGrouped = (state, username) => {
-  const achievements = getPlayerAchievementsMap(state)[username];
-
-  if (!achievements) {
-    return [];
-  }
-
-  const groups = [];
-
-  achievements.forEach(a => {
-    let group = groups.find(g => g.measure === a.measure && g.metric === a.metric);
-
-    if (!group) {
-      group = { metric: a.metric, measure: a.measure, achievements: [] };
-      groups.push(group);
+    if (!achievements || achievements.length === 0 || includeMissing) {
+      return achievements;
     }
 
-    group.achievements.push(a);
-  });
+    return achievements.filter(a => !!a.createdAt);
+  };
+}
 
-  return groups.sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric));
-};
+export function getPlayerAchievementsGrouped(username) {
+  return state => {
+    const achievements = getPlayerAchievementsMap(state)[username];
+
+    if (!achievements) {
+      return [];
+    }
+
+    const groups = [];
+
+    achievements.forEach(a => {
+      let group = groups.find(g => g.measure === a.measure && g.metric === a.metric);
+
+      if (!group) {
+        group = { metric: a.metric, measure: a.measure, achievements: [] };
+        groups.push(group);
+      }
+
+      group.achievements.push(a);
+    });
+
+    return groups.sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric));
+  };
+}
 
 function formatAchievement(a) {
   const isDateUnknown = a.createdAt && a.createdAt.getFullYear() < 2000;

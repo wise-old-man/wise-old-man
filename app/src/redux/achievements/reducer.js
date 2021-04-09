@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { omit } from 'lodash';
 
 const initialState = {
   isFetchingPlayerAchievements: false,
@@ -41,6 +42,10 @@ const slice = createSlice({
     onFetchGroupAchievementsError(state, action) {
       state.isFetchingGroupAchievements = false;
       state.error = action.payload;
+    },
+    onInvalidate(state, action) {
+      const { username } = action.payload;
+      state.playerAchievements = omit(state.playerAchievements, username);
     }
   }
 });

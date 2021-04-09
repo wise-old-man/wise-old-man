@@ -27,7 +27,7 @@ function EditGroup() {
   const [showingRemovePlayersModal, toggleRemovePlayersModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
-  const group = useSelector(state => groupSelectors.getGroup(state, parseInt(id, 10)));
+  const group = useSelector(groupSelectors.getGroup(parseInt(id, 10)));
   const error = useSelector(groupSelectors.getError);
   const isSubmitting = useSelector(groupSelectors.isEditing);
 

@@ -61,11 +61,11 @@ function NameChangesTable() {
   const { isFullyLoaded, pageIndex, reloadData } = useLazyLoading({
     resultsPerPage: 20,
     action: handleReload,
-    selector: state => nameSelectors.getGroupNameChanges(state, id)
+    selector: nameSelectors.getGroupNameChanges(id)
   });
 
-  const nameChanges = useSelector(state => nameSelectors.getGroupNameChanges(state, id));
-  const isLoading = useSelector(nameSelectors.isFetching);
+  const nameChanges = useSelector(nameSelectors.getGroupNameChanges(id));
+  const isLoading = useSelector(nameSelectors.isFetchingGroupNameChanges);
   const isReloading = isLoading && pageIndex === 0;
 
   function handleReload(limit, offset) {

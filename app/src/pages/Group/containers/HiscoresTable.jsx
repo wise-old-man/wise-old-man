@@ -24,7 +24,7 @@ function HiscoresTable() {
   const { data, pageIndex, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 50,
     action: handleReload,
-    selector: state => hiscoresSelectors.getGroupHiscores(state, id)
+    selector: hiscoresSelectors.getGroupHiscores(id)
   });
 
   const isLoading = useSelector(hiscoresSelectors.isFetching);

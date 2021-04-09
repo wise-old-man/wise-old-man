@@ -34,12 +34,12 @@ const TABLE_CONFIG = {
 
 function List() {
   const groups = useSelector(groupSelectors.getGroups);
-  const isLoading = useSelector(groupSelectors.isFetchingAll);
+  const isLoading = useSelector(groupSelectors.isFetchingList);
 
   return (
     <div className="col">
       {isLoading && (!groups || groups.length === 0) ? (
-        <TablePlaceholder size={5} />
+        <TablePlaceholder size={20} />
       ) : (
         <Table
           uniqueKeySelector={TABLE_CONFIG.uniqueKey}

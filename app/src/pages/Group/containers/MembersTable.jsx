@@ -54,7 +54,7 @@ function MembersTable() {
   const { context } = useContext(GroupContext);
   const { id } = context;
 
-  const group = useSelector(state => groupSelectors.getGroup(state, id));
+  const group = useSelector(groupSelectors.getGroup(id));
   const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
 
   if (!group || !group.members) {

@@ -44,7 +44,7 @@ function Group() {
   const { id, section } = context;
 
   const selectedTabIndex = getSelectedTabIndex(section);
-  const group = useSelector(state => groupSelectors.getGroup(state, id));
+  const group = useSelector(groupSelectors.getGroup(id));
 
   const showDeleteModal = section === 'delete' && !!group;
 
