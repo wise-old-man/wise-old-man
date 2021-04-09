@@ -21,7 +21,7 @@ function Records() {
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
   const isLoading = useSelector(recordSelectors.isFetchingPlayerRecords);
-  const records = useSelector(state => recordSelectors.getPlayerRecords(state, username));
+  const records = useSelector(recordSelectors.getPlayerRecords(username));
 
   const typeRecords = getFilteredRecords(records, metricType);
 

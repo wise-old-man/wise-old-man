@@ -36,7 +36,7 @@ function Player() {
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
   const { username, section } = context;
 
-  const player = useSelector(state => playerSelectors.getPlayer(state, username));
+  const player = useSelector(playerSelectors.getPlayer(username));
   const isTracking = useSelector(playerSelectors.isTracking);
 
   const selectedTabIndex = TABS.findIndex(t => t.toLowerCase() === section);

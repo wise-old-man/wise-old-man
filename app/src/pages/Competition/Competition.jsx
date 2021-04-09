@@ -2,13 +2,14 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Loading, Tabs } from 'components';
+import { Loading, Tabs, LineChart } from 'components';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { playerActions } from 'redux/players';
 import { useUrlContext } from 'hooks';
+import { getCompetitionChartData } from 'utils';
 import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
-import { Header, Widgets, ParticipantsTable, TeamsTable, ParticipantsChart } from './containers';
+import { Header, Widgets, ParticipantsTable, TeamsTable } from './containers';
 import { CompetitionInfo } from './components';
 import { CompetitionContext } from './context';
 import './Competition.scss';
@@ -30,10 +31,11 @@ function Competition() {
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
   const { id, section } = context;
 
-  const competition = useSelector(state => competitionSelectors.getCompetition(state, id));
+  const competition = useSelector(competitionSelectors.getCompetition(id));
   const competitionType = competition ? competition.type : 'classic';
 
   const tabs = getTabs(competitionType);
+  const chartData = getCompetitionChartData(competition);
   const selectedTabIndex = getSelectedTabIndex(competitionType, section);
   const showDeleteModal = section === 'delete' && !!competition;
 
@@ -104,7 +106,7 @@ function Competition() {
             {section === 'participants' && (
               <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
             )}
-            {section === 'chart' && <ParticipantsChart />}
+            {section === 'chart' && <LineChart datasets={chartData} />}
           </div>
         </div>
         {showDeleteModal && (

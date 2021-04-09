@@ -30,5 +30,10 @@ export const isFetchingPlayerRecords = createSelector(
   root => root.isFetchingPlayerRecords
 );
 
-export const getPlayerRecords = (state, username) => getPlayerRecordsMap(state)[username];
-export const getGroupRecords = (state, groupId) => getGroupRecordsMap(state)[groupId];
+export function getPlayerRecords(username) {
+  return state => getPlayerRecordsMap(state)[username];
+}
+
+export function getGroupRecords(groupId) {
+  return state => getGroupRecordsMap(state)[groupId];
+}

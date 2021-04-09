@@ -28,9 +28,13 @@ export const getGroups = createSelector(groupsSelector, map => {
     .sort((a, b) => b.score - a.score || a.id - b.id);
 });
 
-export const getGroup = (state, id) => getGroupsMap(state)[id];
+export function getGroup(groupId) {
+  return state => getGroupsMap(state)[groupId];
+}
 
-export const getPlayerGroups = (state, username) => getPlayerGroupsMap(state)[username];
+export function getPlayerGroups(username) {
+  return state => getPlayerGroupsMap(state)[username];
+}
 
 function formatGroup(group) {
   if (!group) {

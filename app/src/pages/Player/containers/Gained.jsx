@@ -3,7 +3,7 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { some } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
-import { getMeasure, formatDate, getChartData } from 'utils';
+import { getMeasure, formatDate, getDeltasChartData } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { LineChart, Selector, TablePlaceholder } from 'components';
 import { snapshotSelectors, snapshotActions } from 'redux/snapshots';
@@ -44,16 +44,16 @@ function Gained() {
   const isLoadingDeltas = useSelector(deltasSelectors.isFetchingPlayerDeltas);
   const isLoadingSnapshots = useSelector(snapshotSelectors.isFetchingPlayerSnapshots);
 
-  const deltas = useSelector(state => deltasSelectors.getPlayerDeltas(state, username));
-  const snapshots = useSelector(state => snapshotSelectors.getPlayerSnapshots(state, username));
+  const deltas = useSelector(deltasSelectors.getPlayerDeltas(username));
+  const snapshots = useSelector(snapshotSelectors.getPlayerSnapshots(username));
 
   const periodSnapshots = snapshots && snapshots[period];
   const showCustomPeriodInfo = period === 'custom' && startDate && endDate;
   const showInvalidRanksWarning = deltas && hasInvalidRanks(deltas[period]);
   const showPeriodSelectionModal = period === 'custom' && (!startDate || !endDate);
 
-  const rankChartData = getChartData(periodSnapshots, metric, 'rank', isReducedChart);
-  const experienceChartData = getChartData(periodSnapshots, metric, measure, isReducedChart);
+  const rankChartData = getDeltasChartData(periodSnapshots, metric, 'rank', isReducedChart);
+  const experienceChartData = getDeltasChartData(periodSnapshots, metric, measure, isReducedChart);
 
   const showDeltasTable = deltas && period && deltas[period];
 

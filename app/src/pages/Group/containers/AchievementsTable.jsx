@@ -51,10 +51,10 @@ function AchievementsTable() {
   const { isFullyLoaded, pageIndex, reloadData } = useLazyLoading({
     resultsPerPage: 20,
     action: handleReload,
-    selector: state => achievementSelectors.getGroupAchievements(state, id)
+    selector: achievementSelectors.getGroupAchievements(id)
   });
 
-  const achievements = useSelector(state => achievementSelectors.getGroupAchievements(state, id));
+  const achievements = useSelector(achievementSelectors.getGroupAchievements(id));
   const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
   const isReloading = isLoading && pageIndex === 0;
 

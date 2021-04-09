@@ -67,7 +67,7 @@ function Competitions() {
   const { username } = context;
 
   const isLoading = useSelector(competitionSelectors.isFetchingList);
-  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
+  const competitions = useSelector(competitionSelectors.getPlayerCompetitions(username));
 
   const rows = competitions ? sortBy(competitions, c => indexOf(STATUS_ORDER, c.status)) : [];
 

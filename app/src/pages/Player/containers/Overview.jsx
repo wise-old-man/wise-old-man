@@ -38,9 +38,9 @@ function Overview() {
   const levelTypeIndex = virtual ? 1 : 0;
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
-  const player = useSelector(state => playerSelectors.getPlayer(state, username));
-  const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
-  const achievements = useSelector(state => achievementSelectors.getPlayerAchievements(state, username));
+  const player = useSelector(playerSelectors.getPlayer(username));
+  const competitions = useSelector(competitionSelectors.getPlayerCompetitions(username));
+  const achievements = useSelector(achievementSelectors.getPlayerAchievements(username));
 
   const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {

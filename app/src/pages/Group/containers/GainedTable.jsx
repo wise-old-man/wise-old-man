@@ -33,7 +33,7 @@ function GainedTable() {
   const { data, pageIndex, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 50,
     action: handleReload,
-    selector: state => deltasSelectors.getGroupDeltas(state, id)
+    selector: deltasSelectors.getGroupDeltas(id)
   });
 
   const isLoading = useSelector(deltasSelectors.isFetchingGroupDeltas);

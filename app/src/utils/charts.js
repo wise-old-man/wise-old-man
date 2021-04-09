@@ -35,7 +35,7 @@ export function distribute(snapshots, limit) {
   return uniqBy([startSnapshot, ...selected, endSnapshot], s => s.createdAt.getTime());
 }
 
-export const getChartData = (snapshots, metric, measure, reducedMode) => {
+export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   if (!snapshots || snapshots.length === 0) {
     return { distribution: { enabled: false, before: 0, after: 0 }, datasets: [] };
   }
@@ -68,4 +68,37 @@ export const getChartData = (snapshots, metric, measure, reducedMode) => {
       }
     ]
   };
+};
+
+export const getCompetitionChartData = competition => {
+  if (!competition) return [];
+
+  const datasets = [];
+
+  if (!competition.participants || competition.participants.length === 0) {
+    return datasets;
+  }
+
+  const topParticipants = competition.participants.filter(p => p.history && p.history.length > 0);
+
+  topParticipants.forEach((participant, i) => {
+    // Convert all the history data into chart points
+    const points = participant.history.map(h => ({ x: h.date, y: h.value }));
+
+    // Convert the exp values to exp delta values
+    const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));
+
+    // Include only unique points, and the last point (for visual clarity)
+    const filteredPoints = [...uniqBy(diffPoints, 'y'), diffPoints[diffPoints.length - 1]];
+
+    datasets.push({
+      borderColor: CHART_COLORS[i],
+      pointBorderWidth: 1,
+      label: participant.displayName,
+      data: filteredPoints,
+      fill: false
+    });
+  });
+
+  return datasets;
 };

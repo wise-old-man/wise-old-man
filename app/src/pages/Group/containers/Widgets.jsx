@@ -17,8 +17,8 @@ function Widgets() {
   const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
   const isLoadingMonthlyTop = useSelector(groupSelectors.isFetchingMonthlyTop);
 
-  const group = useSelector(state => groupSelectors.getGroup(state, id));
-  const competitions = useSelector(state => competitionSelectors.getGroupCompetitions(state, id));
+  const group = useSelector(groupSelectors.getGroup(id));
+  const competitions = useSelector(competitionSelectors.getGroupCompetitions(id));
 
   return (
     <>

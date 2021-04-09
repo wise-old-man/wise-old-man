@@ -21,18 +21,9 @@ function Achievements() {
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
   const isLoading = useSelector(achievementSelectors.isFetchingPlayerAchievements);
-
-  const groupedAchievements = useSelector(state =>
-    achievementSelectors.getPlayerAchievementsGrouped(state, username)
-  );
-
-  const allAchievements = useSelector(state =>
-    achievementSelectors.getPlayerAchievements(state, username, true)
-  );
-
-  const completedAchievements = useSelector(state =>
-    achievementSelectors.getPlayerAchievements(state, username)
-  );
+  const groupedAchievements = useSelector(achievementSelectors.getPlayerAchievementsGrouped(username));
+  const allAchievements = useSelector(achievementSelectors.getPlayerAchievements(username, true));
+  const completedAchievements = useSelector(achievementSelectors.getPlayerAchievements(username));
 
   const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {

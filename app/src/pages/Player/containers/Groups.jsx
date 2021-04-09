@@ -28,7 +28,7 @@ function Groups() {
   const { username } = context;
 
   const isLoading = useSelector(groupSelectors.isFetchingList);
-  const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
+  const groups = useSelector(groupSelectors.getPlayerGroups(username));
 
   const fetchGroups = useCallback(() => {
     // Fetch player groups, if not loaded yet

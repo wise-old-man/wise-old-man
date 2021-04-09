@@ -26,5 +26,10 @@ export const getNameChanges = createSelector(namesSelector, map => {
 const getPlayerNamesMap = createSelector(playerNamesSelector, map => map);
 const getGroupNameChangesMap = createSelector(groupNamesSelector, map => map);
 
-export const getPlayerNames = (state, username) => getPlayerNamesMap(state)[username];
-export const getGroupNameChanges = (state, groupId) => getGroupNameChangesMap(state)[groupId];
+export function getGroupNameChanges(groupId) {
+  return state => getGroupNameChangesMap(state)[groupId];
+}
+
+export function getPlayerNames(username) {
+  return state => getPlayerNamesMap(state)[username];
+}

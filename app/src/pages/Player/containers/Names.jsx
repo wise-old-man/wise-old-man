@@ -37,7 +37,7 @@ function Names() {
   const { username } = context;
 
   const isLoading = useSelector(nameSelectors.isFetchingPlayerNameChanges);
-  const nameChanges = useSelector(state => nameSelectors.getPlayerNames(state, username));
+  const nameChanges = useSelector(nameSelectors.getPlayerNames(username));
   const adjustedNames = getAdjustedNames(nameChanges);
 
   const fetchNames = useCallback(() => {

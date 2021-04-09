@@ -1,6 +1,6 @@
-import { mapValues, uniqBy, uniq } from 'lodash';
+import { mapValues, uniq } from 'lodash';
 import { createSelector } from 'reselect';
-import { CHART_COLORS, SKILLS } from 'config';
+import { SKILLS } from 'config';
 import { durationBetween, getLevel } from 'utils';
 
 const rootSelector = state => state.competitions;
@@ -32,48 +32,17 @@ export const getCompetitions = createSelector(competitionsSelector, map => {
     .sort((a, b) => b.score - a.score || b.createdAt - a.createdAt);
 });
 
-export const getCompetition = (state, id) => getCompetitionsMap(state)[id];
+export function getCompetition(competitionId) {
+  return state => getCompetitionsMap(state)[competitionId];
+}
 
-export const getPlayerCompetitions = (state, username) => getPlayerCompetitionsMap(state)[username];
+export function getPlayerCompetitions(username) {
+  return state => getPlayerCompetitionsMap(state)[username];
+}
 
-export const getGroupCompetitions = (state, groupId) => getGroupCompetitionsMap(state)[groupId];
-
-export const getChartData = (state, id) => {
-  const comp = getCompetition(state, id);
-
-  if (!comp) {
-    return [];
-  }
-
-  const datasets = [];
-
-  if (!comp.participants || comp.participants.length === 0) {
-    return datasets;
-  }
-
-  const topParticipants = comp.participants.filter(p => p.history && p.history.length > 0);
-
-  topParticipants.forEach((participant, i) => {
-    // Convert all the history data into chart points
-    const points = participant.history.map(h => ({ x: h.date, y: h.value }));
-
-    // Convert the exp values to exp delta values
-    const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));
-
-    // Include only unique points, and the last point (for visual clarity)
-    const filteredPoints = [...uniqBy(diffPoints, 'y'), diffPoints[diffPoints.length - 1]];
-
-    datasets.push({
-      borderColor: CHART_COLORS[i],
-      pointBorderWidth: 1,
-      label: participant.displayName,
-      data: filteredPoints,
-      fill: false
-    });
-  });
-
-  return datasets;
-};
+export function getGroupCompetitions(groupId) {
+  return state => getGroupCompetitionsMap(state)[groupId];
+}
 
 function formatTeams(participants) {
   if (!participants || participants.length === 0) return [];
