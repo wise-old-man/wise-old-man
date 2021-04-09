@@ -65,7 +65,7 @@ function NameChangesTable() {
   });
 
   const nameChanges = useSelector(state => nameSelectors.getGroupNameChanges(state, id));
-  const isLoading = useSelector(nameSelectors.isFetching);
+  const isLoading = useSelector(nameSelectors.isFetchingGroupNameChanges);
   const isReloading = isLoading && pageIndex === 0;
 
   function handleReload(limit, offset) {

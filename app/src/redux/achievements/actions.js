@@ -30,4 +30,8 @@ const fetchGroupAchievements = (groupId, limit, offset) => async dispatch => {
   }
 };
 
-export { fetchPlayerAchievements, fetchGroupAchievements };
+const invalidateAchievements = username => async dispatch => {
+  dispatch(reducers.onInvalidate({ username }));
+};
+
+export { fetchPlayerAchievements, fetchGroupAchievements, invalidateAchievements };

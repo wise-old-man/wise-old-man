@@ -77,6 +77,15 @@ const slice = createSlice({
     onFetchGroupDeltasError(state, action) {
       state.isFetchingGroupDeltas = false;
       state.error = action.payload;
+    },
+    onInvalidate(state, action) {
+      const { period, username } = action.payload;
+
+      if (period) {
+        state.playerDeltas[username] = { ...state.playerDeltas[username], [period]: null };
+      } else {
+        state.playerDeltas[username] = {};
+      }
     }
   }
 });

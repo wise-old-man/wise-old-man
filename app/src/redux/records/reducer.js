@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { omit } from 'lodash';
 
 const initialState = {
   isFetchingPlayerRecords: false,
@@ -74,6 +75,10 @@ const slice = createSlice({
     onFetchGroupRecordsError(state, action) {
       state.isFetchingGroupRecords = false;
       state.error = action.payload;
+    },
+    onInvalidate(state, action) {
+      const { username } = action.payload;
+      state.playerRecords = omit(state.playerRecords, username);
     }
   }
 });

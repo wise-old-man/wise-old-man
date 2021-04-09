@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { isSkill, isActivity, isBoss, getMetricIcon, formatDate } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
-import { CardList, Selector } from 'components';
-import { achievementSelectors } from 'redux/achievements';
+import { CardList, Selector, Loading } from 'components';
+import { achievementSelectors, achievementActions } from 'redux/achievements';
 import { AchievementGroup } from '../components';
 import { PlayerContext } from '../context';
 
@@ -14,8 +14,13 @@ const METRIC_TYPE_OPTIONS = [
 ];
 
 function Achievements() {
+  const dispatch = useDispatch();
   const { context, updateContext } = useContext(PlayerContext);
+
   const { username, metricType } = context;
+  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
+
+  const isLoading = useSelector(achievementSelectors.isFetchingPlayerAchievements);
 
   const groupedAchievements = useSelector(state =>
     achievementSelectors.getPlayerAchievementsGrouped(state, username)
@@ -29,9 +34,7 @@ function Achievements() {
     achievementSelectors.getPlayerAchievements(state, username)
   );
 
-  const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
-
-  function handleMetricTypeSelected(e) {
+  const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {
       updateContext({ metricType: e.value, metric: SKILLS[0] });
     } else if (e.value === 'bossing') {
@@ -39,6 +42,19 @@ function Achievements() {
     } else if (e.value === 'activities') {
       updateContext({ metricType: e.value, metric: ACTIVITIES[0] });
     }
+  };
+
+  const fetchAchievements = useCallback(() => {
+    // Fetch player achievements, if not loaded yet
+    if (!allAchievements) {
+      dispatch(achievementActions.fetchPlayerAchievements(username));
+    }
+  }, [dispatch, username, allAchievements]);
+
+  useEffect(fetchAchievements, [fetchAchievements]);
+
+  if (isLoading) {
+    return <Loading />;
   }
 
   if (!groupedAchievements || !completedAchievements || !allAchievements) {

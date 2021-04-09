@@ -19,6 +19,11 @@ export const isFetchingGroupAchievements = createSelector(
   root => root.isFetchingGroupAchievements
 );
 
+export const isFetchingPlayerAchievements = createSelector(
+  rootSelector,
+  root => root.isFetchingPlayerAchievements
+);
+
 export const getGroupAchievements = (state, groupId) => getGroupAchievementsMap(state)[groupId];
 
 export const getPlayerAchievements = (state, username, includeMissing = false) => {

@@ -44,4 +44,8 @@ const fetchGroupDeltas = (groupId, metric, period, limit, offset) => async dispa
   }
 };
 
-export { fetchPlayerDeltas, fetchGroupDeltas, fetchLeaderboards };
+const invalidateDeltas = (username, period) => async dispatch => {
+  dispatch(reducers.onInvalidate({ username, period }));
+};
+
+export { fetchPlayerDeltas, fetchGroupDeltas, fetchLeaderboards, invalidateDeltas };

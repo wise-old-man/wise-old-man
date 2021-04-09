@@ -42,4 +42,8 @@ const fetchGroupRecords = (groupId, metric, period, limit, offset) => async disp
   }
 };
 
-export { fetchPlayerRecords, fetchGroupRecords, fetchLeaderboards };
+const invalidateRecords = username => async dispatch => {
+  dispatch(reducers.onInvalidate({ username }));
+};
+
+export { fetchPlayerRecords, fetchGroupRecords, fetchLeaderboards, invalidateRecords };

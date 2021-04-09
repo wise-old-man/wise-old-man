@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { sortBy, indexOf } from 'lodash';
-import { Table, StatusDot, Badge } from 'components';
+import { Table, TablePlaceholder, StatusDot, Badge } from 'components';
 import { getMetricIcon } from 'utils';
-import { competitionSelectors } from 'redux/competitions';
+import { competitionSelectors, competitionActions } from 'redux/competitions';
 import { PlayerContext } from '../context';
 
 const TABLE_CONFIG = {
@@ -58,22 +58,40 @@ const TABLE_CONFIG = {
   ]
 };
 
+const STATUS_ORDER = ['ongoing', 'upcoming', 'finished'];
+
 function Competitions() {
+  const dispatch = useDispatch();
   const { context } = useContext(PlayerContext);
+
   const { username } = context;
+
+  const isLoading = useSelector(competitionSelectors.isFetchingList);
   const competitions = useSelector(state => competitionSelectors.getPlayerCompetitions(state, username));
 
-  const order = ['ongoing', 'upcoming', 'finished'];
-  const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];
+  const rows = competitions ? sortBy(competitions, c => indexOf(STATUS_ORDER, c.status)) : [];
+
+  const fetchCompetitions = useCallback(() => {
+    // Fetch player competitions, if not loaded yet
+    if (!competitions) {
+      dispatch(competitionActions.fetchPlayerCompetitions(username));
+    }
+  }, [dispatch, username, competitions]);
+
+  useEffect(fetchCompetitions, [fetchCompetitions]);
 
   return (
     <div className="col">
-      <Table
-        uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-        rows={rows}
-        columns={TABLE_CONFIG.columns}
-        listStyle
-      />
+      {isLoading ? (
+        <TablePlaceholder size={3} />
+      ) : (
+        <Table
+          uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+          rows={rows}
+          columns={TABLE_CONFIG.columns}
+          listStyle
+        />
+      )}
     </div>
   );
 }

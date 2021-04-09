@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Table } from 'components';
-import { groupSelectors } from 'redux/groups';
+import { Table, TablePlaceholder } from 'components';
+import { groupSelectors, groupActions } from 'redux/groups';
 import { PlayerContext } from '../context';
 
 const TABLE_CONFIG = {
@@ -22,19 +22,35 @@ const TABLE_CONFIG = {
 };
 
 function Groups() {
+  const dispatch = useDispatch();
   const { context } = useContext(PlayerContext);
+
   const { username } = context;
 
+  const isLoading = useSelector(groupSelectors.isFetchingList);
   const groups = useSelector(state => groupSelectors.getPlayerGroups(state, username));
+
+  const fetchGroups = useCallback(() => {
+    // Fetch player groups, if not loaded yet
+    if (!groups) {
+      dispatch(groupActions.fetchPlayerGroups(username));
+    }
+  }, [dispatch, username, groups]);
+
+  useEffect(fetchGroups, [fetchGroups]);
 
   return (
     <div className="col">
-      <Table
-        uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-        rows={groups}
-        columns={TABLE_CONFIG.columns}
-        listStyle
-      />
+      {isLoading ? (
+        <TablePlaceholder size={3} />
+      ) : (
+        <Table
+          uniqueKeySelector={TABLE_CONFIG.uniqueKey}
+          rows={groups}
+          columns={TABLE_CONFIG.columns}
+          listStyle
+        />
+      )}
     </div>
   );
 }

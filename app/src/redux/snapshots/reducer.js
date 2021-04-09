@@ -24,6 +24,15 @@ const slice = createSlice({
     onFetchError(state, action) {
       state.isFetching = false;
       state.error = action.payload;
+    },
+    onInvalidate(state, action) {
+      const { period, username } = action.payload;
+
+      if (period) {
+        state.snapshots[username] = { ...state.snapshots[username], [period]: null };
+      } else {
+        state.snapshots[username] = {};
+      }
     }
   }
 });

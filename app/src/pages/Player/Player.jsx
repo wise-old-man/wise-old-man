@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -7,13 +7,10 @@ import { Loading, Tabs } from 'components';
 import { ALL_METRICS } from 'config';
 import { standardizeUsername, isBoss, isSkill, isValidDate } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
-import { groupActions } from 'redux/groups';
-import { competitionActions } from 'redux/competitions';
-import { nameActions } from 'redux/names';
-import { recordActions } from 'redux/records';
-import { deltasActions } from 'redux/deltas';
 import { snapshotActions } from 'redux/snapshots';
 import { achievementActions } from 'redux/achievements';
+import { deltasActions } from 'redux/deltas';
+import { recordActions } from 'redux/records';
 import URL from 'utils/url';
 import { PlayerContext } from './context';
 import {
@@ -37,27 +34,31 @@ function Player() {
   const router = useHistory();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { username, section, period, startDate, endDate } = context;
+  const { username, section } = context;
 
   const player = useSelector(state => playerSelectors.getPlayer(state, username));
   const isTracking = useSelector(playerSelectors.isTracking);
 
   const selectedTabIndex = TABS.findIndex(t => t.toLowerCase() === section);
 
-  function handleTabSelected(tabIndex) {
+  const handleTabSelected = tabIndex => {
     updateContext({ section: TABS[tabIndex].toLowerCase() });
-  }
+  };
 
-  const handleUpdate = () => {
-    dispatch(playerActions.trackPlayer(username)).then(({ payload }) => {
-      if (!payload.data) return;
+  const handleUpdate = async () => {
+    const { payload } = await dispatch(playerActions.trackPlayer(username));
+    if (!payload.data) return;
 
-      fetchAll(username, router, dispatch, true);
-
-      if (period && period === 'custom') {
-        fetchCustomPeriodData(username, dispatch, startDate, endDate);
-      }
-    });
+    // Reload player details
+    dispatch(playerActions.fetchPlayer(username));
+    // Invalidate player deltas (so that they can be reloaded later, if needed)
+    dispatch(deltasActions.invalidateDeltas(username));
+    // Invalidate player snapshots (so that they can be reloaded later, if needed)
+    dispatch(snapshotActions.invalidateSnapshots(username));
+    // Invalidate player achievements (so that they can be reloaded later, if needed)
+    dispatch(achievementActions.invalidateAchievements(username));
+    // Invalidate player records (so that they can be reloaded later, if needed)
+    dispatch(recordActions.invalidateRecords(username));
   };
 
   const handleAssertName = () => {
@@ -76,23 +77,19 @@ function Player() {
     }
   };
 
-  const handleRefreshSnapshots = () => {
-    PERIODS.forEach(p => {
-      dispatch(snapshotActions.fetchSnapshots(username, p));
-    });
-  };
+  const fetchPlayerDetails = useCallback(() => {
+    if (!player || !player.latestSnapshot) {
+      // Load player details, if not fully loaded yet
+      dispatch(playerActions.fetchPlayer(username)).then(action => {
+        // Player not found, redirect to search
+        if (!action.payload.data) router.push(`/players/search/${username}`);
+      });
+    }
+  }, [dispatch, router, username, player]);
 
-  // Fetch player details, on mount
-  useEffect(() => {
-    fetchAll(username, router, dispatch);
-  }, [router, dispatch, username]);
+  useEffect(fetchPlayerDetails, [fetchPlayerDetails]);
 
-  // Fetch custom player deltas, when start or end date changes
-  useEffect(() => {
-    fetchCustomPeriodData(username, dispatch, startDate, endDate);
-  }, [dispatch, startDate, endDate, username]);
-
-  if (!player) {
+  if (!player || !player.latestSnapshot) {
     return <Loading />;
   }
 
@@ -131,7 +128,7 @@ function Player() {
         </div>
         <div className="player__content row">
           {section === 'overview' && <Overview />}
-          {section === 'gained' && <Gained onTimerEnded={handleRefreshSnapshots} />}
+          {section === 'gained' && <Gained />}
           {section === 'competitions' && <Competitions />}
           {section === 'groups' && <Groups />}
           {section === 'records' && <Records />}
@@ -142,37 +139,6 @@ function Player() {
     </PlayerContext.Provider>
   );
 }
-
-const fetchCustomPeriodData = (username, dispatch, startDate, endDate) => {
-  if (!startDate || !endDate) return;
-
-  dispatch(deltasActions.fetchPlayerDeltas(username, startDate, endDate));
-  dispatch(snapshotActions.fetchSnapshots(username, null, startDate, endDate));
-};
-
-const fetchAll = (username, router, dispatch, isReload) => {
-  // Attempt to fetch player data, if it fails redirect to 404
-  dispatch(playerActions.fetchPlayer(username))
-    .then(action => {
-      if (!action.payload.data) throw new Error();
-    })
-    .catch(() => router.push(`/players/search/${username}`));
-
-  dispatch(achievementActions.fetchPlayerAchievements(username));
-  dispatch(recordActions.fetchPlayerRecords(username));
-  dispatch(deltasActions.fetchPlayerDeltas(username));
-
-  PERIODS.forEach(period => {
-    dispatch(snapshotActions.fetchSnapshots(username, period));
-  });
-
-  // These shouldn't be refetched when the player is updated
-  if (!isReload) {
-    dispatch(competitionActions.fetchPlayerCompetitions(username));
-    dispatch(groupActions.fetchPlayerGroups(username));
-    dispatch(nameActions.fetchPlayerNameChanges(username));
-  }
-};
 
 function encodeContext({ username, section, metricType, metric, period, virtual, startDate, endDate }) {
   const nextURL = new URL(`/players/${username}`);

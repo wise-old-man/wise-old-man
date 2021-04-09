@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { isSkill, isActivity, isBoss } from 'utils';
 import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
-import { Selector } from 'components';
-import { recordSelectors } from 'redux/records';
+import { Selector, Loading } from 'components';
+import { recordSelectors, recordActions } from 'redux/records';
 import { PlayerRecord } from '../components';
 import { PlayerContext } from '../context';
 
@@ -14,15 +14,18 @@ const METRIC_TYPE_OPTIONS = [
 ];
 
 function Records() {
+  const dispatch = useDispatch();
   const { context, updateContext } = useContext(PlayerContext);
-  const { username, metricType } = context;
 
+  const { username, metricType } = context;
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 
+  const isLoading = useSelector(recordSelectors.isFetchingPlayerRecords);
   const records = useSelector(state => recordSelectors.getPlayerRecords(state, username));
+
   const typeRecords = getFilteredRecords(records, metricType);
 
-  function handleMetricTypeSelected(e) {
+  const handleMetricTypeSelected = e => {
     if (e.value === 'skilling') {
       updateContext({ metricType: e.value, metric: SKILLS[0] });
     } else if (e.value === 'bossing') {
@@ -30,6 +33,19 @@ function Records() {
     } else if (e.value === 'activities') {
       updateContext({ metricType: e.value, metric: ACTIVITIES[0] });
     }
+  };
+
+  const fetchRecords = useCallback(() => {
+    // Fetch player records, if not loaded yet
+    if (!records) {
+      dispatch(recordActions.fetchPlayerRecords(username));
+    }
+  }, [dispatch, username, records]);
+
+  useEffect(fetchRecords, [fetchRecords]);
+
+  if (isLoading) {
+    return <Loading />;
   }
 
   return (

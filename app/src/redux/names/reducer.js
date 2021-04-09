@@ -3,6 +3,8 @@ import { toMap } from '../utils';
 
 const initialState = {
   isFetching: false,
+  isFetchingPlayerNameChanges: false,
+  isFetchingGroupNameChanges: false,
   isSubmitting: false,
   error: { message: null, data: null },
   nameChanges: {},
@@ -45,33 +47,33 @@ const slice = createSlice({
       state.error = { message: action.error, data: action.data };
     },
     onFetchPlayerNameChangesRequest(state) {
-      state.isFetchingList = true;
+      state.isFetchingPlayerNameChanges = true;
       state.error = initialState.error;
     },
     onFetchPlayerNameChangesSuccess(state, action) {
       const { username, data } = action.payload;
 
-      state.isFetchingList = false;
+      state.isFetchingPlayerNameChanges = false;
       state.error = initialState.error;
       state.playerNameChanges[username] = data;
     },
     onFetchPlayerNameChangesError(state, action) {
-      state.isFetchingList = false;
+      state.isFetchingPlayerNameChanges = false;
       state.error = { message: action.payload.error };
     },
     onFetchGroupNameChangesRequest(state) {
-      state.isFetchingList = true;
+      state.isFetchingGroupNameChanges = true;
       state.error = initialState.error;
     },
     onFetchGroupNameChangesSuccess(state, action) {
       const { groupId, data, refresh } = action.payload;
 
-      state.isFetchingList = false;
+      state.isFetchingGroupNameChanges = false;
       state.error = initialState.error;
       state.groupNameChanges[groupId] = refresh ? data : [...state.groupNameChanges[groupId], ...data];
     },
     onFetchGroupNameChangesError(state, action) {
-      state.isFetchingList = false;
+      state.isFetchingGroupNameChanges = false;
       state.error = { message: action.payload.error };
     }
   }

@@ -25,6 +25,7 @@ export const getLeaderboards = period => {
 };
 
 export const isFetchingGroupDeltas = createSelector(rootSelector, root => root.isFetchingGroupDeltas);
+export const isFetchingPlayerDeltas = createSelector(rootSelector, root => root.isFetchingPlayerDeltas);
 
 export const getPlayerDeltas = (state, username) => getPlayerDeltasMap(state)[username];
 export const getGroupDeltas = (state, groupId) => getGroupDeltasMap(state)[groupId];
