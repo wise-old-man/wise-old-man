@@ -31,7 +31,10 @@ class JobHandler {
 
   constructor() {
     this.queues = jobs.map((job: Job) => ({
-      bull: new Queue(job.name, redisConfig),
+      bull: new Queue(job.name, {
+        redis: redisConfig,
+        defaultJobOptions: { removeOnComplete: true, removeOnFail: true }
+      }),
       name: job.name,
       handle: job.handle,
       onFailure: job.onFailure,
