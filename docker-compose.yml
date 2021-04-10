@@ -1,12 +1,14 @@
-version: '3'
+version: "3"
 services:
   redis:
+    container_name: redis
     image: redis
     networks:
       - webnet
     env_file:
       - ./server/.env
   db:
+    container_name: db
     image: postgres
     networks:
       - webnet
@@ -16,25 +18,27 @@ services:
     env_file:
       - ./server/.env
     expose:
-      - '5432'
+      - "5432"
   pgadmin:
+    container_name: pgadmin
     image: dpage/pgadmin4
     env_file:
       - ./server/.env
     ports:
-      - '54321:80'
+      - "54321:80"
     depends_on:
       - db
     logging:
       driver: none
     networks:
       - pgadminnet
-  server:
+  api:
+    container_name: api
     build: ./server
     expose:
-      - '5000'
+      - "5000"
     ports:
-      - '5000:5000'
+      - "5000:5000"
     networks:
       - webnet
     depends_on:
@@ -46,7 +50,8 @@ services:
     volumes:
       - ./server:/wise-old-man/server
       - /wise-old-man/server/node_modules
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'run', 'dev']
+    command:
+      ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "run", "dev"]
 networks:
   webnet:
   pgadminnet:
