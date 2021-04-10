@@ -11,7 +11,7 @@ import router from './routing';
 import metricsService from './services/external/metrics.service';
 
 const RATE_LIMIT_MINUTES = 5;
-const RATE_LIMIT_REQUESTS = 500;
+const RATE_LIMIT_REQUESTS = 150;
 
 class API {
   express: Express;
