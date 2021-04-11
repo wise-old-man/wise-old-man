@@ -27,7 +27,7 @@ class CompetitionStarted implements Job {
       }
 
       const competitionDetails = await competitionService.getDetails(competition);
-      onCompetitionStarted(competitionDetails);
+      await onCompetitionStarted(competitionDetails);
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {

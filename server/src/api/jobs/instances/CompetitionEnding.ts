@@ -28,7 +28,7 @@ class CompetitionEnding implements Job {
 
       const competitionDetails = await competitionService.getDetails(competition);
       const period = minutes < 60 ? { minutes } : { hours: minutes / 60 };
-      onCompetitionEnding(competitionDetails, period);
+      await onCompetitionEnding(competitionDetails, period);
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {

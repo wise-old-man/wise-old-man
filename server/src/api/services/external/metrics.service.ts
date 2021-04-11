@@ -3,12 +3,14 @@ import prometheus, { Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
+type ReactionParams = 'reactionName' | 'status';
 type JobParams = 'jobName' | 'status';
 
 class MetricsService {
   private registry: Registry;
   private jobHistogram: Histogram<JobParams>;
   private httpHistogram: Histogram<HttpParams>;
+  private reactionHistogram: Histogram<ReactionParams>;
 
   constructor() {
     this.registry = new prometheus.Registry();
@@ -16,19 +18,20 @@ class MetricsService {
 
     prometheus.collectDefaultMetrics({ register: this.registry });
 
-    this.setupJobHistogram();
+    this.setupReactionHistogram();
     this.setupHttpHistogram();
+    this.setupJobHistogram();
   }
 
-  private setupJobHistogram() {
-    this.jobHistogram = new prometheus.Histogram({
-      name: 'job_duration_seconds',
-      help: 'Duration of jobs in microseconds',
-      labelNames: ['jobName', 'status'],
-      buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
+  private setupReactionHistogram() {
+    this.reactionHistogram = new prometheus.Histogram({
+      name: 'reaction_duration_seconds',
+      help: 'Duration of reactions in microseconds',
+      labelNames: ['reactionName', 'status'],
+      buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10, 30]
     });
 
-    this.registry.registerMetric(this.jobHistogram);
+    this.registry.registerMetric(this.reactionHistogram);
   }
 
   private setupHttpHistogram() {
@@ -40,6 +43,17 @@ class MetricsService {
     });
 
     this.registry.registerMetric(this.httpHistogram);
+  }
+
+  private setupJobHistogram() {
+    this.jobHistogram = new prometheus.Histogram({
+      name: 'job_duration_seconds',
+      help: 'Duration of jobs in microseconds',
+      labelNames: ['jobName', 'status'],
+      buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
+    });
+
+    this.registry.registerMetric(this.jobHistogram);
   }
 
   reduceUserAgent(userAgent: string, details: UserAgentDetails) {
@@ -77,6 +91,16 @@ class MetricsService {
 
   async getMetrics() {
     return this.registry.getMetricsAsJSON();
+  }
+
+  async measureReaction(reactionName: string, reactionFn: () => Promise<any> | any) {
+    const endTimer = this.reactionHistogram.startTimer();
+    try {
+      await reactionFn();
+      endTimer({ reactionName, status: 1 });
+    } catch (error) {
+      endTimer({ reactionName, status: 0 });
+    }
   }
 }
 
