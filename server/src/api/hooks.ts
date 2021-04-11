@@ -4,9 +4,9 @@ import {
   Competition,
   Delta,
   Membership,
+  NameChange,
   Player,
-  Snapshot,
-  NameChange
+  Snapshot
 } from '../database/models';
 import { onAchievementsCreated } from './events/achievement.events';
 import { onCompetitionCreated, onCompetitionUpdated } from './events/competition.events';
@@ -16,70 +16,76 @@ import { onNameChangeCreated } from './events/name.events';
 import {
   onPlayerCreated,
   onPlayerImported,
-  onPlayerTypeChanged,
   onPlayerNameChanged,
+  onPlayerTypeChanged,
   onPlayerUpdated
 } from './events/player.events';
 
 function setup() {
-  NameChange.afterCreate((nameChange: NameChange) => {
-    onNameChangeCreated(nameChange);
+  NameChange.afterCreate(async (nameChange: NameChange) => {
+    await onNameChangeCreated(nameChange);
   });
 
-  Player.afterUpdate((player: Player, options: UpdateOptions) => {
+  Player.afterUpdate(async (player: Player, options: UpdateOptions) => {
     if (!options.fields) return;
-    if (options.fields.includes('username')) onPlayerNameChanged(player, player.previous('displayName'));
-    if (options.fields.includes('type')) onPlayerTypeChanged(player, player.previous('type'));
+
+    if (options.fields.includes('username')) {
+      await onPlayerNameChanged(player, player.previous('displayName'));
+    }
+
+    if (options.fields.includes('type')) {
+      await onPlayerTypeChanged(player, player.previous('type'));
+    }
   });
 
-  Player.afterCreate((player: Player) => {
-    onPlayerCreated(player);
+  Player.afterCreate(async (player: Player) => {
+    await onPlayerCreated(player);
   });
 
-  Snapshot.afterCreate((snapshot: Snapshot) => {
-    onPlayerUpdated(snapshot);
+  Snapshot.afterCreate(async (snapshot: Snapshot) => {
+    await onPlayerUpdated(snapshot);
   });
 
-  Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
-    onPlayerImported(snapshots[0].playerId);
+  Snapshot.afterBulkCreate(async (snapshots: Snapshot[]) => {
+    await onPlayerImported(snapshots[0].playerId);
   });
 
-  Delta.afterUpdate((delta: Delta) => {
-    onDeltaUpdated(delta);
+  Delta.afterUpdate(async (delta: Delta) => {
+    await onDeltaUpdated(delta);
   });
 
-  Delta.afterCreate((delta: Delta) => {
-    onDeltaUpdated(delta);
+  Delta.afterCreate(async (delta: Delta) => {
+    await onDeltaUpdated(delta);
   });
 
-  Membership.afterBulkCreate((memberships: Membership[]) => {
+  Membership.afterBulkCreate(async (memberships: Membership[]) => {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    onMembersJoined(groupId, playerIds);
+    await onMembersJoined(groupId, playerIds);
   });
 
-  Membership.afterBulkDestroy((options: DestroyOptions) => {
+  Membership.afterBulkDestroy(async (options: DestroyOptions) => {
     if (!options.where) return;
 
     const { groupId, playerId }: any = options.where;
 
     if (!playerId || playerId.length === 0) return;
 
-    onMembersLeft(groupId, playerId);
+    await onMembersLeft(groupId, playerId);
   });
 
-  Achievement.afterBulkCreate((achievements: Achievement[]) => {
-    onAchievementsCreated(achievements);
+  Achievement.afterBulkCreate(async (achievements: Achievement[]) => {
+    await onAchievementsCreated(achievements);
   });
 
-  Competition.beforeUpdate((competition: Competition, options: UpdateOptions) => {
+  Competition.beforeUpdate(async (competition: Competition, options: UpdateOptions) => {
     if (!options || !options.fields) return;
-    onCompetitionUpdated(competition, options.fields);
+    await onCompetitionUpdated(competition, options.fields);
   });
 
-  Competition.afterCreate((competition: Competition) => {
-    onCompetitionCreated(competition);
+  Competition.afterCreate(async (competition: Competition) => {
+    await onCompetitionCreated(competition);
   });
 }
 

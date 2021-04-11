@@ -2,55 +2,68 @@ import { Competition } from '../../database/models';
 import { EventPeriod } from '../../types';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
+import metrics from '../services/external/metrics.service';
 import * as competitionService from '../services/internal/competition.service';
 
-function onCompetitionCreated(competition: Competition) {
+async function onCompetitionCreated(competition: Competition) {
   // Schedule all competition started/starting events
-  setupCompetitionStart(competition);
+  await metrics.measureReaction('ScheduleCompetitionStart', () => setupCompetitionStart(competition));
 
   // Schedule all competition ended/ending events
-  setupCompetitionEnd(competition);
+  await metrics.measureReaction('ScheduleCompetitionEnd', () => setupCompetitionEnd(competition));
 
   // Dispatch a competition created event to our discord bot API.
-  discordService.dispatchCompetitionCreated(competition);
+  await metrics.measureReaction('DiscordCompetitionCreated', () =>
+    discordService.dispatchCompetitionCreated(competition)
+  );
 }
 
-function onCompetitionUpdated(competition: Competition, editedFields: string[]) {
+async function onCompetitionUpdated(competition: Competition, editedFields: string[]) {
   // Start date has been changed
   if (editedFields.includes('startsAt')) {
-    setupCompetitionStart(competition);
+    await metrics.measureReaction('ScheduleCompetitionStart', () => setupCompetitionStart(competition));
   }
 
   // End date has been changed
   if (editedFields.includes('endsAt')) {
-    setupCompetitionEnd(competition);
+    await metrics.measureReaction('ScheduleCompetitionEnd', () => setupCompetitionEnd(competition));
   }
 }
 
-function onCompetitionStarted(competition: Competition) {
+async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
-  competitionService.updateAll(competition, true, player => {
-    // Attempt this 3 times per player, waiting 65 seconds in between
-    jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+  await metrics.measureReaction('UpdateAllCompetitionStart', async () => {
+    await competitionService.updateAll(competition, true, player => {
+      // Attempt this 3 times per player, waiting 65 seconds in between
+      jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+    });
   });
 
   // Dispatch a competition started event to our discord bot API.
-  discordService.dispatchCompetitionStarted(competition);
+  await metrics.measureReaction('DiscordCompetitionStarted', () =>
+    discordService.dispatchCompetitionStarted(competition)
+  );
 }
 
-function onCompetitionEnded(competition: Competition) {
+async function onCompetitionEnded(competition: Competition) {
   // Dispatch a competition ended event to our discord bot API.
-  discordService.dispatchCompetitionEnded(competition);
+  await metrics.measureReaction('DiscordCompetitionEnded', () =>
+    discordService.dispatchCompetitionEnded(competition)
+  );
 }
 
-function onCompetitionStarting(competition: Competition, period: EventPeriod) {
+async function onCompetitionStarting(competition: Competition, period: EventPeriod) {
   // Dispatch a competition starting event to our discord bot API.
-  discordService.dispatchCompetitionStarting(competition, period);
+  await metrics.measureReaction('DiscordCompetitionStarting', () =>
+    discordService.dispatchCompetitionStarting(competition, period)
+  );
 }
 
-function onCompetitionEnding(competition: Competition, period: EventPeriod) {
+async function onCompetitionEnding(competition: Competition, period: EventPeriod) {
   // Dispatch a competition ending event to our discord bot API.
-  discordService.dispatchCompetitionEnding(competition, period);
+  await metrics.measureReaction('DiscordCompetitionEnding', () =>
+    discordService.dispatchCompetitionEnding(competition, period)
+  );
 }
 
 function setupCompetitionStart(competition: Competition) {

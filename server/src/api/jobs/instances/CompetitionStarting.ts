@@ -28,7 +28,7 @@ class CompetitionStarting implements Job {
 
       const competitionDetails = await competitionService.getDetails(competition);
       const period = minutes < 60 ? { minutes } : { hours: minutes / 60 };
-      onCompetitionStarting(competitionDetails, period);
+      await onCompetitionStarting(competitionDetails, period);
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
