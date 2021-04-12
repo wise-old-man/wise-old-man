@@ -93,7 +93,7 @@ function getSeconds(period) {
     case 'month':
       return 3600 * 24 * 31;
     default:
-      return 3600 * 24 * 365;
+      return 31556926;
   }
 }
 
