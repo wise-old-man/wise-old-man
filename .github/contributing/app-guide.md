@@ -62,19 +62,13 @@ cp .env.example .env
 By default the example file contains the following snippet
 
 ```
-REACT_APP_API_BASE_URL=http://localhost:5000/api
 SKIP_PREFLIGHT_CHECK=true
+# REACT_APP_BASE_API_URL=http://localhost:5000/api
 ```
 
-**Note: This url will be your development server api url, which can differ from localhost, you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md)**
+**Notice how the REACT_APP_BASE_API_URL variable is commented out using a `#` at the start of it. When this variable is commented out, the app will use the production API URL (`https://api.wiseoldman.net`) by default. If you are running your own local server, you can uncomment that variable and insert your local server URL. This local server URL can differ from localhost,  ou can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md).**
 
-Alternatively, if you don't want to also develop the api simultaneously and are looking to just make some frontend changes, you can use the following snippet instead, to use the production api url:
-
-```
-REACT_APP_API_BASE_URL=https://wiseoldman.net/api
-SKIP_PREFLIGHT_CHECK=true
-```
-
+<br />
 <br />
 
 **Finally! You're done with the setup and installation, now you can run the app and start developing!**
