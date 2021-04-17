@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { PageHeader, Dropdown, Button, Badge } from 'components';
 import { GroupContext } from '../context';
@@ -17,12 +17,6 @@ const MENU_OPTIONS = [
 
 function Header({ group, handleUpdateAll, handleRedirect, handleExport }) {
   const { context, updateContext } = useContext(GroupContext);
-  const [isButtonDisabled, setButtonDisabled] = useState(false);
-
-  const handleUpdateAllClicked = () => {
-    handleUpdateAll();
-    setButtonDisabled(true);
-  };
 
   const handleOptionSelected = option => {
     if (option.value === 'DELETE_GROUP') {
@@ -36,9 +30,7 @@ function Header({ group, handleUpdateAll, handleRedirect, handleExport }) {
     }
   };
 
-  if (!group) {
-    return null;
-  }
+  if (!group) return null;
 
   return (
     <PageHeader
@@ -50,7 +42,7 @@ function Header({ group, handleUpdateAll, handleRedirect, handleExport }) {
       }}
       renderRight={() => (
         <>
-          <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
+          <Button text="Update all" onClick={handleUpdateAll} />
           <Dropdown options={MENU_OPTIONS} onSelect={handleOptionSelected}>
             <button className="header__options-btn" type="button">
               <img src="/img/icons/options.svg" alt="" />

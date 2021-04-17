@@ -16,15 +16,15 @@ import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
+import * as templeService from '../external/temple.service';
 import * as achievementService from './achievement.service';
-import * as nameService from './name.service';
 import * as deltaService from './delta.service';
+import * as nameService from './name.service';
 import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
-import * as templeService from '../external/temple.service';
-import * as cmlService from '../external/cml.service';
 
 interface Member extends Player {
   role: string;
@@ -777,7 +777,7 @@ async function updateAllMembers(group: Group, updateAction: (player: Player) => 
   const members = await getOutdatedMembers(group.id);
 
   if (!members || members.length === 0) {
-    throw new BadRequestError('This group has no members that should be updated.');
+    throw new BadRequestError('This group has no outdated members (updated over 1h ago).');
   }
 
   // Execute the update action for every member

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -9,6 +9,7 @@ import { groupActions, groupSelectors } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
 import URL from 'utils/url';
 import DeleteGroupModal from 'modals/DeleteGroupModal';
+import UpdateAllModal from 'modals/UpdateAllModal';
 import {
   Header,
   Widgets,
@@ -43,13 +44,17 @@ function Group() {
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
   const { id, section } = context;
 
+  const [showUpdateAllModal, setShowUpdateAllModal] = useState(false);
+
   const selectedTabIndex = getSelectedTabIndex(section);
   const group = useSelector(groupSelectors.getGroup(id));
 
   const showDeleteModal = section === 'delete' && !!group;
 
-  const handleUpdateAll = () => {
-    dispatch(groupActions.updateAll(id));
+  const handleUpdateAll = verificationCode => {
+    dispatch(groupActions.updateAll(id, verificationCode)).then(r => {
+      if (!r.payload.error) setShowUpdateAllModal(false);
+    });
   };
 
   const handleRedirect = path => {
@@ -85,7 +90,7 @@ function Group() {
           <div className="col">
             <Header
               group={group}
-              handleUpdateAll={handleUpdateAll}
+              handleUpdateAll={() => setShowUpdateAllModal(true)}
               handleRedirect={handleRedirect}
               handleExport={handleExport}
             />
@@ -114,6 +119,13 @@ function Group() {
         </div>
         {showDeleteModal && (
           <DeleteGroupModal group={group} onCancel={() => updateContext({ section: 'members' })} />
+        )}
+        {showUpdateAllModal && (
+          <UpdateAllModal
+            entityName="group"
+            onCancel={() => setShowUpdateAllModal(false)}
+            onSubmit={handleUpdateAll}
+          />
         )}
       </div>
     </GroupContext.Provider>

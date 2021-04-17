@@ -84,7 +84,14 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: () => '-break-small',
+        className: value => {
+          // If competition has started and this player hasn't updated since, show red text
+          if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {
+            return '-break-small -negative';
+          }
+
+          return '-break-small';
+        },
         transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
       },
       {
@@ -167,6 +174,7 @@ ParticipantsTable.propTypes = {
     type: PropTypes.string,
     metric: PropTypes.string,
     status: PropTypes.string,
+    startsAt: PropTypes.instanceOf(Date),
     participants: PropTypes.arrayOf(PropTypes.shape({}))
   }).isRequired,
   onUpdateClicked: PropTypes.func.isRequired

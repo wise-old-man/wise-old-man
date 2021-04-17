@@ -41,7 +41,7 @@ function DeleteGroupModal({ group, onCancel }) {
         <input
           className="verification-input"
           value={verificationCode}
-          type="text"
+          type="password"
           placeholder="Verification code"
           onChange={onVerificationInput}
           autoComplete="off"
