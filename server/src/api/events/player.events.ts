@@ -56,6 +56,12 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 
     // Attempt to import this player's history from CML
     await metrics.measureReaction('ImportCML', () => playerService.importCML(player));
+
+    // If this player is an inactive iron player, their type should be reviewed
+    // This allows us to catch de-iron players early, and adjust their type accordingly
+    if (await playerService.shouldReviewType(player)) {
+      jobs.add('ReviewPlayerType', { id: player.id });
+    }
   }
 }
 
