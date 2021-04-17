@@ -125,12 +125,12 @@ const fetchPlayerCompetitions = username => async dispatch => {
   }
 };
 
-const updateAll = id => async dispatch => {
+const updateAll = (id, verificationCode) => async dispatch => {
   dispatch(reducers.onUpdateAllRequest());
 
   try {
     const url = endpoints.updateAllParticipants.replace(':id', id);
-    const { data } = await api.post(url);
+    const { data } = await api.post(url, { verificationCode });
 
     return dispatch(reducers.onUpdateAllSuccess({ competitionId: id, data }));
   } catch (e) {

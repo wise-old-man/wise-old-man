@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -9,6 +9,7 @@ import { useUrlContext } from 'hooks';
 import { getCompetitionChartData } from 'utils';
 import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
+import UpdateAllModal from 'modals/UpdateAllModal';
 import { Header, Widgets, ParticipantsTable, TeamsTable } from './containers';
 import { CompetitionInfo } from './components';
 import { CompetitionContext } from './context';
@@ -31,6 +32,8 @@ function Competition() {
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
   const { id, section } = context;
 
+  const [showUpdateAllModal, setShowUpdateAllModal] = useState(false);
+
   const competition = useSelector(competitionSelectors.getCompetition(id));
   const competitionType = competition ? competition.type : 'classic';
 
@@ -39,8 +42,10 @@ function Competition() {
   const selectedTabIndex = getSelectedTabIndex(competitionType, section);
   const showDeleteModal = section === 'delete' && !!competition;
 
-  const handleUpdateAll = () => {
-    dispatch(competitionActions.updateAll(id));
+  const handleUpdateAll = verificationCode => {
+    dispatch(competitionActions.updateAll(id, verificationCode)).then(r => {
+      if (!r.payload.error) setShowUpdateAllModal(false);
+    });
   };
 
   const handleUpdatePlayer = username => {
@@ -86,7 +91,7 @@ function Competition() {
           <div className="col">
             <Header
               competition={competition}
-              handleUpdateAll={handleUpdateAll}
+              handleUpdateAll={() => setShowUpdateAllModal(true)}
               handleEditRedirect={handleEditRedirect}
             />
           </div>
@@ -113,6 +118,13 @@ function Competition() {
           <DeleteCompetitionModal
             competition={competition}
             onCancel={() => updateContext({ section: 'teams' })}
+          />
+        )}
+        {showUpdateAllModal && (
+          <UpdateAllModal
+            entityName="competition"
+            onCancel={() => setShowUpdateAllModal(false)}
+            onSubmit={handleUpdateAll}
           />
         )}
       </div>

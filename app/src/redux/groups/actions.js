@@ -132,12 +132,12 @@ const fetchPlayerGroups = username => async dispatch => {
   }
 };
 
-const updateAll = id => async dispatch => {
+const updateAll = (id, verificationCode) => async dispatch => {
   dispatch(reducers.onUpdateAllRequest());
 
   try {
     const url = endpoints.updateAllMembers.replace(':id', id);
-    const { data } = await api.post(url);
+    const { data } = await api.post(url, { verificationCode });
 
     return dispatch(reducers.onUpdateAllSuccess({ groupId: id, data }));
   } catch (e) {

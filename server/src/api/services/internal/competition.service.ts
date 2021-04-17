@@ -894,7 +894,7 @@ async function updateAll(competition: Competition, force: boolean, updateFn: (pl
     : await getOutdatedParticipants(competition.id);
 
   if (!participants || participants.length === 0) {
-    throw new BadRequestError('This competition has no outdated participants.');
+    throw new BadRequestError('This competition has no outdated participants (updated over 1h ago).');
   }
 
   // Execute the update action for every participant

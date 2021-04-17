@@ -1,18 +1,12 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { PageHeader, Dropdown, Button } from 'components';
 import { CompetitionContext } from '../context';
 
 function Header({ competition, handleUpdateAll, handleEditRedirect }) {
   const { updateContext } = useContext(CompetitionContext);
-  const [isButtonDisabled, setButtonDisabled] = useState(false);
 
   const menuOptions = useMemo(() => getMenuOptions(competition), [competition]);
-
-  const handleUpdateAllClicked = () => {
-    handleUpdateAll();
-    setButtonDisabled(true);
-  };
 
   const handleOptionSelected = option => {
     if (option.value === 'DELETE_COMPETITION') {
@@ -22,18 +16,14 @@ function Header({ competition, handleUpdateAll, handleEditRedirect }) {
     }
   };
 
-  if (!competition) {
-    return null;
-  }
+  if (!competition) return null;
 
   return (
     <PageHeader
       title={competition.title}
       renderRight={() => (
         <>
-          {competition.status !== 'finished' && (
-            <Button text="Update all" onClick={handleUpdateAllClicked} disabled={isButtonDisabled} />
-          )}
+          {competition.status !== 'finished' && <Button text="Update all" onClick={handleUpdateAll} />}
           <Dropdown options={menuOptions} onSelect={handleOptionSelected}>
             <button className="header__options-btn" type="button">
               <img src="/img/icons/options.svg" alt="" />
