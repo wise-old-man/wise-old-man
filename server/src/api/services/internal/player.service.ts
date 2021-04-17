@@ -7,6 +7,7 @@ import * as cmlService from '../external/cml.service';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
 import logger from '../external/logger.service';
+import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
@@ -61,12 +62,18 @@ function isValidUsername(username: string): boolean {
  * Checks if a given player should have their player type reviewed.
  * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
  */
-function shouldReviewType(player: Player): boolean {
+async function shouldReviewType(player: Player): Promise<boolean> {
+  // Type reviews should only be done on iron players
   if (player.type === 'regular') return false;
-  const lastChangedDiff = Math.floor((Date.now() - player.lastChangedAt.getTime()) / 1000);
+
+  // After checking a player's type, we add their username to a cache that blocks
+  // this action to be repeated again within the next week (as to not overload the server)
+  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', player.username));
 
   // If player hasn't gained exp in over 24h, despite being updated recently
-  return lastChangedDiff > DAY_IN_SECONDS;
+  const isInactive = (Date.now() - player.lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
+
+  return !hasCooldown && isInactive;
 }
 
 /**
