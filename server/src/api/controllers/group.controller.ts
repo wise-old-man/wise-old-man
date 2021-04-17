@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { Player } from '../../database/models';
 import { BadRequestError, ForbiddenError } from '../errors';
-import jobs from '../jobs';
 import * as verificationGuard from '../guards/verification.guard';
+import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import { extractNumber, extractString, extractStrings } from '../util/http';
@@ -138,8 +138,15 @@ async function changeRole(req: Request, res: Response, next: NextFunction) {
 async function updateAll(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const group = await groupService.resolve(id);
+    const group = await groupService.resolve(id, true);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
     const members = await groupService.updateAllMembers(group, (player: Player) => {
       // Attempt this 3 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });

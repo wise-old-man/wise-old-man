@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
 import { ForbiddenError } from '../errors';
-import jobs from '../jobs';
 import * as verificationGuard from '../guards/verification.guard';
+import jobs from '../jobs';
 import * as service from '../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import * as pagination from '../util/pagination';
@@ -217,8 +217,15 @@ async function removeTeams(req: Request, res: Response, next: NextFunction) {
 async function updateAllParticipants(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
+    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const competition = await service.resolve(id);
+    const competition = await service.resolve(id, { includeHash: true });
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
+
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
+
     const participants = await service.updateAll(competition, false, player => {
       // Attempt this 3 times per player, waiting 65 seconds in between
       jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
