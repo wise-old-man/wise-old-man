@@ -1,11 +1,11 @@
-import { filter, includes, omit, uniqBy } from 'lodash';
+import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES, COMPETITION_TYPES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
-import { durationBetween, isPast } from '../../util/dates';
+import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { getMinimumBossKc, getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
@@ -20,6 +20,7 @@ interface Team {
 }
 
 interface CompetitionParticipant extends Player {
+  teamName?: string;
   progress: {
     start: number;
     end: number;
@@ -215,6 +216,97 @@ async function extendCompetitions(competitions: Competition[]): Promise<Extended
     const duration = durationBetween(c.startsAt, c.endsAt);
     return { ...(c.toJSON() as any), duration, participantCount: parseInt(match ? match.count : 0) };
   });
+}
+
+function getCSV(details: CompetitionDetails, table: string, teamName?: string): string {
+  if (table === 'participants') {
+    return getParticipantsCSV(details);
+  } else if (table === 'teams') {
+    return getTeamsCSV(details);
+  } else if (table === 'team') {
+    return getTeamCSV(details, teamName);
+  }
+
+  throw new BadRequestError("Invalid 'table' parameter. Accepted values: [participants, teams, team]");
+}
+
+function getTeamCSV(details: CompetitionDetails, teamName: string): string {
+  const columns = [
+    { header: 'Rank', value: (_, index) => index + 1 },
+    { header: 'Username', value: row => row.displayName },
+    { header: 'Start', value: row => row.progress.start },
+    { header: 'End', value: row => row.progress.end },
+    { header: 'Gained', value: row => row.progress.gained },
+    { header: 'Last Updated', value: row => formatDate(row.updatedAt) }
+  ];
+
+  const headers = columns.map(c => c.header).join(',');
+
+  const rows = details.participants
+    .filter(p => p.teamName === teamName)
+    .map((p, i) => columns.map(c => c.value(p, i)).join(','));
+
+  return [headers, ...rows].join('\n');
+}
+
+function getTeamsCSV(details: CompetitionDetails): string {
+  const teamNames = uniq(details.participants.map(p => p.teamName));
+  const teamMap = Object.fromEntries(teamNames.map(t => [t, { name: t, participants: [] }]));
+
+  details.participants.forEach(p => {
+    teamMap[p.teamName].participants.push(p);
+  });
+
+  const teamsList = Object.values(teamMap).map(t => {
+    // Sort participants by most gained, and add team rank
+    const sortedParticipants = t.participants
+      .sort((a, b) => b.progress.gained - a.progress.gained)
+      .map((p, i) => ({ ...p, teamRank: i + 1 }));
+
+    const totalGained = t.participants.map(p => p.progress.gained).reduce((a, c) => a + c);
+    const avgGained = totalGained / t.participants.length;
+
+    return { ...t, participants: sortedParticipants, totalGained, avgGained };
+  });
+
+  // Sort teams by most total gained
+  const data = teamsList
+    .sort((a, b) => b.totalGained - a.totalGained)
+    .map((t, i) => ({ ...t, rank: i + 1 }));
+
+  const columns = [
+    { header: 'Rank', value: (_, index) => index + 1 },
+    { header: 'Name', value: row => row.name },
+    { header: 'Players', value: row => row.participants.length },
+    { header: 'Total Gained', value: row => row.totalGained },
+    { header: 'Average Gained', value: row => row.avgGained },
+    { header: 'MVP', value: row => row.participants[0].displayName }
+  ];
+
+  const headers = columns.map(c => c.header).join(',');
+  const rows = data.map((p, i) => columns.map(c => c.value(p, i)).join(','));
+
+  return [headers, ...rows].join('\n');
+}
+
+function getParticipantsCSV(details: CompetitionDetails): string {
+  const columns = [
+    { header: 'Rank', value: (_, index) => index + 1 },
+    { header: 'Username', value: row => row.displayName },
+    { header: 'Start', value: row => row.progress.start },
+    { header: 'End', value: row => row.progress.end },
+    { header: 'Gained', value: row => row.progress.gained },
+    { header: 'Last Updated', value: row => formatDate(row.updatedAt) }
+  ];
+
+  if (details.type === 'team') {
+    columns.splice(2, 0, { header: 'Team', value: row => row.teamName });
+  }
+
+  const headers = columns.map(c => c.header).join(',');
+  const rows = details.participants.map((p, i) => columns.map(c => c.value(p, i)).join(','));
+
+  return [headers, ...rows].join('\n');
 }
 
 /**
@@ -963,6 +1055,7 @@ export {
   getGroupCompetitions,
   getPlayerCompetitions,
   getDetails,
+  getCSV,
   create,
   edit,
   destroy,

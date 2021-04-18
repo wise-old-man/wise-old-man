@@ -44,6 +44,25 @@ async function details(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// GET /competitions/:id/csv
+async function detailsCSV(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const table = extractString(req.query, { key: 'table', required: true });
+    const teamName = extractString(req.query, { key: 'teamName' });
+    const metric = extractString(req.query, { key: 'metric' });
+
+    const competition = await service.resolve(id, { includeGroup: true });
+    const competitionDetails = await service.getDetails(competition, metric);
+
+    const csv = service.getCSV(competitionDetails, table, teamName);
+
+    res.end(csv);
+  } catch (e) {
+    next(e);
+  }
+}
+
 // POST /competitions
 async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -243,6 +262,7 @@ async function updateAllParticipants(req: Request, res: Response, next: NextFunc
 export {
   index,
   details,
+  detailsCSV,
   create,
   edit,
   remove,
