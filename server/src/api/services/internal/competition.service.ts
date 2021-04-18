@@ -220,8 +220,9 @@ async function extendCompetitions(competitions: Competition[]): Promise<Extended
 /**
  * Get all the data on a given competition.
  */
-async function getDetails(competition: Competition): Promise<CompetitionDetails | any> {
-  const metricKey = getValueKey(competition.metric);
+async function getDetails(competition: Competition, metric?: string): Promise<CompetitionDetails | any> {
+  const competitionMetric = metric || competition.metric;
+  const metricKey = getValueKey(competitionMetric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
   const participations = await Participation.findAll({
@@ -234,7 +235,7 @@ async function getDetails(competition: Competition): Promise<CompetitionDetails 
     ]
   });
 
-  const minimumValue = getMinimumBossKc(competition.metric);
+  const minimumValue = getMinimumBossKc(competitionMetric);
 
   const participants = participations
     .map(({ player, teamName, startSnapshot, endSnapshot }) => {

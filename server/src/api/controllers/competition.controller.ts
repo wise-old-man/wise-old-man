@@ -33,9 +33,10 @@ async function index(req: Request, res: Response, next: NextFunction) {
 async function details(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
+    const metric = extractString(req.query, { key: 'metric' });
 
     const competition = await service.resolve(id, { includeGroup: true });
-    const competitionDetails = await service.getDetails(competition);
+    const competitionDetails = await service.getDetails(competition, metric);
 
     res.json(competitionDetails);
   } catch (e) {
