@@ -409,14 +409,12 @@ async function find(username: string): Promise<Player | null> {
 }
 
 async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
-  const foundPlayers = await findAll(usernames);
+  const foundPlayers = await findAll(usernames.map(standardize));
+
+  if (foundPlayers.length === usernames.length) return foundPlayers;
+
   const foundUsernames = foundPlayers.map(f => f.username);
-
-  const missingUsernames = usernames.filter(u => !foundUsernames.includes(u));
-
-  if (missingUsernames.length === 0) {
-    return foundPlayers;
-  }
+  const missingUsernames = usernames.map(standardize).filter(u => !foundUsernames.includes(u));
 
   const newPlayers = await Player.bulkCreate(
     missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) })),
