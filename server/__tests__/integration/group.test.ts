@@ -452,7 +452,7 @@ describe('Group API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('None of the players given were members of that group.');
+      expect(response.body.message).toBe('No valid tracked players were given.');
 
       done();
     });
