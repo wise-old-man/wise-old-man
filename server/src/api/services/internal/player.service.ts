@@ -409,16 +409,29 @@ async function find(username: string): Promise<Player | null> {
 }
 
 async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
-  const promises = await Promise.all(usernames.map(username => findOrCreate(username)));
-  return promises.map(p => p[0]);
+  const foundPlayers = await findAll(usernames);
+  const foundUsernames = foundPlayers.map(f => f.username);
+
+  const missingUsernames = usernames.filter(u => !foundUsernames.includes(u));
+
+  if (missingUsernames.length === 0) {
+    return foundPlayers;
+  }
+
+  const newPlayers = await Player.bulkCreate(
+    missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) })),
+    { individualHooks: true }
+  );
+
+  return [...foundPlayers, ...newPlayers];
 }
 
 async function findAll(usernames: string[]): Promise<Player[]> {
-  const promises = await Promise.all(usernames.map(username => find(username)));
+  const players = await Player.findAll({
+    where: { username: usernames.map(standardize) }
+  });
 
-  if (!promises || !promises.length) return [];
-
-  return promises;
+  return players;
 }
 
 async function findById(playerId: number): Promise<Player | null> {
