@@ -22,70 +22,70 @@ import {
 } from './events/player.events';
 
 function setup() {
-  NameChange.afterCreate(async (nameChange: NameChange) => {
-    await onNameChangeCreated(nameChange);
+  NameChange.afterCreate((nameChange: NameChange) => {
+    onNameChangeCreated(nameChange);
   });
 
-  Player.afterUpdate(async (player: Player, options: UpdateOptions) => {
+  Player.afterUpdate((player: Player, options: UpdateOptions) => {
     if (!options.fields) return;
 
     if (options.fields.includes('username')) {
-      await onPlayerNameChanged(player, player.previous('displayName'));
+      onPlayerNameChanged(player, player.previous('displayName'));
     }
 
     if (options.fields.includes('type')) {
-      await onPlayerTypeChanged(player, player.previous('type'));
+      onPlayerTypeChanged(player, player.previous('type'));
     }
   });
 
-  Player.afterCreate(async (player: Player) => {
-    await onPlayerCreated(player);
+  Player.afterCreate((player: Player) => {
+    onPlayerCreated(player);
   });
 
-  Snapshot.afterCreate(async (snapshot: Snapshot) => {
-    await onPlayerUpdated(snapshot);
+  Snapshot.afterCreate((snapshot: Snapshot) => {
+    onPlayerUpdated(snapshot);
   });
 
-  Snapshot.afterBulkCreate(async (snapshots: Snapshot[]) => {
-    await onPlayerImported(snapshots[0].playerId);
+  Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
+    onPlayerImported(snapshots[0].playerId);
   });
 
-  Delta.afterUpdate(async (delta: Delta) => {
-    await onDeltaUpdated(delta);
+  Delta.afterUpdate((delta: Delta) => {
+    onDeltaUpdated(delta);
   });
 
-  Delta.afterCreate(async (delta: Delta) => {
-    await onDeltaUpdated(delta);
+  Delta.afterCreate((delta: Delta) => {
+    onDeltaUpdated(delta);
   });
 
-  Membership.afterBulkCreate(async (memberships: Membership[]) => {
+  Membership.afterBulkCreate((memberships: Membership[]) => {
     const { groupId } = memberships[0];
     const playerIds = memberships.map(m => m.playerId);
 
-    await onMembersJoined(groupId, playerIds);
+    onMembersJoined(groupId, playerIds);
   });
 
-  Membership.afterBulkDestroy(async (options: DestroyOptions) => {
+  Membership.afterBulkDestroy((options: DestroyOptions) => {
     if (!options.where) return;
 
     const { groupId, playerId }: any = options.where;
 
     if (!playerId || playerId.length === 0) return;
 
-    await onMembersLeft(groupId, playerId);
+    onMembersLeft(groupId, playerId);
   });
 
-  Achievement.afterBulkCreate(async (achievements: Achievement[]) => {
-    await onAchievementsCreated(achievements);
+  Achievement.afterBulkCreate((achievements: Achievement[]) => {
+    onAchievementsCreated(achievements);
   });
 
-  Competition.beforeUpdate(async (competition: Competition, options: UpdateOptions) => {
+  Competition.beforeUpdate((competition: Competition, options: UpdateOptions) => {
     if (!options || !options.fields) return;
-    await onCompetitionUpdated(competition, options.fields);
+    onCompetitionUpdated(competition, options.fields);
   });
 
-  Competition.afterCreate(async (competition: Competition) => {
-    await onCompetitionCreated(competition);
+  Competition.afterCreate((competition: Competition) => {
+    onCompetitionCreated(competition);
   });
 }
 
