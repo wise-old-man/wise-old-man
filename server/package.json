@@ -60,7 +60,7 @@
     "faker": "^5.1.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "sequelize-cli": "^5.5.1",
+    "sequelize-cli": "^6.2.0",
     "sqlite3": "^5.0.0",
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
