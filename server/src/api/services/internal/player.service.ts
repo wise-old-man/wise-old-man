@@ -409,27 +409,32 @@ async function find(username: string): Promise<Player | null> {
 }
 
 async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
-  const foundPlayers = await findAll(usernames.map(standardize));
+  const foundPlayers = await findAll(usernames);
 
   if (foundPlayers.length === usernames.length) return foundPlayers;
 
   const foundUsernames = foundPlayers.map(f => f.username);
-  const missingUsernames = usernames.map(standardize).filter(u => !foundUsernames.includes(u));
+  const standardizedUsernames = usernames.map(standardize);
+  const missingUsernames = standardizedUsernames.filter(u => !foundUsernames.includes(u));
 
   const newPlayers = await Player.bulkCreate(
     missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) })),
     { individualHooks: true }
   );
 
-  return [...foundPlayers, ...newPlayers];
+  return [...foundPlayers, ...newPlayers].sort(
+    (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
+  );
 }
 
 async function findAll(usernames: string[]): Promise<Player[]> {
-  const players = await Player.findAll({
-    where: { username: usernames.map(standardize) }
-  });
+  const standardizedUsernames = usernames.map(standardize);
 
-  return players;
+  const players = await Player.findAll({ where: { username: standardizedUsernames } });
+
+  return players.sort(
+    (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
+  );
 }
 
 async function findById(playerId: number): Promise<Player | null> {
