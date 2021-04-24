@@ -54,7 +54,7 @@ async function getPlayerAchievementsProgress(playerId: number) {
     const isFirstInCluster = i === 0 || prevDef.metric !== metric || prevDef.measure !== measure;
 
     const startValue = getAchievementStartValue(d);
-    const currentValue = getCurrentValue(latestSnapshot);
+    const currentValue = latestSnapshot ? getCurrentValue(latestSnapshot) : 0;
     const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
 
     const absoluteProgress = clamp((currentValue - startValue) / (threshold - startValue));
