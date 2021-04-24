@@ -19,7 +19,7 @@ const fetchPlayerDeltas = (username, startDate = null, endDate = null) => async 
 
   try {
     const url = endpoints.fetchPlayerDeltas.replace(':username', username);
-    const params = { startDate, endDate };
+    const params = { startDate, endDate, debugAppUpdated: true };
 
     const { data } = await api.get(url, { params });
 
