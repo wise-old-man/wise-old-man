@@ -63,15 +63,17 @@ function isValidUsername(username: string): boolean {
  * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
  */
 async function shouldReviewType(player: Player): Promise<boolean> {
+  const { username, type, lastChangedAt } = player;
+
   // Type reviews should only be done on iron players
-  if (player.type === 'regular') return false;
+  if (type === 'regular' || type === 'unknown') return false;
 
   // After checking a player's type, we add their username to a cache that blocks
   // this action to be repeated again within the next week (as to not overload the server)
-  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', player.username));
+  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', username));
 
   // If player hasn't gained exp in over 24h, despite being updated recently
-  const isInactive = (Date.now() - player.lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
+  const isInactive = !lastChangedAt || (Date.now() - lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
 
   return !hasCooldown && isInactive;
 }
