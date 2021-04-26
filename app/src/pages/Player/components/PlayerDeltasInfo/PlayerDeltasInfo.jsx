@@ -13,7 +13,7 @@ import './PlayerDeltasInfo.scss';
  *
  * There might be a better solution for this, but I haven't found it yet.
  */
-function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
+function PlayerDeltasInfo({ deltas, period }) {
   const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
@@ -21,13 +21,13 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
     const nextValue = Math.max(0, secondsLeft - 1);
     const timer = setTimeout(() => setSecondsLeft(nextValue), 1000);
 
-    if (secondsLeft === 1) {
-      setTimeout(onTimerEnded, 3000);
-    }
+    // if (secondsLeft === 1) {
+    //   setTimeout(onTimerEnded, 3000);
+    // }
 
     // Clear the timer on unmount
     return () => clearTimeout(timer);
-  }, [secondsLeft, onTimerEnded]);
+  }, [secondsLeft]);
 
   useEffect(() => {
     if (deltas && deltas[period]) {
@@ -35,13 +35,13 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
       const dateDiff = Date.now() - startDate;
       const secsLeft = Math.round(getSeconds(period) - dateDiff / 1000);
 
-      if (secsLeft <= 0 && startDate) {
-        setTimeout(onTimerEnded, 3000);
-      }
+      // if (secsLeft <= 0 && startDate) {
+      //   setTimeout(onTimerEnded, 3000);
+      // }
 
       setSecondsLeft(secsLeft);
     }
-  }, [deltas, period, onTimerEnded]);
+  }, [deltas, period]);
 
   if (!deltas || !deltas[period]) {
     return null;
@@ -76,7 +76,7 @@ function PlayerDeltasInfo({ deltas, period, onTimerEnded }) {
       </div>
       <div className="deltas-info__panel">
         <span className="info-label">Exp. drop in</span>
-        <span className="info-value">{isRefreshing ? 'Refreshing...' : expDrop}</span>
+        <span className="info-value">{isRefreshing ? 'Requires page refresh.' : expDrop}</span>
       </div>
     </div>
   );
@@ -103,8 +103,7 @@ PlayerDeltasInfo.defaultProps = {
 
 PlayerDeltasInfo.propTypes = {
   deltas: PropTypes.shape(),
-  period: PropTypes.string.isRequired,
-  onTimerEnded: PropTypes.func.isRequired
+  period: PropTypes.string.isRequired
 };
 
 export default PlayerDeltasInfo;
