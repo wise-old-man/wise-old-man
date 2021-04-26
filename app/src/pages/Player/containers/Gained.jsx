@@ -67,12 +67,12 @@ function Gained() {
     }
   };
 
-  const handleTimerEndedRefresh = () => {
-    // Clear any currently loaded snapshots
-    dispatch(snapshotActions.invalidateSnapshots(username));
-    // Clear any currently loaded deltas
-    dispatch(deltasActions.invalidateDeltas(username));
-  };
+  // const handleTimerEndedRefresh = () => {
+  //   // Clear any currently loaded snapshots
+  //   dispatch(snapshotActions.invalidateSnapshots(username));
+  //   // Clear any currently loaded deltas
+  //   dispatch(deltasActions.invalidateDeltas(username));
+  // };
 
   const handleCustomPeriodSelected = dates => {
     // Clear any currently loaded "custom period" snapshots
@@ -148,9 +148,7 @@ function Gained() {
             onChangePeriodClicked={() => updateContext({ startDate: null, endDate: null })}
           />
         )}
-        {period !== 'custom' && (
-          <PlayerDeltasInfo deltas={deltas} period={period} onTimerEnded={handleTimerEndedRefresh} />
-        )}
+        {period !== 'custom' && <PlayerDeltasInfo deltas={deltas} period={period} />}
         {isLoadingDeltas ? (
           <TablePlaceholder size={20} />
         ) : (
