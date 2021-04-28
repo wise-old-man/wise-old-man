@@ -4,9 +4,7 @@ import * as recordService from '../services/internal/record.service';
 
 async function onDeltaUpdated(delta: Delta) {
   // Check if this new delta is an all time record for this player
-  await metrics.measureReaction('SyncRecords', () =>
-    recordService.syncRecords(delta.playerId, delta.period)
-  );
+  await metrics.measureReaction('SyncRecords', () => recordService.syncRecords(delta));
 }
 
 export { onDeltaUpdated };

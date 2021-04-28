@@ -1,12 +1,9 @@
-import { forEach } from 'lodash';
 import { Op } from 'sequelize';
-import { Player, Record } from '../../../database/models';
+import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getMeasure } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
-import { getPlayerPeriodDeltas } from './delta.service';
 import * as geoService from '../external/geo.service';
 
 interface PlayerRecordsFilter {
@@ -32,39 +29,39 @@ interface GlobalRecordsFilter extends PlayerRecordsFilter {
  *
  * Note: this method will only created records for values > 0
  */
-async function syncRecords(playerId: number, period: string): Promise<void> {
-  const periodRecords = await Record.findAll({ where: { playerId, period } });
-  const periodDeltas = await getPlayerPeriodDeltas(playerId, period);
+async function syncRecords(delta: Delta): Promise<void> {
+  const { playerId, period } = delta;
 
-  const recordMap: { [metric: string]: Record } = Object.fromEntries(
-    periodRecords.map(r => [r.metric, r])
-  );
+  const records = await Record.findAll({ where: { playerId, period } });
+  const recordMap: { [metric: string]: Record } = Object.fromEntries(records.map(r => [r.metric, r]));
 
   const toCreate = [];
   const toUpdate = [];
 
-  forEach(periodDeltas.data, (values, metric) => {
-    const { gained } = values[getMeasure(metric)];
-
-    if (gained <= 0) return;
+  ALL_METRICS.forEach(metric => {
+    if (delta[metric] <= 0) return;
 
     if (!recordMap[metric]) {
-      toCreate.push({ playerId, period, metric, value: gained });
-    } else if (gained > recordMap[metric].value) {
-      toUpdate.push({ playerId, period, metric, value: gained });
+      toCreate.push({ playerId, period, metric, value: delta[metric] });
+    } else if (delta[metric] > recordMap[metric].value) {
+      toUpdate.push({ playerId, period, metric, value: delta[metric] });
     }
   });
 
-  // Update all "outdated records"
-  await Promise.all(
-    toUpdate.map(async r => {
-      const record = periodRecords.find(p => p.metric === r.metric);
-      await record.update({ value: r.value });
-    })
-  );
+  if (toUpdate.length > 0) {
+    // Update all "outdated records"
+    await Promise.all(
+      toUpdate.map(async r => {
+        const record = records.find(p => p.metric === r.metric);
+        await record.update({ value: r.value });
+      })
+    );
+  }
 
-  // Create all missing records
-  await Record.bulkCreate(toCreate, { ignoreDuplicates: true });
+  if (toCreate.length > 0) {
+    // Create all missing records
+    await Record.bulkCreate(toCreate, { ignoreDuplicates: true });
+  }
 }
 
 /**
