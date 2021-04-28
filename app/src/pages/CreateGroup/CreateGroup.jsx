@@ -97,18 +97,27 @@ function CreateGroup() {
     toggleImportModal(false);
   };
 
-  const handleMigrateModalSubmit = (usernames, replace) => {
+  const handleMigrateModalSubmit = (usernames, leaders, replace) => {
     setMembers(currentMembers => {
+      const collected = uniq([...leaders, ...usernames]);
       if (replace) {
-        return [...uniq(usernames).map(u => ({ username: u, displayName: u, role: 'member' }))];
+        return collected.map(u => ({
+          username: u,
+          displayName: u,
+          role: leaders.includes(u) ? 'leader' : 'member'
+        }));
       }
 
       const existingUsernames = currentMembers.map(c => c.username.toLowerCase());
-      const newUsernames = usernames.filter(u => !existingUsernames.includes(u.toLowerCase()));
+      const newUsernames = collected.filter(u => !existingUsernames.includes(u.toLowerCase()));
 
       return [
         ...currentMembers,
-        ...uniq(newUsernames).map(u => ({ username: u, displayName: u, role: 'member' }))
+        ...uniq(newUsernames).map(u => ({
+          username: u,
+          displayName: u,
+          role: leaders.includes(u) ? 'leader' : 'member'
+        }))
       ];
     });
 

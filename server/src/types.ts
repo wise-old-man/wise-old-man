@@ -86,3 +86,9 @@ export interface Proxy {
     password: string;
   };
 }
+
+export interface MigratedGroupInfo {
+  members: string[];
+  leaders?: string[];
+  name?: string;
+}

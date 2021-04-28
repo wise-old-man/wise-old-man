@@ -86,6 +86,16 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      font-size: 0.8em;
+
+      .group-name {
+        font-weight: 700;
+        color: white;
+      }
+
+      .member-stats {
+        color: $gray-60;
+      }
 
       .button {
         padding: 5px;
