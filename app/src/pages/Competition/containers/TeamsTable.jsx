@@ -8,7 +8,7 @@ import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';
 import { TeamPlayersTable } from '../components';
 
-function TeamsTable({ competition, onUpdateClicked }) {
+function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExportTeamClicked }) {
   const isLoading = useSelector(competitionSelectors.isFetchingDetails);
   const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
@@ -70,14 +70,16 @@ function TeamsTable({ competition, onUpdateClicked }) {
       {
         key: 'toggleDetails',
         label: '',
+        width: 30,
         isSortable: false,
         transform: (value, row) => (
           <button
             type="button"
             onClick={() => toggleExpandedTeam(row.name)}
             className="table-toggle-btn"
+            style={{ transform: `rotate(${expandedTeam === row.name ? -90 : 90}deg)` }}
           >
-            {expandedTeam === row.name ? 'Hide details' : 'Show details'}
+            <img src="/img/icons/arrow_right.svg" alt=">" />
           </button>
         )
       }
@@ -104,18 +106,23 @@ function TeamsTable({ competition, onUpdateClicked }) {
               }}
               transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
             >
-              <TeamPlayersTable
-                competition={competition}
-                team={row}
-                updatingUsernames={updatingUsernames}
-                onUpdateClicked={onUpdateClicked}
-              />
+              <div style={{ marginTop: 5, marginBottom: 20 }}>
+                <TeamPlayersTable
+                  competition={competition}
+                  team={row}
+                  updatingUsernames={updatingUsernames}
+                  onUpdateClicked={onUpdateClicked}
+                  onExportClicked={() => onExportTeamClicked(row.name)}
+                />
+              </div>
             </motion.section>
           )}
         </AnimatePresence>
       )}
       listStyle
       listStyleHeaders
+      showToolbar
+      onExportClicked={onExportTeamsClicked}
     />
   );
 }
@@ -126,7 +133,9 @@ TeamsTable.propTypes = {
     status: PropTypes.string,
     teams: PropTypes.arrayOf(PropTypes.shape())
   }).isRequired,
-  onUpdateClicked: PropTypes.func.isRequired
+  onUpdateClicked: PropTypes.func.isRequired,
+  onExportTeamsClicked: PropTypes.func.isRequired,
+  onExportTeamClicked: PropTypes.func.isRequired
 };
 
 export default TeamsTable;

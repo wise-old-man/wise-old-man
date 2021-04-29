@@ -10,7 +10,7 @@ import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'comp
 import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';
 
-function ParticipantsTable({ competition, onUpdateClicked }) {
+function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsClicked }) {
   const isLoading = useSelector(competitionSelectors.isFetchingDetails);
   const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
@@ -133,6 +133,8 @@ function ParticipantsTable({ competition, onUpdateClicked }) {
       rows={competition.participants}
       columns={tableConfig.columns}
       uniqueKeySelector={tableConfig.uniqueKeySelector}
+      onExportClicked={onExportParticipantsClicked}
+      showToolbar
     />
   );
 }
@@ -177,7 +179,8 @@ ParticipantsTable.propTypes = {
     startsAt: PropTypes.instanceOf(Date),
     participants: PropTypes.arrayOf(PropTypes.shape({}))
   }).isRequired,
-  onUpdateClicked: PropTypes.func.isRequired
+  onUpdateClicked: PropTypes.func.isRequired,
+  onExportParticipantsClicked: PropTypes.func.isRequired
 };
 
 TableUpdateButton.propTypes = {

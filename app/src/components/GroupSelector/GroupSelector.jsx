@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { groupActions, groupSelectors } from 'redux/groups';
 import AutoSuggestInput from 'components/AutoSuggestInput';
-import Table from 'components/Table';
+import Table from '../Table';
 import './GroupSelector.scss';
 
 const TABLE_CONFIG = {

@@ -26,6 +26,7 @@ export { default as StatusDot } from './StatusDot';
 export { default as Switch } from './Switch';
 export { default as Table } from './Table';
 export { default as TablePlaceholder } from './TablePlaceholder';
+export { default as TableToolbar } from './TableToolbar';
 export { default as Tabs } from './Tabs';
 export { default as TeamCard } from './TeamCard';
 export { default as TextButton } from './TextButton';

@@ -1,0 +1,51 @@
+@import '../../styles.scss';
+
+.table-toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 5px;
+
+  &.-stroke {
+    border-bottom: 1px solid $gray-17;
+    margin-bottom: 25px;
+  }
+
+  &__info {
+    color: $gray-60;
+    cursor: pointer;
+    font-size: 0.7em;
+    cursor: unset;
+
+    .separator {
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .highlight {
+      color: white;
+      margin-left: 0.3em;
+    }
+  }
+
+  &__btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 0.7em;
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    img {
+      margin-right: 5px;
+      width: 16px;
+    }
+  }
+}

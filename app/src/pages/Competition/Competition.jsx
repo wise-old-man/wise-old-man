@@ -12,6 +12,7 @@ import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
 import UpdateAllModal from 'modals/UpdateAllModal';
 import SelectMetricModal from 'modals/SelectMetricModal';
+import ExportTableModal from 'modals/ExportTableModal';
 import { Header, Widgets, ParticipantsTable, TeamsTable } from './containers';
 import { CompetitionInfo, PreviewMetricWarning } from './components';
 import { CompetitionContext } from './context';
@@ -35,6 +36,7 @@ function Competition() {
   const { id, section, metric } = context;
 
   const [showUpdateAllModal, setShowUpdateAllModal] = useState(false);
+  const [showExportTableModal, setShowExportTableModal] = useState(null);
   const [showSelectMetricModal, setShowSelectMetricModal] = useState(false);
 
   const competition = useSelector(competitionSelectors.getCompetition(id));
@@ -74,6 +76,10 @@ function Competition() {
     } else {
       updateContext({ section: 'chart' });
     }
+  };
+
+  const handleExportClicked = (type, teamName) => {
+    setShowExportTableModal({ type, teamName, metric, competitionId: id });
   };
 
   // Fetch competition details, on mount
@@ -116,10 +122,19 @@ function Competition() {
           <div className="col-md-9">
             <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
             {section === 'teams' && (
-              <TeamsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+              <TeamsTable
+                competition={competition}
+                onUpdateClicked={handleUpdatePlayer}
+                onExportTeamsClicked={() => handleExportClicked('teams')}
+                onExportTeamClicked={teamName => handleExportClicked('team', teamName)}
+              />
             )}
             {section === 'participants' && (
-              <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+              <ParticipantsTable
+                competition={competition}
+                onUpdateClicked={handleUpdatePlayer}
+                onExportParticipantsClicked={() => handleExportClicked('participants')}
+              />
             )}
             {section === 'chart' && <LineChart datasets={chartData} />}
           </div>
@@ -142,6 +157,12 @@ function Competition() {
             defaultMetric={metric || competition.metric}
             onCancel={() => setShowSelectMetricModal(false)}
             onSubmit={handleMetricSelected}
+          />
+        )}
+        {showExportTableModal && (
+          <ExportTableModal
+            exportConfig={showExportTableModal}
+            onCancel={() => setShowExportTableModal(null)}
           />
         )}
       </div>
