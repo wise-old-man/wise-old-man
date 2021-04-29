@@ -960,6 +960,9 @@ export default [
           It will re-attempt up to 5 times per player.'
       }
     ],
+    body: {
+      verificationCode: '842-225-748'
+    },
     params: [
       {
         field: 'id',
@@ -999,6 +1002,14 @@ export default [
         description:
           "If the competition's participants list is invalid, empty or every participant has been updated in the last 60 minutes",
         body: { message: 'This competition has no outdated participants.' }
+      },
+      {
+        description: 'If the verification code is not given.',
+        body: { message: "Parameter 'verificationCode' is undefined." }
+      },
+      {
+        description: 'If the verification code is not correct.',
+        body: { message: 'Incorrect verification code.' }
       }
     ]
   },
