@@ -1854,6 +1854,9 @@ export default [
           It will re-attempt up to 5 times per player.'
       }
     ],
+    body: {
+      verificationCode: '842-225-748'
+    },
     params: [
       {
         field: 'id',
@@ -1887,6 +1890,14 @@ export default [
         description:
           "If the group's member list is invalid, empty or every member has been updated in the last 60 minutes",
         body: { message: 'This group has no members that should be updated' }
+      },
+      {
+        description: 'If the verification code is not given.',
+        body: { message: "Parameter 'verificationCode' is undefined." }
+      },
+      {
+        description: 'If the verification code is not correct.',
+        body: { message: 'Incorrect verification code.' }
       }
     ]
   }

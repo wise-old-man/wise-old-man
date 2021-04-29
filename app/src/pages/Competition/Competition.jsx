@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Loading, Tabs, LineChart } from 'components';
+import { ALL_METRICS } from 'config';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { playerActions } from 'redux/players';
 import { useUrlContext } from 'hooks';
@@ -10,8 +11,10 @@ import { getCompetitionChartData } from 'utils';
 import URL from 'utils/url';
 import DeleteCompetitionModal from 'modals/DeleteCompetitionModal';
 import UpdateAllModal from 'modals/UpdateAllModal';
+import SelectMetricModal from 'modals/SelectMetricModal';
+import ExportTableModal from 'modals/ExportTableModal';
 import { Header, Widgets, ParticipantsTable, TeamsTable } from './containers';
-import { CompetitionInfo } from './components';
+import { CompetitionInfo, PreviewMetricWarning } from './components';
 import { CompetitionContext } from './context';
 import './Competition.scss';
 
@@ -30,9 +33,11 @@ function Competition() {
   const router = useHistory();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { id, section } = context;
+  const { id, section, metric } = context;
 
   const [showUpdateAllModal, setShowUpdateAllModal] = useState(false);
+  const [showExportTableModal, setShowExportTableModal] = useState(null);
+  const [showSelectMetricModal, setShowSelectMetricModal] = useState(false);
 
   const competition = useSelector(competitionSelectors.getCompetition(id));
   const competitionType = competition ? competition.type : 'classic';
@@ -46,6 +51,11 @@ function Competition() {
     dispatch(competitionActions.updateAll(id, verificationCode)).then(r => {
       if (!r.payload.error) setShowUpdateAllModal(false);
     });
+  };
+
+  const handleMetricSelected = newMetric => {
+    updateContext({ metric: newMetric === competition.metric ? null : newMetric });
+    setShowSelectMetricModal(false);
   };
 
   const handleUpdatePlayer = username => {
@@ -68,8 +78,12 @@ function Competition() {
     }
   };
 
+  const handleExportClicked = (type, teamName) => {
+    setShowExportTableModal({ type, teamName, metric, competitionId: id });
+  };
+
   // Fetch competition details, on mount
-  useEffect(() => fetchDetails(id, router, dispatch), [router, dispatch, id]);
+  useEffect(() => fetchDetails(id, metric, router, dispatch), [router, metric, dispatch, id]);
 
   useEffect(() => {
     if (competition && competition.type === 'classic' && section === 'teams') {
@@ -91,13 +105,15 @@ function Competition() {
           <div className="col">
             <Header
               competition={competition}
-              handleUpdateAll={() => setShowUpdateAllModal(true)}
               handleEditRedirect={handleEditRedirect}
+              handleUpdateAll={() => setShowUpdateAllModal(true)}
+              handleSelectMetric={() => setShowSelectMetricModal(true)}
             />
           </div>
         </div>
+        {metric && <PreviewMetricWarning trueMetric={competition.metric} previewMetric={metric} />}
         <div className="competition__widgets row">
-          <Widgets competition={competition} />
+          <Widgets competition={competition} metric={metric || competition.metric} />
         </div>
         <div className="competition__content row">
           <div className="col-md-3">
@@ -106,10 +122,19 @@ function Competition() {
           <div className="col-md-9">
             <Tabs tabs={tabs} selectedIndex={selectedTabIndex} onTabSelected={handleTabSelected} />
             {section === 'teams' && (
-              <TeamsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+              <TeamsTable
+                competition={competition}
+                onUpdateClicked={handleUpdatePlayer}
+                onExportTeamsClicked={() => handleExportClicked('teams')}
+                onExportTeamClicked={teamName => handleExportClicked('team', teamName)}
+              />
             )}
             {section === 'participants' && (
-              <ParticipantsTable competition={competition} onUpdateClicked={handleUpdatePlayer} />
+              <ParticipantsTable
+                competition={competition}
+                onUpdateClicked={handleUpdatePlayer}
+                onExportParticipantsClicked={() => handleExportClicked('participants')}
+              />
             )}
             {section === 'chart' && <LineChart datasets={chartData} />}
           </div>
@@ -127,14 +152,27 @@ function Competition() {
             onSubmit={handleUpdateAll}
           />
         )}
+        {showSelectMetricModal && (
+          <SelectMetricModal
+            defaultMetric={metric || competition.metric}
+            onCancel={() => setShowSelectMetricModal(false)}
+            onSubmit={handleMetricSelected}
+          />
+        )}
+        {showExportTableModal && (
+          <ExportTableModal
+            exportConfig={showExportTableModal}
+            onCancel={() => setShowExportTableModal(null)}
+          />
+        )}
       </div>
     </CompetitionContext.Provider>
   );
 }
 
-const fetchDetails = (id, router, dispatch) => {
+const fetchDetails = (id, metric, router, dispatch) => {
   // Attempt to fetch competition of that id, if it fails redirect to 404
-  dispatch(competitionActions.fetchDetails(id))
+  dispatch(competitionActions.fetchDetails(id, metric))
     .then(action => {
       if (!action.payload.data) throw new Error();
     })
@@ -156,22 +194,32 @@ function getSelectedTabIndex(competitionType, section) {
   }
 }
 
-function encodeContext({ id, section }) {
-  return new URL(`/competitions/${id}/${section}`).getPath();
+function encodeContext({ id, section, metric }) {
+  const nextURL = new URL(`/competitions/${id}/${section}`);
+
+  if (metric && ALL_METRICS.includes(metric)) {
+    nextURL.appendSearchParam('metric', metric);
+  }
+
+  return nextURL.getPath();
 }
 
-function decodeURL(params) {
+function decodeURL(params, query) {
   const id = parseInt(params.id, 10);
-  const { section } = params;
+  const context = { id, section: params.section };
 
   // Since these decode/encode functions don't have access to the competition type
   // by default, try to render the "teams" display, and if it isn't a
   // team competition, a useEffect will correct the section to 'participants'
-  if (!section) {
-    return { id, section: 'teams' };
+  if (!params.section) {
+    context.section = 'teams';
   }
 
-  return { id, section };
+  if (query.metric && ALL_METRICS.includes(query.metric)) {
+    context.metric = query.metric;
+  }
+
+  return context;
 }
 
 export default Competition;

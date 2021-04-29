@@ -7,7 +7,7 @@ import URL from 'utils/url';
 import { SKILLS } from 'config';
 import { Table, PlayerTag, NumberLabel, TextLabel } from 'components';
 
-function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicked }) {
+function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicked, onExportClicked }) {
   const tableConfig = {
     uniqueKeySelector: row => row.username,
     columns: [
@@ -110,6 +110,8 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
       rows={team.participants}
       columns={tableConfig.columns}
       uniqueKeySelector={tableConfig.uniqueKeySelector}
+      showToolbar
+      onExportClicked={onExportClicked}
     />
   );
 }
@@ -159,7 +161,8 @@ TeamPlayersTable.propTypes = {
     participants: PropTypes.arrayOf(PropTypes.shape({}))
   }).isRequired,
   updatingUsernames: PropTypes.arrayOf(PropTypes.string),
-  onUpdateClicked: PropTypes.func.isRequired
+  onUpdateClicked: PropTypes.func.isRequired,
+  onExportClicked: PropTypes.func.isRequired
 };
 
 TableUpdateButton.propTypes = {

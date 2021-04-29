@@ -86,12 +86,12 @@ const fetchList = (query, limit, offset) => async dispatch => {
   }
 };
 
-const fetchDetails = id => async dispatch => {
+const fetchDetails = (id, metric) => async dispatch => {
   dispatch(reducers.onFetchDetailsRequest());
 
   try {
     const url = endpoints.fetchCompetitionDetails.replace(':id', id);
-    const { data } = await api.get(url);
+    const { data } = await api.get(url, { params: { metric } });
 
     return dispatch(reducers.onFetchDetailsSuccess({ data }));
   } catch (e) {

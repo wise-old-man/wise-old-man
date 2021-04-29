@@ -33,6 +33,10 @@ function parsePeriod(period: string): [string, number] | null {
   return [result[0], totalMs];
 }
 
+function formatDate(date: Date, mask = 'MM-DD-YYYY HH:mm') {
+  return moment(date).format(mask);
+}
+
 // TODO: This should be removed after TS migration is done
 // and we're using Date types for the other methods in this file
 function castToDate(date) {
@@ -117,4 +121,4 @@ function getMilliseconds(period: string) {
   }
 }
 
-export { parsePeriod, isValidDate, isPast, durationBetween, getMilliseconds };
+export { parsePeriod, formatDate, isValidDate, isPast, durationBetween, getMilliseconds };

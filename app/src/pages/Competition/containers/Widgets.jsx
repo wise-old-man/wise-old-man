@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Countdown } from 'components';
 import { TopParticipant, TotalGained } from '../components';
 
-function Widgets({ competition }) {
+function Widgets({ competition, metric }) {
   const { status, startsAt, endsAt } = competition;
 
   const secondsLeft = calcSecondsLeft(status, startsAt, endsAt);
@@ -17,11 +17,11 @@ function Widgets({ competition }) {
       </div>
       <div className="col-md-4 col-sm-6">
         <span className="widget-label">Top Player</span>
-        <TopParticipant metric={competition.metric} participants={competition.participants} />
+        <TopParticipant metric={metric} participants={competition.participants} />
       </div>
       <div className="col-md-4 col-sm-6">
         <span className="widget-label">Total Gained</span>
-        <TotalGained metric={competition.metric} totalGained={competition.totalGained} />
+        <TotalGained metric={metric} totalGained={competition.totalGained} />
       </div>
     </>
   );
@@ -46,6 +46,7 @@ Widgets.defaultProps = {
 };
 
 Widgets.propTypes = {
+  metric: PropTypes.string.isRequired,
   competition: PropTypes.shape({
     metric: PropTypes.string,
     status: PropTypes.string,

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'reac
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { capitalize } from 'utils';
+import TableToolbar from '../TableToolbar';
 import './Table.scss';
 
 const SORT = {
@@ -20,7 +21,9 @@ function Table({
   highlightedRowKey,
   listStyle,
   listStyleHeaders,
-  onRowClicked
+  showToolbar,
+  onRowClicked,
+  onExportClicked
 }) {
   const [sorting, setSorting] = useState(DEFAULT_SORTING);
 
@@ -87,66 +90,77 @@ function Table({
   const sortedRows = useMemo(() => [...rows].sort(handleSort), [rows, handleSort]);
 
   return (
-    <table className={tableClass} cellSpacing="0" cellPadding="0">
-      {/* Colgroups */}
-      <colgroup>
-        {columns && columns.map(({ key, width }) => <col key={`colgroup-${key}`} width={width} />)}
-      </colgroup>
-      {(!listStyle || listStyleHeaders) && (
-        <thead>
-          {/* Column headers */}
-          <tr>
-            {columns.map(({ key, label, className, isSortable = true }) => (
-              <th
-                key={`col-${key}`}
-                className={columnClass(className)}
-                onClick={() => isSortable && handleHeaderClicked(key)}
-              >
-                {columnLabel(label, key)}
-                {isSortable && <div className={columnArrowClass(key)} />}
-              </th>
-            ))}
-          </tr>
-        </thead>
+    <div>
+      {showToolbar && columns.length > 0 && (
+        <TableToolbar
+          resultsSize={rows.length}
+          sortingColumn={columns.find(c => c.key === sorting.by) || columns[0]}
+          sortingDirection={sorting.type}
+          bottomStroke={listStyleHeaders}
+          onExportClicked={onExportClicked}
+        />
       )}
-      <tbody>
-        {!rows || rows.length === 0 ? (
-          <tr className="-empty">
-            <td colSpan={2}>No results found</td>
-          </tr>
-        ) : (
-          sortedRows.map((row, i) => {
-            /* Rows */
-            const rowUniqueKey = uniqueKeySelector(row);
-            const onClick = () => onRowClicked && onRowClicked(i);
-
-            return (
-              <Fragment key={rowUniqueKey}>
-                <tr onClick={onClick}>
-                  {columns.map(({ key, transform, get, className }) => {
-                    const cellUniqueKey = `${rowUniqueKey}/${key}`;
-                    const isHighlighted = rowUniqueKey === highlightedRowKey;
-                    const [formatted, original] = getCellValue(row, key, get, transform);
-                    const rowClass = baseRowClass(className, original, row);
-
-                    return (
-                      <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
-                        {formatted}
-                      </td>
-                    );
-                  })}
-                </tr>
-                {renderRowDetails && (
-                  <td colSpan="100%" className="details-cell">
-                    {renderRowDetails(row, i)}
-                  </td>
-                )}
-              </Fragment>
-            );
-          })
+      <table className={tableClass} cellSpacing="0" cellPadding="0">
+        {/* Colgroups */}
+        <colgroup>
+          {columns && columns.map(({ key, width }) => <col key={`colgroup-${key}`} width={width} />)}
+        </colgroup>
+        {(!listStyle || listStyleHeaders) && (
+          <thead>
+            {/* Column headers */}
+            <tr>
+              {columns.map(({ key, label, className, isSortable = true }) => (
+                <th
+                  key={`col-${key}`}
+                  className={columnClass(className)}
+                  onClick={() => isSortable && handleHeaderClicked(key)}
+                >
+                  {columnLabel(label, key)}
+                  {isSortable && <div className={columnArrowClass(key)} />}
+                </th>
+              ))}
+            </tr>
+          </thead>
         )}
-      </tbody>
-    </table>
+        <tbody>
+          {!rows || rows.length === 0 ? (
+            <tr className="-empty">
+              <td colSpan={2}>No results found</td>
+            </tr>
+          ) : (
+            sortedRows.map((row, i) => {
+              /* Rows */
+              const rowUniqueKey = uniqueKeySelector(row);
+              const onClick = () => onRowClicked && onRowClicked(i);
+
+              return (
+                <Fragment key={rowUniqueKey}>
+                  <tr onClick={onClick}>
+                    {columns.map(({ key, transform, get, className }) => {
+                      const cellUniqueKey = `${rowUniqueKey}/${key}`;
+                      const isHighlighted = rowUniqueKey === highlightedRowKey;
+                      const [formatted, original] = getCellValue(row, key, get, transform);
+                      const rowClass = baseRowClass(className, original, row);
+
+                      return (
+                        <td className={cellClass(rowClass, isHighlighted)} key={cellUniqueKey}>
+                          {formatted}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {renderRowDetails && (
+                    <td colSpan="100%" className="details-cell">
+                      {renderRowDetails(row, i)}
+                    </td>
+                  )}
+                </Fragment>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -158,9 +172,11 @@ function getCellValue(row, key, get, transform) {
 Table.defaultProps = {
   rows: [],
   onRowClicked: undefined,
+  onExportClicked: undefined,
   renderRowDetails: undefined,
   listStyle: false,
   listStyleHeaders: false,
+  showToolbar: false,
   highlightedRowKey: null
 };
 
@@ -190,6 +206,10 @@ Table.propTypes = {
   listStyle: PropTypes.bool,
 
   listStyleHeaders: PropTypes.bool,
+
+  showToolbar: PropTypes.bool,
+
+  onExportClicked: PropTypes.func,
 
   // Event: fired when a row is clicked (if clickable)
   onRowClicked: PropTypes.func
