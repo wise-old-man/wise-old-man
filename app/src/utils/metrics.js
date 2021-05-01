@@ -29,8 +29,8 @@ export function isBoss(value) {
   return BOSSES.includes(value);
 }
 
-export function getMinimumBossKc(value) {
-  switch (value) {
+export function getMinimumBossKc(bossName) {
+  switch (bossName) {
     case 'mimic':
     case 'tzkal_zuk':
       return 2;

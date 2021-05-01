@@ -1,5 +1,6 @@
 import { uniqBy } from 'lodash';
 import { capitalize } from 'utils/strings';
+import { getMinimumBossKc, isBoss } from 'utils/metrics';
 import { CHART_COLORS } from 'config/visuals';
 
 export function distribute(snapshots, limit) {
@@ -70,7 +71,7 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   };
 };
 
-export const getCompetitionChartData = competition => {
+export const getCompetitionChartData = (competition, previewMetric) => {
   if (!competition) return [];
 
   const datasets = [];
@@ -83,7 +84,12 @@ export const getCompetitionChartData = competition => {
 
   topParticipants.forEach((participant, i) => {
     // Convert all the history data into chart points
-    const points = participant.history.map(h => ({ x: h.date, y: h.value }));
+    const points = participant.history.map(h => ({
+      x: h.date,
+      y: isBoss(previewMetric || competition.metric)
+        ? Math.max(h.value, getMinimumBossKc(previewMetric || competition.metric) - 1)
+        : h.value
+    }));
 
     // Convert the exp values to exp delta values
     const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));

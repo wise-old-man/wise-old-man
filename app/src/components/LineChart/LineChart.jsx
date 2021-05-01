@@ -4,7 +4,15 @@ import Chart from 'chart.js';
 import { formatDate, formatNumber } from 'utils';
 import './LineChart.scss';
 
-function LineChart({ datasets, distribution, onDistributionChanged, isLoading, invertYAxis }) {
+function LineChart({
+  datasets,
+  distribution,
+  onDistributionChanged,
+  isLoading,
+  invertYAxis,
+  labelPrefix,
+  yAxisPrefix
+}) {
   const hasEnoughData = datasets.filter(d => d.data.length > 1).length > 0;
 
   const chartObjectRef = useRef(null);
@@ -22,7 +30,10 @@ function LineChart({ datasets, distribution, onDistributionChanged, isLoading, i
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
 
-      chartObjectRef.current = new Chart(ctx, getConfig(datasets, invertYAxis));
+      chartObjectRef.current = new Chart(
+        ctx,
+        getConfig(datasets, invertYAxis, yAxisPrefix, labelPrefix)
+      );
     }
   }
 
@@ -52,7 +63,7 @@ function LineChart({ datasets, distribution, onDistributionChanged, isLoading, i
   );
 }
 
-function getConfig(datasets, invertYAxis) {
+function getConfig(datasets, invertYAxis, yAxisPrefix, labelPrefix) {
   return {
     type: 'line',
     data: {
@@ -84,7 +95,7 @@ function getConfig(datasets, invertYAxis) {
         callbacks: {
           title: data => formatDate(data[0].xLabel, 'DD MMM, HH:mm'),
           label: ({ datasetIndex, yLabel }, data) =>
-            `${data.datasets[datasetIndex].label}: ${formatNumber(yLabel)}`,
+            `${data.datasets[datasetIndex].label}: ${labelPrefix}${formatNumber(yLabel)}`,
           labelColor: (tooltipItem, c) => ({
             backgroundColor: c.config.data.datasets[tooltipItem.datasetIndex].borderColor
           })
@@ -111,7 +122,10 @@ function getConfig(datasets, invertYAxis) {
           {
             ticks: {
               reverse: invertYAxis,
-              callback: value => formatNumber(value, true),
+              callback: value => {
+                if (value === 0 && yAxisPrefix === '+') return value;
+                return `${yAxisPrefix}${formatNumber(value, true)}`;
+              },
               beginAtZero: false,
               maxTicksLimit: 5
             }
@@ -158,6 +172,8 @@ function renderDistributionLabel(distribution, callback) {
 LineChart.defaultProps = {
   invertYAxis: false,
   isLoading: false,
+  labelPrefix: '',
+  yAxisPrefix: '',
   distribution: undefined,
   onDistributionChanged: undefined
 };
@@ -167,6 +183,9 @@ LineChart.propTypes = {
   datasets: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 
   distribution: PropTypes.shape(PropTypes.shape()),
+
+  labelPrefix: PropTypes.string,
+  yAxisPrefix: PropTypes.string,
 
   onDistributionChanged: PropTypes.func,
 
