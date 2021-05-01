@@ -114,7 +114,7 @@ function Group() {
             {section === 'achievements' && <AchievementsTable />}
             {section === 'name changes' && <NameChangesTable />}
             {section === 'statistics' && <Statistics />}
-            {section === 'competitions' && <CompetitionsTable handleRedirect={handleRedirect} />}
+            {section === 'competitions' && <CompetitionsTable />}
           </div>
         </div>
         {showDeleteModal && (

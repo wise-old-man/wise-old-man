@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { sortBy, indexOf } from 'lodash';
 import { Table, TablePlaceholder, StatusDot, Badge } from 'components';
 import { getMetricIcon } from 'utils';
 import { competitionSelectors, competitionActions } from 'redux/competitions';
 import { PlayerContext } from '../context';
+
+const STATUS_ORDER = ['ongoing', 'upcoming', 'finished'];
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -58,8 +59,6 @@ const TABLE_CONFIG = {
   ]
 };
 
-const STATUS_ORDER = ['ongoing', 'upcoming', 'finished'];
-
 function Competitions() {
   const dispatch = useDispatch();
   const { context } = useContext(PlayerContext);
@@ -69,7 +68,7 @@ function Competitions() {
   const isLoading = useSelector(competitionSelectors.isFetchingList);
   const competitions = useSelector(competitionSelectors.getPlayerCompetitions(username));
 
-  const rows = competitions ? sortBy(competitions, c => indexOf(STATUS_ORDER, c.status)) : [];
+  const rows = sortCompetitions(competitions);
 
   const fetchCompetitions = useCallback(() => {
     // Fetch player competitions, if not loaded yet
@@ -94,6 +93,18 @@ function Competitions() {
       )}
     </div>
   );
+}
+
+function sortCompetitions(competitions) {
+  if (!competitions) return [];
+
+  return competitions.sort((a, b) => {
+    return (
+      STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) ||
+      a.startsAt.getTime() - b.startsAt.getTime() ||
+      a.endsAt.getTime() - b.endsAt.getTime()
+    );
+  });
 }
 
 function convertStatus(status) {

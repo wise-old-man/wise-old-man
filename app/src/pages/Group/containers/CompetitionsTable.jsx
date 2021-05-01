@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { competitionSelectors } from 'redux/competitions';
-import { sortBy, indexOf } from 'lodash';
 import { Table, StatusDot, Badge } from 'components';
 import { getMetricIcon } from 'utils';
 import { GroupContext } from '../context';
+
+const STATUS_ORDER = ['ongoing', 'upcoming', 'finished'];
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -15,7 +16,11 @@ const TABLE_CONFIG = {
       width: 30,
       transform: value => <img src={getMetricIcon(value)} alt="" />
     },
-    { key: 'title', className: () => '-primary' },
+    {
+      key: 'title',
+      className: () => '-primary',
+      transform: (val, row) => <Link to={`/competitions/${row.id}`}>{val}</Link>
+    },
     {
       key: 'status',
       className: () => '-break-small',
@@ -49,29 +54,34 @@ const TABLE_CONFIG = {
   ]
 };
 
-function CompetitionsTable({ handleRedirect }) {
+function CompetitionsTable() {
   const { context } = useContext(GroupContext);
   const { id } = context;
 
   const competitions = useSelector(competitionSelectors.getGroupCompetitions(id));
-
-  const order = ['ongoing', 'upcoming', 'finished'];
-  const rows = competitions ? sortBy(competitions, c => indexOf(order, c.status)) : [];
-
-  const handleRowClicked = index => {
-    handleRedirect(`/competitions/${rows[index].id}`);
-  };
+  const rows = sortCompetitions(competitions);
 
   return (
     <Table
       uniqueKeySelector={TABLE_CONFIG.uniqueKey}
       rows={rows}
       columns={TABLE_CONFIG.columns}
-      onRowClicked={handleRowClicked}
       clickable
       listStyle
     />
   );
+}
+
+function sortCompetitions(competitions) {
+  if (!competitions) return [];
+
+  return competitions.sort((a, b) => {
+    return (
+      STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) ||
+      a.startsAt.getTime() - b.startsAt.getTime() ||
+      a.endsAt.getTime() - b.endsAt.getTime()
+    );
+  });
 }
 
 function convertStatus(status) {
@@ -86,9 +96,5 @@ function convertStatus(status) {
       return null;
   }
 }
-
-CompetitionsTable.propTypes = {
-  handleRedirect: PropTypes.func.isRequired
-};
 
 export default CompetitionsTable;
