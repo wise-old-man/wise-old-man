@@ -18,7 +18,7 @@
   "author": "Psikoi",
   "license": "ISC",
   "dependencies": {
-    "@sentry/node": "^5.27.6",
+    "@sentry/node": "^6.3.5",
     "@sentry/tracing": "^5.29.2",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
