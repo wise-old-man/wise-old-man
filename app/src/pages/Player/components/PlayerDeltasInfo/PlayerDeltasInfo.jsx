@@ -3,44 +3,17 @@ import PropTypes from 'prop-types';
 import { durationBetween, formatDate } from 'utils';
 import './PlayerDeltasInfo.scss';
 
-/**
- * The refresh behavior of this component is a bit strange, here's the issue:
- *
- * Sometimes the date on the frontend is a few seconds ahead of the backend,
- * which makes the countdown reach 0 a bit before the deltas actually change.
- * To counter this, we make sure the page keeps refreshing the deltas every 3 seconds
- * until it finally does catch up with the frontend.
- *
- * There might be a better solution for this, but I haven't found it yet.
- */
 function PlayerDeltasInfo({ deltas, period }) {
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    // Start a 1 second timer on mount
-    const nextValue = Math.max(0, secondsLeft - 1);
-    const timer = setTimeout(() => setSecondsLeft(nextValue), 1000);
+    const timer = setInterval(() => {
+      if (deltas && period && deltas[period]) {
+        setTimeLeft(getSeconds(period) * 1000 - (Date.now() - deltas[period].startsAt));
+      }
+    }, 500);
 
-    // if (secondsLeft === 1) {
-    //   setTimeout(onTimerEnded, 3000);
-    // }
-
-    // Clear the timer on unmount
-    return () => clearTimeout(timer);
-  }, [secondsLeft]);
-
-  useEffect(() => {
-    if (deltas && deltas[period]) {
-      const startDate = deltas[period].startsAt;
-      const dateDiff = Date.now() - startDate;
-      const secsLeft = Math.round(getSeconds(period) - dateDiff / 1000);
-
-      // if (secsLeft <= 0 && startDate) {
-      //   setTimeout(onTimerEnded, 3000);
-      // }
-
-      setSecondsLeft(secsLeft);
-    }
+    return () => clearInterval(timer);
   }, [deltas, period]);
 
   if (!deltas || !deltas[period]) {
@@ -52,9 +25,9 @@ function PlayerDeltasInfo({ deltas, period }) {
   const now = new Date();
   const earliestDate = selectedDelta.startsAt;
   const latestDate = selectedDelta.endsAt;
-  const isRefreshing = secondsLeft <= 0 && earliestDate;
+  const isRefreshing = timeLeft <= 0 && earliestDate;
 
-  const expDropDate = new Date(Date.now() + secondsLeft * 1000);
+  const expDropDate = new Date(Date.now() + timeLeft);
 
   const earliest = durationBetween(earliestDate, now, 2, true);
   const lastUpdated = durationBetween(latestDate, now, 2, true);

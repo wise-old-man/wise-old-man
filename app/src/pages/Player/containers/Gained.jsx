@@ -67,13 +67,6 @@ function Gained() {
     }
   };
 
-  // const handleTimerEndedRefresh = () => {
-  //   // Clear any currently loaded snapshots
-  //   dispatch(snapshotActions.invalidateSnapshots(username));
-  //   // Clear any currently loaded deltas
-  //   dispatch(deltasActions.invalidateDeltas(username));
-  // };
-
   const handleCustomPeriodSelected = dates => {
     // Clear any currently loaded "custom period" snapshots
     dispatch(snapshotActions.invalidateSnapshots(username, period));
