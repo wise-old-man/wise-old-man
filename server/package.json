@@ -34,7 +34,7 @@
     "express-useragent": "^1.0.15",
     "lodash": "^4.17.20",
     "moment": "^2.26.0",
-    "pg": "^8.2.1",
+    "pg": "^8.6.0",
     "pg-hstore": "^2.3.3",
     "prom-client": "^13.1.0",
     "reflect-metadata": "^0.1.13",
