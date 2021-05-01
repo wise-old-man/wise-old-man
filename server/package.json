@@ -43,7 +43,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
+    "@types/bcrypt": "^3.0.1",
     "@types/bluebird": "^3.5.33",
     "@types/bull": "^3.14.0",
     "@types/cors": "^2.8.9",
