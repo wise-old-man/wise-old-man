@@ -6,14 +6,14 @@ import { TopParticipant, TotalGained } from '../components';
 function Widgets({ competition, metric }) {
   const { status, startsAt, endsAt } = competition;
 
-  const secondsLeft = calcSecondsLeft(status, startsAt, endsAt);
+  const targetDate = status === 'upcoming' ? startsAt : endsAt;
   const countdownLabel = status === 'upcoming' ? 'Starting in' : 'Time Remaining';
 
   return (
     <>
       <div className="col-md-4">
         <span className="widget-label">{countdownLabel}</span>
-        <Countdown secondsDiff={secondsLeft} />
+        <Countdown targetDate={targetDate} />
       </div>
       <div className="col-md-4 col-sm-6">
         <span className="widget-label">Top Player</span>
@@ -25,20 +25,6 @@ function Widgets({ competition, metric }) {
       </div>
     </>
   );
-}
-
-function calcSecondsLeft(status, startsAt, endsAt) {
-  const curDate = new Date();
-
-  if (status === 'upcoming') {
-    return startsAt - curDate;
-  }
-
-  if (status === 'ongoing') {
-    return endsAt - curDate;
-  }
-
-  return 0;
 }
 
 Widgets.defaultProps = {

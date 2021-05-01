@@ -3,19 +3,18 @@ import PropTypes from 'prop-types';
 import { padNumber, durationOf } from 'utils';
 import './Countdown.scss';
 
-function Countdown({ secondsDiff }) {
-  const [secondsLeft, setSecondsLeft] = useState(secondsDiff);
+function Countdown({ targetDate }) {
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft(targetDate));
 
   useEffect(() => {
-    // Start a 1 second timer on mount
-    const nextValue = Math.max(0, secondsLeft - 1000);
-    const timer = setTimeout(() => setSecondsLeft(nextValue), 1000);
+    // Start a half second timer on mount
+    const timer = setTimeout(() => setTimeLeft(getTimeLeft(targetDate)), 500);
 
     // Clear the timer on unmount
     return () => clearTimeout(timer);
   });
 
-  const { days, hours, minutes, seconds } = durationOf(secondsLeft);
+  const { days, hours, minutes, seconds } = durationOf(timeLeft);
 
   return (
     <div className="countdown">
@@ -39,9 +38,13 @@ function Countdown({ secondsDiff }) {
   );
 }
 
+function getTimeLeft(targetDate) {
+  return Math.max(0, targetDate.getTime() - Date.now());
+}
+
 Countdown.propTypes = {
-  // The initial difference in seconds (Ex: 50 will start a 0 hour, 0 minute, 50 secs countdown)
-  secondsDiff: PropTypes.number.isRequired
+  // The target date that the timer should count down to
+  targetDate: PropTypes.instanceOf(Date).isRequired
 };
 
 export default React.memo(Countdown);
