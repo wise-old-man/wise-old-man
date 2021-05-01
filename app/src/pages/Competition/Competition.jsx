@@ -43,7 +43,7 @@ function Competition() {
   const competitionType = competition ? competition.type : 'classic';
 
   const tabs = getTabs(competitionType);
-  const chartData = getCompetitionChartData(competition);
+  const chartData = getCompetitionChartData(competition, metric);
   const selectedTabIndex = getSelectedTabIndex(competitionType, section);
   const showDeleteModal = section === 'delete' && !!competition;
 
@@ -136,7 +136,7 @@ function Competition() {
                 onExportParticipantsClicked={() => handleExportClicked('participants')}
               />
             )}
-            {section === 'chart' && <LineChart datasets={chartData} />}
+            {section === 'chart' && <LineChart datasets={chartData} yAxisPrefix="+" labelPrefix="+" />}
           </div>
         </div>
         {showDeleteModal && (
