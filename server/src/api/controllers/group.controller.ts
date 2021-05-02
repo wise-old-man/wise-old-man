@@ -131,6 +131,25 @@ async function resetVerificationCode(req: Request, res: Response, next: NextFunc
   }
 }
 
+// PUT /groups/:id/verify
+async function verifyGroup(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
+
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const group = await groupService.resolve(id);
+    await group.update({ verified: true });
+
+    res.json({ ...group.toJSON() });
+  } catch (e) {
+    next(e);
+  }
+}
+
 // PUT /groups/:id/change-role
 async function changeRole(req: Request, res: Response, next: NextFunction) {
   try {
@@ -439,5 +458,6 @@ export {
   removeMembers,
   migrateTemple,
   migrateCML,
-  resetVerificationCode
+  resetVerificationCode,
+  verifyGroup
 };
