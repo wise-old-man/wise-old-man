@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Player } from '../../database/models';
 import { BadRequestError, ForbiddenError } from '../errors';
+import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
@@ -106,6 +107,25 @@ async function remove(req: Request, res: Response, next: NextFunction) {
     const message = `Successfully deleted group '${groupName}'. (id: ${id})`;
 
     res.json({ message });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// PUT /groups/:id/reset-code
+async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
+
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const group = await groupService.resolve(id, true);
+    const newCode = await groupService.resetVerificationCode(group);
+
+    res.json({ newCode });
   } catch (e) {
     next(e);
   }
@@ -418,5 +438,6 @@ export {
   addMembers,
   removeMembers,
   migrateTemple,
-  migrateCML
+  migrateCML,
+  resetVerificationCode
 };

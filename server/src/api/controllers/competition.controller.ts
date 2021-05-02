@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
-import { ForbiddenError } from '../errors';
+import { BadRequestError, ForbiddenError } from '../errors';
+import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
 import * as service from '../services/internal/competition.service';
@@ -143,6 +144,30 @@ async function remove(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// PUT /competitions/:id/reset-code
+async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = extractNumber(req.params, { key: 'id', required: true });
+    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
+
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const competition = await service.resolve(id, { includeHash: true });
+
+    if (competition.groupId) {
+      throw new BadRequestError('Cannot reset verification code for group competition.');
+    }
+
+    const newCode = await service.resetVerificationCode(competition);
+
+    res.json({ newCode });
+  } catch (e) {
+    next(e);
+  }
+}
+
 // POST /competitions/:id/add-participants
 async function addParticipants(req: Request, res: Response, next: NextFunction) {
   try {
@@ -266,6 +291,7 @@ export {
   create,
   edit,
   remove,
+  resetVerificationCode,
   addParticipants,
   removeParticipants,
   addTeams,

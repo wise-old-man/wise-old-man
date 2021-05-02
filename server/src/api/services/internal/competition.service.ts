@@ -626,6 +626,17 @@ async function destroy(competition: Competition) {
   return competitionTitle;
 }
 
+/**
+ * Resets a competition's verification code by generating a new one
+ * and updating the verificationHash field in the database.
+ */
+async function resetVerificationCode(competition: Competition): Promise<string> {
+  const [code, hash] = await cryptService.generateVerification();
+  await competition.update({ verificationHash: hash });
+
+  return code;
+}
+
 async function setTeams(competition: Competition, teams: Team[]) {
   if (!competition) throw new BadRequestError('Invalid competition.');
 
@@ -1059,6 +1070,7 @@ export {
   create,
   edit,
   destroy,
+  resetVerificationCode,
   addParticipants,
   removeParticipants,
   addTeams,
