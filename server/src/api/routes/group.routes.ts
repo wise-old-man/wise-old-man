@@ -10,6 +10,8 @@ api.get('/:id', controller.details);
 api.put('/:id', controller.edit);
 api.delete('/:id', controller.remove);
 
+api.put('/:id/reset-code', controller.resetVerificationCode);
+api.put('/:id/verify', controller.verifyGroup);
 api.put('/:id/change-role', controller.changeRole);
 api.post('/:id/update-all', controller.updateAll);
 api.post('/:id/add-members', controller.addMembers);

@@ -547,6 +547,17 @@ async function destroy(group: Group): Promise<string> {
 }
 
 /**
+ * Resets a group's verification code by generating a new one
+ * and updating the verificationHash field in the database.
+ */
+async function resetVerificationCode(group: Group): Promise<string> {
+  const [code, hash] = await cryptService.generateVerification();
+  await group.update({ verificationHash: hash });
+
+  return code;
+}
+
+/**
  * Set the members of a group.
  *
  * Note: This will replace any existing members.
@@ -845,6 +856,7 @@ export {
   create,
   edit,
   destroy,
+  resetVerificationCode,
   addMembers,
   removeMembers,
   changeRole,
