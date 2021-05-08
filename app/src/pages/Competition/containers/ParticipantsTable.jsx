@@ -44,8 +44,16 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
 
+          // If competition hasn't started
+          if (competition.startsAt >= Date.now())
+            return (
+              <abbr title={"This competition hasn't started yet."}>
+                <span>--</span>
+              </abbr>
+            );
+
           // If player is outdated
-          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+          if (!lastUpdated || lastUpdated < competition.startsAt)
             return (
               <abbr title={"This player hasn't been updated since the competition started."}>
                 <span>--</span>
@@ -80,8 +88,16 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
 
+          // If competition hasn't started
+          if (competition.startsAt >= Date.now())
+            return (
+              <abbr title={"This competition hasn't started yet."}>
+                <span>--</span>
+              </abbr>
+            );
+
           // If player is outdated
-          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+          if (!lastUpdated || lastUpdated < competition.startsAt)
             return (
               <abbr title={"This player hasn't been updated since the competition started."}>
                 <span>--</span>

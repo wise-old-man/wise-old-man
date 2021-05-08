@@ -42,8 +42,16 @@ function TeamPlayersTable({
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
 
+          // If competition hasn't started
+          if (competition.startsAt >= Date.now())
+            return (
+              <abbr title={"This competition hasn't started yet."}>
+                <span>--</span>
+              </abbr>
+            );
+
           // If player is outdated
-          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+          if (!lastUpdated || lastUpdated < competition.startsAt)
             return (
               <abbr title={"This player hasn't been updated since the competition started."}>
                 <span>--</span>
@@ -73,21 +81,42 @@ function TeamPlayersTable({
         key: 'end',
         get: row => (row.progress ? row.progress.end : 0),
         className: () => '-break-small',
-        transform: val => {
+        transform: (val, row) => {
+          const lastUpdated = row.updatedAt;
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
+
+          // If competition hasn't started
+          if (competition.startsAt >= Date.now())
+            return (
+              <abbr title={"This competition hasn't started yet."}>
+                <span>--</span>
+              </abbr>
+            );
+
+          // If player is outdated
+          if (!lastUpdated || lastUpdated < competition.startsAt)
+            return (
+              <abbr title={"This player hasn't been updated since the competition started."}>
+                <span>--</span>
+              </abbr>
+            );
 
           // If is unranked on a boss metric
           if (isBoss(metric) && val < minKc)
             return (
-              <TextLabel
-                value={`< ${minKc}`}
-                popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-              />
+              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
+                <span>{`< ${minKc}`}</span>
+              </abbr>
             );
 
           // If unranked or not updated
-          if (val === -1) return '--';
+          if (val === -1)
+            return (
+              <abbr title={`This player is currently unranked in ${metricName}.`}>
+                <span>--</span>
+              </abbr>
+            );
 
           return <NumberLabel value={val} />;
         }
