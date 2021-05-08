@@ -29,6 +29,7 @@ function Header(props) {
   return (
     <>
       {player.flagged && <FlaggedWarning displayName={player.displayName} />}
+      {!player.flagged && player.type === 'hardcore' && <RollbackWarning />}
       <PageHeader
         title={player.displayName}
         icon={getPlayerTypeIcon(player.type)}
@@ -64,6 +65,25 @@ function Header(props) {
   );
 }
 
+function RollbackWarning() {
+  return (
+    <div className="warning">
+      <span>
+        There have been some HCIM hiscores rollbacks (May 6th &amp; 7th). This may cause your hiscores
+        stats to be lower than your WiseOldMan stats, and possibily get your account flagged for
+        suspicious activity.
+        <b> &nbsp; To fix this, we recommend world hopping a few times until the hiscores update.</b>
+        <br />
+        <br />
+        If you need further assistance, please join our &nbsp;
+        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+          Discord server
+        </a>
+      </span>
+    </div>
+  );
+}
+
 function FlaggedWarning({ displayName }) {
   const nameChangeURL = `/names/submit/${displayName}`;
 
@@ -71,9 +91,9 @@ function FlaggedWarning({ displayName }) {
     <div className="warning">
       <img src="/img/runescape/icons_small/flagged.png" alt="" />
       <span>
-        This player is flagged. There has been some hiscores rollbacks (December 28th), which makes your
-        hiscores stats lower than your wiseoldman stats. This gets flagged as suspicious activity. To fix
-        this, we recommend world hopping a few times until the hiscores update.
+        This player is flagged. There have been some hiscores rollbacks (May 6th &amp; 7th), which makes
+        your hiscores stats lower than your wiseoldman stats. This gets flagged as suspicious activity.
+        To fix this, we recommend world hopping a few times until the hiscores update.
         <br />
         <br />
         Alternatively, this can be caused by an unregistered name change or they have become unranked in

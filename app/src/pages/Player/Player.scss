@@ -10,6 +10,7 @@
       padding: 10px;
       border: 1px dashed $neutral-orange;
       font-size: 0.9em;
+      line-height: 1.5em;
       border-radius: 5px;
       color: $gray-60;
 
@@ -19,6 +20,11 @@
       }
 
       a {
+        text-decoration: underline;
+      }
+
+      a,
+      b {
         color: white;
         font-weight: 700;
       }
