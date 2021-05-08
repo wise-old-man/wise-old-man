@@ -7,7 +7,14 @@ import URL from 'utils/url';
 import { SKILLS } from 'config';
 import { Table, PlayerTag, NumberLabel, TextLabel } from 'components';
 
-function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicked, onExportClicked }) {
+function TeamPlayersTable({
+  competition,
+  metric,
+  updatingUsernames,
+  team,
+  onUpdateClicked,
+  onExportClicked
+}) {
   const tableConfig = {
     uniqueKeySelector: row => row.username,
     columns: [
@@ -30,21 +37,34 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         key: 'start',
         get: row => (row.progress ? row.progress.start : 0),
         className: () => '-break-small',
-        transform: val => {
-          const minKc = getMinimumBossKc(competition.metric);
-          const metricName = getMetricName(competition.metric);
+        transform: (val, row) => {
+          const lastUpdated = row.updatedAt;
+          const minKc = getMinimumBossKc(metric);
+          const metricName = getMetricName(metric);
+
+          // If player is outdated
+          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+            return (
+              <abbr title={"This player hasn't been updated since the competition started."}>
+                <span>--</span>
+              </abbr>
+            );
 
           // If is unranked on a boss metric
-          if (isBoss(competition.metric) && val < minKc)
+          if (isBoss(metric) && val < minKc)
             return (
-              <TextLabel
-                value={`< ${minKc}`}
-                popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-              />
+              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
+                <span>{`< ${minKc}`}</span>
+              </abbr>
             );
 
           // If unranked or not updated
-          if (val === -1) return '--';
+          if (val === -1)
+            return (
+              <abbr title={`This player is currently unranked in ${metricName}.`}>
+                <span>--</span>
+              </abbr>
+            );
 
           return <NumberLabel value={val} />;
         }
@@ -54,11 +74,11 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         get: row => (row.progress ? row.progress.end : 0),
         className: () => '-break-small',
         transform: val => {
-          const minKc = getMinimumBossKc(competition.metric);
-          const metricName = getMetricName(competition.metric);
+          const minKc = getMinimumBossKc(metric);
+          const metricName = getMetricName(metric);
 
           // If is unranked on a boss metric
-          if (isBoss(competition.metric) && val < minKc)
+          if (isBoss(metric) && val < minKc)
             return (
               <TextLabel
                 value={`< ${minKc}`}
@@ -76,14 +96,21 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
         key: 'gained',
         get: row => (row.progress ? row.progress.gained : 0),
         transform: val => {
-          const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
+          const lowThreshold = isSkill(metric) ? 10000 : 5;
           return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
         }
       },
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: () => '-break-large',
+        className: value => {
+          // If competition has started and this player hasn't updated since, show red text
+          if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {
+            return '-break-small -negative';
+          }
+
+          return '-break-small';
+        },
         transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
       },
       {
@@ -103,7 +130,7 @@ function TeamPlayersTable({ competition, updatingUsernames, team, onUpdateClicke
     ]
   };
 
-  if (SKILLS.filter(s => s !== 'overall').includes(competition.metric)) {
+  if (SKILLS.filter(s => s !== 'overall').includes(metric)) {
     tableConfig.columns.splice(tableConfig.columns.length - 2, 0, {
       key: 'levels',
       get: row => (row.levelsGained ? row.levelsGained : 0),
@@ -161,9 +188,11 @@ TeamPlayersTable.defaultProps = {
 };
 
 TeamPlayersTable.propTypes = {
+  metric: PropTypes.string.isRequired,
   competition: PropTypes.shape({
     metric: PropTypes.string,
-    status: PropTypes.string
+    status: PropTypes.string,
+    startsAt: PropTypes.instanceOf(Date)
   }).isRequired,
   team: PropTypes.shape({
     participants: PropTypes.arrayOf(PropTypes.shape({}))

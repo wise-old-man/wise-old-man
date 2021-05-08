@@ -42,6 +42,11 @@
   }
 
   .competition__content {
+    abbr {
+      text-decoration: none;
+      cursor: help;
+    }
+
     .tab-bar {
       margin-bottom: 14px;
     }

@@ -8,7 +8,13 @@ import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';
 import { TeamPlayersTable } from '../components';
 
-function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExportTeamClicked }) {
+function TeamsTable({
+  competition,
+  metric,
+  onUpdateClicked,
+  onExportTeamsClicked,
+  onExportTeamClicked
+}) {
   const isLoading = useSelector(competitionSelectors.isFetchingDetails);
   const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
@@ -44,7 +50,7 @@ function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExpo
         key: 'totalGained',
         label: 'Total Gained',
         transform: val => {
-          const lowThreshold = isSkill(competition.metric) ? 30000 : 10;
+          const lowThreshold = isSkill(metric) ? 30000 : 10;
           return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
         }
       },
@@ -53,7 +59,7 @@ function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExpo
         label: 'Avg. Gained',
         className: () => '-break-small',
         transform: val => {
-          const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
+          const lowThreshold = isSkill(metric) ? 10000 : 5;
           return <NumberLabel value={Math.floor(val)} lowThreshold={lowThreshold} isColored isSigned />;
         }
       },
@@ -109,6 +115,7 @@ function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExpo
               <div style={{ marginTop: 5, marginBottom: 20 }}>
                 <TeamPlayersTable
                   competition={competition}
+                  metric={metric}
                   team={row}
                   updatingUsernames={updatingUsernames}
                   onUpdateClicked={onUpdateClicked}
@@ -128,6 +135,7 @@ function TeamsTable({ competition, onUpdateClicked, onExportTeamsClicked, onExpo
 }
 
 TeamsTable.propTypes = {
+  metric: PropTypes.string.isRequired,
   competition: PropTypes.shape({
     metric: PropTypes.string,
     status: PropTypes.string,
