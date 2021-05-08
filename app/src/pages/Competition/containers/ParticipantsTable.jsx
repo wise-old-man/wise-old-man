@@ -43,15 +43,19 @@ function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsC
           const minKc = getMinimumBossKc(competition.metric);
           const metricName = getMetricName(competition.metric);
 
-          if (val !== -1) return <NumberLabel value={val} />;
-          if (!isBoss(competition.metric)) return val;
+          // If is unranked on a boss metric
+          if (isBoss(competition.metric) && val < minKc)
+            return (
+              <TextLabel
+                value={`< ${minKc}`}
+                popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+              />
+            );
 
-          return (
-            <TextLabel
-              value={`< ${minKc}`}
-              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-            />
-          );
+          // If unranked or not updated
+          if (val === -1) return '--';
+
+          return <NumberLabel value={val} />;
         }
       },
       {
@@ -62,15 +66,19 @@ function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsC
           const minKc = getMinimumBossKc(competition.metric);
           const metricName = getMetricName(competition.metric);
 
-          if (val !== -1) return <NumberLabel value={val} />;
-          if (!isBoss(competition.metric)) return val;
+          // If is unranked on a boss metric
+          if (isBoss(competition.metric) && val < minKc)
+            return (
+              <TextLabel
+                value={`< ${minKc}`}
+                popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+              />
+            );
 
-          return (
-            <TextLabel
-              value={`< ${minKc}`}
-              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-            />
-          );
+          // If unranked or not updated
+          if (val === -1) return '--';
+
+          return <NumberLabel value={val} />;
         }
       },
       {
