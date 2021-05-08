@@ -1014,9 +1014,9 @@ async function updateAll(competition: Competition, force: boolean, updateFn: (pl
  * This should update all the "endSnapshotId" field in the player's participations.
  */
 async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
-  // Get all on-going participations
   const currentDate = new Date();
 
+  // Get all on-going participations
   const participations = await Participation.findAll({
     attributes: ['competitionId', 'playerId'],
     where: { playerId },
@@ -1025,15 +1025,14 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
         model: Competition,
         attributes: ['startsAt', 'endsAt'],
         where: {
+          startsAt: { [Op.lt]: currentDate },
           endsAt: { [Op.gte]: currentDate }
         }
       }
     ]
   });
 
-  if (!participations || participations.length === 0) {
-    return;
-  }
+  if (!participations || participations.length === 0) return;
 
   await Promise.all(
     participations.map(async participation => {
@@ -1042,15 +1041,11 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
       // Update this participation's latest (end) snapshot
       participation.endSnapshotId = latestSnapshot.id;
 
-      // If is upcoming competition, set the latestSnapshot as the start and end snapshots
-      // This allows "Start exp." and "End exp." to salways how the current exp values
-      if (competition.startsAt.getTime() > currentDate.getTime()) {
-        participation.startSnapshotId = latestSnapshot.id;
-      } else if (!participation.startSnapshot) {
-        // If this participation's starting snapshot has not been set,
-        // find the first snapshot created since the start date and set it
-        const start = await snapshotService.findFirstSince(playerId, competition.startsAt);
-        participation.startSnapshotId = start.id;
+      // If this participation's starting snapshot has not been set,
+      // find the first snapshot created since the start date and set it
+      if (!participation.startSnapshot) {
+        const startSnapshot = await snapshotService.findFirstSince(playerId, competition.startsAt);
+        participation.startSnapshotId = startSnapshot.id;
       }
 
       await participation.save();

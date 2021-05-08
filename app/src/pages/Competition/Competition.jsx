@@ -124,6 +124,7 @@ function Competition() {
             {section === 'teams' && (
               <TeamsTable
                 competition={competition}
+                metric={metric || competition.metric}
                 onUpdateClicked={handleUpdatePlayer}
                 onExportTeamsClicked={() => handleExportClicked('teams')}
                 onExportTeamClicked={teamName => handleExportClicked('team', teamName)}
@@ -132,6 +133,7 @@ function Competition() {
             {section === 'participants' && (
               <ParticipantsTable
                 competition={competition}
+                metric={metric || competition.metric}
                 onUpdateClicked={handleUpdatePlayer}
                 onExportParticipantsClicked={() => handleExportClicked('participants')}
               />

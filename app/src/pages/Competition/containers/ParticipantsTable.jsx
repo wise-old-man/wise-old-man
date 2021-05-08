@@ -6,11 +6,11 @@ import classNames from 'classnames';
 import { SKILLS } from 'config';
 import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
 import URL from 'utils/url';
-import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
+import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';
 
-function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsClicked }) {
+function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParticipantsClicked }) {
   const isLoading = useSelector(competitionSelectors.isFetchingDetails);
   const updatingUsernames = useSelector(playerSelectors.getUpdatingUsernames);
 
@@ -39,45 +39,79 @@ function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsC
         key: 'start',
         get: row => (row.progress ? row.progress.start : 0),
         className: () => '-break-small',
-        transform: val => {
-          const minKc = getMinimumBossKc(competition.metric);
-          const metricName = getMetricName(competition.metric);
+        transform: (val, row) => {
+          const lastUpdated = row.updatedAt;
+          const minKc = getMinimumBossKc(metric);
+          const metricName = getMetricName(metric);
 
-          if (val !== -1) return <NumberLabel value={val} />;
-          if (!isBoss(competition.metric)) return val;
+          // If player is outdated
+          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+            return (
+              <abbr title={"This player hasn't been updated since the competition started."}>
+                <span>--</span>
+              </abbr>
+            );
 
-          return (
-            <TextLabel
-              value={`< ${minKc}`}
-              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-            />
-          );
+          // If is unranked on a boss metric
+          if (isBoss(metric) && val < minKc)
+            return (
+              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
+                <span>{`< ${minKc}`}</span>
+              </abbr>
+            );
+
+          // If unranked or not updated
+          if (val === -1)
+            return (
+              <abbr title={`This player is currently unranked in ${metricName}.`}>
+                <span>--</span>
+              </abbr>
+            );
+
+          return <NumberLabel value={val} />;
         }
       },
       {
         key: 'end',
         get: row => (row.progress ? row.progress.end : 0),
         className: () => '-break-small',
-        transform: val => {
-          const minKc = getMinimumBossKc(competition.metric);
-          const metricName = getMetricName(competition.metric);
+        transform: (val, row) => {
+          const lastUpdated = row.updatedAt;
+          const minKc = getMinimumBossKc(metric);
+          const metricName = getMetricName(metric);
 
-          if (val !== -1) return <NumberLabel value={val} />;
-          if (!isBoss(competition.metric)) return val;
+          // If player is outdated
+          if (competition.startsAt < Date.now() && (!lastUpdated || lastUpdated < competition.startsAt))
+            return (
+              <abbr title={"This player hasn't been updated since the competition started."}>
+                <span>--</span>
+              </abbr>
+            );
 
-          return (
-            <TextLabel
-              value={`< ${minKc}`}
-              popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
-            />
-          );
+          // If is unranked on a boss metric
+          if (isBoss(metric) && val < minKc)
+            return (
+              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
+                <span>{`< ${minKc}`}</span>
+              </abbr>
+            );
+
+          // If unranked or not updated
+          if (val === -1)
+            return (
+              <abbr title={`This player is currently unranked in ${metricName}.`}>
+                <span>--</span>
+              </abbr>
+            );
+
+          return <NumberLabel value={val} />;
         }
       },
       {
         key: 'gained',
         get: row => (row.progress ? row.progress.gained : 0),
         transform: val => {
-          const lowThreshold = isSkill(competition.metric) ? 10000 : 5;
+          const lowThreshold = isSkill(metric) ? 10000 : 5;
           return <NumberLabel value={val} lowThreshold={lowThreshold} isColored isSigned />;
         }
       },
@@ -117,7 +151,7 @@ function ParticipantsTable({ competition, onUpdateClicked, onExportParticipantsC
     });
   }
 
-  if (SKILLS.filter(s => s !== 'overall').includes(competition.metric)) {
+  if (SKILLS.filter(s => s !== 'overall').includes(metric)) {
     tableConfig.columns.splice(tableConfig.columns.length - 2, 0, {
       key: 'levels',
       get: row => (row.levelsGained ? row.levelsGained : 0),
@@ -172,6 +206,7 @@ function getPlayerRedirectURL(player, competition) {
 }
 
 ParticipantsTable.propTypes = {
+  metric: PropTypes.string.isRequired,
   competition: PropTypes.shape({
     type: PropTypes.string,
     metric: PropTypes.string,
