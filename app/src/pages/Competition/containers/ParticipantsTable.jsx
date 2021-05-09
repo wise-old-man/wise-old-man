@@ -30,7 +30,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         label: 'Name',
         className: () => '-primary',
         transform: (value, row) => (
-          <Link to={getPlayerRedirectURL(row, competition)}>
+          <Link to={getPlayerRedirectURL(row, competition, metric)}>
             <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
           </Link>
         )
@@ -200,9 +200,8 @@ function TableUpdateButton({ username, isUpdating, onUpdate }) {
   );
 }
 
-function getPlayerRedirectURL(player, competition) {
+function getPlayerRedirectURL(player, competition, metric) {
   const { displayName } = player;
-  const { startsAt, endsAt, metric } = competition;
 
   let metricType = 'skilling';
   if (isBoss(metric) || metric === 'ehb') metricType = 'bossing';
@@ -215,8 +214,8 @@ function getPlayerRedirectURL(player, competition) {
 
   nextURL.appendSearchParam('metric', metric);
   nextURL.appendSearchParam('period', 'custom');
-  nextURL.appendSearchParam('startDate', startsAt.toISOString());
-  nextURL.appendSearchParam('endDate', endsAt.toISOString());
+  nextURL.appendSearchParam('startDate', competition.startsAt.toISOString());
+  nextURL.appendSearchParam('endDate', competition.endsAt.toISOString());
 
   return nextURL.getPath();
 }
