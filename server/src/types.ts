@@ -66,7 +66,7 @@ export enum NameChangeStatus {
   APPROVED
 }
 
-export interface EventPeriod {
+export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
 }

@@ -10,5 +10,9 @@ export default [
   {
     jobName: 'RefreshNameChanges',
     cronConfig: '0 */8 * * *' // every 8 hours
+  },
+  {
+    jobName: 'ScheduleCompetitionEvents',
+    cronConfig: '* * * * *' // every 1 min
   }
 ];

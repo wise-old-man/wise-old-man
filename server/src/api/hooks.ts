@@ -9,7 +9,7 @@ import {
   Snapshot
 } from '../database/models';
 import { onAchievementsCreated } from './events/achievement.events';
-import { onCompetitionCreated, onCompetitionUpdated } from './events/competition.events';
+import { onCompetitionCreated } from './events/competition.events';
 import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
 import { onNameChangeCreated } from './events/name.events';
@@ -77,11 +77,6 @@ function setup() {
 
   Achievement.afterBulkCreate((achievements: Achievement[]) => {
     onAchievementsCreated(achievements);
-  });
-
-  Competition.beforeUpdate((competition: Competition, options: UpdateOptions) => {
-    if (!options || !options.fields) return;
-    onCompetitionUpdated(competition, options.fields);
   });
 
   Competition.afterCreate((competition: Competition) => {

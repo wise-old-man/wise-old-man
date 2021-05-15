@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { Achievement, Competition, Player } from '../../../database/models';
 import env from '../../../env';
-import { EventPeriod } from '../../../types';
+import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
+import { CompetitionDetails } from '../internal/competition.service';
 import * as groupService from '../internal/group.service';
 import * as playerService from '../internal/player.service';
 
@@ -121,7 +122,7 @@ function dispatchCompetitionCreated(competition: Competition) {
 /**
  * Dispatch a competition created event to our discord bot API.
  */
-function dispatchCompetitionStarted(competition: Competition) {
+function dispatchCompetitionStarted(competition: CompetitionDetails) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
@@ -133,7 +134,7 @@ function dispatchCompetitionStarted(competition: Competition) {
 /**
  * Dispatch a competition ended event to our discord bot API.
  */
-function dispatchCompetitionEnded(competition: Competition) {
+function dispatchCompetitionEnded(competition: CompetitionDetails) {
   const { groupId, participants } = competition;
 
   // Only dispatch this event for group competitions
@@ -153,7 +154,7 @@ function dispatchCompetitionEnded(competition: Competition) {
 /**
  * Dispatch a competition starting event to our discord bot API.
  */
-function dispatchCompetitionStarting(competition: Competition, period: EventPeriod) {
+function dispatchCompetitionStarting(competition: CompetitionDetails, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
@@ -165,7 +166,7 @@ function dispatchCompetitionStarting(competition: Competition, period: EventPeri
 /**
  * Dispatch a competition ending event to our discord bot API.
  */
-function dispatchCompetitionEnding(competition: Competition, period: EventPeriod) {
+function dispatchCompetitionEnding(competition: CompetitionDetails, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
