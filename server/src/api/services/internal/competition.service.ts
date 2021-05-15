@@ -32,7 +32,7 @@ interface CompetitionParticipant extends Player {
   }[];
 }
 
-interface CompetitionDetails extends Competition {
+export interface CompetitionDetails extends Competition {
   duration: string;
   totalGained: number;
   participants: CompetitionParticipant[];
