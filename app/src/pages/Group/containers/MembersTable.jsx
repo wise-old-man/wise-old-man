@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { groupSelectors } from 'redux/groups';
 import { Link } from 'react-router-dom';
 import { Table, PlayerTag, NumberLabel, RoleTag, TextLabel, TablePlaceholder } from 'components';
-import { durationBetween, capitalize } from 'utils';
 import { durationBetween } from 'utils';
 import { GroupContext } from '../context';
 
