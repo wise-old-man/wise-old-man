@@ -14,10 +14,10 @@ function dispatch(type: string, payload: any) {
   const url = env.DISCORD_BOT_API_URL;
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
-  
+
   console.log('Sending discord event', type, payload);
 
-  axios.post(url, body).catch((e) => {
+  axios.post(url, body).catch(e => {
     console.log('Error sending discord event.', e);
   });
 }
@@ -130,6 +130,9 @@ function dispatchCompetitionStarted(competition: CompetitionDetails) {
   // Only dispatch this event for group competitions
   if (!groupId) return;
 
+  // Do not send the competition's participants, to not exceed the HTTP character limit
+  delete competition.participants;
+
   dispatch('COMPETITION_STARTED', { groupId, competition });
 }
 
@@ -143,12 +146,17 @@ function dispatchCompetitionEnded(competition: CompetitionDetails) {
   if (!groupId) return;
 
   // Map the competition's end standings
-  const standings = participants.map((p: any) => {
-    const { displayName, teamName } = p;
-    const gained = p.progress.gained;
+  const standings = participants
+    .filter(p => p.progress.gained > 0)
+    .map((p: any) => {
+      const { displayName, teamName } = p;
+      const gained = p.progress.gained;
 
-    return { displayName, teamName, gained };
-  });
+      return { displayName, teamName, gained };
+    });
+
+  // Do not send the competition's participants, to not exceed the HTTP character limit
+  delete competition.participants;
 
   dispatch('COMPETITION_ENDED', { groupId, competition, standings });
 }
@@ -162,6 +170,9 @@ function dispatchCompetitionStarting(competition: CompetitionDetails, period: Ev
   // Only dispatch this event for group competitions
   if (!groupId) return;
 
+  // Do not send the competition's participants, to not exceed the HTTP character limit
+  delete competition.participants;
+
   dispatch('COMPETITION_STARTING', { groupId, competition, period });
 }
 
@@ -173,6 +184,9 @@ function dispatchCompetitionEnding(competition: CompetitionDetails, period: Even
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
+
+  // Do not send the competition's participants, to not exceed the HTTP character limit
+  delete competition.participants;
 
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }
