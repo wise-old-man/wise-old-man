@@ -18,7 +18,7 @@ function dispatch(type: string, payload: any) {
   console.log('Sending discord event', type, payload);
 
   axios.post(url, body).catch(() => {
-    console.log('Error sending discord event.');
+    console.log('Error sending discord event.', e);
   });
 }
 
