@@ -4,10 +4,11 @@ import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { playerActions, playerSelectors } from 'redux/players';
 import AutoSuggestInput from '../AutoSuggestInput';
+import Selector from '../Selector';
 import Table from '../Table';
 import './MembersSelector.scss';
 
-function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
+function getTableConfig(invalidUsernames, onRemove, onSwitchRole, roles) {
   const isInvalid = username => invalidUsernames && invalidUsernames.includes(username);
 
   return {
@@ -20,21 +21,17 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole) {
         className: (val, row) => (isInvalid(row ? row.username : '') ? '-negative' : '-primary')
       },
       {
-        key: 'role'
-      },
-      {
-        key: 'switch role',
-        label: '',
+        key: 'role',
+        label: 'Role',
         isSortable: false,
-        width: 100,
+        width: 200,
         transform: (val, row) => (
-          <button
-            className="table-btn -switch-role"
-            type="button"
-            onClick={() => onSwitchRole(row.username)}
-          >
-            Switch role
-          </button>
+          <Selector
+            options={roles}
+            selectedIndex={roles.findIndex(o => o.value === row.role)}
+            onSelect={option => onSwitchRole(row.username, option.value)}
+            search
+          />
         )
       },
       {
@@ -56,6 +53,7 @@ const mapToSuggestion = player => ({ label: player.displayName, value: player.us
 
 function MembersSelector({
   members,
+  roles,
   invalidUsernames,
   onMemberAdded,
   onMemberRemoved,
@@ -82,8 +80,8 @@ function MembersSelector({
     onMemberRemoved(username);
   };
 
-  const handleRoleSwitch = username => {
-    onMemberRoleSwitched(username);
+  const handleRoleSwitch = (username, role) => {
+    onMemberRoleSwitched(username, role);
   };
 
   const onInputChange = useCallback(handleInputChange, []);
@@ -91,11 +89,10 @@ function MembersSelector({
   const onDeselected = useCallback(handleDeselection, []);
   const onRoleSwitch = useCallback(handleRoleSwitch, []);
 
-  const tableConfig = useMemo(() => getTableConfig(invalidUsernames, onDeselected, onRoleSwitch), [
-    invalidUsernames,
-    onDeselected,
-    onRoleSwitch
-  ]);
+  const tableConfig = useMemo(
+    () => getTableConfig(invalidUsernames, onDeselected, onRoleSwitch, roles),
+    [invalidUsernames, onDeselected, onRoleSwitch, roles]
+  );
 
   return (
     <div className="members-selector">
@@ -125,6 +122,7 @@ MembersSelector.defaultProps = {
 
 MembersSelector.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.object).isRequired,
   invalidUsernames: PropTypes.arrayOf(PropTypes.string),
   onMemberAdded: PropTypes.func.isRequired,
   onMemberRemoved: PropTypes.func.isRequired,

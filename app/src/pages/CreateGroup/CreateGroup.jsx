@@ -9,6 +9,7 @@ import ImportPlayersModal from 'modals/ImportPlayersModal';
 import MigratePlayersModal from 'modals/MigratePlayersModal';
 import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
 import VerificationModal from 'modals/VerificationModal';
+import { ROLES } from 'config';
 import './CreateGroup.scss';
 
 function CreateGroup() {
@@ -60,18 +61,13 @@ function CreateGroup() {
     setMembers(currentMembers => [...currentMembers.filter(m => m.username !== username)]);
   };
 
-  const handleRoleSwitch = username => {
+  const handleRoleSwitch = (username, role) => {
     setMembers(currentMembers => {
       const copy = [...currentMembers];
       const member = copy.find(m => m.username === username);
 
       if (member) {
-        if (member.role === 'leader') {
-          member.role = 'member';
-        } else {
-          member.role = 'leader';
-        }
-
+        member.role = role;
         return copy;
       }
 
@@ -225,6 +221,7 @@ function CreateGroup() {
 
           <MembersSelector
             members={members}
+            roles={ROLES}
             invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}
