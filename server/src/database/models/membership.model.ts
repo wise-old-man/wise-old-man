@@ -36,7 +36,7 @@ export default class Membership extends Model<Membership> {
   @Column({ type: DataType.INTEGER, primaryKey: true, onDelete: 'CASCADE' })
   groupId: number;
 
-  @Default(GROUP_ROLES[0]) // member
+  @Default('member')
   @Column({ type: DataType.ENUM(...GROUP_ROLES), allowNull: false })
   role: string;
 
