@@ -67,7 +67,7 @@ class JobHandler {
   init() {
     // Initialize all queue processing
     this.queues.forEach(queue => {
-      queue.bull.process(5, ({ data }) => queue.handle(data));
+      queue.bull.process(({ data }) => queue.handle(data));
 
       // On Success callback
       queue.bull.on('completed', job => {
