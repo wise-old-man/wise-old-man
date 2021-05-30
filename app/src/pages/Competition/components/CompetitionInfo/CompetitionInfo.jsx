@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { InfoPanel } from 'components';
-import { formatDate, capitalize, getType, getMetricName } from 'utils';
+import { formatDate, formatDateUTC, capitalize, getType, getMetricName } from 'utils';
 
 function CompetitionInfo({ competition }) {
   const data = useMemo(() => formatData(competition), [competition]);
@@ -46,12 +46,20 @@ function formatData(competition) {
       value: capitalize(duration)
     },
     {
-      key: status === 'upcoming' ? 'Starts at' : 'Started at',
+      key: status === 'upcoming' ? 'Starts at (local time)' : 'Started at (local time)',
       value: formatDate(startsAt, 'DD MMM YYYY, HH:mm')
     },
     {
-      key: status === 'finished' ? 'Ended at' : 'Ends at',
+      key: status === 'finished' ? 'Ended at (local time)' : 'Ends at (local time)',
       value: formatDate(endsAt, 'DD MMM YYYY, HH:mm')
+    },
+    {
+      key: status === 'upcoming' ? 'Starts at (UTC)' : 'Started at (UTC)',
+      value: formatDateUTC(startsAt, 'DD MMM YYYY, HH:mm')
+    },
+    {
+      key: status === 'finished' ? 'Ended at (UTC)' : 'Ends at (UTC)',
+      value: formatDateUTC(endsAt, 'DD MMM YYYY, HH:mm')
     }
   ];
 }
