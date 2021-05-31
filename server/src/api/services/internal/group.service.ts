@@ -689,15 +689,29 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
   // Add the new players to the group (as members)
   await group.$add('members', newPlayers);
 
-  const leaderUsernames = members
-    .filter(m => m.role === 'leader')
-    .map(m => playerService.standardize(m.username));
+  const nonMemberRoleUsernames = members
+    .filter(m => m.role !== 'member')
+    .map(m => {
+      return { ...m, username: playerService.standardize(m.username) };
+    });
 
-  // If there's any new leaders, we have to re-add them, forcing the leader role
-  if (leaderUsernames && leaderUsernames.length > 0) {
+  // If there are any non-member specific roles used, we need to set them correctly since group.$add does not
+  if (nonMemberRoleUsernames && nonMemberRoleUsernames.length > 0) {
+    const roleHash = {};
+    for (const newMember of nonMemberRoleUsernames) {
+      if (Object.keys(roleHash).includes(newMember.role)) {
+        roleHash[newMember.role] = [...roleHash[newMember.role], newMember.username];
+      } else {
+        roleHash[newMember.role] = [newMember.username];
+      }
+    }
+
     const allMembers = await group.$get('members');
-    const leaders = allMembers.filter(m => leaderUsernames.includes(m.username));
-    await group.$add('members', leaders, { through: { role: 'leader' } });
+
+    for (const role of Object.keys(roleHash)) {
+      const roleList = allMembers.filter(m => roleHash[role].includes(m.username));
+      await group.$add('members', roleList, { through: { role } });
+    }
   }
 
   // Update the "updatedAt" timestamp on the group model
