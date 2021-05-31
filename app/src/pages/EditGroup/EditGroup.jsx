@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
-import { standardize } from 'utils/player';
+import { standardize } from 'utils';
+import { ROLES } from 'config';
 import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
 import RemovePlayersModal from 'modals/RemovePlayersModal';
@@ -92,18 +93,13 @@ function EditGroup() {
     setMembers(currentMembers => [...currentMembers.filter(m => m.username !== username)]);
   };
 
-  const handleRoleSwitch = username => {
+  const handleRoleSwitch = (username, role) => {
     setMembers(currentMembers => {
       const copy = [...currentMembers];
       const member = copy.find(m => m.username === username);
 
       if (member) {
-        if (member.role === 'leader') {
-          member.role = 'member';
-        } else {
-          member.role = 'leader';
-        }
-
+        member.role = role;
         return copy;
       }
 
@@ -243,6 +239,7 @@ function EditGroup() {
 
           <MembersSelector
             members={members}
+            roles={ROLES}
             invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}
