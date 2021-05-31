@@ -4,7 +4,7 @@ export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultim
 
 export const GROUP_ROLES = ['member', 'leader'];
 
-export const PLAYER_BUILDS = ['f2p', 'lvl3', '1def', '10hp', 'main'];
+export const PLAYER_BUILDS = ['f2p', 'lvl3', '1def', '10hp', 'zerker', 'main'];
 
 export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];
 export const COMPETITION_TYPES = ['classic', 'team'];

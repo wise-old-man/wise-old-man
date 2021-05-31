@@ -69,6 +69,6 @@ export default [
   {
     name: 'Player Builds',
     description: 'All the possible values for the "build" field of the player model.',
-    values: ['main', '1def', 'lvl3', '10hp', 'f2p']
+    values: ['main', '1def', 'lvl3', '10hp', 'zerker', 'f2p']
   }
 ];

@@ -34,6 +34,8 @@ export function getPlayerBuild(build) {
       return 'F2P';
     case '10hp':
       return '10 Hitpoints Pure';
+    case 'zerker':
+      return 'Berserker';
     default:
       return 'Main';
   }
