@@ -20,6 +20,7 @@ export { default as PageHeader } from './PageHeader';
 export { default as PageTitle } from './PageTitle';
 export { default as ParticipantsSelector } from './ParticipantsSelector';
 export { default as PlayerTag } from './PlayerTag';
+export { default as RoleTag } from './RoleTag';
 export { default as SelectableCard } from './SelectableCard';
 export { default as Selector } from './Selector';
 export { default as StatusDot } from './StatusDot';
