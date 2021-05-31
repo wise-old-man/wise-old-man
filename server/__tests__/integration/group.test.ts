@@ -53,7 +53,13 @@ describe('Group API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid member roles');
+      expect(response.body.message).toMatch(
+        'Invalid member roles. Please check the roles of the given members.'
+      );
+      expect(response.body.data).toEqual([
+        { username: 'test player', role: 1 },
+        { username: 'ALT PLAYER', role: 'random' }
+      ]);
 
       done();
     });
