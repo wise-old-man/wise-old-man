@@ -427,8 +427,18 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
     throw new BadRequestError('Invalid members list. Each array element must have a username key.');
   }
 
-  if (members && members.some(m => m.role && !GROUP_ROLES.includes(m.role))) {
-    throw new BadRequestError("Invalid member roles. Must be 'member' or 'leader'.");
+  // Check if there are any invalid roles given
+  if (members && members.length > 0) {
+    const invalidRoles = members.filter(m => !GROUP_ROLES.includes(m.role));
+
+    if (invalidRoles.length > 0) {
+      throw new BadRequestError(
+        'Invalid member roles. Please check the roles of the given members.',
+        invalidRoles.map(m => {
+          return { username: m.username, role: m.role };
+        })
+      );
+    }
   }
 
   // Check if every username in the list is valid
