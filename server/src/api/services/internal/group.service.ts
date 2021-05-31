@@ -434,9 +434,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
         'Invalid member roles. Please check the roles of the given members.',
-        invalidRoles.map(m => {
-          return { username: m.username, role: m.role };
-        })
+        invalidRoles.map(m => ({ username: m.username, role: m.role }))
       );
     }
   }
@@ -685,9 +683,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
 
   const nonMemberRoleUsernames = members
     .filter(m => m.role !== 'member')
-    .map(m => {
-      return { ...m, username: playerService.standardize(m.username) };
-    });
+    .map(m => ({ ...m, username: playerService.standardize(m.username) }));
 
   // If there are any non-member specific roles used, we need to set them correctly since group.$add does not
   if (nonMemberRoleUsernames && nonMemberRoleUsernames.length > 0) {
