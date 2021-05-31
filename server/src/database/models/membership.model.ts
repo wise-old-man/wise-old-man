@@ -37,7 +37,7 @@ export default class Membership extends Model<Membership> {
   groupId: number;
 
   @Default('member')
-  @Column({ type: DataType.ENUM(...GROUP_ROLES), allowNull: false })
+  @Column({ type: DataType.STRING(40), allowNull: false })
   role: string;
 
   @CreatedAt
@@ -57,6 +57,6 @@ export default class Membership extends Model<Membership> {
 
 function validateRole(this: Membership) {
   if (!GROUP_ROLES.includes(this.role)) {
-    throw new Error('Invalid role.');
+    throw new Error(`Invalid role "${this.role}".`);
   }
 }
