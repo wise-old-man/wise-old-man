@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@sentry/node": "^5.27.6",
-    "@sentry/tracing": "^5.29.2",
+    "@sentry/tracing": "^6.3.5",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "bull": "^3.16.0",
