@@ -38,7 +38,6 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
       {
         key: 'start',
         get: row => (row.progress ? row.progress.start : 0),
-        className: () => '-break-small',
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
           const minKc = getMinimumBossKc(metric);
@@ -82,7 +81,6 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
       {
         key: 'end',
         get: row => (row.progress ? row.progress.end : 0),
-        className: () => '-break-small',
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
           const minKc = getMinimumBossKc(metric);
@@ -137,10 +135,10 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         className: value => {
           // If competition has started and this player hasn't updated since, show red text
           if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {
-            return '-break-small -negative';
+            return '-negative';
           }
 
-          return '-break-small';
+          return '';
         },
         transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
       },

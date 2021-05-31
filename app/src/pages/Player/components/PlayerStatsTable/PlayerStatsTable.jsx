@@ -55,13 +55,11 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     },
     {
       key: 'rank',
-      className: () => '-break-small',
       transform: val => <NumberLabel value={val} />
     },
     {
       key: 'ehp',
       label: 'EHP',
-      className: () => '-break-small'
     }
   ];
 
@@ -115,7 +113,6 @@ function renderBossesTable(snapshot) {
     },
     {
       key: 'rank',
-      className: () => '-break-small',
       transform: val => {
         return val === -1 ? (
           <TextLabel value="---" popupValue="Unranked" />
@@ -127,7 +124,6 @@ function renderBossesTable(snapshot) {
     {
       key: 'EHB',
       get: row => row.ehb,
-      className: () => '-break-small'
     }
   ];
 
@@ -161,7 +157,6 @@ function renderActivitiesTable(snapshot) {
     },
     {
       key: 'rank',
-      className: () => '-break-small',
       transform: val => <NumberLabel value={val} />
     }
   ];

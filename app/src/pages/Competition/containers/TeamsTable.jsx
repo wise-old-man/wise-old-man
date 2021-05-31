@@ -34,16 +34,13 @@ function TeamsTable({
       {
         key: 'rank',
         width: 70,
-        className: () => '-break-small'
       },
       {
         key: 'name',
-        className: () => '-primary'
       },
       {
         key: 'playersCount',
         label: 'Players',
-        className: () => '-break-small',
         get: row => row.participants.length
       },
       {
@@ -57,7 +54,6 @@ function TeamsTable({
       {
         key: 'avgGained',
         label: 'Avg. Gained',
-        className: () => '-break-small',
         transform: val => {
           const lowThreshold = isSkill(metric) ? 10000 : 5;
           return <NumberLabel value={Math.floor(val)} lowThreshold={lowThreshold} isColored isSigned />;
@@ -65,7 +61,6 @@ function TeamsTable({
       },
       {
         key: 'MVP',
-        className: () => '-break-small',
         get: ({ participants }) => {
           if (!participants || participants.length === 0) return 'None';
           if (participants[0].progress.gained === 0) return 'None';

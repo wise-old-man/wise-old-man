@@ -85,13 +85,11 @@ function getSkillsTable(delta) {
     },
     {
       key: 'rank',
-      className: () => `-break-small`,
       transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
       key: 'level',
       label: 'Levels',
-      className: () => `-break-small`,
       transform: val => <NumberLabel value={val} isColored isSigned />
     },
     {
@@ -146,7 +144,6 @@ function getBossesTable(delta) {
     },
     {
       key: 'rank',
-      className: () => `-break-small`,
       transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     },
     {
@@ -186,7 +183,6 @@ function getActivitiesTable(delta) {
     },
     {
       key: 'rank',
-      className: () => `-break-small`,
       transform: val => <NumberLabel value={val} isColored isSigned lowThreshold={10} />
     }
   ];

@@ -23,7 +23,6 @@ const TABLE_CONFIG = {
     },
     {
       key: 'status',
-      className: () => '-break-small',
       transform: (value, row) => (
         <div className="status-cell">
           <StatusDot status={convertStatus(value)} />
@@ -43,7 +42,6 @@ const TABLE_CONFIG = {
     },
     {
       key: 'type',
-      className: () => '-break-small',
       transform: value => {
         return (
           value === 'team' && (

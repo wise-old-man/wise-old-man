@@ -66,7 +66,6 @@ function getTableConfig(metric) {
       },
       {
         key: 'updatedAt',
-        className: () => '-break-small',
         transform: value => (
           <abbr title={formatDate(value, 'Do MMM YYYY HH:mm')}>
             <span className="record-date">{formatDate(value, "DD MMM 'YY")}</span>

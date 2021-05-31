@@ -256,24 +256,26 @@
 
 @media only screen and (max-width: $breakpoint-small) {
   .table {
-    td,
+    display: block;
+    overflow-x: auto;
+    td:first-child {
+      position: sticky;
+      left: 0;
+      background-color: $gray-05;
+      z-index: 2;
+    }
     th {
+      min-width: 120px;
       padding: 10px;
-
-      &.-break-small {
-        display: none;
-        font-size: 0;
-        padding: 0;
-        font-size: 0;
-
-        .arrow {
-          display: none;
-        }
-
-        * {
-          padding: 0;
-          font-size: 0;
-        }
+      .arrow {
+        position: inherit;
+      }
+    }
+    tr {
+      th:first-of-type {
+        position: sticky;
+        left: 0;
+        z-index: 2;
       }
     }
   }

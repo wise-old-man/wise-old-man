@@ -105,7 +105,6 @@ function renderTable(snapshot) {
     },
     {
       key: 'rank',
-      className: () => '-break-small',
       transform: val => <NumberLabel value={val} />
     }
   ];
