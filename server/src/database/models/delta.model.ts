@@ -261,6 +261,9 @@ export default class Delta extends Model<Delta> {
   theatre_of_blood: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  theatre_of_blood_hard_mode: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   thermonuclear_smoke_devil: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })

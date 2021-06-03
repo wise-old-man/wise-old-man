@@ -413,6 +413,12 @@ export default [
         thresholds: '100, 500, 1k, 5k'
       },
       {
+        name: '{threshold} Theatre Of Blood (HM) kills',
+        metric: 'theatre_of_blood_hard_mode',
+        measure: 'kills',
+        thresholds: '100, 500, 1k, 5k'
+      },
+      {
         name: '{threshold} Thermonuclear Smoke Devil kills',
         metric: 'thermonuclear_smoke_devil',
         measure: 'kills',

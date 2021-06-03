@@ -319,6 +319,9 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
     stats[getValueKey(s)] = parseInt(kills);
   });
 
+  stats['theatre_of_blood_hard_modeRank'] = 3;
+  stats['theatre_of_blood_hard_modeKills'] = 150;
+
   return Snapshot.build({ playerId, ...stats });
 }
 
