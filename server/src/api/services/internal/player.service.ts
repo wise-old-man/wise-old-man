@@ -88,7 +88,7 @@ function shouldUpdate(player: Player): [boolean, number] {
 
   const seconds = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
 
-  return [seconds >= 0, seconds];
+  return [seconds >= 60, seconds];
 }
 
 /**
