@@ -128,6 +128,7 @@ export default [
       'the_gauntlet',
       'the_corrupted_gauntlet',
       'theatre_of_blood',
+      'theatre_of_blood_hard_mode',
       'thermonuclear_smoke_devil',
       'tzkal_zuk',
       'tztok_jad',
