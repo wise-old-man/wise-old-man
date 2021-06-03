@@ -20,7 +20,7 @@
   "dependencies": {
     "@sentry/node": "^5.27.6",
     "@sentry/tracing": "^5.29.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "bull": "^3.16.0",
     "cheerio": "^1.0.0-rc.3",
