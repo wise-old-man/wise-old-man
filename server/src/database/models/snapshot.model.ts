@@ -28,6 +28,9 @@ export default class Snapshot extends HiscoresValues {
   @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
 
+  @Column({ type: DataType.VIRTUAL, allowNull: false, defaultValue: false })
+  isChange: boolean;
+
   @Column({ type: DataType.DATE })
   importedAt: Date;
 

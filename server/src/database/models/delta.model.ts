@@ -44,6 +44,9 @@ export default class Delta extends Model<Delta> {
   @UpdatedAt
   updatedAt: Date;
 
+  @Column({ type: DataType.VIRTUAL, allowNull: false, defaultValue: false })
+  isPotentialRecord: boolean;
+
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   overall: number;
 
