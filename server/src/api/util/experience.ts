@@ -81,7 +81,7 @@ export function getCombatLevel(snapshot: any): number {
 
   // Formula from https://oldschool.runescape.wiki/w/Combat_level
   // Calculate the combat level
-  const baseCombat = 0.25 * (defence + hitpoints + Math.floor(prayer / 2));
+  const baseCombat = 0.25 * (defence + Math.max(hitpoints, 10) + Math.floor(prayer / 2));
   const meleeCombat = 0.325 * (attack + strength);
   const rangeCombat = 0.325 * Math.floor((3 * ranged) / 2);
   const mageCombat = 0.325 * Math.floor((3 * magic) / 2);
