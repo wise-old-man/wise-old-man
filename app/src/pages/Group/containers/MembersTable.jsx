@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { groupSelectors } from 'redux/groups';
 import { Link } from 'react-router-dom';
-import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
+import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
 import { durationBetween, capitalize } from 'utils';
 import { GroupContext } from '../context';
 
@@ -27,7 +27,16 @@ const TABLE_CONFIG = {
       key: 'exp',
       label: 'Exp.',
       className: () => '-break-small',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+          <TextLabel
+            value="---"
+            popupValue="Unranked"
+          />
+        ) : (
+          <NumberLabel value={val} />
+        )
+      }
     },
     {
       key: 'ehp',

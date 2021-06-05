@@ -44,6 +44,9 @@ export default class Delta extends Model<Delta> {
   @UpdatedAt
   updatedAt: Date;
 
+  @Column({ type: DataType.VIRTUAL, allowNull: false, defaultValue: false })
+  isPotentialRecord: boolean;
+
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   overall: number;
 
@@ -259,6 +262,9 @@ export default class Delta extends Model<Delta> {
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   theatre_of_blood: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  theatre_of_blood_hard_mode: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   thermonuclear_smoke_devil: number;
