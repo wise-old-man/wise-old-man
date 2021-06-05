@@ -369,6 +369,11 @@ export default [
         description: 'Theatre Of Blood rank and kills.'
       },
       {
+        field: 'theatre_of_blood_hard_mode',
+        type: 'object',
+        description: 'Theatre Of Blood (HM) rank and kills.'
+      },
+      {
         field: 'thermonuclear_smoke_devil',
         type: 'object',
         description: 'Thermonuclear Smoke Devil rank and kills.'

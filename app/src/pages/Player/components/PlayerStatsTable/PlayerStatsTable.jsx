@@ -48,14 +48,32 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     },
     {
       key: 'experience',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+          <TextLabel
+            value="---"
+            popupValue="Unranked"
+          />
+        ) : (
+          <NumberLabel value={val} />
+        )
+      }
     },
     {
       key: 'level'
     },
     {
       key: 'rank',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+          <TextLabel
+            value="---"
+            popupValue="Unranked"
+          />
+        ) : (
+          <NumberLabel value={val} />
+        )
+      }
     },
     {
       key: 'ehp',
@@ -153,11 +171,29 @@ function renderActivitiesTable(snapshot) {
     },
     {
       key: 'score',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+          <TextLabel
+            value="---"
+            popupValue="Unranked"
+          />
+        ) : (
+          <NumberLabel value={val} />
+        )
+      }
     },
     {
       key: 'rank',
-      transform: val => <NumberLabel value={val} />
+      transform: val => {
+        return val === -1 ? (
+            <TextLabel
+                value="---"
+                popupValue="Unranked"
+            />
+        ) : (
+            <NumberLabel value={val} />
+        )
+      }
     }
   ];
 

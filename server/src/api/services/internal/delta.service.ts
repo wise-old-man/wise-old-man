@@ -9,10 +9,10 @@ import { getMilliseconds, parsePeriod } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
+import * as geoService from '../external/geo.service';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
-import * as geoService from '../external/geo.service';
 
 interface GlobalDeltasFilter {
   period?: string;
@@ -55,6 +55,12 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
 
       ALL_METRICS.forEach(metric => {
         newDelta[metric] = periodDiffs[metric][getMeasure(metric)].gained;
+
+        if (newDelta[metric] > currentDelta[metric]) {
+          // if any metric has improved since the last delta sync, we should
+          // also check for new records in this period
+          currentDelta.isPotentialRecord = true;
+        }
       });
 
       // If player doesn't have a delta for this period

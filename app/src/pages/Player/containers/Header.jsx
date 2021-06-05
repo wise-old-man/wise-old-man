@@ -29,7 +29,6 @@ function Header(props) {
   return (
     <>
       {player.flagged && <FlaggedWarning displayName={player.displayName} />}
-      {!player.flagged && player.type === 'hardcore' && <RollbackWarning />}
       <PageHeader
         title={player.displayName}
         icon={getPlayerTypeIcon(player.type)}
@@ -62,25 +61,6 @@ function Header(props) {
         )}
       />
     </>
-  );
-}
-
-function RollbackWarning() {
-  return (
-    <div className="warning">
-      <span>
-        There have been some HCIM hiscores rollbacks (May 6th &amp; 7th). This may cause your hiscores
-        stats to be lower than your WiseOldMan stats, and possibily get your account flagged for
-        suspicious activity.
-        <b> &nbsp; To fix this, we recommend world hopping a few times until the hiscores update.</b>
-        <br />
-        <br />
-        If you need further assistance, please join our &nbsp;
-        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
-          Discord server
-        </a>
-      </span>
-    </div>
   );
 }
 
