@@ -46,7 +46,6 @@ const TABLE_CONFIG = {
     {
       key: 'resolvedAt',
       label: 'Approval date',
-      className: () => '-break-small',
       transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
     }
   ]

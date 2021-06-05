@@ -20,7 +20,6 @@ const TABLE_CONFIG = {
     },
     {
       key: 'status',
-      className: () => '-break-small',
       transform: (value, row) => {
         return (
           <div className="status-cell">
@@ -37,7 +36,6 @@ const TABLE_CONFIG = {
     },
     {
       key: 'type',
-      className: () => '-break-small',
       transform: value => {
         return (
           value === 'team' && (
