@@ -43,10 +43,13 @@ async function onPlayerUpdated(snapshot: Snapshot) {
     competitionService.syncParticipations(snapshot.playerId, snapshot)
   );
 
-  // Check for new achievements
-  await metrics.measureReaction('SyncAchievements', () =>
-    achievementService.syncAchievements(snapshot.playerId)
-  );
+  // Only sync achievements if the player gained any exp/kc this update
+  if (snapshot.isChange) {
+    // Check for new achievements
+    await metrics.measureReaction('SyncAchievements', () =>
+      achievementService.syncAchievements(snapshot.playerId)
+    );
+  }
 
   const player = await snapshot.$get('player');
 

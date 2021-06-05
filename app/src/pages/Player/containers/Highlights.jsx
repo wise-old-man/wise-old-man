@@ -39,8 +39,8 @@ function getHighlights(player) {
     },
     {
       icon: getMetricIcon('overall'),
-      title: `${formatNumber(player.exp, true)} Exp.`,
-      text: `Rank ${formatNumber(expRank)}`
+      title: player.exp === -1 ? `Unranked` : `${formatNumber(player.exp, true)} Exp.`,
+      text: expRank === -1 ? `---` : `Rank ${formatNumber(expRank)}`
     },
     {
       icon: getMetricIcon('ehp'),

@@ -81,14 +81,9 @@ async function shouldReviewType(player: Player): Promise<boolean> {
 /**
  * Checks if a given player has been updated in the last 60 seconds.
  */
-function shouldUpdate(player: Player): [boolean, number] {
-  if (!player.updatedAt || !isValidDate(player.updatedAt)) {
-    return [true, DECADE_IN_SECONDS];
-  }
-
-  const seconds = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
-
-  return [seconds >= 60, seconds];
+function shouldUpdate(player: Player): boolean {
+  if (!player.updatedAt || !isValidDate(player.updatedAt)) return true;
+  return Math.floor((Date.now() - player.updatedAt.getTime()) / 1000) >= 60;
 }
 
 /**
@@ -165,10 +160,9 @@ async function search(username: string): Promise<Player[]> {
 async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findOrCreate(username);
-  const [should] = shouldUpdate(player);
 
   // If the player was updated recently, don't update it
-  if (!should && !isNew) {
+  if (!shouldUpdate(player) && !isNew) {
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
@@ -192,6 +186,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     // The player has gained exp/kc/scores since the last update
     if (snapshotService.hasChanged(previousStats, currentStats)) {
       player.lastChangedAt = new Date();
+      currentStats.isChange = true;
     }
 
     // Refresh the player's build

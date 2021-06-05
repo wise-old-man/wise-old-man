@@ -108,6 +108,7 @@ export const BOSSES_MAP = [
   { key: 'the_gauntlet', name: 'The Gauntlet' },
   { key: 'the_corrupted_gauntlet', name: 'The Corrupted Gauntlet' },
   { key: 'theatre_of_blood', name: 'Theatre Of Blood' },
+  { key: 'theatre_of_blood_hard_mode', name: 'Theatre Of Blood (HM)' },
   { key: 'thermonuclear_smoke_devil', name: 'Thermonuclear Smoke Devil' },
   { key: 'tzkal_zuk', name: 'TzKal-Zuk' },
   { key: 'tztok_jad', name: 'TzTok-Jad' },

@@ -101,12 +101,12 @@ function renderTable(snapshot) {
     {
       key: 'value',
       get: getValue,
-      transform: val => <NumberLabel value={val} />
+      transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
     },
     {
       key: 'rank',
       className: () => '-break-small',
-      transform: val => <NumberLabel value={val} />
+      transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
     }
   ];
 

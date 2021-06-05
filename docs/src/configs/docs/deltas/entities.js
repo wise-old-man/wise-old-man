@@ -400,6 +400,11 @@ export default [
         description: ''
       },
       {
+        field: 'theatre_of_blood_hard_mode',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'thermonuclear_smoke_devil',
         type: 'integer',
         description: ''
@@ -537,6 +542,7 @@ export default [
       'the_gauntlet',
       'the_corrupted_gauntlet',
       'theatre_of_blood',
+      'theatre_of_blood_hard_mode',
       'thermonuclear_smoke_devil',
       'tzkal_zuk',
       'tztok_jad',

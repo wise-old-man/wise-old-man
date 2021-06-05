@@ -434,6 +434,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   theatre_of_bloodKills: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  theatre_of_blood_hard_modeRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  theatre_of_blood_hard_modeKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   thermonuclear_smoke_devilRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })

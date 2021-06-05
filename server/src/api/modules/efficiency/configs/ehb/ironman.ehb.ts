@@ -35,6 +35,7 @@ export default [
   { boss: 'the_gauntlet', rate: 10 },
   { boss: 'the_corrupted_gauntlet', rate: 7 },
   { boss: 'theatre_of_blood', rate: 2.4 },
+  { boss: 'theatre_of_blood_hard_mode', rate: 2.4 },
   { boss: 'thermonuclear_smoke_devil', rate: 95 },
   { boss: 'tzkal_zuk', rate: 0.85 },
   { boss: 'tztok_jad', rate: 2 },
