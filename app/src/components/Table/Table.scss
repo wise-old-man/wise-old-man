@@ -258,24 +258,12 @@
   .table {
     display: block;
     overflow-x: auto;
-    td:first-child {
-      position: sticky;
-      left: 0;
-      background-color: $gray-05;
-      z-index: 2;
-    }
+    td,
     th {
       min-width: 120px;
       padding: 10px;
       .arrow {
         position: inherit;
-      }
-    }
-    tr {
-      th:first-of-type {
-        position: sticky;
-        left: 0;
-        z-index: 2;
       }
     }
   }
