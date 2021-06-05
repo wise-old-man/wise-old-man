@@ -186,12 +186,12 @@ function renderActivitiesTable(snapshot) {
       key: 'rank',
       transform: val => {
         return val === -1 ? (
-            <TextLabel
-                value="---"
-                popupValue="Unranked"
-            />
+          <TextLabel
+            value="---"
+            popupValue="Unranked"
+          />
         ) : (
-            <NumberLabel value={val} />
+          <NumberLabel value={val} />
         )
       }
     }
