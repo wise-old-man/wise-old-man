@@ -69,7 +69,6 @@ function getTableConfig(metric) {
       {
         key: 'groupRank',
         label: 'Rank',
-        className: () => '-break-small'
       },
       {
         key: 'displayName',
@@ -93,7 +92,6 @@ function getTableConfig(metric) {
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: () => '-break-small',
         transform: (value, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
       }
     ]

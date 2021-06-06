@@ -112,7 +112,6 @@ function getTableConfig(metric, period) {
       {
         key: 'updatedAt',
         label: 'Date',
-        className: () => '-break-small',
         transform: (value, row) => formatDate(row.updatedAt, 'DD MMM, YYYY')
       }
     ]

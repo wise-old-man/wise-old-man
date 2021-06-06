@@ -89,7 +89,6 @@ function getTableConfig(metric, period) {
     columns: [
       {
         key: 'rank',
-        className: () => '-break-small'
       },
       {
         key: 'displayName',
@@ -113,7 +112,6 @@ function getTableConfig(metric, period) {
       {
         key: 'endDate',
         label: 'Last updated',
-        className: () => '-break-small',
         transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
       }
     ]
