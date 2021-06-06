@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
-import { Button, Switch, TextButton, TextInput, TextLabel } from 'components';
+import { Button, Switch, TextButton, TextInput } from 'components';
 import { groupActions } from 'redux/groups';
 import './MigratePlayersModal.scss';
 
@@ -13,6 +13,8 @@ function MigratePlayersModal({ onConfirm, onClose }) {
 
   const [replace, setReplace] = useState(false);
   const [players, setPlayers] = useState([]);
+  const [leaders, setLeaders] = useState([]);
+  const [name, setName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const handleLinkChange = e => {
@@ -32,9 +34,13 @@ function MigratePlayersModal({ onConfirm, onClose }) {
         ? await dispatch(groupActions.fetchCMLMembers(selectedGroup.groupId))
         : await dispatch(groupActions.fetchTempleMembers(selectedGroup.groupId));
 
-    if (payload && payload.data) {
-      setPlayers(payload.data);
-    }
+    if (!payload || !payload.data) return;
+
+    const { data } = payload;
+
+    setPlayers(data.members || []);
+    setLeaders(data.leaders || []);
+    setName(data.name || '');
   }, 500);
 
   const toggleReplace = () => {
@@ -42,7 +48,7 @@ function MigratePlayersModal({ onConfirm, onClose }) {
   };
 
   const handleSubmit = () => {
-    onConfirm(players, replace);
+    onConfirm(players, leaders, replace);
   };
 
   useEffect(handleFetch, [selectedGroup]);
@@ -52,16 +58,20 @@ function MigratePlayersModal({ onConfirm, onClose }) {
       <div className="migrate-players__modal">
         <h4 className="modal-title">Migrate from site</h4>
         <TextInput placeholder="Link to CML or TempleOSRS group" onChange={handleLinkChange} />
-        {players.length > 0 && (
+        {(players.length > 0 || leaders.length > 0) && (
           <div>
             <div className="import-info">
-              <TextLabel value={`${selectedGroup.site} Group ${selectedGroup.groupId}`} />
-              <TextLabel value={`${players.length} Members`} />
+              <span className="group-name">
+                {name || `${selectedGroup.site} Group ${selectedGroup.groupId}`}
+              </span>
+              <span className="member-stats">
+                {`${players.length} Members | ${leaders.length} Leaders`}
+              </span>
             </div>
             <textarea
               className="modal-text"
               placeholder="# Imported members"
-              value={players.join('\n')}
+              value={[...leaders, ...players].join('\n')}
               readOnly
             />
             <div className="modal-replace">

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
+import { MigratedGroupInfo } from 'src/types';
 import { CML } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
 
@@ -28,7 +29,7 @@ async function getCMLHistory(username: string, time: number): Promise<string[]> 
 /**
  * Fetches the player history from the CML API.
  */
-async function fetchGroupMembers(gid: number): Promise<string[]> {
+async function fetchGroupInfo(gid: number): Promise<MigratedGroupInfo> {
   const URL = `${CML.MEMBERS}?group=${gid}`;
 
   try {
@@ -45,10 +46,12 @@ async function fetchGroupMembers(gid: number): Promise<string[]> {
       throw new Error();
     }
 
-    return players.split('\n').filter(n => !!n);
+    const members = players.split('\n').filter(n => !!n);
+
+    return { members };
   } catch (e) {
     throw new NotFoundError('Found no members to import');
   }
 }
 
-export { getCMLHistory, fetchGroupMembers };
+export { getCMLHistory, fetchGroupInfo };

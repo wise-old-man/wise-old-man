@@ -26,7 +26,8 @@ export const TEMPLE_OSRS = {
   // Limited to 200 datapoints
   HISTORY: 'https://templeosrs.com/api/player_datapoints.php',
   MEMBERS: 'https://templeosrs.com/api/groupmembers.php',
-  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php'
+  PARTICIPANTS: 'https://templeosrs.com/api/compmembers.php',
+  GROUP_INFO: 'https://templeosrs.com/api/group_info.php'
 };
 
 export const SKILLS_MAP = [

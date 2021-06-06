@@ -1,7 +1,7 @@
 import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { Pagination } from 'src/types';
+import { MigratedGroupInfo, Pagination } from 'src/types';
 import { sequelize } from '../../../database';
 import {
   Achievement,
@@ -824,18 +824,18 @@ async function getOutdatedMembers(groupId) {
   return membersToUpdate.map(({ player }) => player);
 }
 
-async function importTempleMembers(templeGroupId: number) {
+async function importTempleGroup(templeGroupId: number): Promise<MigratedGroupInfo> {
   if (!templeGroupId) throw new BadRequestError('Invalid temple group ID.');
 
-  const members = await templeService.fetchGroupMembers(templeGroupId);
-  return members;
+  const groupInfo = await templeService.fetchGroupInfo(templeGroupId);
+  return groupInfo;
 }
 
-async function importCMLMembers(cmlGroupId: number) {
+async function importCMLGroup(cmlGroupId: number): Promise<MigratedGroupInfo> {
   if (!cmlGroupId) throw new BadRequestError('Invalid CML group ID.');
 
-  const members = await cmlService.fetchGroupMembers(cmlGroupId);
-  return members;
+  const groupInfo = await cmlService.fetchGroupInfo(cmlGroupId);
+  return groupInfo;
 }
 
 export {
@@ -861,6 +861,6 @@ export {
   removeMembers,
   changeRole,
   updateAllMembers,
-  importTempleMembers,
-  importCMLMembers
+  importTempleGroup,
+  importCMLGroup
 };

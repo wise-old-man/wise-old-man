@@ -415,7 +415,7 @@ async function migrateTemple(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id', required: true });
 
     // Ensure this group Id exists (if not, it'll throw a 404 error)
-    const results = await groupService.importTempleMembers(id);
+    const results = await groupService.importTempleGroup(id);
 
     res.json(results);
   } catch (e) {
@@ -429,7 +429,7 @@ async function migrateCML(req: Request, res: Response, next: NextFunction) {
     const id = extractNumber(req.params, { key: 'id', required: true });
 
     // Ensure this group Id exists (if not, it'll throw a 404 error)
-    const results = await groupService.importCMLMembers(id);
+    const results = await groupService.importCMLGroup(id);
 
     res.json(results);
   } catch (e) {

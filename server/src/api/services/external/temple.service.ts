@@ -1,21 +1,25 @@
 import axios from 'axios';
+import { MigratedGroupInfo } from 'src/types';
 import { TEMPLE_OSRS } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
 
 /**
  * Fetches the group members from the TempleOSRS API
  */
-async function fetchGroupMembers(gid: number): Promise<string[]> {
-  const URL = `${TEMPLE_OSRS.MEMBERS}?id=${gid}`;
+async function fetchGroupInfo(gid: number): Promise<MigratedGroupInfo> {
+  const URL = `${TEMPLE_OSRS.GROUP_INFO}?id=${gid}`;
 
   try {
     const { data } = await axios.get(URL);
 
-    if (!data || !data.length) {
+    if (!data) {
       throw new Error();
     }
 
-    return data;
+    const { members, leaders, info } = data.data;
+    const { name } = info;
+
+    return { members, leaders, name };
   } catch (e) {
     if (e.response?.status === 503) {
       throw new ServerError(`Failed to load TempleOSRS. Possible server failure on their end.`);
@@ -25,4 +29,4 @@ async function fetchGroupMembers(gid: number): Promise<string[]> {
   }
 }
 
-export { fetchGroupMembers };
+export { fetchGroupInfo };
