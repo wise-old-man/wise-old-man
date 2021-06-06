@@ -35,7 +35,7 @@ export function getPlayerBuild(build) {
     case '10hp':
       return '10 Hitpoints Pure';
     case 'zerker':
-      return 'Berserker';
+      return 'Zerker';
     default:
       return 'Main';
   }

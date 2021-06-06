@@ -102,7 +102,7 @@ function getBuildBadge(build) {
     case '10hp':
       return { text: '10 HP Pure', hoverText: '' };
     case 'zerker':
-      return { text: 'Berserker', hoverText: '' };
+      return { text: 'Zerker', hoverText: '' };
     default:
       return null;
   }
