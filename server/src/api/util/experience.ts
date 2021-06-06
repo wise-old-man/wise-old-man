@@ -119,5 +119,5 @@ export function is10HP(snapshot: Snapshot) {
 }
 
 export function isZerker(snapshot: Snapshot) {
-  return getLevel(snapshot.defenceExperience) === 45 && getLevel(snapshot.prayerExperience) === 52;
+  return getLevel(snapshot.defenceExperience) === 45;
 }
