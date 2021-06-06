@@ -23,7 +23,6 @@ const TABLE_CONFIG = {
     },
     {
       key: 'arrow',
-      className: () => '-break-small',
       transform: () => '→'
     },
     {

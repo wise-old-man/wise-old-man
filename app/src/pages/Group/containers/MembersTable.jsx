@@ -26,7 +26,6 @@ const TABLE_CONFIG = {
     {
       key: 'exp',
       label: 'Exp.',
-      className: () => '-break-small',
       transform: val => {
         return val === -1 ? (
           <TextLabel
@@ -41,19 +40,16 @@ const TABLE_CONFIG = {
     {
       key: 'ehp',
       label: 'EHP',
-      className: () => '-break-small',
       transform: val => <NumberLabel value={Math.round(val)} />
     },
     {
       key: 'ehb',
       label: 'EHB',
-      className: () => '-break-small',
       transform: val => <NumberLabel value={Math.round(val)} />
     },
     {
       key: 'updatedAt',
       label: 'Last updated',
-      className: () => '-break-small',
       transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
     }
   ]

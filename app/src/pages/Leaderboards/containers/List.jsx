@@ -37,7 +37,6 @@ function getTableConfig(metric) {
       {
         key: 'rank',
         label: 'Rank',
-        className: () => '-break-small'
       },
       {
         key: 'displayName',
@@ -61,7 +60,6 @@ function getTableConfig(metric) {
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: () => '-break-small',
         transform: (value, row) => `Updated ${durationBetween(row.updatedAt, new Date(), 2, true)} ago`
       }
     ]
