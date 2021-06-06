@@ -117,3 +117,7 @@ export function is1Def(snapshot: Snapshot) {
 export function is10HP(snapshot: Snapshot) {
   return getCombatLevel(snapshot) > 3 && getLevel(snapshot.hitpointsExperience) === 10;
 }
+
+export function isZerker(snapshot: Snapshot) {
+  return getLevel(snapshot.defenceExperience) === 45 && getLevel(snapshot.prayerExperience) === 52;
+}

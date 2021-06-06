@@ -50,7 +50,7 @@ export default [
   {
     name: 'Player builds',
     description: 'All the possible values for the "playerBuild" query parameter.',
-    values: ['f2p', 'lvl3', '1def', '10hp', 'main']
+    values: ['f2p', 'lvl3', '1def', '10hp', 'zerker', 'main']
   },
   {
     name: 'Metrics',
