@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "lint": "npx eslint@7.2 . --ext .ts",
+    "lint": "eslint . --ext .ts",
     "prestart": "sequelize db:migrate",
     "start": "pm2-runtime dist/server.js -i 4",
     "predev": "npm run build && sequelize db:migrate",
