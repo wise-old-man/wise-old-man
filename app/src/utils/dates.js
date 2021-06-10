@@ -1,11 +1,17 @@
 import moment from 'moment';
 
+const DEFAULT_DATE_MASK = 'MM-DD-YYYY HH:mm';
+
 export function isValidDate(date) {
   return date && moment(date, moment.ISO_8601).isValid();
 }
 
-export function formatDate(date, mask = 'MM-DD-YYYY HH:mm') {
+export function formatDate(date, mask = DEFAULT_DATE_MASK) {
   return moment(date).format(mask);
+}
+
+export function formatDateUTC(date, mask = DEFAULT_DATE_MASK) {
+  return moment.utc(date).format(mask);
 }
 
 export function durationOf(diff) {
