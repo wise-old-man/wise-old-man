@@ -111,7 +111,7 @@ function getTableConfig(metric, period) {
       },
       {
         key: 'endDate',
-        label: 'Last updated',
+        label: 'Last calculated',
         transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
       }
     ]
