@@ -48,14 +48,12 @@ async function getHiscoresData(username: string, type = 'regular'): Promise<stri
  * where "username" is listed in.
  */
 async function getHiscoresNames(username: string): Promise<string[]> {
-  const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
 
   try {
     // Fetch the data through the API Url
     const { data } = await axios({
-      url: proxy ? URL.replace('https', 'http') : URL,
-      proxy,
+      url: URL,
       responseType: 'arraybuffer',
       withCredentials: true,
       headers: SCRAPING_HEADERS
