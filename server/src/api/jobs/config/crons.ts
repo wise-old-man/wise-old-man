@@ -14,5 +14,9 @@ export default [
   {
     jobName: 'ScheduleCompetitionEvents',
     cronConfig: '* * * * *' // every 1 min
+  },
+  {
+    jobName: 'InvalidateDeltas',
+    cronConfig: '0 */6 * * *' // every 6 hours
   }
 ];
