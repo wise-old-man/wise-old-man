@@ -56,7 +56,7 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
       ALL_METRICS.forEach(metric => {
         newDelta[metric] = periodDiffs[metric][getMeasure(metric)].gained;
 
-        if (newDelta[metric] > currentDelta[metric]) {
+        if (currentDelta && newDelta[metric] > currentDelta[metric]) {
           // if any metric has improved since the last delta sync, we should
           // also check for new records in this period
           currentDelta.isPotentialRecord = true;
@@ -66,7 +66,7 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
       // If player doesn't have a delta for this period
       // on the database, create it, otherwise just update it
       if (!currentDelta) {
-        await Delta.create({ ...newDelta });
+        await Delta.create({ ...newDelta, isPotentialRecord: true });
       } else {
         await currentDelta.update({ ...newDelta });
       }
