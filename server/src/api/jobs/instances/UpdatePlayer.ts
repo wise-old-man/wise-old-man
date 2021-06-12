@@ -1,12 +1,15 @@
+import { RateLimiter } from 'bull';
 import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
 
 class UpdatePlayer implements Job {
   name: string;
+  rateLimiter: RateLimiter;
 
   constructor() {
     this.name = 'UpdatePlayer';
+    this.rateLimiter = { max: 1, duration: 1_000 };
   }
 
   async handle(data: any): Promise<void> {

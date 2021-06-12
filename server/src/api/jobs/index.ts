@@ -1,4 +1,4 @@
-import Queue from 'bull';
+import Queue, { RateLimiter } from 'bull';
 import { getThreadIndex, isTesting } from '../../env';
 import logger from '../services/external/logger.service';
 import crons from './config/crons';
@@ -7,6 +7,7 @@ import jobs from './instances';
 
 export interface Job {
   name: string;
+  rateLimiter?: RateLimiter;
   handle(data: any): void;
   onSuccess?(data: any): void;
   onFailure?(data: any, error: Error): void;
@@ -29,6 +30,7 @@ class JobHandler {
     this.queues = jobs.map((job: Job) => ({
       bull: new Queue(job.name, {
         redis: redisConfig,
+        limiter: job.rateLimiter,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true }
       }),
       name: job.name,
