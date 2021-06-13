@@ -339,7 +339,7 @@ describe('Player API', () => {
       if (response.status === 200) {
         expect(response.body.displayName).toMatch('Psikoi');
       } else {
-        expect(response.body.message).toMatch('Psikoi');
+        expect(response.body.message).toMatch("Couldn't find a name match for psikoi");
       }
 
       done();
@@ -349,8 +349,11 @@ describe('Player API', () => {
       const body = { username: 'iron_mammal' };
       const response = await request.post(`${BASE_URL}/assert-name`).send(body);
 
-      expect(response.status).toBe(200);
-      expect(response.body.displayName).toMatch('Iron Mammal');
+      if (response.status === 200) {
+        expect(response.body.displayName).toMatch('Iron Mammal');
+      } else {
+        expect(response.body.message).toMatch("Couldn't find a name match for iron mammal");
+      }
 
       done();
     }, 90000);

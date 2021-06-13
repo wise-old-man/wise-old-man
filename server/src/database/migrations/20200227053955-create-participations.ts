@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('participations', {
     playerId: {
       type: dataTypes.INTEGER,
@@ -23,10 +23,20 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       }
     },
     startSnapshotId: {
-      type: dataTypes.INTEGER
+      type: dataTypes.INTEGER,
+      onDelete: 'SET NULL',
+      references: {
+        model: 'snapshots',
+        key: 'id'
+      }
     },
     endSnapshotId: {
-      type: dataTypes.INTEGER
+      type: dataTypes.INTEGER,
+      onDelete: 'SET NULL',
+      references: {
+        model: 'snapshots',
+        key: 'id'
+      }
     },
     createdAt: {
       type: dataTypes.DATE
