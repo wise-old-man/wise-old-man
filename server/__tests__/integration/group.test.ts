@@ -353,7 +353,7 @@ describe('Group API', () => {
     test("4.4 - DON'T add members (invalid list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: [{ username: 'elvard@invalid', role: 'member' }]
+        members: ['elvard@invalid']
       };
 
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
@@ -368,7 +368,7 @@ describe('Group API', () => {
     test("4.5 - DON'T add members (invalid username)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: ['elvard@invalid']
+        members: [{ username: 'elvard@invalid', role: 'member' }]
       };
 
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;

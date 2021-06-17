@@ -13,6 +13,7 @@ import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+import {isValidUsername} from "./player.service";
 
 interface Team {
   name: string;
@@ -745,6 +746,12 @@ async function addParticipants(competition: Competition, usernames: string[]) {
     throw new BadRequestError('Empty participants list.');
   }
 
+  const invalidUsernames = usernames.filter(u => !isValidUsername(u));
+
+  if (invalidUsernames && invalidUsernames.length > 0) {
+    throw new BadRequestError(`These usernames are invalid: [${invalidUsernames.join(', ')}]`);
+  }
+
   // Find all existing participants
   const existingIds = (await competition.$get('participants')).map(p => p.id);
 
@@ -822,16 +829,22 @@ async function addTeams(competition: Competition, teams: Team[]) {
     currentTeamNames.map((c: string) => c.toLowerCase()).includes(t.toLowerCase())
   );
 
-  const duplicateUsernames = newUsernames.filter(t =>
-    currentUsernames.map((c: string) => c).includes(t)
-  );
-
   if (duplicateTeamNames && duplicateTeamNames.length > 0) {
     throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
   }
 
+  const duplicateUsernames = newUsernames.filter(t =>
+      currentUsernames.map((c: string) => c).includes(t)
+  );
+
   if (duplicateUsernames && duplicateUsernames.length > 0) {
     throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
+  const invalidUsernames = newUsernames.filter(t => !isValidUsername(t));
+
+  if (invalidUsernames && invalidUsernames.length > 0) {
+    throw new BadRequestError(`These usernames are invalid: [${invalidUsernames.join(', ')}]`);
   }
 
   const newPlayers = await playerService.findAllOrCreate(newUsernames);

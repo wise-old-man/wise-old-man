@@ -832,7 +832,23 @@ describe('Competition API', () => {
       done();
     });
 
-    test("5.4 - DON'T add participant to a team competition", async done => {
+    test("5.4 - DON'T add participant to competition (invalid username)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/add-participants`;
+
+      const body = {
+        participants: ['new@player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('All players given are already competing.');
+
+      done();
+    });
+
+    test("5.5 - DON'T add participant to a team competition", async done => {
       const url = `${BASE_URL}/${TEST_DATA.team.id}/add-participants`;
 
       const body = {
