@@ -353,7 +353,7 @@ describe('Group API', () => {
     test("4.4 - DON'T add members (invalid list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: ['elvard']
+        members: [{ username: 'elvard@invalid', role: 'member' }]
       };
 
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
