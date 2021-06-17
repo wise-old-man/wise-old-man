@@ -25,6 +25,7 @@ import * as nameService from './name.service';
 import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
+import {isValidUsername} from "./player.service";
 
 interface Member extends Player {
   role: string;
@@ -652,10 +653,16 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
     throw new BadRequestError('Invalid or empty members list.');
   }
 
-  // If not all elements of members array have a "username" key.
-  if (members.some(m => !m.username)) {
-    throw new BadRequestError('Invalid members list. Each member must have a "username".');
-  }
+  // check and throw an error if the model is invalid, or the username is invalid
+  members.forEach(m => {
+    if (!m.username) {
+      throw new BadRequestError('Invalid members list. Each member must have a "username".');
+    }
+
+    if (!isValidUsername(m.username)) {
+      throw new BadRequestError('At least one of the member\'s usernames is not a valid OSRS username.')
+    }
+  })
 
   // Find all existing members
   const existingIds = (await group.$get('members')).map(p => p.id);

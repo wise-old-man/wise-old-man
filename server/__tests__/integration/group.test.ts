@@ -365,7 +365,22 @@ describe('Group API', () => {
       done();
     });
 
-    test("4.5 - DON'T add members (already member)", async done => {
+    test("4.5 - DON'T add members (invalid username)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        members: ['elvard@invalid']
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('At least one of the member\'s usernames is not a valid OSRS username.');
+
+      done();
+    });
+
+    test("4.6 - DON'T add members (already member)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'zezima' }]
@@ -380,7 +395,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.6 - Add members', async done => {
+    test('4.7 - Add members', async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: [{ username: 'elvard', role: 'leader' }]
