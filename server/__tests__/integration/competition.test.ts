@@ -843,7 +843,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('All players given are already competing.');
+      expect(response.body.message).toBe('These usernames are invalid: [new@player]');
 
       done();
     });
