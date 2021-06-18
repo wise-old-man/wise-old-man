@@ -259,9 +259,7 @@ describe('Competition API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toContain(
-        '2 Invalid usernames: Names must be 1-12 characters long,'
-      );
+      expect(response.body.message).toContain('Found 2 invalid usernames');
 
       done();
     });
@@ -655,9 +653,7 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toContain(
-        '2 Invalid usernames: Names must be 1-12 characters long,'
-      );
+      expect(response.body.message).toContain('Found 2 invalid usernames');
 
       done();
     });
@@ -843,7 +839,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('These usernames are invalid: [new@player]');
+      expect(response.body.message).toMatch('Found 1 invalid usernames');
 
       done();
     });

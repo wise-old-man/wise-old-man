@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "prestart": "sequelize db:migrate",
     "start": "pm2-runtime dist/server.js -i 4",

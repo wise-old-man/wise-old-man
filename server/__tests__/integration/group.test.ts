@@ -152,7 +152,7 @@ describe('Group API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid usernames');
+      expect(response.body.message).toMatch('Found 1 invalid usernames');
       expect(response.body.data).toContain('Some really long username');
 
       done();
@@ -237,7 +237,7 @@ describe('Group API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid usernames');
+      expect(response.body.message).toMatch('Found 1 invalid usernames');
       expect(response.body.data).toContain('Really long username');
 
       done();
@@ -375,7 +375,7 @@ describe('Group API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('At least one of the member\'s usernames is not a valid OSRS username.');
+      expect(response.body.message).toMatch("At least one of the member's usernames");
 
       done();
     });
