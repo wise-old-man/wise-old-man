@@ -448,7 +448,7 @@ function validateParticipantsList(participants: string[]) {
 
   if (invalidUsernames.length > 0) {
     throw new BadRequestError(
-      `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
+      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
        contain no special characters, and/or contain no space at the beginning or end of the name.`,
       invalidUsernames
     );
@@ -745,6 +745,16 @@ async function addParticipants(competition: Competition, usernames: string[]) {
     throw new BadRequestError('Empty participants list.');
   }
 
+  const invalidUsernames = usernames.filter(u => !playerService.isValidUsername(u));
+
+  if (invalidUsernames && invalidUsernames.length > 0) {
+    throw new BadRequestError(
+      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
+       contain no special characters, and/or contain no space at the beginning or end of the name.`,
+      invalidUsernames
+    );
+  }
+
   // Find all existing participants
   const existingIds = (await competition.$get('participants')).map(p => p.id);
 
@@ -822,16 +832,26 @@ async function addTeams(competition: Competition, teams: Team[]) {
     currentTeamNames.map((c: string) => c.toLowerCase()).includes(t.toLowerCase())
   );
 
-  const duplicateUsernames = newUsernames.filter(t =>
-    currentUsernames.map((c: string) => c).includes(t)
-  );
-
   if (duplicateTeamNames && duplicateTeamNames.length > 0) {
     throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
   }
 
+  const duplicateUsernames = newUsernames.filter(t =>
+    currentUsernames.map((c: string) => c).includes(t)
+  );
+
   if (duplicateUsernames && duplicateUsernames.length > 0) {
     throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
+  }
+
+  const invalidUsernames = newUsernames.filter(t => !playerService.isValidUsername(t));
+
+  if (invalidUsernames && invalidUsernames.length > 0) {
+    throw new BadRequestError(
+      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
+       contain no special characters, and/or contain no space at the beginning or end of the name.`,
+      invalidUsernames
+    );
   }
 
   const newPlayers = await playerService.findAllOrCreate(newUsernames);

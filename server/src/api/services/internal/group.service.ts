@@ -439,7 +439,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
+        `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -493,7 +493,7 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
-        `${invalidUsernames.length} Invalid usernames: Names must be 1-12 characters long,
+        `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
          contain no special characters, and/or contain no space at the beginning or end of the name.`,
         invalidUsernames
       );
@@ -652,10 +652,16 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
     throw new BadRequestError('Invalid or empty members list.');
   }
 
-  // If not all elements of members array have a "username" key.
-  if (members.some(m => !m.username)) {
-    throw new BadRequestError('Invalid members list. Each member must have a "username".');
-  }
+  // check and throw an error if the model is invalid, or the username is invalid
+  members.forEach(m => {
+    if (!m.username) {
+      throw new BadRequestError('Invalid members list. Each member must have a "username".');
+    }
+
+    if (!playerService.isValidUsername(m.username)) {
+      throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
+    }
+  });
 
   // Find all existing members
   const existingIds = (await group.$get('members')).map(p => p.id);

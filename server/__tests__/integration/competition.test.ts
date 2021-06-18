@@ -259,9 +259,7 @@ describe('Competition API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toContain(
-        '2 Invalid usernames: Names must be 1-12 characters long,'
-      );
+      expect(response.body.message).toContain('Found 2 invalid usernames');
 
       done();
     });
@@ -655,9 +653,7 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toContain(
-        '2 Invalid usernames: Names must be 1-12 characters long,'
-      );
+      expect(response.body.message).toContain('Found 2 invalid usernames');
 
       done();
     });
@@ -832,7 +828,23 @@ describe('Competition API', () => {
       done();
     });
 
-    test("5.4 - DON'T add participant to a team competition", async done => {
+    test("5.4 - DON'T add participant to competition (invalid username)", async done => {
+      const url = `${BASE_URL}/${TEST_DATA.minimal.id}/add-participants`;
+
+      const body = {
+        participants: ['new@player'],
+        verificationCode: TEST_DATA.minimal.verificationCode
+      };
+
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Found 1 invalid usernames');
+
+      done();
+    });
+
+    test("5.5 - DON'T add participant to a team competition", async done => {
       const url = `${BASE_URL}/${TEST_DATA.team.id}/add-participants`;
 
       const body = {
