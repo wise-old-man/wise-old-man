@@ -139,7 +139,7 @@ function EditGroup() {
       groupActions.edit(id, name, description, clanChat, homeworld, members, verificationCode)
     );
 
-    if (payload && payload.data) {
+    if (payload && !payload.error) {
       router.push(`/groups/${group.id}`);
     }
   };

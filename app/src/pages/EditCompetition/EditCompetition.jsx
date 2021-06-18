@@ -87,7 +87,7 @@ function EditCompetition() {
       )
     );
 
-    if (payload && payload.data) {
+    if (payload && !payload.error) {
       router.push(`/competitions/${competition.id}`);
     }
   }
