@@ -92,6 +92,11 @@ const slice = createSlice({
     onAssertNameError(state, action) {
       state.isAssertingName = false;
       state.error = action.payload;
+    },
+    onCountsRequest() {},
+    onCountsSuccess() {},
+    onCountsError(state, action) {
+      state.error = { message: action.payload.error };
     }
   }
 });

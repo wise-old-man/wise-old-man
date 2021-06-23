@@ -322,6 +322,11 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   return Snapshot.build({ playerId, ...stats });
 }
 
+async function getSnapshotCount(): Promise<number> {
+  const count = await Snapshot.count({ col: 'id' });
+  return count;
+}
+
 export {
   format,
   withinRange,
@@ -337,5 +342,6 @@ export {
   fromCML,
   fromRS,
   getPlayerPeriodSnapshots,
-  getPlayerTimeRangeSnapshots
+  getPlayerTimeRangeSnapshots,
+  getSnapshotCount
 };

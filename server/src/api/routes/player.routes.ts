@@ -8,6 +8,7 @@ api.post('/track', controller.track);
 api.post('/import', controller.importPlayer);
 api.post('/assert-type', controller.assertType);
 api.post('/assert-name', controller.assertName);
+api.get('/counts', controller.playerCount);
 
 api.get('/username/:username', controller.details);
 api.get('/username/:username/groups', controller.groups);

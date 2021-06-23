@@ -451,6 +451,11 @@ async function findAllByIds(playerIds: number[]): Promise<Player[]> {
   return players;
 }
 
+async function getPlayerCount(): Promise<number> {
+  const count = await Player.count({ col: 'id' });
+  return count;
+}
+
 export {
   standardize,
   sanitize,
@@ -470,5 +475,6 @@ export {
   shouldImport,
   shouldReviewType,
   resolve,
-  resolveId
+  resolveId,
+  getPlayerCount
 };
