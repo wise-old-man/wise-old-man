@@ -16,7 +16,7 @@ import { Group, Player } from '../../database/models';
 const options = {
   modelName: 'memberships',
   validate: {
-    validateRole
+     validateRole
   },
   indexes: [
     {
