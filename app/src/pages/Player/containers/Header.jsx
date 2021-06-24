@@ -71,13 +71,8 @@ function FlaggedWarning({ displayName }) {
     <div className="warning">
       <img src="/img/runescape/icons_small/flagged.png" alt="" />
       <span>
-        This player is flagged. There have been some hiscores rollbacks (May 6th &amp; 7th), which makes
-        your hiscores stats lower than your wiseoldman stats. This gets flagged as suspicious activity.
-        To fix this, we recommend world hopping a few times until the hiscores update.
-        <br />
-        <br />
-        Alternatively, this can be caused by an unregistered name change or they have become unranked in
-        one or more skills due to lack of progress.
+        This player is flagged. This is likely caused by an unregistered name change or they have become
+        unranked in one or more skills due to lack of progress.
         <br />
         <br />
         <Link to={nameChangeURL}>Click here to submit a name change</Link>
