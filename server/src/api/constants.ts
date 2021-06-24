@@ -273,6 +273,8 @@ export const GROUP_ROLES = [
   'zenyte'
 ];
 
+export const PRIVELEGED_GROUP_ROLES = ['leader', 'owner', 'administrator', 'moderator', 'deputy owner'];
+
 export const PLAYER_BUILDS = ['f2p', 'lvl3', '1def', '10hp', 'zerker', 'main'];
 
 export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];

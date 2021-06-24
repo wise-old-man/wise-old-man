@@ -1,4 +1,5 @@
 import { Group } from '../../../database/models';
+import { PRIVELEGED_GROUP_ROLES } from '../../constants';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import * as groupService from '../../services/internal/group.service';
@@ -44,14 +45,13 @@ async function calculateScore(group: Group): Promise<number> {
   const pagination = { limit: 100, offset: 0 };
   const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
   const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
-  const rolesToCheck = ['leader', 'owner', 'administrator', 'moderator', 'deputy owner'];
 
   if (!members || members.length === 0) {
     return score;
   }
 
   // If has atleast one leader
-  if (members.filter(m => rolesToCheck.includes(m.role)).length >= 1) {
+  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
     score += 30;
   }
 

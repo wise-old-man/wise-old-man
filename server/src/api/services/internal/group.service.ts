@@ -12,7 +12,7 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import { ALL_METRICS, GROUP_ROLES, PERIODS } from '../../constants';
+import { ALL_METRICS, GROUP_ROLES, PERIODS, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
 import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
@@ -271,10 +271,14 @@ async function getMembersList(group: Group): Promise<Member[]> {
     return [];
   }
 
+  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role, createdAt }) => ({ ...(player.toJSON() as any), role, joinedAt: createdAt }))
-    .sort((a, b) => a.role.localeCompare(b.role));
+    .sort(
+      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+    );
 }
 
 /**
@@ -429,7 +433,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
 
   // Check if there are any invalid roles given
   if (members && members.length > 0) {
-    const invalidRoles = members.filter(m => !GROUP_ROLES.includes(m.role));
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
 
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
