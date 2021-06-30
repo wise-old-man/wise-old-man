@@ -343,6 +343,12 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: "{threshold} Phosani's Nightmare kills",
+    metric: 'phosanis_nightmare',
+    measure: 'kills',
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Obor kills',
     metric: 'obor',
     measure: 'kills',

@@ -360,6 +360,11 @@ export default [
         description: ''
       },
       {
+        field: 'phosanis_nightmare',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'obor',
         type: 'integer',
         description: ''
@@ -534,6 +539,7 @@ export default [
       'kril_tsutsaroth',
       'mimic',
       'nightmare',
+      'phosanis_nightmare',
       'obor',
       'sarachnis',
       'scorpia',

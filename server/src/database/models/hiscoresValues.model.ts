@@ -386,6 +386,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   nightmareKills: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  phosanis_nightmareRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  phosanis_nightmareKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   oborRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
