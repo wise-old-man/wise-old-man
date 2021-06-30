@@ -101,6 +101,7 @@ export const BOSSES_MAP = [
   { key: 'kril_tsutsaroth', name: "K'ril Tsutsaroth" },
   { key: 'mimic', name: 'Mimic' },
   { key: 'nightmare', name: 'Nightmare' },
+  { key: 'phosanis_nightmare', name: "Phosani's Nightmare" },
   { key: 'obor', name: 'Obor' },
   { key: 'sarachnis', name: 'Sarachnis' },
   { key: 'scorpia', name: 'Scorpia' },

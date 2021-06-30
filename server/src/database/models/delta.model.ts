@@ -240,6 +240,9 @@ export default class Delta extends Model<Delta> {
   nightmare: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  phosanis_nightmare: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   obor: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })

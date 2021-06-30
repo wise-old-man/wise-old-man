@@ -27,6 +27,7 @@ export default [
   { boss: 'kril_tsutsaroth', rate: 0 },
   { boss: 'mimic', rate: 0 },
   { boss: 'nightmare', rate: 0 },
+  { boss: 'phosanis_nightmare', rate: 0 },
   { boss: 'obor', rate: 0 },
   { boss: 'sarachnis', rate: 0 },
   { boss: 'scorpia', rate: 0 },
