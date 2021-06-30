@@ -365,6 +365,12 @@ export default [
         thresholds: '500, 1k, 5k, 10k'
       },
       {
+        name: "{threshold} Phosani's Nightmare kills",
+        metric: 'phosanis_nightmare',
+        measure: 'kills',
+        thresholds: '500, 1k, 5k, 10k'
+      },
+      {
         name: '{threshold} Obor kills',
         metric: 'obor',
         measure: 'kills',
@@ -608,6 +614,7 @@ export default [
       'kril_tsutsaroth',
       'mimic',
       'nightmare',
+      'phosanis_nightmare',
       'obor',
       'sarachnis',
       'scorpia',

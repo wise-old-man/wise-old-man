@@ -329,6 +329,11 @@ export default [
         description: 'Nightmare rank and kills.'
       },
       {
+        field: 'phosanis_nightmare',
+        type: 'object',
+        description: "Phosani's Nightmare rank and kills."
+      },
+      {
         field: 'obor',
         type: 'object',
         description: 'Obor rank and kills.'
