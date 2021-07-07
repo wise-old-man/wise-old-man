@@ -66,7 +66,7 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
   const afterDate = after.createdAt || new Date();
   const timeDiff = afterDate.getTime() - before.createdAt.getTime();
 
-  const hoursDiff = Math.max(24, timeDiff / 1000 / 3600);
+  const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
 
   const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
   const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
