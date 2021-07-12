@@ -1409,7 +1409,15 @@ export default [
       },
       {
         description: 'If an invalid role has been specified.',
-        body: { message: "Invalid member roles. Must be 'member' or 'leader'." }
+        body: {
+          message: 'Invalid member roles. Please check the roles of the given members.',
+          data: [
+            {
+              username: 'Zezima',
+              role: 'chickensauce'
+            }
+          ]
+        }
       }
     ]
   },
@@ -1833,7 +1841,7 @@ export default [
       },
       {
         description: 'If the role is not valid',
-        body: { message: 'Validation error: Invalid role.' }
+        body: { message: 'Validation error: Invalid role "chickensauce".' }
       }
     ]
   },

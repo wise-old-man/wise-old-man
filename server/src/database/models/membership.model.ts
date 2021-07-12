@@ -16,7 +16,7 @@ import { Group, Player } from '../../database/models';
 const options = {
   modelName: 'memberships',
   validate: {
-    validateRole
+     validateRole
   },
   indexes: [
     {
@@ -36,8 +36,8 @@ export default class Membership extends Model<Membership> {
   @Column({ type: DataType.INTEGER, primaryKey: true, onDelete: 'CASCADE' })
   groupId: number;
 
-  @Default(GROUP_ROLES[0]) // member
-  @Column({ type: DataType.ENUM(...GROUP_ROLES), allowNull: false })
+  @Default('member')
+  @Column({ type: DataType.STRING(40), allowNull: false })
   role: string;
 
   @CreatedAt
@@ -57,6 +57,6 @@ export default class Membership extends Model<Membership> {
 
 function validateRole(this: Membership) {
   if (!GROUP_ROLES.includes(this.role)) {
-    throw new Error('Invalid role.');
+    throw new Error(`Invalid role "${this.role}".`);
   }
 }

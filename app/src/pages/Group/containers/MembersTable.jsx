@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { groupSelectors } from 'redux/groups';
 import { Link } from 'react-router-dom';
-import { Table, PlayerTag, NumberLabel, TextLabel, TablePlaceholder } from 'components';
-import { durationBetween, capitalize } from 'utils';
+import { Table, PlayerTag, NumberLabel, TextLabel, RoleTag, TablePlaceholder } from 'components';
+import { durationBetween } from 'utils';
 import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
@@ -21,20 +21,17 @@ const TABLE_CONFIG = {
     },
     {
       key: 'role',
-      transform: value => capitalize(value)
+      transform: value => <RoleTag role={value} />
     },
     {
       key: 'exp',
       label: 'Exp.',
       transform: val => {
         return val === -1 ? (
-          <TextLabel
-            value="---"
-            popupValue="Unranked"
-          />
+          <TextLabel value="---" popupValue="Unranked" />
         ) : (
           <NumberLabel value={val} />
-        )
+        );
       }
     },
     {

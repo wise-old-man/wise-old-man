@@ -3,6 +3,7 @@
 
 .group__container {
   @extend %page;
+  width: 1050px;
 
   .widget-label {
     display: block;
