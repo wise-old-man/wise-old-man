@@ -1,0 +1,18 @@
+.role-tag {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  white-space: pre;
+  max-width: 130px;
+
+  .left {
+    display: flex;
+    align-items: center;
+  }
+
+  &__img {
+    margin-right: 10px;
+    margin-top: -5px;
+  }
+}
