@@ -74,7 +74,12 @@ function TeamComposeModal({ team, onSubmit, onCancel }) {
           </button>
           <b className="modal-title">{team ? `Editing team: ${team.name}` : 'Add a new team'}</b>
           <span className="modal-label">Team Name</span>
-          <TextInput placeholder="Ex: Warriors" value={name} onChange={handleNameChanged} />
+          <TextInput 
+            placeholder="Ex: Warriors" 
+            value={name}
+            onChange={handleNameChanged} 
+            maxCharacters={30}
+          />
           <br />
           <div className="modal-group">
             <span className="modal-label">{`Participants (${players.length})`}</span>
