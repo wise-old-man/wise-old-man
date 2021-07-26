@@ -32,8 +32,8 @@ async function getList(username: string, status: number, pagination: Pagination)
 
   if (username && username.length > 0) {
     query[Op.or] = [
-      { oldName: { [Op.like]: `${username}%` } },
-      { newName: { [Op.like]: `${username}%` } }
+      { oldName: { [Op.iLike]: `${username}%` } },
+      { newName: { [Op.iLike]: `${username}%` } }
     ];
   }
 
