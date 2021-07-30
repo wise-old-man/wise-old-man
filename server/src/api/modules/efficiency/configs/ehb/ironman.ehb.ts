@@ -38,7 +38,7 @@ export default [
   { boss: 'theatre_of_blood', rate: 2.5 },
   { boss: 'theatre_of_blood_hard_mode', rate: 2.4 },
   { boss: 'thermonuclear_smoke_devil', rate: 80 },
-  { boss: 'tzkal_zuk', rate: 0.9 },
+  { boss: 'tzkal_zuk', rate: 0.8 },
   { boss: 'tztok_jad', rate: 2 },
   { boss: 'venenatis', rate: 35 },
   { boss: 'vetion', rate: 23 },
