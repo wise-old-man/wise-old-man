@@ -464,8 +464,136 @@ describe('Group API', () => {
     });
   });
 
-  describe('5. Removing members', () => {
-    test("5.1 - DON'T remove members (id does not exist)", async done => {
+  describe('5. Changing role', () => {
+    test("5.1 - DON'T change role (group id does not exist)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'elvard',
+        role: 'ranger'
+      };
+
+      const url = `${BASE_URL}/1294385/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+
+      done();
+    });
+
+    test("5.2 - DON'T change role (incorrect verification code)", async done => {
+      const body = {
+        verificationCode: 'xxx-xxx-xxx',
+        username: 'elvard',
+        role: 'ranger'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+
+      done();
+    });
+
+    test("5.3 - DON'T change role (empty username)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        role: 'ranger'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'username' is undefined.");
+
+      done();
+    });
+
+    test("5.4 - DON'T change role (empty role)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'Psikoi'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'role' is undefined.");
+
+      done();
+    });
+
+    test("5.5 - DON'T change role (invalid role)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'Psikoi',
+        role: 'INVALID'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('INVALID is not a valid role.');
+
+      done();
+    });
+
+    test("5.4 - DON'T change role (not a member)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'REALLY_LONG_USERNAME',
+        role: 'ranger'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('REALLY_LONG_USERNAME is not a member');
+
+      done();
+    });
+
+    test("5.5 - DON'T change role (already has role)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'sethmare',
+        role: 'magician'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('sethmare is already a magician.');
+
+      done();
+    });
+
+    test('5.6 - Change role', async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        username: 'sethmare',
+        role: 'brawler'
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/change-role`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.role).toBe('brawler');
+
+      done();
+    });
+  });
+
+  describe('6. Removing members', () => {
+    test("6.1 - DON'T remove members (group id does not exist)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['elvard']
@@ -480,7 +608,7 @@ describe('Group API', () => {
       done();
     });
 
-    test("5.2 - DON'T remove members (incorrect verification code)", async done => {
+    test("6.2 - DON'T remove members (incorrect verification code)", async done => {
       const body = {
         verificationCode: 'xxx-xxx-xxx',
         members: ['elvard']
@@ -495,7 +623,7 @@ describe('Group API', () => {
       done();
     });
 
-    test("5.3 - DON'T remove members (empty members list)", async done => {
+    test("6.3 - DON'T remove members (empty members list)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: []
@@ -510,7 +638,7 @@ describe('Group API', () => {
       done();
     });
 
-    test("5.4 - DON'T remove members (not a member)", async done => {
+    test("6.4 - DON'T remove members (not a member)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['randomName']
@@ -525,7 +653,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('5.5 - Remove members', async done => {
+    test('6.5 - Remove members', async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
         members: ['elvard']
@@ -540,8 +668,8 @@ describe('Group API', () => {
     });
   });
 
-  describe('6. Deleting', () => {
-    test("6.1 - DON'T delete (id does not exist)", async done => {
+  describe('7. Deleting', () => {
+    test("7.1 - DON'T delete (id does not exist)", async done => {
       const url = `${BASE_URL}/1294385`;
       const body = { verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -553,7 +681,7 @@ describe('Group API', () => {
       done();
     });
 
-    test("6.2 - DON'T delete (incorrect verification code)", async done => {
+    test("7.2 - DON'T delete (incorrect verification code)", async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { verificationCode: 'xxx-xxx-xxx' };
 
@@ -565,7 +693,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('6.3 - Delete group', async done => {
+    test('7.3 - Delete group', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -578,8 +706,8 @@ describe('Group API', () => {
     });
   });
 
-  describe('7. Viewing', () => {
-    test("7.1 - DON'T view non-existing id", async done => {
+  describe('8. Viewing', () => {
+    test("8.1 - DON'T view non-existing id", async done => {
       const response = await request.get(`${BASE_URL}/9999`);
 
       expect(response.status).toBe(404);
@@ -588,7 +716,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('7.1 - View valid group', async done => {
+    test('8.1 - View valid group', async done => {
       const response = await request.get(`${BASE_URL}/${TEST_DATA.membersNoLeaders.id}`).send();
 
       expect(response.status).toBe(200);
