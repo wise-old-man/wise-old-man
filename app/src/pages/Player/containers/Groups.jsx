@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Table, TablePlaceholder } from 'components';
+import { Table, TablePlaceholder, RoleTag } from 'components';
 import { groupSelectors, groupActions } from 'redux/groups';
 import { PlayerContext } from '../context';
 
@@ -11,7 +11,12 @@ const TABLE_CONFIG = {
     {
       key: 'name',
       className: () => '-primary',
-      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>
+      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>,
+      width: 250
+    },
+    {
+      key: 'role',
+      transform: value => <RoleTag role={value} />
     },
     {
       key: 'memberCount',
