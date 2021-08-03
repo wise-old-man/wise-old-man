@@ -408,6 +408,12 @@ function validateTeamsList(teams: Team[]) {
 
   // Find duplicate team names
   const teamNames = teams.map(t => t.name.toLowerCase());
+  const invalidLengthTeams = teamNames.filter(t => t.length > 30);
+
+  if (invalidLengthTeams.length > 0) {
+    throw new BadRequestError(`Team names can only be 30 characters max. The following are invalid: [${invalidLengthTeams.join(', ')}]`);
+  }
+
   const duplicateTeams = filter(teamNames, (val, i, it) => includes(it, val, i + 1));
 
   if (duplicateTeams && duplicateTeams.length > 0) {
