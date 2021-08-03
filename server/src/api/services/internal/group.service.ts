@@ -37,6 +37,7 @@ interface MemberFragment {
 
 interface ExtendedGroup extends Group {
   memberCount: number;
+  role?: string;
 }
 
 interface CreateGroupDTO {
@@ -121,6 +122,13 @@ async function getPlayerGroups(playerId: number, pagination: Pagination): Promis
     .sort((a, b) => b.score - a.score);
 
   const extendedGroups = await extendGroups(groups);
+
+  // Add the player's role to every group object
+  extendedGroups.forEach(g => {
+    memberships.forEach(m => {
+      if (m.groupId === g.id) g.role = m.role;
+    });
+  });
 
   return extendedGroups;
 }
