@@ -106,6 +106,7 @@ function getAbbreviation(abbreviation: string): string {
   }
 
   switch (abbreviation) {
+    // Bosses
     case 'sire':
       return 'abyssal_sire';
 
@@ -197,20 +198,44 @@ function getAbbreviation(abbreviation: string): string {
 
     case 'gaunt':
     case 'gauntlet':
+    case 'the-gauntlet':
       return 'the_gauntlet';
 
     case 'cgaunt':
     case 'cgauntlet':
     case 'corrupted':
     case 'corrupted-gauntlet':
+    case 'the-corrupted-gauntlet':
       return 'the_corrupted_gauntlet';
 
     case 'tob':
     case 'theatre':
     case 'verzik':
+    case 'tob-normal':
       return 'theatre_of_blood';
+      
+    case 'tob-hm':
+    case 'tob-cm':
+    case 'tob-hard-mode':
+    case 'tob-hard':
+      return 'theatre_of_blood_hard_mode';
+      
+    case 'nm':
+    case 'tnm':
+    case 'nmare':
+    case 'the-nightmare':
+      return 'nightmare';
+      
+    case 'pnm':
+    case 'phosani':
+    case 'phosanis':
+    case 'phosani-nm':
+    case 'phosani-nightmare':
+    case 'phosanis nightmare':
+      return 'phosanis_nightmare';
 
     case 'thermy':
+    case 'smoke-devil':
       return 'thermonuclear_smoke_devil';
 
     case 'zuk':
@@ -283,7 +308,7 @@ function getAbbreviation(abbreviation: string): string {
 
     case 'sw':
     case 'zeal':
-    case 'soul_wars':
+    case 'soul-wars':
       return 'soul_wars_zeal';
 
     // Skills
