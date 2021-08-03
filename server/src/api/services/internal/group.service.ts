@@ -691,7 +691,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
       throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
     }
 
-    if (!GROUP_ROLES.includes(m.role)) {
+    if (m.role && !GROUP_ROLES.includes(m.role)) {
       throw new BadRequestError(`${m.role} is not a valid role.`);
     }
   });
@@ -713,7 +713,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
   await group.$add('members', newPlayers);
 
   const nonMemberRoleUsernames = members
-    .filter(m => m.role !== 'member')
+    .filter(m => m.role && m.role !== 'member')
     .map(m => ({ ...m, username: playerService.standardize(m.username) }));
 
   // If there are any non-member specific roles used, we need to set them correctly since group.$add does not

@@ -79,7 +79,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('1.5 - Create valid group (members, no leaders)', async done => {
+    test('1.5 - Create valid group (default roles members)', async done => {
       const body = {
         name: 'Cool Bois',
         members: [
@@ -95,19 +95,19 @@ describe('Group API', () => {
       expect(response.body.members.length).toBe(3);
       expect(response.body.members.map(m => m.username)).toContain('alt player');
       expect(response.body.members.map(m => m.displayName)).toContain('Test Player');
-      expect(response.body.members.filter(m => m.role === 'leader').length).toBe(0);
+      expect(response.body.members.filter(m => m.role !== 'member').length).toBe(0);
 
       TEST_DATA.membersNoLeaders = response.body;
 
       done();
     }, 10000);
 
-    test('1.6 - Create valid group (members, w/ leaders)', async done => {
+    test('1.6 - Create valid group (members, w/ roles)', async done => {
       const body = {
         name: 'Cooler Bois',
         members: [
           { username: 'TEST player', role: 'leader' },
-          { username: ' alt PLAYER ' },
+          { username: ' alt PLAYER ', role: 'captain' },
           { username: 'zezima' }
         ]
       };
@@ -119,6 +119,8 @@ describe('Group API', () => {
       expect(response.body.members.map(m => m.username)).toContain('alt player');
       expect(response.body.members.map(m => m.displayName)).toContain('Test Player');
       expect(response.body.members.filter(m => m.role === 'leader').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'captain').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'member').length).toBe(1);
 
       TEST_DATA.membersOneLeader = response.body;
 
@@ -249,11 +251,31 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.7 - Edit (members list)', async done => {
+    test("2.7 - DON'T edit (invalid role in members list)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        members: [{ username: 'Psikoi', role: 'INVALID' }, { username: 'Zezima' }]
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
+      const response = await request.put(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid member roles.');
+      expect(response.body.data).toEqual([{ username: 'Psikoi', role: 'INVALID' }]);
+
+      done();
+    });
+
+    test('2.8 - Edit (members list)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: [{ username: 'Psikoi', role: 'leader' }, { username: 'zezIMA' }]
+        members: [
+          { username: 'Psikoi', role: 'achiever' },
+          { username: 'zezIMA', role: 'firemaker' },
+          { username: 'Zulu' }
+        ]
       };
 
       const response = await request.put(url).send(body);
@@ -261,11 +283,14 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(response.body.members.map(m => m.username)).toContain('psikoi');
       expect(response.body.members.map(m => m.username)).toContain('zezima');
+      expect(response.body.members.filter(m => m.role === 'achiever').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'firemaker').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'member').length).toBe(1);
 
       done();
     });
 
-    test('2.8 - Edit (name)', async done => {
+    test('2.9 - Edit (name)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { name: 'WISE OLD MAN', verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -277,7 +302,7 @@ describe('Group API', () => {
       done();
     });
 
-    test('2.9 - Edit (clan chat)', async done => {
+    test('2.10 - Edit (clan chat)', async done => {
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}`;
       const body = { clanChat: 'TheBois ', verificationCode: TEST_DATA.noMembers.verificationCode };
 
@@ -386,10 +411,25 @@ describe('Group API', () => {
       done();
     });
 
-    test("4.6 - DON'T add members (already member)", async done => {
+    test("4.6 - DON'T add members (invalid role)", async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: [{ username: 'zezima' }]
+        members: [{ username: 'elvard', role: 'INVALID' }]
+      };
+
+      const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
+      const response = await request.post(url).send(body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('INVALID is not a valid role');
+
+      done();
+    });
+
+    test("4.7 - DON'T add members (already member)", async done => {
+      const body = {
+        verificationCode: TEST_DATA.noMembers.verificationCode,
+        members: [{ username: 'zezima', role: 'member' }]
       };
 
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
@@ -401,10 +441,14 @@ describe('Group API', () => {
       done();
     });
 
-    test('4.7 - Add members', async done => {
+    test('4.8 - Add members', async done => {
       const body = {
         verificationCode: TEST_DATA.noMembers.verificationCode,
-        members: [{ username: 'elvard', role: 'leader' }]
+        members: [
+          { username: 'elvard', role: 'ranger' },
+          { username: 'sethmare', role: 'magician' },
+          { username: 'rro' }
+        ]
       };
 
       const url = `${BASE_URL}/${TEST_DATA.noMembers.id}/add-members`;
@@ -412,6 +456,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.members.map(m => m.username)).toContain('elvard');
+      expect(response.body.members.filter(m => m.role === 'ranger').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'magician').length).toBe(1);
+      expect(response.body.members.filter(m => m.role === 'member').length).toBeGreaterThanOrEqual(1);
 
       done();
     });

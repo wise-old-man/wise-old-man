@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('memberships', {
     playerId: {
       type: dataTypes.INTEGER,
@@ -23,7 +23,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       }
     },
     role: {
-      type: dataTypes.ENUM(['leader', 'member']),
+      type: dataTypes.STRING(40),
       allowNull: false
     },
     createdAt: {
