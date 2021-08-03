@@ -519,6 +519,15 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
       );
     }
 
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
+
+    if (invalidRoles.length > 0) {
+      throw new BadRequestError(
+        'Invalid member roles. Please check the roles of the given members.',
+        invalidRoles.map(m => ({ username: m.username, role: m.role }))
+      );
+    }
+
     groupMembers = await setMembers(group, members);
   } else {
     const memberships = await group.$get('members');
@@ -681,6 +690,10 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
     if (!playerService.isValidUsername(m.username)) {
       throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
     }
+
+    if (!GROUP_ROLES.includes(m.role)) {
+      throw new BadRequestError(`${m.role} is not a valid role.`);
+    }
   });
 
   // Find all existing members
@@ -780,6 +793,10 @@ async function changeRole(group: Group, member: MemberFragment): Promise<[Player
 
   if (membership.role === role) {
     throw new BadRequestError(`${username} is already a ${role}.`);
+  }
+
+  if (!GROUP_ROLES.includes(member.role)) {
+    throw new BadRequestError(`${member.role} is not a valid role.`);
   }
 
   await membership.update({ role });
