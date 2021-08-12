@@ -33,7 +33,6 @@ class InvalidateDeltas implements Job {
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
-      console.log(error);
       metricsService.trackJobEnded(endTimer, this.name, 0);
       throw error;
     }
@@ -41,7 +40,6 @@ class InvalidateDeltas implements Job {
 }
 
 async function deleteInvalidPeriodDeltas(period: string, thresholdDate: Date) {
-  console.log(thresholdDate);
   await Delta.destroy({
     where: {
       period,
