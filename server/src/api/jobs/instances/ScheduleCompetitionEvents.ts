@@ -17,8 +17,11 @@ const SAFETY_GAP = 5_000;
 // How often this job is executed (once every minute)
 const EXECUTION_FREQUENCY = 60_000;
 
-// 24h, 6h, 1h, 5min, now
-const TIME_INTERVALS = [1440, 360, 60, 30, 5, 0];
+// 6h, 5min, now
+const START_TIME_INTERVALS = [360, 5, 0];
+
+// 12h, 30min, now
+const END_TIME_INTERVALS = [720, 30, 0];
 
 class ScheduleCompetitionEvents implements Job {
   name: string;
@@ -31,10 +34,16 @@ class ScheduleCompetitionEvents implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      // Loop through al the TIME_INTERVALS and schedule events for each interval
+      // Schedule "starting" and "started" events for each interval
       await Promise.all(
-        TIME_INTERVALS.map(async t => {
+        START_TIME_INTERVALS.map(async t => {
           await scheduleStarting(t * 60 * 1000);
+        })
+      );
+
+      // Schedule "ending" and "ended" events for each interval
+      await Promise.all(
+        END_TIME_INTERVALS.map(async t => {
           await scheduleEnding(t * 60 * 1000);
         })
       );
