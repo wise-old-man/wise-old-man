@@ -47,14 +47,8 @@ function Statistics() {
 }
 
 function getValue(row) {
-  if (row.experience) {
-    return row.experience;
-  }
-
-  if (row.kills) {
-    return row.kills;
-  }
-
+  if (row.experience !== undefined) return row.experience;
+  if (row.kills !== undefined) return row.kills;
   return row.score;
 }
 
