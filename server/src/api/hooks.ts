@@ -14,7 +14,6 @@ import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
 import { onNameChangeCreated } from './events/name.events';
 import {
-  onPlayerCreated,
   onPlayerImported,
   onPlayerNameChanged,
   onPlayerTypeChanged,
@@ -38,9 +37,9 @@ function setup() {
     }
   });
 
-  Player.afterCreate((player: Player) => {
-    onPlayerCreated(player);
-  });
+  // Player.afterCreate((player: Player) => {
+  //   onPlayerCreated(player);
+  // });
 
   Snapshot.afterCreate((snapshot: Snapshot) => {
     onPlayerUpdated(snapshot);

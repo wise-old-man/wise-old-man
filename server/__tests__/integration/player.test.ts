@@ -303,59 +303,59 @@ describe('Player API', () => {
     }, 90000);
   });
 
-  describe('7. Asserting Name', () => {
-    test("7.1 - DON'T assert name for undefined username", async done => {
-      const response = await request.post(`${BASE_URL}/assert-name`).send({});
+  // describe('7. Asserting Name', () => {
+  //   test("7.1 - DON'T assert name for undefined username", async done => {
+  //     const response = await request.post(`${BASE_URL}/assert-name`).send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+  //     expect(response.status).toBe(400);
+  //     expect(response.body.message).toMatch("Parameter 'username' is undefined.");
 
-      done();
-    });
+  //     done();
+  //   });
 
-    test("7.2 - DON'T assert name for empty username", async done => {
-      const response = await request.post(`${BASE_URL}/assert-name`).send({ username: '' });
+  //   test("7.2 - DON'T assert name for empty username", async done => {
+  //     const response = await request.post(`${BASE_URL}/assert-name`).send({ username: '' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+  //     expect(response.status).toBe(400);
+  //     expect(response.body.message).toMatch("Parameter 'username' is undefined.");
 
-      done();
-    });
+  //     done();
+  //   });
 
-    test("7.3 - DON'T assert name for unknown username", async done => {
-      const body = { username: 'assert_guy' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+  //   test("7.3 - DON'T assert name for unknown username", async done => {
+  //     const body = { username: 'assert_guy' };
+  //     const response = await request.post(`${BASE_URL}/assert-name`).send(body);
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+  //     expect(response.status).toBe(404);
+  //     expect(response.body.message).toMatch('Player not found.');
 
-      done();
-    });
+  //     done();
+  //   });
 
-    test('7.4 - Assert name for correct username', async done => {
-      const body = { username: 'Psikoi' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+  //   test('7.4 - Assert name for correct username', async done => {
+  //     const body = { username: 'Psikoi' };
+  //     const response = await request.post(`${BASE_URL}/assert-name`).send(body);
 
-      if (response.status === 200) {
-        expect(response.body.displayName).toMatch('Psikoi');
-      } else {
-        expect(response.body.message).toMatch("Couldn't find a name match for psikoi");
-      }
+  //     if (response.status === 200) {
+  //       expect(response.body.displayName).toMatch('Psikoi');
+  //     } else {
+  //       expect(response.body.message).toMatch("Couldn't find a name match for psikoi");
+  //     }
 
-      done();
-    }, 90000);
+  //     done();
+  //   }, 90000);
 
-    test('7.5 - Assert name for correct unformatted username', async done => {
-      const body = { username: 'iron_mammal' };
-      const response = await request.post(`${BASE_URL}/assert-name`).send(body);
+  //   test('7.5 - Assert name for correct unformatted username', async done => {
+  //     const body = { username: 'iron_mammal' };
+  //     const response = await request.post(`${BASE_URL}/assert-name`).send(body);
 
-      if (response.status === 200) {
-        expect(response.body.displayName).toMatch('Iron Mammal');
-      } else {
-        expect(response.body.message).toMatch("Couldn't find a name match for iron mammal");
-      }
+  //     if (response.status === 200) {
+  //       expect(response.body.displayName).toMatch('Iron Mammal');
+  //     } else {
+  //       expect(response.body.message).toMatch("Couldn't find a name match for iron mammal");
+  //     }
 
-      done();
-    }, 90000);
-  });
+  //     done();
+  //   }, 90000);
+  // });
 });

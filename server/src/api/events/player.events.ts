@@ -75,4 +75,4 @@ async function onPlayerImported(playerId: number) {
   );
 }
 
-export { onPlayerCreated, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
