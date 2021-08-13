@@ -743,8 +743,8 @@ export default [
       {
         description: 'Without any period filtering (Not showing the whole response)',
         body: {
-          '6h': {
-            period: '6h',
+          '5min': {
+            period: '5min',
             startsAt: '2020-12-30T11:48:56.803Z',
             endsAt: '2020-12-30T11:56:27.615Z',
             data: {

@@ -26,7 +26,7 @@ import {
 } from './containers';
 import './Player.scss';
 
-const PERIODS = ['6h', 'day', 'week', 'month', 'year'];
+const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];
 
 function Player() {

@@ -460,7 +460,7 @@ export default [
     name: 'Periods',
     description:
       'All the possible values for the "period" field of the delta model. (Note: a month is 31 days)',
-    values: ['6h', 'day', 'week', 'month', 'year']
+    values: ['5min', 'day', 'week', 'month', 'year']
   },
   {
     name: 'Player types',

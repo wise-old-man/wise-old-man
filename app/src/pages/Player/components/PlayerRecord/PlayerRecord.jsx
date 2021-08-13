@@ -29,7 +29,7 @@ function PlayerRecord({ metricRecords, metric }) {
     return null;
   }
 
-  const PERIOD_ORDER = ['6h', 'day', 'week', 'month', 'year'];
+  const PERIOD_ORDER = ['5min', 'day', 'week', 'month', 'year'];
 
   const filteredRecords = metricRecords.sort(
     (a, b) => PERIOD_ORDER.indexOf(a.period) - PERIOD_ORDER.indexOf(b.period)

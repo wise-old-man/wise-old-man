@@ -44,13 +44,13 @@ export default [
     successResponses: [
       {
         description:
-          'Filtered by the fields metric (herblore) and period (6h) (Only showing top 3 for demo purposes)',
+          'Filtered by the fields metric (herblore) and period (5min) (Only showing top 3 for demo purposes)',
         body: [
           {
             value: 4296285,
             id: 10078478,
             playerId: 20400,
-            period: '6h',
+            period: '5min',
             metric: 'herblore',
             updatedAt: '2020-12-14T10:25:30.960Z',
             player: {
@@ -76,7 +76,7 @@ export default [
             value: 3954060,
             id: 10081998,
             playerId: 71872,
-            period: '6h',
+            period: '5min',
             metric: 'herblore',
             updatedAt: '2020-12-14T22:10:32.523Z',
             player: {
@@ -102,7 +102,7 @@ export default [
             value: 3219800,
             id: 9775625,
             playerId: 5390,
-            period: '6h',
+            period: '5min',
             metric: 'herblore',
             updatedAt: '2020-12-28T14:50:15.119Z',
             player: {

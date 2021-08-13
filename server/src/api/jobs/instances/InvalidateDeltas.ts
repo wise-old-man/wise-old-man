@@ -6,7 +6,7 @@ import { Job } from '../index';
 
 /**
  * This job is to be executed by a cron, and it clears outdated deltas.
- * Ex: Any "6h" deltas that are over 6h old, are deleted,
+ * Ex: Any "week" deltas that are over a week old, are deleted,
  * and should no longer appear in group/global leaderboards.
  */
 class InvalidateDeltas implements Job {
@@ -20,8 +20,8 @@ class InvalidateDeltas implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      // Delete any outdated "6h" deltas
-      await deleteInvalidPeriodDeltas('6h', moment().subtract(6, 'hour').toDate());
+      // Delete any outdated "5min" deltas
+      await deleteInvalidPeriodDeltas('5min', moment().subtract(1, 'hour').toDate());
       // Delete any outdated "day" deltas
       await deleteInvalidPeriodDeltas('day', moment().subtract(24, 'hour').toDate());
       // Delete any outdated "week" deltas

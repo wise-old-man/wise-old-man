@@ -11,7 +11,7 @@ import { Controls, List } from './containers';
 import { TopContext } from './context';
 import './Top.scss';
 
-const PERIODS = ['day', 'week', 'month', '6h', 'year'];
+const PERIODS = ['day', 'week', 'month', '5min', 'year'];
 
 function Top() {
   const dispatch = useDispatch();

@@ -1,4 +1,4 @@
-export const PERIODS = ['6h', 'day', 'week', 'month', 'year'];
+export const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 
 export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
 
