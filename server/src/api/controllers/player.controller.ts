@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { BadRequestError, ForbiddenError } from '../errors';
+import { BadRequestError, ForbiddenError, ServerError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementService from '../services/internal/achievement.service';
 import * as competitionService from '../services/internal/competition.service';
@@ -62,15 +62,16 @@ async function assertType(req: Request, res: Response, next: NextFunction) {
 // POST /players/assert-name
 async function assertName(req: Request, res: Response, next: NextFunction) {
   try {
-    const username = extractString(req.body, { key: 'username', required: true });
+    // const username = extractString(req.body, { key: 'username', required: true });
 
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
+    // // Find the player using the username body param
+    // const player = await playerService.resolve({ username });
 
-    // Assert the player's displayName (via hiscores lookup)
-    const name = await playerService.assertName(player);
+    // // Assert the player's displayName (via hiscores lookup)
+    // const name = await playerService.assertName(player);
 
-    res.json({ displayName: name });
+    // res.json({ displayName: name });
+    throw new ServerError('This feature is currently disabled as Jagex is blocking web scrapers.');
   } catch (e) {
     next(e);
   }
