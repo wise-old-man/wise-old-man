@@ -136,10 +136,6 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
   const stOldName = playerService.standardize(oldName);
   const stNewName = playerService.standardize(newName);
 
-  if (stOldName === stNewName) {
-    throw new BadRequestError('Old and new names must be different.');
-  }
-
   // Check if a player with the "oldName" username is registered
   const oldPlayer = await playerService.find(stOldName);
 
@@ -147,42 +143,45 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     throw new BadRequestError(`Player '${oldName}' is not tracked yet.`);
   }
 
-  // Check if there's any pending name changes for these names
-  const pending = await NameChange.findOne({
-    where: {
-      oldName: stOldName,
-      newName: stNewName,
-      status: NameChangeStatus.PENDING
-    }
-  });
-
-  if (pending) {
-    throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
-  }
-
-  const newPlayer = await playerService.find(stNewName);
-
-  // To prevent people from submitting duplicate name change requests, which then
-  // will waste time and resources to process and deny, it's best to check if this
-  // exact same name change has been approved.
-  if (newPlayer) {
-    const lastChange = await NameChange.findOne({
-      where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
-      order: [['createdAt', 'DESC']]
+  // If these are the same name, just different capitalizations, skip these checks
+  if (stOldName !== stNewName) {
+    // Check if there's any pending name changes for these names
+    const pending = await NameChange.findOne({
+      where: {
+        oldName: stOldName,
+        newName: stNewName,
+        status: NameChangeStatus.PENDING
+      }
     });
 
-    if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
-      throw new BadRequestError(
-        `Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`
-      );
+    if (pending) {
+      throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
+    }
+
+    const newPlayer = await playerService.find(stNewName);
+
+    // To prevent people from submitting duplicate name change requests, which then
+    // will waste time and resources to process and deny, it's best to check if this
+    // exact same name change has been approved.
+    if (newPlayer) {
+      const lastChange = await NameChange.findOne({
+        where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
+        order: [['createdAt', 'DESC']]
+      });
+
+      if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
+        throw new BadRequestError(
+          `Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`
+        );
+      }
     }
   }
 
   // Create a new instance (a new name change request)
   const nameChange = await NameChange.create({
     playerId: oldPlayer.id,
-    oldName: stOldName,
-    newName: stNewName
+    oldName: oldPlayer.displayName,
+    newName: playerService.sanitize(newName)
   });
 
   return nameChange;
@@ -355,13 +354,20 @@ async function autoReview(id: number): Promise<void> {
 
   if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
-  const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = details.data;
+  const { data, nameChange } = details;
+  const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
+
+  // If it's a capitalization change, auto-approve
+  if (playerService.standardize(nameChange.oldName) === playerService.standardize(nameChange.newName)) {
+    await approve(id);
+    return;
+  }
 
   // If this name change was submitted in a bulk submission, likely via
   // the RL plugin, and most of its "neighbour"/"bundled" name changes
   // have been approved, then let's assume this one is more likely to be legit
   // for this, we use a modifier to lower the approval requirements.
-  const bundleModifier = await getBundleModifier(details.nameChange);
+  const bundleModifier = await getBundleModifier(nameChange);
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
@@ -403,10 +409,9 @@ async function autoReview(id: number): Promise<void> {
 
 async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
   const transitionDate = (await snapshotService.findLatest(oldPlayer.id))?.createdAt;
-  const standardizedName = playerService.standardize(newName);
 
   await sequelize.transaction(async transaction => {
-    if (newPlayer) {
+    if (newPlayer && oldPlayer.id !== newPlayer.id) {
       // Include only the data gathered after the name change transition started
       const createdFilter = {
         playerId: newPlayer.id,
@@ -433,8 +438,8 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
     }
 
     // Update the player to the new username & displayName
-    oldPlayer.username = standardizedName;
-    oldPlayer.displayName = standardizedName;
+    oldPlayer.username = playerService.standardize(newName);
+    oldPlayer.displayName = playerService.sanitize(newName);
     oldPlayer.flagged = false;
 
     await oldPlayer.save({ transaction });

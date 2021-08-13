@@ -7,10 +7,10 @@ import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as playerService from '../services/internal/player.service';
 
-async function onPlayerCreated(player: Player) {
-  // Confirm this player's name capitalization
-  jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
-}
+// async function onPlayerCreated(player: Player) {
+//   // Confirm this player's name capitalization
+//   // jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
+// }
 
 async function onPlayerTypeChanged(player: Player, previousType: string) {
   if (previousType === 'hardcore' && player.type === 'ironman') {
@@ -33,7 +33,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   );
 
   // Setup jobs to assert the player's name capitalization and account type
-  jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
+  // jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
   jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30000 });
 }
 
@@ -75,4 +75,4 @@ async function onPlayerImported(playerId: number) {
   );
 }
 
-export { onPlayerCreated, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

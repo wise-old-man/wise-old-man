@@ -6,9 +6,9 @@ import { PageHeader, Dropdown, Button, Badge } from 'components';
 
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'OPEN_HISCORES' },
-  { label: 'Reset username capitalization', value: 'ASSERT_NAME' },
-  { label: 'Reassign player type', value: 'ASSERT_TYPE' },
-  { label: 'Change name', value: 'CHANGE_NAME' }
+  { label: 'Change name', value: 'CHANGE_NAME' },
+  // { label: 'Reset username capitalization', value: 'ASSERT_NAME' },
+  { label: 'Reassign player type', value: 'ASSERT_TYPE' }
 ];
 
 function Header(props) {
