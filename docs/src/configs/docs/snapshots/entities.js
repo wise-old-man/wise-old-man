@@ -469,6 +469,6 @@ export default [
     name: 'Periods',
     description:
       'All the possible values for the "period" field (used for filtering in the endpoint below).',
-    values: ['6h', 'day', 'week', 'month', 'year']
+    values: ['5min', 'day', 'week', 'month', 'year']
   }
 ];

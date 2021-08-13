@@ -5,7 +5,7 @@ import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { PlayerContext } from '../context';
 
 const PERIOD_OPTIONS = [
-  { label: '6 Hours', value: '6h' },
+  { label: '5 Min', value: '5min' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },

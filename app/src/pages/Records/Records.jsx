@@ -11,7 +11,7 @@ import { Controls, List } from './containers';
 import { RecordsContext } from './context';
 import './Records.scss';
 
-const PERIODS = ['day', 'week', 'month', '6h', 'year'];
+const PERIODS = ['day', 'week', 'month', '5min', 'year'];
 
 function Records() {
   const dispatch = useDispatch();

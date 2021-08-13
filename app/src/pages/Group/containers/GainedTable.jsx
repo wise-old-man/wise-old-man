@@ -15,7 +15,7 @@ const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
 }));
 
 const PERIOD_OPTIONS = [
-  { label: '6 Hours', value: '6h' },
+  { label: '5 Min', value: '5min' },
   { label: 'Day', value: 'day' },
   { label: 'Week', value: 'week' },
   { label: 'Month', value: 'month' },
@@ -88,7 +88,7 @@ function getTableConfig(metric, period) {
     uniqueKey: row => `${row.player.id}-${metric}-${period}`,
     columns: [
       {
-        key: 'rank',
+        key: 'rank'
       },
       {
         key: 'displayName',

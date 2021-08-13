@@ -104,10 +104,10 @@ function durationBetween(startDate, endDate) {
 
 function getMilliseconds(period: string) {
   switch (period) {
+    case '5min':
+      return 300 * 1000;
     case 'hour':
       return 3600 * 1000;
-    case '6h':
-      return 3600 * 6 * 1000;
     case 'day':
       return 3600 * 24 * 1000;
     case 'week':
