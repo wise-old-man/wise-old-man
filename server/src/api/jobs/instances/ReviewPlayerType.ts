@@ -1,4 +1,3 @@
-import logger from '../../services/external/logger.service';
 import metricsService from '../../services/external/metrics.service';
 import redisService from '../../services/external/redis.service';
 import * as playerService from '../../services/internal/player.service';
@@ -19,14 +18,7 @@ class ReviewPlayerType implements Job {
 
     try {
       const player = await playerService.findById(data.id);
-
-      const previousType = player.type;
-      const newType = await playerService.assertType(player);
-
-      // Player type hasn't changed, player is just inactive
-      if (previousType !== newType) {
-        logger.info('Changed type', { username: player.username, previousType, newType });
-      }
+      await playerService.assertType(player);
 
       // Store the current timestamp to activate the cooldown
       await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), REVIEW_COOLDOWN);

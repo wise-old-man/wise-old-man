@@ -1,8 +1,14 @@
 import * as discordService from '../services/external/discord.service';
+import logger from '../services/external/logger.service';
 import metrics from '../services/external/metrics.service';
 import * as competitionService from '../services/internal/competition.service';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {
+  // Temporary logging
+  playerIds.forEach(id => {
+    logger.info(`${id} joined ${groupId}`, {});
+  });
+
   // Add these new members to all upcoming and ongoing competitions
   await metrics.measureReaction('AddToGroupCompetitions', () =>
     competitionService.addToGroupCompetitions(groupId, playerIds)
@@ -15,6 +21,11 @@ async function onMembersJoined(groupId: number, playerIds: number[]) {
 }
 
 async function onMembersLeft(groupId: number, playerIds: number[]) {
+  // Temporary logging
+  playerIds.forEach(id => {
+    logger.info(`${id} left ${groupId}`, {});
+  });
+
   // Remove these players from ongoing/upcoming group competitions
   await metrics.measureReaction('RemoveFromGroupCompetitions', () =>
     competitionService.removeFromGroupCompetitions(groupId, playerIds)
