@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +8,14 @@ import Selector from '../Selector';
 import Table from '../Table';
 import './MembersSelector.scss';
 
-function getTableConfig(invalidUsernames, onRemove, onSwitchRole, roles) {
+function getTableConfig(
+  invalidUsernames,
+  onRemove,
+  onSwitchRole,
+  roles,
+  editedRoleMembers,
+  setEditedRoleMembers
+) {
   const isInvalid = username => invalidUsernames && invalidUsernames.includes(username);
 
   return {
@@ -25,14 +32,29 @@ function getTableConfig(invalidUsernames, onRemove, onSwitchRole, roles) {
         label: 'Role',
         isSortable: false,
         width: 200,
-        transform: (val, row) => (
-          <Selector
-            options={roles}
-            selectedIndex={roles.findIndex(o => o.value === row.role)}
-            onSelect={option => onSwitchRole(row.username, option.value)}
-            search
-          />
-        )
+        transform: (val, row) => {
+          const role = roles.find(r => r.value === val);
+          const isEdited = editedRoleMembers.find(e => e === row.username);
+
+          if (isEdited) {
+            return (
+              <Selector
+                options={roles}
+                selectedIndex={roles.findIndex(o => o.value === row.role)}
+                onSelect={option => onSwitchRole(row.username, option.value)}
+                search
+              />
+            );
+          }
+
+          return (
+            <div className="role">
+              <img src={role.icon} alt="" />
+              <span>{role.label}</span>
+              <button onClick={() => setEditedRoleMembers(e => [...e, row.username])}>(Change)</button>
+            </div>
+          );
+        }
       },
       {
         key: 'remove',
@@ -62,6 +84,8 @@ function MembersSelector({
   const dispatch = useDispatch();
   const searchResults = useSelector(playerSelectors.getSearchResults);
 
+  const [editedRoleMembers, setEditedRoleMembers] = useState([]);
+
   const suggestions = useMemo(() => searchResults.map(s => mapToSuggestion(s)), [searchResults]);
 
   const searchPlayer = debounce(username => dispatch(playerActions.searchPlayers(username)), 500);
@@ -90,8 +114,16 @@ function MembersSelector({
   const onRoleSwitch = useCallback(handleRoleSwitch, []);
 
   const tableConfig = useMemo(
-    () => getTableConfig(invalidUsernames, onDeselected, onRoleSwitch, roles),
-    [invalidUsernames, onDeselected, onRoleSwitch, roles]
+    () =>
+      getTableConfig(
+        invalidUsernames,
+        onDeselected,
+        onRoleSwitch,
+        roles,
+        editedRoleMembers,
+        setEditedRoleMembers
+      ),
+    [invalidUsernames, onDeselected, onRoleSwitch, roles, editedRoleMembers, setEditedRoleMembers]
   );
 
   return (
