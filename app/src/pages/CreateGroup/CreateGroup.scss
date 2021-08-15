@@ -46,6 +46,20 @@
     }
   }
 
+  .table {
+    overflow-y: scroll;
+    font-size: 1em;
+
+    .selector {
+      font-size: 1.1em;
+
+      &-toggle {
+        background: $gray-12;
+        height: 35px;
+      }
+    }
+  }
+
   hr {
     background-color: $gray-17;
     height: 1px;

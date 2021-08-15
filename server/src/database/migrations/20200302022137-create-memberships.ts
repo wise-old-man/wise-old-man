@@ -1,7 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
-import { GROUP_ROLES } from '../../api/constants';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('memberships', {
     playerId: {
       type: dataTypes.INTEGER,
@@ -24,7 +23,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       }
     },
     role: {
-      type: dataTypes.ENUM(GROUP_ROLES),
+      type: dataTypes.STRING(40),
       allowNull: false
     },
     createdAt: {
