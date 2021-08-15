@@ -81,28 +81,48 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 40000,
-        description: '-'
+        rate: 40_000,
+        description: 'Shrimp & Trout'
       },
       {
-        startExp: 7842,
-        rate: 130000,
-        description: '-'
+        startExp: 13_363,
+        rate: 463_867,
+        description: '1t Karambwans'
       },
       {
-        startExp: 37224,
-        rate: 175000,
-        description: '-'
+        startExp: 37_224,
+        rate: 534_375,
+        description: '1t Karambwans'
       },
       {
-        startExp: 737627,
-        rate: 490000,
-        description: '-'
+        startExp: 101_333,
+        rate: 604_883,
+        description: '1t Karambwans'
       },
       {
-        startExp: 1986068,
-        rate: 950000,
-        description: '-'
+        startExp: 273_742,
+        rate: 671_680,
+        description: '1t Karambwans'
+      },
+      {
+        startExp: 737_627,
+        rate: 742_188,
+        description: '1t Karambwans'
+      },
+      {
+        startExp: 1_986_068,
+        rate: 812_695,
+        description: '1t Karambwans'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 883_203,
+        description: '1t Karambwans'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 950_000,
+        description: '1t Karambwans'
       }
     ],
     bonuses: []
@@ -112,48 +132,58 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7000,
-        description: '-'
+        rate: 7_000,
+        description: 'Trees'
       },
       {
-        startExp: 2411,
-        rate: 16000,
-        description: '-'
+        startExp: 2_411,
+        rate: 16_000,
+        description: 'Oak trees'
       },
       {
-        startExp: 13363,
-        rate: 35000,
-        description: '-'
+        startExp: 13_363,
+        rate: 35_000,
+        description: 'Willow trees'
       },
       {
-        startExp: 41171,
-        rate: 47775,
-        description: '-'
+        startExp: 22_406,
+        rate: 89_733,
+        description: '1.5t Teaks'
       },
       {
-        startExp: 302288,
-        rate: 143320,
-        description: '-'
+        startExp: 41_171,
+        rate: 108_130,
+        description: '1.5t Teaks'
       },
       {
-        startExp: 737627,
-        rate: 155518,
-        description: '-'
+        startExp: 111_945,
+        rate: 119_190,
+        description: '1.5t Teaks'
       },
       {
-        startExp: 1986068,
-        rate: 169132,
-        description: '-'
+        startExp: 302_288,
+        rate: 148_428,
+        description: '1.5t Teaks'
       },
       {
-        startExp: 5902831,
-        rate: 184108,
-        description: '-'
+        startExp: 737_627,
+        rate: 158_816,
+        description: '1.5t Teaks'
       },
       {
-        startExp: 13034431,
-        rate: 195000,
-        description: '-'
+        startExp: 1_986_068,
+        rate: 171_782,
+        description: '1.5t Teaks'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 183_571,
+        description: '1.5t Teaks'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 195_122,
+        description: '1.5t Teaks'
       }
     ],
     bonuses: [
@@ -173,7 +203,7 @@ export default [
       {
         startExp: 0,
         rate: 0,
-        description: '-'
+        description: 'Multi-skilling darts'
       }
     ],
     bonuses: []
@@ -183,89 +213,103 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 14000,
-        description: '-'
+        rate: 20_000,
+        description: 'Questing XP'
       },
       {
-        startExp: 4470,
-        rate: 28000,
-        description: '-'
+        startExp: 18_247,
+        rate: 40_000,
+        description: 'Fly fishing (Trout & Salmon)'
       },
       {
-        startExp: 13363,
-        rate: 37000,
-        description: '-'
+        startExp: 101_333,
+        rate: 94_364,
+        description: 'Drift net'
       },
       {
-        startExp: 273742,
-        rate: 46000,
-        description: '-'
+        startExp: 273_742,
+        rate: 113_709,
+        description: 'Drift net'
       },
       {
-        startExp: 737627,
-        rate: 58000,
-        description: '-'
+        startExp: 737_627,
+        rate: 130_434,
+        description: 'Drift net'
       },
       {
-        startExp: 1986068,
-        rate: 74000,
-        description: '-'
-      },
-      {
-        startExp: 5346332,
-        rate: 82000,
-        description: '-'
-      },
-      {
-        startExp: 13034431,
-        rate: 120000,
-        description: '-'
+        startExp: 151_728_219,
+        rate: 119_261,
+        description: '2t Tuna & Swordfish'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: 'fishing',
+        bonusSkill: 'cooking',
+        startExp: 151_728_219,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.216
+      }
+    ]
   },
   {
     skill: 'firemaking',
     methods: [
       {
         startExp: 0,
-        rate: 45000,
-        description: '-'
+        rate: 58_960,
+        description: 'Logs'
       },
       {
-        startExp: 13363,
-        rate: 132660,
-        description: '-'
+        startExp: 2_411,
+        rate: 88_440,
+        description: 'Oak logs'
       },
       {
-        startExp: 61512,
-        rate: 198990,
-        description: '-'
+        startExp: 13_363,
+        rate: 132_660,
+        description: 'Willow logs'
       },
       {
-        startExp: 273742,
-        rate: 298485,
-        description: '-'
+        startExp: 22_406,
+        rate: 154_770,
+        description: 'Teak logs'
       },
       {
-        startExp: 1210421,
-        rate: 447801,
-        description: '-'
+        startExp: 61_512,
+        rate: 198_990,
+        description: 'Maple logs'
       },
       {
-        startExp: 5346332,
-        rate: 528797,
-        description: '-'
+        startExp: 101_333,
+        rate: 232_155,
+        description: 'Mahogany logs'
+      },
+      {
+        startExp: 273_742,
+        rate: 298_485,
+        description: 'Yew logs'
+      },
+      {
+        startExp: 1_210_421,
+        rate: 447_801,
+        description: 'Magic logs'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 505_000,
+        description: 'Firebwan'
       }
     ],
     bonuses: [
       {
         originSkill: 'firemaking',
         bonusSkill: 'cooking',
-        startExp: 5_346_332,
+        startExp: 101_333,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.52
+        ratio: 0.7
       }
     ]
   },
@@ -274,28 +318,28 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 57000,
-        description: '-'
+        rate: 57_000,
+        description: 'Leather & Gems'
       },
       {
-        startExp: 300000,
-        rate: 170000,
-        description: '-'
+        startExp: 368_599,
+        rate: 320_000,
+        description: "Green d'hide bodies"
       },
       {
-        startExp: 362000,
-        rate: 285000,
-        description: '-'
+        startExp: 814_445,
+        rate: 360_000,
+        description: "Blue d'hide bodies"
       },
       {
-        startExp: 496254,
-        rate: 336875,
-        description: '-'
+        startExp: 1_475_581,
+        rate: 400_000,
+        description: "Red d'hide bodies"
       },
       {
-        startExp: 2951373,
-        rate: 440000,
-        description: '-'
+        startExp: 2_951_373,
+        rate: 440_000,
+        description: "Black d'hide bodies"
       }
     ],
     bonuses: []
@@ -305,28 +349,33 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 40000,
-        description: '-'
+        rate: 40_000,
+        description: 'Questing XP'
       },
       {
-        startExp: 18247,
-        rate: 116000,
-        description: '-'
+        startExp: 14_833,
+        rate: 104_000,
+        description: 'Iron platebodies'
       },
       {
-        startExp: 605032,
-        rate: 208000,
-        description: '-'
+        startExp: 83_014,
+        rate: 156_000,
+        description: 'Steel platebodies'
       },
       {
-        startExp: 4385776,
-        rate: 260000,
-        description: '-'
+        startExp: 605_032,
+        rate: 208_000,
+        description: 'Mithril platebodies'
       },
       {
-        startExp: 13034431,
-        rate: 400000,
-        description: '-'
+        startExp: 4_385_776,
+        rate: 260_000,
+        description: 'Adamant platebodies'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 410_000,
+        description: 'Blast Furnance Gold bars'
       }
     ],
     bonuses: []
@@ -336,50 +385,65 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8000,
-        description: '-'
+        rate: 30_000,
+        description: 'Questing XP'
       },
       {
-        startExp: 14833,
-        rate: 20000,
-        description: '-'
+        startExp: 13_363,
+        rate: 59_158,
+        description: '3t Iron'
       },
       {
-        startExp: 41171,
-        rate: 44000,
-        description: '-'
+        startExp: 61_512,
+        rate: 77_727,
+        description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 302288,
-        rate: 70335,
-        description: '-'
+        startExp: 101_333,
+        rate: 81_046,
+        description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 547953,
-        rate: 79975,
-        description: '-'
+        startExp: 302_288,
+        rate: 88_815,
+        description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 1986068,
-        rate: 90747,
-        description: '-'
+        startExp: 737_627,
+        rate: 94_319,
+        description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 5902831,
-        rate: 99136,
-        description: '-'
+        startExp: 986_068,
+        rate: 99_221,
+        description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 13034431,
-        rate: 111800,
-        description: '-'
+        startExp: 3_258_594,
+        rate: 46_500,
+        description: 'Motherlode Mine for Prospector kit'
+      },
+      {
+        startExp: 3_548_694,
+        rate: 102_988,
+        description: '3t4g at Desert Quarry'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 105_125,
+        description: '3t4g at Desert Quarry'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 114_130,
+        description: '3t4g at Desert Quarry'
       }
     ],
     bonuses: [
       {
         originSkill: 'mining',
         bonusSkill: 'smithing',
-        startExp: 302_288, // 61 mining
+        startExp: 302_288,
         endExp: 200_000_000,
         end: true,
         ratio: 0.08
@@ -391,18 +455,38 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 60000,
-        description: '-'
+        rate: 6_000,
+        description: 'Questing XP'
       },
       {
-        startExp: 27473,
-        rate: 200000,
-        description: '-'
+        startExp: 3_000,
+        rate: 125_000,
+        description: 'Strength potions'
       },
       {
-        startExp: 2192818,
-        rate: 450000,
-        description: '-'
+        startExp: 30_408,
+        rate: 218_750,
+        description: 'Prayer potions'
+      },
+      {
+        startExp: 61_512,
+        rate: 250_000,
+        description: 'Super attack potions'
+      },
+      {
+        startExp: 368_599,
+        rate: 356_250,
+        description: 'Super restore potions'
+      },
+      {
+        startExp: 1_336_443,
+        rate: 431_250,
+        description: 'Magic potions'
+      },
+      {
+        startExp: 2_192_818,
+        rate: 450_000,
+        description: 'Saradomin brews'
       }
     ],
     bonuses: []
@@ -412,43 +496,48 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6000,
-        description: '-'
+        rate: 6_000,
+        description: 'Gnome Stronghold Agility Course'
       },
       {
-        startExp: 13363,
-        rate: 15100,
-        description: '-'
+        startExp: 1_154,
+        rate: 9_000,
+        description: 'Draynor Agility Course'
       },
       {
-        startExp: 75127,
-        rate: 42000,
-        description: '-'
+        startExp: 13_363,
+        rate: 13_000,
+        description: 'Varrock Agility Course'
       },
       {
-        startExp: 273742,
-        rate: 45000,
-        description: '-'
+        startExp: 75_127,
+        rate: 42_000,
+        description: 'Wilderness Agility Course'
       },
       {
-        startExp: 737627,
-        rate: 49000,
-        description: '-'
+        startExp: 273_742,
+        rate: 45_000,
+        description: "Seers' Village Agility Course"
       },
       {
-        startExp: 1986086,
-        rate: 52000,
-        description: '-'
+        startExp: 737_627,
+        rate: 49_000,
+        description: 'Pollnivneach Agility Course'
       },
       {
-        startExp: 3972294,
-        rate: 59000,
-        description: '-'
+        startExp: 1_986_086,
+        rate: 52_000,
+        description: 'Rellekka Agility Course'
       },
       {
-        startExp: 9684577,
-        rate: 62000,
-        description: '-'
+        startExp: 3_972_294,
+        rate: 59_000,
+        description: 'Ardougne Agility Course'
+      },
+      {
+        startExp: 9_684_577,
+        rate: 62_300,
+        description: 'Swimming'
       }
     ],
     bonuses: []
@@ -458,36 +547,55 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 15000,
-        description: '-'
+        rate: 15_000,
+        description: 'Questing XP'
       },
       {
-        startExp: 61512,
-        rate: 55000,
-        description: '-'
+        startExp: 2_500,
+        rate: 28_800,
+        description: 'Bakery Stall'
       },
       {
-        startExp: 166636,
-        rate: 90000,
-        description: '-'
+        startExp: 7_842,
+        rate: 39_000,
+        description: 'Fruit Stall'
       },
       {
-        startExp: 449428,
-        rate: 215000,
-        description: '-'
+        startExp: 61_512,
+        rate: 55_000,
+        description: 'Blackjacking'
       },
       {
-        startExp: 5902831,
-        rate: 250000,
-        description: '-'
+        startExp: 166_636,
+        rate: 90_000,
+        description: 'Blackjacking'
       },
       {
-        startExp: 13034431,
-        rate: 260000,
-        description: '-'
+        startExp: 449_428,
+        rate: 215_000,
+        description: 'Blackjacking'
+      },
+      {
+        startExp: 5_902_831,
+        rate: 250_000,
+        description: 'Pyramid Plunder'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 260_000,
+        description: 'Swimming'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: 'thieving',
+        bonusSkill: 'agility',
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.2727
+      }
+    ]
   },
   {
     skill: 'slayer',
@@ -505,33 +613,33 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 10000,
-        description: '-'
+        rate: 10_000,
+        description: 'Bagged plants'
       },
       {
-        startExp: 2411,
-        rate: 50000,
-        description: '-'
+        startExp: 2_411,
+        rate: 50_000,
+        description: 'Tree runs'
       },
       {
-        startExp: 13363,
-        rate: 80000,
-        description: '-'
+        startExp: 13_363,
+        rate: 80_000,
+        description: 'Tree runs'
       },
       {
-        startExp: 61512,
-        rate: 150000,
-        description: '-'
+        startExp: 61_512,
+        rate: 150_000,
+        description: 'Tree runs'
       },
       {
-        startExp: 273742,
-        rate: 350000,
-        description: '-'
+        startExp: 273_742,
+        rate: 350_000,
+        description: 'Tree runs'
       },
       {
-        startExp: 1210421,
-        rate: 1900000,
-        description: '-'
+        startExp: 1_210_421,
+        rate: 1_900_000,
+        description: 'Tree runs'
       }
     ],
     bonuses: []
@@ -541,18 +649,13 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8000,
-        description: '-'
+        rate: 8_000,
+        description: 'Questing XP & Earth runes'
       },
       {
-        startExp: 6291,
-        rate: 60000,
-        description: '-'
-      },
-      {
-        startExp: 13034431,
-        rate: 85000,
-        description: '-'
+        startExp: 6_291,
+        rate: 230_000,
+        description: '0+4 Lava runes'
       }
     ],
     bonuses: []
@@ -562,53 +665,43 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 55000,
-        description: '-'
+        rate: 55_000,
+        description: 'Varrock Museum'
       },
       {
-        startExp: 2107,
-        rate: 82000,
-        description: '-'
+        startExp: 2_411,
+        rate: 82_000,
+        description: 'Oak bird house runs'
       },
       {
-        startExp: 7028,
-        rate: 110000,
-        description: '-'
+        startExp: 7_842,
+        rate: 110_000,
+        description: 'Willow bird house runs'
       },
       {
-        startExp: 20224,
-        rate: 138000,
-        description: '-'
+        startExp: 22_406,
+        rate: 138_000,
+        description: 'Teak bird house runs'
       },
       {
-        startExp: 55649,
-        rate: 161000,
-        description: '-'
+        startExp: 61_512,
+        rate: 161_000,
+        description: 'Maple bird house runs'
       },
       {
-        startExp: 91721,
-        rate: 189000,
-        description: '-'
+        startExp: 101_333,
+        rate: 251_565,
+        description: 'Drift net'
       },
       {
-        startExp: 247886,
-        rate: 201000,
-        description: '-'
+        startExp: 273_742,
+        rate: 291_175,
+        description: 'Drift net'
       },
       {
-        startExp: 1096278,
-        rate: 224000,
-        description: '-'
-      },
-      {
-        startExp: 4842295,
-        rate: 236000,
-        description: '-'
-      },
-      {
-        startExp: 13034431,
-        rate: 315000,
-        description: '-'
+        startExp: 737_627,
+        rate: 344_512,
+        description: 'Drift net'
       }
     ],
     bonuses: []
@@ -618,18 +711,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 20000,
-        description: '-'
+        rate: 100_000,
+        description: 'Oak chairs'
       },
       {
-        startExp: 18247,
-        rate: 100000,
-        description: '-'
+        startExp: 18_247,
+        rate: 480_000,
+        description: 'Oak larders'
       },
       {
-        startExp: 123660,
-        rate: 900000,
-        description: '-'
+        startExp: 123_660,
+        rate: 935_000,
+        description: 'Mahogany tables'
       }
     ],
     bonuses: []
