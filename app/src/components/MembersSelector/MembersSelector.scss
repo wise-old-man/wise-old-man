@@ -33,4 +33,27 @@
     font-size: 0.9em;
     margin: 20px 0;
   }
+
+  .role {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    img {
+      margin-right: 7px;
+      margin-top: -5px;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 0.9em;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+  }
 }
