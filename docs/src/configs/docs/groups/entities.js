@@ -220,7 +220,7 @@ export default [
       'magician',
       'major',
       'maple',
-      'marshall',
+      'marshal',
       'master',
       'maxed',
       'mediator',

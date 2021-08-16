@@ -138,7 +138,7 @@ export const ROLES = [
   { label: 'Magician', value: 'magician', icon: '/img/runescape/roles/Magician.png' },
   { label: 'Major', value: 'major', icon: '/img/runescape/roles/Major.png' },
   { label: 'Maple', value: 'maple', icon: '/img/runescape/roles/Maple.png' },
-  { label: 'Marshall', value: 'marshall', icon: '/img/runescape/roles/Marshall.png' },
+  { label: 'Marshal', value: 'marshal', icon: '/img/runescape/roles/Marshal.png' },
   { label: 'Master', value: 'master', icon: '/img/runescape/roles/Master.png' },
   { label: 'Maxed', value: 'maxed', icon: '/img/runescape/roles/Maxed.png' },
   { label: 'Mediator', value: 'mediator', icon: '/img/runescape/roles/Mediator.png' },

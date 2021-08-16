@@ -142,7 +142,7 @@ export const GROUP_ROLES = [
   'magician',
   'major',
   'maple',
-  'marshall',
+  'marshal',
   'master',
   'maxed',
   'mediator',
