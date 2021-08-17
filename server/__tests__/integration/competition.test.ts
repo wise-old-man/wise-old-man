@@ -166,7 +166,7 @@ describe('Competition API', () => {
         metric: 'overall',
         startsAt: '2025-05-17T22:00:00.000Z',
         endsAt: '2025-05-17T22:00:00.000Z',
-        participants: ['test player', 'alt player']
+        participants: ['test player', 'alt player', 'Boom']
       };
 
       const response = await request.post(BASE_URL).send(body);
@@ -177,9 +177,10 @@ describe('Competition API', () => {
       expect(response.body.metric).toMatch('overall');
       expect(response.body.startsAt).toMatch('2025-05-17T22:00:00.000Z');
       expect(response.body.endsAt).toMatch('2025-05-17T22:00:00.000Z');
-      expect(response.body.participants.length).toBe(2);
+      expect(response.body.participants.length).toBe(3);
       expect(response.body.participants[0].username).toBe('test player');
       expect(response.body.participants[1].username).toBe('alt player');
+      expect(response.body.participants[2].displayName).toBe('Boom');
       expect(response.body.verificationCode).not.toBe(undefined);
       expect(response.body.verificationHash).toBe(undefined);
 

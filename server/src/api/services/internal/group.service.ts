@@ -1,4 +1,4 @@
-import { keyBy, mapValues, omit, uniq, uniqBy } from 'lodash';
+import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { MigratedGroupInfo, Pagination } from 'src/types';
@@ -593,16 +593,16 @@ async function resetVerificationCode(group: Group): Promise<string> {
  * Note: The members array should have this format:
  * [{username: "ABC", role: "member"}]
  */
-async function setMembers(group, members) {
+async function setMembers(group: Group, members: MemberFragment[]): Promise<Member[]> {
   if (!group) {
     throw new BadRequestError(`Invalid group.`);
   }
 
   // Ignore any duplicate names
-  const uniqueNames = uniq(members.map(m => m.username.toLowerCase()));
+  const uniqueNames = uniqBy(members, m => playerService.standardize(m.username)).map(m => m.username);
 
   // Fetch (or create) player from the unique usernames
-  const players = await playerService.findAllOrCreate(uniqueNames as string[]);
+  const players = await playerService.findAllOrCreate(uniqueNames);
 
   // Define membership models for each player
   const memberships = players.map((player, i) => ({
@@ -661,13 +661,16 @@ async function setMembers(group, members) {
     );
   }
 
-  const allMembers = await group.getMembers();
+  const allMembers = await group.$get('members');
+  const formatted = allMembers.map(a => a.toJSON());
 
-  const formatted = allMembers.map(member =>
-    omit({ ...member.toJSON(), role: member.memberships.role }, ['memberships'])
-  );
+  // Forcibly add the role property, and omit the memberships field
+  formatted.forEach((m: any) => {
+    m.role = m.memberships.role;
+    delete m.memberships;
+  });
 
-  return formatted;
+  return formatted as Member[];
 }
 
 /**

@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import {getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker} from '../../util/experience';
+import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
@@ -408,18 +408,21 @@ async function find(username: string): Promise<Player | null> {
 
 async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
   const foundPlayers = await findAll(usernames);
-
   if (foundPlayers.length === usernames.length) return foundPlayers;
 
+  // Find the already registered usernames
   const foundUsernames = foundPlayers.map(f => f.username);
-  const standardizedUsernames = usernames.map(standardize);
-  const missingUsernames = standardizedUsernames.filter(u => !foundUsernames.includes(u));
+
+  // Find the unregistered usernames
+  const missingUsernames = usernames.filter(u => !foundUsernames.includes(standardize(u)));
 
   const newPlayers = await Player.bulkCreate(
     missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) })),
     { individualHooks: true }
   );
 
+  // Sort the resulting players list by the order of the input usernames
+  const standardizedUsernames = usernames.map(standardize);
   return [...foundPlayers, ...newPlayers].sort(
     (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
   );

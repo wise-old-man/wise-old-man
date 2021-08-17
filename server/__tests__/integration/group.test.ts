@@ -85,16 +85,22 @@ describe('Group API', () => {
         members: [
           { username: '  test_player' },
           { username: '  ALT PLAYER' },
-          { username: '__ zezima ' }
+          { username: 'New Username' },
+          { username: 'alt player   ' },
+          { username: '__ zezima ' },
+          { username: 'Jakesterwars' }
         ]
       };
 
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(201);
-      expect(response.body.members.length).toBe(3);
-      expect(response.body.members.map(m => m.username)).toContain('alt player');
-      expect(response.body.members.map(m => m.displayName)).toContain('Test Player');
+      expect(response.body.members.length).toBe(5);
+      expect(response.body.members[0].displayName).toContain('Test Player');
+      expect(response.body.members[1].username).toBe('alt player');
+      expect(response.body.members[2].username).toBe('new username');
+      expect(response.body.members[3].username).toBe('zezima');
+      expect(response.body.members[4].displayName).toBe('Jakesterwars');
       expect(response.body.members.filter(m => m.role !== 'member').length).toBe(0);
 
       TEST_DATA.membersNoLeaders = response.body;
