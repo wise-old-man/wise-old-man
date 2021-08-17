@@ -133,6 +133,10 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     throw new BadRequestError('Invalid new name.');
   }
 
+  if (playerService.sanitize(oldName) === playerService.sanitize(newName)) {
+    throw new BadRequestError('Old name and new name cannot be the same.');
+  }
+
   const stOldName = playerService.standardize(oldName);
   const stNewName = playerService.standardize(newName);
 
