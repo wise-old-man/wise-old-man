@@ -51,7 +51,9 @@ function getTableConfig(
             <div className="role">
               <img src={role.icon} alt="" />
               <span>{role.label}</span>
-              <button onClick={() => setEditedRoleMembers(e => [...e, row.username])}>(Change)</button>
+              <button type="button" onClick={() => setEditedRoleMembers(e => [...e, row.username])}>
+                (Change)
+              </button>
             </div>
           );
         }
