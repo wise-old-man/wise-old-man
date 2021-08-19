@@ -18,7 +18,7 @@ class IronmanAlgorithm implements VirtualAlgorithm {
   maxedEHP: number;
 
   constructor() {
-    this.type = 'main';
+    this.type = 'ironman';
     this.skillMetas = ironmanSkillingMetas;
     this.bossMetas = ironmanBossingMetas;
     this.maximumEHP = this.calculateMaximumEHP();

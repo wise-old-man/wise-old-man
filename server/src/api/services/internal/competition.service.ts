@@ -6,10 +6,10 @@ import { Pagination } from '../../../types';
 import { ALL_METRICS, COMPETITION_STATUSES, COMPETITION_TYPES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
-import { getMinimumBossKc, getValueKey } from '../../util/metrics';
-import { round } from '../../util/numbers';
+import { getValueKey, isVirtual } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
+import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
@@ -314,6 +314,8 @@ function getParticipantsCSV(details: CompetitionDetails): string {
  */
 async function getDetails(competition: Competition, metric?: string): Promise<CompetitionDetails | any> {
   const competitionMetric = metric || competition.metric;
+  const isVirtualMetric = isVirtual(competitionMetric);
+
   const metricKey = getValueKey(competitionMetric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
@@ -322,23 +324,22 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
     where: { competitionId: competition.id },
     include: [
       { model: Player },
-      { model: Snapshot, as: 'startSnapshot', attributes: [metricKey] },
-      { model: Snapshot, as: 'endSnapshot', attributes: [metricKey] }
+      { model: Snapshot, as: 'startSnapshot', attributes: isVirtualMetric ? null : [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: isVirtualMetric ? null : [metricKey] }
     ]
   });
 
-  const minimumValue = getMinimumBossKc(competitionMetric);
-
   const participants = participations
     .map(({ player, teamName, startSnapshot, endSnapshot }) => {
-      const start = startSnapshot ? startSnapshot[metricKey] : -1;
-      const end = endSnapshot ? endSnapshot[metricKey] : -1;
-      const gained = Math.max(0, round(end - Math.max(minimumValue - 1, start), 5));
-
       return {
         ...player.toJSON(),
         teamName,
-        progress: { start, end, gained },
+        progress: deltaService.calculateCompetitionDiff(
+          player,
+          startSnapshot,
+          endSnapshot,
+          competitionMetric
+        ),
         history: []
       };
     })

@@ -18,7 +18,7 @@ class F2PAlgorithm implements VirtualAlgorithm {
   maxedEHP: number;
 
   constructor() {
-    this.type = 'main';
+    this.type = 'f2p';
     this.skillMetas = f2pSkillingMetas;
     this.bossMetas = f2pBossingMetas;
     this.maximumEHP = this.calculateMaximumEHP();

@@ -63,7 +63,8 @@ const BONUSES_TABLE_CONFIG = {
       key: 'bonusExp',
       label: 'Bonus Exp.',
       isSortable: false,
-      transform: (val, row) => formatNumber((row.endExp - row.startExp) * row.ratio)
+      transform: (val, row) =>
+        formatNumber(Math.min(row.maxBonus || 200000000, (row.endExp - row.startExp) * row.ratio))
     }
   ]
 };
