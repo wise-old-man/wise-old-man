@@ -93,11 +93,8 @@ function calculateTT200m(experiences: Experiences, metas: SkillMeta[]): number {
       }
     }
 
-    console.log(skill, skillTime);
     return skillTime;
   });
-
-  console.log('   _____ ');
 
   // Sum all inidividual skill times, into the total TTM
   return skillTimes.reduce((a, c) => a + c);

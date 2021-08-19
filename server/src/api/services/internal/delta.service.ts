@@ -6,7 +6,15 @@ import { Pagination } from '../../../types';
 import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMilliseconds, parsePeriod } from '../../util/dates';
-import { getMeasure, getRankKey, getValueKey, isBoss, isSkill, isVirtual } from '../../util/metrics';
+import {
+  getMeasure,
+  getMinimumBossKc,
+  getRankKey,
+  getValueKey,
+  isBoss,
+  isSkill,
+  isVirtual
+} from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -241,6 +249,36 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
   }));
 }
 
+function calculateCompetitionDiff(
+  player: Player,
+  startSnapshot: Snapshot,
+  endSnapshot: Snapshot,
+  metric: string
+) {
+  if (metric === 'ehp') {
+    const { type, build } = player;
+    const start = startSnapshot ? efficiencyService.calculateEHP(startSnapshot, type, build) : -1;
+    const end = endSnapshot ? efficiencyService.calculateEHP(endSnapshot, type, build) : -1;
+
+    return { start, end, gained: Math.max(0, round(end - start, 5)) };
+  }
+
+  if (metric === 'ehb') {
+    const { type, build } = player;
+    const start = startSnapshot ? efficiencyService.calculateEHB(startSnapshot, type, build) : -1;
+    const end = endSnapshot ? efficiencyService.calculateEHB(endSnapshot, type, build) : -1;
+
+    return { start, end, gained: Math.max(0, round(end - start, 5)) };
+  }
+
+  const minimumValue = getMinimumBossKc(metric);
+  const metricKey = getValueKey(metric);
+  const start = startSnapshot ? startSnapshot[metricKey] : -1;
+  const end = endSnapshot ? endSnapshot[metricKey] : -1;
+
+  return { start, end, gained: Math.max(0, end - Math.max(minimumValue - 1, start)) };
+}
+
 /**
  * Calculate the difference between two snapshots,
  * taking untracked values into consideration. (via initial values)
@@ -378,6 +416,7 @@ export {
   getPlayerTimeRangeDeltas,
   getGroupLeaderboard,
   getLeaderboard,
+  calculateCompetitionDiff,
   syncInitialValues,
   syncDeltas
 };
