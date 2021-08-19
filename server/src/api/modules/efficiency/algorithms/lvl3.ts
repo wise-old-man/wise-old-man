@@ -18,7 +18,7 @@ class Lvl3Algorithm implements VirtualAlgorithm {
   maxedEHP: number;
 
   constructor() {
-    this.type = 'main';
+    this.type = 'lvl3';
     this.skillMetas = lvl3SkillingMetas;
     this.bossMetas = lvl3BossingMetas;
     this.maximumEHP = this.calculateMaximumEHP();

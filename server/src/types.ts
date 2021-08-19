@@ -22,6 +22,7 @@ export interface Bonus {
   endExp: number;
   end: boolean;
   ratio: number;
+  maxBonus?: number;
 }
 
 export interface VirtualAlgorithm {

@@ -14,11 +14,12 @@ function calculateBonuses(experiences: Experiences, bonuses: Bonus[]) {
   const map = Object.fromEntries(bonuses.map(b => [b.bonusSkill, 0]));
 
   bonuses.forEach(b => {
+    const bonusCap = b.maxBonus || 200_000_000;
     const expCap = Math.min(b.endExp, 200_000_000);
     const start = Math.max(experiences[b.originSkill], b.startExp);
     const target = b.originSkill in map ? expCap - map[b.originSkill] : expCap;
 
-    map[b.bonusSkill] += Math.max(0, target - start) * b.ratio;
+    map[b.bonusSkill] = Math.min(bonusCap, map[b.bonusSkill] + Math.max(0, target - start) * b.ratio);
   });
 
   return map;
@@ -92,8 +93,11 @@ function calculateTT200m(experiences: Experiences, metas: SkillMeta[]): number {
       }
     }
 
+    console.log(skill, skillTime);
     return skillTime;
   });
+
+  console.log('   _____ ');
 
   // Sum all inidividual skill times, into the total TTM
   return skillTimes.reduce((a, c) => a + c);
