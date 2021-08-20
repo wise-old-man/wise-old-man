@@ -3,7 +3,6 @@ import Competition from './competition.model';
 import Delta from './delta.model';
 import Group from './group.model';
 import HiscoresValues from './hiscoresValues.model';
-import InitialValues from './initialValues.model';
 import Membership from './membership.model';
 import NameChange from './nameChange.model';
 import Participation from './participation.model';
@@ -22,6 +21,5 @@ export {
   Membership,
   Record,
   Snapshot,
-  InitialValues,
   Delta
 };
