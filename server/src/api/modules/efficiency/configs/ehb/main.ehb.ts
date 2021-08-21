@@ -33,7 +33,7 @@ export default [
   { boss: 'vetion', rate: 30 },
   { boss: 'vorkath', rate: 32 },
   { boss: 'zulrah', rate: 35 },
-  { boss: 'the_nightmare', rate: 14 },
+  { boss: 'nightmare', rate: 14 },
   { boss: 'theatre_of_blood_challenge_mode', rate: 3 },
   { boss: 'phosanis_nightmare', rate: 7.5 }
 ];
