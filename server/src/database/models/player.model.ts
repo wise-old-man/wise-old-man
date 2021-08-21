@@ -5,7 +5,6 @@ import {
   DataType,
   Default,
   HasMany,
-  HasOne,
   Model,
   Table,
   UpdatedAt
@@ -15,7 +14,6 @@ import {
   Achievement,
   Competition,
   Group,
-  InitialValues,
   Membership,
   NameChange,
   Participation,
@@ -115,9 +113,6 @@ export default class Player extends Model<Player> {
 
   @HasMany(() => Achievement, 'playerId')
   achievements: Achievement[];
-
-  @HasOne(() => InitialValues, 'playerId')
-  initialValues: InitialValues;
 }
 
 /**
