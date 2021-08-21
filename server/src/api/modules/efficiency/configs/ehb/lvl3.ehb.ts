@@ -34,6 +34,6 @@ export default [
   { boss: 'vorkath', rate: 0 },
   { boss: 'zulrah', rate: 0 },
   { boss: 'nightmare', rate: 0 },
-  { boss: 'theatre_of_blood_challenge_mode', rate: 0 },
+  { boss: 'theatre_of_blood_hard_mode', rate: 0 },
   { boss: 'phosanis_nightmare', rate: 0 }
 ];
