@@ -190,10 +190,6 @@ async function getMonthlyTopPlayer(groupId: number) {
  * between the members of a group.
  */
 async function getGained(groupId: number, period: string, metric: string, pagination: Pagination) {
-  if (!period || !PERIODS.includes(period)) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
-
   if (!metric || !ALL_METRICS.includes(metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }

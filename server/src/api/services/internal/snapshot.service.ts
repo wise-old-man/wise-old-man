@@ -1,9 +1,11 @@
 import csv from 'csvtojson';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
+import { sequelize } from '../../../database';
 import { Snapshot } from '../../../database/models';
+import queries from '../../../database/queries';
 import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import { parsePeriod } from '../../util/dates';
+import { formatDate, parsePeriod } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
@@ -322,6 +324,28 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   return Snapshot.build({ playerId, ...stats });
 }
 
+async function getGroupLatestSnapshots(playerIds: number[], attributeSelector = '*') {
+  const latestSnapshots: Snapshot[] = await sequelize.query(
+    queries.FETCH_LATEST_SNAPSHOTS_PLAYER_IDS(attributeSelector, playerIds.join(',')),
+    { type: QueryTypes.SELECT }
+  );
+
+  return latestSnapshots;
+}
+
+async function getGroupFirstSnapshots(playerIds: number[], startDate: Date, attributeSelector = '*') {
+  const firstSnapshots: Snapshot[] = await sequelize.query(
+    queries.FETCH_FIRST_SNAPSHOTS_IN_PERIOD_PLAYER_IDS(
+      attributeSelector,
+      playerIds.join(','),
+      formatDate(startDate, 'YYYY-MM-DD HH:mm:ss')
+    ),
+    { type: QueryTypes.SELECT }
+  );
+
+  return firstSnapshots;
+}
+
 export {
   format,
   withinRange,
@@ -336,6 +360,8 @@ export {
   saveAll,
   fromCML,
   fromRS,
+  getGroupLatestSnapshots,
+  getGroupFirstSnapshots,
   getPlayerPeriodSnapshots,
   getPlayerTimeRangeSnapshots
 };

@@ -36,8 +36,8 @@ interface GroupDeltasFilter {
   metric?: string;
 }
 
-function parseNum(key: string, val: string) {
-  return isVirtual(key) ? parseFloat(val) : parseInt(val);
+function parseNum(metric: string, val: string) {
+  return isVirtual(metric) ? parseFloat(val) : parseInt(val);
 }
 
 async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
@@ -211,25 +211,53 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
 async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagination) {
   const { metric, period, playerIds } = filter;
 
-  // Fetch all deltas for group members
-  const deltas = await Delta.findAll({
-    attributes: [metric, 'startedAt', 'endedAt'],
-    where: { period, playerId: playerIds },
-    order: [[metric, 'DESC']],
-    include: [{ model: Player }],
-    limit: pagination.limit,
-    offset: pagination.offset
+  const [periodStr, durationMs] = parsePeriod(period);
+  if (!periodStr) throw new BadRequestError(`Invalid period: ${period}.`);
+
+  // Calculated metrics (virtuals) require all columns to be fetched from the db
+  const attributes = isVirtual(metric) ? '*' : `"${getValueKey(metric)}"`;
+  const startDate = new Date(Date.now() - durationMs);
+
+  const players = await playerService.findAllByIds(playerIds);
+  const latestSnapshots = await snapshotService.getGroupLatestSnapshots(playerIds, attributes);
+  const firstSnapshots = await snapshotService.getGroupFirstSnapshots(playerIds, startDate, attributes);
+
+  const playerMap = Object.fromEntries(
+    playerIds.map(id => [id, { player: null, startSnapshot: null, endSnapshot: null }])
+  );
+
+  players.forEach(p => {
+    if (p.id in playerMap) playerMap[p.id].player = p;
   });
 
-  return deltas.map(d => ({
-    startDate: d.startedAt,
-    endDate: d.endedAt,
-    gained: Math.max(0, parseNum(metric, d[metric])),
-    player: d.player
-  }));
+  firstSnapshots.forEach(f => {
+    if (f.playerId in playerMap) playerMap[f.playerId].startSnapshot = f;
+  });
+
+  latestSnapshots.forEach(l => {
+    if (l.playerId in playerMap) playerMap[l.playerId].endSnapshot = l;
+  });
+
+  const results = Object.keys(playerMap)
+    .map(playerId => {
+      const { player, startSnapshot, endSnapshot } = playerMap[playerId];
+      if (!player || !startSnapshot || !endSnapshot) return null;
+
+      return {
+        startDate: startSnapshot.createdAt,
+        endDate: endSnapshot.createdAt,
+        ...calculateMetricDiff(player, startSnapshot, endSnapshot, metric),
+        player
+      };
+    })
+    .filter(r => r !== null)
+    .sort((a, b) => b.gained - a.gained)
+    .slice(pagination.offset, pagination.offset + pagination.limit);
+
+  return results;
 }
 
-function calculateCompetitionDiff(
+function calculateMetricDiff(
   player: Player,
   startSnapshot: Snapshot,
   endSnapshot: Snapshot,
@@ -253,8 +281,8 @@ function calculateCompetitionDiff(
 
   const minimumValue = getMinimumBossKc(metric);
   const metricKey = getValueKey(metric);
-  const start = startSnapshot ? startSnapshot[metricKey] : -1;
-  const end = endSnapshot ? endSnapshot[metricKey] : -1;
+  const start = startSnapshot ? parseNum(metric, startSnapshot[metricKey]) : -1;
+  const end = endSnapshot ? parseNum(metric, endSnapshot[metricKey]) : -1;
 
   return { start, end, gained: Math.max(0, end - Math.max(minimumValue - 1, start)) };
 }
@@ -376,6 +404,6 @@ export {
   getPlayerTimeRangeDeltas,
   getGroupLeaderboard,
   getLeaderboard,
-  calculateCompetitionDiff,
+  calculateMetricDiff,
   syncDeltas
 };
