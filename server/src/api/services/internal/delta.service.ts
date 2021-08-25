@@ -204,22 +204,39 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   }));
 }
 
-/**
- * Gets the best deltas for a specific metric, period and list of players.
- * Note: this is useful for group statistics
- */
-async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagination) {
-  const { metric, period, playerIds } = filter;
-
+async function getGroupPeriodDeltas(
+  metric: string,
+  period: string,
+  playerIds: number[],
+  pagination: Pagination
+) {
   const [periodStr, durationMs] = parsePeriod(period);
+
   if (!periodStr) throw new BadRequestError(`Invalid period: ${period}.`);
 
+  const deltas = await getGroupTimeRangeDeltas(
+    metric,
+    new Date(Date.now() - durationMs),
+    new Date(),
+    playerIds,
+    pagination
+  );
+
+  return deltas;
+}
+
+async function getGroupTimeRangeDeltas(
+  metric: string,
+  startDate: Date,
+  endDate: Date,
+  playerIds: number[],
+  pagination: Pagination
+) {
   // Calculated metrics (virtuals) require all columns to be fetched from the db
   const attributes = isVirtual(metric) ? '*' : `"${getValueKey(metric)}"`;
-  const startDate = new Date(Date.now() - durationMs);
 
   const players = await playerService.findAllByIds(playerIds);
-  const latestSnapshots = await snapshotService.getGroupLatestSnapshots(playerIds, attributes);
+  const lastSnapshots = await snapshotService.getGroupLastSnapshots(playerIds, endDate, attributes);
   const firstSnapshots = await snapshotService.getGroupFirstSnapshots(playerIds, startDate, attributes);
 
   const playerMap = Object.fromEntries(
@@ -234,7 +251,7 @@ async function getGroupLeaderboard(filter: GroupDeltasFilter, pagination: Pagina
     if (f.playerId in playerMap) playerMap[f.playerId].startSnapshot = f;
   });
 
-  latestSnapshots.forEach(l => {
+  lastSnapshots.forEach(l => {
     if (l.playerId in playerMap) playerMap[l.playerId].endSnapshot = l;
   });
 
@@ -402,7 +419,8 @@ export {
   getPlayerDeltas,
   getPlayerPeriodDeltas,
   getPlayerTimeRangeDeltas,
-  getGroupLeaderboard,
+  getGroupPeriodDeltas,
+  getGroupTimeRangeDeltas,
   getLeaderboard,
   calculateMetricDiff,
   syncDeltas

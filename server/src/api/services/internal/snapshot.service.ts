@@ -324,9 +324,13 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   return Snapshot.build({ playerId, ...stats });
 }
 
-async function getGroupLatestSnapshots(playerIds: number[], attributeSelector = '*') {
+async function getGroupLastSnapshots(playerIds: number[], endDate: Date, attributeSelector = '*') {
   const latestSnapshots: Snapshot[] = await sequelize.query(
-    queries.FETCH_LATEST_SNAPSHOTS_PLAYER_IDS(attributeSelector, playerIds.join(',')),
+    queries.FETCH_LAST_SNAPSHOTS_IN_PERIOD_PLAYER_IDS(
+      attributeSelector,
+      playerIds.join(','),
+      formatDate(endDate, 'YYYY-MM-DD HH:mm:ss')
+    ),
     { type: QueryTypes.SELECT }
   );
 
@@ -360,7 +364,7 @@ export {
   saveAll,
   fromCML,
   fromRS,
-  getGroupLatestSnapshots,
+  getGroupLastSnapshots,
   getGroupFirstSnapshots,
   getPlayerPeriodSnapshots,
   getPlayerTimeRangeSnapshots
