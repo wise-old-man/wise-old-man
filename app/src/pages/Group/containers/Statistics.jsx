@@ -1,12 +1,13 @@
-import React, { useContext } from 'react';
-import { useSelector } from 'react-redux';
-import { groupSelectors } from 'redux/groups';
+import React, { useEffect, useCallback, useContext } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { groupSelectors, groupActions } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
 import { getMetricIcon, getLevel, getMetricName } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { GroupContext } from '../context';
 
 function Statistics() {
+  const dispatch = useDispatch();
   const { context } = useContext(GroupContext);
   const { id } = context;
 
@@ -15,6 +16,15 @@ function Statistics() {
 
   const { statistics } = group;
   const showPlaceholder = isLoading || !group || !statistics;
+
+  const fetchGroupStatistics = useCallback(() => {
+    if (group && !group.statistics && !isLoading) {
+      dispatch(groupActions.fetchStatistics(id));
+    }
+  }, [dispatch, id, group, isLoading]);
+
+  // Fetch group statistics, on mount
+  useEffect(fetchGroupStatistics, [fetchGroupStatistics, isLoading]);
 
   return (
     <div className="group-statistics">

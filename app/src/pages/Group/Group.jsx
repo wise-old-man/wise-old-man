@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import saveCsv from 'save-csv';
+import { ALL_METRICS } from 'config';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
+import { isValidDate } from 'utils';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { competitionActions } from 'redux/competitions';
 import URL from 'utils/url';
@@ -26,6 +28,7 @@ import { GroupInfo } from './components';
 import { GroupContext } from './context';
 import './Group.scss';
 
+const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 const TABS = [
   'Members',
   'Competitions',
@@ -63,9 +66,7 @@ function Group() {
 
   const handleExport = () => {
     const filename = `${group.name} Members.csv`;
-    const namesOnly = group.members.map(member => {
-      return { name: member.displayName };
-    });
+    const namesOnly = group.members.map(member => ({ name: member.displayName }));
     saveCsv(namesOnly, { filename });
   };
 
@@ -73,8 +74,21 @@ function Group() {
     updateContext({ section: TABS[index].toLowerCase() });
   };
 
-  // Fetch competition details, on mount
-  useEffect(() => fetchDetails(id, router, dispatch), [router, dispatch, id]);
+  const fetchGroupDetails = useCallback(() => {
+    if (!group) {
+      dispatch(groupActions.fetchDetails(id)).then(action => {
+        // Group not found, redirect to 404
+        if (!action.payload.data) router.push(`/404`);
+      });
+    } else if (!group.members || group.members.length < group.memberCount) {
+      dispatch(groupActions.fetchMembers(id));
+      dispatch(groupActions.fetchMonthlyTop(id));
+      dispatch(competitionActions.fetchGroupCompetitions(id));
+    }
+  }, [dispatch, router, id, group]);
+
+  // Fetch group details, on mount
+  useEffect(fetchGroupDetails, [fetchGroupDetails]);
 
   if (!group) {
     return <Loading />;
@@ -132,44 +146,67 @@ function Group() {
   );
 }
 
-const fetchDetails = (id, router, dispatch) => {
-  // Attempt to fetch group of that id, if it fails redirect to 404
-  dispatch(groupActions.fetchDetails(id))
-    .then(action => {
-      if (!action.payload.data) throw new Error();
-    })
-    .catch(() => router.push('/404'));
-
-  dispatch(groupActions.fetchMembers(id));
-  dispatch(groupActions.fetchMonthlyTop(id));
-  dispatch(competitionActions.fetchGroupCompetitions(id));
-  dispatch(groupActions.fetchStatistics(id));
-};
-
 function getSelectedTabIndex(section) {
   if (!section || section === 'delete') return 0;
   return TABS.map(t => t.toLowerCase()).indexOf(section);
 }
 
-function encodeContext({ id, section }) {
+function encodeContext({ id, section, metric, period, startDate, endDate }) {
   const nextURL = new URL(`/groups/${id}`);
+  const metricSections = ['hiscores', 'gained', 'records'];
+  const periodSections = ['gained', 'records'];
 
   if (section && section !== 'members') {
     nextURL.appendToPath(`/${section.replace(' ', '-')}`);
   }
 
+  if (metric && section && metricSections.includes(section.toLowerCase())) {
+    nextURL.appendSearchParam('metric', metric);
+  }
+
+  if (period && period !== 'week' && section && periodSections.includes(section.toLowerCase())) {
+    nextURL.appendSearchParam('period', period);
+  }
+
+  const periodUrlParam = nextURL.getSearchParam('period');
+
+  if (
+    periodUrlParam &&
+    periodUrlParam.value === 'custom' &&
+    startDate &&
+    endDate &&
+    isValidDate(startDate) &&
+    isValidDate(endDate)
+  ) {
+    nextURL.appendSearchParam('startDate', startDate.toISOString());
+    nextURL.appendSearchParam('endDate', endDate.toISOString());
+  }
+
   return nextURL.getPath();
 }
 
-function decodeURL(params) {
+function decodeURL(params, query) {
   const { id, section } = params;
   const validSections = ['delete', ...TABS.map(t => t.toLowerCase())];
+  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
+  const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
+  const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);
+  const isValidEndDate = query.endDate && !isValidPeriod && isValidDate(query.endDate);
+  const metric = isValidMetric ? query.metric : 'overall';
+  const startDate = isValidStartDate ? new Date(query.startDate) : null;
+  const endDate = isValidEndDate ? new Date(query.endDate) : null;
+  const period =
+    isValidPeriod || (query.period === 'custom' && section === 'gained') ? query.period : 'week';
 
   const formattedSection = section ? section.replace('-', ' ') : undefined;
 
   return {
     id: parseInt(id, 10),
-    section: section && validSections.includes(formattedSection) ? formattedSection : 'members'
+    section: section && validSections.includes(formattedSection) ? formattedSection : 'members',
+    metric,
+    period,
+    startDate,
+    endDate
   };
 }
 

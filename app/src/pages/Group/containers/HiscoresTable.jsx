@@ -1,6 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { isSkill, durationBetween, getMeasure, getMetricName, getMetricIcon } from 'utils';
 import { hiscoresSelectors, hiscoresActions } from 'redux/hiscores';
@@ -16,10 +17,8 @@ const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
 
 function HiscoresTable() {
   const dispatch = useDispatch();
-  const [selectedMetric, setSelectedMetric] = useState(METRIC_OPTIONS[0].value);
-
-  const { context } = useContext(GroupContext);
-  const { id } = context;
+  const { context, updateContext } = useContext(GroupContext);
+  const { id, metric } = context;
 
   const { data, pageIndex, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 50,
@@ -30,25 +29,28 @@ function HiscoresTable() {
   const isLoading = useSelector(hiscoresSelectors.isFetching);
   const isReloading = isLoading && pageIndex === 0;
 
-  const selectedMetricIndex = METRIC_OPTIONS.findIndex(o => o.value === selectedMetric);
-  const { uniqueKey, columns } = getTableConfig(selectedMetric);
+  const metricIndex = METRIC_OPTIONS.findIndex(o => o.value === metric);
+  const { uniqueKey, columns } = getTableConfig(metric);
 
   function handleMetricSelected(e) {
-    setSelectedMetric(e.value);
+    updateContext({ metric: e.value });
   }
 
-  function handleReload(limit, offset) {
-    dispatch(hiscoresActions.fetchGroupHiscores(id, selectedMetric, limit, offset));
+  function handleReload(limit, offset, query) {
+    if (!query) return;
+    dispatch(hiscoresActions.fetchGroupHiscores(id, metric, limit, offset));
   }
+
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true }), [id, metric]);
 
   // When the selected metric changes, reload the hiscores
-  useEffect(reloadData, [selectedMetric]);
+  useEffect(() => debouncedReload({}), [debouncedReload, id, metric]);
 
   return (
     <>
       <Selector
         options={METRIC_OPTIONS}
-        selectedIndex={selectedMetricIndex}
+        selectedIndex={metricIndex}
         onSelect={handleMetricSelected}
         search
       />
@@ -68,7 +70,7 @@ function getTableConfig(metric) {
     columns: [
       {
         key: 'groupRank',
-        label: 'Rank',
+        label: 'Rank'
       },
       {
         key: 'displayName',
