@@ -93,6 +93,7 @@ function GainedTable() {
         />
         <Selector options={PERIOD_OPTIONS} selectedIndex={periodIndex} onSelect={handlePeriodSelected} />
       </div>
+      <SlowLoadingInfo />
       {showCustomPeriodInfo && (
         <CustomPeriodInfo
           startDate={startDate}
@@ -113,6 +114,18 @@ function GainedTable() {
         />
       )}
     </>
+  );
+}
+
+function SlowLoadingInfo() {
+  return (
+    <div className="deltas-warning">
+      <img src="/img/icons/warn_orange.svg" alt="" />
+      <span>
+        Please hold. Group gains are now calculated in real time and might take a while to load,
+        especilly for bigger groups.
+      </span>
+    </div>
   );
 }
 
