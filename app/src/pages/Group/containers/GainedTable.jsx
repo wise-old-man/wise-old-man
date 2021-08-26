@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
@@ -211,5 +212,11 @@ function getTableConfig(metric, period) {
 
   return TABLE_CONFIG;
 }
+
+CustomPeriodInfo.propTypes = {
+  startDate: PropTypes.instanceOf(Date).isRequired,
+  endDate: PropTypes.instanceOf(Date).isRequired,
+  onChangePeriodClicked: PropTypes.func.isRequired
+};
 
 export default GainedTable;
