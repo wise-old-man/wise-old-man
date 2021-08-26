@@ -235,9 +235,11 @@ async function getGroupTimeRangeDeltas(
   // Calculated metrics (virtuals) require all columns to be fetched from the db
   const attributes = isVirtual(metric) ? '*' : `"${getValueKey(metric)}"`;
 
-  const players = await playerService.findAllByIds(playerIds);
-  const lastSnapshots = await snapshotService.getGroupLastSnapshots(playerIds, endDate, attributes);
-  const firstSnapshots = await snapshotService.getGroupFirstSnapshots(playerIds, startDate, attributes);
+  const [players, lastSnapshots, firstSnapshots] = await Promise.all([
+    playerService.findAllByIds(playerIds),
+    snapshotService.getGroupLastSnapshots(playerIds, endDate, attributes),
+    snapshotService.getGroupFirstSnapshots(playerIds, startDate, attributes)
+  ]);
 
   const playerMap = Object.fromEntries(
     playerIds.map(id => [id, { player: null, startSnapshot: null, endSnapshot: null }])
