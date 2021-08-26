@@ -1,6 +1,7 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { debounce } from 'lodash';
 import { nameActions, nameSelectors } from 'redux/names';
 import { Table, TablePlaceholder, PlayerTag } from 'components';
 import { durationBetween } from 'utils';
@@ -67,12 +68,14 @@ function NameChangesTable() {
   const isLoading = useSelector(nameSelectors.isFetchingGroupNameChanges);
   const isReloading = isLoading && pageIndex === 0;
 
-  function handleReload(limit, offset) {
+  function handleReload(limit, offset, query) {
+    if (!query) return;
     dispatch(nameActions.fetchGroupNameChanges(id, limit, offset));
   }
 
-  // When the selected metric changes, reload the name changes
-  useEffect(reloadData, [id]);
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true }), [id]);
+
+  useEffect(() => debouncedReload({}), [debouncedReload, id]);
 
   return (
     <>

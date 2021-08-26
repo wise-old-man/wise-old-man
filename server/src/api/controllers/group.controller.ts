@@ -6,7 +6,7 @@ import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
-import { extractNumber, extractString, extractStrings } from '../util/http';
+import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
 
 // GET /groups
@@ -303,7 +303,9 @@ async function gained(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const metric = extractString(req.query, { key: 'metric', required: true });
-    const period = extractString(req.query, { key: 'period', required: true });
+    const startDate = extractDate(req.query, { key: 'startDate' });
+    const endDate = extractDate(req.query, { key: 'endDate' });
+    const period = extractString(req.query, { key: 'period', required: !(startDate && endDate) });
     const limit = extractNumber(req.query, { key: 'limit' });
     const offset = extractNumber(req.query, { key: 'offset' });
 
@@ -311,7 +313,11 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getGained(id, period, metric, paginationConfig);
+
+    const results =
+      startDate && endDate
+        ? await groupService.getGainedInTimeRange(id, startDate, endDate, metric, paginationConfig)
+        : await groupService.getGainedInPeriod(id, period, metric, paginationConfig);
 
     res.json(results);
   } catch (e) {

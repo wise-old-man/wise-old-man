@@ -334,7 +334,7 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
       return {
         ...player.toJSON(),
         teamName,
-        progress: deltaService.calculateCompetitionDiff(
+        progress: deltaService.calculateMetricDiff(
           player,
           startSnapshot,
           endSnapshot,

@@ -1,6 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { formatDate, getMetricName, getMetricIcon } from 'utils';
 import { recordActions, recordSelectors } from 'redux/records';
@@ -24,11 +25,8 @@ const PERIOD_OPTIONS = [
 
 function RecordsTable() {
   const dispatch = useDispatch();
-  const [selectedMetric, setSelectedMetric] = useState(METRIC_OPTIONS[0].value);
-  const [selectedPeriod, setSelectedPeriod] = useState(PERIOD_OPTIONS[2].value);
-
-  const { context } = useContext(GroupContext);
-  const { id } = context;
+  const { context, updateContext } = useContext(GroupContext);
+  const { id, metric, period } = context;
 
   const { data, pageIndex, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 50,
@@ -39,39 +37,42 @@ function RecordsTable() {
   const isLoading = useSelector(recordSelectors.isFetchingGroupRecords);
   const isReloading = isLoading && pageIndex === 0;
 
-  const selectedMetricIndex = METRIC_OPTIONS.findIndex(o => o.value === selectedMetric);
-  const selectedPeriodIndex = PERIOD_OPTIONS.findIndex(o => o.value === selectedPeriod);
-  const { uniqueKey, columns } = getTableConfig(selectedMetric, selectedPeriod);
+  const metricIndex = METRIC_OPTIONS.findIndex(o => o.value === metric);
+  const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
+  const { uniqueKey, columns } = getTableConfig(metric, period);
 
   function handleMetricSelected(e) {
-    setSelectedMetric(e.value);
+    updateContext({ metric: e.value });
   }
 
   function handlePeriodSelected(e) {
-    setSelectedPeriod(e.value);
+    updateContext({ period: e.value });
   }
 
-  function handleReload(limit, offset) {
-    dispatch(recordActions.fetchGroupRecords(id, selectedMetric, selectedPeriod, limit, offset));
+  function handleReload(limit, offset, query) {
+    if (!query) return;
+    dispatch(recordActions.fetchGroupRecords(id, metric, period, limit, offset));
   }
 
-  // When the selected metric changes, reload the records
-  useEffect(reloadData, [selectedMetric, selectedPeriod]);
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true }), [
+    id,
+    metric,
+    period
+  ]);
+
+  // When the selected metric and period changes, reload the records
+  useEffect(() => debouncedReload({}), [debouncedReload, id, metric, period]);
 
   return (
     <>
       <div className="options-bar">
         <Selector
           options={METRIC_OPTIONS}
-          selectedIndex={selectedMetricIndex}
+          selectedIndex={metricIndex}
           onSelect={handleMetricSelected}
           search
         />
-        <Selector
-          options={PERIOD_OPTIONS}
-          selectedIndex={selectedPeriodIndex}
-          onSelect={handlePeriodSelected}
-        />
+        <Selector options={PERIOD_OPTIONS} selectedIndex={periodIndex} onSelect={handlePeriodSelected} />
       </div>
       {isReloading ? (
         <TablePlaceholder size={20} />

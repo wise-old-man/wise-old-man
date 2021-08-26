@@ -1,6 +1,7 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { debounce } from 'lodash';
 import { achievementActions, achievementSelectors } from 'redux/achievements';
 import { Table, TablePlaceholder, PlayerTag } from 'components';
 import { getMetricIcon, formatDate } from 'utils';
@@ -8,7 +9,7 @@ import { useLazyLoading } from 'hooks';
 import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
-  uniqueKey: row => `${row.player.id}-${row.type}`,
+  uniqueKey: row => `${row.player.id}-${row.name}`,
   columns: [
     {
       key: 'displayName',
@@ -58,12 +59,13 @@ function AchievementsTable() {
   const isLoading = useSelector(achievementSelectors.isFetchingGroupAchievements);
   const isReloading = isLoading && pageIndex === 0;
 
-  function handleReload(limit, offset) {
+  function handleReload(limit, offset, query) {
+    if (!query) return;
     dispatch(achievementActions.fetchGroupAchievements(id, limit, offset));
   }
 
-  // When the selected metric changes, reload the achievements
-  useEffect(reloadData, [id]);
+  const debouncedReload = useCallback(debounce(reloadData, 500, { leading: true }), [id]);
+  useEffect(() => debouncedReload({}), [debouncedReload, id]);
 
   return (
     <>

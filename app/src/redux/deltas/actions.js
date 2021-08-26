@@ -14,22 +14,24 @@ const fetchLeaderboards = (metric, period, type, build, country) => async dispat
   }
 };
 
-const fetchPlayerDeltas = (username, startDate = null, endDate = null) => async dispatch => {
-  dispatch(reducers.onFetchPlayerDeltasRequest());
+const fetchPlayerDeltas =
+  (username, startDate = null, endDate = null) =>
+  async dispatch => {
+    dispatch(reducers.onFetchPlayerDeltasRequest());
 
-  try {
-    const url = endpoints.fetchPlayerDeltas.replace(':username', username);
-    const params = { startDate, endDate, debugAppUpdated: true };
+    try {
+      const url = endpoints.fetchPlayerDeltas.replace(':username', username);
+      const params = { startDate, endDate, debugAppUpdated: true };
 
-    const { data } = await api.get(url, { params });
+      const { data } = await api.get(url, { params });
 
-    dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data }));
-  } catch (e) {
-    dispatch(reducers.onFetchPlayerDeltasError(e.message.toString()));
-  }
-};
+      dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data }));
+    } catch (e) {
+      dispatch(reducers.onFetchPlayerDeltasError(e.message.toString()));
+    }
+  };
 
-const fetchGroupDeltas = (groupId, metric, period, limit, offset) => async dispatch => {
+const fetchGroupPeriodDeltas = (groupId, metric, period, limit, offset) => async dispatch => {
   dispatch(reducers.onFetchGroupDeltasRequest());
 
   try {
@@ -44,8 +46,30 @@ const fetchGroupDeltas = (groupId, metric, period, limit, offset) => async dispa
   }
 };
 
+const fetchGroupTimeRangeDeltas =
+  (groupId, metric, startDate, endDate, limit, offset) => async dispatch => {
+    dispatch(reducers.onFetchGroupDeltasRequest());
+
+    try {
+      const params = { metric, startDate, endDate, limit, offset };
+      const url = endpoints.fetchGroupDeltas.replace(':id', groupId);
+
+      const { data } = await api.get(url, { params });
+
+      dispatch(reducers.onFetchGroupDeltasSuccess({ groupId, data, refresh: !offset }));
+    } catch (e) {
+      dispatch(reducers.onFetchGroupDeltasError(e.message.toString()));
+    }
+  };
+
 const invalidateDeltas = (username, period) => async dispatch => {
   dispatch(reducers.onInvalidate({ username, period }));
 };
 
-export { fetchPlayerDeltas, fetchGroupDeltas, fetchLeaderboards, invalidateDeltas };
+export {
+  fetchPlayerDeltas,
+  fetchGroupPeriodDeltas,
+  fetchGroupTimeRangeDeltas,
+  fetchLeaderboards,
+  invalidateDeltas
+};

@@ -37,6 +37,54 @@
   }
 
   .group__content {
+    abbr {
+      text-decoration: none;
+      cursor: help;
+    }
+
+    .deltas-warning {
+      background: none;
+      border-radius: $border-radius;
+      padding: 10px;
+      border: 1px dashed #f4f79e;
+      font-size: 0.8em;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      line-height: 1.6em;
+
+      img {
+        filter: brightness(4);
+        opacity: 0.6;
+        margin-right: 10px;
+      }
+
+      &.-info {
+        border: 1px dashed $brand-color;
+        color: $gray-60;
+
+        button {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          color: white;
+          font-weight: 700;
+
+          &:hover {
+            opacity: 0.5;
+            cursor: pointer;
+          }
+        }
+
+        img {
+          filter: none;
+          opacity: 1;
+        }
+      }
+    }
+
     .selector {
       margin-bottom: 12px;
     }

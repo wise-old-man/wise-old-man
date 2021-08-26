@@ -456,7 +456,18 @@ export default [
       {
         field: 'period',
         type: 'string',
-        description: "The delta's period (See accepted values above)"
+        description:
+          "The delta's period (See accepted values above) - Optional if startDate & endDate are valid"
+      },
+      {
+        field: 'startDate',
+        type: 'string',
+        description: "The delta's custom time range start - Optional, can use 'period' instead"
+      },
+      {
+        field: 'endDate',
+        type: 'string',
+        description: "The delta's custom time range end - Optional, can use 'period' instead"
       },
       {
         field: 'limit',
@@ -476,6 +487,8 @@ export default [
           {
             startDate: '2020-12-08T16:59:38.230Z',
             endDate: '2020-12-15T14:07:19.395Z',
+            start: 14468951,
+            end: 16124879,
             gained: 1655928,
             player: {
               exp: 287727070,
@@ -498,6 +511,8 @@ export default [
           {
             startDate: '2020-12-06T13:09:32.613Z',
             endDate: '2020-12-13T10:16:36.930Z',
+            start: 556678,
+            end: 556678,
             gained: 0,
             player: {
               exp: 676544234,
@@ -520,6 +535,8 @@ export default [
           {
             startDate: '2020-12-09T07:50:12.117Z',
             endDate: '2020-12-09T07:50:12.117Z',
+            start: 8478679,
+            end: 8478679,
             gained: 0,
             player: {
               exp: 261126311,
