@@ -1,4 +1,4 @@
-import { capitalize } from './strings';
+import { ROLES } from 'config';
 
 export function standardize(username) {
   return sanitize(username).toLowerCase();
@@ -27,8 +27,8 @@ export function getPlayerTooltip(type, flagged) {
 }
 
 export function getRoleTypeIcon(role) {
-  const iconName = role === 'member' ? 'Minion' : capitalize(role);
-  return `/img/runescape/roles/${iconName}.png`;
+  if (role === 'member') return '/img/runescape/roles/Minion.png';
+  return ROLES.find(r => r.value === role).icon;
 }
 
 export function getPlayerBuild(build) {
