@@ -80,7 +80,7 @@ function Group() {
         // Group not found, redirect to 404
         if (!action.payload.data) router.push(`/404`);
       });
-    } else if (!group.members || group.members.length < group.memberCount) {
+    } else if (!group.members) {
       dispatch(groupActions.fetchMembers(id));
       dispatch(groupActions.fetchMonthlyTop(id));
       dispatch(competitionActions.fetchGroupCompetitions(id));

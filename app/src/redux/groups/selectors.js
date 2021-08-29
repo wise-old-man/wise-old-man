@@ -50,5 +50,5 @@ function formatGroup(group) {
     return { ...group, members, totalExperience, totalEHP };
   }
 
-  return { ...group, members: [], totalExperience: 0 };
+  return group;
 }
