@@ -31,6 +31,7 @@ export function getGroupAchievements(groupId) {
 export function getPlayerAchievements(username, includeMissing = false) {
   return state => {
     const achievements = getPlayerAchievementsMap(state)[username];
+
     if (!achievements || achievements.length === 0 || includeMissing) {
       return achievements;
     }
