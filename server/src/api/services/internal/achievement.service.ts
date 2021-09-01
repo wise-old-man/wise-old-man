@@ -229,7 +229,7 @@ function format(achievement: Achievement): ExtendedAchievement {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
-  if (name.includes("Base")) {
+  if (name === 'Base {level} Stats') {
     threshold = threshold / TOTAL_SKILLS;
   }
   const newName = name
