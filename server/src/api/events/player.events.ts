@@ -34,7 +34,8 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
 
   // Setup jobs to assert the player's name capitalization and account type
   // jobs.add('AssertPlayerName', { id: player.id }, { attempts: 5, backoff: 30000 });
-  jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30000 });
+  jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 20_000 });
+  jobs.add('AssertPlayerType', { id: player.id }, { attempts: 5, backoff: 30_000 });
 }
 
 async function onPlayerUpdated(snapshot: Snapshot) {
