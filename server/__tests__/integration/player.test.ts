@@ -40,17 +40,7 @@ beforeAll(async done => {
 
 describe('Player API', () => {
   describe('1. Tracking', () => {
-    test("1.1 - DON'T track valid username too soon", async done => {
-      const body = { username: TEST_DATA.playerA.data.username };
-      const response = await request.post(`${BASE_URL}/track`).send(body);
-
-      expect(response.status).toBe(429);
-      expect(response.body.message).toMatch('Error:');
-
-      done();
-    }, 90000);
-
-    test("1.2 - DON'T track undefined username", async done => {
+    test("1.1 - DON'T track undefined username", async done => {
       const response = await request.post(`${BASE_URL}/track`).send({});
 
       expect(response.status).toBe(400);
@@ -59,7 +49,7 @@ describe('Player API', () => {
       done();
     });
 
-    test("1.3 - DON'T track empty username", async done => {
+    test("1.2 - DON'T track empty username", async done => {
       const response = await request.post(`${BASE_URL}/track`).send({ username: '' });
 
       expect(response.status).toBe(400);
@@ -68,7 +58,7 @@ describe('Player API', () => {
       done();
     });
 
-    test("1.4 - DON'T track lengthy username", async done => {
+    test("1.3 - DON'T track lengthy username", async done => {
       const body = { username: 'ALongUsername' };
       const response = await request.post(`${BASE_URL}/track`).send(body);
 
@@ -78,7 +68,7 @@ describe('Player API', () => {
       done();
     });
 
-    test('1.5 - Track valid username', async done => {
+    test('1.4 - Track valid username', async done => {
       const body = { username: 'Psikoi' };
       const response = await request.post(`${BASE_URL}/track`).send(body);
 
@@ -88,6 +78,16 @@ describe('Player API', () => {
       } else {
         expect(response.body.message).toMatch('Failed to load hiscores: Jagex service is unavailable');
       }
+
+      done();
+    }, 90000);
+
+    test("1.5 - DON'T track valid username too soon", async done => {
+      const body = { username: 'Psikoi' };
+      const response = await request.post(`${BASE_URL}/track`).send(body);
+
+      expect(response.status).toBe(429);
+      expect(response.body.message).toMatch('Error:');
 
       done();
     }, 90000);
