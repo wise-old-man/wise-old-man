@@ -88,7 +88,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     offset: pagination.offset
   });
 
-  if (metric === 'ehp' && pagination.offset < 20 && playerType === 'regular') {
+  if (metric === 'ehp' && pagination.offset < 50 && playerType === 'regular') {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
@@ -112,8 +112,8 @@ async function calcPlayerVirtuals(player: Player, snapshot: Snapshot): Promise<P
   const ehpValue = calculateEHP(snapshot, type, build);
   const ehbValue = calculateEHB(snapshot, type, build);
 
-  const ehpRank = await getEHPRank(player.id, ehpValue);
-  const ehbRank = await getEHBRank(player.id, ehbValue);
+  const ehpRank = await getEHPRank(player, ehpValue);
+  const ehbRank = await getEHBRank(player, ehbValue);
 
   return { ehpValue, ehpRank, ehbValue, ehbRank, ttm, tt200m };
 }
@@ -185,26 +185,60 @@ function getAlgorithm(type: string, build: string): VirtualAlgorithm {
   }
 }
 
-async function getEHPRank(playerId: number, ehpValue: number): Promise<number> {
+async function getEHPRank(player: Player, ehpValue: number): Promise<number> {
   const rank = await Player.count({
     where: {
-      id: { [Op.not]: playerId },
-      ehp: { [Op.gte]: ehpValue }
+      id: { [Op.not]: player.id },
+      ehp: { [Op.gte]: ehpValue },
+      type: player.type
     }
   });
 
-  return rank + 1;
+  // If player is not in the top 50, a quick COUNT(*) query gives an acceptable
+  // rank approximation, this however won't work for players in the top of the
+  // leaderboards, and we'll have to use their registration date as a tie breaker
+  if (rank > 50) return rank + 1;
+
+  const topPlayers = await Player.findAll({
+    where: {
+      ehp: { [Op.gte]: ehpValue },
+      type: player.type
+    }
+  });
+
+  const smarterRank = topPlayers
+    .sort((a, b) => b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime())
+    .findIndex(p => p.id === player.id);
+
+  return smarterRank < 0 ? rank + 1 : smarterRank + 1;
 }
 
-async function getEHBRank(playerId: number, ehbValue: number): Promise<number> {
+async function getEHBRank(player: Player, ehbValue: number): Promise<number> {
   const rank = await Player.count({
     where: {
-      id: { [Op.not]: playerId },
-      ehb: { [Op.gte]: ehbValue }
+      id: { [Op.not]: player.id },
+      ehb: { [Op.gte]: ehbValue },
+      type: player.type
     }
   });
 
-  return rank + 1;
+  // If player is not in the top 50, a quick COUNT(*) query gives an acceptable
+  // rank approximation, this however won't work for players in the top of the
+  // leaderboards, and we'll have to use their registration date as a tie breaker
+  if (rank > 50) return rank + 1;
+
+  const topPlayers = await Player.findAll({
+    where: {
+      ehb: { [Op.gte]: ehbValue },
+      type: player.type
+    }
+  });
+
+  const smarterRank = topPlayers
+    .sort((a, b) => b.ehb - a.ehb || a.registeredAt.getTime() - b.registeredAt.getTime())
+    .findIndex(p => p.id === player.id);
+
+  return smarterRank < 0 ? rank + 1 : smarterRank + 1;
 }
 
 export {
