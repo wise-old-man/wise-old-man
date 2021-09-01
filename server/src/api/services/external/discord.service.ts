@@ -85,13 +85,8 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchMembersJoined(groupId: number, playerIds: number[]) {
-  // Fetch all the players for these ids
-  const players = await playerService.findAllByIds(playerIds);
-
-  // If couldn't find any players for these ids, ignore event
+async function dispatchMembersJoined(groupId: number, players: Player[]) {
   if (!players || players.length === 0) return;
-
   dispatch('GROUP_MEMBERS_JOINED', { groupId, players });
 }
 
