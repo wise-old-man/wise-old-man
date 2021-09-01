@@ -1,7 +1,9 @@
+import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import logger from '../services/external/logger.service';
 import metrics from '../services/external/metrics.service';
 import * as competitionService from '../services/internal/competition.service';
+import * as playerService from '../services/internal/player.service';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {
   // Temporary logging
@@ -14,10 +16,22 @@ async function onMembersJoined(groupId: number, playerIds: number[]) {
     competitionService.addToGroupCompetitions(groupId, playerIds)
   );
 
+  // Fetch all the newly added members
+  const players = await playerService.findAllByIds(playerIds);
+
+  // If couldn't find any players for these ids, ignore event
+  if (!players || players.length === 0) return;
+
   // Dispatch this event to the discord service
   await metrics.measureReaction('DiscordMembersJoined', () =>
-    discordService.dispatchMembersJoined(groupId, playerIds)
+    discordService.dispatchMembersJoined(groupId, players)
   );
+
+  // Request updates for any new players
+  players.forEach(({ username, type }) => {
+    if (type !== 'unknown') return;
+    jobs.add('UpdatePlayer', { username }, { attempts: 3, backoff: 20_000 });
+  });
 }
 
 async function onMembersLeft(groupId: number, playerIds: number[]) {

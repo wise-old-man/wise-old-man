@@ -83,7 +83,11 @@ async function shouldReviewType(player: Player): Promise<boolean> {
  */
 function shouldUpdate(player: Player): boolean {
   if (!player.updatedAt || !isValidDate(player.updatedAt)) return true;
-  return Math.floor((Date.now() - player.updatedAt.getTime()) / 1000) >= 60;
+
+  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
+  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
+
+  return timeSinceLastUpdate >= 60 || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 /**

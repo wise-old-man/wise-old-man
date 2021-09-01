@@ -5,11 +5,12 @@ import {
   Delta,
   Membership,
   NameChange,
+  Participation,
   Player,
   Snapshot
 } from '../database/models';
 import { onAchievementsCreated } from './events/achievement.events';
-import { onCompetitionCreated } from './events/competition.events';
+import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
 import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
 import { onNameChangeCreated } from './events/name.events';
@@ -55,6 +56,13 @@ function setup() {
 
   Delta.afterCreate((delta: Delta) => {
     onDeltaUpdated(delta);
+  });
+
+  Participation.afterBulkCreate((participations: Participation[]) => {
+    const { competitionId } = participations[0];
+    const playerIds = participations.map(m => m.playerId);
+
+    onParticipantsJoined(competitionId, playerIds);
   });
 
   Membership.afterBulkCreate((memberships: Membership[]) => {
