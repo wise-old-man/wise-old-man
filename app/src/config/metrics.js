@@ -97,6 +97,8 @@ const metrics = {
 export const METRICS_CONFIG = metrics;
 
 export const SKILLS = metrics.SKILLS.map(s => s.key);
+export const REAL_SKILLS = SKILLS.filter(s => s !== 'overall');
+export const TOTAL_SKILLS = REAL_SKILLS.length;
 export const ACTIVITIES = metrics.ACTIVITIES.map(s => s.key);
 export const BOSSES = metrics.BOSSES.map(s => s.key);
 export const VIRTUALS = metrics.VIRTUALS.map(s => s.key);

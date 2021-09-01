@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { getMetricIcon, getMetricName, formatDate, formatNumber, getLevel } from 'utils';
+import { TOTAL_SKILLS } from 'config';
 import './AchievementGroup.scss';
 
 function AchievementGroup({ group, metricType }) {
@@ -90,6 +91,10 @@ function formatThreshold(threshold) {
 
   if ([273742, 737627, 1986068, 5346332, 13034431].includes(threshold)) {
     return getLevel(threshold + 100).toString();
+  }
+
+  if ([273742 * TOTAL_SKILLS, 737627 * TOTAL_SKILLS, 1986068 * TOTAL_SKILLS, 5346332 * TOTAL_SKILLS, 13034431 * TOTAL_SKILLS].includes(threshold)) {
+    return getLevel((threshold / TOTAL_SKILLS) + 100).toString();
   }
 
   if (threshold <= 10000) {

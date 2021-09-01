@@ -1,6 +1,7 @@
 import { Snapshot } from '../../../database/models';
 import { AchievementTemplate } from '../../services/internal/achievement.service';
-import { getCombatLevel, getMinimumExp } from '../../util/experience';
+import { getCombatLevel, getCappedExp } from '../../util/experience';
+import { TOTAL_SKILLS } from '../../constants';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
@@ -10,9 +11,9 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: 'Base {level} Stats',
     metric: 'overall',
     measure: 'levels',
-    thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
-    getCurrentValue: (snapshot: Snapshot) => {
-      return getMinimumExp(snapshot);
+    thresholds: [273_742 * TOTAL_SKILLS, 737_627 * TOTAL_SKILLS, 1_986_068 * TOTAL_SKILLS, 5_346_332 * TOTAL_SKILLS, 13_034_431 * TOTAL_SKILLS],
+    getCurrentValue: (snapshot: Snapshot, threshold: number) => {
+      return getCappedExp(snapshot, threshold);
     }
   },
   {

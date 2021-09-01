@@ -418,6 +418,7 @@ export const SKILLS = SKILLS_MAP.map(s => s.key);
 export const ACTIVITIES = ACTIVITIES_MAP.map(s => s.key);
 export const BOSSES = BOSSES_MAP.map(s => s.key);
 export const REAL_SKILLS = SKILLS.filter(s => s !== 'overall');
+export const TOTAL_SKILLS = REAL_SKILLS.length;
 
 export const VIRTUAL = VIRTUAL_MAP.map(s => s.key);
 

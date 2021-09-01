@@ -6,6 +6,7 @@ import { round } from '../../util/numbers';
 import { getLevel } from '../../util/experience';
 import { ACHIEVEMENT_TEMPLATES } from '../../modules/achievements/templates';
 import * as snapshotService from './snapshot.service';
+import { TOTAL_SKILLS } from '../../constants';
 
 const UNKNOWN_DATE = new Date(0);
 
@@ -228,6 +229,9 @@ function format(achievement: Achievement): ExtendedAchievement {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
+  if (name.includes("Base")) {
+    threshold = threshold / TOTAL_SKILLS;
+  }
   const newName = name
     .replace('{threshold}', formatThreshold(threshold))
     .replace('{level}', formatThreshold(threshold));
