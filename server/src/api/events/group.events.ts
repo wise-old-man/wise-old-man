@@ -30,7 +30,7 @@ async function onMembersJoined(groupId: number, playerIds: number[]) {
   // Request updates for any new players
   players.forEach(({ username, type }) => {
     if (type !== 'unknown') return;
-    jobs.add('UpdatePlayer', { username }, { attempts: 3, backoff: 20_000 });
+    jobs.add('UpdatePlayer', { username });
   });
 }
 

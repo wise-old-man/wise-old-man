@@ -1,4 +1,4 @@
-import Queue, { RateLimiter } from 'bull';
+import Queue, { JobOptions, RateLimiter } from 'bull';
 import { getThreadIndex, isTesting } from '../../env';
 import logger from '../services/external/logger.service';
 import crons from './config/crons';
@@ -8,6 +8,7 @@ import jobs from './instances';
 export interface Job {
   name: string;
   rateLimiter?: RateLimiter;
+  defaultOptions?: JobOptions;
   handle(data: any): void;
   onSuccess?(data: any): void;
   onFailure?(data: any, error: Error): void;
@@ -31,7 +32,7 @@ class JobHandler {
       bull: new Queue(job.name, {
         redis: redisConfig,
         limiter: job.rateLimiter,
-        defaultJobOptions: { removeOnComplete: true, removeOnFail: true }
+        defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(job.defaultOptions || {}) }
       }),
       name: job.name,
       handle: job.handle,
@@ -52,18 +53,6 @@ class JobHandler {
 
     const priority = (options && options.priority) || JobPriority.MEDIUM;
     queue.bull.add({ ...data, created: new Date() }, { ...options, priority });
-  }
-
-  /**
-   * Adds new scheduled job, to be executed at the specified date.
-   */
-  schedule(name: string, data: any, date: Date) {
-    const msDiff = date.getTime() - Date.now();
-
-    // Don't allow scheduling for past dates
-    if (msDiff < 0) return;
-
-    this.add(name, data, { delay: msDiff, priority: JobPriority.MEDIUM });
   }
 
   init() {

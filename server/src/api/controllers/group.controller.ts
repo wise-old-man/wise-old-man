@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { Player } from '../../database/models';
 import { BadRequestError, ForbiddenError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
@@ -186,9 +185,8 @@ async function updateAll(req: Request, res: Response, next: NextFunction) {
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const members = await groupService.updateAllMembers(group, (player: Player) => {
-      // Attempt this 3 times per player, waiting 65 seconds in between
-      jobs.add('UpdatePlayer', { username: player.username }, { attempts: 3, backoff: 65000 });
+    const members = await groupService.updateAllMembers(group, ({ username }) => {
+      jobs.add('UpdatePlayer', { username });
     });
 
     const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;

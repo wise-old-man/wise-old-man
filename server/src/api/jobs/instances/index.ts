@@ -1,4 +1,3 @@
-import AssertPlayerName from './AssertPlayerName';
 import AssertPlayerType from './AssertPlayerType';
 import InvalidateDeltas from './InvalidateDeltas';
 import RefreshCompetitionRankings from './RefreshCompetitionRankings';
@@ -11,7 +10,6 @@ import UpdatePlayer from './UpdatePlayer';
 
 export default [
   UpdatePlayer,
-  AssertPlayerName,
   RefreshGroupRankings,
   RefreshCompetitionRankings,
   AssertPlayerType,
