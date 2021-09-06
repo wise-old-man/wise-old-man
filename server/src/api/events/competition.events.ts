@@ -14,8 +14,8 @@ async function onParticipantsJoined(_: number, playerIds: number[]) {
   if (!players || players.length === 0) return;
 
   // Request updates for any new players
-  players.forEach(({ username, type }) => {
-    if (type !== 'unknown') return;
+  players.forEach(({ username, type, registeredAt }) => {
+    if (type !== 'unknown' || Date.now() - registeredAt.getTime() > 60_000) return;
     jobs.add('UpdatePlayer', { username, source: 'Competition:OnParticipantsJoined' });
   });
 }
