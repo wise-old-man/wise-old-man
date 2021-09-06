@@ -186,7 +186,7 @@ async function updateAll(req: Request, res: Response, next: NextFunction) {
     }
 
     const members = await groupService.updateAllMembers(group, ({ username }) => {
-      jobs.add('UpdatePlayer', { username });
+      jobs.add('UpdatePlayer', { username, source: 'Group:UpdateAll' });
     });
 
     const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;

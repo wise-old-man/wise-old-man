@@ -16,7 +16,7 @@ async function onParticipantsJoined(_: number, playerIds: number[]) {
   // Request updates for any new players
   players.forEach(({ username, type }) => {
     if (type !== 'unknown') return;
-    jobs.add('UpdatePlayer', { username });
+    jobs.add('UpdatePlayer', { username, source: 'Competition:OnParticipantsJoined' });
   });
 }
 
@@ -32,7 +32,7 @@ async function onCompetitionStarted(competition: Competition) {
   await metrics.measureReaction('UpdateAllCompetitionStart', async () => {
     // Attempt this 3 times per player, waiting 65 seconds in between
     await competitionService.updateAll(competition, true, ({ username }) => {
-      jobs.add('UpdatePlayer', { username });
+      jobs.add('UpdatePlayer', { username, source: 'Competition:OnCompetitionStarted' });
     });
   });
 

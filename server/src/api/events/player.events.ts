@@ -28,7 +28,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   );
 
   // Setup jobs to assert the player's account type and auto-update them
-  jobs.add('UpdatePlayer', { username: player.username });
+  jobs.add('UpdatePlayer', { username: player.username, source: 'Player:OnPlayerNameChanged' });
   jobs.add('AssertPlayerType', { id: player.id });
 }
 

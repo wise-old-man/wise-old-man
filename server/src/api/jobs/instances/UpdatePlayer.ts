@@ -21,9 +21,9 @@ class UpdatePlayer implements Job {
 
     try {
       await playerService.update(data.username);
-      metricsService.trackJobEnded(endTimer, this.name, 1);
+      metricsService.trackJobEnded(endTimer, this.name, 1, data.source);
     } catch (error) {
-      metricsService.trackJobEnded(endTimer, this.name, 0);
+      metricsService.trackJobEnded(endTimer, this.name, 0, data.source);
       throw error;
     }
   }
