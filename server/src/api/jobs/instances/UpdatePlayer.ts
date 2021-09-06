@@ -9,7 +9,7 @@ class UpdatePlayer implements Job {
 
   constructor() {
     this.name = 'UpdatePlayer';
-    this.rateLimiter = { max: 1, duration: 1_000 };
+    this.rateLimiter = { max: 1, duration: 500 };
   }
 
   async handle(data: any): Promise<void> {
