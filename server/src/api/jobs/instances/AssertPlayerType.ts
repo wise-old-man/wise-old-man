@@ -1,4 +1,4 @@
-import { RateLimiter } from 'bull';
+import { JobOptions, RateLimiter } from 'bull';
 import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
@@ -6,10 +6,12 @@ import { Job } from '../index';
 class AssertPlayerType implements Job {
   name: string;
   rateLimiter: RateLimiter;
+  defaultOptions: JobOptions;
 
   constructor() {
     this.name = 'AssertPlayerType';
     this.rateLimiter = { max: 1, duration: 5_000 };
+    this.defaultOptions = { attempts: 5, backoff: 30_000 };
   }
 
   async handle(data: any): Promise<void> {

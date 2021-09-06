@@ -38,10 +38,6 @@ function setup() {
     }
   });
 
-  // Player.afterCreate((player: Player) => {
-  //   onPlayerCreated(player);
-  // });
-
   Snapshot.afterCreate((snapshot: Snapshot) => {
     onPlayerUpdated(snapshot);
   });

@@ -4,7 +4,7 @@ import { getThreadIndex } from '../../../env';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type ReactionParams = 'reactionName' | 'status';
-type JobParams = 'jobName' | 'status';
+type JobParams = 'jobName' | 'status' | 'source';
 
 class MetricsService {
   private registry: Registry;
@@ -49,7 +49,7 @@ class MetricsService {
     this.jobHistogram = new prometheus.Histogram({
       name: 'job_duration_seconds',
       help: 'Duration of jobs in microseconds',
-      labelNames: ['jobName', 'status'],
+      labelNames: ['jobName', 'status', 'source'],
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
@@ -85,8 +85,8 @@ class MetricsService {
     return this.jobHistogram.startTimer();
   }
 
-  trackJobEnded(endTimerFn: any, jobName: string, status: number) {
-    endTimerFn({ jobName, status });
+  trackJobEnded(endTimerFn: any, jobName: string, status: number, source = '') {
+    endTimerFn({ jobName, status, source });
   }
 
   async getMetrics() {
