@@ -333,6 +333,10 @@ async function getType(player: Player): Promise<string> {
  * Fetch various hiscores endpoints to find the correct player type of a given player.
  */
 async function assertType(player: Player): Promise<string> {
+  if (player.flagged) {
+    throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
+  }
+
   const type = await getType(player);
 
   if (player.type !== type) {
