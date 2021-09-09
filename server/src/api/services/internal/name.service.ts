@@ -152,8 +152,8 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     // Check if there's any pending name changes for these names
     const pending = await NameChange.findOne({
       where: {
-        oldName: stOldName,
-        newName: stNewName,
+        oldName: { [Op.iLike]: stOldName },
+        newName: { [Op.iLike]: stNewName },
         status: NameChangeStatus.PENDING
       }
     });
