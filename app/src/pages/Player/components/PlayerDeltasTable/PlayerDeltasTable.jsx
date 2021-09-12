@@ -8,9 +8,9 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
   const { data } = deltas[period];
   const [rows, columns, uniqueKeySelector] = getTableData(data, metricType);
 
-  function handleRowClicked(index) {
-    if (rows && rows[index]) {
-      onMetricSelected(rows[index].metric);
+  function handleRowClicked(row) {
+    if (row) {
+      onMetricSelected(row.metric);
     }
   }
 

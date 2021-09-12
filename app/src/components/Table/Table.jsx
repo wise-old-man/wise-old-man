@@ -66,7 +66,7 @@ function Table({
   );
 
   // When table gets unmounted, reset sorting to defualt
-  useEffect(() => () => setSorting(DEFAULT_SORTING), [rows]);
+  useEffect(() => () => setSorting(DEFAULT_SORTING), []);
 
   const tableClass = classNames('table', {
     '-clickable': !!onRowClicked,
@@ -131,7 +131,7 @@ function Table({
             sortedRows.map((row, i) => {
               /* Rows */
               const rowUniqueKey = uniqueKeySelector(row);
-              const onClick = () => onRowClicked && onRowClicked(i);
+              const onClick = () => onRowClicked && onRowClicked(row);
 
               return (
                 <Fragment key={rowUniqueKey}>
