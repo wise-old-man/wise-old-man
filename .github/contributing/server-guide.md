@@ -94,6 +94,18 @@ DB_STORAGE=./__tests__/database.sqlite
 
 <br />
 
+## Creating database
+
+Follow the steps to create a server in the **Accessing the Database** section.
+
+Right click on the ` wise old man `  server.
+
+Select `Create` then `Database...`
+
+Name the Database  ` wise-old-man `  and hit save
+
+<br />
+
 **Finally! You're done with the setup and installation, now you can run the server and start developing!**
 
 <br />
