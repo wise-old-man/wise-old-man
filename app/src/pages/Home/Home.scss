@@ -67,6 +67,10 @@
             color: white;
             font-size: 0.9em;
 
+            @media only screen and (max-width: $breakpoint-small) {
+              margin-right: 0px;
+            }
+
             &:active,
             &:focus {
               outline: none;
