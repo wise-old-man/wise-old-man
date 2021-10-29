@@ -73,6 +73,12 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    @media only screen and (max-width: $breakpoint-small) {
+      margin-top: 15px;
+      height: 215px;
+      flex-direction: column;
+      align-items: center;
+    }
   }
 
   .team-selection__container {
