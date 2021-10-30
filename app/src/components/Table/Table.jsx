@@ -131,7 +131,7 @@ function Table({
             sortedRows.map((row, i) => {
               /* Rows */
               const rowUniqueKey = uniqueKeySelector(row);
-              const onClick = () => onRowClicked && onRowClicked(i);
+              const onClick = () => onRowClicked && onRowClicked(rowUniqueKey);
 
               return (
                 <Fragment key={rowUniqueKey}>
