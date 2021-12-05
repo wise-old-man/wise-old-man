@@ -6,6 +6,7 @@ const api = Router();
 api.get('/', controller.index);
 api.post('/', controller.submit);
 api.post('/bulk', controller.bulkSubmit);
+api.post('/history/bulk', controller.bulkHistory);
 api.get('/:id', controller.details);
 api.post('/:id/approve', controller.approve);
 api.post('/:id/deny', controller.deny);

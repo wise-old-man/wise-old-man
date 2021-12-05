@@ -183,6 +183,68 @@ export default [
     ]
   },
   {
+    title: 'See the name history for multiple players',
+    url: '/names/history/bulk',
+    method: 'POST',
+    body: ['Psikoi', 'USBC', 'Zezima', 'NoChange'],
+    successResponses: [
+      {
+        body: [
+          {
+            username: 'psikoi',
+            history: [
+              {
+                oldName: 'man',
+                newName: 'psikoi',
+                resolvedAt: '2020-08-06T23:45:39.233Z'
+              },
+              {
+                oldName: 'old',
+                newName: 'man',
+                resolvedAt: '2020-06-06T23:45:39.233Z'
+              },
+              {
+                oldName: 'wise',
+                newName: 'old',
+                resolvedAt: '2020-05-06T23:45:39.233Z'
+              }
+            ]
+          },
+          {
+            username: 'zezima',
+            history: [
+              {
+                oldName: 'notzezima',
+                newName: 'zezima',
+                resolvedAt: '2020-01-06T23:45:39.233Z'
+              }
+            ]
+          },
+          {
+            username: 'usbc',
+            history: [
+              {
+                oldName: 'usba',
+                newName: 'usbc',
+                resolvedAt: '2020-04-06T23:45:39.233Z'
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    errorResponses: [
+      {
+        description: 'If the list provided is undefined or not an array.',
+        body: { message: 'Invalid format, needs to be an array of usernames.' }
+      },
+      {
+        description: 'If the list provided is empty.',
+        body: { message: 'Empty username list.' }
+      }
+    ]
+  },
+  {
     title: 'View name change details',
     url: '/names/:id',
     method: 'GET',

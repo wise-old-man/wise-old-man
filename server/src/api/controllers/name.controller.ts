@@ -57,6 +57,16 @@ async function details(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// POST /names/history/bulk
+async function bulkHistory(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await nameService.bulkHistory(req.body);
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+}
+
 // POST /names/:id/approve
 // REQUIRES ADMIN PASSWORD
 async function approve(req: Request, res: Response, next: NextFunction) {
@@ -93,4 +103,4 @@ async function deny(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { index, submit, bulkSubmit, details, approve, deny };
+export { index, submit, bulkSubmit, bulkHistory, details, approve, deny };

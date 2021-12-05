@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import { map, omit, groupBy } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import { sequelize } from '../../../database';
 import {
@@ -119,6 +119,41 @@ async function bulkSubmit(nameChanges: { oldName: string; newName: string }[]) {
   }
 
   return `Successfully submitted ${submittedCount}/${nameChanges.length} name changes.`;
+}
+
+async function bulkHistory(names: string[]) {
+  if (!names || !Array.isArray(names)) {
+    throw new BadRequestError('Invalid format, needs to be an array of usernames');
+  }
+
+  if (names.length === 0) {
+    throw new BadRequestError('Empty name list');
+  }
+
+  const rawNameHistories = await NameChange.findAll({
+    where: { playerId: { [Op.col]: 'player.id' }, status: NameChangeStatus.APPROVED },
+    include: [
+      {
+        model: Player,
+        where: {
+          username: { [Op.iLike]: { [Op.any]: names } }
+        },
+        attributes: ['username']
+      }
+    ],
+    attributes: ['oldName', 'newName', 'resolvedAt'],
+    raw: true,
+    order: [['id', 'DESC']]
+  });
+
+  const nameHistories = map(groupBy(rawNameHistories, 'player.username'), acc => {
+    return {
+      username: acc[0]['player.username'],
+      history: acc.map(change => omit(change, 'player.username'))
+    };
+  });
+
+  return nameHistories;
 }
 
 /**
@@ -522,6 +557,7 @@ export {
   findAllForGroup,
   submit,
   bulkSubmit,
+  bulkHistory,
   deny,
   approve,
   autoReview
