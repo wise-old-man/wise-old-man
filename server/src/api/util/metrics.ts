@@ -86,7 +86,7 @@ export function getMinimumBossKc(metric: string): number {
   switch (metric) {
     case 'mimic':
     case 'tzkal_zuk':
-      return 2;
+      return 1;
     case 'bryophyta':
     case 'chambers_of_xeric_challenge_mode':
     case 'hespori':
@@ -94,7 +94,7 @@ export function getMinimumBossKc(metric: string): number {
     case 'skotizo':
     case 'the_corrupted_gauntlet':
     case 'tztok_jad':
-      return 10;
+      return 5;
     default:
       return 50;
   }
@@ -213,19 +213,19 @@ function getAbbreviation(abbreviation: string): string {
     case 'verzik':
     case 'tob-normal':
       return 'theatre_of_blood';
-      
+
     case 'tob-hm':
     case 'tob-cm':
     case 'tob-hard-mode':
     case 'tob-hard':
       return 'theatre_of_blood_hard_mode';
-      
+
     case 'nm':
     case 'tnm':
     case 'nmare':
     case 'the-nightmare':
       return 'nightmare';
-      
+
     case 'pnm':
     case 'phosani':
     case 'phosanis':
