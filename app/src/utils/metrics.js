@@ -33,7 +33,7 @@ export function getMinimumBossKc(bossName) {
   switch (bossName) {
     case 'mimic':
     case 'tzkal_zuk':
-      return 2;
+      return 1;
     case 'bryophyta':
     case 'chambers_of_xeric_challenge_mode':
     case 'hespori':
@@ -41,7 +41,7 @@ export function getMinimumBossKc(bossName) {
     case 'skotizo':
     case 'the_corrupted_gauntlet':
     case 'tztok_jad':
-      return 10;
+      return 5;
     default:
       return 50;
   }
