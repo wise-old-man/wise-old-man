@@ -338,6 +338,26 @@ async function updateCountry(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// DELETE /players/username/:username
+// REQUIRES ADMIN PASSWORD
+async function deletePlayer(req: Request, res: Response, next: NextFunction) {
+  try {
+    const username = extractString(req.params, { key: 'username', required: true });
+    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
+
+    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+      throw new ForbiddenError('Incorrect admin password.');
+    }
+
+    const player = await playerService.resolve({ username });
+    await player.destroy();
+
+    res.json({ message: `Successfully deleted player: ${username}` });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export {
   search,
   track,
@@ -353,5 +373,6 @@ export {
   records,
   snapshots,
   names,
-  updateCountry
+  updateCountry,
+  deletePlayer
 };
