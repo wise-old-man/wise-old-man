@@ -273,7 +273,6 @@ export const GROUP_ROLES = [
 export const PRIVELEGED_GROUP_ROLES = ['leader', 'owner', 'administrator', 'moderator', 'deputy owner'];
 
 export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];
-export const COMPETITION_TYPES = ['classic', 'team'];
 
 export const OSRS_HISCORES = {
   regular: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',

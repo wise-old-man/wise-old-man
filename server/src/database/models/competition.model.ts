@@ -9,7 +9,8 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { ALL_METRICS, COMPETITION_TYPES } from '../../api/constants';
+import { CompetitionType } from '@wise-old-man/utils';
+import { ALL_METRICS } from '../../api/constants';
 import { isValidDate } from '../../api/util/dates';
 import { Group, Participation, Player } from '../../database/models';
 
@@ -75,7 +76,7 @@ export default class Competition extends Model<Competition> {
   @Column({ type: DataType.DATE, allowNull: false })
   endsAt: Date;
 
-  @Column({ type: DataType.STRING(20), defaultValue: COMPETITION_TYPES[0] })
+  @Column({ type: DataType.STRING(20), defaultValue: CompetitionType.CLASSIC })
   type: string;
 
   @ForeignKey(() => Group)

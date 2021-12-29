@@ -1,10 +1,10 @@
 import { QueryInterface } from 'sequelize/types';
-import { COMPETITION_TYPES } from '../../api/constants';
+import { CompetitionType } from '@wise-old-man/utils';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.addColumn('competitions', 'type', {
     type: dataTypes.STRING(20),
-    defaultValue: COMPETITION_TYPES[0] // classic
+    defaultValue: CompetitionType.CLASSIC
   });
 }
 

@@ -1,9 +1,10 @@
 import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
+import { CompetitionType, COMPETITION_TYPES } from '@wise-old-man/utils';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, COMPETITION_STATUSES, COMPETITION_TYPES } from '../../constants';
+import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { getValueKey, isVirtual } from '../../util/metrics';
@@ -120,7 +121,7 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
   }
 
   // The type is optional, however if present, should be valid
-  if (type && !COMPETITION_TYPES.includes(type.toLowerCase())) {
+  if (type && !COMPETITION_TYPES.includes(type.toLowerCase() as CompetitionType)) {
     throw new BadRequestError(`Invalid type.`);
   }
 
@@ -412,7 +413,11 @@ function validateTeamsList(teams: Team[]) {
   const invalidLengthTeams = teamNames.filter(t => t.length > 30);
 
   if (invalidLengthTeams.length > 0) {
-    throw new BadRequestError(`Team names can only be 30 characters max. The following are invalid: [${invalidLengthTeams.join(', ')}]`);
+    throw new BadRequestError(
+      `Team names can only be 30 characters max. The following are invalid: [${invalidLengthTeams.join(
+        ', '
+      )}]`
+    );
   }
 
   const duplicateTeams = filter(teamNames, (val, i, it) => includes(it, val, i + 1));
@@ -521,7 +526,7 @@ async function create(dto: CreateCompetitionDTO) {
     metric,
     verificationCode: code,
     verificationHash: hash,
-    type: COMPETITION_TYPES[isTeamCompetition ? 1 : 0],
+    type: isTeamCompetition ? CompetitionType.TEAM : CompetitionType.CLASSIC,
     startsAt,
     endsAt,
     groupId
@@ -565,11 +570,11 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   const hasNewTeams = teams && teams.length > 0;
   const hasNewParticipants = participants && participants.length > 0;
 
-  if (competition.type === 'classic' && hasNewTeams) {
+  if (competition.type === CompetitionType.CLASSIC && hasNewTeams) {
     throw new BadRequestError("The competition type cannot be changed to 'team'.");
   }
 
-  if (competition.type === 'team' && hasNewParticipants) {
+  if (competition.type === CompetitionType.TEAM && hasNewParticipants) {
     throw new BadRequestError("The competition type cannot be changed to 'classic'.");
   }
 
@@ -744,7 +749,7 @@ async function addAllGroupMembers(competition, groupId) {
  * Adds all the usernames as competition participants.
  */
 async function addParticipants(competition: Competition, usernames: string[]) {
-  if (competition.type === 'team') {
+  if (competition.type === CompetitionType.TEAM) {
     throw new BadRequestError('Cannot add participants to a team competition.');
   }
 
@@ -786,7 +791,7 @@ async function addParticipants(competition: Competition, usernames: string[]) {
  * Removes all the usernames (participants) from a competition.
  */
 async function removeParticipants(competition: Competition, usernames: string[]) {
-  if (competition.type === 'team') {
+  if (competition.type === CompetitionType.TEAM) {
     throw new BadRequestError('Cannot remove participants from a team competition.');
   }
 
@@ -819,7 +824,7 @@ async function addTeams(competition: Competition, teams: Team[]) {
     throw new BadRequestError('Empty teams list.');
   }
 
-  if (competition.type === 'classic') {
+  if (competition.type === CompetitionType.CLASSIC) {
     throw new BadRequestError("Teams can't be added to a classic competition.");
   }
 
@@ -884,7 +889,7 @@ async function addTeams(competition: Competition, teams: Team[]) {
 }
 
 async function removeTeams(competition: Competition, teamNames: string[]) {
-  if (competition.type !== 'team') {
+  if (competition.type !== CompetitionType.TEAM) {
     throw new BadRequestError('Cannot remove teams from a classic competition.');
   }
 
@@ -972,7 +977,7 @@ async function addToGroupCompetitions(groupId, playerIds) {
     attributes: ['id'],
     where: {
       groupId,
-      type: 'classic',
+      type: CompetitionType.CLASSIC,
       endsAt: { [Op.gt]: new Date() }
     }
   });
