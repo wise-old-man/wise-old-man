@@ -1,7 +1,8 @@
 import { Op, Sequelize } from 'sequelize';
+import { PlayerBuild, PLAYER_BUILDS } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
-import { BOSSES, PLAYER_BUILDS, SKILLS, VIRTUAL } from '../../constants';
+import { BOSSES, SKILLS, VIRTUAL } from '../../constants';
 import { BadRequestError } from '../../errors';
 import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
 import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
@@ -57,7 +58,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 

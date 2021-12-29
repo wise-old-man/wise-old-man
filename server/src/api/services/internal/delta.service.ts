@@ -1,10 +1,18 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { PERIODS, isValidPeriod, parsePeriodExpression } from '@wise-old-man/utils';
+import {
+  PERIODS,
+  PLAYER_TYPES,
+  PLAYER_BUILDS,
+  isValidPeriod,
+  parsePeriodExpression,
+  PlayerType,
+  PlayerBuild
+} from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
+import { ALL_METRICS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { getMilliseconds } from '../../util/dates';
 import {
@@ -160,11 +168,11 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+  if (playerType && !PLAYER_TYPES.includes(playerType as PlayerType)) {
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 

@@ -1,8 +1,14 @@
 import { Op } from 'sequelize';
-import { isValidPeriod } from '@wise-old-man/utils';
+import {
+  PlayerType,
+  PlayerBuild,
+  PLAYER_TYPES,
+  PLAYER_BUILDS,
+  isValidPeriod
+} from '@wise-old-man/utils';
 import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
+import { ALL_METRICS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -103,11 +109,11 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  if (playerType && !PLAYER_TYPES.includes(playerType)) {
+  if (playerType && !PLAYER_TYPES.includes(playerType as PlayerType)) {
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild)) {
+  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 

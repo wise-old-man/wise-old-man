@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { QueryInterface } from 'sequelize/types';
-import { PLAYER_TYPES } from '../../api/constants';
+import { PLAYER_TYPES } from '@wise-old-man/utils';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('players', {
     id: {
       type: dataTypes.INTEGER,
@@ -30,7 +30,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   });
 }
 
-function down(queryInterface: QueryInterface): Promise<void> {
+function down(queryInterface: QueryInterface) {
   return queryInterface.dropTable('players');
 }
 

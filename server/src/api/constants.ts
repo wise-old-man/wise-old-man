@@ -1,5 +1,3 @@
-export const PLAYER_TYPES = ['unknown', 'regular', 'ironman', 'hardcore', 'ultimate'];
-
 export const GROUP_ROLES = [
   'achiever',
   'adamant',
@@ -273,8 +271,6 @@ export const GROUP_ROLES = [
 ];
 
 export const PRIVELEGED_GROUP_ROLES = ['leader', 'owner', 'administrator', 'moderator', 'deputy owner'];
-
-export const PLAYER_BUILDS = ['f2p', 'lvl3', '1def', '10hp', 'zerker', 'main'];
 
 export const COMPETITION_STATUSES = ['upcoming', 'ongoing', 'finished'];
 export const COMPETITION_TYPES = ['classic', 'team'];

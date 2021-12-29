@@ -9,7 +9,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { PLAYER_BUILDS, PLAYER_TYPES } from '../../api/constants';
+import { PlayerType, PlayerBuild, PLAYER_TYPES, PLAYER_BUILDS } from '@wise-old-man/utils';
 import {
   Achievement,
   Competition,
@@ -125,13 +125,13 @@ function parseExp(this: any) {
 }
 
 function validateType(this: Player) {
-  if (!PLAYER_TYPES.includes(this.type)) {
+  if (!PLAYER_TYPES.includes(this.type as PlayerType)) {
     throw new Error('Invalid player type.');
   }
 }
 
 function validateBuild(this: Player) {
-  if (!PLAYER_BUILDS.includes(this.build)) {
+  if (!PLAYER_BUILDS.includes(this.build as PlayerBuild)) {
     throw new Error('Invalid player build.');
   }
 }
