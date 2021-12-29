@@ -1,11 +1,12 @@
 import csv from 'csvtojson';
 import { Op, QueryTypes } from 'sequelize';
+import { parsePeriodExpression } from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
 import { Snapshot } from '../../../database/models';
 import queries from '../../../database/queries';
 import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import { formatDate, parsePeriod } from '../../util/dates';
+import { formatDate } from '../../util/dates';
 import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
@@ -109,13 +110,11 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
  * Finds all snapshots within a time period, for a given player.
  */
 async function getPlayerPeriodSnapshots(playerId: number, period: string) {
-  const [periodStr, durationMs] = parsePeriod(period);
+  const parsedPeriod = parsePeriodExpression(period);
 
-  if (!periodStr) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
+  if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
 
-  const startDate = new Date(Date.now() - durationMs);
+  const startDate = new Date(Date.now() - parsedPeriod.durationMs);
   const endDate = new Date();
 
   const snapshots = await getPlayerTimeRangeSnapshots(playerId, startDate, endDate);

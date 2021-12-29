@@ -1,7 +1,8 @@
 import { Op } from 'sequelize';
+import { isValidPeriod } from '@wise-old-man/utils';
 import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
+import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -71,7 +72,7 @@ async function syncRecords(delta: Delta): Promise<void> {
 async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): Promise<Record[]> {
   const { period, metric } = filter;
 
-  if (period && !PERIODS.includes(period)) {
+  if (period && !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -94,7 +95,7 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
   const { metric, period, playerBuild, playerType, country } = filter;
   const countryCode = country ? geoService.find(country)?.code : null;
 
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -149,7 +150,7 @@ async function getGroupLeaderboard(
 ): Promise<Record[]> {
   const { playerIds, period, metric } = filter;
 
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

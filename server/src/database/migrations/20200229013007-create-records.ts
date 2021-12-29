@@ -1,7 +1,8 @@
 import { QueryInterface } from 'sequelize/types';
-import { ALL_METRICS, PERIODS } from '../../api/constants';
+import { PERIODS } from '@wise-old-man/utils';
+import { ALL_METRICS } from '../../api/constants';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('records', {
     id: {
       type: dataTypes.INTEGER,

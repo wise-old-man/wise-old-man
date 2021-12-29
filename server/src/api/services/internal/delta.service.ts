@@ -1,11 +1,12 @@
 import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
+import { PERIODS, isValidPeriod, parsePeriodExpression } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, PERIODS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
+import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getMilliseconds, parsePeriod } from '../../util/dates';
+import { getMilliseconds } from '../../util/dates';
 import {
   getMeasure,
   getMinimumBossKc,
@@ -112,18 +113,16 @@ async function getPlayerPeriodDeltas(
   latest?: Snapshot,
   player?: Player
 ) {
-  const [periodStr, durationMs] = parsePeriod(period);
+  const parsedPeriod = parsePeriodExpression(period);
 
-  if (!periodStr) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
+  if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
 
-  const startDate = new Date(Date.now() - durationMs);
+  const startDate = new Date(Date.now() - parsedPeriod.durationMs);
   const endDate = new Date();
 
   const deltas = await getPlayerTimeRangeDeltas(playerId, startDate, endDate, latest, player);
 
-  return { period: periodStr, ...deltas };
+  return { period: parsedPeriod.expression, ...deltas };
 }
 
 /**
@@ -153,7 +152,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   const { metric, period, playerBuild, playerType, country } = filter;
   const countryCode = country ? geoService.find(country)?.code : null;
 
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -210,13 +209,13 @@ async function getGroupPeriodDeltas(
   playerIds: number[],
   pagination: Pagination
 ) {
-  const [periodStr, durationMs] = parsePeriod(period);
+  const parsedPeriod = parsePeriodExpression(period);
 
-  if (!periodStr) throw new BadRequestError(`Invalid period: ${period}.`);
+  if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
 
   const deltas = await getGroupTimeRangeDeltas(
     metric,
-    new Date(Date.now() - durationMs),
+    new Date(Date.now() - parsedPeriod.durationMs),
     new Date(),
     playerIds,
     pagination

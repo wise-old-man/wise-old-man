@@ -1,6 +1,7 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { isValidPeriod } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from 'src/types';
 import { sequelize } from '../../../database';
 import {
@@ -12,7 +13,7 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import { ALL_METRICS, GROUP_ROLES, PERIODS, PRIVELEGED_GROUP_ROLES } from '../../constants';
+import { ALL_METRICS, GROUP_ROLES, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
@@ -282,7 +283,7 @@ async function getRecords(
   period: string,
   pagination: Pagination
 ): Promise<Record[]> {
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

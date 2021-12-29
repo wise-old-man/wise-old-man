@@ -26,32 +26,42 @@ function findPeriod(periodName: string): Period | null {
   return null;
 }
 
-function parsePeriodExpression(periodExpression: string): [string, number] | null {
+function isValidPeriod(period: string): boolean {
+  return PERIODS.includes(period as Period);
+}
+
+function parsePeriodExpression(periodExpression: string) {
   const fixed = periodExpression.toLowerCase();
 
-  if (PERIODS.includes(fixed as any)) {
-    return [fixed, PeriodProps[fixed].milliseconds];
+  if (isValidPeriod(fixed)) {
+    return {
+      expression: fixed,
+      durationMs: PeriodProps[fixed as Period].milliseconds
+    };
   }
 
   const result = fixed.match(CUSTOM_PERIOD_REGEX);
 
   if (!result || result.length === 0 || result[0] !== fixed) return null;
 
-  const years = result[1] ? parseInt(result[1].replace(/\D/g, '')) : null;
-  const months = result[2] ? parseInt(result[2].replace(/\D/g, '')) : null;
-  const weeks = result[3] ? parseInt(result[3].replace(/\D/g, '')) : null;
-  const days = result[4] ? parseInt(result[4].replace(/\D/g, '')) : null;
-  const hours = result[5] ? parseInt(result[5].replace(/\D/g, '')) : null;
+  const years = result[1] ? parseInt(result[1].replace(/\D/g, '')) : 0;
+  const months = result[2] ? parseInt(result[2].replace(/\D/g, '')) : 0;
+  const weeks = result[3] ? parseInt(result[3].replace(/\D/g, '')) : 0;
+  const days = result[4] ? parseInt(result[4].replace(/\D/g, '')) : 0;
+  const hours = result[5] ? parseInt(result[5].replace(/\D/g, '')) : 0;
 
-  const yearsMs = years ? years * PeriodProps[Period.YEAR].milliseconds : 0;
-  const monthsMs = months ? months * PeriodProps[Period.MONTH].milliseconds : 0;
-  const weeksMs = weeks ? weeks * PeriodProps[Period.WEEK].milliseconds : 0;
-  const daysMs = days ? days * PeriodProps[Period.DAY].milliseconds : 0;
-  const hoursMs = hours ? hours * (PeriodProps[Period.DAY].milliseconds / 24) : 0;
+  const yearsMs = years * PeriodProps[Period.YEAR].milliseconds;
+  const monthsMs = months * PeriodProps[Period.MONTH].milliseconds;
+  const weeksMs = weeks * PeriodProps[Period.WEEK].milliseconds;
+  const daysMs = days * PeriodProps[Period.DAY].milliseconds;
+  const hoursMs = hours * (PeriodProps[Period.DAY].milliseconds / 24);
 
   const totalMs = yearsMs + monthsMs + weeksMs + daysMs + hoursMs;
 
-  return [result[0], totalMs];
+  return {
+    expression: result[0],
+    durationMs: totalMs
+  };
 }
 
-export { Period, PeriodProps, PERIODS, findPeriod, parsePeriodExpression };
+export { Period, PeriodProps, PERIODS, findPeriod, isValidPeriod, parsePeriodExpression };
