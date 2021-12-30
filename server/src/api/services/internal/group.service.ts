@@ -7,6 +7,7 @@ import {
   getMetricValueKey,
   isSkill,
   isValidPeriod,
+  Period,
   Metric,
   Metrics,
   METRICS
@@ -185,7 +186,12 @@ async function getMonthlyTopPlayer(groupId: number) {
   if (!memberIds.length) return null;
 
   const pagination = { limit: 1, offset: 0 };
-  const leaderboard = await deltaService.getGroupPeriodDeltas('overall', 'month', memberIds, pagination);
+  const leaderboard = await deltaService.getGroupPeriodDeltas(
+    Metrics.OVERALL,
+    Period.MONTH,
+    memberIds,
+    pagination
+  );
 
   const monthlyTopPlayer = leaderboard[0] || null;
 

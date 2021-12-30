@@ -1,4 +1,4 @@
-import { isActivity, isBoss, isSkill } from '@wise-old-man/utils';
+import { isActivity, isBoss, isSkill, Metrics } from '@wise-old-man/utils';
 import { Competition } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
@@ -122,7 +122,7 @@ async function calculateScore(competition: Competition): Promise<number> {
   }
 
   // Discourage "overall" competitions, they are often tests
-  if (competition.metric !== 'overall') {
+  if (competition.metric !== Metrics.OVERALL) {
     score += 30;
   }
 

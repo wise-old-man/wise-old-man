@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, UpdatedAt } from 'sequelize-typescript';
-import { isValidPeriod, PERIODS, METRICS, Metric, Period } from '@wise-old-man/utils';
+import { isValidPeriod, PERIODS, METRICS, Metric, Period, isVirtualMetric } from '@wise-old-man/utils';
 import { Player } from '../../database/models';
 
 // Define other table options
@@ -66,7 +66,7 @@ export default class Record extends Model<Record> {
 function parseValue(this: any) {
   // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
   // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
-  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const isFloat = isVirtualMetric(this.metric);
   const factor = isFloat ? 10000 : 1;
 
   return parseInt(this.getDataValue('value', 10)) / factor;
@@ -75,7 +75,7 @@ function parseValue(this: any) {
 function setValue(value: number) {
   // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
   // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
-  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const isFloat = isVirtualMetric(this.metric);
   const factor = isFloat ? 10000 : 1;
 
   this.setDataValue('value', Math.floor(value * factor));

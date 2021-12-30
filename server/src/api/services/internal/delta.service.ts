@@ -18,7 +18,8 @@ import {
   getMinimumBossKc,
   isSkill,
   isBoss,
-  isVirtualMetric
+  isVirtualMetric,
+  Metrics
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
@@ -272,7 +273,7 @@ async function getGroupTimeRangeDeltas(
 }
 
 function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapshot: Snapshot, metric: Metric) {
-  if (metric === 'ehp') {
+  if (metric === Metrics.EHP) {
     const { type, build } = player;
     const start = startSnapshot ? efficiencyService.calculateEHP(startSnapshot, type, build) : -1;
     const end = endSnapshot ? efficiencyService.calculateEHP(endSnapshot, type, build) : -1;
@@ -280,7 +281,7 @@ function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapsho
     return { start, end, gained: Math.max(0, round(end - start, 5)) };
   }
 
-  if (metric === 'ehb') {
+  if (metric === Metrics.EHB) {
     const { type, build } = player;
     const start = startSnapshot ? efficiencyService.calculateEHB(startSnapshot, type, build) : -1;
     const end = endSnapshot ? efficiencyService.calculateEHB(endSnapshot, type, build) : -1;
@@ -331,7 +332,7 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
     // Some players with low total level (but high exp) can sometimes fall off the hiscores
     // causing their starting exp to be -1, this would then cause the diff to think
     // that their entire ranked exp has just been gained (by jumping from -1 to 40m, for example)
-    if (metric === 'overall' && startValue === -1) gainedValue = 0;
+    if (metric === Metrics.OVERALL && startValue === -1) gainedValue = 0;
 
     // Calculate EHP/EHB diffs
     const startEfficiency = startEfficiencyMap[metric];
@@ -370,20 +371,22 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
     }
   });
 
-  diffObj['ehp'].value = {
+  diffObj[Metrics.EHP].value = {
     start: startEHP,
     end: endEHP,
     gained: round(endEHP - startEHP, 5)
   };
 
-  diffObj['ehb'].value = {
+  diffObj[Metrics.EHB].value = {
     start: startEHB,
     end: endEHB,
     gained: round(endEHB - startEHB, 5)
   };
 
   // Set overall EHP, since the overall EHP is the total EHP
-  diffObj['overall'].ehp = { ...diffObj['ehp'].value };
+  diffObj[Metrics.OVERALL].ehp = {
+    ...diffObj[Metrics.EHP].value
+  };
 
   return diffObj;
 }
@@ -398,9 +401,9 @@ function emptyDiff() {
     };
 
     if (isSkill(metric)) {
-      diffObj[metric]['ehp'] = { start: 0, end: 0, gained: 0 };
+      diffObj[metric][Metrics.EHP] = { start: 0, end: 0, gained: 0 };
     } else if (isBoss(metric)) {
-      diffObj[metric]['ehb'] = { start: 0, end: 0, gained: 0 };
+      diffObj[metric][Metrics.EHB] = { start: 0, end: 0, gained: 0 };
     }
   });
 

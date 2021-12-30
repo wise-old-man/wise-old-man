@@ -313,7 +313,7 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
     const expNum = parseInt(experience);
 
     stats[getMetricRankKey(s)] = parseInt(rank);
-    stats[getMetricValueKey(s)] = s === 'overall' && expNum === 0 ? -1 : expNum;
+    stats[getMetricValueKey(s)] = s === Metrics.OVERALL && expNum === 0 ? -1 : expNum;
   });
 
   // Populate the activities' values with the values from the csv

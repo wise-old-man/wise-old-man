@@ -1,15 +1,16 @@
+import { Metrics } from '@wise-old-man/utils';
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
-  return queryInterface.addColumn('players', 'ehp', {
+function up(queryInterface: QueryInterface, dataTypes: any) {
+  return queryInterface.addColumn('players', Metrics.EHP, {
     type: dataTypes.FLOAT,
     allowNull: false,
     defaultValue: 0
   });
 }
 
-function down(queryInterface: QueryInterface): Promise<void> {
-  return queryInterface.removeColumn('players', 'ehp');
+function down(queryInterface: QueryInterface) {
+  return queryInterface.removeColumn('players', Metrics.EHP);
 }
 
 export { up, down };

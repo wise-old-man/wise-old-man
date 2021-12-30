@@ -6,7 +6,8 @@ import {
   SKILLS,
   BOSSES,
   VIRTUAL_METRICS,
-  getMetricValueKey
+  getMetricValueKey,
+  Metrics
 } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
@@ -39,20 +40,18 @@ interface LeaderboardFilter {
   country?: string;
 }
 
-async function getRates(metric = 'ehp', type = 'main') {
-  const isEHP = metric === 'ehp';
-
+async function getRates(metric = Metrics.EHP, type = 'main') {
   switch (type) {
     case 'main':
-      return isEHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
+      return metric === Metrics.EHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
     case 'ironman':
-      return isEHP ? ironmanAlgorithm.getEHPRates() : ironmanAlgorithm.getEHBRates();
+      return metric === Metrics.EHP ? ironmanAlgorithm.getEHPRates() : ironmanAlgorithm.getEHBRates();
     case 'f2p':
-      return isEHP ? f2pAlgorithm.getEHPRates() : f2pAlgorithm.getEHBRates();
+      return metric === Metrics.EHP ? f2pAlgorithm.getEHPRates() : f2pAlgorithm.getEHBRates();
     case 'lvl3':
-      return isEHP ? lvl3Algorithm.getEHPRates() : lvl3Algorithm.getEHBRates();
+      return metric === Metrics.EHP ? lvl3Algorithm.getEHPRates() : lvl3Algorithm.getEHBRates();
     default:
-      return isEHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
+      return metric === Metrics.EHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
   }
 }
 
@@ -75,7 +74,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     );
   }
 
-  const metric = filter.metric || 'ehp';
+  const metric = filter.metric || Metrics.EHP;
   const playerType = filter.playerType || PlayerType.REGULAR;
 
   const isCombined = metric === 'ehp+ehb';
@@ -95,7 +94,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     offset: pagination.offset
   });
 
-  if (metric === 'ehp' && pagination.offset < 50 && playerType === PlayerType.REGULAR) {
+  if (metric === Metrics.EHP && pagination.offset < 50 && playerType === PlayerType.REGULAR) {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
