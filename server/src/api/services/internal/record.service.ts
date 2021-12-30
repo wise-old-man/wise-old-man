@@ -6,13 +6,13 @@ import {
   PLAYER_BUILDS,
   METRICS,
   isValidPeriod,
-  Metric
+  Metric,
+  findCountry
 } from '@wise-old-man/utils';
 import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
-import * as geoService from '../external/geo.service';
 
 interface PlayerRecordsFilter {
   period?: string;
@@ -100,7 +100,7 @@ async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): 
  */
 async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Pagination): Promise<Record[]> {
   const { metric, period, playerBuild, playerType, country } = filter;
-  const countryCode = country ? geoService.find(country)?.code : null;
+  const countryCode = country ? findCountry(country)?.code : null;
 
   if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);

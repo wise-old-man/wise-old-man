@@ -1,11 +1,10 @@
-import { PlayerBuild, PlayerType } from '@wise-old-man/utils';
+import { findCountry, PlayerBuild, PlayerType } from '@wise-old-man/utils';
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
-import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
 import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
@@ -368,7 +367,7 @@ async function assertName(player: Player): Promise<string> {
 }
 
 async function updateCountry(player: Player, country: string) {
-  const countryObj = country ? geoService.find(country) : null;
+  const countryObj = country ? findCountry(country) : null;
   const countryCode = countryObj?.code;
 
   if (country && !countryCode) {

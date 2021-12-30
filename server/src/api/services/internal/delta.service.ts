@@ -20,13 +20,13 @@ import {
   isBoss,
   isVirtualMetric,
   Metrics,
-  round
+  round,
+  findCountry
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
-import * as geoService from '../external/geo.service';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
@@ -147,7 +147,7 @@ async function getPlayerDeltas(playerId: number) {
  */
 async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination) {
   const { metric, period, playerBuild, playerType, country } = filter;
-  const countryCode = country ? geoService.find(country)?.code : null;
+  const countryCode = country ? findCountry(country)?.code : null;
 
   if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);

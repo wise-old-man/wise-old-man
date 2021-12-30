@@ -8,7 +8,8 @@ import {
   VIRTUAL_METRICS,
   getMetricValueKey,
   Metrics,
-  round
+  round,
+  findCountry
 } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
@@ -18,7 +19,6 @@ import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
 import lvl3Algorithm from '../../modules/efficiency/algorithms/lvl3';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { buildQuery } from '../../util/query';
-import * as geoService from '../external/geo.service';
 
 interface PlayerVirtuals {
   ehpValue: number;
@@ -57,7 +57,7 @@ async function getRates(metric = Metrics.EHP, type = 'main') {
 
 async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
   const { playerBuild, country } = filter;
-  const countryCode = country ? geoService.find(country)?.code : null;
+  const countryCode = country ? findCountry(country)?.code : null;
 
   if (filter.metric && ![...VIRTUAL_METRICS, 'ehp+ehb'].includes(filter.metric)) {
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
