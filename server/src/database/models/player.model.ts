@@ -54,12 +54,12 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.STRING(20) })
   displayName: string;
 
-  @Default(PLAYER_TYPES[0]) // unknown
+  @Default(PlayerType.UNKNOWN)
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
-  type: string;
+  type: PlayerType;
 
-  @Column({ type: DataType.STRING(10), allowNull: false, defaultValue: 'main' })
-  build: string;
+  @Column({ type: DataType.STRING(10), allowNull: false, defaultValue: PlayerBuild.MAIN })
+  build: PlayerBuild;
 
   @Column({ type: DataType.STRING(3) })
   country: string;

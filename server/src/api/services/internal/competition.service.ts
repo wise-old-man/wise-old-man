@@ -1,10 +1,15 @@
 import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
-import { CompetitionType, COMPETITION_TYPES } from '@wise-old-man/utils';
+import {
+  CompetitionType,
+  COMPETITION_TYPES,
+  COMPETITION_STATUSES,
+  CompetitionStatus
+} from '@wise-old-man/utils';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS, COMPETITION_STATUSES } from '../../constants';
+import { ALL_METRICS } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { getValueKey, isVirtual } from '../../util/metrics';
@@ -111,7 +116,7 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
   const { title, status, metric, type } = filter;
 
   // The status is optional, however if present, should be valid
-  if (status && !COMPETITION_STATUSES.includes(status.toLowerCase())) {
+  if (status && !COMPETITION_STATUSES.includes(status.toLowerCase() as CompetitionStatus)) {
     throw new BadRequestError(`Invalid status.`);
   }
 
@@ -135,11 +140,11 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
     const formattedStatus = status.toLowerCase();
     const now = new Date();
 
-    if (formattedStatus === 'finished') {
+    if (formattedStatus === CompetitionStatus.FINISHED) {
       query.endsAt = { [Op.lt]: now };
-    } else if (formattedStatus === 'upcoming') {
+    } else if (formattedStatus === CompetitionStatus.UPCOMING) {
       query.startsAt = { [Op.gt]: now };
-    } else if (formattedStatus === 'ongoing') {
+    } else if (formattedStatus === CompetitionStatus.ONGOING) {
       query.startsAt = { [Op.lt]: now };
       query.endsAt = { [Op.gt]: now };
     }

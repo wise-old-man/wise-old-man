@@ -127,8 +127,8 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
   const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (query.type && query.type === 'ironman') {
-    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  if (query.type && query.type === PlayerType.IRONMAN) {
+    query.type = { [Op.or]: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
   const records = await Record.findAll({

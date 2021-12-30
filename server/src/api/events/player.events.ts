@@ -1,3 +1,4 @@
+import { PlayerType } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
@@ -8,7 +9,7 @@ import * as deltaService from '../services/internal/delta.service';
 import * as playerService from '../services/internal/player.service';
 
 async function onPlayerTypeChanged(player: Player, previousType: string) {
-  if (previousType === 'hardcore' && player.type === 'ironman') {
+  if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
     await metrics.measureReaction('DiscordHardcoreDied', () =>
       discordService.dispatchHardcoreDied(player)

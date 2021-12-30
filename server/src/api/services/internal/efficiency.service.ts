@@ -1,5 +1,5 @@
 import { Op, Sequelize } from 'sequelize';
-import { PlayerBuild, PLAYER_BUILDS } from '@wise-old-man/utils';
+import { PlayerBuild, PlayerType, PLAYER_BUILDS } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
 import { BOSSES, SKILLS, VIRTUAL } from '../../constants';
@@ -70,15 +70,15 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
   }
 
   const metric = filter.metric || 'ehp';
-  const playerType = filter.playerType || 'regular';
+  const playerType = filter.playerType || PlayerType.REGULAR;
 
   const isCombined = metric === 'ehp+ehb';
 
   const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (query.type && query.type === 'ironman') {
-    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  if (query.type && query.type === PlayerType.IRONMAN) {
+    query.type = { [Op.or]: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
   const results = await Player.findAll({
@@ -89,7 +89,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     offset: pagination.offset
   });
 
-  if (metric === 'ehp' && pagination.offset < 50 && playerType === 'regular') {
+  if (metric === 'ehp' && pagination.offset < 50 && playerType === PlayerType.REGULAR) {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
@@ -135,28 +135,28 @@ function calcSnapshotVirtuals(player: Player, snapshot: Snapshot): SnapshotVirtu
   return obj;
 }
 
-function calculateTTM(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+function calculateTTM(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTTM(exp), 5));
 }
 
-function calculateTT200m(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+function calculateTT200m(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTT200m(exp), 5));
 }
 
-function calculateEHP(snapshot: Snapshot, type = 'regular', build = 'main'): number {
+function calculateEHP(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
   const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
 
   return round(algorithm.calculateEHP(exp), 5);
 }
 
-function calculateEHB(snapshot: Snapshot, type = 'regular', build = 'main') {
+function calculateEHB(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN) {
   const algorithm = getAlgorithm(type, build);
   const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
 
@@ -172,7 +172,7 @@ function calculateEHBDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): nu
 }
 
 function getAlgorithm(type: string, build: string): VirtualAlgorithm {
-  if (type === 'ironman' || type === 'hardcore' || type === 'ultimate') {
+  if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE || type === PlayerType.ULTIMATE) {
     return ironmanAlgorithm;
   }
 

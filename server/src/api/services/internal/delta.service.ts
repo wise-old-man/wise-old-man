@@ -187,8 +187,8 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   const startingDate = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (query.type && query.type === 'ironman') {
-    query.type = { [Op.or]: ['ironman', 'hardcore', 'ultimate'] };
+  if (query.type && query.type === PlayerType.IRONMAN) {
+    query.type = { [Op.or]: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
   const deltas = await Delta.findAll({
