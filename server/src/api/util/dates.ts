@@ -69,23 +69,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-function getMilliseconds(period: string) {
-  switch (period) {
-    case '5min':
-      return 300 * 1000;
-    case 'hour':
-      return 3600 * 1000;
-    case 'day':
-      return 3600 * 24 * 1000;
-    case 'week':
-      return 3600 * 24 * 7 * 1000;
-    case 'month':
-      return 3600 * 24 * 31 * 1000;
-    case 'year':
-      return 31556926 * 1000;
-    default:
-      return -1;
-  }
-}
-
-export { formatDate, isValidDate, isPast, durationBetween, getMilliseconds };
+export { formatDate, isValidDate, isPast, durationBetween };

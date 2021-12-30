@@ -8,13 +8,13 @@ import {
   isValidPeriod,
   parsePeriodExpression,
   PlayerType,
-  PlayerBuild
+  PlayerBuild,
+  PeriodProps
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { ALL_METRICS } from '../../constants';
 import { BadRequestError } from '../../errors';
-import { getMilliseconds } from '../../util/dates';
 import {
   getMeasure,
   getMinimumBossKc,
@@ -52,7 +52,7 @@ function parseNum(metric: string, val: string) {
 async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
   await Promise.all(
     PERIODS.map(async period => {
-      const startingDate = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
+      const startingDate = moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate();
       const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
 
       const currentDelta = await Delta.findOne({
@@ -115,12 +115,7 @@ async function getPlayerTimeRangeDeltas(
 /**
  * Get all the player deltas (gains) for a specific time period.
  */
-async function getPlayerPeriodDeltas(
-  playerId: number,
-  period: string,
-  latest?: Snapshot,
-  player?: Player
-) {
+async function getPlayerPeriodDeltas(playerId: number, period: string, latest?: Snapshot, player?: Player) {
   const parsedPeriod = parsePeriodExpression(period);
 
   if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
@@ -184,7 +179,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   }
 
   const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
-  const startingDate = moment().subtract(getMilliseconds(period), 'milliseconds').toDate();
+  const startingDate = moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === PlayerType.IRONMAN) {
@@ -283,12 +278,7 @@ async function getGroupTimeRangeDeltas(
   return results;
 }
 
-function calculateMetricDiff(
-  player: Player,
-  startSnapshot: Snapshot,
-  endSnapshot: Snapshot,
-  metric: string
-) {
+function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapshot: Snapshot, metric: string) {
   if (metric === 'ehp') {
     const { type, build } = player;
     const start = startSnapshot ? efficiencyService.calculateEHP(startSnapshot, type, build) : -1;
