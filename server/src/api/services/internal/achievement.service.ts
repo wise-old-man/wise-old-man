@@ -1,12 +1,12 @@
 import {
-  isSkill,
-  isActivity,
-  isBoss,
-  isVirtualMetric,
   getMetricValueKey,
   Metric,
   getLevel,
-  round
+  round,
+  Metrics,
+  MetricMeasure,
+  getMetricMeasure,
+  METRICS
 } from '@wise-old-man/utils';
 import { Pagination } from '../../../types';
 import { sequelize } from '../../../database';
@@ -249,19 +249,16 @@ function getAchievemenName(name: string, threshold: number): string {
 }
 
 function getAchievementMeasure(metric: string, threshold: number): string {
-  if (metric === 'overall' && threshold <= 13_034_431) return 'levels';
-  if (isBoss(metric as Metric)) return 'kills';
-  if (isSkill(metric as Metric)) return 'experience';
-  if (isActivity(metric as Metric)) return 'score';
-  if (isVirtualMetric(metric as Metric)) return 'value';
+  if (metric === Metrics.OVERALL && threshold <= 13_034_431) return 'levels';
+  if (METRICS.includes(metric as Metric)) return getMetricMeasure(metric as Metric);
   return 'levels';
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
   if (definition.metric === 'combat') return 3;
-  if (definition.metric === 'hitpoints') return 1154;
-  if (definition.metric === 'last_man_standing') return 500;
-  if (definition.metric === 'overall' && definition.measure === 'experience') return 1154;
+  if (definition.metric === Metrics.HITPOINTS) return 1154;
+  if (definition.metric === Metrics.LAST_MAN_STANDING) return 500;
+  if (definition.metric === Metrics.OVERALL && definition.measure === MetricMeasure.EXPERIENCE) return 1154;
   return 0;
 }
 

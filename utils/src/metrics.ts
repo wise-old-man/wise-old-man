@@ -257,19 +257,19 @@ function findMetric(metricName: string): Metric | null {
 }
 
 function isSkill(metric: Metric) {
-  return metric in Skill;
+  return metric in SkillProps;
 }
 
 function isBoss(metric: Metric) {
-  return metric in Boss;
+  return metric in BossProps;
 }
 
 function isActivity(metric: Metric) {
-  return metric in Activity;
+  return metric in ActivityProps;
 }
 
 function isVirtualMetric(metric: Metric) {
-  return metric in VirtualMetric;
+  return metric in VirtualMetricProps;
 }
 
 function getMetricRankKey(metric: Metric) {

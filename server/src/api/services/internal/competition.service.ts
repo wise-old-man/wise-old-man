@@ -305,7 +305,7 @@ function getParticipantsCSV(details: CompetitionDetails): string {
     { header: 'Last Updated', value: row => formatDate(row.updatedAt) }
   ];
 
-  if (details.type === 'team') {
+  if (details.type === CompetitionType.TEAM) {
     columns.splice(2, 0, { header: 'Team', value: row => row.teamName });
   }
 
@@ -410,13 +410,11 @@ function validateTeamsList(teams: Team[]) {
 
   // Find duplicate team names
   const teamNames = teams.map(t => t.name.toLowerCase());
-  const invalidLengthTeams = teamNames.filter(t => t.length > 30);
+  const invalidTeams = teamNames.filter(t => t.length > 30);
 
-  if (invalidLengthTeams.length > 0) {
+  if (invalidTeams.length > 0) {
     throw new BadRequestError(
-      `Team names can only be 30 characters max. The following are invalid: [${invalidLengthTeams.join(
-        ', '
-      )}]`
+      `Team names can only be 30 characters max. The following are invalid: [${invalidTeams.join(', ')}]`
     );
   }
 

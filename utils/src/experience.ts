@@ -11,7 +11,7 @@ const MAX_SKILL_EXP = 200_000_000;
 const SKILL_EXP_AT_99 = 13034431;
 
 // The maximum skill at exactly 99 on all skills
-export const CAPPED_MAX_TOTAL_XP = 23 * SKILL_EXP_AT_99;
+const CAPPED_MAX_TOTAL_XP = 23 * SKILL_EXP_AT_99;
 
 // Builds a lookup table for each level's required experience
 // exp = XP_FOR_LEVEL[level - 1] || 13m = XP_FOR_LEVEL[98]
@@ -74,4 +74,12 @@ function getCombatLevel(
   return Math.floor(baseCombat + Math.max(meleeCombat, rangeCombat, mageCombat));
 }
 
-export { MAX_LEVEL, MAX_VIRTUAL_LEVEL, MAX_SKILL_EXP, getExpForLevel, getLevel, getCombatLevel };
+export {
+  MAX_LEVEL,
+  MAX_VIRTUAL_LEVEL,
+  MAX_SKILL_EXP,
+  CAPPED_MAX_TOTAL_XP,
+  getExpForLevel,
+  getLevel,
+  getCombatLevel
+};
