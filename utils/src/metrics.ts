@@ -1,4 +1,5 @@
 import { mapValues } from 'lodash';
+import { capitalize } from './strings';
 
 enum Skill {
   OVERALL = 'overall',
@@ -241,12 +242,358 @@ const BOSSES = Object.values(Boss);
 const ACTIVITIES = Object.values(Activity);
 const VIRTUAL_METRICS = Object.values(VirtualMetric);
 
+const METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES, ...VIRTUAL_METRICS];
+
+const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
+const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
+const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
+
 function findMetric(metricName: string): Metric | null {
   for (var [key, value] of Object.entries(MetricProps)) {
     if (value.name === metricName) return key as Metric;
   }
 
   return null;
+}
+
+function isSkill(metric: Metric) {
+  return metric in Skill;
+}
+
+function isBoss(metric: Metric) {
+  return metric in Boss;
+}
+
+function isActivity(metric: Metric) {
+  return metric in Activity;
+}
+
+function isVirtualMetric(metric: Metric) {
+  return metric in VirtualMetric;
+}
+
+function getMetricRankKey(metric: Metric) {
+  return `${metric}Rank`;
+}
+
+function getMetricValueKey(metric: Metric) {
+  return `${metric}${capitalize(MetricProps[metric].measure)}`;
+}
+
+function getMetricMeasure(metric: Metric) {
+  return MetricProps[metric].measure;
+}
+
+function getMetricName(metric: Metric) {
+  return MetricProps[metric].name;
+}
+
+function getMinimumBossKc(metric: Metric) {
+  return isBoss(metric) ? MetricProps[metric as Boss].minimumKc : 0;
+}
+
+function getParentVirtualMetric(metric: Metric) {
+  if (isBoss(metric)) return Metrics.EHB;
+  if (isSkill(metric)) return Metrics.EHP;
+  return null;
+}
+
+function parseMetricAbbreviation(abbreviation: string): string | null {
+  if (!abbreviation || abbreviation.length === 0) {
+    return null;
+  }
+
+  switch (abbreviation) {
+    // Bosses
+    case 'sire':
+      return Metrics.ABYSSAL_SIRE;
+
+    case 'hydra':
+      return Metrics.ALCHEMICAL_HYDRA;
+
+    case 'barrows':
+      return Metrics.BARROWS_CHESTS;
+
+    case 'bryo':
+      return Metrics.BRYOPHYTA;
+
+    case 'cerb':
+      return Metrics.CERBERUS;
+
+    case 'cox':
+    case 'xeric':
+    case 'chambers':
+    case 'olm':
+    case 'raids':
+      return Metrics.CHAMBERS_OF_XERIC;
+
+    case 'cox-cm':
+    case 'xeric-cm':
+    case 'chambers-cm':
+    case 'olm-cm':
+    case 'raids-cm':
+      return Metrics.CHAMBERS_OF_XERIC_CM;
+
+    case 'chaos-ele':
+      return Metrics.CHAOS_ELEMENTAL;
+
+    case 'fanatic':
+      return Metrics.CHAOS_FANATIC;
+
+    case 'sara':
+    case 'saradomin':
+    case 'zilyana':
+    case 'zily':
+      return Metrics.COMMANDER_ZILYANA;
+
+    case 'corp':
+      return Metrics.CORPOREAL_BEAST;
+
+    case 'crazy-arch':
+      return Metrics.CRAZY_ARCHAEOLOGIST;
+
+    case 'prime':
+      return Metrics.DAGANNOTH_PRIME;
+    case 'rex':
+      return Metrics.DAGANNOTH_REX;
+    case 'supreme':
+      return Metrics.DAGANNOTH_SUPREME;
+
+    case 'deranged-arch':
+      return Metrics.DERANGED_ARCHAEOLOGIST;
+
+    case 'bandos':
+    case 'graardor':
+      return Metrics.GENERAL_GRAARDOR;
+
+    case 'mole':
+      return Metrics.GIANT_MOLE;
+
+    case 'dusk':
+    case 'dawn':
+    case 'gargs':
+    case 'guardians':
+    case 'ggs':
+      return Metrics.GROTESQUE_GUARDIANS;
+
+    case 'kq':
+      return Metrics.KALPHITE_QUEEN;
+
+    case 'kbd':
+      return Metrics.KING_BLACK_DRAGON;
+
+    case 'kree':
+    case 'kreearra':
+    case 'armadyl':
+    case 'arma':
+      return Metrics.KREEARRA;
+
+    case 'zammy':
+    case 'zamorak':
+    case 'kril':
+    case 'kril-tsutsaroth':
+      return Metrics.KRIL_TSUTSAROTH;
+
+    case 'gaunt':
+    case 'gauntlet':
+    case 'the-gauntlet':
+      return Metrics.THE_GAUNTLET;
+
+    case 'cgaunt':
+    case 'cgauntlet':
+    case 'corrupted':
+    case 'corrupted-gauntlet':
+    case 'the-corrupted-gauntlet':
+      return Metrics.THE_CORRUPTED_GAUNTLET;
+
+    case 'tob':
+    case 'theatre':
+    case 'verzik':
+    case 'tob-normal':
+      return Metrics.THEATRE_OF_BLOOD;
+
+    case 'tob-hm':
+    case 'tob-cm':
+    case 'tob-hard-mode':
+    case 'tob-hard':
+      return Metrics.THEATRE_OF_BLOOD_HARD_MODE;
+
+    case 'nm':
+    case 'tnm':
+    case 'nmare':
+    case 'the-nightmare':
+      return Metrics.NIGHTMARE;
+
+    case 'pnm':
+    case 'phosani':
+    case 'phosanis':
+    case 'phosani-nm':
+    case 'phosani-nightmare':
+    case 'phosanis nightmare':
+      return Metrics.PHOSANIS_NIGHTMARE;
+
+    case 'thermy':
+    case 'smoke-devil':
+      return Metrics.THERMONUCLEAR_SMOKE_DEVIL;
+
+    case 'zuk':
+    case 'inferno':
+      return Metrics.TZKAL_ZUK;
+
+    case 'jad':
+    case 'fight-caves':
+    case 'fc':
+      return Metrics.TZTOK_JAD;
+
+    case 'vork':
+    case 'vorky':
+      return Metrics.VORKATH;
+
+    case 'wt':
+      return Metrics.WINTERTODT;
+
+    case 'snek':
+    case 'zul':
+      return Metrics.ZULRAH;
+
+    // Minigames and others
+
+    case 'all-clues':
+    case 'clues':
+      return Metrics.CLUE_SCROLLS_ALL;
+
+    case 'beginner':
+    case 'beginner-clues':
+    case 'beg-clues':
+    case 'beginners':
+      return Metrics.CLUE_SCROLLS_BEGINNER;
+
+    case 'easy':
+    case 'easy-clues':
+    case 'easies':
+      return Metrics.CLUE_SCROLLS_EASY;
+
+    case 'medium':
+    case 'med':
+    case 'meds':
+    case 'medium-clues':
+    case 'med-clues':
+    case 'mediums':
+      return Metrics.CLUE_SCROLLS_MEDIUM;
+
+    case 'hard':
+    case 'hard-clues':
+    case 'hards':
+      return Metrics.CLUE_SCROLLS_HARD;
+
+    case 'elite':
+    case 'elite-clues':
+    case 'elites':
+      return Metrics.CLUE_SCROLLS_ELITE;
+
+    case 'master':
+    case 'master-clues':
+    case 'masters':
+      return Metrics.CLUE_SCROLLS_MASTER;
+
+    case 'lms':
+      return Metrics.LAST_MAN_STANDING;
+
+    case 'league':
+    case 'lp':
+    case 'lps':
+      return Metrics.LEAGUE_POINTS;
+
+    case 'sw':
+    case 'zeal':
+    case 'soul-wars':
+      return Metrics.SOUL_WARS_ZEAL;
+
+    // Skills
+
+    case 'runecraft':
+    case 'rc':
+      return Metrics.RUNECRAFTING;
+
+    case 'att':
+    case 'atk':
+    case 'attk':
+      return Metrics.ATTACK;
+
+    case 'def':
+    case 'defense':
+      return Metrics.DEFENCE;
+
+    case 'str':
+      return Metrics.STRENGTH;
+
+    case 'hp':
+      return Metrics.HITPOINTS;
+
+    case 'range':
+      return Metrics.RANGED;
+
+    case 'pray':
+      return Metrics.PRAYER;
+
+    case 'mage':
+      return Metrics.MAGIC;
+
+    case 'cook':
+      return Metrics.COOKING;
+
+    case 'wc':
+      return Metrics.WOODCUTTING;
+
+    case 'fletch':
+      return Metrics.FLETCHING;
+
+    case 'fish':
+      return Metrics.FISHING;
+
+    case 'fm':
+    case 'burning':
+      return Metrics.FIREMAKING;
+
+    case 'craft':
+      return Metrics.CRAFTING;
+
+    case 'sm':
+    case 'smith':
+      return Metrics.SMITHING;
+
+    case 'mine':
+    case 'smash':
+      return Metrics.MINING;
+
+    case 'herb':
+      return Metrics.HERBLORE;
+
+    case 'agi':
+    case 'agil':
+      return Metrics.AGILITY;
+
+    case 'thief':
+      return Metrics.THIEVING;
+
+    case 'slay':
+      return Metrics.SLAYER;
+
+    case 'farm':
+      return Metrics.FARMING;
+
+    case 'hunt':
+    case 'hunting':
+      return Metrics.HUNTER;
+
+    case 'con':
+    case 'cons':
+    case 'const':
+      return Metrics.CONSTRUCTION;
+
+    default:
+      return abbreviation;
+  }
 }
 
 export {
@@ -262,6 +609,21 @@ export {
   BOSSES,
   ACTIVITIES,
   VIRTUAL_METRICS,
+  METRICS,
+  F2P_BOSSES,
+  MEMBER_SKILLS,
+  COMBAT_SKILLS,
   // Functions
-  findMetric
+  findMetric,
+  parseMetricAbbreviation,
+  getMetricRankKey,
+  getMetricValueKey,
+  getMetricMeasure,
+  getMetricName,
+  getMinimumBossKc,
+  getParentVirtualMetric,
+  isSkill,
+  isBoss,
+  isActivity,
+  isVirtualMetric
 };

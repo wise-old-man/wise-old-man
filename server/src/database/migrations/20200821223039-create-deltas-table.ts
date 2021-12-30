@@ -98,7 +98,7 @@ function buildDynamicSchema(dataTypes: any) {
   return obj;
 }
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('deltas', {
     id: {
       type: dataTypes.INTEGER,

@@ -1,13 +1,23 @@
 import csv from 'csvtojson';
 import { Op, QueryTypes } from 'sequelize';
-import { parsePeriodExpression } from '@wise-old-man/utils';
+import {
+  parsePeriodExpression,
+  ACTIVITIES,
+  BOSSES,
+  SKILLS,
+  METRICS,
+  isSkill,
+  isBoss,
+  getMetricRankKey,
+  getMetricValueKey,
+  getMetricMeasure,
+  Metrics
+} from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
 import { Snapshot } from '../../../database/models';
 import queries from '../../../database/queries';
-import { ACTIVITIES, ALL_METRICS, BOSSES, SKILLS } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import { formatDate } from '../../util/dates';
-import { getMeasure, getRankKey, getValueKey, isBoss, isSkill } from '../../util/metrics';
 import * as efficiencyService from './efficiency.service';
 
 /**
@@ -21,13 +31,13 @@ function format(snapshot: Snapshot, efficiency?: any) {
     importedAt: snapshot.importedAt
   };
 
-  ALL_METRICS.forEach(m => {
+  METRICS.forEach(m => {
     obj[m] = {
-      rank: snapshot[getRankKey(m)],
-      [getMeasure(m)]: snapshot[getValueKey(m)]
+      rank: snapshot[getMetricRankKey(m)],
+      [getMetricMeasure(m)]: snapshot[getMetricValueKey(m)]
     };
 
-    if (m === 'overall') {
+    if (m === Metrics.OVERALL) {
       obj[m].ehp = Math.max(0, snapshot.ehpValue);
     } else if (efficiency) {
       // Add individual ehp/ehb values
@@ -88,7 +98,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
   const keysToIgnore = ['ehpValue', 'ehbValue'];
 
   const isValidKey = key => !keysToIgnore.includes(key);
-  const keys = ALL_METRICS.map(m => getValueKey(m));
+  const keys = METRICS.map(m => getMetricValueKey(m));
 
   return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
 }
@@ -101,7 +111,7 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
   const keysToIgnore = ['last_man_standingScore', 'ehpValue', 'ehbValue'];
 
   const isValidKey = key => !keysToIgnore.includes(key);
-  const keys = ALL_METRICS.map(m => getValueKey(m));
+  const keys = METRICS.map(m => getMetricValueKey(m));
 
   return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
 }
@@ -197,9 +207,9 @@ function average(snapshots: Snapshot[]): Snapshot {
     importedAt: null
   });
 
-  ALL_METRICS.forEach(metric => {
-    const valueKey = getValueKey(metric);
-    const rankKey = getRankKey(metric);
+  METRICS.forEach(metric => {
+    const valueKey = getMetricValueKey(metric);
+    const rankKey = getMetricRankKey(metric);
 
     const valueSum = snapshots
       .map((s: Snapshot) => s[valueKey])
@@ -274,8 +284,8 @@ async function fromCML(playerId: number, historyRow: string) {
 
   // Populate the skills' values with experience and rank data
   SKILLS.forEach((s, i) => {
-    stats[getRankKey(s)] = parseInt(ranks[i]);
-    stats[getValueKey(s)] = parseInt(exps[i]);
+    stats[getMetricRankKey(s)] = parseInt(ranks[i]);
+    stats[getMetricValueKey(s)] = parseInt(exps[i]);
   });
 
   return { playerId, createdAt, importedAt, ...stats };
@@ -302,22 +312,22 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
     const [rank, , experience] = rows[i];
     const expNum = parseInt(experience);
 
-    stats[getRankKey(s)] = parseInt(rank);
-    stats[getValueKey(s)] = s === 'overall' && expNum === 0 ? -1 : expNum;
+    stats[getMetricRankKey(s)] = parseInt(rank);
+    stats[getMetricValueKey(s)] = s === 'overall' && expNum === 0 ? -1 : expNum;
   });
 
   // Populate the activities' values with the values from the csv
   ACTIVITIES.forEach((s, i) => {
     const [rank, score] = rows[SKILLS.length + i];
-    stats[getRankKey(s)] = parseInt(rank);
-    stats[getValueKey(s)] = parseInt(score);
+    stats[getMetricRankKey(s)] = parseInt(rank);
+    stats[getMetricValueKey(s)] = parseInt(score);
   });
 
   // Populate the bosses' values with the values from the csv
   BOSSES.forEach((s, i) => {
     const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
-    stats[getRankKey(s)] = parseInt(rank);
-    stats[getValueKey(s)] = parseInt(kills);
+    stats[getMetricRankKey(s)] = parseInt(rank);
+    stats[getMetricValueKey(s)] = parseInt(kills);
   });
 
   return Snapshot.build({ playerId, ...stats });

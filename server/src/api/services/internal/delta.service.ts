@@ -2,6 +2,7 @@ import { keyBy, mapValues } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
 import {
+  METRICS,
   PERIODS,
   PLAYER_TYPES,
   PLAYER_BUILDS,
@@ -9,21 +10,19 @@ import {
   parsePeriodExpression,
   PlayerType,
   PlayerBuild,
-  PeriodProps
+  PeriodProps,
+  Metric,
+  getMetricValueKey,
+  getMetricRankKey,
+  getMetricMeasure,
+  getMinimumBossKc,
+  isSkill,
+  isBoss,
+  isVirtualMetric
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS } from '../../constants';
 import { BadRequestError } from '../../errors';
-import {
-  getMeasure,
-  getMinimumBossKc,
-  getRankKey,
-  getValueKey,
-  isBoss,
-  isSkill,
-  isVirtual
-} from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -39,14 +38,8 @@ interface GlobalDeltasFilter {
   country?: string;
 }
 
-interface GroupDeltasFilter {
-  playerIds: number[];
-  period?: string;
-  metric?: string;
-}
-
 function parseNum(metric: string, val: string) {
-  return isVirtual(metric) ? parseFloat(val) : parseInt(val);
+  return isVirtualMetric(metric as Metric) ? parseFloat(val) : parseInt(val);
 }
 
 async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
@@ -68,8 +61,8 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
 
       const periodDiffs = calculateDiff(startSnapshot, latestSnapshot, player);
 
-      ALL_METRICS.forEach(metric => {
-        newDelta[metric] = periodDiffs[metric][getMeasure(metric)].gained;
+      METRICS.forEach(metric => {
+        newDelta[metric] = periodDiffs[metric][getMetricMeasure(metric)].gained;
 
         if (currentDelta && newDelta[metric] > currentDelta[metric]) {
           // if any metric has improved since the last delta sync, we should
@@ -159,7 +152,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -217,7 +210,7 @@ async function getGroupPeriodDeltas(
   if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
 
   const deltas = await getGroupTimeRangeDeltas(
-    metric,
+    metric as Metric,
     new Date(Date.now() - parsedPeriod.durationMs),
     new Date(),
     playerIds,
@@ -228,14 +221,14 @@ async function getGroupPeriodDeltas(
 }
 
 async function getGroupTimeRangeDeltas(
-  metric: string,
+  metric: Metric,
   startDate: Date,
   endDate: Date,
   playerIds: number[],
   pagination: Pagination
 ) {
   // Calculated metrics (virtuals) require all columns to be fetched from the db
-  const attributes = isVirtual(metric) ? '*' : `"${getValueKey(metric)}"`;
+  const attributes = isVirtualMetric(metric) ? '*' : `"${getMetricValueKey(metric)}"`;
 
   const [players, lastSnapshots, firstSnapshots] = await Promise.all([
     playerService.findAllByIds(playerIds),
@@ -278,7 +271,7 @@ async function getGroupTimeRangeDeltas(
   return results;
 }
 
-function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapshot: Snapshot, metric: string) {
+function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapshot: Snapshot, metric: Metric) {
   if (metric === 'ehp') {
     const { type, build } = player;
     const start = startSnapshot ? efficiencyService.calculateEHP(startSnapshot, type, build) : -1;
@@ -296,7 +289,7 @@ function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapsho
   }
 
   const minimumValue = getMinimumBossKc(metric);
-  const metricKey = getValueKey(metric);
+  const metricKey = getMetricValueKey(metric);
   const start = startSnapshot ? parseNum(metric, startSnapshot[metricKey]) : -1;
   const end = endSnapshot ? parseNum(metric, endSnapshot[metricKey]) : -1;
 
@@ -319,9 +312,9 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
   const endEHP = efficiencyService.calculateEHP(endSnapshot, player.type, player.build);
   const endEHB = efficiencyService.calculateEHB(endSnapshot, player.type, player.build);
 
-  ALL_METRICS.forEach(metric => {
-    const rankKey = getRankKey(metric);
-    const valueKey = getValueKey(metric);
+  METRICS.forEach(metric => {
+    const rankKey = getMetricRankKey(metric);
+    const valueKey = getMetricValueKey(metric);
     const minimumValue = getMinimumBossKc(metric);
 
     const startRank = startSnapshot[rankKey] || -1;
@@ -351,7 +344,7 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
         end: endRank,
         gained: gainedRank
       },
-      [getMeasure(metric)]: {
+      [getMetricMeasure(metric)]: {
         start: startValue,
         end: endValue,
         gained: gainedValue
@@ -398,10 +391,10 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
 function emptyDiff() {
   const diffObj = {};
 
-  ALL_METRICS.forEach(metric => {
+  METRICS.forEach(metric => {
     diffObj[metric] = {
       rank: { start: 0, end: 0, gained: 0 },
-      [getMeasure(metric)]: { start: 0, end: 0, gained: 0 }
+      [getMetricMeasure(metric)]: { start: 0, end: 0, gained: 0 }
     };
 
     if (isSkill(metric)) {

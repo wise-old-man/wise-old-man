@@ -1,14 +1,20 @@
 import { Op, Sequelize } from 'sequelize';
-import { PlayerBuild, PlayerType, PLAYER_BUILDS } from '@wise-old-man/utils';
+import {
+  PlayerBuild,
+  PlayerType,
+  PLAYER_BUILDS,
+  SKILLS,
+  BOSSES,
+  VIRTUAL_METRICS,
+  getMetricValueKey
+} from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
-import { BOSSES, SKILLS, VIRTUAL } from '../../constants';
 import { BadRequestError } from '../../errors';
 import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
 import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
 import lvl3Algorithm from '../../modules/efficiency/algorithms/lvl3';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
-import { getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -54,7 +60,7 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
   const { playerBuild, country } = filter;
   const countryCode = country ? geoService.find(country)?.code : null;
 
-  if (filter.metric && ![...VIRTUAL, 'ehp+ehb'].includes(filter.metric)) {
+  if (filter.metric && ![...VIRTUAL_METRICS, 'ehp+ehb'].includes(filter.metric)) {
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
   }
 
@@ -126,8 +132,8 @@ function calcSnapshotVirtuals(player: Player, snapshot: Snapshot): SnapshotVirtu
   const obj = {};
   const algorithm = getAlgorithm(player.type, player.build);
 
-  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
-  const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
+  const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
 
   SKILLS.forEach(s => (obj[s] = round(algorithm.calculateSkillEHP(s, exp), 5)));
   BOSSES.forEach(b => (obj[b] = round(algorithm.calculateBossEHB(b, kcs), 5)));
@@ -137,28 +143,28 @@ function calcSnapshotVirtuals(player: Player, snapshot: Snapshot): SnapshotVirtu
 
 function calculateTTM(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
-  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTTM(exp), 5));
 }
 
 function calculateTT200m(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
-  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
 
   return Math.max(0, round(algorithm.calculateTT200m(exp), 5));
 }
 
 function calculateEHP(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN): number {
   const algorithm = getAlgorithm(type, build);
-  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getValueKey(s)]]));
+  const exp = Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
 
   return round(algorithm.calculateEHP(exp), 5);
 }
 
 function calculateEHB(snapshot: Snapshot, type = PlayerType.REGULAR, build = PlayerBuild.MAIN) {
   const algorithm = getAlgorithm(type, build);
-  const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getValueKey(b)]]));
+  const kcs = Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
 
   return round(algorithm.calculateEHB(kcs), 5);
 }

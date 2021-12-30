@@ -1,7 +1,16 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { isValidPeriod } from '@wise-old-man/utils';
+import {
+  getMetricMeasure,
+  getMetricRankKey,
+  getMetricValueKey,
+  isSkill,
+  isValidPeriod,
+  Metric,
+  Metrics,
+  METRICS
+} from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from 'src/types';
 import { sequelize } from '../../../database';
 import {
@@ -13,11 +22,10 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import { ALL_METRICS, GROUP_ROLES, PRIVELEGED_GROUP_ROLES } from '../../constants';
+import { GROUP_ROLES, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
-import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
@@ -195,7 +203,7 @@ async function getGainedInTimeRange(
   metric: string,
   pagination: Pagination
 ) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -214,7 +222,7 @@ async function getGainedInTimeRange(
   }
 
   const leaderboard = await deltaService.getGroupTimeRangeDeltas(
-    metric,
+    metric as Metric,
     startDate,
     endDate,
     memberIds,
@@ -228,13 +236,8 @@ async function getGainedInTimeRange(
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getGainedInPeriod(
-  groupId: number,
-  period: string,
-  metric: string,
-  pagination: Pagination
-) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+async function getGainedInPeriod(groupId: number, period: string, metric: string, pagination: Pagination) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -287,7 +290,7 @@ async function getRecords(
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -323,9 +326,7 @@ async function getMembersList(group: Group): Promise<Member[]> {
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role, createdAt }) => ({ ...(player.toJSON() as any), role, joinedAt: createdAt }))
-    .sort(
-      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
-    );
+    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
 }
 
 /**
@@ -333,7 +334,7 @@ async function getMembersList(group: Group): Promise<Member[]> {
  * All members which HAVE SNAPSHOTS will included and sorted by rank.
  */
 async function getHiscores(groupId: number, metric: string, pagination: Pagination) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -348,9 +349,9 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
     return [];
   }
 
-  const valueKey = getValueKey(metric);
-  const rankKey = getRankKey(metric);
-  const measure = getMeasure(metric);
+  const valueKey = getMetricValueKey(metric as Metric);
+  const rankKey = getMetricRankKey(metric as Metric);
+  const measure = getMetricMeasure(metric as Metric);
   const memberIds = memberships.map(m => m.player.id);
 
   const query = `
@@ -381,8 +382,8 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
       [measure]: parseInt(d[valueKey], 10)
     };
 
-    if (isSkill(metric)) {
-      data.level = metric === 'overall' ? getTotalLevel(d) : getLevel(data.experience);
+    if (isSkill(metric as Metric)) {
+      data.level = metric === Metrics.OVERALL ? getTotalLevel(d) : getLevel(data.experience);
     }
 
     return data;
@@ -666,9 +667,7 @@ async function setMembers(group: Group, members: MemberFragment[]): Promise<Memb
   );
 
   // Find all memberships that should be stay members (opposite of removeMemberships)
-  const keptMemberships = previousMemberships.filter(pm =>
-    memberships.find(m => m.playerId === pm.playerId)
-  );
+  const keptMemberships = previousMemberships.filter(pm => memberships.find(m => m.playerId === pm.playerId));
 
   // Find all new memberships (were not previously members, but should be added)
   const newMemberships = memberships.filter(

@@ -1,7 +1,14 @@
 import { pick, transform } from 'lodash';
+import {
+  BOSSES,
+  Metrics,
+  SKILLS,
+  getMetricValueKey,
+  COMBAT_SKILLS,
+  MEMBER_SKILLS,
+  F2P_BOSSES
+} from '@wise-old-man/utils';
 import { Snapshot } from 'src/database/models';
-import { BOSSES, COMBAT_SKILLS, F2P_BOSSES, MEMBER_SKILLS, REAL_SKILLS } from '../constants';
-import { getValueKey } from './metrics';
 
 // Maximum effective skill level at 13,034,431 experience.
 export const MAX_LEVEL = 99;
@@ -56,16 +63,19 @@ export function getLevel(exp: number, virtual = false): number {
 }
 
 export function getMinimumExp(snapshot: Snapshot) {
-  return REAL_SKILLS.map(s => Math.max(0, snapshot[getValueKey(s)])).sort((a, b) => a - b)[0];
+  return SKILLS.filter(s => s !== Metrics.OVERALL)
+    .map(s => Math.max(0, snapshot[getMetricValueKey(s)]))
+    .sort((a, b) => a - b)[0];
 }
 
 export function getCappedExp(snapshot: Snapshot, max: number) {
-  const cappedExp = REAL_SKILLS.map(s => Math.min(snapshot[getValueKey(s)], max));
-  return cappedExp.reduce((acc, cur) => acc + cur);
+  return SKILLS.filter(s => s !== Metrics.OVERALL)
+    .map(s => Math.min(snapshot[getMetricValueKey(s)], max))
+    .reduce((acc, cur) => acc + cur);
 }
 
 export function getCombatLevel(snapshot: any): number {
-  const combatSkillKeys = COMBAT_SKILLS.map(s => getValueKey(s));
+  const combatSkillKeys = COMBAT_SKILLS.map(s => getMetricValueKey(s));
   const combatExperiences = pick(snapshot, combatSkillKeys);
 
   const levels: any = transform(combatExperiences, (r, v, k) => {
@@ -91,17 +101,18 @@ export function getCombatLevel(snapshot: any): number {
 }
 
 export function getTotalLevel(snapshot) {
-  const levels = REAL_SKILLS.map(s => getLevel(snapshot[getValueKey(s)]));
-  return levels.reduce((acc, cur) => acc + cur);
+  return SKILLS.filter(s => s !== Metrics.OVERALL)
+    .map(s => getLevel(snapshot[getMetricValueKey(s)]))
+    .reduce((acc, cur) => acc + cur);
 }
 
 export function get200msCount(snapshot: any) {
-  return REAL_SKILLS.filter(skill => snapshot[getValueKey(skill)] === MAX_SKILL_EXP).length;
+  return SKILLS.filter(s => s !== Metrics.OVERALL && snapshot[getMetricValueKey(s)] === MAX_SKILL_EXP).length;
 }
 
 export function isF2p(snapshot: Snapshot) {
-  const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getValueKey(s)]) > 1);
-  const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getValueKey(b)] > 0);
+  const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getMetricValueKey(s)]) > 1);
+  const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getMetricValueKey(b)] > 0);
 
   return !hasMemberStats && !hasBossKc;
 }

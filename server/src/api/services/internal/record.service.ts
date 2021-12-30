@@ -4,11 +4,12 @@ import {
   PlayerBuild,
   PLAYER_TYPES,
   PLAYER_BUILDS,
-  isValidPeriod
+  METRICS,
+  isValidPeriod,
+  Metric
 } from '@wise-old-man/utils';
 import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS } from '../../constants';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
@@ -45,7 +46,7 @@ async function syncRecords(delta: Delta): Promise<void> {
   const toCreate = [];
   const toUpdate = [];
 
-  ALL_METRICS.forEach(metric => {
+  METRICS.forEach(metric => {
     if (delta[metric] <= 0) return;
 
     if (!recordMap[metric]) {
@@ -82,7 +83,7 @@ async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): 
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (metric && !ALL_METRICS.includes(metric)) {
+  if (metric && !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -105,7 +106,7 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -150,17 +151,14 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
 /**
  * Gets the best records for a specific metric, period and list of players.
  */
-async function getGroupLeaderboard(
-  filter: GroupRecordsFilter,
-  pagination: Pagination
-): Promise<Record[]> {
+async function getGroupLeaderboard(filter: GroupRecordsFilter, pagination: Pagination): Promise<Record[]> {
   const { playerIds, period, metric } = filter;
 
   if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 

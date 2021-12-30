@@ -1,5 +1,4 @@
-import { ALL_METRICS } from '../constants';
-import { getAbbreviation } from './metrics';
+import { METRICS, parsePeriodExpression } from '@wise-old-man/utils';
 
 function metricAbbreviation(req, res, next) {
   if (!req) {
@@ -10,8 +9,8 @@ function metricAbbreviation(req, res, next) {
   if (req.body && req.body.metric) {
     const metric = req.body.metric.toLowerCase();
 
-    if (!ALL_METRICS.includes(metric)) {
-      req.body.metric = getAbbreviation(metric);
+    if (!METRICS.includes(metric)) {
+      req.body.metric = parsePeriodExpression(metric);
     }
   }
 
@@ -19,8 +18,8 @@ function metricAbbreviation(req, res, next) {
   if (req.query && req.query.metric) {
     const metric = req.query.metric.toLowerCase();
 
-    if (!ALL_METRICS.includes(metric)) {
-      req.query.metric = getAbbreviation(metric);
+    if (!METRICS.includes(metric)) {
+      req.query.metric = parsePeriodExpression(metric);
     }
   }
 

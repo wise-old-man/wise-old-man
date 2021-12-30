@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { getRankKey, getValueKey } from '../../api/util/metrics';
+import { getMetricValueKey, getMetricRankKey } from '@wise-old-man/utils';
 
 const BOSSES = [
   'abyssal_sire',
@@ -87,16 +87,16 @@ function down() {
 }
 
 function getActivityColumns(Sequelize) {
-  return ACTIVITIES.map(activity => [
-    { name: getRankKey(activity), type: Sequelize.INTEGER },
-    { name: getValueKey(activity), type: Sequelize.INTEGER }
+  return ACTIVITIES.map((activity: any) => [
+    { name: getMetricRankKey(activity), type: Sequelize.INTEGER },
+    { name: getMetricValueKey(activity), type: Sequelize.INTEGER }
   ]).flat();
 }
 
 function getBossColumns(Sequelize) {
-  return BOSSES.map(boss => [
-    { name: getRankKey(boss), type: Sequelize.INTEGER },
-    { name: getValueKey(boss), type: Sequelize.INTEGER }
+  return BOSSES.map((boss: any) => [
+    { name: getMetricRankKey(boss), type: Sequelize.INTEGER },
+    { name: getMetricValueKey(boss), type: Sequelize.INTEGER }
   ]).flat();
 }
 

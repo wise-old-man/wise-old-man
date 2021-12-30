@@ -9,8 +9,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { CompetitionType } from '@wise-old-man/utils';
-import { ALL_METRICS } from '../../api/constants';
+import { CompetitionType, Metric, METRICS } from '@wise-old-man/utils';
 import { isValidDate } from '../../api/util/dates';
 import { Group, Participation, Player } from '../../database/models';
 
@@ -58,8 +57,8 @@ export default class Competition extends Model<Competition> {
   @Column({ type: DataType.STRING(50), allowNull: false })
   title: string;
 
-  @Column({ type: DataType.ENUM(...ALL_METRICS), allowNull: false })
-  metric: string;
+  @Column({ type: DataType.ENUM(...METRICS), allowNull: false })
+  metric: Metric;
 
   @Column({ type: DataType.INTEGER, defaultValue: 0 })
   score: number;
@@ -77,7 +76,7 @@ export default class Competition extends Model<Competition> {
   endsAt: Date;
 
   @Column({ type: DataType.STRING(20), defaultValue: CompetitionType.CLASSIC })
-  type: string;
+  type: CompetitionType;
 
   @ForeignKey(() => Group)
   @Column({ type: DataType.INTEGER, onDelete: 'SET NULL' })
@@ -109,7 +108,7 @@ function validateTitle(this: Competition): void {
 }
 
 function validateMetric(this: Competition): void {
-  if (!ALL_METRICS.includes(this.metric)) {
+  if (!METRICS.includes(this.metric)) {
     throw new Error('Invalid metric.');
   }
 }

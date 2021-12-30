@@ -1,6 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, UpdatedAt } from 'sequelize-typescript';
-import { isValidPeriod, PERIODS } from '@wise-old-man/utils';
-import { ALL_METRICS } from '../../api/constants';
+import { isValidPeriod, PERIODS, METRICS, Metric, Period } from '@wise-old-man/utils';
 import { Player } from '../../database/models';
 
 // Define other table options
@@ -42,10 +41,10 @@ export default class Record extends Model<Record> {
   playerId: number;
 
   @Column({ type: DataType.ENUM(...PERIODS), allowNull: false })
-  period: string;
+  period: Period;
 
-  @Column({ type: DataType.ENUM(...ALL_METRICS), allowNull: false })
-  metric: string;
+  @Column({ type: DataType.ENUM(...METRICS), allowNull: false })
+  metric: Metric;
 
   @Column({ type: DataType.BIGINT, get: parseValue, set: setValue, defaultValue: 0 })
   value: number;
@@ -83,7 +82,7 @@ function setValue(value: number) {
 }
 
 function validateMetric(this: Record) {
-  if (!ALL_METRICS.includes(this.metric)) {
+  if (!METRICS.includes(this.metric)) {
     throw new Error('Invalid metric.');
   }
 }

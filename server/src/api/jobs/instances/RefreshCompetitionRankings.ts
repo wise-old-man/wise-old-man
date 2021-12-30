@@ -1,7 +1,7 @@
+import { isActivity, isBoss, isSkill } from '@wise-old-man/utils';
 import { Competition } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
-import { isActivity, isBoss, isSkill } from '../../util/metrics';
 import { Job } from '../index';
 
 class RefreshCompetitionRankings implements Job {

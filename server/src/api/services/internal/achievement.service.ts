@@ -1,7 +1,7 @@
+import { isSkill, isActivity, isBoss, isVirtualMetric, getMetricValueKey, Metric } from '@wise-old-man/utils';
 import { Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Achievement, Snapshot, Player } from '../../../database/models';
-import { isSkill, isActivity, isBoss, isVirtual, getValueKey } from '../../util/metrics';
 import { round } from '../../util/numbers';
 import { getLevel } from '../../util/experience';
 import { ACHIEVEMENT_TEMPLATES } from '../../modules/achievements/templates';
@@ -180,7 +180,7 @@ async function calculatePastDates(playerId: number, definitions: AchievementDefi
       // Check if the previous value is > -1, this prevents this calc from setting the first snapshot
       // after May 10th 2020 as the achievement date for any pre-WOM boss achievements
       // (boss tracking was introduced on May 10th 2020)
-      return !d.validate(prev) && d.validate(next) && prev[getValueKey(d.metric)] > -1;
+      return !d.validate(prev) && d.validate(next) && prev[getMetricValueKey(d.metric as Metric)] > -1;
     });
 
     valid.forEach(v => {
@@ -201,7 +201,9 @@ function getDefinitions(): AchievementDefinition[] {
       const newName = getAchievemenName(name, threshold);
 
       const getCurrentValueFn = (snapshot: Snapshot) => {
-        return getCurrentValue ? getCurrentValue(snapshot, threshold) : snapshot[getValueKey(metric)];
+        return getCurrentValue
+          ? getCurrentValue(snapshot, threshold)
+          : snapshot[getMetricValueKey(metric as Metric)];
       };
 
       const validateFn = (snapshot: Snapshot) => {
@@ -241,10 +243,10 @@ function getAchievemenName(name: string, threshold: number): string {
 
 function getAchievementMeasure(metric: string, threshold: number): string {
   if (metric === 'overall' && threshold <= 13_034_431) return 'levels';
-  if (isBoss(metric)) return 'kills';
-  if (isSkill(metric)) return 'experience';
-  if (isActivity(metric)) return 'score';
-  if (isVirtual(metric)) return 'value';
+  if (isBoss(metric as Metric)) return 'kills';
+  if (isSkill(metric as Metric)) return 'experience';
+  if (isActivity(metric as Metric)) return 'score';
+  if (isVirtualMetric(metric as Metric)) return 'value';
   return 'levels';
 }
 

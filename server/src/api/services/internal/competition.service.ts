@@ -2,17 +2,19 @@ import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import {
+  Metric,
+  METRICS,
   CompetitionType,
   COMPETITION_TYPES,
   COMPETITION_STATUSES,
-  CompetitionStatus
+  CompetitionStatus,
+  getMetricValueKey,
+  isVirtualMetric
 } from '@wise-old-man/utils';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
-import { ALL_METRICS } from '../../constants';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
-import { getValueKey, isVirtual } from '../../util/metrics';
 import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
 import * as deltaService from './delta.service';
@@ -121,7 +123,7 @@ async function getList(filter: CompetitionListFilter, pagination: Pagination) {
   }
 
   // The metric is optional, however if present, should be valid
-  if (metric && !ALL_METRICS.includes(metric.toLowerCase())) {
+  if (metric && !METRICS.includes(metric.toLowerCase() as Metric)) {
     throw new BadRequestError(`Invalid metric.`);
   }
 
@@ -276,9 +278,7 @@ function getTeamsCSV(details: CompetitionDetails): string {
   });
 
   // Sort teams by most total gained
-  const data = teamsList
-    .sort((a, b) => b.totalGained - a.totalGained)
-    .map((t, i) => ({ ...t, rank: i + 1 }));
+  const data = teamsList.sort((a, b) => b.totalGained - a.totalGained).map((t, i) => ({ ...t, rank: i + 1 }));
 
   const columns = [
     { header: 'Rank', value: (_, index) => index + 1 },
@@ -319,10 +319,10 @@ function getParticipantsCSV(details: CompetitionDetails): string {
  * Get all the data on a given competition.
  */
 async function getDetails(competition: Competition, metric?: string): Promise<CompetitionDetails | any> {
-  const competitionMetric = metric || competition.metric;
-  const isVirtualMetric = isVirtual(competitionMetric);
+  const competitionMetric = (metric || competition.metric) as Metric;
+  const isVirtual = isVirtualMetric(competitionMetric);
 
-  const metricKey = getValueKey(competitionMetric);
+  const metricKey = getMetricValueKey(competitionMetric);
   const duration = durationBetween(competition.startsAt, competition.endsAt);
 
   const participations = await Participation.findAll({
@@ -330,8 +330,8 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
     where: { competitionId: competition.id },
     include: [
       { model: Player },
-      { model: Snapshot, as: 'startSnapshot', attributes: isVirtualMetric ? null : [metricKey] },
-      { model: Snapshot, as: 'endSnapshot', attributes: isVirtualMetric ? null : [metricKey] }
+      { model: Snapshot, as: 'startSnapshot', attributes: isVirtual ? null : [metricKey] },
+      { model: Snapshot, as: 'endSnapshot', attributes: isVirtual ? null : [metricKey] }
     ]
   });
 
@@ -340,12 +340,7 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
       return {
         ...player.toJSON(),
         teamName,
-        progress: deltaService.calculateMetricDiff(
-          player,
-          startSnapshot,
-          endSnapshot,
-          competitionMetric
-        ),
+        progress: deltaService.calculateMetricDiff(player, startSnapshot, endSnapshot, competitionMetric),
         history: []
       };
     })
@@ -488,7 +483,7 @@ function validateParticipantsList(participants: string[]) {
 async function create(dto: CreateCompetitionDTO) {
   const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams } = dto;
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError('Invalid competition metric.');
   }
 
@@ -512,9 +507,7 @@ async function create(dto: CreateCompetitionDTO) {
   }
 
   if (hasParticipants && isTeamCompetition) {
-    throw new BadRequestError(
-      'Cannot include both "participants" and "teams", they are mutually exclusive.'
-    );
+    throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
   }
 
   // Check if group verification code is valid
@@ -568,7 +561,7 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
     throw new BadRequestError('Start date must be before the end date.');
   }
 
-  if (metric && !ALL_METRICS.includes(metric)) {
+  if (metric && !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid competition metric.`);
   }
 
@@ -853,9 +846,7 @@ async function addTeams(competition: Competition, teams: Team[]) {
     throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
   }
 
-  const duplicateUsernames = newUsernames.filter(t =>
-    currentUsernames.map((c: string) => c).includes(t)
-  );
+  const duplicateUsernames = newUsernames.filter(t => currentUsernames.map((c: string) => c).includes(t));
 
   if (duplicateUsernames && duplicateUsernames.length > 0) {
     throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
