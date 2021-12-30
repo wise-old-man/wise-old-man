@@ -7,7 +7,8 @@ import {
   BOSSES,
   VIRTUAL_METRICS,
   getMetricValueKey,
-  Metrics
+  Metrics,
+  round
 } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination, VirtualAlgorithm } from '../../../types';
@@ -16,7 +17,6 @@ import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
 import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
 import lvl3Algorithm from '../../modules/efficiency/algorithms/lvl3';
 import mainAlgorithm from '../../modules/efficiency/algorithms/main';
-import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
 

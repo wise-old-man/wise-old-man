@@ -10,7 +10,8 @@ import {
   Period,
   Metric,
   Metrics,
-  METRICS
+  METRICS,
+  getLevel
 } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from 'src/types';
 import { sequelize } from '../../../database';
@@ -26,7 +27,7 @@ import {
 import { GROUP_ROLES, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
+import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
@@ -389,7 +390,7 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
     };
 
     if (isSkill(metric as Metric)) {
-      data.level = metric === Metrics.OVERALL ? getTotalLevel(d) : getLevel(data.experience);
+      data.level = metric === Metrics.OVERALL ? getTotalLevel(d as Snapshot) : getLevel(data.experience);
     }
 
     return data;

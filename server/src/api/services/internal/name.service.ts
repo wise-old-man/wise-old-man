@@ -1,11 +1,10 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import { Metrics, SKILLS } from '@wise-old-man/utils';
+import { Metrics, SKILLS, getLevel } from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
 import { Membership, NameChange, Participation, Player, Record, Snapshot } from '../../../database/models';
 import { NameChangeStatus, Pagination } from '../../../types';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
-import { getLevel } from '../../util/experience';
 import { buildQuery } from '../../util/query';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
@@ -77,7 +76,7 @@ async function findAllBundled(id: number, createdAt: Date) {
 
   const nameChanges = await NameChange.findAll({
     where: {
-      [Op.not]: [{ id }],
+      id: { [Op.not]: id },
       createdAt: { [Op.between]: [minDate, maxDate] }
     },
     limit: 50

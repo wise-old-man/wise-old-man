@@ -19,12 +19,12 @@ import {
   isSkill,
   isBoss,
   isVirtualMetric,
-  Metrics
+  Metrics,
+  round
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError } from '../../errors';
-import { round } from '../../util/numbers';
 import { buildQuery } from '../../util/query';
 import * as geoService from '../external/geo.service';
 import * as efficiencyService from './efficiency.service';

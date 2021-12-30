@@ -1,9 +1,16 @@
-import { isSkill, isActivity, isBoss, isVirtualMetric, getMetricValueKey, Metric } from '@wise-old-man/utils';
+import {
+  isSkill,
+  isActivity,
+  isBoss,
+  isVirtualMetric,
+  getMetricValueKey,
+  Metric,
+  getLevel,
+  round
+} from '@wise-old-man/utils';
 import { Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Achievement, Snapshot, Player } from '../../../database/models';
-import { round } from '../../util/numbers';
-import { getLevel } from '../../util/experience';
 import { ACHIEVEMENT_TEMPLATES } from '../../modules/achievements/templates';
 import * as snapshotService from './snapshot.service';
 
