@@ -24,6 +24,8 @@ export function getCappedExp(snapshot: Snapshot, max: number) {
 }
 
 export function getCombatLevel(snapshot: Snapshot) {
+  if (!snapshot) return 0;
+
   return calcCombat(
     getLevel(snapshot.attackExperience),
     getLevel(snapshot.strengthExperience),
