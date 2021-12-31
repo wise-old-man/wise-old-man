@@ -1,4 +1,4 @@
-import { METRICS, parsePeriodExpression } from '@wise-old-man/utils';
+import { METRICS, parseMetricAbbreviation } from '@wise-old-man/utils';
 
 function metricAbbreviation(req, res, next) {
   if (!req) {
@@ -10,7 +10,7 @@ function metricAbbreviation(req, res, next) {
     const metric = req.body.metric.toLowerCase();
 
     if (!METRICS.includes(metric)) {
-      req.body.metric = parsePeriodExpression(metric);
+      req.body.metric = parseMetricAbbreviation(metric);
     }
   }
 
@@ -19,7 +19,7 @@ function metricAbbreviation(req, res, next) {
     const metric = req.query.metric.toLowerCase();
 
     if (!METRICS.includes(metric)) {
-      req.query.metric = parsePeriodExpression(metric);
+      req.query.metric = parseMetricAbbreviation(metric);
     }
   }
 
