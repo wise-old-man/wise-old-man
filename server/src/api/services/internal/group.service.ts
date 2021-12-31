@@ -16,7 +16,7 @@ import {
   PRIVELEGED_GROUP_ROLES,
   GroupRole
 } from '@wise-old-man/utils';
-import { MigratedGroupInfo, Pagination } from 'src/types';
+import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import {
   Achievement,

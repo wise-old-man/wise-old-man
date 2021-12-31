@@ -1,4 +1,4 @@
-import { Snapshot } from 'src/database/models';
+import { Snapshot } from '../../database/models';
 import {
   getCombatLevel as calcCombat,
   getLevel,
