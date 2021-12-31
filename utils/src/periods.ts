@@ -20,7 +20,7 @@ const PERIODS = Object.values(Period);
 
 function findPeriod(periodName: string): Period | null {
   for (var [key, value] of Object.entries(PeriodProps)) {
-    if (value.name === periodName) return key as Period;
+    if (value.name.toUpperCase() === periodName.toUpperCase()) return key as Period;
   }
 
   return null;

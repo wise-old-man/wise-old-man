@@ -8,7 +8,7 @@ const MAX_VIRTUAL_LEVEL = 126;
 const MAX_SKILL_EXP = 200_000_000;
 
 // The minimum skill exp for level 99
-const SKILL_EXP_AT_99 = 13034431;
+const SKILL_EXP_AT_99 = 13_034_431;
 
 // The maximum skill at exactly 99 on all skills
 const CAPPED_MAX_TOTAL_XP = 23 * SKILL_EXP_AT_99;
@@ -79,6 +79,7 @@ export {
   MAX_VIRTUAL_LEVEL,
   MAX_SKILL_EXP,
   CAPPED_MAX_TOTAL_XP,
+  SKILL_EXP_AT_99,
   getExpForLevel,
   getLevel,
   getCombatLevel

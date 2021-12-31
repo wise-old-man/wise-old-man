@@ -546,7 +546,7 @@ const GROUP_ROLES = Object.values(GroupRole);
 
 function findGroupRole(roleName: string): GroupRole | null {
   for (var [key, value] of Object.entries(GroupRoleProps)) {
-    if (value.name === roleName) return key as GroupRole;
+    if (value.name.toUpperCase() === roleName.toUpperCase()) return key as GroupRole;
   }
 
   return null;

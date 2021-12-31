@@ -1,5 +1,4 @@
-import { mapValues } from 'lodash';
-import { capitalize } from './strings';
+import { mapValues, capitalize } from 'lodash';
 
 enum Skill {
   OVERALL = 'overall',
@@ -250,7 +249,7 @@ const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
 
 function findMetric(metricName: string): Metric | null {
   for (var [key, value] of Object.entries(MetricProps)) {
-    if (value.name === metricName) return key as Metric;
+    if (value.name.toUpperCase() === metricName.toUpperCase()) return key as Metric;
   }
 
   return null;
@@ -303,7 +302,7 @@ function parseMetricAbbreviation(abbreviation: string): string | null {
     return null;
   }
 
-  switch (abbreviation) {
+  switch (abbreviation.toLowerCase()) {
     // Bosses
     case 'sire':
       return Metrics.ABYSSAL_SIRE;
