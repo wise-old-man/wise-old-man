@@ -1,4 +1,4 @@
-import { findCountryByCode, findCountryByName, findCountry } from '../src/countries';
+import { findCountryByCode, findCountryByName, findCountry } from '../lib/countries';
 
 describe('Util - Countries', () => {
   test('findCountryByCode', () => {

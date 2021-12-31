@@ -1,4 +1,4 @@
-import { getCombatLevel, getLevel, getExpForLevel, SKILL_EXP_AT_99 } from '../src/experience';
+import { getCombatLevel, getLevel, getExpForLevel, SKILL_EXP_AT_99 } from '../lib/experience';
 
 describe('Util - Experience', () => {
   test('getExpForLevel', () => {

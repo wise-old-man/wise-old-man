@@ -1,4 +1,4 @@
-import { round } from '../src/numbers';
+import { round } from '../lib/numbers';
 
 describe('Util - Numbers', () => {
   test('round', () => {

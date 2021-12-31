@@ -1,4 +1,4 @@
-import { formatNumber, padNumber } from '../src/strings';
+import { formatNumber, padNumber } from '../lib/strings';
 
 describe('Util - Strings', () => {
   test('formatNumber', () => {

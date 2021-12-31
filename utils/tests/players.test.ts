@@ -9,7 +9,7 @@ import {
   findPlayerBuild,
   sanitizeUsername,
   standardizeUsername
-} from '../src/players';
+} from '../lib/players';
 
 describe('Util - Players', () => {
   test('Props', () => {

@@ -1,4 +1,4 @@
-import { GroupRole, GROUP_ROLES, GroupRoleProps, findGroupRole } from '../src/groups';
+import { GroupRole, GROUP_ROLES, GroupRoleProps, findGroupRole } from '../lib/groups';
 
 describe('Util - Groups', () => {
   test('Props', () => {

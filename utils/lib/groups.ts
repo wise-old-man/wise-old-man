@@ -543,6 +543,7 @@ const GroupRoleProps = {
 };
 
 const GROUP_ROLES = Object.values(GroupRole);
+const PRIVELEGED_GROUP_ROLES = GROUP_ROLES.filter(r => GroupRoleProps[r].isPriveleged);
 
 function findGroupRole(roleName: string): GroupRole | null {
   for (var [key, value] of Object.entries(GroupRoleProps)) {
@@ -552,4 +553,4 @@ function findGroupRole(roleName: string): GroupRole | null {
   return null;
 }
 
-export { GroupRole, GroupRoleProps, GROUP_ROLES, findGroupRole };
+export { GroupRole, GroupRoleProps, GROUP_ROLES, PRIVELEGED_GROUP_ROLES, findGroupRole };

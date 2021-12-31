@@ -5,7 +5,7 @@ import {
   findPeriod,
   isValidPeriod,
   parsePeriodExpression
-} from '../src/periods';
+} from '../lib/periods';
 
 describe('Util - Periods', () => {
   test('Props', () => {

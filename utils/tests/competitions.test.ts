@@ -7,7 +7,7 @@ import {
   COMPETITION_TYPES,
   COMPETITION_STATUSES,
   CompetitionStatusProps
-} from '../src/competitions';
+} from '../lib/competitions';
 
 describe('Util - Competitions', () => {
   test('Props', () => {
