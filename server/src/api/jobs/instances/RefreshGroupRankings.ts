@@ -1,5 +1,5 @@
+import { GroupRole, PRIVELEGED_GROUP_ROLES } from '@wise-old-man/utils';
 import { Group } from '../../../database/models';
-import { PRIVELEGED_GROUP_ROLES } from '../../constants';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import * as groupService from '../../services/internal/group.service';
@@ -51,7 +51,7 @@ async function calculateScore(group: Group): Promise<number> {
   }
 
   // If has atleast one leader
-  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
+  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role as GroupRole)).length >= 1) {
     score += 30;
   }
 

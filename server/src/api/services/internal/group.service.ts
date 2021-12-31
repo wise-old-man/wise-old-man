@@ -11,7 +11,10 @@ import {
   Metric,
   Metrics,
   METRICS,
-  getLevel
+  getLevel,
+  GROUP_ROLES,
+  PRIVELEGED_GROUP_ROLES,
+  GroupRole
 } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from 'src/types';
 import { sequelize } from '../../../database';
@@ -24,7 +27,6 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import { GROUP_ROLES, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
@@ -488,7 +490,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
 
   // Check if there are any invalid roles given
   if (members && members.length > 0) {
-    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role as GroupRole));
 
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
@@ -566,7 +568,7 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
       );
     }
 
-    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role as GroupRole));
 
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
@@ -739,7 +741,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
       throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
     }
 
-    if (m.role && !GROUP_ROLES.includes(m.role)) {
+    if (m.role && !GROUP_ROLES.includes(m.role as GroupRole)) {
       throw new BadRequestError(`${m.role} is not a valid role.`);
     }
   });
@@ -843,7 +845,7 @@ async function changeRole(group: Group, member: MemberFragment): Promise<[Player
     throw new BadRequestError(`${username} is already a ${role}.`);
   }
 
-  if (!GROUP_ROLES.includes(member.role)) {
+  if (!GROUP_ROLES.includes(member.role as GroupRole)) {
     throw new BadRequestError(`${member.role} is not a valid role.`);
   }
 

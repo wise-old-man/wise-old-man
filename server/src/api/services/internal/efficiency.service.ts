@@ -40,7 +40,7 @@ interface LeaderboardFilter {
   country?: string;
 }
 
-async function getRates(metric = Metrics.EHP, type = 'main') {
+async function getRates(metric = 'ehp', type = 'main') {
   switch (type) {
     case 'main':
       return metric === Metrics.EHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
