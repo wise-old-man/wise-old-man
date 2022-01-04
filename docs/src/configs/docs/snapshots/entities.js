@@ -324,6 +324,11 @@ export default [
         description: 'Mimic rank and kills.'
       },
       {
+        field: 'nex',
+        type: 'object',
+        description: 'Nex rank and kills.'
+      },
+      {
         field: 'nightmare',
         type: 'object',
         description: 'Nightmare rank and kills.'

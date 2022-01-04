@@ -237,6 +237,9 @@ export default class Delta extends Model<Delta> {
   mimic: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  nex: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   nightmare: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
