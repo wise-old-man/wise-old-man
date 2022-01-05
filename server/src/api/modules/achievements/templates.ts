@@ -337,6 +337,12 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [10, 50, 100, 200]
   },
   {
+    name: '{threshold} Nex kills',
+    metric: 'nex',
+    measure: 'kills',
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Nightmare kills',
     metric: 'nightmare',
     measure: 'kills',

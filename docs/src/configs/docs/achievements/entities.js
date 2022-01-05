@@ -359,6 +359,12 @@ export default [
         thresholds: '10, 50, 100, 200'
       },
       {
+        name: '{threshold} Nex kills',
+        metric: 'nex',
+        measure: 'kills',
+        thresholds: '500, 1k, 5k, 10k'
+      },
+      {
         name: '{threshold} Nightmare kills',
         metric: 'nightmare',
         measure: 'kills',
@@ -613,6 +619,7 @@ export default [
       'kreearra',
       'kril_tsutsaroth',
       'mimic',
+      'nex',
       'nightmare',
       'phosanis_nightmare',
       'obor',
