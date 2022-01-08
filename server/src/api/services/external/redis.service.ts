@@ -15,6 +15,10 @@ class RedisService {
   setValue(baseKey: string, paramKey: string, value: ValueType, expiresInMs?: number) {
     return this.redisClient.set(`${baseKey}:${paramKey}`, value, 'px', expiresInMs);
   }
+
+  deleteKey(key: string) {
+    this.redisClient.del(key);
+  }
 }
 
 export default new RedisService();

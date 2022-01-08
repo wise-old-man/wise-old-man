@@ -1,6 +1,7 @@
 import Queue, { JobOptions, RateLimiter } from 'bull';
 import { getThreadIndex, isTesting } from '../../env';
 import logger from '../services/external/logger.service';
+import redisService from '../services/external/redis.service';
 import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';
@@ -44,12 +45,21 @@ class JobHandler {
   /**
    * Adds a new job to the queue, to be executed ASAP.
    */
-  add(name: string, data: any, options?: any) {
+  async add(name: string, data: any, options?: any) {
     if (isTesting()) return;
 
     const queue = this.queues.find(q => q.name === name);
 
     if (!queue) throw new Error(`No job found for name ${name}`);
+
+    if (name === 'UpdatePlayer') {
+      // Check if this username is already in cooldown
+      const cooldown = await redisService.getValue('cd:UpdatePlayer', data.username);
+      if (cooldown) return;
+
+      // Store the current timestamp to activate the cooldown (1h)
+      await redisService.setValue('cd:UpdatePlayer', data.username, Date.now(), 3_600_000);
+    }
 
     const priority = (options && options.priority) || JobPriority.MEDIUM;
     queue.bull.add({ ...data, created: new Date() }, { ...options, priority });
