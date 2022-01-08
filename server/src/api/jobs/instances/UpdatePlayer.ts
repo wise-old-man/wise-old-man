@@ -1,4 +1,5 @@
 import { JobOptions, RateLimiter } from 'bull';
+import redisService from '../../services/external/redis.service';
 import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
@@ -25,6 +26,8 @@ class UpdatePlayer implements Job {
     } catch (error) {
       metricsService.trackJobEnded(endTimer, this.name, 0, data.source);
       throw error;
+    } finally {
+      redisService.deleteKey(`cd:UpdatePlayer:${data.username}`);
     }
   }
 }
