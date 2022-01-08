@@ -9,7 +9,7 @@ import * as playerService from '../internal/player.service';
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: any) {
-  console.log('Cannot dispatch discord events in the Shattered Relics Edition.');
+  console.log('Cannot dispatch discord events in the Shattered Relics Edition.', type, payload);
 }
 
 /**

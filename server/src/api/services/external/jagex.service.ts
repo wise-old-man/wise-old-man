@@ -19,6 +19,7 @@ const SCRAPING_HEADERS = {
  * Fetches the player data from the Hiscores API.
  */
 async function getHiscoresData(username: string, type = 'seasonal'): Promise<string> {
+  console.log(type);
   throw new ServerError('Tracking is disabled until the Shattered Relics League starts.');
 
   // const proxy = proxiesService.getNextProxy();
