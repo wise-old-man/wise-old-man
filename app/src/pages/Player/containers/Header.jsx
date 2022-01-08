@@ -6,9 +6,7 @@ import { PageHeader, Dropdown, Button, Badge } from 'components';
 
 const MENU_OPTIONS = [
   { label: 'Open official hiscores', value: 'OPEN_HISCORES' },
-  { label: 'Change name', value: 'CHANGE_NAME' },
-  // { label: 'Reset username capitalization', value: 'ASSERT_NAME' },
-  { label: 'Reassign player type', value: 'ASSERT_TYPE' }
+  { label: 'Change name', value: 'CHANGE_NAME' }
 ];
 
 function Header(props) {
@@ -21,8 +19,6 @@ function Header(props) {
       handleRedirect(`/names/submit/${player.displayName}`);
     } else if (option.value === 'ASSERT_NAME') {
       handleAssertName();
-    } else if (option.value === 'ASSERT_TYPE') {
-      handleAssertType();
     }
   };
 

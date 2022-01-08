@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 import { useUrlContext, useLazyLoading } from 'hooks';
 import { Loading, PageTitle } from 'components';
 import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
-import { PLAYER_BUILDS, PLAYER_TYPES, COUNTRIES } from 'config';
+import { PLAYER_BUILDS, COUNTRIES } from 'config';
 import URL from 'utils/url';
 import { List, Controls } from './containers';
 import { LeaderboardContext } from './context';
@@ -16,7 +16,7 @@ function Leaderboards() {
   const dispatch = useDispatch();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { metric, type, build, country } = context;
+  const { metric, build, country } = context;
 
   const { data, isFullyLoaded, reloadData } = useLazyLoading({
     resultsPerPage: 20,
@@ -30,7 +30,6 @@ function Leaderboards() {
     const searchQuery = {
       metric: query.metric,
       country: query.country,
-      playerType: query.type,
       playerBuild: query.build
     };
 
@@ -41,8 +40,8 @@ function Leaderboards() {
 
   // Reload the data each time any of the search query variables change
   useEffect(() => {
-    handleReloadData({ metric, type, build, country });
-  }, [metric, type, build, country, handleReloadData]);
+    handleReloadData({ metric, build, country });
+  }, [metric, build, country, handleReloadData]);
 
   if (!data) {
     return <Loading />;
@@ -75,15 +74,11 @@ function Leaderboards() {
   );
 }
 
-function encodeContext({ metric, type, build, country }) {
+function encodeContext({ metric, build, country }) {
   const nextURL = new URL(`/leaderboards`);
 
   if (metric && metric !== 'ehp' && VALID_METRICS.includes(metric)) {
     nextURL.appendToPath(`/${metric}`);
-  }
-
-  if (type && type !== 'regular' && PLAYER_TYPES.includes(type.toLowerCase())) {
-    nextURL.appendSearchParam('type', type.toLowerCase());
   }
 
   if (build && PLAYER_BUILDS.includes(build.toLowerCase())) {
@@ -99,16 +94,14 @@ function encodeContext({ metric, type, build, country }) {
 
 function decodeURL(params, query) {
   const { metric } = params;
-  const { type, build, country } = query;
+  const { build, country } = query;
 
   const isValidMetric = metric && VALID_METRICS.includes(metric.toLowerCase());
-  const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
   const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
   const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
 
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'ehp',
-    type: isValidType ? type.toLowerCase() : 'regular',
     build: isValidBuild ? build.toLowerCase() : null,
     country: isValidCountry ? country.toUpperCase() : null
   };

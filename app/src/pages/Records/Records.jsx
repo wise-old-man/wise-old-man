@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
 import { getMetricName } from 'utils';
-import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES, COUNTRIES } from 'config';
+import { ALL_METRICS, PLAYER_BUILDS, COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { recordActions } from 'redux/records';
 import URL from 'utils/url';
@@ -17,15 +17,15 @@ function Records() {
   const dispatch = useDispatch();
 
   const { context, updateContext } = useUrlContext(encodeContext, decodeURL);
-  const { metric, type, build, country } = context;
+  const { metric, build, country } = context;
 
   const reloadList = () => {
     PERIODS.forEach(period => {
-      dispatch(recordActions.fetchLeaderboards(metric, period, type, build, country));
+      dispatch(recordActions.fetchLeaderboards(metric, period, build, country));
     });
   };
 
-  useEffect(reloadList, [metric, type, build, country]);
+  useEffect(reloadList, [metric, build, country]);
 
   return (
     <RecordsContext.Provider value={{ context, updateContext }}>
@@ -53,15 +53,11 @@ function Records() {
   );
 }
 
-function encodeContext({ metric, type, build, country }) {
+function encodeContext({ metric, build, country }) {
   const nextURL = new URL(`/records`);
 
   if (metric && metric !== 'overall' && ALL_METRICS.includes(metric)) {
     nextURL.appendToPath(`/${metric}`);
-  }
-
-  if (type && PLAYER_TYPES.includes(type.toLowerCase())) {
-    nextURL.appendSearchParam('type', type.toLowerCase());
   }
 
   if (build && PLAYER_BUILDS.includes(build.toLowerCase())) {
@@ -77,16 +73,14 @@ function encodeContext({ metric, type, build, country }) {
 
 function decodeURL(params, query) {
   const { metric } = params;
-  const { type, build, country } = query;
+  const { build, country } = query;
 
   const isValidMetric = metric && ALL_METRICS.includes(metric.toLowerCase());
-  const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
   const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
   const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
 
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'overall',
-    type: isValidType ? type.toLowerCase() : null,
     build: isValidBuild ? build.toLowerCase() : null,
     country: isValidCountry ? country.toUpperCase() : null
   };
