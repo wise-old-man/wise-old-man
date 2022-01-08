@@ -3,7 +3,6 @@ import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
-import * as cmlService from '../external/cml.service';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
 import redisService from '../external/redis.service';
@@ -11,8 +10,6 @@ import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 
 const DAY_IN_SECONDS = 86_400;
-const YEAR_IN_SECONDS = 31_556_926;
-const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
 interface PlayerResolvable {
   id?: number;
@@ -89,21 +86,6 @@ function shouldUpdate(player: Player): boolean {
   return timeSinceLastUpdate >= 60 || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
-/**
- * Checks if a given player has been imported from CML in the last 24 hours.
- */
-function shouldImport(player: Player): [boolean, number] {
-  // If the player's CML history has never been
-  // imported, should import the last years
-  if (!player.lastImportedAt || !isValidDate(player.lastImportedAt)) {
-    return [true, DECADE_IN_SECONDS];
-  }
-
-  const seconds = Math.floor(Date.now() - player.lastImportedAt.getTime() / 1000);
-
-  return [seconds / 60 / 60 >= 24, seconds];
-}
-
 async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
   let player;
 
@@ -170,11 +152,6 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 
   try {
-    // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === 'unknown') {
-      player.type = await getType(player);
-    }
-
     // Fetch the previous player stats from the database
     const previousStats = await snapshotService.findLatest(player.id);
     // Fetch the new player stats from the hiscores API
@@ -194,6 +171,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // Refresh the player's build
     player.build = getBuild(currentStats);
+    player.type = 'ironman';
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
@@ -227,117 +205,14 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 }
 
-/**
- * Import a given username from CML.
- * If this is a first import, it will attempt to import as many
- * datapoints as it can. If it has imported in the past, it will
- * attempt to import all the datapoints CML gathered since the last import.
- */
-async function importCML(player: Player): Promise<Snapshot[]> {
-  const [should, seconds] = shouldImport(player);
-
-  // If the player hasn't imported in over 24h,
-  // attempt to import its history from CML
-  if (!should) {
-    const timeLeft = Math.floor((24 * 3600 - seconds) / 60);
-    throw new RateLimitError(`Imported too soon, please wait another ${timeLeft} minutes.`);
-  }
-
-  const importedSnapshots = [];
-
-  // If the player hasn't imported in over a year
-  // import the last year and decade.
-  if (seconds >= YEAR_IN_SECONDS) {
-    const yearSnapshots = await importCMLSince(player, YEAR_IN_SECONDS);
-    const decadeSnapshots = await importCMLSince(player, DECADE_IN_SECONDS);
-
-    importedSnapshots.push(...yearSnapshots);
-    importedSnapshots.push(...decadeSnapshots);
-  } else {
-    const recentSnapshots = await importCMLSince(player, seconds);
-    importedSnapshots.push(recentSnapshots);
-  }
-
-  // Update the "lastImportedAt" field in the player model
-  await player.update({ lastImportedAt: new Date() });
-
-  return importedSnapshots;
-}
-
-async function importCMLSince(player: Player, time: number): Promise<Snapshot[]> {
-  // Load the CML history
-  const history = await cmlService.getCMLHistory(player.username, time);
-
-  // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(player.id, row)));
-
-  // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
-  const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
-
-  // Save new snapshots to db
-  const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
-
-  return savedSnapshots;
-}
-
-async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
+async function fetchStats(player: Player): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username);
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
   return newSnapshot;
-}
-
-/**
- * Gets a player's overall exp in a specific hiscores endpoint.
- * Note: This is an auxilary function for the getType function.
- */
-async function getOverallExperience(player: Player, type: string): Promise<number | null> {
-  try {
-    return (await fetchStats(player, type)).overallExperience;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    return null;
-  }
-}
-
-async function getType(player: Player): Promise<string> {
-  const regularExp = await getOverallExperience(player, 'regular');
-
-  // This username is not on the hiscores
-  if (!regularExp) {
-    throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
-  }
-
-  const ironmanExp = await getOverallExperience(player, 'ironman');
-  if (!ironmanExp || ironmanExp < regularExp) return 'regular';
-
-  const hardcoreExp = await getOverallExperience(player, 'hardcore');
-  if (hardcoreExp && hardcoreExp >= ironmanExp) return 'hardcore';
-
-  const ultimateExp = await getOverallExperience(player, 'ultimate');
-  if (ultimateExp && ultimateExp >= ironmanExp) return 'ultimate';
-
-  return 'ironman';
-}
-
-/**
- * Fetch various hiscores endpoints to find the correct player type of a given player.
- */
-async function assertType(player: Player): Promise<string> {
-  if (player.flagged) {
-    throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
-  }
-
-  const type = await getType(player);
-
-  if (player.type !== type) {
-    await player.update({ type });
-  }
-
-  return type;
 }
 
 /**
@@ -468,11 +343,8 @@ export {
   getDetails,
   search,
   update,
-  importCML,
-  assertType,
   assertName,
   updateCountry,
-  shouldImport,
   shouldReviewType,
   resolve,
   resolveId

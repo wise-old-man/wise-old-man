@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   height: 72px;
-  background: #1e1e1e;
+  background: $gray-05;
   z-index: 500;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -35,20 +35,20 @@
 
       .nav-logo-text {
         @extend %block-text-selection;
-        font-size: 0.8em;
+        font-size: 1em;
         margin-left: -5px;
         margin-top: 3px;
+        font-weight: 900;
         font-family: 'Lato', sans-serif;
-        color: $gray-60;
+        color: white;
 
-        span:first-child {
+        span:last-child {
           display: block;
-          width: 100%;
-          font-size: 2.5em;
-          text-align: center;
-          line-height: 0.9em;
-          font-family: 'Squada One';
-          color: white;
+          font-family: 'Lobster';
+          color: hsl(168, 64%, 44%);
+          background: -webkit-linear-gradient(hsl(168, 71%, 85%), hsl(168, 79%, 31%));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
       }
     }

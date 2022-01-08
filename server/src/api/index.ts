@@ -1,10 +1,8 @@
-import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 import cors from 'cors';
 import express, { Express } from 'express';
 import rateLimit from 'express-rate-limit';
 import userAgent from 'express-useragent';
-import env, { isTesting } from '../env';
+import { isTesting } from '../env';
 import hooks from './hooks';
 import jobs from './jobs';
 import router from './routing';
@@ -28,9 +26,6 @@ class API {
   }
 
   setupMiddlewares() {
-    this.express.use(Sentry.Handlers.requestHandler());
-    this.express.use(Sentry.Handlers.tracingHandler());
-
     this.express.set('trust proxy', 1);
 
     this.express.use(userAgent.express());
@@ -77,15 +72,6 @@ class API {
   setupServices() {
     jobs.init();
     hooks.setup();
-
-    Sentry.init({
-      dsn: env.SENTRY_DSN,
-      tracesSampleRate: 0.01,
-      integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Tracing.Integrations.Express({ app: this.express })
-      ]
-    });
   }
 }
 

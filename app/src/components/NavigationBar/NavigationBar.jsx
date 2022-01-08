@@ -50,30 +50,15 @@ const MENU_CONFIG = [
     ]
   },
   {
-    type: 'dropdown',
-    label: 'Efficiency',
-    links: [
-      {
-        icon: '/img/icons/skilling.svg',
-        label: 'EHP Rates',
-        url: '/rates/ehp'
-      },
-      {
-        icon: '/img/icons/sword.svg',
-        label: 'EHB Rates',
-        url: '/rates/ehb'
-      }
-    ]
-  },
-  {
     type: 'link',
     label: 'API',
     url: 'https://wiseoldman.net/docs'
   },
   {
     type: 'link',
-    label: 'Discord Bot',
-    url: 'https://bot.wiseoldman.net'
+    label: 'Visit main website',
+    url: 'https://wiseoldman.net',
+    buttonStyle: true
   }
 ];
 
@@ -127,8 +112,8 @@ function NavigationBar() {
         <Link className="nav-brand col-md-3 col-8" to="/" onClick={closeMenu}>
           <img className="nav-logo-img" src="/img/logo.png" alt="" />
           <div className="nav-logo-text">
-            <span>WISE</span>
-            <span>OLD MAN</span>
+            <span>WISE OLD MAN</span>
+            <span>Shattered Relics</span>
           </div>
         </Link>
         <div className="nav-menu col-md-9 col-4">

@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
 import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
-import proxiesService from './proxies.service';
+// import proxiesService from './proxies.service';
 
 const SCRAPING_HEADERS = {
   Host: 'secure.runescape.com',
@@ -18,29 +18,32 @@ const SCRAPING_HEADERS = {
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username: string, type = 'regular'): Promise<string> {
-  const proxy = proxiesService.getNextProxy();
-  const URL = `${OSRS_HISCORES[type]}?player=${username}`;
+async function getHiscoresData(username: string, type = 'seasonal'): Promise<string> {
+  console.log(type);
+  throw new ServerError('Tracking is disabled until the Shattered Relics League starts.');
 
-  try {
-    // Fetch the data through the API Url
-    const { data } = await axios({ url: proxy ? URL.replace('https', 'http') : URL, proxy });
+  // const proxy = proxiesService.getNextProxy();
+  // const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 
-    // Validate the response data
-    if (!data || !data.length || data.includes('Unavailable') || data.includes('<')) {
-      throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
-    }
+  // try {
+  //   // Fetch the data through the API Url
+  //   const { data } = await axios({ url: proxy ? URL.replace('https', 'http') : URL, proxy });
 
-    return data;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
+  //   // Validate the response data
+  //   if (!data || !data.length || data.includes('Unavailable') || data.includes('<')) {
+  //     throw new ServerError('Failed to load hiscores: Jagex service is unavailable');
+  //   }
 
-    if (e.response && e.response.status === 404) {
-      throw new BadRequestError('Failed to load hiscores: Invalid username.');
-    } else {
-      throw new ServerError('Failed to load hiscores: Connection refused.');
-    }
-  }
+  //   return data;
+  // } catch (e) {
+  //   if (e instanceof ServerError) throw e;
+
+  //   if (e.response && e.response.status === 404) {
+  //     throw new BadRequestError('Failed to load hiscores: Invalid username.');
+  //   } else {
+  //     throw new ServerError('Failed to load hiscores: Connection refused.');
+  //   }
+  // }
 }
 
 /**

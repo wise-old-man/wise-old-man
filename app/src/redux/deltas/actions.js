@@ -1,11 +1,11 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const fetchLeaderboards = (metric, period, type, build, country) => async dispatch => {
+const fetchLeaderboards = (metric, period, build, country) => async dispatch => {
   dispatch(reducers.onFetchLeaderboardsRequest({ period }));
 
   try {
-    const params = { metric, period, playerType: type, playerBuild: build, country };
+    const params = { metric, period, playerBuild: build, country };
     const { data } = await api.get(endpoints.fetchDeltasLeaderboards, { params });
 
     dispatch(reducers.onFetchLeaderboardsSuccess({ period, data }));
