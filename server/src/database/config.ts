@@ -1,7 +1,7 @@
 import env, { isTesting } from '../env';
 
 export = {
-  database: 'wise-old-man',
+  database: 'shattered',
   dialect: isTesting() ? 'sqlite' : 'postgres',
   host: env.DB_HOST,
   username: env.POSTGRES_USER,
