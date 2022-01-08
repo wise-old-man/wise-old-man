@@ -6,7 +6,6 @@ import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../u
 import * as cmlService from '../external/cml.service';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
-import logger from '../external/logger.service';
 import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
@@ -171,11 +170,6 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 
   try {
-    // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === 'unknown') {
-      player.type = await getType(player);
-    }
-
     // Fetch the previous player stats from the database
     const previousStats = await snapshotService.findLatest(player.id);
     // Fetch the new player stats from the hiscores API
@@ -195,6 +189,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // Refresh the player's build
     player.build = getBuild(currentStats);
+    player.type = 'ironman';
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
@@ -281,69 +276,14 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   return savedSnapshots;
 }
 
-async function fetchStats(player: Player, type?: string): Promise<Snapshot> {
+async function fetchStats(player: Player): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username);
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
 
   return newSnapshot;
-}
-
-/**
- * Gets a player's overall exp in a specific hiscores endpoint.
- * Note: This is an auxilary function for the getType function.
- */
-async function getOverallExperience(player: Player, type: string): Promise<number | null> {
-  try {
-    return (await fetchStats(player, type)).overallExperience;
-  } catch (e) {
-    if (e instanceof ServerError) throw e;
-    logger.debug(`Failed ${type}`, { id: player.id, username: player.username, error: e });
-    return null;
-  }
-}
-
-async function getType(player: Player): Promise<string> {
-  const regularExp = await getOverallExperience(player, 'regular');
-  logger.debug(`Checking regular ${regularExp}`, { id: player.id, username: player.username });
-
-  // This username is not on the hiscores
-  if (!regularExp) {
-    throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
-  }
-
-  const ironmanExp = await getOverallExperience(player, 'ironman');
-  logger.debug(`Checking ironman ${ironmanExp}`, { id: player.id, username: player.username });
-  if (!ironmanExp || ironmanExp < regularExp) return 'regular';
-
-  const hardcoreExp = await getOverallExperience(player, 'hardcore');
-  logger.debug(`Checking hardcore ${hardcoreExp}`, { id: player.id, username: player.username });
-  if (hardcoreExp && hardcoreExp >= ironmanExp) return 'hardcore';
-
-  const ultimateExp = await getOverallExperience(player, 'ultimate');
-  logger.debug(`Checking ultimate ${ultimateExp}`, { id: player.id, username: player.username });
-  if (ultimateExp && ultimateExp >= ironmanExp) return 'ultimate';
-
-  return 'ironman';
-}
-
-/**
- * Fetch various hiscores endpoints to find the correct player type of a given player.
- */
-async function assertType(player: Player): Promise<string> {
-  if (player.flagged) {
-    throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
-  }
-
-  const type = await getType(player);
-
-  if (player.type !== type) {
-    await player.update({ type });
-  }
-
-  return type;
 }
 
 /**
@@ -475,7 +415,6 @@ export {
   search,
   update,
   importCML,
-  assertType,
   assertName,
   updateCountry,
   shouldImport,
