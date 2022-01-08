@@ -1,6 +1,4 @@
-import axios from 'axios';
 import { Achievement, Competition, Player } from '../../../database/models';
-import env from '../../../env';
 import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';
@@ -11,15 +9,7 @@ import * as playerService from '../internal/player.service';
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: any) {
-  const url = env.DISCORD_BOT_API_URL;
-  const api_token = env.DISCORD_BOT_API_TOKEN;
-  const body = { type, api_token, data: payload };
-
-  console.log('Sending discord event', type, payload);
-
-  axios.post(url, body).catch(e => {
-    console.log('Error sending discord event.', e);
-  });
+  console.log('Cannot dispatch discord events in the Shattered Relics Edition.');
 }
 
 /**
