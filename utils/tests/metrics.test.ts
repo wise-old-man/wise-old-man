@@ -93,8 +93,8 @@ describe('Util - Metrics', () => {
   test('getMinimumBossKc', () => {
     expect(getMinimumBossKc(Metrics.ATTACK)).toBe(0);
     expect(getMinimumBossKc(Metrics.ZALCANO)).toBe(50);
-    expect(getMinimumBossKc(Metrics.TZTOK_JAD)).toBe(10);
-    expect(getMinimumBossKc(Metrics.TZKAL_ZUK)).toBe(2);
+    expect(getMinimumBossKc(Metrics.TZTOK_JAD)).toBe(5);
+    expect(getMinimumBossKc(Metrics.TZKAL_ZUK)).toBe(1);
   });
 
   test('getParentVirtualMetric', () => {
