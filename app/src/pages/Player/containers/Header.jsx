@@ -10,7 +10,7 @@ const MENU_OPTIONS = [
 ];
 
 function Header(props) {
-  const { player, isTracking, handleUpdate, handleRedirect, handleAssertName, handleAssertType } = props;
+  const { player, isTracking, handleUpdate, handleRedirect, handleAssertName } = props;
 
   const handleOptionSelected = option => {
     if (option.value === 'OPEN_HISCORES') {
