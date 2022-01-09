@@ -25,17 +25,21 @@ export interface JobQueue extends Job {
   bull: any;
 }
 
+function wrapJobName(name) {
+  return `league_${name}`;
+}
+
 class JobHandler {
   private queues: JobQueue[];
 
   constructor() {
     this.queues = jobs.map((job: Job) => ({
-      bull: new Queue(job.name, {
+      bull: new Queue(wrapJobName(job.name), {
         redis: redisConfig,
         limiter: job.rateLimiter,
         defaultJobOptions: { removeOnComplete: true, removeOnFail: true, ...(job.defaultOptions || {}) }
       }),
-      name: job.name,
+      name: wrapJobName(job.name),
       handle: job.handle,
       onFailure: job.onFailure,
       onSuccess: job.onSuccess
@@ -48,17 +52,17 @@ class JobHandler {
   async add(name: string, data: any, options?: any) {
     if (isTesting()) return;
 
-    const queue = this.queues.find(q => q.name === name);
+    const queue = this.queues.find(q => q.name === wrapJobName(name));
 
     if (!queue) throw new Error(`No job found for name ${name}`);
 
     if (name === 'UpdatePlayer') {
       // Check if this username is already in cooldown
-      const cooldown = await redisService.getValue('cd:UpdatePlayer', data.username);
+      const cooldown = await redisService.getValue('cd:league_UpdatePlayer', data.username);
       if (cooldown) return;
 
       // Store the current timestamp to activate the cooldown (1h)
-      await redisService.setValue('cd:UpdatePlayer', data.username, Date.now(), 3_600_000);
+      await redisService.setValue('cd:league_UpdatePlayer', data.username, Date.now(), 3_600_000);
     }
 
     const priority = (options && options.priority) || JobPriority.MEDIUM;
@@ -103,7 +107,10 @@ class JobHandler {
       // TODO: this can be improved to await for the removal above, instead of the hacky 10sec wait
       setTimeout(() => {
         crons.forEach(({ jobName, cronConfig }) =>
-          this.add(jobName, null, { repeat: { cron: cronConfig }, priority: JobPriority.LOW })
+          this.add(jobName, null, {
+            repeat: { cron: cronConfig },
+            priority: JobPriority.LOW
+          })
         );
       }, 10000);
     }
