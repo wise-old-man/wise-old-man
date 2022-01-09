@@ -5,11 +5,8 @@ import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
 import * as geoService from '../external/geo.service';
 import * as jagexService from '../external/jagex.service';
-import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
-
-const DAY_IN_SECONDS = 86_400;
 
 interface PlayerResolvable {
   id?: number;
@@ -52,26 +49,6 @@ function isValidUsername(username: string): boolean {
   if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) return false;
 
   return true;
-}
-
-/**
- * Checks if a given player should have their player type reviewed.
- * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
- */
-async function shouldReviewType(player: Player): Promise<boolean> {
-  const { username, type, lastChangedAt } = player;
-
-  // Type reviews should only be done on iron players
-  if (type === 'regular' || type === 'unknown') return false;
-
-  // After checking a player's type, we add their username to a cache that blocks
-  // this action to be repeated again within the next week (as to not overload the server)
-  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', username));
-
-  // If player hasn't gained exp in over 24h, despite being updated recently
-  const isInactive = !lastChangedAt || (Date.now() - lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
-
-  return !hasCooldown && isInactive;
 }
 
 /**
@@ -345,7 +322,6 @@ export {
   update,
   assertName,
   updateCountry,
-  shouldReviewType,
   resolve,
   resolveId
 };
