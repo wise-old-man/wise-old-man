@@ -40,7 +40,9 @@ function UpdateAllModal({ entityName, onCancel, onSubmit }) {
         <Button text="Update All" onClick={handleSubmit} disabled={isButtonDisabled} />
         <span className="modal-warning">
           We've recently updated the cooldowns for the "Update All" feature. &nbsp;
-          <a href="https://wiseoldman.net/discord">Read all about it in our discord announcement.</a>
+          <a href="https://wiseoldman.net/discord">
+            Read all about it in our discord's #announcements channel.
+          </a>
         </span>
       </div>
     </div>
