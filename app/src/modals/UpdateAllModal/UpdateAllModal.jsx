@@ -22,7 +22,7 @@ function UpdateAllModal({ entityName, onCancel, onSubmit }) {
         <button className="close-btn" type="button" onClick={onCancel}>
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
-        <span className="modal-warning">{`This action requires this ${entityName}'s verification code.`}</span>
+        <span className="modal-note">{`This action requires this ${entityName}'s verification code.`}</span>
         <input
           className="verification-input"
           value={verificationCode}
@@ -38,6 +38,10 @@ function UpdateAllModal({ entityName, onCancel, onSubmit }) {
           </a>
         </div>
         <Button text="Update All" onClick={handleSubmit} disabled={isButtonDisabled} />
+        <span className="modal-warning">
+          We've recently updated the cooldowns for the "Update All" feature. &nbsp;
+          <a href="https://wiseoldman.net/discord">Read all about it in our discord announcement.</a>
+        </span>
       </div>
     </div>
   );

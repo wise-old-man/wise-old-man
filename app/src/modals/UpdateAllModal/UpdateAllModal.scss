@@ -36,11 +36,25 @@
       }
     }
 
-    .modal-warning {
+    .modal-note {
       font-size: 0.9em;
       display: block;
       color: $gray-60;
       margin-top: 10px;
+    }
+
+    .modal-warning {
+      font-size: 0.8em;
+      display: block;
+      color: $gray-60;
+      margin-top: 20px;
+      border: 1px dashed $neutral-orange;
+      border-radius: 10px;
+      padding: 10px;
+
+      a {
+        color: white;
+      }
     }
 
     .verification-input {
