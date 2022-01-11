@@ -271,11 +271,12 @@ async function updateAllParticipants(req: Request, res: Response, next: NextFunc
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const participants = await service.updateAll(competition, false, ({ username }) => {
+    const result = await service.updateAll(competition, false, ({ username }) => {
       jobs.add('UpdatePlayer', { username, source: 'Competition:UpdateAll' });
     });
 
-    const message = `${participants.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;
+    const { participants, cooldownDuration } = result;
+    const message = `${participants.length} outdated (updated < ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
 
     res.json({ message });
   } catch (e) {
