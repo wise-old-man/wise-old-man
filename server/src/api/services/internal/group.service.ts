@@ -875,9 +875,8 @@ async function findOne(groupId) {
 /**
  * Update all members of a group.
  *
- * An update action must be supplied, to be executed for
- * every member. This is to prevent calling jobs from
- * within the service (circular dependency).
+ * An update action must be supplied, to be executed for every member.
+ * This is to prevent calling jobs from within the service (circular dependency).
  * I'd rather call them from the controller.
  */
 async function updateAllMembers(group: Group, updateAction: (player: Player) => void) {
@@ -895,14 +894,14 @@ async function updateAllMembers(group: Group, updateAction: (player: Player) => 
 
 /**
  * Get outdated members of a specific group id.
- * A member is considered outdated 10 minutes after their last update
+ * A member is considered outdated 24 hours after their last update.
  */
 async function getOutdatedMembers(groupId) {
   if (!groupId) {
     throw new BadRequestError('Invalid group id.');
   }
 
-  const hourAgo = moment().subtract(60, 'minute');
+  const hourAgo = moment().subtract(24, 'hour');
 
   const membersToUpdate = await Membership.findAll({
     attributes: ['groupId', 'playerId'],
