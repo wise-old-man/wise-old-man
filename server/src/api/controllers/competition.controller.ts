@@ -276,7 +276,7 @@ async function updateAllParticipants(req: Request, res: Response, next: NextFunc
     });
 
     const { participants, cooldownDuration } = result;
-    const message = `${participants.length} outdated (updated < ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
+    const message = `${participants.length} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
 
     res.json({ message });
   } catch (e) {
