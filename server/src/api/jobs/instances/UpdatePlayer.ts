@@ -11,7 +11,7 @@ class UpdatePlayer implements Job {
 
   constructor() {
     this.name = 'UpdatePlayer';
-    this.rateLimiter = { max: 1, duration: 1000 };
+    this.rateLimiter = { max: 1, duration: 2000 };
     this.defaultOptions = { attempts: 3, backoff: 30_000 };
   }
 

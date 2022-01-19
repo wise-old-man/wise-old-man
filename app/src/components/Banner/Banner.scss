@@ -1,0 +1,20 @@
+@import '../../variables.scss';
+@import '../../styles.scss';
+
+.banner__container {
+  height: 50px;
+  background: $gray-05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 5px;
+
+  p {
+    font-size: 0.8em;
+  }
+
+  a {
+    font-size: 0.8em;
+    color: $brand-color-bright;
+  }
+}
