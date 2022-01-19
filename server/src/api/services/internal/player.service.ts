@@ -148,7 +148,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // Refresh the player's build
     player.build = getBuild(currentStats);
-    player.type = 'ironman';
+    player.type = 'regular';
     player.flagged = false;
 
     const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
