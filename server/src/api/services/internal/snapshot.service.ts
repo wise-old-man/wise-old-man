@@ -79,7 +79,7 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
 
   const leagueExpModifier = 20;
 
-  return ehpDiff * leagueExpModifier + ehbDiff > hoursDiff;
+  return ehpDiff / leagueExpModifier + ehbDiff > hoursDiff;
 }
 
 /**
