@@ -54,6 +54,10 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 
   const negativeGains = hasNegativeGains(before, after);
   const excessiveGains = hasExcessiveGains(before, after);
+  
+  if(!negativeGains && !excessiveGains){
+     console.log({ negativeGains, excessiveGains });
+  }
 
   return !negativeGains && !excessiveGains;
 }
