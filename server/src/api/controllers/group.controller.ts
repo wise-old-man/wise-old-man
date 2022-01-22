@@ -189,7 +189,7 @@ async function updateAll(req: Request, res: Response, next: NextFunction) {
       jobs.add('UpdatePlayer', { username, source: 'Group:UpdateAll' });
     });
 
-    const message = `${members.length} outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.`;
+    const message = `${members.length} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
 
     res.json({ message });
   } catch (e) {
