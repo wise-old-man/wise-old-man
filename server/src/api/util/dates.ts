@@ -1,37 +1,4 @@
 import moment from 'moment';
-import { PERIODS } from '../constants';
-
-const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
-
-function parsePeriod(period: string): [string, number] | null {
-  const fixed = period.toLowerCase();
-
-  if (PERIODS.includes(fixed)) {
-    return [fixed, getMilliseconds(fixed)];
-  }
-
-  const result = fixed.match(CUSTOM_PERIOD_REGEX);
-
-  if (!result || result.length === 0 || result[0] !== fixed) {
-    return [null, null];
-  }
-
-  const years = result[1] ? parseInt(result[1].replace(/\D/g, '')) : null;
-  const months = result[2] ? parseInt(result[2].replace(/\D/g, '')) : null;
-  const weeks = result[3] ? parseInt(result[3].replace(/\D/g, '')) : null;
-  const days = result[4] ? parseInt(result[4].replace(/\D/g, '')) : null;
-  const hours = result[5] ? parseInt(result[5].replace(/\D/g, '')) : null;
-
-  const yearsMs = years ? years * getMilliseconds('year') : 0;
-  const monthsMs = months ? months * getMilliseconds('month') : 0;
-  const weeksMs = weeks ? weeks * getMilliseconds('week') : 0;
-  const daysMs = days ? days * getMilliseconds('day') : 0;
-  const hoursMs = hours ? hours * getMilliseconds('hour') : 0;
-
-  const totalMs = yearsMs + monthsMs + weeksMs + daysMs + hoursMs;
-
-  return [result[0], totalMs];
-}
 
 function formatDate(date: Date, mask = 'MM-DD-YYYY HH:mm') {
   return moment(date).format(mask);
@@ -102,23 +69,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-function getMilliseconds(period: string) {
-  switch (period) {
-    case '5min':
-      return 300 * 1000;
-    case 'hour':
-      return 3600 * 1000;
-    case 'day':
-      return 3600 * 24 * 1000;
-    case 'week':
-      return 3600 * 24 * 7 * 1000;
-    case 'month':
-      return 3600 * 24 * 31 * 1000;
-    case 'year':
-      return 31556926 * 1000;
-    default:
-      return -1;
-  }
-}
-
-export { parsePeriod, formatDate, isValidDate, isPast, durationBetween, getMilliseconds };
+export { formatDate, isValidDate, isPast, durationBetween };

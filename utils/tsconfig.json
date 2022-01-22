@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "types": ["jest", "node"]
   },
   "exclude": ["node_modules", "dist"]
 }

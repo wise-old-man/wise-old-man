@@ -10,8 +10,8 @@ enum CompetitionStatus {
 }
 
 const CompetitionTypeProps = {
-  [CompetitionType.CLASSIC]: { name: 'classic' },
-  [CompetitionType.TEAM]: { name: 'team' }
+  [CompetitionType.CLASSIC]: { name: 'Classic' },
+  [CompetitionType.TEAM]: { name: 'Team' }
 };
 
 const CompetitionStatusProps = {

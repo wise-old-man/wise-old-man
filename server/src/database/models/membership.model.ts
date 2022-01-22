@@ -9,14 +9,14 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { GROUP_ROLES } from '../../api/constants';
+import { GroupRole, GROUP_ROLES } from '@wise-old-man/utils';
 import { Group, Player } from '../../database/models';
 
 // Define other table options
 const options = {
   modelName: 'memberships',
   validate: {
-     validateRole
+    validateRole
   },
   indexes: [
     {
@@ -38,7 +38,7 @@ export default class Membership extends Model<Membership> {
 
   @Default('member')
   @Column({ type: DataType.STRING(40), allowNull: false })
-  role: string;
+  role: GroupRole;
 
   @CreatedAt
   createdAt: Date;

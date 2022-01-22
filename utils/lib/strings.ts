@@ -1,9 +1,4 @@
-export function capitalize(string: string | null): string | null {
-  if (!string) return null;
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-export function formatNumber(num: number, withLetters = false) {
+function formatNumber(num: number, withLetters = false) {
   if (num === undefined || num === null) return -1;
 
   // If number is float
@@ -28,7 +23,9 @@ export function formatNumber(num: number, withLetters = false) {
   return `${Math.round((num / 1000000000 + Number.EPSILON) * 100) / 100}b`;
 }
 
-export function padNumber(value: number): string {
+function padNumber(value: number): string {
   if (!value) return '00';
   return value < 10 ? `0${value}` : value.toString();
 }
+
+export { formatNumber, padNumber };

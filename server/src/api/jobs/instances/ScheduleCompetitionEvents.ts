@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { EventPeriodDelay } from 'src/types';
+import { EventPeriodDelay } from '../../../types';
 import { Competition } from '../../../database/models';
 import {
   onCompetitionEnded,

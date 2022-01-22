@@ -1,9 +1,10 @@
+import { Metrics } from '@wise-old-man/utils';
 import { QueryInterface } from 'sequelize/types';
 
 function up(queryInterface: QueryInterface, dataTypes: any): Promise<Array<any>> {
   const NEW_COLUMNS = [
-    { name: 'ehp', type: dataTypes.FLOAT },
-    { name: 'ehb', type: dataTypes.FLOAT }
+    { name: Metrics.EHP, type: dataTypes.FLOAT },
+    { name: Metrics.EHB, type: dataTypes.FLOAT }
   ];
 
   const actions = Promise.all(

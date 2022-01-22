@@ -1,7 +1,22 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { MigratedGroupInfo, Pagination } from 'src/types';
+import {
+  getMetricMeasure,
+  getMetricRankKey,
+  getMetricValueKey,
+  isSkill,
+  isValidPeriod,
+  Period,
+  Metric,
+  Metrics,
+  METRICS,
+  getLevel,
+  GROUP_ROLES,
+  PRIVELEGED_GROUP_ROLES,
+  GroupRole
+} from '@wise-old-man/utils';
+import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import {
   Achievement,
@@ -12,11 +27,9 @@ import {
   Record,
   Snapshot
 } from '../../../database/models';
-import { ALL_METRICS, GROUP_ROLES, PERIODS, PRIVELEGED_GROUP_ROLES } from '../../constants';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { get200msCount, getCombatLevel, getLevel, getTotalLevel } from '../../util/experience';
-import { getMeasure, getRankKey, getValueKey, isSkill } from '../../util/metrics';
+import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
@@ -176,7 +189,12 @@ async function getMonthlyTopPlayer(groupId: number) {
   if (!memberIds.length) return null;
 
   const pagination = { limit: 1, offset: 0 };
-  const leaderboard = await deltaService.getGroupPeriodDeltas('overall', 'month', memberIds, pagination);
+  const leaderboard = await deltaService.getGroupPeriodDeltas(
+    Metrics.OVERALL,
+    Period.MONTH,
+    memberIds,
+    pagination
+  );
 
   const monthlyTopPlayer = leaderboard[0] || null;
 
@@ -194,7 +212,7 @@ async function getGainedInTimeRange(
   metric: string,
   pagination: Pagination
 ) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -213,7 +231,7 @@ async function getGainedInTimeRange(
   }
 
   const leaderboard = await deltaService.getGroupTimeRangeDeltas(
-    metric,
+    metric as Metric,
     startDate,
     endDate,
     memberIds,
@@ -227,13 +245,8 @@ async function getGainedInTimeRange(
  * Gets the current gains leaderboard for a specific metric and period,
  * between the members of a group.
  */
-async function getGainedInPeriod(
-  groupId: number,
-  period: string,
-  metric: string,
-  pagination: Pagination
-) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+async function getGainedInPeriod(groupId: number, period: string, metric: string, pagination: Pagination) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -282,11 +295,11 @@ async function getRecords(
   period: string,
   pagination: Pagination
 ): Promise<Record[]> {
-  if (!period || !PERIODS.includes(period)) {
+  if (!period || !isValidPeriod(period)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -322,9 +335,7 @@ async function getMembersList(group: Group): Promise<Member[]> {
   // Format all the members, add each experience to its respective player, and sort them by role
   return memberships
     .map(({ player, role, createdAt }) => ({ ...(player.toJSON() as any), role, joinedAt: createdAt }))
-    .sort(
-      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
-    );
+    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
 }
 
 /**
@@ -332,7 +343,7 @@ async function getMembersList(group: Group): Promise<Member[]> {
  * All members which HAVE SNAPSHOTS will included and sorted by rank.
  */
 async function getHiscores(groupId: number, metric: string, pagination: Pagination) {
-  if (!metric || !ALL_METRICS.includes(metric)) {
+  if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
@@ -347,9 +358,9 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
     return [];
   }
 
-  const valueKey = getValueKey(metric);
-  const rankKey = getRankKey(metric);
-  const measure = getMeasure(metric);
+  const valueKey = getMetricValueKey(metric as Metric);
+  const rankKey = getMetricRankKey(metric as Metric);
+  const measure = getMetricMeasure(metric as Metric);
   const memberIds = memberships.map(m => m.player.id);
 
   const query = `
@@ -380,8 +391,8 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
       [measure]: parseInt(d[valueKey], 10)
     };
 
-    if (isSkill(metric)) {
-      data.level = metric === 'overall' ? getTotalLevel(d) : getLevel(data.experience);
+    if (isSkill(metric as Metric)) {
+      data.level = metric === Metrics.OVERALL ? getTotalLevel(d as Snapshot) : getLevel(data.experience);
     }
 
     return data;
@@ -479,7 +490,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
 
   // Check if there are any invalid roles given
   if (members && members.length > 0) {
-    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role as GroupRole));
 
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
@@ -557,7 +568,7 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
       );
     }
 
-    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role));
+    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role as GroupRole));
 
     if (invalidRoles.length > 0) {
       throw new BadRequestError(
@@ -665,9 +676,7 @@ async function setMembers(group: Group, members: MemberFragment[]): Promise<Memb
   );
 
   // Find all memberships that should be stay members (opposite of removeMemberships)
-  const keptMemberships = previousMemberships.filter(pm =>
-    memberships.find(m => m.playerId === pm.playerId)
-  );
+  const keptMemberships = previousMemberships.filter(pm => memberships.find(m => m.playerId === pm.playerId));
 
   // Find all new memberships (were not previously members, but should be added)
   const newMemberships = memberships.filter(
@@ -732,7 +741,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
       throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
     }
 
-    if (m.role && !GROUP_ROLES.includes(m.role)) {
+    if (m.role && !GROUP_ROLES.includes(m.role as GroupRole)) {
       throw new BadRequestError(`${m.role} is not a valid role.`);
     }
   });
@@ -836,7 +845,7 @@ async function changeRole(group: Group, member: MemberFragment): Promise<[Player
     throw new BadRequestError(`${username} is already a ${role}.`);
   }
 
-  if (!GROUP_ROLES.includes(member.role)) {
+  if (!GROUP_ROLES.includes(member.role as GroupRole)) {
     throw new BadRequestError(`${member.role} is not a valid role.`);
   }
 

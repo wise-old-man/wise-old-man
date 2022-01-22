@@ -1,7 +1,7 @@
 import { QueryInterface } from 'sequelize/types';
-import { PERIODS } from '../../api/constants';
+import { PERIODS } from '@wise-old-man/utils';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('deltas', {
     id: {
       type: dataTypes.INTEGER,

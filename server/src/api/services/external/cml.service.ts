@@ -1,6 +1,6 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-import { MigratedGroupInfo } from 'src/types';
+import { MigratedGroupInfo } from '../../../types';
 import { CML } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
 

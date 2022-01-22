@@ -2,8 +2,8 @@ enum PlayerType {
   UNKNOWN = 'unknown',
   REGULAR = 'regular',
   IRONMAN = 'ironman',
-  ULTIMATE = 'ultimate',
-  HARDCORE = 'hardcore'
+  HARDCORE = 'hardcore',
+  ULTIMATE = 'ultimate'
 }
 
 enum PlayerBuild {
@@ -19,8 +19,8 @@ const PlayerTypeProps = {
   [PlayerType.UNKNOWN]: { name: 'Unknown' },
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },
-  [PlayerType.ULTIMATE]: { name: 'Ultimate' },
-  [PlayerType.HARDCORE]: { name: 'Hardcore' }
+  [PlayerType.HARDCORE]: { name: 'Hardcore' },
+  [PlayerType.ULTIMATE]: { name: 'Ultimate' }
 };
 
 const PlayerBuildProps = {
@@ -37,7 +37,7 @@ const PLAYER_BUILDS = Object.values(PlayerBuild);
 
 function findPlayerType(typeName: string): PlayerType | null {
   for (var [key, value] of Object.entries(PlayerTypeProps)) {
-    if (value.name === typeName) return key as PlayerType;
+    if (value.name.toUpperCase() === typeName.toUpperCase()) return key as PlayerType;
   }
 
   return null;
@@ -45,7 +45,7 @@ function findPlayerType(typeName: string): PlayerType | null {
 
 function findPlayerBuild(buildName: string): PlayerBuild | null {
   for (var [key, value] of Object.entries(PlayerBuildProps)) {
-    if (value.name === buildName) return key as PlayerBuild;
+    if (value.name.toUpperCase() === buildName.toUpperCase()) return key as PlayerBuild;
   }
 
   return null;
@@ -55,6 +55,7 @@ function standardizeUsername(username) {
   return sanitizeUsername(username).toLowerCase();
 }
 
+// TODO: should this also remove any non alphanumeric symbols?
 function sanitizeUsername(username) {
   return username.replace(/[-_\s]/g, ' ').trim();
 }

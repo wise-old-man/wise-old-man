@@ -1,5 +1,5 @@
+import { SKILLS, BOSSES, Metrics } from '@wise-old-man/utils';
 import { Bonus, BonusType, BossMeta, Experiences, Killcounts, SkillMeta } from '../../../types';
-import { BOSSES, SKILLS } from '../../constants';
 
 function getBonuses(metas: SkillMeta[], type: BonusType): Bonus[] {
   return metas
@@ -63,7 +63,7 @@ function calculateTT200m(experiences: Experiences, metas: SkillMeta[]): number {
   );
 
   const skillTimes = SKILLS.map(skill => {
-    if (skill === 'overall') return 0;
+    if (skill === Metrics.OVERALL) return 0;
 
     const methods = metas.find(sm => sm.skill === skill)?.methods;
     const startExp = startExps[skill];

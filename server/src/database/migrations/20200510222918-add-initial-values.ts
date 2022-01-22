@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { getRankKey, getValueKey } from '../../api/util/metrics';
+import { getMetricRankKey, getMetricValueKey, Metric, Metrics } from '@wise-old-man/utils';
 
 const BOSSES = [
   'abyssal_sire',
@@ -89,7 +89,7 @@ const SKILLS = [
   'construction'
 ];
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('initialValues', {
     id: {
       type: dataTypes.INTEGER,
@@ -122,8 +122,8 @@ function buildDynamicSchema(DataTypes) {
   const metrics = [...SKILLS, ...BOSSES, ...ACTIVITIES];
 
   metrics.forEach(s => {
-    obj[getRankKey(s)] = DataTypes.INTEGER;
-    obj[getValueKey(s)] = s === 'overall' ? DataTypes.BIGINT : DataTypes.INTEGER;
+    obj[getMetricRankKey(s as Metric)] = DataTypes.INTEGER;
+    obj[getMetricValueKey(s as Metric)] = s === Metrics.OVERALL ? DataTypes.BIGINT : DataTypes.INTEGER;
   });
 
   return obj;
