@@ -1,6 +1,6 @@
 {
   "name": "@wise-old-man/utils",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "A few constants and helper functions to be re-used in all repositories under the WiseOldMan project.",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
