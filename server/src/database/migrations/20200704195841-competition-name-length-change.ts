@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.changeColumn('competitions', 'title', {
     type: dataTypes.STRING(50),
     allowNull: false

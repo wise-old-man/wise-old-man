@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.addColumn('deltas', 'theatre_of_blood_hard_mode', {
     type: dataTypes.INTEGER,
     allowNull: false,
@@ -8,7 +8,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   });
 }
 
-function down(queryInterface: QueryInterface): Promise<void> {
+function down(queryInterface: QueryInterface) {
   return queryInterface.removeColumn('deltas', 'theatre_of_blood_hard_mode');
 }
 

@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.addColumn('players', 'ttm', {
     type: dataTypes.FLOAT,
     allowNull: false,
@@ -8,7 +8,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
   });
 }
 
-function down(queryInterface: QueryInterface): Promise<void> {
+function down(queryInterface: QueryInterface) {
   return queryInterface.removeColumn('players', 'ttm');
 }
 

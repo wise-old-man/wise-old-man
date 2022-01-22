@@ -1,6 +1,6 @@
 import { QueryInterface } from 'sequelize/types';
 
-function up(queryInterface: QueryInterface): Promise<void> {
+function up(queryInterface: QueryInterface) {
   return queryInterface.addIndex('achievements', ['playerId', 'type'], {
     name: 'achievements_playerId_type',
     unique: true
