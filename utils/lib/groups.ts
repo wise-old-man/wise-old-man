@@ -62,7 +62,7 @@ enum GroupRole {
   DEATH = 'death',
   DEFENDER = 'defender',
   DEFILER = 'defiler',
-  DEPUTY_OWNER = 'deputy_owner',
+  DEPUTY_OWNER = 'deputy owner',
   DESTROYER = 'destroyer',
   DIAMOND = 'diamond',
   DISEASED = 'diseased',
@@ -93,8 +93,8 @@ enum GroupRole {
   GAMER = 'gamer',
   GATHERER = 'gatherer',
   GENERAL = 'general',
-  GNOME_CHILD = 'gnome_child',
-  GNOME_ELDER = 'gnome_elder',
+  GNOME_CHILD = 'gnome child',
+  GNOME_ELDER = 'gnome elder',
   GOBLIN = 'goblin',
   GOLD = 'gold',
   GOON = 'goon',
@@ -190,10 +190,10 @@ enum GroupRole {
   RACER = 'racer',
   RAIDER = 'raider',
   RANGER = 'ranger',
-  RECORD_CHASER = 'record_chaser',
+  RECORD_CHASER = 'record-chaser',
   RECRUIT = 'recruit',
   RECRUITER = 'recruiter',
-  RED_TOPAZ = 'red_topaz',
+  RED_TOPAZ = 'red topaz',
   RED = 'red',
   ROGUE = 'rogue',
   RUBY = 'ruby',
@@ -215,7 +215,7 @@ enum GroupRole {
   SERGEANT = 'sergeant',
   SHAMAN = 'shaman',
   SHERIFF = 'sheriff',
-  SHORT_GREEN_GUY = 'short_green_guy',
+  SHORT_GREEN_GUY = 'short green guy',
   SKILLER = 'skiller',
   SKULLED = 'skulled',
   SLAYER = 'slayer',
@@ -225,7 +225,7 @@ enum GroupRole {
   SNIPER = 'sniper',
   SOUL = 'soul',
   SPECIALIST = 'specialist',
-  SPEED_RUNNER = 'speed_runner',
+  SPEED_RUNNER = 'speed-runner',
   SPELLCASTER = 'spellcaster',
   SQUIRE = 'squire',
   STAFF = 'staff',
@@ -547,7 +547,9 @@ const PRIVELEGED_GROUP_ROLES = GROUP_ROLES.filter(r => GroupRoleProps[r].isPrive
 
 function findGroupRole(roleName: string): GroupRole | null {
   for (var [key, value] of Object.entries(GroupRoleProps)) {
-    if (value.name.toUpperCase() === roleName.toUpperCase()) return key as GroupRole;
+    if (value.name.toUpperCase() === roleName.toUpperCase()) {
+      return key as GroupRole;
+    }
   }
 
   return null;
