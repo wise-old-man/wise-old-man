@@ -79,6 +79,8 @@ function calculateTT200m(experiences: Experiences, metas: SkillMeta[]): number {
     for (let i = 0; i < methods.length; i++) {
       const current = methods[i];
       const next = methods[i + 1];
+      
+      if (current.rate === 0) continue;
 
       // Start exp is within this method's boundaries
       if (next && next.startExp > startExp && current.startExp < endExp) {
