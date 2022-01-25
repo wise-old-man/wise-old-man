@@ -35,5 +35,6 @@ export default [
   { boss: 'zulrah', rate: 35 },
   { boss: 'nightmare', rate: 14 },
   { boss: 'theatre_of_blood_hard_mode', rate: 3 },
-  { boss: 'phosanis_nightmare', rate: 7.5 }
+  { boss: 'phosanis_nightmare', rate: 7.5 },
+  { boss: 'nex', rate: 12 }
 ];
