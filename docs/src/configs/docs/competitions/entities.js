@@ -155,6 +155,7 @@ export default [
       'kreearra',
       'kril_tsutsaroth',
       'mimic',
+      'nex',
       'nightmare',
       'phosanis_nightmare',
       'obor',

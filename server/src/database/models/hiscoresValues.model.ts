@@ -380,6 +380,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   mimicKills: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  nexRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  nexKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   nightmareRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })

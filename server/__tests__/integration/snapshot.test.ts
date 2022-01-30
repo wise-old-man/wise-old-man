@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import { promisify } from 'util';
-import { SKILLS } from '../../src/api/constants';
+import { SKILLS, getMetricRankKey, getMetricValueKey } from '@wise-old-man/utils';
 import * as service from '../../src/api/services/internal/snapshot.service';
-import { getRankKey, getValueKey } from '../../src/api/util/metrics';
 import { Player } from '../../src/database/models';
 import { TestData } from '../types';
 import { resetDatabase } from '../utils';
@@ -34,8 +33,8 @@ describe('Snapshot from external sources', () => {
         expect(snapshot.overallRank).toBe(1);
         expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
       } else {
-        expect(snapshot[getRankKey(skill)]).toBeLessThan(1000);
-        expect(snapshot[getValueKey(skill)]).toBe(200000000);
+        expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(1000);
+        expect(snapshot[getMetricValueKey(skill)]).toBe(200000000);
       }
     });
 
@@ -56,8 +55,8 @@ describe('Snapshot from external sources', () => {
           expect(snapshot.overallRank).toBe(1);
           expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
         } else {
-          expect(snapshot[getRankKey(skill)]).toBeLessThan(1000);
-          expect(snapshot[getValueKey(skill)]).toBe(200000000);
+          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(1000);
+          expect(snapshot[getMetricValueKey(skill)]).toBe(200000000);
         }
       });
     });

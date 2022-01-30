@@ -1,3 +1,4 @@
+import { PlayerType } from '@wise-old-man/utils';
 import { Competition } from '../../database/models';
 import { EventPeriodDelay } from '../../types';
 import jobs from '../jobs';
@@ -15,7 +16,7 @@ async function onParticipantsJoined(_: number, playerIds: number[]) {
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
-    if (type !== 'unknown' || Date.now() - registeredAt.getTime() > 60_000) return;
+    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
     jobs.add('UpdatePlayer', { username, source: 'Competition:OnParticipantsJoined' });
   });
 }

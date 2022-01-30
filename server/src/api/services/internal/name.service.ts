@@ -1,18 +1,10 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
+import { Metrics, SKILLS, getLevel } from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
-import {
-  Membership,
-  NameChange,
-  Participation,
-  Player,
-  Record,
-  Snapshot
-} from '../../../database/models';
+import { Membership, NameChange, Participation, Player, Record, Snapshot } from '../../../database/models';
 import { NameChangeStatus, Pagination } from '../../../types';
-import { SKILLS } from '../../constants';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
-import { getLevel } from '../../util/experience';
 import { buildQuery } from '../../util/query';
 import * as jagexService from '../external/jagex.service';
 import * as efficiencyService from './efficiency.service';
@@ -32,8 +24,12 @@ async function getList(username: string, status: number, pagination: Pagination)
 
   if (username && username.length > 0) {
     query[Op.or] = [
-      { oldName: { [Op.iLike]: `${username}%` } },
-      { newName: { [Op.iLike]: `${username}%` } }
+      {
+        oldName: { [Op.iLike]: `${username}%` }
+      },
+      {
+        newName: { [Op.iLike]: `${username}%` }
+      }
     ];
   }
 
@@ -80,7 +76,7 @@ async function findAllBundled(id: number, createdAt: Date) {
 
   const nameChanges = await NameChange.findAll({
     where: {
-      [Op.not]: [{ id }],
+      id: { [Op.not]: id },
       createdAt: { [Op.between]: [minDate, maxDate] }
     },
     limit: 50
@@ -174,9 +170,7 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
       });
 
       if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
-        throw new BadRequestError(
-          `Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`
-        );
+        throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
       }
     }
   }
@@ -386,7 +380,7 @@ async function autoReview(id: number): Promise<void> {
   }
 
   const baseMaxHours = 504;
-  const extraHours = (oldStats['overall'].experience / 2_000_000) * 168;
+  const extraHours = (oldStats[Metrics.OVERALL].experience / 2_000_000) * 168;
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
   if (hoursDiff > (baseMaxHours + extraHours) * bundleModifier) {
@@ -398,7 +392,7 @@ async function autoReview(id: number): Promise<void> {
     return;
   }
 
-  const totalLevel = SKILLS.filter(s => s !== 'overall')
+  const totalLevel = SKILLS.filter(s => s !== Metrics.OVERALL)
     .map(s => getLevel(oldStats[s].experience))
     .reduce((acc, cur) => acc + cur);
 

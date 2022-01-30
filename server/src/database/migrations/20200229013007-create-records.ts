@@ -1,7 +1,7 @@
 import { QueryInterface } from 'sequelize/types';
-import { ALL_METRICS, PERIODS } from '../../api/constants';
+import { PERIODS, METRICS } from '@wise-old-man/utils';
 
-function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
+function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('records', {
     id: {
       type: dataTypes.INTEGER,
@@ -22,7 +22,7 @@ function up(queryInterface: QueryInterface, dataTypes: any): Promise<void> {
       allowNull: false
     },
     metric: {
-      type: dataTypes.ENUM(ALL_METRICS),
+      type: dataTypes.ENUM(METRICS),
       allowNull: false
     },
     value: {

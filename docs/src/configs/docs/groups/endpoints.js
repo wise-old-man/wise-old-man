@@ -1894,7 +1894,7 @@ export default [
         description: '',
         body: {
           message:
-            '19 outdated (updated < 60 mins ago) players are being updated. This can take up to a few minutes.'
+            '19 outdated (updated > 24 hours ago) players are being updated. This can take up to a few minutes.'
         }
       }
     ],

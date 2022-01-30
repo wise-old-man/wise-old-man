@@ -12,6 +12,8 @@ import './index.scss';
 
 import App from './App';
 
+// Force re-deploy app
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

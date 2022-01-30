@@ -1,0 +1,29 @@
+{
+  "name": "@wise-old-man/utils",
+  "version": "1.0.13",
+  "description": "A few constants and helper functions to be re-used in all repositories under the WiseOldMan project.",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "files": [
+    "dist/lib"
+  ],
+  "scripts": {
+    "prepublish": "tsc",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/lodash": "^4.14.177",
+    "jest": "^27.4.5",
+    "ts-jest": "^27.1.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

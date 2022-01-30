@@ -1,4 +1,4 @@
-export const COUNTRIES = [
+const COUNTRIES = [
   { code: 'AD', name: 'Andorra' },
   { code: 'AE', name: 'United Arab Emirates' },
   { code: 'AF', name: 'Afghanistan' },
@@ -250,27 +250,26 @@ export const COUNTRIES = [
   { code: 'ZW', name: 'Zimbabwe' }
 ];
 
-export function find(countryIdentifier: string) {
-  return findByCode(countryIdentifier) || findByName(countryIdentifier);
+const COMMON_ALIASES = [
+  { commonIdentifier: 'UK', trueIdentifier: 'GB' },
+  { commonIdentifier: 'USA', trueIdentifier: 'US' }
+];
+
+function findCountry(countryIdentifier: string) {
+  return findCountryByCode(countryIdentifier) || findCountryByName(countryIdentifier);
 }
 
-export function findByName(countryName: string) {
+function findCountryByName(countryName: string) {
   return COUNTRIES.find(c => c.name.toUpperCase() === countryName.toUpperCase());
 }
 
-export function findByCode(countryCode: string) {
-  return COUNTRIES.find(c => c.code === replaceCommon(countryCode.toUpperCase()));
+function findCountryByCode(countryCode: string) {
+  return COUNTRIES.find(c => c.code === replaceCommonAliases(countryCode.toUpperCase()));
 }
 
-function replaceCommon(countryCode: string) {
+function replaceCommonAliases(countryCode: string) {
   if (!countryCode) return null;
-
-  switch (countryCode.toUpperCase()) {
-    case 'UK':
-      return 'GB';
-    case 'USA':
-      return 'US';
-    default:
-      return countryCode;
-  }
+  return COMMON_ALIASES.find(ca => ca.commonIdentifier === countryCode)?.trueIdentifier || countryCode;
 }
+
+export { COUNTRIES, findCountry, findCountryByCode, findCountryByName };

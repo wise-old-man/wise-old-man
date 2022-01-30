@@ -1,4 +1,5 @@
 import { JobOptions, RateLimiter } from 'bull';
+import redisService from '../../services/external/redis.service';
 import metricsService from '../../services/external/metrics.service';
 import * as playerService from '../../services/internal/player.service';
 import { Job } from '../index';
@@ -10,7 +11,7 @@ class UpdatePlayer implements Job {
 
   constructor() {
     this.name = 'UpdatePlayer';
-    this.rateLimiter = { max: 1, duration: 500 };
+    this.rateLimiter = { max: 1, duration: 2000 };
     this.defaultOptions = { attempts: 3, backoff: 30_000 };
   }
 
@@ -25,6 +26,8 @@ class UpdatePlayer implements Job {
     } catch (error) {
       metricsService.trackJobEnded(endTimer, this.name, 0, data.source);
       throw error;
+    } finally {
+      redisService.deleteKey(`cd:UpdatePlayer:${data.username}`);
     }
   }
 }

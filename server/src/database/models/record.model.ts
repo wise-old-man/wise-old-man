@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, UpdatedAt } from 'sequelize-typescript';
-import { ALL_METRICS, PERIODS } from '../../api/constants';
+import { isValidPeriod, PERIODS, METRICS, Metric, Period, isVirtualMetric } from '@wise-old-man/utils';
 import { Player } from '../../database/models';
 
 // Define other table options
@@ -41,10 +41,10 @@ export default class Record extends Model<Record> {
   playerId: number;
 
   @Column({ type: DataType.ENUM(...PERIODS), allowNull: false })
-  period: string;
+  period: Period;
 
-  @Column({ type: DataType.ENUM(...ALL_METRICS), allowNull: false })
-  metric: string;
+  @Column({ type: DataType.ENUM(...METRICS), allowNull: false })
+  metric: Metric;
 
   @Column({ type: DataType.BIGINT, get: parseValue, set: setValue, defaultValue: 0 })
   value: number;
@@ -66,7 +66,7 @@ export default class Record extends Model<Record> {
 function parseValue(this: any) {
   // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
   // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
-  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const isFloat = isVirtualMetric(this.metric);
   const factor = isFloat ? 10000 : 1;
 
   return parseInt(this.getDataValue('value', 10)) / factor;
@@ -75,20 +75,20 @@ function parseValue(this: any) {
 function setValue(value: number) {
   // Since ehp and ehb are floats, to prevent changing the database's structure (ints)
   // we simply multiply it by 10,000 when saving, and divide by 10,000 when reading
-  const isFloat = this.metric === 'ehp' || this.metric === 'ehb';
+  const isFloat = isVirtualMetric(this.metric);
   const factor = isFloat ? 10000 : 1;
 
   this.setDataValue('value', Math.floor(value * factor));
 }
 
 function validateMetric(this: Record) {
-  if (!ALL_METRICS.includes(this.metric)) {
+  if (!METRICS.includes(this.metric)) {
     throw new Error('Invalid metric.');
   }
 }
 
 function validatePeriod(this: Record) {
-  if (!PERIODS.includes(this.period)) {
+  if (!isValidPeriod(this.period)) {
     throw new Error('Invalid period.');
   }
 }

@@ -20,6 +20,7 @@
   "dependencies": {
     "@sentry/node": "^5.27.6",
     "@sentry/tracing": "^5.29.2",
+    "@wise-old-man/utils": "^1.0.12",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "bull": "^3.16.0",

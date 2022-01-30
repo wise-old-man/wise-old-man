@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MigratedGroupInfo } from 'src/types';
+import { MigratedGroupInfo } from '../../../types';
 import { TEMPLE_OSRS } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
 

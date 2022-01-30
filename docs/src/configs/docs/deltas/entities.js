@@ -355,6 +355,11 @@ export default [
         description: ''
       },
       {
+        field: 'nex',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'nightmare',
         type: 'integer',
         description: ''
@@ -538,6 +543,7 @@ export default [
       'kreearra',
       'kril_tsutsaroth',
       'mimic',
+      'nex',
       'nightmare',
       'phosanis_nightmare',
       'obor',
