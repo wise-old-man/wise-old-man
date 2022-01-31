@@ -17,4 +17,15 @@
     font-size: 0.8em;
     color: $brand-color-bright;
   }
+
+  @media only screen and (max-width: $breakpoint-small) {
+    flex-direction: column;
+    p {
+      margin: 5px;
+    }
+
+    a {
+      margin-bottom: 10px;
+    }
+  }
 }
