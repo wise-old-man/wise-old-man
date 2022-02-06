@@ -8,6 +8,6 @@ export = {
   password: env.POSTGRES_PASSWORD,
   storage: env.DB_STORAGE,
   logging: false,
-  pool: { max: 100, min: 2, acquire: 20000, idle: 5000 },
-  retry: { max: 10 }
+  pool: { max: 40, min: 5, acquire: 30000, idle: 10000 },
+  retry: { max: 5 }
 };
