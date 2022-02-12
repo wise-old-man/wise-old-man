@@ -22,6 +22,10 @@ import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
+// Temporary
+const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
+const MAINTENANCE_END = new Date('2022-02-13T04:00:00.000Z');
+
 interface Team {
   name: string;
   participants: string[];
@@ -493,6 +497,18 @@ async function create(dto: CreateCompetitionDTO) {
     throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
   }
 
+  if (startsAt >= MAINTENANCE_START && startsAt <= MAINTENANCE_END) {
+    throw new BadRequestError(
+      'Please choose another start date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+    );
+  }
+
+  if (endsAt >= MAINTENANCE_START && endsAt <= MAINTENANCE_END) {
+    throw new BadRequestError(
+      'Please choose another end date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+    );
+  }
+
   const isGroupCompetition = !!groupId;
   const isTeamCompetition = teams && teams.length > 0;
   const hasParticipants = participants && participants.length > 0;
@@ -561,6 +577,18 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
 
   if (metric && !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid competition metric.`);
+  }
+
+  if (startsAt >= MAINTENANCE_START && startsAt <= MAINTENANCE_END) {
+    throw new BadRequestError(
+      'Please choose another start date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+    );
+  }
+
+  if (endsAt >= MAINTENANCE_START && endsAt <= MAINTENANCE_END) {
+    throw new BadRequestError(
+      'Please choose another end date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+    );
   }
 
   const hasNewTeams = teams && teams.length > 0;
