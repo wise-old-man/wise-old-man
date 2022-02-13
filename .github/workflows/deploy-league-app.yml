@@ -37,5 +37,6 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
+            docker image rm wiseoldman/league-app
             docker-compose pull nginx
             docker-compose up -d --no-deps --build nginx
