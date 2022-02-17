@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "The Open Source Old School Runescape progress tracker.",
   "main": "index.js",
-  "scripts": {
-    "setup:docker": "docker-compose up --build -d && docker logs -f api"
-  },
   "keywords": [
     "Oldschool",
     "Old School",
