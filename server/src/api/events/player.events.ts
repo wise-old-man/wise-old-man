@@ -11,17 +11,13 @@ import * as playerService from '../services/internal/player.service';
 async function onPlayerTypeChanged(player: Player, previousType: string) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
-    await metrics.measureReaction('DiscordHardcoreDied', () =>
-      discordService.dispatchHardcoreDied(player)
-    );
+    await metrics.measureReaction('DiscordHardcoreDied', () => discordService.dispatchHardcoreDied(player));
   }
 }
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
-  await metrics.measureReaction('SyncAchievements', () =>
-    achievementService.syncAchievements(player.id)
-  );
+  await metrics.measureReaction('SyncAchievements', () => achievementService.syncAchievements(player.id));
 
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.measureReaction('DiscordNameChanged', () =>

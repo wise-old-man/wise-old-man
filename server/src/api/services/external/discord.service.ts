@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { Achievement, Competition, Player } from '../../../database/models';
 import env from '../../../env';
+import { Achievement } from '../../../prisma';
+import { Competition, Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';

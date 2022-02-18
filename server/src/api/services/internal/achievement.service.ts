@@ -9,8 +9,8 @@ import {
   METRICS
 } from '@wise-old-man/utils';
 import { Pagination } from '../../../types';
-import { sequelize } from '../../../database';
-import { Achievement, Snapshot, Player } from '../../../database/models';
+import { Snapshot } from '../../../database/models';
+import prisma, { Achievement, modifyAchievements } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from '../../modules/achievements/templates';
 import * as snapshotService from './snapshot.service';
 
@@ -27,6 +27,7 @@ export interface AchievementTemplate {
   thresholds: number[];
   getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
 }
+
 interface AchievementDefinition {
   name: string;
   metric: string;
@@ -37,12 +38,12 @@ interface AchievementDefinition {
 }
 
 async function getPlayerAchievements(playerId: number) {
-  const achievements = await Achievement.findAll({ where: { playerId } });
-  return achievements.map(format);
+  const achievements = await prisma.achievement.findMany({ where: { playerId } }).then(modifyAchievements);
+  return achievements.map(extend);
 }
 
 async function getPlayerAchievementsProgress(playerId: number) {
-  const achievements = await Achievement.findAll({ where: { playerId } });
+  const achievements = await prisma.achievement.findMany({ where: { playerId } }).then(modifyAchievements);
   const latestSnapshot = await snapshotService.findLatest(playerId);
 
   // Sort the definitions so that related definitions are clustered
@@ -91,7 +92,9 @@ async function syncAchievements(playerId: number): Promise<void> {
   const [current, previous] = snapshots;
 
   // Find all achievements the player already has
-  const currentAchievements = await Achievement.findAll({ where: { playerId } });
+  const currentAchievements = await prisma.achievement
+    .findMany({ where: { playerId } })
+    .then(modifyAchievements);
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
   const missingDefinitions = getDefinitions().filter(d => {
@@ -110,24 +113,27 @@ async function syncAchievements(playerId: number): Promise<void> {
   const missingPastDates = await calculatePastDates(playerId, missingDefinitions);
 
   // Create achievement instances for all the missing definitions
-  const missingAchievements = missingDefinitions.map(d => {
-    return { ...d, playerId, createdAt: missingPastDates[d.name] || UNKNOWN_DATE };
+  const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
+    return { playerId, name, metric, threshold, createdAt: missingPastDates[name] || UNKNOWN_DATE };
   });
 
   // Create achievement instances for all the newly achieved definitions
-  const newAchievements = newDefinitions.map(d => {
-    return { ...d, playerId, createdAt: current.createdAt };
+  const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
+    return { playerId, name, metric, threshold, createdAt: current.createdAt };
   });
 
   // Add all missing/new achievements
-  await Achievement.bulkCreate([...missingAchievements, ...newAchievements], { ignoreDuplicates: true });
+  await prisma.achievement.createMany({
+    data: [...missingAchievements, ...newAchievements],
+    skipDuplicates: true
+  });
 }
 
 async function reevaluateAchievements(playerId: number): Promise<void> {
   // Find all unknown date achievements
-  const unknownAchievements = await Achievement.findAll({
-    where: { playerId, createdAt: UNKNOWN_DATE }
-  });
+  const unknownAchievements = await prisma.achievement
+    .findMany({ where: { playerId, createdAt: UNKNOWN_DATE } })
+    .then(modifyAchievements);
 
   const unknownAchievementNames = unknownAchievements.map(u => u.name);
   const unknownDefinitions = getDefinitions().filter(d => unknownAchievementNames.includes(d.name));
@@ -137,35 +143,33 @@ async function reevaluateAchievements(playerId: number): Promise<void> {
 
   // Attach new dates where possible, and filter out any (still) unknown achievements
   const toUpdate = unknownAchievements
-    .map(a => ({ ...a.toJSON(), createdAt: pastDates[a.name] || UNKNOWN_DATE }))
+    .map(a => ({ ...a, createdAt: pastDates[a.name] || UNKNOWN_DATE }))
     .filter(a => a.createdAt.getTime() > 0);
 
-  if (toUpdate && toUpdate.length > 0) {
-    const transaction = await sequelize.transaction();
+  if (!toUpdate || toUpdate.length === 0) return;
 
-    // Remove outdated achievements
-    await Achievement.destroy({
-      where: { playerId, name: toUpdate.map((t: any) => t.name) },
-      transaction
-    });
-
+  // Start a database transaction, to make sure that if the "create" step fails,
+  // it'll rollback the "delete" step as well.
+  await prisma.$transaction([
+    // Delete outdated achievements
+    prisma.achievement.deleteMany({ where: { playerId, name: { in: toUpdate.map(t => t.name) } } }),
     // Re-add them with the correct date
-    await Achievement.bulkCreate(toUpdate, { transaction, ignoreDuplicates: true });
-
-    await transaction.commit();
-  }
+    prisma.achievement.createMany({ data: toUpdate, skipDuplicates: true })
+  ]);
 }
 
 async function getGroupAchievements(playerIds: number[], pagination: Pagination) {
-  const achievements = await Achievement.findAll({
-    where: { playerId: playerIds },
-    include: [{ model: Player }],
-    order: [['createdAt', 'DESC']],
-    limit: pagination.limit,
-    offset: pagination.offset
-  });
+  const achievements = await prisma.achievement
+    .findMany({
+      where: { playerId: { in: playerIds } },
+      include: { player: true },
+      orderBy: [{ createdAt: 'desc' }],
+      take: pagination.limit,
+      skip: pagination.offset
+    })
+    .then(modifyAchievements);
 
-  return achievements.map(format);
+  return achievements.map(extend);
 }
 
 async function calculatePastDates(playerId: number, definitions: AchievementDefinition[]) {
@@ -231,9 +235,9 @@ function getDefinitions(): AchievementDefinition[] {
   return definitions;
 }
 
-function format(achievement: Achievement): ExtendedAchievement {
+function extend(achievement: Achievement): ExtendedAchievement {
   const measure = getAchievementMeasure(achievement.metric, achievement.threshold);
-  return { ...(achievement.toJSON() as any), measure };
+  return { ...achievement, measure };
 }
 
 function getAchievemenName(name: string, threshold: number): string {

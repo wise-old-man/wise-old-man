@@ -1,6 +1,5 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
 import {
-  Achievement,
   Competition,
   Delta,
   Membership,
@@ -9,7 +8,6 @@ import {
   Player,
   Snapshot
 } from '../database/models';
-import { onAchievementsCreated } from './events/achievement.events';
 import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
 import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
@@ -76,10 +74,6 @@ function setup() {
     if (!playerId || playerId.length === 0) return;
 
     onMembersLeft(groupId, playerId);
-  });
-
-  Achievement.afterBulkCreate((achievements: Achievement[]) => {
-    onAchievementsCreated(achievements);
   });
 
   Competition.afterCreate((competition: Competition) => {

@@ -1,4 +1,4 @@
-import { Achievement } from '../../database/models';
+import { Achievement } from '../../prisma';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
 
