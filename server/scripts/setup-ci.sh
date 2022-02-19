@@ -6,4 +6,5 @@ export DB_HOST=localhost
 npx dotenv -e .env.test -- npx prisma migrate reset --force
 
 # Run the tests
+npm run build
 npm run test
