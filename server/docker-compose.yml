@@ -6,7 +6,7 @@ services:
     networks:
       - webnet
     env_file:
-      - ./server/.env
+      - ./.env
   db:
     container_name: db
     image: postgres:14
@@ -16,7 +16,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
-      - ./server/.env
+      - ./.env
     expose:
       - "5432"
     ports:
@@ -25,7 +25,7 @@ services:
     container_name: pgadmin
     image: dpage/pgadmin4
     env_file:
-      - ./server/.env
+      - ./.env
     ports:
       - "54321:80"
     depends_on:
@@ -37,7 +37,7 @@ services:
   api:
     container_name: api
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile.dev
     expose:
       - "5000"
@@ -50,7 +50,7 @@ services:
     environment:
       DB_HOST: db
     volumes:
-      - ./server:/wise-old-man/server
+      - .:/wise-old-man/server
       - /wise-old-man/server/node_modules
 networks:
   webnet:

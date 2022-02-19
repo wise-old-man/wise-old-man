@@ -1,11 +1,6 @@
-import { sequelize } from '../src/database';
+import prisma from '../src/prisma';
 
-function resetDatabase() {
-  return Promise.all(
-    Object.values(sequelize.models).map(model => {
-      return model.destroy({ truncate: true, force: true });
-    })
-  );
+export async function resetDatabase() {
+  const modelNames = Object.keys(prisma).filter(k => !k.startsWith('_'));
+  await Promise.all(modelNames.map(async model => prisma[model].deleteMany()));
 }
-
-export { resetDatabase };

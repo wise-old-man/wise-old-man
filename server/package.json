@@ -11,9 +11,7 @@
     "prestart": "sequelize db:migrate",
     "start": "pm2-runtime dist/server.js -i 4",
     "dev": "cross-env NODE_ENV=development ts-node-dev --poll --exit-child --respawn --transpile-only --ignore-watch node_modules src/server.ts",
-    "pretest": "cross-env npm run build && NODE_ENV=test sequelize db:migrate",
     "test": "cross-env NODE_ENV=test jest __tests__/integration --detectOpenHandles --verbose --force-exit",
-    "posttest": "cross-env NODE_ENV=test sequelize db:migrate:undo:all",
     "migration:generate": "cross-env MIGRATING=false npx sequelize-cli migration:generate --name "
   },
   "dependencies": {
@@ -59,6 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.7.1",
     "babel-eslint": "^10.1.0",
+    "dotenv-cli": "^5.0.0",
     "eslint": "^7.25.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^7.1.0",

@@ -6,7 +6,8 @@ import dotenv from 'dotenv';
 dotenv.config({ path: getConfigPath() });
 
 function parseTemplate(originTemplate: string) {
-  return originTemplate.replace(/{([^{}]+)}/g, (_, key) => process.env[key]).replaceAll('$', '');
+  if (!originTemplate) return originTemplate;
+  return originTemplate.replace(/{([^{}]+)}/g, (_, key) => process.env[key]).replace(/\$/g, '');
 }
 
 function getConfigPath() {

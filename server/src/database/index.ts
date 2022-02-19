@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import env from '../env';
 import {
   Achievement,
   Competition,
@@ -11,8 +12,6 @@ import {
   Record,
   Snapshot
 } from '../database/models';
-import { isTesting } from '../env';
-import config from './config';
 
 const models = [
   Achievement,
@@ -27,10 +26,24 @@ const models = [
   Delta
 ];
 
+const CPU_COUNT = env.CPU_COUNT ? parseInt(env.CPU_COUNT) : 1;
+
 const sequelize = new Sequelize({
-  ...config,
+  dialect: 'postgres',
   models,
-  dialect: isTesting() ? 'sqlite' : 'postgres'
+  database: process.env.CORE_DATABASE,
+  host: env.DB_HOST,
+  port: parseInt(env.POSTGRES_PORT),
+  username: env.POSTGRES_USER,
+  password: env.POSTGRES_PASSWORD,
+  logging: false,
+  pool: {
+    max: Math.round(40 / CPU_COUNT),
+    min: Math.round(5 / CPU_COUNT),
+    acquire: 30000,
+    idle: 10000
+  },
+  retry: { max: 5 }
 });
 
 export { sequelize };

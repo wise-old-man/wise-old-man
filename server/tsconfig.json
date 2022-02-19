@@ -10,7 +10,8 @@
     "outDir": "dist",
     "importHelpers": true,
     "baseUrl": ".",
-    "lib": ["es6", "es2017", "esnext"]
+    "lib": ["es6", "es2017", "esnext"],
+    "types": ["jest"]
   },
-  "exclude": ["node_modules", "dist", "__tests__"]
+  "exclude": ["node_modules", "dist"]
 }
