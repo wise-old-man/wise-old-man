@@ -1,4 +1,5 @@
 import { findCountry, PlayerBuild, PlayerType } from '@wise-old-man/utils';
+import { isTesting } from '../../../env';
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
@@ -13,6 +14,8 @@ import * as snapshotService from './snapshot.service';
 const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
+
+const UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 interface PlayerResolvable {
   id?: number;
@@ -86,7 +89,7 @@ function shouldUpdate(player: Player): boolean {
   const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
   const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
 
-  return timeSinceLastUpdate >= 60 || (timeSinceRegistration <= 60 && !player.lastChangedAt);
+  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 /**

@@ -23,6 +23,8 @@ class API {
       this.setupServices();
     }
 
+    hooks.setup();
+
     this.setupMiddlewares();
     this.setupRouting();
   }
@@ -76,7 +78,6 @@ class API {
 
   setupServices() {
     jobs.init();
-    hooks.setup();
 
     Sentry.init({
       dsn: env.SENTRY_DSN,

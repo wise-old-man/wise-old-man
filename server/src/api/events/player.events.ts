@@ -36,12 +36,12 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   );
 
   // Only sync achievements if the player gained any exp/kc this update
-  if (snapshot.isChange) {
-    // Check for new achievements
-    await metrics.measureReaction('SyncAchievements', () =>
-      achievementService.syncAchievements(snapshot.playerId)
-    );
-  }
+  // if (snapshot.isChange) {
+  // Check for new achievements
+  await metrics.measureReaction('SyncAchievements', () =>
+    achievementService.syncAchievements(snapshot.playerId)
+  );
+  // }
 
   const player = await snapshot.$get('player');
 

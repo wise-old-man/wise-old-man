@@ -16,10 +16,8 @@ function dispatch(type: string, payload: any) {
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
 
-  console.log('Sending discord event', type, payload);
-
-  axios.post(url, body).catch(e => {
-    console.log('Error sending discord event.', e);
+  axios.post(url, body).catch(() => {
+    console.log('Error sending discord event.');
   });
 }
 

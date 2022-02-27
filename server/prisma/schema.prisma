@@ -49,7 +49,7 @@ model Competition {
   @@map("competitions")
 }
 
-model Deltas {
+model Delta {
   id                               Int       @id @unique(map: "deltas_id") @default(autoincrement())
   playerId                         Int
   period                           String    @db.VarChar(20)
@@ -247,7 +247,7 @@ model Player {
 
   // Relations
   achievements   Achievement[]
-  deltas         Deltas[]
+  deltas         Delta[]
   memberships    Membership[]
   nameChanges    NameChange[]
   participations Participation[]
