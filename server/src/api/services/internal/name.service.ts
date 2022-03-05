@@ -200,6 +200,7 @@ async function deny(id: number): Promise<NameChange> {
   }
 
   nameChange.status = NameChangeStatus.DENIED;
+  nameChange.resolvedAt = new Date();
   await nameChange.save();
 
   return nameChange;
@@ -489,24 +490,36 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   const oldRecords = await Record.findAll({ where: { playerId: targetId } });
   const newRecords = await Record.findAll({ where: filter });
 
-  const outdated: { record: Record; newValue: number }[] = [];
+  const recordsToAdd: Record[] = [];
+  const recordsToUpdate: { record: Record; newValue: number }[] = [];
 
-  newRecords.forEach(n => {
+  newRecords.map(n => {
+    // Find if this same record definition (playerId/metric/period) existed before
     const oldEquivalent = oldRecords.find(r => r.metric === n.metric && r.period === n.period);
 
-    // If the new player's record is higher than the old player's,
-    // add the old one  to the outdated list
-    if (oldEquivalent && oldEquivalent.value < n.value) {
-      outdated.push({ record: oldEquivalent, newValue: n.value });
+    if (!oldEquivalent) {
+      // This record didn't exist before, add it
+      recordsToAdd.push(n);
+    } else if (oldEquivalent.value < n.value) {
+      // This record existed but had a lower value than the new one, update it
+      recordsToUpdate.push({ record: oldEquivalent, newValue: n.value });
     }
   });
 
-  // Update all "outdated records"
-  await Promise.all(
-    outdated.map(async ({ record, newValue }) => {
-      await record.update({ value: newValue }, { transaction });
-    })
-  );
+  if (recordsToAdd.length > 0) {
+    await Record.bulkCreate(
+      recordsToAdd.map(({ period, metric, value }) => ({ playerId: targetId, period, metric, value })),
+      { transaction }
+    );
+  }
+
+  if (recordsToUpdate.length > 0) {
+    await Promise.all(
+      recordsToUpdate.map(async ({ record, newValue }) => {
+        await record.update({ value: newValue }, { transaction });
+      })
+    );
+  }
 }
 
 export {
