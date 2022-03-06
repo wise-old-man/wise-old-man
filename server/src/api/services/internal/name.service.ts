@@ -2,7 +2,8 @@ import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import { Metrics, SKILLS, getLevel } from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
-import { Membership, NameChange, Participation, Player, Record, Snapshot } from '../../../database/models';
+import prisma, { NameChange } from '../../../prisma';
+import { Membership, Participation, Player, Record, Snapshot } from '../../../database/models';
 import { NameChangeStatus, Pagination } from '../../../types';
 import { BadRequestError, NotFoundError, ServerError } from '../../errors';
 import { buildQuery } from '../../util/query';
@@ -23,42 +24,41 @@ async function getList(username: string, status: number, pagination: Pagination)
   const query = buildQuery({ status });
 
   if (username && username.length > 0) {
-    query[Op.or] = [
-      {
-        oldName: { [Op.iLike]: `${username}%` }
-      },
-      {
-        newName: { [Op.iLike]: `${username}%` }
-      }
+    query.OR = [
+      { oldName: { startsWith: username, mode: 'insensitive' } },
+      { newName: { startsWith: username, mode: 'insensitive' } }
     ];
   }
 
-  const nameChanges = await NameChange.findAll({
-    where: query,
-    order: [['createdAt', 'DESC']],
-    limit: pagination.limit,
-    offset: pagination.offset
+  const nameChanges = await prisma.nameChange.findMany({
+    where: { ...query },
+    orderBy: { createdAt: 'desc' },
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return nameChanges;
 }
 
 async function getPlayerNames(playerId: number): Promise<NameChange[]> {
-  const nameChanges = await NameChange.findAll({
+  const nameChanges = await prisma.nameChange.findMany({
     where: { playerId, status: NameChangeStatus.APPROVED },
-    order: [['resolvedAt', 'DESC']]
+    orderBy: { resolvedAt: 'desc' }
   });
 
   return nameChanges;
 }
 
 async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<NameChange[]> {
-  const nameChanges = await NameChange.findAll({
-    where: { playerId: playerIds, status: NameChangeStatus.APPROVED },
-    include: [{ model: Player }],
-    order: [['createdAt', 'DESC']],
-    limit: pagination.limit,
-    offset: pagination.offset
+  const nameChanges = await prisma.nameChange.findMany({
+    where: {
+      playerId: { in: playerIds },
+      status: NameChangeStatus.APPROVED
+    },
+    include: { player: true },
+    orderBy: { createdAt: 'desc' },
+    take: pagination.limit,
+    skip: pagination.offset
   });
 
   return nameChanges;
@@ -71,15 +71,19 @@ async function findAllForGroup(playerIds: number[], pagination: Pagination): Pro
  */
 async function findAllBundled(id: number, createdAt: Date) {
   const DATE_GAP_MS = 500;
-  const minDate = createdAt.getTime() - DATE_GAP_MS / 2;
-  const maxDate = createdAt.getTime() + DATE_GAP_MS / 2;
 
-  const nameChanges = await NameChange.findAll({
+  const minDate = new Date(createdAt.getTime() - DATE_GAP_MS / 2);
+  const maxDate = new Date(createdAt.getTime() + DATE_GAP_MS / 2);
+
+  const nameChanges = await prisma.nameChange.findMany({
     where: {
-      id: { [Op.not]: id },
-      createdAt: { [Op.between]: [minDate, maxDate] }
+      id: { not: id },
+      createdAt: {
+        gte: minDate,
+        lte: maxDate
+      }
     },
-    limit: 50
+    take: 50
   });
 
   return nameChanges;
@@ -146,10 +150,10 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
   // If these are the same name, just different capitalizations, skip these checks
   if (stOldName !== stNewName) {
     // Check if there's any pending name changes for these names
-    const pending = await NameChange.findOne({
+    const pending = await prisma.nameChange.findFirst({
       where: {
-        oldName: { [Op.iLike]: stOldName },
-        newName: { [Op.iLike]: stNewName },
+        oldName: { contains: stOldName, mode: 'insensitive' },
+        newName: { contains: stNewName, mode: 'insensitive' },
         status: NameChangeStatus.PENDING
       }
     });
@@ -164,9 +168,12 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     // will waste time and resources to process and deny, it's best to check if this
     // exact same name change has been approved.
     if (newPlayer) {
-      const lastChange = await NameChange.findOne({
-        where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
-        order: [['createdAt', 'DESC']]
+      const lastChange = await prisma.nameChange.findFirst({
+        where: {
+          playerId: newPlayer.id,
+          status: NameChangeStatus.APPROVED
+        },
+        orderBy: { createdAt: 'desc' }
       });
 
       if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
@@ -176,20 +183,22 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
   }
 
   // Create a new instance (a new name change request)
-  const nameChange = await NameChange.create({
-    playerId: oldPlayer.id,
-    oldName: oldPlayer.displayName,
-    newName: playerService.sanitize(newName)
+  const newNameChange = await prisma.nameChange.create({
+    data: {
+      playerId: oldPlayer.id,
+      oldName: oldPlayer.displayName,
+      newName: playerService.sanitize(newName)
+    }
   });
 
-  return nameChange;
+  return newNameChange;
 }
 
 /**
  * Denies a pending name change request.
  */
 async function deny(id: number): Promise<NameChange> {
-  const nameChange = await NameChange.findOne({ where: { id } });
+  const nameChange = await prisma.nameChange.findUnique({ where: { id } });
 
   if (!nameChange) {
     throw new NotFoundError('Name change id was not found.');
@@ -199,11 +208,15 @@ async function deny(id: number): Promise<NameChange> {
     throw new BadRequestError('Name change status must be PENDING');
   }
 
-  nameChange.status = NameChangeStatus.DENIED;
-  nameChange.resolvedAt = new Date();
-  await nameChange.save();
+  const updatedNameChange = await prisma.nameChange.update({
+    where: { id },
+    data: {
+      status: NameChangeStatus.DENIED,
+      resolvedAt: new Date()
+    }
+  });
 
-  return nameChange;
+  return updatedNameChange;
 }
 
 /**
@@ -211,7 +224,7 @@ async function deny(id: number): Promise<NameChange> {
  * and transfer all the oldName's data to the newName.
  */
 async function approve(id: number): Promise<NameChange> {
-  const nameChange = await NameChange.findOne({ where: { id } });
+  const nameChange = await prisma.nameChange.findUnique({ where: { id } });
 
   if (!nameChange) {
     throw new NotFoundError('Name change id was not found.');
@@ -232,15 +245,19 @@ async function approve(id: number): Promise<NameChange> {
   await transferData(oldPlayer, newPlayer, nameChange.newName);
 
   // If successful, resolve the name change
-  nameChange.status = NameChangeStatus.APPROVED;
-  nameChange.resolvedAt = new Date();
-  await nameChange.save();
+  const updatedNameChange = await prisma.nameChange.update({
+    where: { id },
+    data: {
+      status: NameChangeStatus.APPROVED,
+      resolvedAt: new Date()
+    }
+  });
 
-  return nameChange;
+  return updatedNameChange;
 }
 
 async function getDetails(id: number) {
-  const nameChange = await NameChange.findOne({ where: { id } });
+  const nameChange = await prisma.nameChange.findFirst({ where: { id } });
 
   if (!nameChange) {
     throw new NotFoundError('Name change id was not found.');
@@ -364,8 +381,8 @@ async function autoReview(id: number): Promise<void> {
 
   // If this name change was submitted in a bulk submission, likely via
   // the RL plugin, and most of its "neighbour"/"bundled" name changes
-  // have been approved, then let's assume this one is more likely to be legit
-  // for this, we use a modifier to lower the approval requirements.
+  // have been approved, then let's assume this one is more likely to be legit.
+  // For this, we use a modifier to lower the approval requirements.
   const bundleModifier = await getBundleModifier(nameChange);
 
   // If new name is not on the hiscores

@@ -1,17 +1,8 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import {
-  Competition,
-  Delta,
-  Membership,
-  NameChange,
-  Participation,
-  Player,
-  Snapshot
-} from '../database/models';
+import { Competition, Delta, Membership, Participation, Player, Snapshot } from '../database/models';
 import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
 import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
-import { onNameChangeCreated } from './events/name.events';
 import {
   onPlayerImported,
   onPlayerNameChanged,
@@ -20,10 +11,6 @@ import {
 } from './events/player.events';
 
 function setup() {
-  NameChange.afterCreate((nameChange: NameChange) => {
-    onNameChangeCreated(nameChange);
-  });
-
   Player.afterUpdate((player: Player, options: UpdateOptions) => {
     if (!options.fields) return;
 

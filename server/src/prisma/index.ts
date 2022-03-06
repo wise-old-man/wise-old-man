@@ -1,4 +1,4 @@
-import { PrismaClient, Achievement } from '@prisma/client';
+import { PrismaClient, Achievement, NameChange } from '@prisma/client';
 import { routeAfterHook, routeBeforeHook } from './hooks';
 import { parseBigInt } from './utils';
 
@@ -25,5 +25,5 @@ type ModifiedAchievement = Omit<Achievement, 'threshold'> & {
   threshold: number;
 };
 
-export { ModifiedAchievement as Achievement };
+export { ModifiedAchievement as Achievement, NameChange };
 export default prisma;

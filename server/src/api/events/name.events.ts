@@ -1,5 +1,5 @@
 import { isTesting } from '../../env';
-import { NameChange } from '../../database/models';
+import { NameChange } from '../../prisma';
 import metrics from '../services/external/metrics.service';
 import * as nameService from '../services/internal/name.service';
 

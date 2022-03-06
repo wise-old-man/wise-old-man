@@ -18,8 +18,8 @@ import {
 } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
-import { Group, Membership, NameChange, Player, Record, Snapshot } from '../../../database/models';
-import { Achievement } from '../../../prisma';
+import { Group, Membership, Player, Record, Snapshot } from '../../../database/models';
+import { Achievement, NameChange } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
