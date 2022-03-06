@@ -245,7 +245,7 @@ const BOSSES = Object.values(Boss);
 const ACTIVITIES = Object.values(Activity);
 const VIRTUAL_METRICS = Object.values(VirtualMetric);
 
-const METRICS = [...SKILLS, ...BOSSES, ...ACTIVITIES, ...VIRTUAL_METRICS];
+const METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...VIRTUAL_METRICS];
 
 const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
 const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);

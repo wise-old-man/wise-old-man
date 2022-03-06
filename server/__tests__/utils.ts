@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { PlayerType } from '@wise-old-man/utils';
+import { Metric, METRICS, PlayerType } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import { OSRS_HISCORES } from '../src/api/constants';
@@ -41,4 +41,23 @@ function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) 
   return localAdapter;
 }
 
-export { resetDatabase, sleep, readFile, registerCMLMock, registerHiscoresMock };
+function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric; value: number }[]): string {
+  return rawData
+    .split('\n')
+    .map((row, index) => {
+      let modifiedRow;
+
+      modifications.forEach(m => {
+        if (METRICS.indexOf(m.metric) === index) {
+          const bits = row.split(',');
+          bits[bits.length - 1] = m.value.toString();
+          modifiedRow = bits.join(',');
+        }
+      });
+
+      return modifiedRow || row;
+    })
+    .join('\n');
+}
+
+export { resetDatabase, sleep, readFile, registerCMLMock, registerHiscoresMock, modifyRawHiscoresData };
