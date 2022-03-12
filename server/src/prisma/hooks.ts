@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { onAchievementsCreated } from '../api/events/achievement.events';
+import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
 import { onNameChangeCreated } from '../api/events/name.events';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

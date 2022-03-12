@@ -3,7 +3,7 @@ import { Player, Snapshot } from '../../database/models';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
-import * as achievementService from '../services/internal/achievement.service';
+import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as playerService from '../services/internal/player.service';
@@ -17,7 +17,9 @@ async function onPlayerTypeChanged(player: Player, previousType: string) {
 
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
-  await metrics.measureReaction('SyncAchievements', () => achievementService.syncAchievements(player.id));
+  await metrics.measureReaction('SyncAchievements', () =>
+    achievementServices.syncPlayerAchievements.execute({ playerId: player.id })
+  );
 
   // Dispatch a "Player name changed" event to our discord bot API.
   await metrics.measureReaction('DiscordNameChanged', () =>
@@ -39,7 +41,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   // if (snapshot.isChange) {
   // Check for new achievements
   await metrics.measureReaction('SyncAchievements', () =>
-    achievementService.syncAchievements(snapshot.playerId)
+    achievementServices.syncPlayerAchievements.execute({ playerId: snapshot.playerId })
   );
   // }
 
@@ -63,7 +65,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
   await metrics.measureReaction('ReevaluateAchievements', () =>
-    achievementService.reevaluateAchievements(playerId)
+    achievementServices.reevaluatePlayerAchievements.execute({ playerId })
   );
 }
 

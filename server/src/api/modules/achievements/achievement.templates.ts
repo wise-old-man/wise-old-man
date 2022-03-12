@@ -1,5 +1,5 @@
 import { Snapshot } from '../../../database/models';
-import { AchievementTemplate } from '../../services/internal/achievement.service';
+import { AchievementTemplate } from './achievement.types';
 import { getCombatLevel, getMinimumExp } from '../../util/experience';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [

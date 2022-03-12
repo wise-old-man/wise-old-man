@@ -1,6 +1,6 @@
-import { Achievement } from '../../prisma';
-import * as discordService from '../services/external/discord.service';
-import metrics from '../services/external/metrics.service';
+import { Achievement } from '../../../prisma';
+import * as discordService from '../../services/external/discord.service';
+import metrics from '../../services/external/metrics.service';
 
 async function onAchievementsCreated(achievements: Achievement[]) {
   // Dispatch this new achievements to the discord bot (for broadcasting)

@@ -5,6 +5,7 @@ import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
+import * as achievementServices from '../modules/achievements/achievement.services';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
 
@@ -334,7 +335,11 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     await groupService.resolve(id);
 
     const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getAchievements(id, paginationConfig);
+
+    const results = await achievementServices.findGroupAchievements.execute({
+      groupId: id,
+      pagination: paginationConfig
+    });
 
     res.json(results);
   } catch (e) {

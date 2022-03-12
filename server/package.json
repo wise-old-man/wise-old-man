@@ -39,7 +39,8 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.21.13",
     "sequelize-typescript": "^1.1.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "zod": "^3.13.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",

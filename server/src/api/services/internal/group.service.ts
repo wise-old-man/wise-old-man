@@ -19,14 +19,13 @@ import {
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Record, Snapshot } from '../../../database/models';
-import { Achievement, NameChange } from '../../../prisma';
+import { NameChange } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
-import * as achievementService from './achievement.service';
 import * as deltaService from './delta.service';
 import * as nameService from './name.service';
 import * as playerService from './player.service';
@@ -257,25 +256,6 @@ async function getGainedInPeriod(groupId: number, period: string, metric: string
   const leaderboard = await deltaService.getGroupPeriodDeltas(metric, period, memberIds, pagination);
 
   return leaderboard;
-}
-
-/**
- * Get the 10 most recent player achievements for a given group.
- */
-async function getAchievements(groupId: number, pagination: Pagination): Promise<Achievement[]> {
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  if (!memberships.length) {
-    throw new BadRequestError(`That group has no members.`);
-  }
-
-  const memberIds = memberships.map(m => m.playerId);
-  const achievements = await achievementService.getGroupAchievements(memberIds, pagination);
-
-  return achievements;
 }
 
 /**
@@ -945,7 +925,6 @@ export {
   getMonthlyTopPlayer,
   getGainedInPeriod,
   getGainedInTimeRange,
-  getAchievements,
   getRecords,
   getHiscores,
   getMembersList,

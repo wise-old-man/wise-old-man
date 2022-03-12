@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import { PlayerType } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter';
 import api from '../../src/api';
-import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/templates';
+import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/achievement.templates';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, sleep, readFile } from '../utils';
 
 const apiMock = supertest(api);

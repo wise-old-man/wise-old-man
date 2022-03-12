@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, ForbiddenError, ServerError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
-import * as achievementService from '../services/internal/achievement.service';
+import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as groupService from '../services/internal/group.service';
@@ -123,14 +123,14 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
-    const playerAchievements = await achievementService.getPlayerAchievements(playerId);
+    const achievements = await achievementServices.findPlayerAchievements.execute({ playerId });
 
-    if (id && playerAchievements.length === 0) {
+    if (id && achievements.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
       await playerService.resolve({ id });
     }
 
-    res.json(playerAchievements);
+    res.json(achievements);
   } catch (e) {
     next(e);
   }
@@ -146,14 +146,14 @@ async function achievementsProgress(req: Request, res: Response, next: NextFunct
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
-    const playerAchievements = await achievementService.getPlayerAchievementsProgress(playerId);
+    const achievementProgress = await achievementServices.findPlayerAchievementProgress.execute({ playerId });
 
-    if (id && playerAchievements.length === 0) {
+    if (id && achievementProgress.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
       await playerService.resolve({ id });
     }
 
-    res.json(playerAchievements);
+    res.json(achievementProgress);
   } catch (e) {
     next(e);
   }
