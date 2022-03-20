@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { round, MetricMeasure, Metrics } from '@wise-old-man/utils';
-import prisma, { Achievement, modifyAchievements } from '../../../../prisma';
+import { round, MetricMeasure } from '@wise-old-man/utils';
+import prisma, { Achievement, modifyAchievements, Metrics } from '../../../../prisma';
 import * as snapshotService from '../../../services/internal/snapshot.service';
 import { ProgressAchievement, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
@@ -50,7 +50,6 @@ class FindPlayerAchievementProgressService {
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
-  if (definition.metric === 'combat') return 3;
   if (definition.metric === Metrics.HITPOINTS) return 1154;
   if (definition.metric === Metrics.LAST_MAN_STANDING) return 500;
   if (definition.metric === Metrics.OVERALL && definition.measure === MetricMeasure.EXPERIENCE) return 1154;

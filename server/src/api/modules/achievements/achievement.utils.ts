@@ -1,6 +1,6 @@
-import { METRICS, Metric, Metrics, getMetricMeasure, getLevel, getMetricValueKey } from '@wise-old-man/utils';
+import { METRICS, Metric, getMetricMeasure, getLevel, getMetricValueKey } from '@wise-old-man/utils';
 import { Snapshot } from '../../../database/models';
-import { Achievement } from '../../../prisma';
+import { Achievement, Metrics } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
 
@@ -61,7 +61,7 @@ function getAchievementDefinitions(): AchievementDefinition[] {
       definitions.push({
         name: newName,
         metric,
-        measure,
+        measure: measure || getMetricMeasure(metric as Metric),
         threshold,
         validate: validateFn,
         getCurrentValue: getCurrentValueFn

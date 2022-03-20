@@ -3,58 +3,33 @@ services:
   redis:
     container_name: redis
     image: redis
-    networks:
-      - webnet
-    env_file:
-      - ./.env
-  db:
-    container_name: db
-    image: postgres:14
-    networks:
-      - webnet
-      - pgadminnet
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     env_file:
       - ./.env
     expose:
-      - "5432"
+      - "${REDIS_PORT}"
     ports:
-      - "5432:5432" 
+      - "${REDIS_PORT}:${REDIS_PORT}" 
+  db:
+    container_name: db
+    image: postgres:14
+    env_file:
+      - ./.env
+    expose:
+      - "${POSTGRES_PORT}"
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}" 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
     env_file:
       - ./.env
     ports:
-      - "54321:80"
+      - "${PGADMIN_PORT}:80"
     depends_on:
       - db
     logging:
       driver: none
-    networks:
-      - pgadminnet
-  api:
-    container_name: api
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    expose:
-      - "5000"
-    ports:
-      - "5000:5000"
-    networks:
-      - webnet
-    depends_on:
-      - db
-    environment:
-      DB_HOST: db
-    volumes:
-      - .:/wise-old-man/server
-      - /wise-old-man/server/node_modules
-networks:
-  webnet:
-  pgadminnet:
-    driver: bridge
 volumes:
   pgdata:

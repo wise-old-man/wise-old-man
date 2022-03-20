@@ -9,10 +9,10 @@ datasource db {
 
 model Achievement {
   playerId  Int
-  name      String    @db.VarChar(255)
-  createdAt DateTime? @default(now())
-  metric    String?   @db.VarChar(255)
-  threshold BigInt?
+  name      String   @db.VarChar(255)
+  metric    Metric
+  threshold BigInt
+  createdAt DateTime @default(now())
 
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -263,7 +263,7 @@ model Record {
   id        Int                 @id @unique(map: "records_id") @default(autoincrement())
   playerId  Int
   period    enum_records_period
-  metric    enum_records_metric
+  metric    Metric
   value     BigInt?             @default(0)
   updatedAt DateTime?           @updatedAt
 
@@ -574,7 +574,7 @@ enum enum_players_type {
   ultimate
 }
 
-enum enum_records_metric {
+enum Metric {
   overall
   attack
   defence
@@ -604,11 +604,11 @@ enum enum_records_metric {
   bounter_hunter_rogue
   clue_scrolls_all
   clue_scrolls_beginner
-  clue_scroll_easy
-  clue_scroll_medium
-  clue_scroll_hard
-  clue_scroll_elite
-  clue_scroll_master
+  clue_scrolls_easy
+  clue_scrolls_medium
+  clue_scrolls_hard
+  clue_scrolls_elite
+  clue_scrolls_master
   last_man_standing
   abyssal_sire
   alchemical_hydra
@@ -637,6 +637,7 @@ enum enum_records_metric {
   kreearra
   kril_tsutsaroth
   mimic
+  nex
   nightmare
   obor
   sarachnis
@@ -656,17 +657,14 @@ enum enum_records_metric {
   zulrah
   bounty_hunter_hunter
   bounty_hunter_rogue
-  clue_scrolls_easy
-  clue_scrolls_medium
-  clue_scrolls_hard
-  clue_scrolls_elite
-  clue_scrolls_master
   ehp
   ehb
   soul_wars_zeal
   tempoross
   theatre_of_blood_hard_mode
   phosanis_nightmare
+
+  @@map("enum_records_metric")
 }
 
 enum enum_records_period {

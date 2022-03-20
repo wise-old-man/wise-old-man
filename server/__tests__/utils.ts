@@ -4,14 +4,20 @@ import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import { OSRS_HISCORES } from '../src/api/constants';
 
+type HiscoresMockConfig = {
+  [playerType in PlayerType]?: {
+    statusCode: number;
+    rawData?: string;
+  };
+};
+
 async function readFile(path: string) {
-  const content = await fs.readFileSync(path, { encoding: 'utf8' });
-  return content;
+  return fs.readFileSync(path, { encoding: 'utf8' });
 }
 
 async function resetDatabase() {
   const modelNames = Object.keys(prisma).filter(k => !k.startsWith('_'));
-  await Promise.all(modelNames.map(async model => prisma[model].deleteMany()));
+  await Promise.all(modelNames.map(model => prisma[model].deleteMany()));
 }
 
 function sleep(ms: number) {
@@ -21,13 +27,6 @@ function sleep(ms: number) {
 function registerCMLMock(adapter: MockAdapter, statusCode: number, rawData?: string) {
   return adapter.onGet(new RegExp(`crystalmathlabs.com`)).reply(statusCode, rawData || '');
 }
-
-type HiscoresMockConfig = {
-  [playerType in PlayerType]?: {
-    statusCode: number;
-    rawData?: string;
-  };
-};
 
 function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) {
   let localAdapter = adapter;

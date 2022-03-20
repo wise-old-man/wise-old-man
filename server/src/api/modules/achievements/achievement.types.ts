@@ -1,17 +1,17 @@
-import { Achievement } from '../../../prisma';
+import { Achievement, MetricEnum } from '../../../prisma';
 import { Snapshot } from '../../../database/models';
 
 interface AchievementTemplate {
   name: string;
-  metric: string;
-  measure: string;
+  metric: MetricEnum;
+  measure?: string;
   thresholds: number[];
   getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
 }
 
 interface AchievementDefinition {
   name: string;
-  metric: string;
+  metric: MetricEnum;
   measure: string;
   threshold: number;
   validate: (snapshot: Snapshot) => boolean;

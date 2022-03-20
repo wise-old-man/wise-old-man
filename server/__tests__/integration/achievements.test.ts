@@ -216,7 +216,7 @@ describe('Achievements API', () => {
       const groupId = createGroupResponse.body.id;
       const fetchResponse = await apiMock.get(`/api/groups/${groupId}/achievements`).query({ limit: 200 });
 
-      expect(fetchResponse.body.length).toBe(141); // 37 achievements from Psikoi, 104 from Lynx Titan
+      expect(fetchResponse.body.length).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
     });
 
     test('Track player again, test new achievements', async () => {

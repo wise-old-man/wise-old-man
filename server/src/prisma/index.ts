@@ -1,6 +1,7 @@
-import { PrismaClient, Achievement, NameChange } from '@prisma/client';
+import { PrismaClient, Achievement, NameChange, Metric } from '@prisma/client';
 import { routeAfterHook, routeBeforeHook } from './hooks';
 import { parseBigInt } from './utils';
+import { Metrics } from './adapters';
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,7 @@ prisma.$use(async (params, next) => {
   return result;
 });
 
-export function modifyAchievements(achievements: Achievement[]): ModifiedAchievement[] {
+function modifyAchievements(achievements: Achievement[]): ModifiedAchievement[] {
   return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
 }
 
@@ -25,5 +26,16 @@ type ModifiedAchievement = Omit<Achievement, 'threshold'> & {
   threshold: number;
 };
 
-export { ModifiedAchievement as Achievement, NameChange };
+export {
+  // Models
+  ModifiedAchievement as Achievement,
+  NameChange,
+  // Enums
+  Metric as MetricEnum,
+  // Constants
+  Metrics,
+  // Utils
+  modifyAchievements
+};
+
 export default prisma;
