@@ -327,18 +327,10 @@ async function gained(req: Request, res: Response, next: NextFunction) {
 // GET /groups/:id/achievements
 async function achievements(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
-
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-
-    const results = await achievementServices.findGroupAchievements.execute({
-      groupId: id,
-      pagination: paginationConfig
+    const results = await achievementServices.findGroupAchievements({
+      id: getNumber(req?.params?.id),
+      limit: getNumber(req?.query?.limit),
+      offset: getNumber(req?.query?.offset)
     });
 
     res.json(results);

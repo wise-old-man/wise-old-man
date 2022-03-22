@@ -18,7 +18,7 @@ async function onPlayerTypeChanged(player: Player, previousType: string) {
 async function onPlayerNameChanged(player: Player, previousDisplayName: string) {
   // Recalculate player achievements
   await metrics.measureReaction('SyncAchievements', () =>
-    achievementServices.syncPlayerAchievements.execute({ playerId: player.id })
+    achievementServices.syncPlayerAchievements({ id: player.id })
   );
 
   // Dispatch a "Player name changed" event to our discord bot API.
@@ -41,7 +41,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   // if (snapshot.isChange) {
   // Check for new achievements
   await metrics.measureReaction('SyncAchievements', () =>
-    achievementServices.syncPlayerAchievements.execute({ playerId: snapshot.playerId })
+    achievementServices.syncPlayerAchievements({ id: snapshot.playerId })
   );
   // }
 
@@ -65,7 +65,7 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 async function onPlayerImported(playerId: number) {
   // Reevaluate this player's achievements to try and find earlier completion dates
   await metrics.measureReaction('ReevaluateAchievements', () =>
-    achievementServices.reevaluatePlayerAchievements.execute({ playerId })
+    achievementServices.reevaluatePlayerAchievements({ id: playerId })
   );
 }
 

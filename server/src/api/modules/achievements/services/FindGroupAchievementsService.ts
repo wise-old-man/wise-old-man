@@ -1,53 +1,50 @@
 import { z } from 'zod';
 import prisma, { modifyAchievements } from '../../../../prisma';
+import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { NotFoundError } from '../../../errors';
 import { ExtendedAchievement } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
-const paginationSchema = z.object({
-  limit: z.number().int().positive().default(20),
-  offset: z.number().int().positive().default(0)
-});
+const inputSchema = z
+  .object({
+    id: z.number().int().positive()
+  })
+  .merge(PAGINATION_SCHEMA);
 
-const paramsSchema = z.object({
-  groupId: z.number().int().positive(),
-  pagination: paginationSchema.optional()
-});
+type FindGroupAchievementsParams = z.infer<typeof inputSchema>;
 
-type FindGroupAchievementsParams = z.infer<typeof paramsSchema>;
-type FindGroupAchievementsResult = ExtendedAchievement[];
+async function findGroupAchievements(payload: FindGroupAchievementsParams): Promise<ExtendedAchievement[]> {
+  const params = inputSchema.parse(payload);
 
-class FindGroupAchievementsService {
-  validate(payload: any): FindGroupAchievementsParams {
-    return paramsSchema.parse(payload);
+  // Fetch this group and all of its memberships
+  const groupAndMemberships = await prisma.group.findUnique({
+    where: { id: params.id },
+    include: { memberships: { select: { playerId: true } } }
+  });
+
+  if (!groupAndMemberships) {
+    throw new NotFoundError('Group not found.');
   }
 
-  async execute(params: FindGroupAchievementsParams): Promise<FindGroupAchievementsResult> {
-    // Fetch all memberships for this group
-    const memberPlayerIds = await prisma.membership.findMany({
-      where: { groupId: params.groupId },
-      select: { playerId: true }
-    });
+  // Convert the memberships to an array of player IDs
+  const playerIds = groupAndMemberships.memberships.map(m => m.playerId);
 
-    // Convert the memberships to an array of player IDs
-    const playerIds = memberPlayerIds.map(m => m.playerId);
-
-    if (playerIds.length === 0) {
-      return [];
-    }
-
-    // Fetch all achievements for these player IDs
-    const achievements = await prisma.achievement
-      .findMany({
-        where: { playerId: { in: playerIds } },
-        include: { player: true },
-        orderBy: [{ createdAt: 'desc' }],
-        take: params.pagination.limit,
-        skip: params.pagination.offset
-      })
-      .then(modifyAchievements);
-
-    return achievements.map(extend);
+  if (playerIds.length === 0) {
+    return [];
   }
+
+  // Fetch all achievements for these player IDs
+  const achievements = await prisma.achievement
+    .findMany({
+      where: { playerId: { in: playerIds } },
+      include: { player: true },
+      orderBy: [{ createdAt: 'desc' }],
+      take: params.limit,
+      skip: params.offset
+    })
+    .then(modifyAchievements);
+
+  return achievements.map(extend);
 }
 
-export default new FindGroupAchievementsService();
+export { findGroupAchievements };

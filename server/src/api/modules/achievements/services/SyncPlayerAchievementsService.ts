@@ -6,68 +6,64 @@ import { calculatePastDates, getAchievementDefinitions } from '../achievement.ut
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
 
-const schema = z.object({
-  playerId: z.number().int().positive()
+const inputSchema = z.object({
+  id: z.number().int().positive()
 });
 
-type SyncPlayerAchievementsParams = z.infer<typeof schema>;
+type SyncPlayerAchievementsParams = z.infer<typeof inputSchema>;
 
-class SyncPlayerAchievementsService {
-  validate(payload: any): SyncPlayerAchievementsParams {
-    return schema.parse(payload);
+async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Promise<void> {
+  const params = inputSchema.parse(payload);
+
+  // Fetch the player's latest 2 snapshots
+  const latestSnapshots = await snapshotService.findAll(params.id, 2);
+
+  if (!latestSnapshots || latestSnapshots.length < 2) {
+    return;
   }
 
-  async execute(params: SyncPlayerAchievementsParams): Promise<void> {
-    // Fetch the player's latest 2 snapshots
-    const latestSnapshots = await snapshotService.findAll(params.playerId, 2);
+  const [current, previous] = latestSnapshots;
 
-    if (!latestSnapshots || latestSnapshots.length < 2) {
-      return;
-    }
+  // Find all achievements the player already has
+  const currentAchievements = await prisma.achievement
+    .findMany({ where: { playerId: params.id } })
+    .then(modifyAchievements);
 
-    const [current, previous] = latestSnapshots;
+  // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
+  const missingDefinitions = ALL_DEFINITIONS.filter(d => {
+    return d.validate(previous) && !currentAchievements.find(e => e.name === d.name);
+  });
 
-    // Find all achievements the player already has
-    const currentAchievements = await prisma.achievement
-      .findMany({ where: { playerId: params.playerId } })
-      .then(modifyAchievements);
+  // Find any new achievements (only achieved since the last snapshot)
+  const newDefinitions = ALL_DEFINITIONS.filter(d => {
+    return !d.validate(previous) && d.validate(current);
+  });
 
-    // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
-    const missingDefinitions = ALL_DEFINITIONS.filter(d => {
-      return d.validate(previous) && !currentAchievements.find(e => e.name === d.name);
-    });
-
-    // Find any new achievements (only achieved since the last snapshot)
-    const newDefinitions = ALL_DEFINITIONS.filter(d => {
-      return !d.validate(previous) && d.validate(current);
-    });
-
-    // Nothing to add.
-    if (newDefinitions.length === 0 && missingDefinitions.length === 0) {
-      return;
-    }
-
-    // Search dates for missing definitions, based on player history
-    const allSnapshots = await snapshotService.findAll(params.playerId, 100_000);
-    const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
-
-    // Create achievement instances for all the missing definitions
-    const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
-      const date = missingPastDates[name] || UNKNOWN_DATE;
-      return { playerId: params.playerId, name, metric, threshold, createdAt: date };
-    });
-
-    // Create achievement instances for all the newly achieved definitions
-    const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
-      return { playerId: params.playerId, name, metric, threshold, createdAt: current.createdAt };
-    });
-
-    // Add all missing/new achievements
-    await prisma.achievement.createMany({
-      data: [...missingAchievements, ...newAchievements],
-      skipDuplicates: true
-    });
+  // Nothing to add.
+  if (newDefinitions.length === 0 && missingDefinitions.length === 0) {
+    return;
   }
+
+  // Search dates for missing definitions, based on player history
+  const allSnapshots = await snapshotService.findAll(params.id, 100_000);
+  const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
+
+  // Create achievement instances for all the missing definitions
+  const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
+    const date = missingPastDates[name] || UNKNOWN_DATE;
+    return { playerId: params.id, name, metric, threshold, createdAt: date };
+  });
+
+  // Create achievement instances for all the newly achieved definitions
+  const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
+    return { playerId: params.id, name, metric, threshold, createdAt: current.createdAt };
+  });
+
+  // Add all missing/new achievements
+  await prisma.achievement.createMany({
+    data: [...missingAchievements, ...newAchievements],
+    skipDuplicates: true
+  });
 }
 
-export default new SyncPlayerAchievementsService();
+export { syncPlayerAchievements };

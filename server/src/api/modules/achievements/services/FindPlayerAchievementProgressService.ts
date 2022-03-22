@@ -5,48 +5,45 @@ import * as snapshotService from '../../../services/internal/snapshot.service';
 import { ProgressAchievement, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
-const schema = z.object({
-  playerId: z.number().int().positive()
+const ALL_DEFINITIONS = getAchievementDefinitions();
+
+const inputSchema = z.object({
+  id: z.number().int().positive()
 });
 
-type FindPlayerAchievementProgressParams = z.infer<typeof schema>;
-type FindPlayerAchievementProgressResult = ProgressAchievement[];
+type FindProgressParams = z.infer<typeof inputSchema>;
 
-class FindPlayerAchievementProgressService {
-  validate(payload: any): FindPlayerAchievementProgressParams {
-    return schema.parse(payload);
-  }
+async function findPlayerAchievementProgress(payload: FindProgressParams): Promise<ProgressAchievement[]> {
+  const params = inputSchema.parse(payload);
 
-  async execute(params: FindPlayerAchievementProgressParams): Promise<FindPlayerAchievementProgressResult> {
-    // Fetch all the player's achievements
-    const achievements = await prisma.achievement
-      .findMany({ where: { playerId: params.playerId } })
-      .then(modifyAchievements);
+  // Fetch all the player's achievements
+  const achievements = await prisma.achievement
+    .findMany({ where: { playerId: params.id } })
+    .then(modifyAchievements);
 
-    // Find the player's latest snapshot
-    const latestSnapshot = await snapshotService.findLatest(params.playerId);
+  // Find the player's latest snapshot
+  const latestSnapshot = await snapshotService.findLatest(params.id);
 
-    // Get all definitions and sort them so that related definitions are clustered
-    const definitions = clusterDefinitions(getAchievementDefinitions());
+  // Get all definitions and sort them so that related definitions are clustered
+  const definitions = clusterDefinitions(ALL_DEFINITIONS);
 
-    return definitions.map((d, i) => {
-      const prevDef = definitions[i - 1];
-      const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
+  return definitions.map((d, i) => {
+    const prevDef = definitions[i - 1];
+    const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
 
-      const startValue = getAchievementStartValue(d);
-      const currentValue = latestSnapshot ? d.getCurrentValue(latestSnapshot) : 0;
-      const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
+    const startValue = getAchievementStartValue(d);
+    const currentValue = latestSnapshot ? d.getCurrentValue(latestSnapshot) : 0;
+    const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
 
-      return {
-        ...d,
-        playerId: params.playerId,
-        currentValue,
-        absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
-        relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold)),
-        createdAt: findDate(d, achievements) || null
-      };
-    });
-  }
+    return {
+      ...d,
+      playerId: params.id,
+      currentValue,
+      absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
+      relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold)),
+      createdAt: findDate(d, achievements) || null
+    };
+  });
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
@@ -73,4 +70,4 @@ function findDate(definition: AchievementDefinition, achievements: Achievement[]
   return achievements.find(a => a.name === definition.name)?.createdAt;
 }
 
-export default new FindPlayerAchievementProgressService();
+export { findPlayerAchievementProgress };

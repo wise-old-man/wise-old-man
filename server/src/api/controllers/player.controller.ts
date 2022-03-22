@@ -123,7 +123,7 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
-    const achievements = await achievementServices.findPlayerAchievements.execute({ playerId });
+    const achievements = await achievementServices.findPlayerAchievements({ id: playerId });
 
     if (id && achievements.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
@@ -146,7 +146,7 @@ async function achievementsProgress(req: Request, res: Response, next: NextFunct
     const playerId = await playerService.resolveId({ id, username });
 
     // Get all player achievements (by player id)
-    const achievementProgress = await achievementServices.findPlayerAchievementProgress.execute({ playerId });
+    const achievementProgress = await achievementServices.findPlayerAchievementProgress({ id: playerId });
 
     if (id && achievementProgress.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)

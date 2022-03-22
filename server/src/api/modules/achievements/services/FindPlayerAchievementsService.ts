@@ -3,27 +3,22 @@ import prisma, { modifyAchievements } from '../../../../prisma';
 import { ExtendedAchievement } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
-const schema = z.object({
-  playerId: z.number().int().positive()
+const inputSchema = z.object({
+  id: z.number().int().positive()
 });
 
-type FindPlayerAchievementsParams = z.infer<typeof schema>;
-type FindPlayerAchievementsResult = ExtendedAchievement[];
+type FindPlayerAchievementsParams = z.infer<typeof inputSchema>;
 
-class FindPlayerAchievementsService {
-  validate(payload: any): FindPlayerAchievementsParams {
-    return schema.parse(payload);
-  }
+async function findPlayerAchievements(payload: FindPlayerAchievementsParams): Promise<ExtendedAchievement[]> {
+  const params = inputSchema.parse(payload);
 
-  async execute(params: FindPlayerAchievementsParams): Promise<FindPlayerAchievementsResult> {
-    // Query the database for all achievements of "playerId"
-    const achievements = await prisma.achievement
-      .findMany({ where: { playerId: params.playerId } })
-      .then(modifyAchievements);
+  // Query the database for all achievements of "playerId"
+  const achievements = await prisma.achievement
+    .findMany({ where: { playerId: params.id } })
+    .then(modifyAchievements);
 
-    // Extend this database model to include the "measure" field
-    return achievements.map(extend);
-  }
+  // Extend this database model to include the "measure" field
+  return achievements.map(extend);
 }
 
-export default new FindPlayerAchievementsService();
+export { findPlayerAchievements };

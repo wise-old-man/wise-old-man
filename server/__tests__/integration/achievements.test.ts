@@ -186,6 +186,10 @@ describe('Achievements API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
+      const failedFetchResponse = await apiMock.get(`/api/groups/200000000/achievements`);
+      expect(failedFetchResponse.status).toBe(404);
+      expect(failedFetchResponse.body.message).toBe('Group not found.');
+
       // Track player
       const firstTrackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Lynx Titan' });
 
@@ -214,7 +218,9 @@ describe('Achievements API', () => {
       expect(createGroupResponse.body.members.map(m => m.username)).toContain('lynx titan');
 
       const groupId = createGroupResponse.body.id;
-      const fetchResponse = await apiMock.get(`/api/groups/${groupId}/achievements`).query({ limit: 200 });
+      const fetchResponse = await apiMock
+        .get(`/api/groups/${groupId}/achievements`)
+        .query({ limit: 200, offset: 'abc' }); // the invalid offset value should be ignored by the API
 
       expect(fetchResponse.body.length).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
     });
