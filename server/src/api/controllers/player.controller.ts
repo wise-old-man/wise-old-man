@@ -5,7 +5,7 @@ import * as achievementServices from '../modules/achievements/achievement.servic
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as groupService from '../services/internal/group.service';
-import * as nameService from '../services/internal/name.service';
+import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as playerService from '../services/internal/player.service';
 import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
@@ -303,15 +303,14 @@ async function names(req: Request, res: Response, next: NextFunction) {
 
     const playerId = await playerService.resolveId({ id, username });
 
-    // Get all player names (by player id)
-    const playerNames = await nameService.getPlayerNames(playerId);
+    const result = await nameChangeServices.findPlayerNameChanges({ playerId });
 
-    if (id && playerNames.length === 0) {
-      // Ensure this player Id exists (if not, it'll throw a 404 error)
+    if (id && result.length === 0) {
+      // Ensure this player ID exists (if not, it'll throw a 404 error)
       await playerService.resolve({ id });
     }
 
-    res.json(playerNames);
+    res.json(result);
   } catch (e) {
     next(e);
   }
@@ -323,9 +322,8 @@ async function updateCountry(req: Request, res: Response, next: NextFunction) {
   try {
     const username = extractString(req.params, { key: 'username', required: true });
     const country = extractString(req.body, { key: 'country', required: true });
-    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+    if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 
@@ -343,9 +341,8 @@ async function updateCountry(req: Request, res: Response, next: NextFunction) {
 async function deletePlayer(req: Request, res: Response, next: NextFunction) {
   try {
     const username = extractString(req.params, { key: 'username', required: true });
-    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+    if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 

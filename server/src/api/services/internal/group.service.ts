@@ -19,7 +19,6 @@ import {
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Record, Snapshot } from '../../../database/models';
-import { NameChange } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
@@ -27,7 +26,6 @@ import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
 import * as deltaService from './delta.service';
-import * as nameService from './name.service';
 import * as playerService from './player.service';
 import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
@@ -414,22 +412,6 @@ async function getMembersStats(groupId: number): Promise<Snapshot[]> {
   return memberships
     .filter(({ playerId }) => playerId in snapshotMap)
     .map(({ playerId }) => Snapshot.build({ ...snapshotMap[playerId] }));
-}
-
-async function getNameChanges(groupId: number, pagination: Pagination): Promise<NameChange[]> {
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  if (!memberships.length) {
-    throw new BadRequestError(`That group has no members.`);
-  }
-
-  const memberIds = memberships.map(m => m.playerId);
-  const nameChanges = await nameService.findAllForGroup(memberIds, pagination);
-
-  return nameChanges;
 }
 
 async function getStatistics(groupId: number) {
@@ -929,7 +911,6 @@ export {
   getHiscores,
   getMembersList,
   getStatistics,
-  getNameChanges,
   create,
   edit,
   destroy,

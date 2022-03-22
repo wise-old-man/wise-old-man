@@ -16,7 +16,8 @@ const HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
 const globalData = {
   hiscoresRawData: '',
   firstNameChangeId: -1,
-  secondNameChangeId: -1
+  secondNameChangeId: -1,
+  testGroupId: -1
 };
 
 beforeAll(async done => {
@@ -203,13 +204,13 @@ describe('Names API', () => {
       expect(response.body.data.hasNegativeGains).toBe(false);
     });
 
-    it('should fetch details (approved name change, empty data)', async () => {
+    it('should fetch details (approved name change, no data)', async () => {
       const response = await api.get(`/api/names/${globalData.secondNameChangeId}`);
 
       expect(response.status).toBe(200);
       expect(response.body.nameChange.id).toBe(globalData.secondNameChangeId);
       expect(response.body.nameChange.status).toBe(2);
-      expect(JSON.stringify(response.body.data)).toBe('{}');
+      expect(response.body.data).toBeUndefined();
     });
   });
 
@@ -218,7 +219,21 @@ describe('Names API', () => {
       const response = await api.get(`/api/names`).query({ status: 50 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid status');
+      expect(response.body.message).toMatch("Invalid enum value for 'status'. Expected 0 | 1 | 2");
+    });
+
+    it('should not fetch list (negative pagination limit)', async () => {
+      const response = await api.get(`/api/names`).query({ limit: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+    });
+
+    it('should not fetch list (negative pagination offset)', async () => {
+      const response = await api.get(`/api/names`).query({ offset: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should fetch list (no filters)', async () => {
@@ -310,18 +325,11 @@ describe('Names API', () => {
   });
 
   describe('5 - Denying', () => {
-    it('should not deny (invalid id)', async () => {
-      const response = await api.post(`/api/names/abc/deny`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
-    });
-
     it('should not deny (invalid admin password)', async () => {
       const response = await api.post(`/api/names/2000000000/deny`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'adminPassword' is undefined.");
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not deny (incorrect admin password)', async () => {
@@ -329,6 +337,13 @@ describe('Names API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not deny (invalid id)', async () => {
+      const response = await api.post(`/api/names/abc/deny`).send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
     });
 
     it('should not deny (id not found)', async () => {
@@ -362,18 +377,11 @@ describe('Names API', () => {
   });
 
   describe('6 - Approving', () => {
-    it('should not approve (invalid id)', async () => {
-      const response = await api.post(`/api/names/abc/approve`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
-    });
-
     it('should not approve (invalid admin password)', async () => {
       const response = await api.post(`/api/names/2000000000/approve`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'adminPassword' is undefined.");
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -381,6 +389,13 @@ describe('Names API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not approve (invalid id)', async () => {
+      const response = await api.post(`/api/names/abc/approve`).send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
     });
 
     it('should not approve (id not found)', async () => {
@@ -505,20 +520,7 @@ describe('Names API', () => {
       expect(fetchResponse.body.message).toBe('Group not found.');
     });
 
-    it('should not fetch (group has no members)', async () => {
-      // Create group
-      const createGroupResponse = await api.post('/api/groups').send({ name: 'Test' });
-
-      expect(createGroupResponse.status).toBe(201);
-      expect(createGroupResponse.body.members.length).toBe(0);
-
-      const fetchResponse = await api.get(`/api/groups/${createGroupResponse.body.id}/name-changes`);
-
-      expect(fetchResponse.status).toBe(400);
-      expect(fetchResponse.body.message).toBe('That group has no members.');
-    });
-
-    it('should fetch group name changes', async () => {
+    it('should not fetch (negative pagination limit)', async () => {
       const payload = {
         name: 'Names Test Group',
         members: [{ username: 'USBC' }, { username: 'Jakesterwars' }]
@@ -531,11 +533,39 @@ describe('Names API', () => {
       expect(createGroupResponse.body.members.map(m => m.username)).toContain('usbc');
       expect(createGroupResponse.body.members.map(m => m.username)).toContain('jakesterwars');
 
-      const groupId = createGroupResponse.body.id;
-      const fetchResponse = await api.get(`/api/groups/${groupId}/name-changes`).query({ limit: 200 });
+      globalData.testGroupId = createGroupResponse.body.id;
+
+      const fetchResponse = await api
+        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .query({ limit: -5 });
+
+      expect(fetchResponse.status).toBe(400);
+      expect(fetchResponse.body.message).toBe("Parameter 'limit' must be > 0.");
+    });
+
+    it('should not fetch (negative pagination offset)', async () => {
+      const fetchResponse = await api
+        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .query({ limit: 3, offset: -5 });
+
+      expect(fetchResponse.status).toBe(400);
+      expect(fetchResponse.body.message).toBe("Parameter 'offset' must be >= 0.");
+    });
+
+    it('should fetch group name changes', async () => {
+      const fetchResponse = await api
+        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .query({ limit: null, offset: 'abc' }); // the API should ignore these invalid pagination params
 
       expect(fetchResponse.body.length).toBe(4); // 3 name changes from Jakesterwars, 1 from USBC
       expect(fetchResponse.body[0].player.username).toBe('usbc');
+
+      const fetchResponseLimited = await api
+        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .query({ limit: 2, offset: 2 });
+
+      expect(fetchResponseLimited.body.length).toBe(2); // Test the limit
+      expect(fetchResponseLimited.body[0].id).toBe(fetchResponse.body[2].id); // Test the offset
     });
   });
 
@@ -590,6 +620,7 @@ describe('Names API', () => {
       const response = await api.post('/api/names/bulk').send(payload);
 
       expect(response.status).toBe(201);
+      expect(response.body.nameChangesSubmitted).toBe(2);
       expect(response.body.message).toMatch('Successfully submitted 2/3 name changes.');
     });
   });

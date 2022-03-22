@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { NotFoundError } from './errors';
@@ -13,7 +14,7 @@ import logger from './services/external/logger.service';
 import { metricAbbreviation } from './util/middlewares';
 
 class RoutingHandler {
-  router;
+  router: express.Router;
 
   constructor() {
     this.router = express.Router();
@@ -60,6 +61,11 @@ class RoutingHandler {
         data: { query, params, body },
         error
       });
+
+      if (error instanceof ZodError) {
+        res.status(400).json({ message: error.issues[0].message });
+        return;
+      }
 
       res.status(statusCode || 500).json({ message, data });
     });

@@ -1,5 +1,5 @@
 import metricsService from '../../services/external/metrics.service';
-import * as nameService from '../../services/internal/name.service';
+import * as nameChangeServices from '../../modules/name-changes/name-change.services';
 import { Job } from '../index';
 
 class ReviewNameChange implements Job {
@@ -13,7 +13,7 @@ class ReviewNameChange implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      await nameService.autoReview(data.id);
+      await nameChangeServices.autoReviewNameChange({ id: parseInt(data.id) });
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {

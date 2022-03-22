@@ -1,5 +1,5 @@
 import axios from 'axios';
-import env from '../../../env';
+import env, { isTesting } from '../../../env';
 import { Achievement } from '../../../prisma';
 import { Competition, Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
@@ -12,6 +12,8 @@ import * as playerService from '../internal/player.service';
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: any) {
+  if (isTesting()) return;
+
   const url = env.DISCORD_BOT_API_URL;
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };

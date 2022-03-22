@@ -148,9 +148,8 @@ async function remove(req: Request, res: Response, next: NextFunction) {
 async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
-    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+    if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 

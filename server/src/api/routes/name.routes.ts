@@ -1,13 +1,14 @@
 import { Router } from 'express';
+import { setupController } from '../util/routing';
 import * as controller from '../controllers/name.controller';
 
-const api = Router();
+const namesRouter = Router();
 
-api.get('/', controller.index);
-api.post('/', controller.submit);
-api.post('/bulk', controller.bulkSubmit);
-api.get('/:id', controller.details);
-api.post('/:id/approve', controller.approve);
-api.post('/:id/deny', controller.deny);
+namesRouter.get('/', setupController(controller.index));
+namesRouter.post('/', setupController(controller.submit));
+namesRouter.post('/bulk', setupController(controller.bulkSubmit));
+namesRouter.get('/:id', setupController(controller.details));
+namesRouter.post('/:id/approve', setupController(controller.approve));
+namesRouter.post('/:id/deny', setupController(controller.deny));
 
-export default api;
+export default namesRouter;

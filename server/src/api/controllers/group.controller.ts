@@ -5,9 +5,11 @@ import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
+import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
+import { getNumber } from '../util/validation';
 
 // GET /groups
 async function index(req: Request, res: Response, next: NextFunction) {
@@ -116,9 +118,8 @@ async function remove(req: Request, res: Response, next: NextFunction) {
 async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
-    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+    if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 
@@ -135,9 +136,8 @@ async function resetVerificationCode(req: Request, res: Response, next: NextFunc
 async function verifyGroup(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
-    const adminPassword = extractString(req.body, { key: 'adminPassword', required: true });
 
-    if (!adminGuard.checkAdminPermissions(adminPassword)) {
+    if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 
@@ -391,15 +391,11 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
 // GET /groups/:id/name-changes
 async function nameChanges(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
-
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getNameChanges(id, paginationConfig);
+    const results = await nameChangeServices.findGroupNameChanges({
+      id: getNumber(req?.params?.id),
+      limit: getNumber(req?.query?.limit),
+      offset: getNumber(req?.query?.offset)
+    });
 
     res.json(results);
   } catch (e) {

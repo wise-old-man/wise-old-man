@@ -2,26 +2,22 @@ import { z } from 'zod';
 import prisma, { NameChange } from '../../../../prisma';
 import { NameChangeStatus } from '../name-change.types';
 
-const schema = z.object({
+const inputSchema = z.object({
   playerId: z.number().int().positive()
 });
 
-type FindPlayerNameChangesParams = z.infer<typeof schema>;
+type FindPlayerNameChangesParams = z.infer<typeof inputSchema>;
 
-class FindPlayerNameChangesService {
-  validate(payload: any): FindPlayerNameChangesParams {
-    return schema.parse(payload);
-  }
+async function findPlayerNameChanges(payload: FindPlayerNameChangesParams): Promise<NameChange[]> {
+  const params = inputSchema.parse(payload);
 
-  async execute(params: FindPlayerNameChangesParams): Promise<NameChange[]> {
-    // Query the database for all name changes of "playerId"
-    const nameChanges = await prisma.nameChange.findMany({
-      where: { playerId: params.playerId, status: NameChangeStatus.APPROVED },
-      orderBy: { resolvedAt: 'desc' }
-    });
+  // Query the database for all (approveD) name changes of "playerId"
+  const nameChanges = await prisma.nameChange.findMany({
+    where: { playerId: params.playerId, status: NameChangeStatus.APPROVED },
+    orderBy: { resolvedAt: 'desc' }
+  });
 
-    return nameChanges;
-  }
+  return nameChanges;
 }
 
-export default new FindPlayerNameChangesService();
+export { findPlayerNameChanges };
