@@ -189,14 +189,14 @@ model Membership {
 }
 
 model NameChange {
-  id         Int       @id @unique(map: "name_changes_id") @default(autoincrement())
+  id         Int              @id @unique(map: "name_changes_id") @default(autoincrement())
   playerId   Int
-  oldName    String    @db.VarChar(20)
-  newName    String    @db.VarChar(20)
-  status     Int       @default(0)
-  resolvedAt DateTime? @db.Timestamptz(6)
-  updatedAt  DateTime? @updatedAt
-  createdAt  DateTime? @default(now())
+  oldName    String           @db.VarChar(20)
+  newName    String           @db.VarChar(20)
+  status     NameChangeStatus @default(pending)
+  resolvedAt DateTime?        @db.Timestamptz(6)
+  updatedAt  DateTime         @updatedAt
+  createdAt  DateTime         @default(now())
 
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -469,6 +469,12 @@ model Snapshot {
   @@map("snapshots")
 }
 
+enum NameChangeStatus {
+  pending
+  denied
+  approved
+}
+
 enum enum_competitions_metric {
   overall
   attack
@@ -600,8 +606,8 @@ enum Metric {
   hunter
   construction
   league_points
-  bounter_hunter_hunter
-  bounter_hunter_rogue
+  bounty_hunter_hunter
+  bounty_hunter_rogue
   clue_scrolls_all
   clue_scrolls_beginner
   clue_scrolls_easy
@@ -655,8 +661,6 @@ enum Metric {
   wintertodt
   zalcano
   zulrah
-  bounty_hunter_hunter
-  bounty_hunter_rogue
   ehp
   ehb
   soul_wars_zeal

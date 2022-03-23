@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z
   .object({

@@ -9,7 +9,7 @@ import { ControllerResponse } from '../util/routing';
 async function index(req: Request): Promise<ControllerResponse> {
   const results = await nameChangeServices.searchNameChanges({
     username: getString(req?.query?.username),
-    status: getNumber(req?.query?.status),
+    status: getString(req?.query?.status) as any,
     limit: getNumber(req?.query?.limit),
     offset: getNumber(req?.query?.offset)
   });

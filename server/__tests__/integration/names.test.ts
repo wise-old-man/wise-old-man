@@ -98,7 +98,7 @@ describe('Names API', () => {
       const submitResponse = await api.post(`/api/names`).send({ oldName: '_psikoi -', newName: ' Psikoi' });
 
       expect(submitResponse.status).toBe(201);
-      expect(submitResponse.body.status).toBe(0);
+      expect(submitResponse.body.status).toBe('pending');
       expect(submitResponse.body.oldName).toBe('psikoi');
       expect(submitResponse.body.newName).toBe('Psikoi');
       expect(submitResponse.body.resolvedAt).toBe(null);
@@ -119,7 +119,7 @@ describe('Names API', () => {
         .send({ oldName: 'hydrox6', newName: 'alexsuperfly' });
 
       expect(submitResponse.status).toBe(201);
-      expect(submitResponse.body.status).toBe(0);
+      expect(submitResponse.body.status).toBe('pending');
       expect(submitResponse.body.oldName).toBe('Hydrox6');
       expect(submitResponse.body.newName).toBe('alexsuperfly');
       expect(submitResponse.body.resolvedAt).toBe(null);
@@ -148,7 +148,7 @@ describe('Names API', () => {
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
-      expect(approvalResponse.body.status).toBe(2);
+      expect(approvalResponse.body.status).toBe('approved');
       expect(approvalResponse.body.oldName).toBe('Zezima');
       expect(approvalResponse.body.newName).toBe('sethmare');
       expect(approvalResponse.body.resolvedAt).not.toBe(null);
@@ -197,7 +197,7 @@ describe('Names API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.nameChange.id).toBe(globalData.firstNameChangeId);
-      expect(response.body.nameChange.status).toBe(0);
+      expect(response.body.nameChange.status).toBe('pending');
       expect(response.body.data.isOldOnHiscores).toBe(true);
       expect(response.body.data.isNewOnHiscores).toBe(true);
       expect(response.body.data.isNewTracked).toBe(true);
@@ -209,7 +209,7 @@ describe('Names API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.nameChange.id).toBe(globalData.secondNameChangeId);
-      expect(response.body.nameChange.status).toBe(2);
+      expect(response.body.nameChange.status).toBe('approved');
       expect(response.body.data).toBeUndefined();
     });
   });
@@ -219,7 +219,9 @@ describe('Names API', () => {
       const response = await api.get(`/api/names`).query({ status: 50 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Invalid enum value for 'status'. Expected 0 | 1 | 2");
+      expect(response.body.message).toMatch(
+        "Invalid enum value for 'status'. Expected pending | denied | approved"
+      );
     });
 
     it('should not fetch list (negative pagination limit)', async () => {
@@ -241,18 +243,18 @@ describe('Names API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
-      expect(response.body.filter(n => n.status === 0).length).toBe(2);
-      expect(response.body.filter(n => n.status === 2).length).toBe(1);
+      expect(response.body.filter(n => n.status === 'pending').length).toBe(2);
+      expect(response.body.filter(n => n.status === 'approved').length).toBe(1);
       expect(response.body.filter(n => n.oldName === 'Zezima').length).toBe(1);
       expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(1);
     });
 
     it('should fetch list (filtered by status)', async () => {
-      const response = await api.get(`/api/names`).query({ status: 2 });
+      const response = await api.get(`/api/names`).query({ status: 'approved' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
-      expect(response.body.filter(n => n.status !== 2).length).toBe(0);
+      expect(response.body.filter(n => n.status !== 'approved').length).toBe(0);
     });
 
     it('should fetch list (filtered by username)', async () => {
@@ -264,7 +266,7 @@ describe('Names API', () => {
     });
 
     it('should fetch (empty) list (filtered by username & status)', async () => {
-      const response = await api.get(`/api/names`).query({ username: 'zez', status: 0 });
+      const response = await api.get(`/api/names`).query({ username: 'zez', status: 'pending' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
@@ -370,7 +372,7 @@ describe('Names API', () => {
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe(1);
+      expect(response.body.status).toBe('denied');
       expect(response.body.resolvedAt).not.toBe(null);
       expect(response.body.id).toBe(globalData.firstNameChangeId);
     });
@@ -428,7 +430,7 @@ describe('Names API', () => {
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe(2);
+      expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
     });
 
@@ -461,7 +463,7 @@ describe('Names API', () => {
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe(2);
+      expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
       // Check if records transfered correctly

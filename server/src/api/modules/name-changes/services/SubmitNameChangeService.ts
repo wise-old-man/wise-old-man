@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z
   .object({

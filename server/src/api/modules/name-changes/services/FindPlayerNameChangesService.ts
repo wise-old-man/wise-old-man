@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
-import { NameChangeStatus } from '../name-change.types';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 
 const inputSchema = z.object({
   playerId: z.number().int().positive()

@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()

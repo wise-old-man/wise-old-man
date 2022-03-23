@@ -1,9 +1,8 @@
 import { z } from 'zod';
 import { SKILLS, Metrics, getLevel } from '@wise-old-man/utils';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import * as playerService from '../../../services/internal/player.service';
 import * as nameChangeServices from '../name-change.services';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()

@@ -1,7 +1,7 @@
-import { PrismaClient, Achievement, NameChange, Metric } from '@prisma/client';
+import { PrismaClient, Achievement, NameChange } from '@prisma/client';
+import { MetricEnum, NameChangeStatus } from './enum-adapter';
 import { routeAfterHook, routeBeforeHook } from './hooks';
 import { parseBigInt } from './utils';
-import { Metrics } from './adapters';
 
 const prisma = new PrismaClient();
 
@@ -31,9 +31,8 @@ export {
   ModifiedAchievement as Achievement,
   NameChange,
   // Enums
-  Metric as MetricEnum,
-  // Constants
-  Metrics,
+  MetricEnum,
+  NameChangeStatus,
   // Utils
   modifyAchievements
 };

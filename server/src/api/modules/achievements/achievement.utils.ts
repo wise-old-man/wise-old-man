@@ -1,6 +1,6 @@
 import { METRICS, Metric, getMetricMeasure, getLevel, getMetricValueKey } from '@wise-old-man/utils';
 import { Snapshot } from '../../../database/models';
-import { Achievement, Metrics } from '../../../prisma';
+import { Achievement, MetricEnum } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
 
@@ -10,7 +10,7 @@ function extend(achievement: Achievement): ExtendedAchievement {
 }
 
 function getAchievementMeasure(metric: string, threshold: number): string {
-  if (metric === Metrics.OVERALL && threshold <= 13_034_431) return 'levels';
+  if (metric === MetricEnum.OVERALL && threshold <= 13_034_431) return 'levels';
   if (METRICS.includes(metric as Metric)) return getMetricMeasure(metric as Metric);
   return 'levels';
 }

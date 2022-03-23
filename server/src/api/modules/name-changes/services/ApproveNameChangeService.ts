@@ -3,11 +3,10 @@ import { omit } from 'lodash';
 import { sequelize } from '../../../../database';
 import { Membership, Participation, Player, Record, Snapshot } from '../../../../database/models';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
 import * as snapshotService from '../../../services/internal/snapshot.service';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()

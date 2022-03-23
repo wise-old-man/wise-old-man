@@ -1,13 +1,12 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { buildQuery } from '../../../util/query';
-import { NameChangeStatus } from '../name-change.types';
 
 const inputSchema = z
   .object({
     username: z.string().optional(),
-    status: z.nativeEnum(NameChangeStatus, { description: 'yooo' }).optional()
+    status: z.nativeEnum(NameChangeStatus).optional()
   })
   .merge(PAGINATION_SCHEMA);
 

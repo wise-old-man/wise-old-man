@@ -1,4 +1,4 @@
-import { NameChangeStatus } from '../../../types';
+import { NameChangeStatus } from '../../../prisma';
 import metricsService from '../../services/external/metrics.service';
 import * as nameChangeService from '../../modules/name-changes/name-change.services';
 import jobs, { Job } from '../index';

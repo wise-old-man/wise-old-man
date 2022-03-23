@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import prisma, { NameChange } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
-import { NameChangeStatus } from '../name-change.types';
 import * as snapshotService from '../../../services/internal/snapshot.service';
 import * as playerService from '../../../services/internal/player.service';
 import * as efficiencyService from '../../../services/internal/efficiency.service';
