@@ -20,7 +20,6 @@
     "framer-motion": "^3.1.1",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "node-sass": "4.14.0",
     "prop-types": "^15.7.2",
     "query-string": "^6.13.8",
     "react": "^16.14.0",
@@ -50,7 +49,8 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "sass": "^1.49.9"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import Analytics from 'react-ga';
-import { Banner, NavigationBar, Notification } from 'components';
+import { NavigationBar, Notification } from 'components';
 import NotFound from 'pages/NotFound';
 import { uniformUrl } from 'services/analytics';
 import { ROUTES, getRoute } from 'config/routing';
@@ -75,7 +75,6 @@ function App() {
       <NavigationBar />
       <Notification />
       <div className="content">
-        <Banner />
         <AppWrapper>
           <Switch>
             {ROUTES.map(({ path, component }) => (

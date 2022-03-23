@@ -1,6 +1,5 @@
 export { default as AutoSuggestInput } from './AutoSuggestInput';
 export { default as Badge } from './Badge';
-export { default as Banner } from './Banner';
 export { default as Button } from './Button';
 export { default as CardList } from './CardList';
 export { default as CopyToClipboard } from './CopyToClipboard';
