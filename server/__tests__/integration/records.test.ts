@@ -1,7 +1,7 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { Metrics, Period, PlayerType } from '@wise-old-man/utils';
+import { Metrics, PlayerType } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import {
@@ -80,11 +80,13 @@ describe('Records API', () => {
       expect(recordsResponse.body.length).toBe(6);
       expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.metric === Metrics.SMITHING).length).toBe(3);
-      expect(recordsResponse.body.map(r => r.period)).not.toContain(Period.DAY);
-      expect(recordsResponse.body.map(r => r.period)).not.toContain(Period.FIVE_MIN);
+      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHP).length).toBe(3);
+      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHP)[0].value).toBeLessThan(1);
+      expect(recordsResponse.body.map(r => r.period)).not.toContain('day');
+      expect(recordsResponse.body.map(r => r.period)).not.toContain('five_min');
     });
 
-    it('should replace & create player records (day, 5min)', async () => {
+    it('should replace & create player records (day, five_min)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metrics.SMITHING, value: 6_177_978 + 50_000 + 20_000 }
       ]);
@@ -105,9 +107,10 @@ describe('Records API', () => {
       expect(recordsResponse.body.length).toBe(10);
       expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.value === 20_000).length).toBe(2);
+      expect(recordsResponse.body.filter(r => r.value < 1 && r.metric === Metrics.EHP).length).toBe(5);
       expect(recordsResponse.body.filter(r => r.metric === Metrics.SMITHING).length).toBe(5);
-      expect(recordsResponse.body.map(r => r.period)).toContain(Period.DAY);
-      expect(recordsResponse.body.map(r => r.period)).toContain(Period.FIVE_MIN);
+      expect(recordsResponse.body.map(r => r.period)).toContain('day');
+      expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
     });
 
     it('should not replace existing player records (lower value)', async () => {
@@ -123,10 +126,10 @@ describe('Records API', () => {
       // Create records manually
       await prisma.record.createMany({
         data: [
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: Period.DAY },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: Period.WEEK },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: Period.MONTH },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: Period.YEAR }
+          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'day' },
+          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'week' },
+          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'month' },
+          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'year' }
         ]
       });
 
@@ -147,9 +150,10 @@ describe('Records API', () => {
 
       const recordsResponse = await api.get(`/api/players/username/sethmare/records`);
       expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.map(r => r.period)).toContain(Period.FIVE_MIN);
+      expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
       expect(recordsResponse.body.filter(r => r.metric === Metrics.ZULRAH).length).toBe(5);
-      expect(recordsResponse.body.filter(r => r.value === 10).length).toBe(1); // none of the day+ records updated, only 5min was added
+      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHB && r.value < 1).length).toBe(5);
+      expect(recordsResponse.body.filter(r => r.value === 10).length).toBe(1); // none of the day+ records updated, only five_min was added
     });
   });
 
@@ -165,14 +169,14 @@ describe('Records API', () => {
       const response = await api.get(`/api/players/username/psikoi/records`).query({ period: 'decade' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid period: decade.');
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (invalid metric)', async () => {
       const response = await api.get(`/api/players/username/psikoi/records`).query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: sailing.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should fetch records (no filters)', async () => {
@@ -184,23 +188,26 @@ describe('Records API', () => {
       expect(response.body.map(r => r.metric)).toContain(Metrics.EHP);
     });
 
-    it('should fetch records (no filters)', async () => {
-      const response = await api.get(`/api/players/username/sethmare/records`);
+    it('should fetch records (undefined filters, ignored)', async () => {
+      const response = await api
+        .get(`/api/players/username/sethmare/records`)
+        .query({ metric: undefined, period: undefined }); // The API should ignore these params
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(10);
       expect(response.body.map(r => r.metric)).toContain(Metrics.ZULRAH);
       expect(response.body.map(r => r.metric)).toContain(Metrics.EHB);
+      expect(response.body.filter(r => r.metric === Metrics.EHB)[0].value).toBeLessThan(1);
     });
 
     it('should fetch records (with filters)', async () => {
       const response = await api
         .get(`/api/players/username/sethmare/records`)
-        .query({ metric: Metrics.ZULRAH, period: Period.WEEK });
+        .query({ metric: Metrics.ZULRAH, period: 'week' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
-      expect(response.body[0]).toMatchObject({ value: 100, metric: Metrics.ZULRAH, period: Period.WEEK });
+      expect(response.body[0]).toMatchObject({ value: 100, metric: Metrics.ZULRAH, period: 'week' });
     });
   });
 
@@ -209,18 +216,20 @@ describe('Records API', () => {
       const response = await api.get(`/api/groups/2000000000/records`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (undefined period)', async () => {
       const response = await api.get(`/api/groups/2000000000/records`).query({ metric: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'period' is undefined.");
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (group not found)', async () => {
-      const response = await api.get(`/api/groups/2000000000/records`).query({ metric: 'a', period: 'b' });
+      const response = await api
+        .get(`/api/groups/2000000000/records`)
+        .query({ metric: 'zulrah', period: 'week' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
@@ -239,7 +248,7 @@ describe('Records API', () => {
         .query({ metric: 'a', period: 'b' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid period: b.');
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (invalid metric)', async () => {
@@ -248,16 +257,16 @@ describe('Records API', () => {
         .query({ metric: 'a', period: 'day' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: a.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
-    it('should not fetch records (empty group)', async () => {
+    it('should fetch records (empty group)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testEmptyGroupId}/records`)
         .query({ metric: 'ranged', period: 'day' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This group has no members.');
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
     });
 
     it('should fetch records', async () => {
@@ -342,6 +351,16 @@ describe('Records API', () => {
       });
     });
 
+    it('should fetch records (and correctly parse virtual metrics)', async () => {
+      const response = await api
+        .get(`/api/groups/${globalData.testRegularGroupId}/records`)
+        .query({ metric: 'ehp', period: 'day' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+      expect(response.body.filter(r => r.value < 1).length).toBe(2);
+    });
+
     it('should fetch records (with pagination)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testRegularGroupId}/records`)
@@ -368,13 +387,13 @@ describe('Records API', () => {
     it('should not fetch leaderboards (invalid period)', async () => {
       const response = await api.get(`/api/records/leaderboard`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid period: undefined.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {
       const response = await api.get(`/api/records/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: undefined.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid player type)', async () => {
@@ -383,7 +402,7 @@ describe('Records API', () => {
         .query({ period: 'week', metric: 'obor', playerType: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid player type: a.');
+      expect(response.body.message).toBe("Invalid enum value for 'playerType'.");
     });
 
     it('should not fetch leaderboards (invalid player build)', async () => {
@@ -392,7 +411,7 @@ describe('Records API', () => {
         .query({ period: 'week', metric: 'obor', playerBuild: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid player build: a.');
+      expect(response.body.message).toBe("Invalid enum value for 'playerBuild'.");
     });
 
     it('should not fetch leaderboards (invalid player country)', async () => {
@@ -401,7 +420,7 @@ describe('Records API', () => {
         .query({ period: 'week', metric: 'obor', country: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid country.');
+      expect(response.body.message).toMatch("Invalid enum value for 'country'.");
     });
 
     it('should fetch leaderboards (no player filters)', async () => {
@@ -515,6 +534,14 @@ describe('Records API', () => {
         value: 620_000,
         player: { username: 'usbc' }
       });
+    });
+
+    it('should fetch leaderboards (and correctly parse virtual metrics)', async () => {
+      const response = await api.get(`/api/records/leaderboard`).query({ period: 'month', metric: 'ehp' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+      expect(response.body.filter(r => r.value < 3).length).toBe(3);
     });
   });
 });

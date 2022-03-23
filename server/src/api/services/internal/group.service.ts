@@ -6,7 +6,6 @@ import {
   getMetricRankKey,
   getMetricValueKey,
   isSkill,
-  isValidPeriod,
   Period,
   Metric,
   Metrics,
@@ -18,7 +17,7 @@ import {
 } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
-import { Group, Membership, Player, Record, Snapshot } from '../../../database/models';
+import { Group, Membership, Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
@@ -27,7 +26,6 @@ import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
 import * as deltaService from './delta.service';
 import * as playerService from './player.service';
-import * as recordService from './record.service';
 import * as snapshotService from './snapshot.service';
 
 interface Member extends Player {
@@ -254,39 +252,6 @@ async function getGainedInPeriod(groupId: number, period: string, metric: string
   const leaderboard = await deltaService.getGroupPeriodDeltas(metric, period, memberIds, pagination);
 
   return leaderboard;
-}
-
-/**
- * Gets the top records for a specific metric and period,
- * between the members of a group.
- */
-async function getRecords(
-  groupId: number,
-  metric: string,
-  period: string,
-  pagination: Pagination
-): Promise<Record[]> {
-  if (!period || !isValidPeriod(period)) {
-    throw new BadRequestError(`Invalid period: ${period}.`);
-  }
-
-  if (!metric || !METRICS.includes(metric as Metric)) {
-    throw new BadRequestError(`Invalid metric: ${metric}.`);
-  }
-
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  if (!memberships.length) {
-    throw new BadRequestError('This group has no members.');
-  }
-
-  const filter = { playerIds: memberships.map(m => m.playerId), metric, period };
-  const records = await recordService.getGroupLeaderboard(filter, pagination);
-
-  return records;
 }
 
 async function getMembersList(group: Group): Promise<Member[]> {
@@ -907,7 +872,6 @@ export {
   getMonthlyTopPlayer,
   getGainedInPeriod,
   getGainedInTimeRange,
-  getRecords,
   getHiscores,
   getMembersList,
   getStatistics,

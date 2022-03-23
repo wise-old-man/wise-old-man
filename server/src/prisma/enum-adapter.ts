@@ -1,4 +1,8 @@
-import { Metric as PrismaMetric, NameChangeStatus as PrismaNameChangeStatus } from '@prisma/client';
+import {
+  Metric as PrismaMetric,
+  Period as PrismaPeriod,
+  NameChangeStatus as PrismaNameChangeStatus
+} from '@prisma/client';
 
 /**
  * Prisma currently seems to ignore the @map() in enum declarations.
@@ -42,7 +46,7 @@ import { Metric as PrismaMetric, NameChangeStatus as PrismaNameChangeStatus } fr
  *
  */
 
-export const MetricEnum = {
+export const SkillEnum = {
   OVERALL: PrismaMetric.overall,
   ATTACK: PrismaMetric.attack,
   DEFENCE: PrismaMetric.defence,
@@ -66,7 +70,10 @@ export const MetricEnum = {
   FARMING: PrismaMetric.farming,
   RUNECRAFTING: PrismaMetric.runecrafting,
   HUNTER: PrismaMetric.hunter,
-  CONSTRUCTION: PrismaMetric.construction,
+  CONSTRUCTION: PrismaMetric.construction
+} as const;
+
+export const ActivityEnum = {
   LEAGUE_POINTS: PrismaMetric.league_points,
   BOUNTY_HUNTER_HUNTER: PrismaMetric.bounty_hunter_hunter,
   BOUNTY_HUNTER_ROGUE: PrismaMetric.bounty_hunter_rogue,
@@ -78,7 +85,10 @@ export const MetricEnum = {
   CLUE_SCROLLS_ELITE: PrismaMetric.clue_scrolls_elite,
   CLUE_SCROLLS_MASTER: PrismaMetric.clue_scrolls_master,
   LAST_MAN_STANDING: PrismaMetric.last_man_standing,
-  SOUL_WARS_ZEAL: PrismaMetric.soul_wars_zeal,
+  SOUL_WARS_ZEAL: PrismaMetric.soul_wars_zeal
+};
+
+export const BossEnum = {
   ABYSSAL_SIRE: PrismaMetric.abyssal_sire,
   ALCHEMICAL_HYDRA: PrismaMetric.alchemical_hydra,
   BARROWS_CHESTS: PrismaMetric.barrows_chests,
@@ -126,11 +136,31 @@ export const MetricEnum = {
   VORKATH: PrismaMetric.vorkath,
   WINTERTODT: PrismaMetric.wintertodt,
   ZALCANO: PrismaMetric.zalcano,
-  ZULRAH: PrismaMetric.zulrah,
+  ZULRAH: PrismaMetric.zulrah
+} as const;
+
+export const VirtualEnum = {
   EHP: PrismaMetric.ehp,
   EHB: PrismaMetric.ehb
 } as const;
 
+export const MetricEnum = {
+  ...SkillEnum,
+  ...ActivityEnum,
+  ...BossEnum,
+  ...VirtualEnum
+} as const;
+
+export const Metrics = Object.values(MetricEnum);
+export const Skills = Object.values(SkillEnum);
+export const Bosses = Object.values(BossEnum);
+export const Activities = Object.values(ActivityEnum);
+export const Virtuals = Object.values(VirtualEnum);
+
+export type SkillEnum = typeof SkillEnum[keyof typeof SkillEnum];
+export type ActivityEnum = typeof ActivityEnum[keyof typeof ActivityEnum];
+export type BossEnum = typeof BossEnum[keyof typeof BossEnum];
+export type VirtualEnum = typeof VirtualEnum[keyof typeof VirtualEnum];
 export type MetricEnum = typeof MetricEnum[keyof typeof MetricEnum];
 
 export const NameChangeStatus = {
@@ -140,3 +170,13 @@ export const NameChangeStatus = {
 } as const;
 
 export type NameChangeStatus = typeof NameChangeStatus[keyof typeof NameChangeStatus];
+
+export const PeriodEnum = {
+  FIVE_MIN: PrismaPeriod.five_min,
+  DAY: PrismaPeriod.day,
+  WEEK: PrismaPeriod.week,
+  MONTH: PrismaPeriod.month,
+  YEAR: PrismaPeriod.year
+} as const;
+
+export type PeriodEnum = typeof PeriodEnum[keyof typeof PeriodEnum];

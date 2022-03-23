@@ -2,16 +2,16 @@ import { Request } from 'express';
 import { ForbiddenError } from '../errors';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as adminGuard from '../guards/admin.guard';
-import { getNumber, getString } from '../util/validation';
+import { getNumber, getString, getEnum } from '../util/validation';
 import { ControllerResponse } from '../util/routing';
 
 // GET /names
 async function index(req: Request): Promise<ControllerResponse> {
   const results = await nameChangeServices.searchNameChanges({
-    username: getString(req?.query?.username),
-    status: getString(req?.query?.status) as any,
-    limit: getNumber(req?.query?.limit),
-    offset: getNumber(req?.query?.offset)
+    username: getString(req.query.username),
+    status: getEnum(req.query.status),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
   });
 
   return { statusCode: 200, response: results };
@@ -34,7 +34,7 @@ async function bulkSubmit(req: Request): Promise<ControllerResponse> {
 // GET /names/:id
 async function details(req: Request): Promise<ControllerResponse> {
   const result = await nameChangeServices.fetchNameChangeDetails({
-    id: getNumber(req?.params?.id)
+    id: getNumber(req.params.id)
   });
 
   return { statusCode: 200, response: result };
@@ -48,7 +48,7 @@ async function approve(req: Request): Promise<ControllerResponse> {
   }
 
   const result = await nameChangeServices.approveNameChange({
-    id: getNumber(req?.params?.id)
+    id: getNumber(req.params.id)
   });
 
   return { statusCode: 200, response: result };
@@ -62,7 +62,7 @@ async function deny(req: Request): Promise<ControllerResponse> {
   }
 
   const result = await nameChangeServices.denyNameChange({
-    id: getNumber(req?.params?.id)
+    id: getNumber(req.params.id)
   });
 
   return { statusCode: 200, response: result };

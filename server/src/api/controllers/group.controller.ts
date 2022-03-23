@@ -6,10 +6,11 @@ import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
+import * as recordServices from '../modules/records/record.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
-import { getNumber } from '../util/validation';
+import { getNumber, getEnum } from '../util/validation';
 
 // GET /groups
 async function index(req: Request, res: Response, next: NextFunction) {
@@ -328,9 +329,9 @@ async function gained(req: Request, res: Response, next: NextFunction) {
 async function achievements(req: Request, res: Response, next: NextFunction) {
   try {
     const results = await achievementServices.findGroupAchievements({
-      id: getNumber(req?.params?.id),
-      limit: getNumber(req?.query?.limit),
-      offset: getNumber(req?.query?.offset)
+      id: getNumber(req.params.id),
+      limit: getNumber(req.query.limit),
+      offset: getNumber(req.query.offset)
     });
 
     res.json(results);
@@ -342,17 +343,13 @@ async function achievements(req: Request, res: Response, next: NextFunction) {
 // GET /groups/:id/records
 async function records(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const metric = extractString(req.query, { key: 'metric', required: true });
-    const period = extractString(req.query, { key: 'period', required: true });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
-
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getRecords(id, metric, period, paginationConfig);
+    const results = await recordServices.findGroupRecords({
+      id: getNumber(req.params.id),
+      period: getEnum(req.query.period),
+      metric: getEnum(req.query.metric),
+      limit: getNumber(req.query.limit),
+      offset: getNumber(req.query.offset)
+    });
 
     res.json(results);
   } catch (e) {
@@ -384,9 +381,9 @@ async function hiscores(req: Request, res: Response, next: NextFunction) {
 async function nameChanges(req: Request, res: Response, next: NextFunction) {
   try {
     const results = await nameChangeServices.findGroupNameChanges({
-      id: getNumber(req?.params?.id),
-      limit: getNumber(req?.query?.limit),
-      offset: getNumber(req?.query?.offset)
+      id: getNumber(req.params.id),
+      limit: getNumber(req.query.limit),
+      offset: getNumber(req.query.offset)
     });
 
     res.json(results);

@@ -36,3 +36,7 @@ export function getString(payload: any): string | undefined {
   if (payload === undefined || payload === null) return undefined;
   return String(payload);
 }
+
+export function getEnum(payload: any): any | undefined {
+  return getString(payload) as any;
+}

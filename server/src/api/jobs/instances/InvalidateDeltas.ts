@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { PeriodEnum } from '../../../prisma';
 import { Op } from 'sequelize';
 import { Delta } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
@@ -21,15 +22,15 @@ class InvalidateDeltas implements Job {
 
     try {
       // Delete any outdated "5min" deltas
-      await deleteInvalidPeriodDeltas('5min', moment().subtract(1, 'hour').toDate());
+      await deleteInvalidPeriodDeltas(PeriodEnum.FIVE_MIN, moment().subtract(1, 'hour').toDate());
       // Delete any outdated "day" deltas
-      await deleteInvalidPeriodDeltas('day', moment().subtract(24, 'hour').toDate());
+      await deleteInvalidPeriodDeltas(PeriodEnum.DAY, moment().subtract(24, 'hour').toDate());
       // Delete any outdated "week" deltas
-      await deleteInvalidPeriodDeltas('week', moment().subtract(7, 'day').toDate());
+      await deleteInvalidPeriodDeltas(PeriodEnum.WEEK, moment().subtract(7, 'day').toDate());
       // Delete any outdated "month" deltas
-      await deleteInvalidPeriodDeltas('month', moment().subtract(31, 'day').toDate());
+      await deleteInvalidPeriodDeltas(PeriodEnum.MONTH, moment().subtract(31, 'day').toDate());
       // Delete any outdated "year" deltas
-      await deleteInvalidPeriodDeltas('year', moment().subtract(365, 'day').toDate());
+      await deleteInvalidPeriodDeltas(PeriodEnum.YEAR, moment().subtract(365, 'day').toDate());
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {

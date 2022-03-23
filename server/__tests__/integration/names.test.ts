@@ -471,10 +471,30 @@ describe('Names API', () => {
 
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(4);
-      expect(recordsResponse.body[0]).toMatchObject({ period: 'month', metric: 'zulrah', value: 500 });
-      expect(recordsResponse.body[1]).toMatchObject({ period: 'week', metric: 'agility', value: 100_000 });
-      expect(recordsResponse.body[2]).toMatchObject({ period: 'day', metric: 'smithing', value: 10_000 });
-      expect(recordsResponse.body[3]).toMatchObject({ period: 'year', metric: 'ranged', value: 1_350_000 });
+
+      expect(recordsResponse.body.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
+        period: 'month',
+        metric: 'zulrah',
+        value: 500
+      });
+
+      expect(recordsResponse.body.filter(r => r.metric === 'ranged')[0]).toMatchObject({
+        period: 'year',
+        metric: 'ranged',
+        value: 1_350_000
+      });
+
+      expect(recordsResponse.body.filter(r => r.metric === 'agility')[0]).toMatchObject({
+        period: 'week',
+        metric: 'agility',
+        value: 100_000
+      });
+
+      expect(recordsResponse.body.filter(r => r.metric === 'smithing')[0]).toMatchObject({
+        period: 'day',
+        metric: 'smithing',
+        value: 10_000
+      });
 
       // Check if none of the pre-teansition records have been transfered
       const snapshotsResponse = await api

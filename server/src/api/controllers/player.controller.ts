@@ -6,11 +6,12 @@ import * as competitionService from '../services/internal/competition.service';
 import * as deltaService from '../services/internal/delta.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
+import * as recordServices from '../modules/records/record.services';
 import * as playerService from '../services/internal/player.service';
-import * as recordService from '../services/internal/record.service';
 import * as snapshotService from '../services/internal/snapshot.service';
 import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
+import { getEnum } from '../util/validation';
 
 // GET /players/search?username={username}
 async function search(req: Request, res: Response, next: NextFunction) {
@@ -248,20 +249,22 @@ async function records(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id' });
     const username = extractString(req.params, { key: 'username' });
-    const period = extractString(req.query, { key: 'period' });
-    const metric = extractString(req.query, { key: 'metric' });
 
     const playerId = await playerService.resolveId({ id, username });
 
     // Fetch all player records for the given period and metric
-    const playerRecords = await recordService.getPlayerRecords(playerId, { period, metric });
+    const results = await recordServices.findPlayerRecords({
+      id: playerId,
+      period: getEnum(req.query.period),
+      metric: getEnum(req.query.metric)
+    });
 
-    if (id && playerRecords.length === 0) {
+    if (id && results.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
       await playerService.resolve({ id });
     }
 
-    res.json(playerRecords);
+    res.json(results);
   } catch (e) {
     next(e);
   }
