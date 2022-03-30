@@ -1,6 +1,7 @@
 import {
   Metric as PrismaMetric,
   Period as PrismaPeriod,
+  PlayerType as PrismaPlayerType,
   NameChangeStatus as PrismaNameChangeStatus
 } from '@prisma/client';
 
@@ -180,3 +181,13 @@ export const PeriodEnum = {
 } as const;
 
 export type PeriodEnum = typeof PeriodEnum[keyof typeof PeriodEnum];
+
+export const PlayerTypeEnum = {
+  UNKNOWN: PrismaPlayerType.unknown,
+  REGULAR: PrismaPlayerType.regular,
+  IRONMAN: PrismaPlayerType.ironman,
+  HARDCORE: PrismaPlayerType.hardcore,
+  ULTIMATE: PrismaPlayerType.ultimate
+} as const;
+
+export type PlayerTypeEnum = typeof PlayerTypeEnum[keyof typeof PlayerTypeEnum];

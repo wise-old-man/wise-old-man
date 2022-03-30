@@ -1,6 +1,13 @@
 import { z } from 'zod';
-import { PlayerBuild, PlayerType, COUNTRIES } from '@wise-old-man/utils';
-import prisma, { Record, PeriodEnum, MetricEnum, PrismaTypes, modifyRecords } from '../../../../prisma';
+import { PlayerBuild, COUNTRIES } from '@wise-old-man/utils';
+import prisma, {
+  Record,
+  PeriodEnum,
+  MetricEnum,
+  PlayerTypeEnum,
+  PrismaTypes,
+  modifyRecords
+} from '../../../../prisma';
 
 // TODO: improve when "Countries" is refactored into prisma enum
 const COUNTRY_CODES = COUNTRIES.map(c => c.code);
@@ -9,7 +16,7 @@ const inputSchema = z
   .object({
     metric: z.nativeEnum(MetricEnum),
     period: z.nativeEnum(PeriodEnum),
-    playerType: z.nativeEnum(PlayerType).optional(),
+    playerType: z.nativeEnum(PlayerTypeEnum).optional(),
     playerBuild: z.nativeEnum(PlayerBuild).optional(),
     country: z.string().optional()
   })
@@ -30,8 +37,8 @@ async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Pr
   if (params.playerBuild) playerQuery.build = params.playerBuild;
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerType.IRONMAN) {
-    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
+  if (playerQuery.type === PlayerTypeEnum.IRONMAN) {
+    playerQuery.type = { in: [PlayerTypeEnum.IRONMAN, PlayerTypeEnum.HARDCORE, PlayerTypeEnum.ULTIMATE] };
   }
 
   const records = await prisma.record

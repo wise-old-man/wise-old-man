@@ -228,22 +228,22 @@ model Participation {
 }
 
 model Player {
-  id             Int                @id @unique(map: "players_id") @default(autoincrement())
-  username       String             @unique(map: "players_username") @db.VarChar(20)
-  type           enum_players_type? @default(unknown)
-  lastImportedAt DateTime?          @db.Timestamptz(6)
-  registeredAt   DateTime?          @default(now())
-  updatedAt      DateTime?          @updatedAt
-  displayName    String?            @db.VarChar(20)
-  flagged        Boolean?           @default(false)
-  build          String             @default("main") @db.VarChar(255)
-  exp            BigInt             @default(0)
-  ehp            Float              @default(0)
-  ehb            Float              @default(0)
-  ttm            Float              @default(0)
-  tt200m         Float              @default(0)
-  lastChangedAt  DateTime?          @db.Timestamptz(6)
-  country        String?            @db.VarChar(3)
+  id             Int         @id @unique(map: "players_id") @default(autoincrement())
+  username       String      @unique(map: "players_username") @db.VarChar(20)
+  type           PlayerType? @default(unknown)
+  lastImportedAt DateTime?   @db.Timestamptz(6)
+  registeredAt   DateTime?   @default(now())
+  updatedAt      DateTime?   @updatedAt
+  displayName    String?     @db.VarChar(20)
+  flagged        Boolean?    @default(false)
+  build          String      @default("main") @db.VarChar(255)
+  exp            BigInt      @default(0)
+  ehp            Float       @default(0)
+  ehb            Float       @default(0)
+  ttm            Float       @default(0)
+  tt200m         Float       @default(0)
+  lastChangedAt  DateTime?   @db.Timestamptz(6)
+  country        String?     @db.VarChar(3)
 
   // Relations
   achievements   Achievement[]
@@ -572,12 +572,24 @@ enum enum_memberships_role {
   leader
 }
 
-enum enum_players_type {
+enum PlayerType {
   unknown
   regular
   ironman
   hardcore
   ultimate
+
+  @@map("enum_players_type")
+}
+
+enum Period {
+  day
+  week
+  month
+  year
+  five_min
+
+  @@map("enum_records_period")
 }
 
 enum Metric {
@@ -669,14 +681,4 @@ enum Metric {
   phosanis_nightmare
 
   @@map("enum_records_metric")
-}
-
-enum Period {
-  day
-  week
-  month
-  year
-  five_min
-
-  @@map("enum_records_period")
 }
