@@ -121,18 +121,18 @@ describe('Achievements API', () => {
 
       // These achievements should be all dated before May 2020
       expect(achievementDateMap['100m Overall Exp.']).toBe('2015-12-14T04:15:36.000Z');
-      expect(achievementDateMap['200m Overall Exp.']).toBe('2018-08-03T17:33:56.000Z');
+      expect(achievementDateMap['200m Overall Exp.']).toBe('2018-08-03T18:33:56.000Z');
       expect(achievementDateMap['99 Attack']).toBe('2015-12-05T03:56:16.000Z');
-      expect(achievementDateMap['99 Defence']).toBe('2016-09-17T09:00:24.000Z');
+      expect(achievementDateMap['99 Defence']).toBe('2016-09-17T10:00:24.000Z');
       expect(achievementDateMap['99 Farming']).toBe('2019-11-03T02:15:05.000Z');
       expect(achievementDateMap['99 Hitpoints']).toBe('2015-12-05T03:56:16.000Z');
-      expect(achievementDateMap['99 Magic']).toBe('2016-09-17T09:00:24.000Z');
-      expect(achievementDateMap['99 Ranged']).toBe('2016-09-17T09:00:24.000Z');
-      expect(achievementDateMap['99 Slayer']).toBe('2018-08-03T17:33:56.000Z');
-      expect(achievementDateMap['99 Strength']).toBe('2016-09-17T09:00:24.000Z');
-      expect(achievementDateMap['Base 60 Stats']).toBe('2015-05-03T00:29:04.000Z');
-      expect(achievementDateMap['Base 70 Stats']).toBe('2016-09-17T09:00:24.000Z');
-      expect(achievementDateMap['Base 80 Stats']).toBe('2018-09-14T03:33:00.000Z');
+      expect(achievementDateMap['99 Magic']).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementDateMap['99 Ranged']).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementDateMap['99 Slayer']).toBe('2018-08-03T18:33:56.000Z');
+      expect(achievementDateMap['99 Strength']).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementDateMap['Base 60 Stats']).toBe('2015-05-03T01:29:04.000Z');
+      expect(achievementDateMap['Base 70 Stats']).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementDateMap['Base 80 Stats']).toBe('2018-09-14T04:33:00.000Z');
 
       // These achievements should be from today (within the last hour)
       expect(moment(achievementDateMap['99 Cooking']).isSame(moment(), 'hour'));
