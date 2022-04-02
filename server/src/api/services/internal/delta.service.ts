@@ -30,6 +30,7 @@ import { buildQuery } from '../../util/query';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 
 interface GlobalDeltasFilter {
   period?: string;
@@ -46,8 +47,10 @@ function parseNum(metric: string, val: string) {
 async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
   await Promise.all(
     PERIODS.map(async period => {
-      const startingDate = moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate();
-      const startSnapshot = await snapshotService.findFirstSince(player.id, startingDate);
+      const startSnapshot = await snapshotServices.findPlayerSnapshot({
+        id: player.id,
+        minDate: moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate()
+      });
 
       const currentDelta = await Delta.findOne({
         where: { playerId: player.id, period }
@@ -60,7 +63,7 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
         endedAt: latestSnapshot.createdAt
       };
 
-      const periodDiffs = calculateDiff(startSnapshot, latestSnapshot, player);
+      const periodDiffs = calculateDiff(startSnapshot as any, latestSnapshot, player);
 
       METRICS.forEach(metric => {
         newDelta[metric] = periodDiffs[metric][getMetricMeasure(metric)].gained;
@@ -90,10 +93,11 @@ async function getPlayerTimeRangeDeltas(
   latest?: Snapshot,
   player?: Player
 ) {
-  const latestSnapshot = latest || (await snapshotService.findLatest(playerId, endDate));
-  const targetPlayer = player || (await playerService.findById(playerId));
+  const latestSnapshot =
+    latest || (await snapshotServices.findPlayerSnapshot({ id: playerId, maxDate: endDate }));
 
-  const startSnapshot = await snapshotService.findFirstSince(playerId, startDate);
+  const targetPlayer = player || (await playerService.findById(playerId));
+  const startSnapshot = await snapshotServices.findPlayerSnapshot({ id: playerId, minDate: startDate });
 
   if (!startSnapshot || !latestSnapshot) {
     return { startsAt: null, endsAt: null, data: emptyDiff() };
@@ -102,7 +106,7 @@ async function getPlayerTimeRangeDeltas(
   return {
     startsAt: startSnapshot.createdAt,
     endsAt: latestSnapshot.createdAt,
-    data: calculateDiff(startSnapshot, latestSnapshot, targetPlayer)
+    data: calculateDiff(startSnapshot as any, latestSnapshot as any, targetPlayer)
   };
 }
 
@@ -126,12 +130,13 @@ async function getPlayerPeriodDeltas(playerId: number, period: string, latest?: 
  * Gets the all the player deltas (gains), for every period.
  */
 async function getPlayerDeltas(playerId: number) {
-  const latest = await snapshotService.findLatest(playerId);
+  const latest = await snapshotServices.findPlayerSnapshot({ id: playerId });
+
   const player = await playerService.findById(playerId);
 
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
-      const deltas = await getPlayerPeriodDeltas(playerId, period, latest, player);
+      const deltas = await getPlayerPeriodDeltas(playerId, period, latest as any, player);
       return { period, deltas };
     })
   );

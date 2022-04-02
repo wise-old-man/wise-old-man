@@ -283,55 +283,55 @@ model Snapshot {
   id                                    Int       @id @unique(map: "snapshots_id") @default(autoincrement())
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
-  overallRank                           Int?
-  overallExperience                     BigInt?
-  attackRank                            Int?
-  attackExperience                      Int?
-  defenceRank                           Int?
-  defenceExperience                     Int?
-  strengthRank                          Int?
-  strengthExperience                    Int?
-  hitpointsRank                         Int?
-  hitpointsExperience                   Int?
-  rangedRank                            Int?
-  rangedExperience                      Int?
-  prayerRank                            Int?
-  prayerExperience                      Int?
-  magicRank                             Int?
-  magicExperience                       Int?
-  cookingRank                           Int?
-  cookingExperience                     Int?
-  woodcuttingRank                       Int?
-  woodcuttingExperience                 Int?
-  fletchingRank                         Int?
-  fletchingExperience                   Int?
-  fishingRank                           Int?
-  fishingExperience                     Int?
-  firemakingRank                        Int?
-  firemakingExperience                  Int?
-  craftingRank                          Int?
-  craftingExperience                    Int?
-  smithingRank                          Int?
-  smithingExperience                    Int?
-  miningRank                            Int?
-  miningExperience                      Int?
-  herbloreRank                          Int?
-  herbloreExperience                    Int?
-  agilityRank                           Int?
-  agilityExperience                     Int?
-  thievingRank                          Int?
-  thievingExperience                    Int?
-  slayerRank                            Int?
-  slayerExperience                      Int?
-  farmingRank                           Int?
-  farmingExperience                     Int?
-  runecraftingRank                      Int?
-  runecraftingExperience                Int?
-  hunterRank                            Int?
-  hunterExperience                      Int?
-  constructionRank                      Int?
-  constructionExperience                Int?
-  createdAt                             DateTime? @default(now())
+  createdAt                             DateTime  @default(now())
+  overallRank                           Int
+  overallExperience                     BigInt
+  attackRank                            Int       @default(-1)
+  attackExperience                      Int       @default(-1)
+  defenceRank                           Int       @default(-1)
+  defenceExperience                     Int       @default(-1)
+  strengthRank                          Int       @default(-1)
+  strengthExperience                    Int       @default(-1)
+  hitpointsRank                         Int       @default(-1)
+  hitpointsExperience                   Int       @default(-1)
+  rangedRank                            Int       @default(-1)
+  rangedExperience                      Int       @default(-1)
+  prayerRank                            Int       @default(-1)
+  prayerExperience                      Int       @default(-1)
+  magicRank                             Int       @default(-1)
+  magicExperience                       Int       @default(-1)
+  cookingRank                           Int       @default(-1)
+  cookingExperience                     Int       @default(-1)
+  woodcuttingRank                       Int       @default(-1)
+  woodcuttingExperience                 Int       @default(-1)
+  fletchingRank                         Int       @default(-1)
+  fletchingExperience                   Int       @default(-1)
+  fishingRank                           Int       @default(-1)
+  fishingExperience                     Int       @default(-1)
+  firemakingRank                        Int       @default(-1)
+  firemakingExperience                  Int       @default(-1)
+  craftingRank                          Int       @default(-1)
+  craftingExperience                    Int       @default(-1)
+  smithingRank                          Int       @default(-1)
+  smithingExperience                    Int       @default(-1)
+  miningRank                            Int       @default(-1)
+  miningExperience                      Int       @default(-1)
+  herbloreRank                          Int       @default(-1)
+  herbloreExperience                    Int       @default(-1)
+  agilityRank                           Int       @default(-1)
+  agilityExperience                     Int       @default(-1)
+  thievingRank                          Int       @default(-1)
+  thievingExperience                    Int       @default(-1)
+  slayerRank                            Int       @default(-1)
+  slayerExperience                      Int       @default(-1)
+  farmingRank                           Int       @default(-1)
+  farmingExperience                     Int       @default(-1)
+  runecraftingRank                      Int       @default(-1)
+  runecraftingExperience                Int       @default(-1)
+  hunterRank                            Int       @default(-1)
+  hunterExperience                      Int       @default(-1)
+  constructionRank                      Int       @default(-1)
+  constructionExperience                Int       @default(-1)
   league_pointsRank                     Int       @default(-1)
   league_pointsScore                    Int       @default(-1)
   bounty_hunter_hunterRank              Int       @default(-1)

@@ -1,6 +1,5 @@
 import { METRICS, Metric, getMetricMeasure, getLevel, getMetricValueKey } from '@wise-old-man/utils';
-import { Snapshot } from '../../../database/models';
-import { Achievement, MetricEnum } from '../../../prisma';
+import { Achievement, Snapshot, MetricEnum } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
 

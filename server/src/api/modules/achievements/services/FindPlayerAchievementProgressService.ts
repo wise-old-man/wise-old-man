@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { round, MetricMeasure } from '@wise-old-man/utils';
 import prisma, { Achievement, modifyAchievements, MetricEnum } from '../../../../prisma';
-import * as snapshotService from '../../../services/internal/snapshot.service';
+import * as snapshotServices from '../../snapshots/snapshot.services';
 import { ProgressAchievement, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
@@ -22,7 +22,7 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
     .then(modifyAchievements);
 
   // Find the player's latest snapshot
-  const latestSnapshot = await snapshotService.findLatest(params.id);
+  const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: params.id });
 
   // Get all definitions and sort them so that related definitions are clustered
   const definitions = clusterDefinitions(ALL_DEFINITIONS);

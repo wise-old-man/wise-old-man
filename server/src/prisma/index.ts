@@ -1,4 +1,4 @@
-import { PrismaClient, Achievement, NameChange, Record, Prisma } from '@prisma/client';
+import { PrismaClient, Snapshot, Achievement, NameChange, Record, Prisma } from '@prisma/client';
 import {
   SkillEnum,
   BossEnum,
@@ -36,6 +36,10 @@ function modifyAchievements(achievements: Achievement[]): ModifiedAchievement[] 
   return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
 }
 
+function modifySnapshots(snapshots: Snapshot[]): ModifiedSnapshot[] {
+  return snapshots.map(s => ({ ...s, overallExperience: parseBigInt(s.overallExperience) }));
+}
+
 function modifyRecords(records: Record[]): ModifiedRecord[] {
   return records.map(a => {
     // All records' values are stored as an Integer, but EHP/EHB records can have
@@ -56,11 +60,16 @@ type ModifiedRecord = Omit<Record, 'value'> & {
   value: number;
 };
 
+type ModifiedSnapshot = Omit<Snapshot, 'overallExperience'> & {
+  overallExperience: number;
+};
+
 export {
   Prisma as PrismaTypes,
   // Models
   NameChange,
   ModifiedRecord as Record,
+  ModifiedSnapshot as Snapshot,
   ModifiedAchievement as Achievement,
   // Enums
   SkillEnum,
@@ -78,8 +87,9 @@ export {
   Activities,
   Virtuals,
   // Utils
-  modifyAchievements,
-  modifyRecords
+  modifyRecords,
+  modifySnapshots,
+  modifyAchievements
 };
 
 export default prisma;

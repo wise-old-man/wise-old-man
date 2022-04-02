@@ -1,5 +1,4 @@
-import { Achievement, MetricEnum } from '../../../prisma';
-import { Snapshot } from '../../../database/models';
+import { Achievement, Snapshot, MetricEnum } from '../../../prisma';
 
 interface AchievementTemplate {
   name: string;

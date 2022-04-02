@@ -1,5 +1,4 @@
-import { MetricEnum } from '../../../prisma';
-import { Snapshot } from '../../../database/models';
+import { Snapshot, MetricEnum } from '../../../prisma';
 import { AchievementTemplate } from './achievement.types';
 import { getMinimumExp } from '../../util/experience';
 

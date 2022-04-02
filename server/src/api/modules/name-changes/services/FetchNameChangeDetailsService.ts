@@ -5,6 +5,7 @@ import * as snapshotService from '../../../services/internal/snapshot.service';
 import * as playerService from '../../../services/internal/player.service';
 import * as efficiencyService from '../../../services/internal/efficiency.service';
 import * as jagexService from '../../../services/external/jagex.service';
+import * as snapshotServices from '../../snapshots/snapshot.services';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -63,7 +64,7 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
   }
 
   // Fetch the last snapshot from the old name
-  const oldStats = await snapshotService.findLatest(oldPlayer.id);
+  const oldStats = await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id });
 
   if (!oldStats) {
     throw new ServerError('Old stats could not be found.');
@@ -76,10 +77,13 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
     // If the new name is already a tracked player and was tracked
     // since the old name's last snapshot, use this first "post change"
     // snapshot as a starting point
-    const postChangeSnapshot = await snapshotService.findFirstSince(newPlayer.id, oldStats.createdAt);
+    const postChangeSnapshot = await snapshotServices.findPlayerSnapshot({
+      id: newPlayer.id,
+      minDate: oldStats.createdAt
+    });
 
     if (postChangeSnapshot) {
-      newStats = postChangeSnapshot;
+      newStats = postChangeSnapshot as any;
     }
   }
 
@@ -87,10 +91,10 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const ehpDiff = newStats ? efficiencyService.calculateEHPDiff(oldStats, newStats) : 0;
-  const ehbDiff = newStats ? efficiencyService.calculateEHBDiff(oldStats, newStats) : 0;
+  const ehpDiff = newStats ? efficiencyService.calculateEHPDiff(oldStats as any, newStats) : 0;
+  const ehbDiff = newStats ? efficiencyService.calculateEHBDiff(oldStats as any, newStats) : 0;
 
-  const hasNegativeGains = newStats ? snapshotService.hasNegativeGains(oldStats, newStats) : false;
+  const hasNegativeGains = newStats ? snapshotService.hasNegativeGains(oldStats as any, newStats) : false;
 
   return {
     nameChange,
@@ -103,7 +107,7 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
       hoursDiff,
       ehpDiff,
       ehbDiff,
-      oldStats: snapshotService.format(oldStats),
+      oldStats: snapshotService.format(oldStats as any),
       newStats: snapshotService.format(newStats)
     }
   };

@@ -10,6 +10,7 @@ import * as jagexService from '../external/jagex.service';
 import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
+import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 
 const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
@@ -134,7 +135,8 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
-  const stats = snapshot || (await snapshotService.findLatest(player.id));
+  const stats = snapshot || ((await snapshotServices.findPlayerSnapshot({ id: player.id })) as any);
+
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
 
@@ -179,18 +181,19 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     }
 
     // Fetch the previous player stats from the database
-    const previousStats = await snapshotService.findLatest(player.id);
+    const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
+
     // Fetch the new player stats from the hiscores API
     const currentStats = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
-    if (!snapshotService.withinRange(previousStats, currentStats)) {
+    if (!snapshotService.withinRange(previousStats as any, currentStats)) {
       await player.update({ flagged: true });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
     // The player has gained exp/kc/scores since the last update
-    if (snapshotService.hasChanged(previousStats, currentStats)) {
+    if (snapshotService.hasChanged(previousStats as any, currentStats)) {
       player.lastChangedAt = new Date();
       currentStats.isChange = true;
     }

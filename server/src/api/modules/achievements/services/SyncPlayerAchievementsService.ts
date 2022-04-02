@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyAchievements } from '../../../../prisma';
-import * as snapshotService from '../../../services/internal/snapshot.service';
+import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -16,7 +16,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   const params = inputSchema.parse(payload);
 
   // Fetch the player's latest 2 snapshots
-  const latestSnapshots = await snapshotService.findAll(params.id, 2);
+  const latestSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id, limit: 2 });
 
   if (!latestSnapshots || latestSnapshots.length < 2) {
     return;
@@ -31,12 +31,12 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
   const missingDefinitions = ALL_DEFINITIONS.filter(d => {
-    return d.validate(previous) && !currentAchievements.find(e => e.name === d.name);
+    return d.validate(previous as any) && !currentAchievements.find(e => e.name === d.name);
   });
 
   // Find any new achievements (only achieved since the last snapshot)
   const newDefinitions = ALL_DEFINITIONS.filter(d => {
-    return !d.validate(previous) && d.validate(current);
+    return !d.validate(previous as any) && d.validate(current as any);
   });
 
   // Nothing to add.
@@ -45,8 +45,9 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   }
 
   // Search dates for missing definitions, based on player history
-  const allSnapshots = await snapshotService.findAll(params.id, 100_000);
-  const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
+  const allSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id });
+
+  const missingPastDates = calculatePastDates(allSnapshots.reverse() as any, missingDefinitions);
 
   // Create achievement instances for all the missing definitions
   const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {

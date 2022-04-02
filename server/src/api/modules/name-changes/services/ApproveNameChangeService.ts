@@ -6,7 +6,7 @@ import { Op, Transaction, WhereOptions } from 'sequelize';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
-import * as snapshotService from '../../../services/internal/snapshot.service';
+import * as snapshotServices from '../../snapshots/snapshot.services';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -52,7 +52,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 }
 
 async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
-  const transitionDate = (await snapshotService.findLatest(oldPlayer.id))?.createdAt;
+  const transitionDate = (await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
 
   await sequelize.transaction(async transaction => {
     if (newPlayer && oldPlayer.id !== newPlayer.id) {

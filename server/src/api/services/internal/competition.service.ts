@@ -21,6 +21,7 @@ import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
+import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 
 // Temporary
 const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
@@ -1106,7 +1107,11 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
       // If this participation's starting snapshot has not been set,
       // find the first snapshot created since the start date and set it
       if (!participation.startSnapshot) {
-        const startSnapshot = await snapshotService.findFirstSince(playerId, competition.startsAt);
+        const startSnapshot = await snapshotServices.findPlayerSnapshot({
+          id: playerId,
+          minDate: competition.startsAt
+        });
+
         participation.startSnapshotId = startSnapshot.id;
       }
 

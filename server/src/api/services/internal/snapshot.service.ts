@@ -140,38 +140,6 @@ async function getPlayerTimeRangeSnapshots(playerId: number, startDate: Date, en
 }
 
 /**
- * Finds all snapshots for a given player.
- */
-async function findAll(playerId: number, limit: number): Promise<Snapshot[]> {
-  if (!playerId) {
-    throw new BadRequestError(`Invalid player id.`);
-  }
-
-  const result = await Snapshot.findAll({
-    where: { playerId },
-    order: [['createdAt', 'DESC']],
-    limit
-  });
-
-  return result;
-}
-
-/**
- * Finds the latest snapshot for a given player.
- */
-async function findLatest(playerId: number, maxDate = new Date()): Promise<Snapshot | null> {
-  if (!playerId) throw new BadRequestError(`Invalid player id.`);
-  if (!maxDate) throw new BadRequestError('Invalid maximum date.');
-
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.lte]: maxDate } },
-    order: [['createdAt', 'DESC']]
-  });
-
-  return result;
-}
-
-/**
  * Finds all snapshots between the two given dates,
  * for any of the given player ids.
  * Useful for tracking the evolution of every player in a competition.
@@ -189,21 +157,6 @@ async function findAllBetween(playerIds: number[], startDate: Date, endDate: Dat
     order: [['createdAt', 'ASC']]
   });
   return results;
-}
-
-/**
- * Finds the first snapshot since "date" for a given player.
- */
-async function findFirstSince(playerId: number, date: Date): Promise<Snapshot | null> {
-  if (!playerId) throw new BadRequestError(`Invalid player id.`);
-  if (!date) throw new BadRequestError('Invalid start date.');
-
-  const result = await Snapshot.findOne({
-    where: { playerId, createdAt: { [Op.gte]: date } },
-    order: [['createdAt', 'ASC']]
-  });
-
-  return result;
 }
 
 function average(snapshots: Snapshot[]): Snapshot {
@@ -377,10 +330,7 @@ export {
   hasChanged,
   hasExcessiveGains,
   hasNegativeGains,
-  findAll,
-  findLatest,
   findAllBetween,
-  findFirstSince,
   average,
   saveAll,
   fromCML,

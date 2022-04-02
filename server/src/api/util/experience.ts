@@ -1,4 +1,3 @@
-import { Snapshot } from '../../database/models';
 import {
   getCombatLevel as calcCombat,
   getLevel,
@@ -10,8 +9,10 @@ import {
   MEMBER_SKILLS,
   MAX_SKILL_EXP
 } from '@wise-old-man/utils';
+import { Snapshot as PrismaSnapshot } from '../../prisma';
+import { Snapshot } from '../../database/models';
 
-export function getMinimumExp(snapshot: Snapshot) {
+export function getMinimumExp(snapshot: PrismaSnapshot) {
   return SKILLS.filter(s => s !== Metrics.OVERALL)
     .map(s => Math.max(0, snapshot[getMetricValueKey(s)]))
     .sort((a, b) => a - b)[0];
