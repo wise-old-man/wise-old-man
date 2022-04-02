@@ -120,6 +120,8 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
  * Finds all snapshots within a time period, for a given player.
  */
 async function getPlayerPeriodSnapshots(playerId: number, period: string) {
+  if (!period) throw new BadRequestError(`Invalid period.`);
+
   const parsedPeriod = parsePeriodExpression(period);
 
   if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
@@ -134,7 +136,7 @@ async function getPlayerPeriodSnapshots(playerId: number, period: string) {
 
 async function getPlayerTimeRangeSnapshots(playerId: number, startDate: Date, endDate: Date) {
   const snapshots = await findAllBetween([playerId], startDate, endDate);
-  return snapshots.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(format);
+  return snapshots.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 /**
@@ -158,6 +160,9 @@ async function findAll(playerId: number, limit: number): Promise<Snapshot[]> {
  * Finds the latest snapshot for a given player.
  */
 async function findLatest(playerId: number, maxDate = new Date()): Promise<Snapshot | null> {
+  if (!playerId) throw new BadRequestError(`Invalid player id.`);
+  if (!maxDate) throw new BadRequestError('Invalid maximum date.');
+
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.lte]: maxDate } },
     order: [['createdAt', 'DESC']]
@@ -172,6 +177,10 @@ async function findLatest(playerId: number, maxDate = new Date()): Promise<Snaps
  * Useful for tracking the evolution of every player in a competition.
  */
 async function findAllBetween(playerIds: number[], startDate: Date, endDate: Date): Promise<Snapshot[]> {
+  if (!playerIds) throw new BadRequestError(`Invalid player ids.`);
+  if (!startDate) throw new BadRequestError('Invalid start date.');
+  if (!endDate) throw new BadRequestError('Invalid end date.');
+
   const results = await Snapshot.findAll({
     where: {
       playerId: playerIds,
@@ -186,6 +195,9 @@ async function findAllBetween(playerIds: number[], startDate: Date, endDate: Dat
  * Finds the first snapshot since "date" for a given player.
  */
 async function findFirstSince(playerId: number, date: Date): Promise<Snapshot | null> {
+  if (!playerId) throw new BadRequestError(`Invalid player id.`);
+  if (!date) throw new BadRequestError('Invalid start date.');
+
   const result = await Snapshot.findOne({
     where: { playerId, createdAt: { [Op.gte]: date } },
     order: [['createdAt', 'ASC']]
@@ -276,7 +288,7 @@ async function fromCML(playerId: number, historyRow: string) {
 
   // If a new skill/activity/boss was added to the CML API,
   // prevent any further snapshot saves to prevent incorrect DB data
-  if (exps.length !== SKILLS.length) {
+  if (exps.length !== SKILLS.length || ranks.length !== SKILLS.length) {
     throw new ServerError('The CML API was updated. Please wait for a fix.');
   }
 
