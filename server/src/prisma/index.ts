@@ -1,4 +1,11 @@
-import { PrismaClient, Snapshot, Achievement, NameChange, Record, Prisma } from '@prisma/client';
+import {
+  PrismaClient,
+  Record as PrismaRecord,
+  Snapshot as PrismaSnapshot,
+  Achievement as PrismaAchievement,
+  NameChange,
+  Prisma
+} from '@prisma/client';
 import {
   SkillEnum,
   BossEnum,
@@ -32,15 +39,15 @@ prisma.$use(async (params, next) => {
   return result;
 });
 
-function modifyAchievements(achievements: Achievement[]): ModifiedAchievement[] {
+function modifyAchievements(achievements: PrismaAchievement[]): ModifiedAchievement[] {
   return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
 }
 
-function modifySnapshots(snapshots: Snapshot[]): ModifiedSnapshot[] {
+function modifySnapshots(snapshots: PrismaSnapshot[]): ModifiedSnapshot[] {
   return snapshots.map(s => ({ ...s, overallExperience: parseBigInt(s.overallExperience) }));
 }
 
-function modifyRecords(records: Record[]): ModifiedRecord[] {
+function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
   return records.map(a => {
     // All records' values are stored as an Integer, but EHP/EHB records can have
     // float values, so they're multiplied by 10,000 when saving to the database.
@@ -52,20 +59,22 @@ function modifyRecords(records: Record[]): ModifiedRecord[] {
   });
 }
 
-type ModifiedAchievement = Omit<Achievement, 'threshold'> & {
+type ModifiedAchievement = Omit<PrismaAchievement, 'threshold'> & {
   threshold: number;
 };
 
-type ModifiedRecord = Omit<Record, 'value'> & {
+type ModifiedRecord = Omit<PrismaRecord, 'value'> & {
   value: number;
 };
 
-type ModifiedSnapshot = Omit<Snapshot, 'overallExperience'> & {
+type ModifiedSnapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
   overallExperience: number;
 };
 
 export {
   Prisma as PrismaTypes,
+  // Original Models
+  PrismaSnapshot,
   // Models
   NameChange,
   ModifiedRecord as Record,

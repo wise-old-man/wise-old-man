@@ -20,7 +20,6 @@ import * as cryptService from '../external/crypt.service';
 import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
-import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 
 // Temporary
@@ -354,15 +353,16 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
   // Select the top 5 players
   const top5Ids = participants.slice(0, 5).map((p: any) => p.id);
 
-  // Select all snapshots for the top 5 players, created during the competition
-  const raceSnapshots = await snapshotService.findAllBetween(
-    top5Ids,
-    competition.startsAt,
-    competition.endsAt
-  );
-
-  // Map the snapshots into a simpler format
-  const raceData = raceSnapshots.map(s => ({
+  // Select all snapshots for the top 5 players, created during the competition,
+  // then convert them into a simpler format
+  const raceData = (
+    await snapshotServices.findGroupSnapshots({
+      playerIds: top5Ids,
+      includeAllBetween: true,
+      minDate: competition.startsAt,
+      maxDate: competition.endsAt
+    })
+  ).map(s => ({
     createdAt: s.createdAt,
     playerId: s.playerId,
     value: s[metricKey]

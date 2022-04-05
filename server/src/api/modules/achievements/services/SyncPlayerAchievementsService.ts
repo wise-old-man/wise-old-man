@@ -31,12 +31,12 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
   const missingDefinitions = ALL_DEFINITIONS.filter(d => {
-    return d.validate(previous as any) && !currentAchievements.find(e => e.name === d.name);
+    return d.validate(previous) && !currentAchievements.find(e => e.name === d.name);
   });
 
   // Find any new achievements (only achieved since the last snapshot)
   const newDefinitions = ALL_DEFINITIONS.filter(d => {
-    return !d.validate(previous as any) && d.validate(current as any);
+    return !d.validate(previous) && d.validate(current);
   });
 
   // Nothing to add.
@@ -47,7 +47,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   // Search dates for missing definitions, based on player history
   const allSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id });
 
-  const missingPastDates = calculatePastDates(allSnapshots.reverse() as any, missingDefinitions);
+  const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
 
   // Create achievement instances for all the missing definitions
   const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {

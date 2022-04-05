@@ -11,6 +11,7 @@ import redisService from '../external/redis.service';
 import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
+import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 
 const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
@@ -140,7 +141,7 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
   const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
   const combatLevel = getCombatLevel(stats);
 
-  const latestSnapshot = snapshotService.format(stats, efficiency);
+  const latestSnapshot = snapshotUtils.format(stats, efficiency);
 
   return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
 }
@@ -187,13 +188,13 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     const currentStats = await fetchStats(player);
 
     // There has been a radical change in this player's stats, mark it as flagged
-    if (!snapshotService.withinRange(previousStats as any, currentStats)) {
+    if (!snapshotUtils.withinRange(previousStats, currentStats)) {
       await player.update({ flagged: true });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
     // The player has gained exp/kc/scores since the last update
-    if (snapshotService.hasChanged(previousStats as any, currentStats)) {
+    if (snapshotUtils.hasChanged(previousStats, currentStats)) {
       player.lastChangedAt = new Date();
       currentStats.isChange = true;
     }
@@ -275,7 +276,7 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   const history = await cmlService.getCMLHistory(player.username, time);
 
   // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map(row => snapshotService.fromCML(player.id, row)));
+  const snapshots = await Promise.all(history.map(row => snapshotService.legacy_fromCML(player.id, row)));
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
   const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
@@ -291,7 +292,7 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
-  const newSnapshot = await snapshotService.fromRS(player.id, hiscoresCSV);
+  const newSnapshot = await snapshotService.legacy_fromRS(player.id, hiscoresCSV);
 
   return newSnapshot;
 }

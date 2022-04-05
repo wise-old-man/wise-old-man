@@ -26,7 +26,7 @@ import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
 import * as deltaService from './delta.service';
 import * as playerService from './player.service';
-import * as snapshotService from './snapshot.service';
+import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 
 interface Member extends Player {
   role: string;
@@ -389,7 +389,7 @@ async function getStatistics(groupId: number) {
   const maxedCombatCount = stats.filter(s => getCombatLevel(s) === 126).length;
   const maxedTotalCount = stats.filter(s => getTotalLevel(s) === 2277).length;
   const maxed200msCount = stats.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
-  const averageStats = snapshotService.format(snapshotService.average(stats));
+  const averageStats = snapshotUtils.format(snapshotUtils.average(stats));
 
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }

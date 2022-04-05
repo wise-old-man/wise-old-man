@@ -7,7 +7,8 @@ import {
   Metrics,
   METRICS
 } from '@wise-old-man/utils';
-import { Snapshot } from '../../../database/models';
+import { Snapshot } from '../../../prisma';
+import { ServerError } from '../../errors';
 import * as efficiencyService from '../../services/internal/efficiency.service';
 
 /**
@@ -71,8 +72,8 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
 
   const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
 
-  const ehpDiff = efficiencyService.calculateEHPDiff(before, after);
-  const ehbDiff = efficiencyService.calculateEHBDiff(before, after);
+  const ehpDiff = efficiencyService.calculateEHPDiff(before as any, after as any);
+  const ehbDiff = efficiencyService.calculateEHBDiff(before as any, after as any);
 
   return ehpDiff + ehbDiff > hoursDiff;
 }
@@ -106,4 +107,38 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
   return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
 }
 
-export { format, hasChanged, withinRange, hasNegativeGains };
+function average(snapshots: Snapshot[]): Snapshot {
+  if (!snapshots && snapshots.length === 0) {
+    throw new ServerError('Invalid snapshots list. Failed to find average.');
+  }
+
+  const base: any = {
+    id: -1,
+    playerId: -1,
+    createdAt: null,
+    importedAt: null
+  };
+
+  METRICS.forEach(metric => {
+    const valueKey = getMetricValueKey(metric);
+    const rankKey = getMetricRankKey(metric);
+
+    const valueSum = snapshots
+      .map((s: Snapshot) => s[valueKey])
+      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
+
+    const rankSum = snapshots
+      .map((s: Snapshot) => s[rankKey])
+      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
+
+    const valueAvg = Math.round(valueSum / snapshots.length);
+    const rankAvg = Math.round(rankSum / snapshots.length);
+
+    base[valueKey] = valueAvg;
+    base[rankKey] = rankAvg;
+  });
+
+  return base;
+}
+
+export { format, average, hasChanged, hasExcessiveGains, hasNegativeGains, withinRange };

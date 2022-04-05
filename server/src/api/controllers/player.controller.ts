@@ -8,7 +8,8 @@ import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
 import * as playerService from '../services/internal/player.service';
-import * as snapshotService from '../services/internal/snapshot.service';
+import * as snapshotServices from '../modules/snapshots/snapshot.services';
+import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
 import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
 import { getEnum } from '../util/validation';
@@ -282,18 +283,21 @@ async function snapshots(req: Request, res: Response, next: NextFunction) {
 
     const playerId = await playerService.resolveId({ id, username });
 
-    const playerSnapshots = (
-      period
-        ? await snapshotService.getPlayerPeriodSnapshots(playerId, period)
-        : await snapshotService.getPlayerTimeRangeSnapshots(playerId, startDate, endDate)
-    ).map(snapshotService.format);
+    const results = await snapshotServices.findPlayerSnapshots({
+      id: playerId,
+      period,
+      minDate: startDate,
+      maxDate: endDate
+    });
 
-    if (id && playerSnapshots.length === 0) {
+    const formattedSnapshots = results.map(snapshotUtils.format);
+
+    if (id && formattedSnapshots.length === 0) {
       // Ensure this player Id exists (if not, it'll throw a 404 error)
       await playerService.resolve({ id });
     }
 
-    res.json(playerSnapshots);
+    res.json(formattedSnapshots);
   } catch (e) {
     next(e);
   }

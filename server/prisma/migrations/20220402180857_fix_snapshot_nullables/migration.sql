@@ -54,7 +54,9 @@
 */
 -- AlterTable
 ALTER TABLE "snapshots" ALTER COLUMN "overallRank" SET NOT NULL,
+ALTER COLUMN "overallRank" SET DEFAULT -1,
 ALTER COLUMN "overallExperience" SET NOT NULL,
+ALTER COLUMN "overallExperience" SET DEFAULT -1,
 ALTER COLUMN "attackRank" SET NOT NULL,
 ALTER COLUMN "attackRank" SET DEFAULT -1,
 ALTER COLUMN "attackExperience" SET NOT NULL,

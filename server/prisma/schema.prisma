@@ -284,8 +284,8 @@ model Snapshot {
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now())
-  overallRank                           Int
-  overallExperience                     BigInt
+  overallRank                           Int       @default(-1)
+  overallExperience                     BigInt    @default(-1)
   attackRank                            Int       @default(-1)
   attackExperience                      Int       @default(-1)
   defenceRank                           Int       @default(-1)

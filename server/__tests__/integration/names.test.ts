@@ -4,7 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { PlayerType, getMetricValueKey, getMetricRankKey, METRICS } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
-import * as snapshotService from '../../src/api/services/internal/snapshot.service';
+import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
 import prisma from '../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile } from '../utils';
 
@@ -663,7 +663,11 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
   });
 
   const filteredSnapshotData = {};
-  const snapshotData = await snapshotService.fromRS(oldPlayerId, globalData.hiscoresRawData);
+
+  const snapshotData = await snapshotServices.buildSnapshot({
+    playerId: oldPlayerId,
+    rawCSV: globalData.hiscoresRawData
+  });
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -672,7 +676,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   // Create a pre-transition-date snapshot
   await prisma.snapshot.create({
-    data: { ...(filteredSnapshotData as any), playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
+    data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
   });
 
   // Create a pre-transition-date test competition and add this player to it
@@ -712,7 +716,11 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
   });
 
   const filteredSnapshotData = {};
-  const snapshotData = await snapshotService.fromRS(oldPlayerId, globalData.hiscoresRawData);
+
+  const snapshotData = await snapshotServices.buildSnapshot({
+    playerId: oldPlayerId,
+    rawCSV: globalData.hiscoresRawData
+  });
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -721,7 +729,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   // Create a post-transition-date snapshot
   await prisma.snapshot.create({
-    data: { playerId: newPlayerId, ...(filteredSnapshotData as any) }
+    data: { playerId: newPlayerId, ...filteredSnapshotData }
   });
 
   // Create a test competition and add this player to it

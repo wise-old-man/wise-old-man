@@ -29,7 +29,6 @@ import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
 import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
-import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 
 interface GlobalDeltasFilter {
@@ -233,13 +232,10 @@ async function getGroupTimeRangeDeltas(
   playerIds: number[],
   pagination: Pagination
 ) {
-  // Calculated metrics (virtuals) require all columns to be fetched from the db
-  const attributes = isVirtualMetric(metric) ? '*' : `"${getMetricValueKey(metric)}"`;
-
   const [players, lastSnapshots, firstSnapshots] = await Promise.all([
     playerService.findAllByIds(playerIds),
-    snapshotService.getGroupLastSnapshots(playerIds, endDate, attributes),
-    snapshotService.getGroupFirstSnapshots(playerIds, startDate, attributes)
+    snapshotServices.findGroupSnapshots({ playerIds, maxDate: endDate }),
+    snapshotServices.findGroupSnapshots({ playerIds, minDate: startDate })
   ]);
 
   const playerMap = Object.fromEntries(
