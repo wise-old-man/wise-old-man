@@ -37,7 +37,8 @@ const metrics = {
     { key: 'clue_scrolls_elite', name: 'Clue Scrolls (Elite)' },
     { key: 'clue_scrolls_master', name: 'Clue Scrolls (Master)' },
     { key: 'last_man_standing', name: 'Last Man Standing' },
-    { key: 'soul_wars_zeal', name: 'Soul Wars Zeal' }
+    { key: 'soul_wars_zeal', name: 'Soul Wars Zeal' },
+    { key: 'guardians_of_the_rift', name: 'Guardians of the Rift' }
   ],
   BOSSES: [
     { key: 'abyssal_sire', name: 'Abyssal Sire' },

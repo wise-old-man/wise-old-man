@@ -156,6 +156,9 @@ export default class Delta extends Model<Delta> {
   soul_wars_zeal: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  guardians_of_the_rift: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   abyssal_sire: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
