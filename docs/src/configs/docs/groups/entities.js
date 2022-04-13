@@ -398,6 +398,7 @@ export default [
       'clue_scrolls_master',
       'last_man_standing',
       'soul_wars_zeal',
+      'guardians_of_the_rift',
       'abyssal_sire',
       'alchemical_hydra',
       'barrows_chests',

@@ -220,6 +220,11 @@ export default [
         description: ''
       },
       {
+        field: 'guardians_of_the_rift',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'abyssal_sire',
         type: 'integer',
         description: ''
@@ -516,6 +521,8 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'soul_wars_zeal',
+      'guardians_of_the_rift',
       'abyssal_sire',
       'alchemical_hydra',
       'barrows_chests',

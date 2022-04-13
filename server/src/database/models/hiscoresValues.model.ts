@@ -218,6 +218,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   soul_wars_zealScore: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  guardians_of_the_riftRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  guardians_of_the_riftScore: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   abyssal_sireRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })

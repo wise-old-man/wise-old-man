@@ -189,6 +189,11 @@ export default [
         description: 'Soul Wars Zeal rank and score.'
       },
       {
+        field: 'guardians_of_the_rift',
+        type: 'object',
+        description: 'Guardians of the Rift rank and score.'
+      },
+      {
         field: 'abyssal_sire',
         type: 'object',
         description: 'Abyssal Sire rank and kills.'
