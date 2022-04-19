@@ -326,8 +326,10 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
 
     // Do not use initial ranks for skill, to prevent -1 ranks from creating crazy diffs
     // (introduced by https://github.com/wise-old-man/wise-old-man/pull/93)
-    const gainedRank = isSkill(metric) && startSnapshot[rankKey] === -1 ? 0 : endRank - startRank;
-    let gainedValue = round(Math.max(0, endValue - Math.max(minimumValue - 1, startValue)), 5);
+    const gainedRank =
+      isSkill(metric) && startSnapshot[rankKey] === -1 ? 0 : endRank - Math.max(0, startRank);
+
+    let gainedValue = round(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
 
     // Some players with low total level (but high exp) can sometimes fall off the hiscores
     // causing their starting exp to be -1, this would then cause the diff to think
