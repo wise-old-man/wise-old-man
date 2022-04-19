@@ -14,7 +14,7 @@ const inputSchema = z
     limit: z.number().int().positive().optional().default(100_000)
   })
   .refine(s => !(s.minDate && s.maxDate && s.minDate >= s.maxDate), {
-    message: 'Min date must be higher than max date.'
+    message: 'Min date must be before the max date.'
   });
 
 type FindPlayerSnapshotsParams = z.infer<typeof inputSchema>;

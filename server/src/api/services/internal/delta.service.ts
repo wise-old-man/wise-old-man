@@ -51,6 +51,9 @@ async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
         minDate: moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate()
       });
 
+      // The player only has one snapshot in this period, can't calculate diffs
+      if (latestSnapshot.id === startSnapshot.id) return;
+
       const currentDelta = await Delta.findOne({
         where: { playerId: player.id, period }
       });
@@ -92,6 +95,8 @@ async function getPlayerTimeRangeDeltas(
   latest?: Snapshot,
   player?: Player
 ) {
+  if (startDate > endDate) throw new BadRequestError('Start date must be before the End date.');
+
   const latestSnapshot =
     latest || (await snapshotServices.findPlayerSnapshot({ id: playerId, maxDate: endDate }));
 
@@ -129,6 +134,8 @@ async function getPlayerPeriodDeltas(playerId: number, period: string, latest?: 
  * Gets the all the player deltas (gains), for every period.
  */
 async function getPlayerDeltas(playerId: number) {
+  if (!playerId) throw new BadRequestError('Invalid player id.');
+
   const latest = await snapshotServices.findPlayerSnapshot({ id: playerId });
 
   const player = await playerService.findById(playerId);
