@@ -142,6 +142,7 @@ model Delta {
   theatre_of_blood_hard_mode       Int       @default(0)
   phosanis_nightmare               Int       @default(0)
   nex                              Int       @default(0)
+  guardians_of_the_rift            Int       @default(0)
 
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -456,6 +457,8 @@ model Snapshot {
   phosanis_nightmareRank                Int       @default(-1)
   nexKills                              Int       @default(-1)
   nexRank                               Int       @default(-1)
+  guardians_of_the_riftScore            Int       @default(-1)
+  guardians_of_the_riftRank             Int       @default(-1)
 
 
   // Relations
@@ -679,6 +682,7 @@ enum Metric {
   tempoross
   theatre_of_blood_hard_mode
   phosanis_nightmare
+  guardians_of_the_rift
 
   @@map("enum_records_metric")
 }

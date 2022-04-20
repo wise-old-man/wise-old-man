@@ -226,23 +226,23 @@ const VirtualMetricProps = mapValues(
 
 const Metrics = {
   ...Skill,
-  ...Boss,
   ...Activity,
+  ...Boss,
   ...VirtualMetric
 };
 
 const MetricProps = {
   ...SkillProps,
-  ...BossProps,
   ...ActivityProps,
+  ...BossProps,
   ...VirtualMetricProps
 };
 
-type Metric = Skill | Boss | Activity | VirtualMetric;
+type Metric = Skill | Activity | Boss | VirtualMetric;
 
 const SKILLS = Object.values(Skill);
-const BOSSES = Object.values(Boss);
 const ACTIVITIES = Object.values(Activity);
+const BOSSES = Object.values(Boss);
 const VIRTUAL_METRICS = Object.values(VirtualMetric);
 
 const METRICS = [...SKILLS, ...ACTIVITIES, ...BOSSES, ...VIRTUAL_METRICS];
@@ -263,12 +263,12 @@ function isSkill(metric: Metric) {
   return metric in SkillProps;
 }
 
-function isBoss(metric: Metric) {
-  return metric in BossProps;
-}
-
 function isActivity(metric: Metric) {
   return metric in ActivityProps;
+}
+
+function isBoss(metric: Metric) {
+  return metric in BossProps;
 }
 
 function isVirtualMetric(metric: Metric) {
@@ -609,8 +609,8 @@ export {
   MetricMeasure,
   // Lists
   SKILLS,
-  BOSSES,
   ACTIVITIES,
+  BOSSES,
   VIRTUAL_METRICS,
   METRICS,
   F2P_BOSSES,
@@ -626,7 +626,7 @@ export {
   getMinimumBossKc,
   getParentVirtualMetric,
   isSkill,
-  isBoss,
   isActivity,
+  isBoss,
   isVirtualMetric
 };
