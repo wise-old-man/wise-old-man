@@ -512,6 +512,11 @@ function parseMetricAbbreviation(abbreviation: string): string | null {
     case 'soul-wars':
       return Metrics.SOUL_WARS_ZEAL;
 
+    case 'rifts-closed':
+    case 'gotr':
+    case 'rifts':
+      return Metrics.GUARDIANS_OF_THE_RIFT;
+
     // Skills
 
     case 'runecraft':
