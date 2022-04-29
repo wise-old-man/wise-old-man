@@ -14,8 +14,8 @@ const COUNTRY_CODES = COUNTRIES.map(c => c.code);
 
 const inputSchema = z
   .object({
-    metric: z.nativeEnum(MetricEnum),
     period: z.nativeEnum(PeriodEnum),
+    metric: z.nativeEnum(MetricEnum),
     playerType: z.nativeEnum(PlayerTypeEnum).optional(),
     playerBuild: z.nativeEnum(PlayerBuild).optional(),
     country: z.string().optional()

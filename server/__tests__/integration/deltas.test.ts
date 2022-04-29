@@ -2,6 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import { Metrics, PlayerType } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter';
+import env from '../../src/env';
 import apiServer from '../../src/api';
 import {
   registerCMLMock,
@@ -124,6 +125,14 @@ describe('Deltas API', () => {
       const thirdTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
       expect(thirdTrackResponse.status).toBe(200);
 
+      // Setup mocks for HCIM for the second test player later on (hydrox6)
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
       // Wait for the deltas to update
       await sleep(500);
 
@@ -236,8 +245,18 @@ describe('Deltas API', () => {
     it('should not fetch (invalid period)', async () => {
       const trackResponse = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
       expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.type).toBe('hardcore');
 
       globalData.secondaryTestPlayerId = trackResponse.body.id;
+
+      await expect(
+        service.getGroupPeriodDeltas(
+          'smithing',
+          'decade',
+          [globalData.testPlayerId, globalData.secondaryTestPlayerId],
+          { limit: 20, offset: 0 }
+        )
+      ).rejects.toThrow();
     });
 
     it('should not fetch (invalid playerIds)', async () => {
@@ -258,25 +277,239 @@ describe('Deltas API', () => {
         start: 6_177_978,
         end: 6_227_978,
         gained: 50_000,
-        player: {
-          username: 'psikoi'
-        }
+        player: { username: 'psikoi' }
       });
-
-      expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
 
       expect(directResponse[1]).toMatchObject({
         start: 6227978,
         end: 6227978,
         gained: 0,
-        player: {
-          username: 'hydrox6'
-        }
+        player: { username: 'hydrox6' }
+      });
+
+      expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
+      expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
+    });
+
+    it('should fetch group deltas (custom period)', async () => {
+      const directResponse = await service.getGroupPeriodDeltas(
+        'smithing',
+        '3d6h',
+        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
+        { limit: 20, offset: 0 }
+      );
+
+      expect(directResponse[0]).toMatchObject({
+        start: 6_177_978,
+        end: 6227978,
+        gained: 50_000,
+        player: { username: 'psikoi' }
+      });
+
+      expect(directResponse[1]).toMatchObject({
+        start: 6227978,
+        end: 6227978,
+        gained: 0,
+        player: { username: 'hydrox6' }
+      });
+
+      expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
+      expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
+    });
+
+    it('should not fetch deltas between (min date greater than max date)', async () => {
+      await expect(
+        service.getGroupTimeRangeDeltas(
+          Metrics.SMITHING,
+          new Date('2021-12-14T04:15:36.000Z'),
+          new Date('2015-12-14T04:15:36.000Z'),
+          [globalData.testPlayerId, globalData.secondaryTestPlayerId],
+          { limit: 20, offset: 0 }
+        )
+      ).rejects.toThrow('Start date must be before the End date.');
+    });
+
+    it('should fetch group deltas (time range)', async () => {
+      const emptyGains = await service.getGroupTimeRangeDeltas(
+        Metrics.SMITHING,
+        new Date('2015-12-14T04:15:36.000Z'),
+        new Date('2021-12-14T04:15:36.000Z'),
+        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
+        { limit: 20, offset: 0 }
+      );
+
+      expect(emptyGains.length).toBe(0);
+
+      const recentGains = await service.getGroupTimeRangeDeltas(
+        Metrics.SMITHING,
+        new Date('2021-12-14T04:15:36.000Z'),
+        new Date('2025-12-14T04:15:36.000Z'),
+        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
+        { limit: 20, offset: 0 }
+      );
+
+      expect(recentGains[0]).toMatchObject({
+        start: 6_177_978,
+        end: 6227978,
+        gained: 50_000,
+        player: { username: 'psikoi' }
+      });
+
+      expect(recentGains[1]).toMatchObject({
+        start: 6227978,
+        end: 6227978,
+        gained: 0,
+        player: { username: 'hydrox6' }
+      });
+
+      expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
+        new Date('2021-12-14T04:15:36.000Z').getTime()
+      );
+
+      expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2025-12-14T04:15:36.000Z').getTime());
+    });
+  });
+
+  describe('3 - Fetch Deltas Leaderboards', () => {
+    it('should not fetch leaderboards (undefined period)', async () => {
+      const response = await api.get(`/api/deltas/leaderboard`);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid period: undefined.');
+    });
+
+    it('should not fetch leaderboards (invalid period)', async () => {
+      const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'decade' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid period: decade.');
+    });
+
+    it('should not fetch leaderboards (undefined metric)', async () => {
+      const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'week' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid metric: undefined.');
+    });
+
+    it('should not fetch leaderboards (invalid metric)', async () => {
+      const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'week', metric: 'abc' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid metric: abc.');
+    });
+
+    it('should not fetch leaderboards (invalid player type)', async () => {
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'week', metric: 'obor', playerType: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid player type: a.');
+    });
+
+    it('should not fetch leaderboards (invalid player build)', async () => {
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'week', metric: 'obor', playerBuild: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid player build: a.');
+    });
+
+    it('should not fetch leaderboards (invalid player country)', async () => {
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'week', metric: 'obor', country: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Invalid country.');
+    });
+
+    it('should fetch leaderboards (no player filters)', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metrics.SMITHING, value: 7_000_000 },
+        { metric: Metrics.LAST_MAN_STANDING, value: 450 },
+        { metric: Metrics.NEX, value: 54 },
+        { metric: Metrics.TZKAL_ZUK, value: 1 },
+        { metric: Metrics.SOUL_WARS_ZEAL, value: 7 }
+      ]);
+
+      // Setup mocks for HCIM for the second test player later on (hydrox6)
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
+      expect(trackResponse.status).toBe(200);
+      expect(trackResponse.body.type).toBe('hardcore');
+      expect(trackResponse.body.latestSnapshot.smithing.experience).toBe(7_000_000);
+
+      await sleep(500);
+
+      const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'week', metric: 'smithing' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      expect(response.body[0]).toMatchObject({
+        gained: 772_022,
+        player: { username: 'hydrox6' }
+      });
+
+      expect(response.body[1]).toMatchObject({
+        gained: 50_000,
+        player: { username: 'psikoi' }
       });
     });
 
-    it.todo('should fetch group deltas (custom period)');
-    it.todo('should fetch group deltas (time range)');
-    it.todo('should not fetch deltas between (min date greater than max date)');
+    it('should fetch leaderboards (with player type filter)', async () => {
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'week', metric: 'smithing', playerType: 'ironman' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      // Hardcores and Ultimates should be included in the leaderboards for "ironman" (USBC is Hardcore)
+      expect(response.body[0]).toMatchObject({
+        gained: 772_022,
+        player: { username: 'hydrox6', type: 'hardcore' }
+      });
+    });
+
+    it('should fetch leaderboards (with player country filter)', async () => {
+      const updateCountryResponse = await api
+        .put('/api/players/username/psikoi/country')
+        .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
+
+      expect(updateCountryResponse.status).toBe(200);
+      expect(updateCountryResponse.body.message).toMatch('Successfully changed country to: Sweden (SE)');
+
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'month', metric: 'smithing', country: 'SE' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      expect(response.body[0]).toMatchObject({
+        gained: 50_000,
+        player: { username: 'psikoi' }
+      });
+    });
+
+    it('should fetch leaderboards (with limit and offset)', async () => {
+      const response = await api
+        .get(`/api/deltas/leaderboard`)
+        .query({ period: 'week', metric: 'smithing', limit: 1, offset: 1 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      expect(response.body[0]).toMatchObject({
+        gained: 50_000,
+        player: { username: 'psikoi' }
+      });
+    });
   });
 });

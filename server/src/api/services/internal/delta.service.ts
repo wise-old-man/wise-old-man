@@ -239,6 +239,8 @@ async function getGroupTimeRangeDeltas(
   playerIds: number[],
   pagination: Pagination
 ) {
+  if (startDate > endDate) throw new BadRequestError('Start date must be before the End date.');
+
   const [players, lastSnapshots, firstSnapshots] = await Promise.all([
     playerService.findAllByIds(playerIds),
     snapshotServices.findGroupSnapshots({ playerIds, maxDate: endDate }),

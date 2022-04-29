@@ -384,14 +384,26 @@ describe('Records API', () => {
   });
 
   describe('4 - Leaderboards', () => {
-    it('should not fetch leaderboards (invalid period)', async () => {
+    it('should not fetch leaderboards (undefined period)', async () => {
       const response = await api.get(`/api/records/leaderboard`);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+    });
+
+    it('should not fetch leaderboards (invalid period)', async () => {
+      const response = await api.get(`/api/records/leaderboard`).query({ period: 'decade' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
+    });
+
+    it('should not fetch leaderboards (undefined metric)', async () => {
+      const response = await api.get(`/api/records/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {
-      const response = await api.get(`/api/records/leaderboard`).query({ period: 'week' });
+      const response = await api.get(`/api/records/leaderboard`).query({ period: 'week', metric: 'abc' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
