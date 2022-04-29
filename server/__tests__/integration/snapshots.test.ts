@@ -421,7 +421,7 @@ describe('Snapshots API', () => {
           minDate: new Date('2020-04-14T21:08:55.000Z'),
           maxDate: new Date('2019-07-03T21:13:56.000Z')
         })
-      ).rejects.toThrow('Min date must be higher than max date.');
+      ).rejects.toThrow();
     });
 
     it('should fetch snapshots between', async () => {

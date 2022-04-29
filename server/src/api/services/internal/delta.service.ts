@@ -3,10 +3,8 @@ import moment from 'moment';
 import { Op } from 'sequelize';
 import {
   METRICS,
-  PERIODS,
   PLAYER_TYPES,
   PLAYER_BUILDS,
-  isValidPeriod,
   parsePeriodExpression,
   PlayerType,
   PlayerBuild,
@@ -24,6 +22,7 @@ import {
   findCountry
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
+import { PeriodEnum, Periods } from '../../../prisma';
 import { Pagination } from '../../../types';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
@@ -45,7 +44,7 @@ function parseNum(metric: string, val: string) {
 
 async function syncDeltas(player: Player, latestSnapshot: Snapshot) {
   await Promise.all(
-    PERIODS.map(async period => {
+    Periods.map(async period => {
       const startSnapshot = await snapshotServices.findPlayerSnapshot({
         id: player.id,
         minDate: moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate()
@@ -141,7 +140,7 @@ async function getPlayerDeltas(playerId: number) {
   const player = await playerService.findById(playerId);
 
   const periodDeltas = await Promise.all(
-    PERIODS.map(async period => {
+    Periods.map(async period => {
       const deltas = await getPlayerPeriodDeltas(playerId, period, latest as any, player);
       return { period, deltas };
     })
@@ -160,7 +159,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   const { metric, period, playerBuild, playerType, country } = filter;
   const countryCode = country ? findCountry(country)?.code : null;
 
-  if (!period || !isValidPeriod(period)) {
+  if (!period || !Periods.includes(period as PeriodEnum)) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

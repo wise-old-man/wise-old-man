@@ -189,7 +189,7 @@ describe('Deltas API', () => {
       expect(day).toBeDefined();
       expect(day.data.overall.experience).toMatchObject({ start: -1, end: 300192115, gained: 0 });
 
-      expect(Object.keys(response.body)).toContain('5min');
+      expect(Object.keys(response.body)).toContain('five_min');
       expect(Object.keys(response.body)).toContain('day');
       expect(Object.keys(response.body)).toContain('week');
       expect(Object.keys(response.body)).toContain('month');

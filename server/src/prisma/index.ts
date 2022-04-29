@@ -13,6 +13,7 @@ import {
   VirtualEnum,
   MetricEnum,
   PeriodEnum,
+  Periods,
   PlayerTypeEnum,
   NameChangeStatus,
   Metrics,
@@ -90,6 +91,7 @@ export {
   PlayerTypeEnum,
   NameChangeStatus,
   // List
+  Periods,
   Metrics,
   Skills,
   Bosses,

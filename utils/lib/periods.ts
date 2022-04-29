@@ -1,7 +1,7 @@
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 
 enum Period {
-  FIVE_MIN = '5min',
+  FIVE_MIN = 'five_min',
   DAY = 'day',
   WEEK = 'week',
   MONTH = 'month',

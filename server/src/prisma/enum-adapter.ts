@@ -182,6 +182,7 @@ export const PeriodEnum = {
 } as const;
 
 export type PeriodEnum = typeof PeriodEnum[keyof typeof PeriodEnum];
+export const Periods = Object.values(PeriodEnum);
 
 export const PlayerTypeEnum = {
   UNKNOWN: PrismaPlayerType.unknown,

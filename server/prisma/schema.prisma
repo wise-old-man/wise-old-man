@@ -52,97 +52,97 @@ model Competition {
 model Delta {
   id                               Int       @id @unique(map: "deltas_id") @default(autoincrement())
   playerId                         Int
-  period                           String    @db.VarChar(20)
+  period                           Period
   startedAt                        DateTime  @db.Timestamptz(6)
   endedAt                          DateTime  @db.Timestamptz(6)
-  overall                          BigInt?
-  attack                           Int?
-  defence                          Int?
-  strength                         Int?
-  hitpoints                        Int?
-  ranged                           Int?
-  prayer                           Int?
-  magic                            Int?
-  cooking                          Int?
-  woodcutting                      Int?
-  fletching                        Int?
-  fishing                          Int?
-  firemaking                       Int?
-  crafting                         Int?
-  smithing                         Int?
-  mining                           Int?
-  herblore                         Int?
-  agility                          Int?
-  thieving                         Int?
-  slayer                           Int?
-  farming                          Int?
-  runecrafting                     Int?
-  hunter                           Int?
-  construction                     Int?
-  abyssal_sire                     Int?
-  alchemical_hydra                 Int?
-  barrows_chests                   Int?
-  bryophyta                        Int?
-  callisto                         Int?
-  cerberus                         Int?
-  chambers_of_xeric                Int?
-  chambers_of_xeric_challenge_mode Int?
-  chaos_elemental                  Int?
-  chaos_fanatic                    Int?
-  commander_zilyana                Int?
-  corporeal_beast                  Int?
-  crazy_archaeologist              Int?
-  dagannoth_prime                  Int?
-  dagannoth_rex                    Int?
-  dagannoth_supreme                Int?
-  deranged_archaeologist           Int?
-  general_graardor                 Int?
-  giant_mole                       Int?
-  grotesque_guardians              Int?
-  hespori                          Int?
-  kalphite_queen                   Int?
-  king_black_dragon                Int?
-  kraken                           Int?
-  kreearra                         Int?
-  kril_tsutsaroth                  Int?
-  mimic                            Int?
-  nightmare                        Int?
-  obor                             Int?
-  sarachnis                        Int?
-  scorpia                          Int?
-  skotizo                          Int?
-  the_gauntlet                     Int?
-  the_corrupted_gauntlet           Int?
-  theatre_of_blood                 Int?
-  thermonuclear_smoke_devil        Int?
-  tzkal_zuk                        Int?
-  tztok_jad                        Int?
-  venenatis                        Int?
-  vetion                           Int?
-  vorkath                          Int?
-  wintertodt                       Int?
-  zalcano                          Int?
-  zulrah                           Int?
-  league_points                    Int?
-  bounty_hunter_hunter             Int?
-  bounty_hunter_rogue              Int?
-  clue_scrolls_all                 Int?
-  clue_scrolls_beginner            Int?
-  clue_scrolls_easy                Int?
-  clue_scrolls_medium              Int?
-  clue_scrolls_hard                Int?
-  clue_scrolls_elite               Int?
-  clue_scrolls_master              Int?
-  last_man_standing                Int?
   updatedAt                        DateTime? @updatedAt
-  ehp                              Float     @default(-1)
-  ehb                              Float     @default(-1)
-  soul_wars_zeal                   Int       @default(0)
-  tempoross                        Int       @default(0)
-  theatre_of_blood_hard_mode       Int       @default(0)
-  phosanis_nightmare               Int       @default(0)
+  overall                          BigInt    @default(0)
+  attack                           Int       @default(0)
+  defence                          Int       @default(0)
+  strength                         Int       @default(0)
+  hitpoints                        Int       @default(0)
+  ranged                           Int       @default(0)
+  prayer                           Int       @default(0)
+  magic                            Int       @default(0)
+  cooking                          Int       @default(0)
+  woodcutting                      Int       @default(0)
+  fletching                        Int       @default(0)
+  fishing                          Int       @default(0)
+  firemaking                       Int       @default(0)
+  crafting                         Int       @default(0)
+  smithing                         Int       @default(0)
+  mining                           Int       @default(0)
+  herblore                         Int       @default(0)
+  agility                          Int       @default(0)
+  thieving                         Int       @default(0)
+  slayer                           Int       @default(0)
+  farming                          Int       @default(0)
+  runecrafting                     Int       @default(0)
+  hunter                           Int       @default(0)
+  construction                     Int       @default(0)
+  abyssal_sire                     Int       @default(0)
+  alchemical_hydra                 Int       @default(0)
+  barrows_chests                   Int       @default(0)
+  bryophyta                        Int       @default(0)
+  callisto                         Int       @default(0)
+  cerberus                         Int       @default(0)
+  chambers_of_xeric                Int       @default(0)
+  chambers_of_xeric_challenge_mode Int       @default(0)
+  chaos_elemental                  Int       @default(0)
+  chaos_fanatic                    Int       @default(0)
+  commander_zilyana                Int       @default(0)
+  corporeal_beast                  Int       @default(0)
+  crazy_archaeologist              Int       @default(0)
+  dagannoth_prime                  Int       @default(0)
+  dagannoth_rex                    Int       @default(0)
+  dagannoth_supreme                Int       @default(0)
+  deranged_archaeologist           Int       @default(0)
+  general_graardor                 Int       @default(0)
+  giant_mole                       Int       @default(0)
+  grotesque_guardians              Int       @default(0)
+  hespori                          Int       @default(0)
+  kalphite_queen                   Int       @default(0)
+  king_black_dragon                Int       @default(0)
+  kraken                           Int       @default(0)
+  kreearra                         Int       @default(0)
+  kril_tsutsaroth                  Int       @default(0)
+  mimic                            Int       @default(0)
   nex                              Int       @default(0)
+  nightmare                        Int       @default(0)
+  phosanis_nightmare               Int       @default(0)
+  obor                             Int       @default(0)
+  sarachnis                        Int       @default(0)
+  scorpia                          Int       @default(0)
+  skotizo                          Int       @default(0)
+  tempoross                        Int       @default(0)
+  the_gauntlet                     Int       @default(0)
+  the_corrupted_gauntlet           Int       @default(0)
+  theatre_of_blood                 Int       @default(0)
+  theatre_of_blood_hard_mode       Int       @default(0)
+  thermonuclear_smoke_devil        Int       @default(0)
+  tzkal_zuk                        Int       @default(0)
+  tztok_jad                        Int       @default(0)
+  venenatis                        Int       @default(0)
+  vetion                           Int       @default(0)
+  vorkath                          Int       @default(0)
+  wintertodt                       Int       @default(0)
+  zalcano                          Int       @default(0)
+  zulrah                           Int       @default(0)
+  league_points                    Int       @default(0)
+  bounty_hunter_hunter             Int       @default(0)
+  bounty_hunter_rogue              Int       @default(0)
+  clue_scrolls_all                 Int       @default(0)
+  clue_scrolls_beginner            Int       @default(0)
+  clue_scrolls_easy                Int       @default(0)
+  clue_scrolls_medium              Int       @default(0)
+  clue_scrolls_hard                Int       @default(0)
+  clue_scrolls_elite               Int       @default(0)
+  clue_scrolls_master              Int       @default(0)
+  last_man_standing                Int       @default(0)
+  soul_wars_zeal                   Int       @default(0)
   guardians_of_the_rift            Int       @default(0)
+  ehp                              Float     @default(0)
+  ehb                              Float     @default(0)
 
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
