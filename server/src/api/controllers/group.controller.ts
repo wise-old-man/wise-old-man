@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, ForbiddenError } from '../errors';
+import { MetricEnum, PeriodEnum } from '../../prisma';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
@@ -7,10 +8,11 @@ import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
+import * as deltaServices from '../modules/deltas/delta.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
-import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
+import { extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
-import { getNumber, getEnum } from '../util/validation';
+import { getNumber, getEnum, getDate } from '../util/validation';
 
 // GET /groups
 async function index(req: Request, res: Response, next: NextFunction) {
@@ -290,9 +292,14 @@ async function monthlyTop(req: Request, res: Response, next: NextFunction) {
     await groupService.resolve(id);
 
     // Get the member with the most monthly overall gains
-    const topPlayer = await groupService.getMonthlyTopPlayer(id);
+    const topPlayers = await deltaServices.findGroupDeltas({
+      id,
+      limit: 1,
+      metric: MetricEnum.OVERALL,
+      period: PeriodEnum.MONTH
+    });
 
-    res.json(topPlayer);
+    res.json(topPlayers[0] || null);
   } catch (e) {
     next(e);
   }
@@ -301,23 +308,15 @@ async function monthlyTop(req: Request, res: Response, next: NextFunction) {
 // GET /groups/:id/gained
 async function gained(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const metric = extractString(req.query, { key: 'metric', required: true });
-    const startDate = extractDate(req.query, { key: 'startDate' });
-    const endDate = extractDate(req.query, { key: 'endDate' });
-    const period = extractString(req.query, { key: 'period', required: !(startDate && endDate) });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
-
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-
-    const results =
-      startDate && endDate
-        ? await groupService.getGainedInTimeRange(id, startDate, endDate, metric, paginationConfig)
-        : await groupService.getGainedInPeriod(id, period, metric, paginationConfig);
+    const results = await deltaServices.findGroupDeltas({
+      id: getNumber(req.params.id),
+      metric: getEnum(req.query.metric),
+      period: getEnum(req.query.period),
+      minDate: getDate(req.query.startDate),
+      maxDate: getDate(req.query.endDate),
+      limit: getNumber(req.query.limit),
+      offset: getNumber(req.query.offset)
+    });
 
     res.json(results);
   } catch (e) {

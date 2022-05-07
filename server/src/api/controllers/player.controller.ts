@@ -3,12 +3,12 @@ import { BadRequestError, ForbiddenError, ServerError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
-import * as deltaService from '../services/internal/delta.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
 import * as playerService from '../services/internal/player.service';
 import * as snapshotServices from '../modules/snapshots/snapshot.services';
+import * as deltaServices from '../modules/deltas/delta.services';
 import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
 import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
@@ -219,26 +219,19 @@ async function gained(req: Request, res: Response, next: NextFunction) {
     const period = extractString(req.query, { key: 'period' });
     const startDate = extractDate(req.query, { key: 'startDate' });
     const endDate = extractDate(req.query, { key: 'endDate' });
+    const formatting = extractString(req.query, { key: 'formatting' });
 
     const playerId = await playerService.resolveId({ id, username });
-    let playerDeltas = null;
 
-    if (startDate && endDate) {
-      playerDeltas = await deltaService.getPlayerTimeRangeDeltas(playerId, startDate, endDate);
-    } else if (period) {
-      playerDeltas = await deltaService.getPlayerPeriodDeltas(playerId, period);
-    } else {
-      playerDeltas = await deltaService.getPlayerDeltas(playerId);
-    }
+    const results = await deltaServices.findPlayerDeltas({
+      id: playerId,
+      period,
+      minDate: startDate,
+      maxDate: endDate,
+      formatting: getEnum(formatting)
+    });
 
-    const hasNoGains = period ? !playerDeltas.startsAt : !playerDeltas['week']?.startsAt;
-
-    if (id && hasNoGains) {
-      // Ensure this player Id exists (if not, it'll throw a 404 error)
-      await playerService.resolve({ id });
-    }
-
-    res.json(playerDeltas);
+    res.json(results);
   } catch (e) {
     next(e);
   }

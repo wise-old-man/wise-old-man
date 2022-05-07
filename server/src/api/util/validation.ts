@@ -40,3 +40,11 @@ export function getString(payload: any): string | undefined {
 export function getEnum(payload: any): any | undefined {
   return getString(payload) as any;
 }
+
+export function getDate(payload: any): Date | undefined {
+  try {
+    return z.date().parse(payload);
+  } catch (error) {
+    return undefined;
+  }
+}

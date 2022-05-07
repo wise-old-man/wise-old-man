@@ -13,7 +13,7 @@ import {
   modifyRawHiscoresData
 } from '../utils';
 import prisma from '../../src/prisma';
-import * as service from '../../src/api/services/internal/delta.service';
+import * as services from '../../src/api/modules/deltas/delta.services';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -22,6 +22,7 @@ const HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
 
 const globalData = {
   hiscoresRawData: '',
+  testGroupId: -1,
   testPlayerId: -1,
   secondaryTestPlayerId: -1
 };
@@ -151,49 +152,26 @@ describe('Deltas API', () => {
 
   describe('2 - Fetch Player Deltas', () => {
     it('should not fetch (invalid player id)', async () => {
-      await expect(service.getPlayerDeltas(undefined as number)).rejects.toThrow('Invalid player id.');
+      await expect(services.findPlayerDeltas({ id: null })).rejects.toThrow(
+        "Parameter 'id' is not a valid number."
+      );
     });
 
-    it.skip('should not fetch (player not found)', async () => {
-      await expect(service.getPlayerDeltas(2_000_000)).rejects.toThrow('Invalid player id.');
+    it('should not fetch (player not found)', async () => {
+      await expect(services.findPlayerDeltas({ id: 2_000_000, period: 'week' })).rejects.toThrow(
+        'Player not found.'
+      );
     });
 
     it('should not fetch (no snapshots found with player id)', async () => {
-      const result = await service.getPlayerDeltas(2_000_000);
+      // Create a brand new account, with no snapshots
+      const testPlayer = await prisma.player.create({ data: { username: 'test', displayName: 'Test' } });
 
-      // All periods return an empty diff
-      // TODO: they should throw an error instead?
-      expect(Object.values(result).filter(r => r.endsAt && r.startsAt).length).toBe(0);
-    });
+      const result = await services.findPlayerDeltas({ id: testPlayer.id, period: 'week' });
 
-    it('should fetch all player deltas', async () => {
-      const response = await api.get(`/api/players/username/psikoi/gained`);
-
-      expect(response.status).toBe(200);
-
-      const { week, month, year, day } = response.body;
-
-      expect(week).toBeDefined();
-      expect(week.data.smithing.ehp.gained).toBeGreaterThan(0.1);
-      expect(week.data.ehp.value.gained).toBe(week.data.smithing.ehp.gained);
-      expect(week.data.smithing.experience).toMatchObject({ start: 6177978, end: 6227978, gained: 50_000 });
-
-      expect(month).toBeDefined();
-      expect(month.data.nex.ehb.gained).toBeGreaterThan(0.1);
-      expect(month.data.ehb.value.gained).toBe(month.data.nex.ehb.gained + month.data.tzkal_zuk.ehb.gained);
-      expect(month.data.nex.kills).toMatchObject({ start: -1, end: 54, gained: 5 });
-
-      expect(year).toBeDefined();
-      expect(year.data.last_man_standing.score).toMatchObject({ start: 500, end: 450, gained: 0 });
-
-      expect(day).toBeDefined();
-      expect(day.data.overall.experience).toMatchObject({ start: -1, end: 300192115, gained: 0 });
-
-      expect(Object.keys(response.body)).toContain('five_min');
-      expect(Object.keys(response.body)).toContain('day');
-      expect(Object.keys(response.body)).toContain('week');
-      expect(Object.keys(response.body)).toContain('month');
-      expect(Object.keys(response.body)).toContain('year');
+      // If there are no snapshots found for the given period, it'll return an empty diff
+      expect(result.startsAt).toBe(null);
+      expect(result.endsAt).toBe(null);
     });
 
     it('should not fetch (invalid period)', async () => {
@@ -203,20 +181,57 @@ describe('Deltas API', () => {
       expect(response.body.message).toBe('Invalid period: decade.');
     });
 
-    it('should fetch (common period)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/gained`).query({ period: 'week' });
+    it('should not fetch (invalid period and dates)', async () => {
+      const response = await api.get(`/api/players/username/psikoi/gained`);
 
-      expect(response.status).toBe(200);
-      expect(response.body.period).toBe('week');
-      expect(response.body.data.smithing.experience.gained).toBe(50_000);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid period and start/end dates.');
     });
 
-    it('should fetch (custom period)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/gained`).query({ period: '5m2w3d' });
+    it('should fetch (common periods + map formatting)', async () => {
+      const weekResponse = await api
+        .get(`/api/players/username/psikoi/gained`)
+        .query({ period: 'week', formatting: 'map' });
+
+      expect(weekResponse.status).toBe(200);
+
+      const weekSmithingGains = weekResponse.body.data.skills.smithing;
+      const weekEHPGains = weekResponse.body.data.virtuals.ehp;
+
+      expect(weekSmithingGains.ehp.gained).toBeGreaterThan(0.1);
+      expect(weekEHPGains.value.gained).toBe(weekSmithingGains.ehp.gained);
+      expect(weekSmithingGains.experience).toMatchObject({ start: 6177978, end: 6227978, gained: 50_000 });
+
+      const monthResponse = await api.get(`/api/players/username/psikoi/gained`).query({ period: 'month' });
+
+      expect(monthResponse.status).toBe(200);
+
+      const monthNexGains = monthResponse.body.data.bosses.nex;
+      const monthZukGains = monthResponse.body.data.bosses.tzkal_zuk;
+      const monthEhbGains = monthResponse.body.data.virtuals.ehb;
+      const monthLmsGains = monthResponse.body.data.activities.last_man_standing;
+
+      expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
+      expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
+      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 5 });
+      expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
+
+      const dayResponse = await api.get(`/api/players/username/psikoi/gained`).query({ period: 'day' });
+
+      expect(dayResponse.status).toBe(200);
+
+      const dayOverallGains = dayResponse.body.data.skills.overall;
+
+      expect(dayOverallGains.experience).toMatchObject({ start: -1, end: 300192115, gained: 0 });
+    });
+
+    it('should fetch (custom period + array formatting)', async () => {
+      const response = await api
+        .get(`/api/players/username/psikoi/gained`)
+        .query({ period: '5m2w3d', formatting: 'array' });
 
       expect(response.status).toBe(200);
-      expect(response.body.period).toBe('5m2w3d');
-      expect(response.body.data.smithing.experience.gained).toBe(50_000);
+      expect(response.body.data.skills.find(s => s.metric === 'smithing').experience.gained).toBe(50_000);
     });
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
@@ -226,18 +241,19 @@ describe('Deltas API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Start date must be before the End date.');
+      expect(response.body.message).toBe('Min date must be before the max date.');
     });
 
-    it('should fetch deltas between', async () => {
+    it('should fetch deltas between (array formatting)', async () => {
       const response = await api.get(`/api/players/username/psikoi/gained`).query({
         startDate: new Date('2015-12-14T04:15:36.000Z'),
-        endDate: new Date('2022-12-14T04:15:36.000Z')
+        endDate: new Date('2022-12-14T04:15:36.000Z'),
+        formatting: 'array'
       });
 
       expect(response.status).toBe(200);
       expect(response.body.period).toBeUndefined();
-      expect(response.body.data.smithing.experience.gained).toBe(50_000);
+      expect(response.body.data.skills.find(s => s.metric === 'smithing').experience.gained).toBe(50_000);
     });
   });
 
@@ -249,42 +265,62 @@ describe('Deltas API', () => {
 
       globalData.secondaryTestPlayerId = trackResponse.body.id;
 
+      const createGroupResponse = await api.post('/api/groups').send({
+        name: 'Test Group',
+        members: [{ username: 'psikoi' }, { username: 'hydrox6' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+      expect(createGroupResponse.body.members.length).toBe(2);
+
+      globalData.testGroupId = createGroupResponse.body.id;
+
       await expect(
-        service.getGroupPeriodDeltas(
-          'smithing',
-          'decade',
-          [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-          { limit: 20, offset: 0 }
-        )
-      ).rejects.toThrow();
+        services.findGroupDeltas({
+          id: globalData.testGroupId,
+          metric: 'smithing',
+          period: 'decade'
+        })
+      ).rejects.toThrow('Invalid period: decade.');
     });
 
-    it('should not fetch (invalid playerIds)', async () => {
+    it('should not fetch (invalid metric)', async () => {
       await expect(
-        service.getGroupPeriodDeltas('smithing', 'week', undefined, { limit: 20, offset: 0 })
-      ).rejects.toThrow();
+        services.findGroupDeltas({
+          id: globalData.testGroupId,
+          metric: 'sailing' as any,
+          period: 'week'
+        })
+      ).rejects.toThrow("Invalid enum value for 'metric'");
+    });
+
+    it('should not fetch (group not found)', async () => {
+      await expect(
+        services.findGroupDeltas({
+          id: 2_000_000,
+          metric: 'smithing',
+          period: 'week',
+          limit: 20,
+          offset: 0
+        })
+      ).rejects.toThrow('Group not found.');
     });
 
     it('should fetch group deltas (common period)', async () => {
-      const directResponse = await service.getGroupPeriodDeltas(
-        'smithing',
-        'week',
-        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-        { limit: 20, offset: 0 }
-      );
+      const directResponse = await services.findGroupDeltas({
+        id: globalData.testGroupId,
+        metric: 'smithing',
+        period: 'week'
+      });
 
       expect(directResponse[0]).toMatchObject({
-        start: 6_177_978,
-        end: 6_227_978,
-        gained: 50_000,
-        player: { username: 'psikoi' }
+        player: { username: 'psikoi' },
+        data: { start: 6_177_978, end: 6_227_978, gained: 50_000 }
       });
 
       expect(directResponse[1]).toMatchObject({
-        start: 6227978,
-        end: 6227978,
-        gained: 0,
-        player: { username: 'hydrox6' }
+        player: { username: 'hydrox6' },
+        data: { start: 6227978, end: 6227978, gained: 0 }
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
@@ -292,25 +328,20 @@ describe('Deltas API', () => {
     });
 
     it('should fetch group deltas (custom period)', async () => {
-      const directResponse = await service.getGroupPeriodDeltas(
-        'smithing',
-        '3d6h',
-        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-        { limit: 20, offset: 0 }
-      );
+      const directResponse = await services.findGroupDeltas({
+        id: globalData.testGroupId,
+        metric: 'smithing',
+        period: '3d6h'
+      });
 
       expect(directResponse[0]).toMatchObject({
-        start: 6_177_978,
-        end: 6227978,
-        gained: 50_000,
-        player: { username: 'psikoi' }
+        player: { username: 'psikoi' },
+        data: { start: 6_177_978, end: 6227978, gained: 50_000 }
       });
 
       expect(directResponse[1]).toMatchObject({
-        start: 6227978,
-        end: 6227978,
-        gained: 0,
-        player: { username: 'hydrox6' }
+        player: { username: 'hydrox6' },
+        data: { start: 6227978, end: 6227978, gained: 0 }
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
@@ -319,47 +350,40 @@ describe('Deltas API', () => {
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
       await expect(
-        service.getGroupTimeRangeDeltas(
-          Metrics.SMITHING,
-          new Date('2021-12-14T04:15:36.000Z'),
-          new Date('2015-12-14T04:15:36.000Z'),
-          [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-          { limit: 20, offset: 0 }
-        )
-      ).rejects.toThrow('Start date must be before the End date.');
+        services.findGroupDeltas({
+          id: globalData.testGroupId,
+          metric: 'smithing',
+          minDate: new Date('2021-12-14T04:15:36.000Z'),
+          maxDate: new Date('2015-12-14T04:15:36.000Z')
+        })
+      ).rejects.toThrow('Min date must be before the max date.');
     });
 
     it('should fetch group deltas (time range)', async () => {
-      const emptyGains = await service.getGroupTimeRangeDeltas(
-        Metrics.SMITHING,
-        new Date('2015-12-14T04:15:36.000Z'),
-        new Date('2021-12-14T04:15:36.000Z'),
-        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-        { limit: 20, offset: 0 }
-      );
+      const emptyGains = await services.findGroupDeltas({
+        id: globalData.testGroupId,
+        metric: 'smithing',
+        minDate: new Date('2015-12-14T04:15:36.000Z'),
+        maxDate: new Date('2021-12-14T04:15:36.000Z')
+      });
 
       expect(emptyGains.length).toBe(0);
 
-      const recentGains = await service.getGroupTimeRangeDeltas(
-        Metrics.SMITHING,
-        new Date('2021-12-14T04:15:36.000Z'),
-        new Date('2025-12-14T04:15:36.000Z'),
-        [globalData.testPlayerId, globalData.secondaryTestPlayerId],
-        { limit: 20, offset: 0 }
-      );
+      const recentGains = await services.findGroupDeltas({
+        id: globalData.testGroupId,
+        metric: 'smithing',
+        minDate: new Date('2021-12-14T04:15:36.000Z'),
+        maxDate: new Date('2025-12-14T04:15:36.000Z')
+      });
 
       expect(recentGains[0]).toMatchObject({
-        start: 6_177_978,
-        end: 6227978,
-        gained: 50_000,
-        player: { username: 'psikoi' }
+        player: { username: 'psikoi' },
+        data: { start: 6_177_978, end: 6227978, gained: 50_000 }
       });
 
       expect(recentGains[1]).toMatchObject({
-        start: 6227978,
-        end: 6227978,
-        gained: 0,
-        player: { username: 'hydrox6' }
+        player: { username: 'hydrox6' },
+        data: { start: 6227978, end: 6227978, gained: 0 }
       });
 
       expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
@@ -368,31 +392,67 @@ describe('Deltas API', () => {
 
       expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2025-12-14T04:15:36.000Z').getTime());
     });
+
+    it('should not fetch group deltas (negative offset)', async () => {
+      const response = await api
+        .get(`/api/groups/${globalData.testGroupId}/gained`)
+        .query({ metric: 'smithing', period: 'week', offset: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
+    });
+
+    it('should not fetch group deltas (negative limit)', async () => {
+      const response = await api
+        .get(`/api/groups/${globalData.testGroupId}/gained`)
+        .query({ metric: 'smithing', period: 'week', limit: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+    });
+
+    it('should fetch group deltas (with offset)', async () => {
+      const result = await services.findGroupDeltas({
+        id: globalData.testGroupId,
+        metric: 'smithing',
+        minDate: new Date('2021-12-14T04:15:36.000Z'),
+        maxDate: new Date('2025-12-14T04:15:36.000Z'),
+        limit: 1,
+        offset: 1
+      });
+
+      expect(result.length).toBe(1);
+
+      expect(result[0]).toMatchObject({
+        player: { username: 'hydrox6' },
+        data: { start: 6227978, end: 6227978, gained: 0 }
+      });
+    });
   });
 
   describe('3 - Fetch Deltas Leaderboards', () => {
     it('should not fetch leaderboards (undefined period)', async () => {
       const response = await api.get(`/api/deltas/leaderboard`);
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid period: undefined.');
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch leaderboards (invalid period)', async () => {
       const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'decade' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid period: decade.');
+      expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch leaderboards (undefined metric)', async () => {
       const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: undefined.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {
       const response = await api.get(`/api/deltas/leaderboard`).query({ period: 'week', metric: 'abc' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: abc.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid player type)', async () => {
@@ -401,7 +461,7 @@ describe('Deltas API', () => {
         .query({ period: 'week', metric: 'obor', playerType: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid player type: a.');
+      expect(response.body.message).toBe("Invalid enum value for 'playerType'.");
     });
 
     it('should not fetch leaderboards (invalid player build)', async () => {
@@ -410,7 +470,7 @@ describe('Deltas API', () => {
         .query({ period: 'week', metric: 'obor', playerBuild: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid player build: a.');
+      expect(response.body.message).toBe("Invalid enum value for 'playerBuild'.");
     });
 
     it('should not fetch leaderboards (invalid player country)', async () => {
@@ -419,7 +479,7 @@ describe('Deltas API', () => {
         .query({ period: 'week', metric: 'obor', country: 'a' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid country.');
+      expect(response.body.message).toMatch("Invalid enum value for 'country'.");
     });
 
     it('should fetch leaderboards (no player filters)', async () => {
@@ -488,20 +548,6 @@ describe('Deltas API', () => {
       const response = await api
         .get(`/api/deltas/leaderboard`)
         .query({ period: 'month', metric: 'smithing', country: 'SE' });
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      expect(response.body[0]).toMatchObject({
-        gained: 50_000,
-        player: { username: 'psikoi' }
-      });
-    });
-
-    it('should fetch leaderboards (with limit and offset)', async () => {
-      const response = await api
-        .get(`/api/deltas/leaderboard`)
-        .query({ period: 'week', metric: 'smithing', limit: 1, offset: 1 });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);

@@ -1,7 +1,6 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import { Competition, Delta, Membership, Participation, Player, Snapshot } from '../database/models';
+import { Competition, Membership, Participation, Player, Snapshot } from '../database/models';
 import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
-import { onDeltaUpdated } from './events/delta.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
 import {
   onPlayerImported,
@@ -29,14 +28,6 @@ function setup() {
 
   Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
     onPlayerImported(snapshots[0].playerId);
-  });
-
-  Delta.afterUpdate((delta: Delta) => {
-    onDeltaUpdated(delta);
-  });
-
-  Delta.afterCreate((delta: Delta) => {
-    onDeltaUpdated(delta);
   });
 
   Participation.afterBulkCreate((participations: Participation[]) => {

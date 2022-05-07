@@ -1,13 +1,15 @@
 import { z } from 'zod';
-import { PlayerBuild, COUNTRIES } from '@wise-old-man/utils';
+import { PlayerBuild, COUNTRIES, PeriodProps } from '@wise-old-man/utils';
 import prisma, {
-  Record,
+  Player,
   PeriodEnum,
   MetricEnum,
   PlayerTypeEnum,
   PrismaTypes,
-  modifyRecords
+  modifyDeltas,
+  Delta
 } from '../../../../prisma';
+import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
 
@@ -27,9 +29,18 @@ const inputSchema = z
     Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
   });
 
-type FindRecordLeaderboardsParams = z.infer<typeof inputSchema>;
+type FindDeltaLeaderboardsParams = z.infer<typeof inputSchema>;
 
-async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Promise<Record[]> {
+type FindDeltaLeaderboardsResult = Array<{
+  startDate: Date;
+  endDate: Date;
+  gained: number;
+  player: Player;
+}>;
+
+async function findDeltaLeaderboards(
+  payload: FindDeltaLeaderboardsParams
+): Promise<FindDeltaLeaderboardsResult> {
   const params = inputSchema.parse(payload);
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
@@ -43,20 +54,34 @@ async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Pr
     playerQuery.type = { in: [PlayerTypeEnum.IRONMAN, PlayerTypeEnum.HARDCORE, PlayerTypeEnum.ULTIMATE] };
   }
 
-  const records = await prisma.record
+  // Fetch the top 20 deltas for this period & metric
+  const deltas = await prisma.delta
     .findMany({
       where: {
-        metric: params.metric,
         period: params.period,
+        updatedAt: { gte: new Date(Date.now() - PeriodProps[params.period].milliseconds) },
         player: { ...playerQuery }
       },
-      include: { player: true },
-      orderBy: [{ value: 'desc' }],
+      select: {
+        [params.metric]: true,
+        startedAt: true,
+        endedAt: true,
+        player: true
+      },
+      orderBy: [{ [params.metric]: 'desc' }],
       take: MAX_RESULTS
     })
-    .then(modifyRecords);
+    .then(modifyDeltas);
 
-  return records;
+  // Transform the database objects into the tighter result response objects
+  const results = deltas.map((d: Delta | any) => ({
+    player: d.player,
+    startDate: d.startedAt,
+    endDate: d.endedAt,
+    gained: Math.max(0, parseNum(params.metric, String(d[params.metric])))
+  }));
+
+  return results;
 }
 
-export { findRecordLeaderboards };
+export { findDeltaLeaderboards };

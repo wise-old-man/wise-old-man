@@ -6,7 +6,6 @@ import {
   getMetricRankKey,
   getMetricValueKey,
   isSkill,
-  Period,
   Metric,
   Metrics,
   METRICS,
@@ -19,12 +18,10 @@ import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
-import { isValidDate } from '../../util/dates';
 import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
-import * as deltaService from './delta.service';
 import * as playerService from './player.service';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 
@@ -164,94 +161,6 @@ async function getDetails(group: Group): Promise<ExtendedGroup> {
   // Format, and calculate the "memberCount" property
   const extendedGroup = (await extendGroups([group]))[0];
   return extendedGroup;
-}
-
-async function getMonthlyTopPlayer(groupId: number) {
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  const memberIds = memberships.map(m => m.playerId);
-
-  if (!memberIds.length) return null;
-
-  const pagination = { limit: 1, offset: 0 };
-  const leaderboard = await deltaService.getGroupPeriodDeltas(
-    Metrics.OVERALL,
-    Period.MONTH,
-    memberIds,
-    pagination
-  );
-
-  const monthlyTopPlayer = leaderboard[0] || null;
-
-  return monthlyTopPlayer;
-}
-
-/**
- * Gets the current gains leaderboard for a specific metric and time range,
- * between the members of a group.
- */
-async function getGainedInTimeRange(
-  groupId: number,
-  startDate: Date,
-  endDate: Date,
-  metric: string,
-  pagination: Pagination
-) {
-  if (!metric || !METRICS.includes(metric as Metric)) {
-    throw new BadRequestError(`Invalid metric: ${metric}.`);
-  }
-
-  if (!isValidDate(startDate)) throw new BadRequestError('Invalid start date.');
-  if (!isValidDate(endDate)) throw new BadRequestError('Invalid end date.');
-
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  const memberIds = memberships.map(m => m.playerId);
-
-  if (!memberIds.length) {
-    throw new BadRequestError(`That group has no members.`);
-  }
-
-  const leaderboard = await deltaService.getGroupTimeRangeDeltas(
-    metric as Metric,
-    startDate,
-    endDate,
-    memberIds,
-    pagination
-  );
-
-  return leaderboard;
-}
-
-/**
- * Gets the current gains leaderboard for a specific metric and period,
- * between the members of a group.
- */
-async function getGainedInPeriod(groupId: number, period: string, metric: string, pagination: Pagination) {
-  if (!metric || !METRICS.includes(metric as Metric)) {
-    throw new BadRequestError(`Invalid metric: ${metric}.`);
-  }
-
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    attributes: ['playerId']
-  });
-
-  const memberIds = memberships.map(m => m.playerId);
-
-  if (!memberIds.length) {
-    throw new BadRequestError(`That group has no members.`);
-  }
-
-  const leaderboard = await deltaService.getGroupPeriodDeltas(metric, period, memberIds, pagination);
-
-  return leaderboard;
 }
 
 async function getMembersList(group: Group): Promise<Member[]> {
@@ -869,9 +778,6 @@ export {
   getList,
   getDetails,
   getPlayerGroups,
-  getMonthlyTopPlayer,
-  getGainedInPeriod,
-  getGainedInTimeRange,
   getHiscores,
   getMembersList,
   getStatistics,

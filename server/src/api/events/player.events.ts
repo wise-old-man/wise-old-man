@@ -5,7 +5,7 @@ import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
-import * as deltaService from '../services/internal/delta.service';
+import * as deltaServices from '../modules/deltas/delta.services';
 import * as playerService from '../services/internal/player.service';
 
 async function onPlayerTypeChanged(player: Player, previousType: string) {
@@ -49,7 +49,9 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 
   if (player) {
     // Update this player's deltas (gains)
-    await metrics.measureReaction('SyncDeltas', () => deltaService.syncDeltas(player, snapshot));
+    await metrics.measureReaction('SyncDeltas', () =>
+      deltaServices.syncPlayerDeltas(player as any, snapshot)
+    );
 
     // Attempt to import this player's history from CML
     await metrics.measureReaction('ImportCML', () => playerService.importCML(player));

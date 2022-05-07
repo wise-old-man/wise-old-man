@@ -17,10 +17,10 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
-import * as deltaService from './delta.service';
 import * as groupService from './group.service';
 import * as playerService from './player.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
+import * as deltaUtils from '../../modules/deltas/delta.utils';
 
 // Temporary
 const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
@@ -341,10 +341,17 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
 
   const participants = participations
     .map(({ player, teamName, startSnapshot, endSnapshot }) => {
+      const diff = deltaUtils.calculateMetricDelta(
+        player as any,
+        competitionMetric,
+        startSnapshot,
+        endSnapshot
+      );
+
       return {
         ...player.toJSON(),
         teamName,
-        progress: deltaService.calculateMetricDiff(player, startSnapshot, endSnapshot, competitionMetric),
+        progress: diff,
         history: []
       };
     })

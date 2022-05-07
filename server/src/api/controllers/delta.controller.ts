@@ -1,30 +1,19 @@
-import { NextFunction, Request, Response } from 'express';
-import * as service from '../services/internal/delta.service';
-import { extractNumber, extractString } from '../util/http';
-import * as pagination from '../util/pagination';
+import { Request } from 'express';
+import * as deltaServices from '../modules/deltas/delta.services';
+import { getEnum, getString } from '../util/validation';
+import { ControllerResponse } from '../util/routing';
 
 // GET /deltas/leaderboard
-async function leaderboard(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Search filter query
-    const metric = extractString(req.query, { key: 'metric' });
-    const period = extractString(req.query, { key: 'period' });
-    const playerType = extractString(req.query, { key: 'playerType' });
-    const playerBuild = extractString(req.query, { key: 'playerBuild' });
-    const country = extractString(req.query, { key: 'country' });
-    // Pagination query
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function leaderboard(req: Request): Promise<ControllerResponse> {
+  const results = await deltaServices.findDeltaLeaderboards({
+    metric: getEnum(req.query.metric),
+    period: getEnum(req.query.period),
+    country: getString(req.query.country),
+    playerType: getEnum(req.query.playerType),
+    playerBuild: getEnum(req.query.playerBuild)
+  });
 
-    const filter = { metric, period, playerType, playerBuild, country };
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getLeaderboard(filter, paginationConfig);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 export { leaderboard };
