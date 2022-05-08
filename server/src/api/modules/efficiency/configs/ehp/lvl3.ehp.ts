@@ -1,6 +1,8 @@
+import { SkillEnum } from '../../../../../prisma';
+
 export default [
   {
-    skill: 'attack',
+    skill: SkillEnum.ATTACK,
     methods: [
       {
         startExp: 0,
@@ -11,7 +13,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'defence',
+    skill: SkillEnum.DEFENCE,
     methods: [
       {
         startExp: 0,
@@ -22,7 +24,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'strength',
+    skill: SkillEnum.STRENGTH,
     methods: [
       {
         startExp: 0,
@@ -33,7 +35,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'hitpoints',
+    skill: SkillEnum.HITPOINTS,
     methods: [
       {
         startExp: 0,
@@ -44,7 +46,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'ranged',
+    skill: SkillEnum.RANGED,
     methods: [
       {
         startExp: 0,
@@ -55,7 +57,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'prayer',
+    skill: SkillEnum.PRAYER,
     methods: [
       {
         startExp: 0,
@@ -66,7 +68,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'magic',
+    skill: SkillEnum.MAGIC,
     methods: [
       {
         startExp: 0,
@@ -77,7 +79,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'cooking',
+    skill: SkillEnum.COOKING,
     methods: [
       {
         startExp: 0,
@@ -128,7 +130,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'woodcutting',
+    skill: SkillEnum.WOODCUTTING,
     methods: [
       {
         startExp: 0,
@@ -188,8 +190,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'woodcutting',
-        bonusSkill: 'firemaking',
+        originSkill: SkillEnum.WOODCUTTING,
+        bonusSkill: SkillEnum.FIREMAKING,
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
@@ -198,7 +200,7 @@ export default [
     ]
   },
   {
-    skill: 'fletching',
+    skill: SkillEnum.FLETCHING,
     methods: [
       {
         startExp: 0,
@@ -209,7 +211,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'fishing',
+    skill: SkillEnum.FISHING,
     methods: [
       {
         startExp: 0,
@@ -244,8 +246,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'fishing',
-        bonusSkill: 'cooking',
+        originSkill: SkillEnum.FISHING,
+        bonusSkill: SkillEnum.COOKING,
         startExp: 151_728_219,
         endExp: 200_000_000,
         end: true,
@@ -254,7 +256,7 @@ export default [
     ]
   },
   {
-    skill: 'firemaking',
+    skill: SkillEnum.FIREMAKING,
     methods: [
       {
         startExp: 0,
@@ -304,8 +306,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'firemaking',
-        bonusSkill: 'cooking',
+        originSkill: SkillEnum.FIREMAKING,
+        bonusSkill: SkillEnum.COOKING,
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
@@ -314,7 +316,7 @@ export default [
     ]
   },
   {
-    skill: 'crafting',
+    skill: SkillEnum.CRAFTING,
     methods: [
       {
         startExp: 0,
@@ -345,7 +347,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'smithing',
+    skill: SkillEnum.SMITHING,
     methods: [
       {
         startExp: 0,
@@ -381,7 +383,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'mining',
+    skill: SkillEnum.MINING,
     methods: [
       {
         startExp: 0,
@@ -441,8 +443,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'mining',
-        bonusSkill: 'smithing',
+        originSkill: SkillEnum.MINING,
+        bonusSkill: SkillEnum.SMITHING,
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
@@ -451,7 +453,7 @@ export default [
     ]
   },
   {
-    skill: 'herblore',
+    skill: SkillEnum.HERBLORE,
     methods: [
       {
         startExp: 0,
@@ -492,7 +494,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'agility',
+    skill: SkillEnum.AGILITY,
     methods: [
       {
         startExp: 0,
@@ -543,7 +545,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'thieving',
+    skill: SkillEnum.THIEVING,
     methods: [
       {
         startExp: 0,
@@ -588,8 +590,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'thieving',
-        bonusSkill: 'agility',
+        originSkill: SkillEnum.THIEVING,
+        bonusSkill: SkillEnum.AGILITY,
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
@@ -599,7 +601,7 @@ export default [
     ]
   },
   {
-    skill: 'slayer',
+    skill: SkillEnum.SLAYER,
     methods: [
       {
         startExp: 0,
@@ -610,7 +612,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'farming',
+    skill: SkillEnum.FARMING,
     methods: [
       {
         startExp: 0,
@@ -646,7 +648,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'runecrafting',
+    skill: SkillEnum.RUNECRAFTING,
     methods: [
       {
         startExp: 0,
@@ -662,7 +664,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'hunter',
+    skill: SkillEnum.HUNTER,
     methods: [
       {
         startExp: 0,
@@ -708,7 +710,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'construction',
+    skill: SkillEnum.CONSTRUCTION,
     methods: [
       {
         startExp: 0,

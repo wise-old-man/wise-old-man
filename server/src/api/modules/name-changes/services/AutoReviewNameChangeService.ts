@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { SKILLS, Metrics, getLevel } from '@wise-old-man/utils';
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import { getLevel } from '@wise-old-man/utils';
+import prisma, { MetricEnum, NameChange, NameChangeStatus, Skills } from '../../../../prisma';
 import * as playerService from '../../../services/internal/player.service';
 import * as nameChangeServices from '../name-change.services';
 
@@ -54,7 +54,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   }
 
   const baseMaxHours = 504;
-  const extraHours = (oldStats[Metrics.OVERALL].experience / 2_000_000) * 168;
+  const extraHours = (oldStats[MetricEnum.OVERALL].experience / 2_000_000) * 168;
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
   if (hoursDiff > (baseMaxHours + extraHours) * bundleModifier) {
@@ -66,7 +66,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
     return;
   }
 
-  const totalLevel = SKILLS.filter(s => s !== Metrics.OVERALL)
+  const totalLevel = Skills.filter(s => s !== MetricEnum.OVERALL)
     .map(s => getLevel(oldStats[s].experience))
     .reduce((acc, cur) => acc + cur);
 

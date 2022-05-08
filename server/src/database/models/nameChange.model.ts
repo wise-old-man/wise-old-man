@@ -9,7 +9,12 @@ import {
   UpdatedAt
 } from 'sequelize-typescript';
 import { Player } from '../../database/models';
-import { NameChangeStatus } from '../../types';
+
+enum NameChangeStatus {
+  PENDING,
+  DENIED,
+  APPROVED
+}
 
 // Define other table options
 const options = {

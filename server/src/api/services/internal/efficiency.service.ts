@@ -12,13 +12,12 @@ import {
   findCountry
 } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
-import { Pagination, VirtualAlgorithm } from '../../../types';
+import { Pagination } from '../../../types';
+import { EfficiencyAlgorithmType } from '../../modules/efficiency/efficiency.types';
 import { BadRequestError } from '../../errors';
-import f2pAlgorithm from '../../modules/efficiency/algorithms/f2p';
-import ironmanAlgorithm from '../../modules/efficiency/algorithms/ironman';
-import lvl3Algorithm from '../../modules/efficiency/algorithms/lvl3';
-import mainAlgorithm from '../../modules/efficiency/algorithms/main';
 import { buildQuery } from '../../util/query';
+import { MetricEnum } from 'src/prisma';
+import { getAlgorithm, ALGORITHMS } from '../../modules/efficiency/efficiency.utils';
 
 interface PlayerVirtuals {
   ehpValue: number;
@@ -40,19 +39,15 @@ interface LeaderboardFilter {
   country?: string;
 }
 
+// TODO: clean this up a bit using enums
 async function getRates(metric = 'ehp', type = 'main') {
-  switch (type) {
-    case 'main':
-      return metric === Metrics.EHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
-    case 'ironman':
-      return metric === Metrics.EHP ? ironmanAlgorithm.getEHPRates() : ironmanAlgorithm.getEHBRates();
-    case 'f2p':
-      return metric === Metrics.EHP ? f2pAlgorithm.getEHPRates() : f2pAlgorithm.getEHBRates();
-    case 'lvl3':
-      return metric === Metrics.EHP ? lvl3Algorithm.getEHPRates() : lvl3Algorithm.getEHBRates();
-    default:
-      return metric === Metrics.EHP ? mainAlgorithm.getEHPRates() : mainAlgorithm.getEHBRates();
+  if (!Object.keys(ALGORITHMS).includes(type)) {
+    throw new BadRequestError('Algorithm type not found.');
   }
+
+  const algorithm = ALGORITHMS[type as EfficiencyAlgorithmType];
+
+  return metric === MetricEnum.EHP ? algorithm.skillMetas : algorithm.bossMetas;
 }
 
 async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination) {
@@ -174,21 +169,6 @@ function calculateEHPDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): nu
 
 function calculateEHBDiff(beforeSnapshot: Snapshot, afterSnapshot: Snapshot): number {
   return calculateEHB(afterSnapshot) - calculateEHB(beforeSnapshot);
-}
-
-function getAlgorithm(type: string, build: string): VirtualAlgorithm {
-  if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE || type === PlayerType.ULTIMATE) {
-    return ironmanAlgorithm;
-  }
-
-  switch (build) {
-    case 'f2p':
-      return f2pAlgorithm;
-    case 'lvl3':
-      return lvl3Algorithm;
-    default:
-      return mainAlgorithm;
-  }
 }
 
 async function getEHPRank(player: Player, ehpValue: number): Promise<number> {
