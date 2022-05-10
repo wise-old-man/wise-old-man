@@ -31,7 +31,7 @@ export const ALGORITHMS: AlgorithmCache = {
 /**
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
-function buildAlgorithCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[]) {
+export function buildAlgorithCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[]) {
   const maxedEHP = calculateMaxedEHP(skillMetas);
   const maximumEHP = calculateMaximumEHP(skillMetas);
 

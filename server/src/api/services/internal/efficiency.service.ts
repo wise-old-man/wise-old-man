@@ -13,10 +13,10 @@ import {
 } from '@wise-old-man/utils';
 import { Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
+import { MetricEnum } from '../../../prisma';
 import { EfficiencyAlgorithmType } from '../../modules/efficiency/efficiency.types';
 import { BadRequestError } from '../../errors';
 import { buildQuery } from '../../util/query';
-import { MetricEnum } from 'src/prisma';
 import { getAlgorithm, ALGORITHMS } from '../../modules/efficiency/efficiency.utils';
 
 interface PlayerVirtuals {
