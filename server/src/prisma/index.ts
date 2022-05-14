@@ -54,6 +54,10 @@ function modifyDeltas(deltas: PrismaDelta[]): ModifiedDelta[] {
   return deltas.map(d => ({ ...d, overall: parseBigInt(d.overall) }));
 }
 
+function modifyPlayers(players: PrismaPlayer[]): ModifiedPlayer[] {
+  return players.map(p => ({ ...p, exp: parseBigInt(p.exp) }));
+}
+
 function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
   return records.map(a => {
     // All records' values are stored as an Integer, but EHP/EHB records can have
@@ -82,13 +86,18 @@ type ModifiedSnapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
   overallExperience: number;
 };
 
+type ModifiedPlayer = Omit<PrismaPlayer, 'exp'> & {
+  exp: number;
+};
+
 export {
   Prisma as PrismaTypes,
   // Original Models
+  PrismaPlayer,
   PrismaSnapshot,
   // Models
   NameChange,
-  PrismaPlayer as Player,
+  ModifiedPlayer as Player,
   ModifiedDelta as Delta,
   ModifiedRecord as Record,
   ModifiedSnapshot as Snapshot,
@@ -111,6 +120,7 @@ export {
   Virtuals,
   // Utils
   modifyDeltas,
+  modifyPlayers,
   modifyRecords,
   modifySnapshots,
   modifyAchievements

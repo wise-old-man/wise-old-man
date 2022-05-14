@@ -22,7 +22,7 @@ import {
   ActivityEnum,
   VirtualEnum
 } from '../../../prisma';
-import * as efficiencyService from '../../services/internal/efficiency.service';
+import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityDelta,
   BossDelta,
@@ -32,11 +32,9 @@ import {
   SkillDelta,
   VirtualDelta
 } from './delta.types';
+import { EfficiencyMap } from '../efficiency/efficiency.types';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
-
-// TODO: get rid of this after efficiency module refactor
-type EfficiencyMap = efficiencyService.SnapshotVirtuals;
 
 export function parseNum(metric: MetricEnum, val: string) {
   return isVirtualMetric(metric as Metric) ? parseFloat(val) : parseInt(val);
@@ -137,12 +135,8 @@ function calculateEfficiencyDiff(metric: MetricEnum, startMap: EfficiencyMap, en
  * Calculates the total EHP difference between two snapshots.
  */
 function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHP = efficiencyService.calculateEHP(
-    startSnapshot as any,
-    player.type as any,
-    player.build as any
-  );
-  const endEHP = efficiencyService.calculateEHP(endSnapshot as any, player.type as any, player.build as any);
+  const startEHP = efficiencyUtils.getPlayerEHP(startSnapshot, player);
+  const endEHP = efficiencyUtils.getPlayerEHP(endSnapshot, player);
 
   return {
     gained: Math.max(0, round(endEHP - startEHP, 5)),
@@ -155,12 +149,8 @@ function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
  * Calculates the total EHB difference between two snapshots.
  */
 function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHB = efficiencyService.calculateEHB(
-    startSnapshot as any,
-    player.type as any,
-    player.build as any
-  );
-  const endEHB = efficiencyService.calculateEHB(endSnapshot as any, player.type as any, player.build as any);
+  const startEHB = efficiencyUtils.getPlayerEHB(startSnapshot, player);
+  const endEHB = efficiencyUtils.getPlayerEHB(endSnapshot, player);
 
   return {
     gained: Math.max(0, round(endEHB - startEHB, 5)),
@@ -221,8 +211,8 @@ export function calculateMetricDelta(
  * Calculates the complete deltas for a given player (and snapshots)
  */
 export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player as any, startSnapshot as any);
-  const endEfficiencyMap = efficiencyService.calcSnapshotVirtuals(player as any, endSnapshot as any);
+  const startEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(startSnapshot, player);
+  const endEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(endSnapshot, player);
 
   function calculateSkillDelta(skill: SkillEnum): SkillDelta {
     const valueDiff = calculateValueDiff(skill, startSnapshot, endSnapshot);

@@ -1,6 +1,9 @@
 import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
-import { BossEnum, Skills } from '../../src/prisma';
-import { ALGORITHMS, buildAlgorithCache } from '../../src/api/modules/efficiency/efficiency.utils';
+import supertest from 'supertest';
+import prisma, { BossEnum, Skills } from '../../src/prisma';
+import apiServer from '../../src/api';
+import { ALGORITHMS, buildAlgorithmCache } from '../../src/api/modules/efficiency/efficiency.utils';
+import * as efficiencyServices from '../../src/api/modules/efficiency/efficiency.services';
 import mainTestSkillingMetas from '../data/efficiency/configs/ehp/main-test.ehp';
 import mainTestBossingMetas from '../data/efficiency/configs/ehb/main-test.ehb';
 import ironmanTestSkillingMetas from '../data/efficiency/configs/ehp/ironman-test.ehp';
@@ -9,14 +12,63 @@ import lvl3TestSkillingMetas from '../data/efficiency/configs/ehp/lvl3-test.ehp'
 import lvl3TestBossingMetas from '../data/efficiency/configs/ehb/lvl3-test.ehb';
 import f2pTestSkillingMetas from '../data/efficiency/configs/ehp/f2p-test.ehp';
 import f2pTestBossingMetas from '../data/efficiency/configs/ehb/f2p-test.ehb';
+import { resetDatabase } from '../utils';
+
+const api = supertest(apiServer);
 
 beforeAll(async done => {
+  await resetDatabase();
+
   // Override the cache algorithms with these test rate configs, for consistent testing
   Object.assign(ALGORITHMS, {
-    main: buildAlgorithCache(mainTestSkillingMetas, mainTestBossingMetas),
-    ironman: buildAlgorithCache(ironmanTestSkillingMetas, ironmanTestBossingMetas),
-    f2p: buildAlgorithCache(f2pTestSkillingMetas, f2pTestBossingMetas),
-    lvl3: buildAlgorithCache(lvl3TestSkillingMetas, lvl3TestBossingMetas)
+    main: buildAlgorithmCache(mainTestSkillingMetas, mainTestBossingMetas),
+    ironman: buildAlgorithmCache(ironmanTestSkillingMetas, ironmanTestBossingMetas),
+    f2p: buildAlgorithmCache(f2pTestSkillingMetas, f2pTestBossingMetas),
+    lvl3: buildAlgorithmCache(lvl3TestSkillingMetas, lvl3TestBossingMetas)
+  });
+
+  // Create 100 players, with staggered registration dates, and make sure some of them
+  // are tied on EHP, and some players are ironman (to test the ranking calcs)
+  await Promise.all(
+    Array.from(Array(100).keys()).map(async i => {
+      await prisma.player.create({
+        data: {
+          username: `player ${i + 1}`,
+          type: i >= 80 && i < 90 ? 'ironman' : 'regular',
+          registeredAt: new Date(Date.now() + i * 10_000),
+          ehp: i < 10 ? 1000 : 1000 - i,
+          ehb: i
+        }
+      });
+    })
+  );
+
+  // Add one HCIM lvl3 for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `player hcim`,
+      type: 'hardcore',
+      build: 'lvl3',
+      ehp: 2
+    }
+  });
+
+  // Add one Ultimate lvl3 for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `player ult`,
+      type: 'ultimate',
+      build: 'lvl3'
+    }
+  });
+
+  // Add one HCIM lvl3 for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `player PT`,
+      type: 'regular',
+      country: 'PT'
+    }
   });
 
   done();
@@ -194,6 +246,251 @@ describe('Efficiency API', () => {
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB
       expect(ALGORITHMS.ironman.calculateEHB(killcountMap)).toBe(ehbSum);
+    });
+  });
+
+  describe('4 - List Rates', () => {
+    it('should not list (invalid type)', async () => {
+      const response = await api.get(`/api/efficiency/rates`).query({ type: 'zerker' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Incorrect type: zerker. Must be one of [main, ironman, lvl3, f2p]');
+    });
+
+    it('should list (invalid metric, default to EHP)', async () => {
+      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'something' });
+      expect(response.status).toBe(200);
+      expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
+    });
+
+    it('should list (EHP)', async () => {
+      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'ehp' });
+      expect(response.status).toBe(200);
+      expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
+    });
+
+    it('should list (EHB)', async () => {
+      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'ehb' });
+      expect(response.status).toBe(200);
+      expect(response.body[0]).toMatchObject({ boss: 'abyssal_sire' }); // returning bossing metas
+    });
+  });
+
+  describe('5 - Calculate EHP/EHB rankings', () => {
+    it('should compute > top 50 rank', async () => {
+      const top60Player = await prisma.player.findUnique({ where: { username: 'player 60' } });
+
+      const result = await efficiencyServices.computeEfficiencyRank({
+        player: top60Player,
+        value: top60Player.ehp,
+        metric: 'ehp'
+      });
+
+      expect(result).toBe(60);
+    });
+
+    it('should compute < top 50 rank', async () => {
+      const top7Player = await prisma.player.findUnique({ where: { username: 'player 7' } });
+
+      const result = await efficiencyServices.computeEfficiencyRank({
+        player: top7Player,
+        value: top7Player.ehp,
+        metric: 'ehp'
+      });
+
+      expect(result).toBe(7);
+    });
+
+    it('should compute > top 50 rank (ironman)', async () => {
+      const top85Player = await prisma.player.findUnique({ where: { username: 'player 85' } });
+
+      const result = await efficiencyServices.computeEfficiencyRank({
+        player: top85Player,
+        value: top85Player.ehp,
+        metric: 'ehp'
+      });
+
+      expect(result).toBe(5); // this player has the 85th highest ehp, but the 5th highest for ironman
+    });
+  });
+
+  describe('6 - Fetch Efficiency Leaderboards', () => {
+    it('should not fetch leaderboards (invalid metric)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'abc' });
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'metric'. Expected ehp | ehb | ehp+ehb");
+    });
+
+    it('should not fetch leaderboards (invalid player type)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', playerType: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'playerType'.");
+    });
+
+    it('should not fetch leaderboards (invalid player build)', async () => {
+      const response = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehp', playerBuild: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Invalid enum value for 'playerBuild'.");
+    });
+
+    it('should not fetch leaderboards (invalid player country)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', country: 'a' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Invalid enum value for 'country'.");
+    });
+
+    it('should fetch EHP leaderboards (no player filters)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(20);
+
+      expect(response.body[0]).toMatchObject({
+        username: 'player 1',
+        type: 'regular',
+        ehp: 1000
+      });
+
+      // Should only contain "regular" players
+      expect([...new Set(response.body.map(r => r.type))].length).toBe(1);
+
+      // Ensure the list is sorted by "ehp" descending
+      for (let i = 0; i < response.body.length; i++) {
+        if (i === 0) continue;
+        expect(response.body[i].ehp <= response.body[i - 1].ehp).toBe(true);
+      }
+    });
+
+    it('should fetch EHP leaderboards (with player type filter)', async () => {
+      const response = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehp', playerType: 'ironman' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(12);
+
+      const includedPlayerTypes = [...new Set(response.body.map(r => r.type))];
+
+      // Hardcores and Ultimates should be included in the leaderboards for "ironman"
+      expect(includedPlayerTypes.length).toBe(3);
+      expect(includedPlayerTypes.includes('ironman')).toBe(true);
+      expect(includedPlayerTypes.includes('hardcore')).toBe(true);
+      expect(includedPlayerTypes.includes('ultimate')).toBe(true);
+
+      // The ironmen were inserted on indices 80-90
+      for (let i = 0; i < 10; i++) {
+        expect(response.body[i]).toMatchObject({
+          username: `player ${i + 81}`,
+          ehp: 920 - i
+        });
+      }
+
+      // Ensure the list is sorted by "ehp" descending
+      for (let i = 0; i < response.body.length; i++) {
+        if (i === 0) continue;
+        expect(response.body[i].ehp <= response.body[i - 1].ehp).toBe(true);
+      }
+
+      expect(response.body[10]).toMatchObject({ username: 'player hcim', ehp: 2 });
+    });
+
+    it('should fetch EHB leaderboards (with player type + player build filters)', async () => {
+      const firstResponse = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehb', playerType: 'hardcore', playerBuild: 'lvl3' });
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(1);
+
+      expect(firstResponse.body[0]).toMatchObject({
+        username: 'player hcim',
+        type: 'hardcore',
+        build: 'lvl3'
+      });
+
+      const secondResponse = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehb', playerType: 'hardcore', playerBuild: 'f2p' });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(0);
+    });
+
+    it('should fetch EHB leaderboards (with player country filter)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehb', country: 'PT' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      expect(response.body[0].username).toBe('player PT');
+    });
+
+    it('should fetch EHP+EHB leaderboards', async () => {
+      const response = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehp+ehb', playerType: 'ironman', playerBuild: 'lvl3' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      // Should contain "ultimate" and "hardcore" players
+      expect([...new Set(response.body.map(r => r.type))].length).toBe(2);
+
+      expect(response.body[0]).toMatchObject({
+        username: 'player hcim',
+        type: 'hardcore',
+        ehp: 2
+      });
+
+      // Ensure the list is sorted by "ehp+ehb" descending
+      for (let i = 0; i < response.body.length; i++) {
+        if (i === 0) continue;
+
+        const cur = response.body[i];
+        const prev = response.body[i - 1];
+
+        expect(cur.ehp + cur.ehb <= prev.ehp + prev.ehb).toBe(true);
+      }
+    });
+
+    it('should not fetch EHP leaderboards (negative offset)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', offset: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
+    });
+
+    it('should not fetch EHP leaderboards (negative limit)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', limit: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+    });
+
+    it('should not fetch EHB leaderboards (limit > 50)', async () => {
+      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehb', limit: 1000 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('The maximum results limit is 50');
+    });
+
+    it('should fetch EHB leaderboards (with limit and offset)', async () => {
+      const response = await api
+        .get(`/api/efficiency/leaderboard`)
+        .query({ metric: 'ehb', limit: 5, offset: 3 });
+
+      expect(response.body[0]).toMatchObject({
+        username: 'player 97',
+        type: 'regular',
+        ehb: 96
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
     });
   });
 });

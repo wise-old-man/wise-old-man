@@ -1,43 +1,41 @@
-import { NextFunction, Request, Response } from 'express';
-import * as service from '../services/internal/efficiency.service';
-import { extractNumber, extractString } from '../util/http';
-import * as pagination from '../util/pagination';
+import { Request } from 'express';
+import { EfficiencyAlgorithmType } from '../modules/efficiency/efficiency.types';
+import * as efficiencyUtils from '../modules/efficiency/efficiency.utils';
+import * as efficiencyServices from '../modules/efficiency/efficiency.services';
+
+import { ControllerResponse } from '../util/routing';
+import { getEnum, getNumber, getString } from '../util/validation';
 
 // GET /efficiency/leaderboard
-async function leaderboard(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Search filter query
-    const metric = extractString(req.query, { key: 'metric' });
-    const playerType = extractString(req.query, { key: 'playerType' });
-    const playerBuild = extractString(req.query, { key: 'playerBuild' });
-    const country = extractString(req.query, { key: 'country' });
-    // Pagination query
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function leaderboard(req: Request): Promise<ControllerResponse> {
+  const results = await efficiencyServices.findEfficiencyLeaderboards({
+    metric: getEnum(req.query.metric),
+    country: getString(req.query.country),
+    playerType: getEnum(req.query.playerType),
+    playerBuild: getEnum(req.query.playerBuild),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    const filter = { metric, playerType, playerBuild, country };
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getLeaderboard(filter, paginationConfig);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /efficiency/rates
-async function rates(req: Request, res: Response, next: NextFunction) {
-  try {
-    const metric = extractString(req.query, { key: 'metric' });
-    const type = extractString(req.query, { key: 'type' });
+async function rates(req: Request): Promise<ControllerResponse> {
+  const { metric, type } = req.query;
 
-    const rates = await service.getRates(metric, type);
+  const result = efficiencyUtils.getRates(getEnum(metric), getEnum(type));
 
-    res.json(rates);
-  } catch (e) {
-    next(e);
+  if (!result) {
+    const acceptedTypes = Object.values(EfficiencyAlgorithmType).join(', ');
+
+    return {
+      statusCode: 400,
+      response: { message: `Incorrect type: ${type}. Must be one of [${acceptedTypes}]` }
+    };
   }
+
+  return { statusCode: 200, response: result };
 }
 
 export { leaderboard, rates };

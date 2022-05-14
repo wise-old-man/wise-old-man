@@ -217,12 +217,34 @@ describe('Achievements API', () => {
       expect(createGroupResponse.body.members.map(m => m.username)).toContain('psikoi');
       expect(createGroupResponse.body.members.map(m => m.username)).toContain('lynx titan');
 
-      const groupId = createGroupResponse.body.id;
-      const fetchResponse = await apiMock
-        .get(`/api/groups/${groupId}/achievements`)
-        .query({ limit: 200, offset: 'abc' }); // the invalid offset value should be ignored by the API
+      // Fetch 1-50
+      const firstFetchResponse = await apiMock
+        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .query({ limit: 50, offset: 'abc' }); // the invalid offset value should be ignored by the API
 
-      expect(fetchResponse.body.length).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
+      expect(firstFetchResponse.status).toBe(200);
+      expect(firstFetchResponse.body.length).toBe(50); // should return the maximum defined by the limit param
+
+      // Fetch 51-100
+      const secondFetchResponse = await apiMock
+        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .query({ limit: 50, offset: 50 });
+
+      expect(secondFetchResponse.status).toBe(200);
+      expect(secondFetchResponse.body.length).toBe(50); // should return the maximum defined by the limit param
+
+      // Fetch 101-140
+      const thirdFetchResponse = await apiMock
+        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .query({ limit: 50, offset: 100 });
+
+      expect(thirdFetchResponse.status).toBe(200);
+      expect(thirdFetchResponse.body.length).toBeLessThan(50);
+
+      const totalCount =
+        firstFetchResponse.body.length + secondFetchResponse.body.length + thirdFetchResponse.body.length;
+
+      expect(totalCount).toBe(140); // 37 achievements from Psikoi, 103 from Lynx Titan
     });
 
     test('Track player again, test new achievements', async () => {

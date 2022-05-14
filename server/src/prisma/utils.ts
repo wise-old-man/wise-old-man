@@ -5,5 +5,5 @@ BigInt.prototype.toJSON = function () {
 };
 
 export function parseBigInt(bigint: BigInt): number {
-  return bigint && parseInt(bigint.toString());
+  return bigint !== null && bigint !== undefined && parseInt(bigint.toString());
 }

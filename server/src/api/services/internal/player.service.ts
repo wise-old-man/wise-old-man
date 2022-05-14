@@ -8,10 +8,11 @@ import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../u
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import redisService from '../external/redis.service';
-import * as efficiencyService from './efficiency.service';
 import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
+import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
+import * as efficiencyServices from '../../modules/efficiency/efficiency.services';
 
 const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
@@ -138,7 +139,7 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
   const stats = snapshot || ((await snapshotServices.findPlayerSnapshot({ id: player.id })) as any);
 
-  const efficiency = stats && efficiencyService.calcSnapshotVirtuals(player, stats);
+  const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player);
   const combatLevel = getCombatLevel(stats);
 
   const latestSnapshot = snapshotUtils.format(stats, efficiency);
@@ -203,7 +204,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.build = getBuild(currentStats);
     player.flagged = false;
 
-    const virtuals = await efficiencyService.calcPlayerVirtuals(player, currentStats);
+    const virtuals = await efficiencyServices.computePlayerVirtuals({ player, snapshot: currentStats });
 
     // Set the player's global virtual data
     player.exp = currentStats.overallExperience;

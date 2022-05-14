@@ -1,6 +1,6 @@
 import { parsePeriodExpression } from '@wise-old-man/utils';
 import { z } from 'zod';
-import prisma, { Snapshot } from '../../../../prisma';
+import prisma, { modifyPlayers, Snapshot } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
@@ -50,7 +50,7 @@ async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPl
     return { startsAt: null, endsAt: null, data: emptyPlayerDelta() };
   }
 
-  const data = calculatePlayerDeltas(startSnapshot, endSnapshot, player);
+  const data = calculatePlayerDeltas(startSnapshot, endSnapshot, modifyPlayers([player])[0]);
 
   return {
     startsAt: startSnapshot.createdAt,

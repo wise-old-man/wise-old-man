@@ -2,10 +2,10 @@ import { z } from 'zod';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
-import * as efficiencyService from '../../../services/internal/efficiency.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
+import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -94,8 +94,13 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const ehpDiff = newStats ? efficiencyService.calculateEHPDiff(oldStats as any, newStats as any) : 0;
-  const ehbDiff = newStats ? efficiencyService.calculateEHBDiff(oldStats as any, newStats as any) : 0;
+  const ehpDiff = newStats
+    ? efficiencyUtils.getPlayerEHP(newStats) - efficiencyUtils.getPlayerEHP(oldStats)
+    : 0;
+
+  const ehbDiff = newStats
+    ? efficiencyUtils.getPlayerEHB(newStats) - efficiencyUtils.getPlayerEHB(oldStats)
+    : 0;
 
   const hasNegativeGains = newStats ? snapshotUtils.hasNegativeGains(oldStats, newStats) : false;
 

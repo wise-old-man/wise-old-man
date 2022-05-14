@@ -20,7 +20,16 @@ z.setErrorMap((issue, ctx) => {
 });
 
 export const PAGINATION_SCHEMA = z.object({
-  limit: z.number().int().positive("Parameter 'limit' must be > 0.").optional().default(20),
+  limit: z
+    .number()
+    .int()
+    .positive("Parameter 'limit' must be > 0.")
+    .max(
+      50,
+      "The maximum results limit is 50. Please consider using the 'offset' parameter to load more data."
+    )
+    .optional()
+    .default(20),
   offset: z.number().int().nonnegative("Parameter 'offset' must be >= 0.").optional().default(0)
 });
 

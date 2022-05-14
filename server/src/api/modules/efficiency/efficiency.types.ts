@@ -8,6 +8,10 @@ export type KillcountMap = {
   [boss in BossEnum]?: number;
 };
 
+export type EfficiencyMap = {
+  [m in SkillEnum | BossEnum]?: number;
+};
+
 export enum BonusType {
   START,
   END

@@ -9,7 +9,7 @@ import {
 } from '@wise-old-man/utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
-import * as efficiencyService from '../../services/internal/efficiency.service';
+import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 
 /**
  * Converts a Snapshot instance into a JSON friendlier format
@@ -72,8 +72,8 @@ function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
 
   const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
 
-  const ehpDiff = efficiencyService.calculateEHPDiff(before as any, after as any);
-  const ehbDiff = efficiencyService.calculateEHBDiff(before as any, after as any);
+  const ehpDiff = efficiencyUtils.getPlayerEHP(after) - efficiencyUtils.getPlayerEHP(before);
+  const ehbDiff = efficiencyUtils.getPlayerEHB(after) - efficiencyUtils.getPlayerEHB(before);
 
   return ehpDiff + ehbDiff > hoursDiff;
 }

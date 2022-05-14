@@ -1,6 +1,25 @@
-import { MAX_SKILL_EXP, SKILL_EXP_AT_99, PlayerType } from '@wise-old-man/utils';
+import {
+  MAX_SKILL_EXP,
+  SKILL_EXP_AT_99,
+  PlayerType,
+  getMetricValueKey,
+  BOSSES,
+  SKILLS,
+  round,
+  PlayerBuild
+} from '@wise-old-man/utils';
 import { mapValues } from 'lodash';
-import { BossEnum, Bosses, MetricEnum, SkillEnum, Skills } from '../../../prisma';
+import {
+  BossEnum,
+  Bosses,
+  Player,
+  MetricEnum,
+  SkillEnum,
+  Skills,
+  Snapshot,
+  VirtualEnum,
+  PlayerTypeEnum
+} from '../../../prisma';
 import {
   AlgorithmCache,
   Bonus,
@@ -8,6 +27,7 @@ import {
   BossMetaConfig,
   EfficiencyAlgorithm,
   EfficiencyAlgorithmType,
+  EfficiencyMap,
   ExperienceMap,
   KillcountMap,
   SkillMetaConfig
@@ -22,16 +42,16 @@ import f2pBossingMetas from './configs/ehb/f2p.ehb';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 
 export const ALGORITHMS: AlgorithmCache = {
-  [EfficiencyAlgorithmType.MAIN]: buildAlgorithCache(mainSkillingMetas, mainBossingMetas),
-  [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithCache(ironmanSkillingMetas, ironmanBossingMetas),
-  [EfficiencyAlgorithmType.LVL3]: buildAlgorithCache(lvl3SkillingMetas, lvl3BossingMetas),
-  [EfficiencyAlgorithmType.F2P]: buildAlgorithCache(f2pSkillingMetas, f2pBossingMetas)
+  [EfficiencyAlgorithmType.MAIN]: buildAlgorithmCache(mainSkillingMetas, mainBossingMetas),
+  [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
+  [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas, lvl3BossingMetas),
+  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas, f2pBossingMetas)
 };
 
 /**
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
-export function buildAlgorithCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[]) {
+export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[]) {
   const maxedEHP = calculateMaxedEHP(skillMetas);
   const maximumEHP = calculateMaximumEHP(skillMetas);
 
@@ -74,16 +94,25 @@ export function buildAlgorithCache(skillMetas: SkillMetaConfig[], bossMetas: Bos
   };
 }
 
-// TODO: refactor to using enums
-export function getAlgorithm(type: string, build: string): EfficiencyAlgorithm {
+export function getRates(metric: VirtualEnum, type: EfficiencyAlgorithmType) {
+  // Wrong algorithm type
+  if (!Object.values(EfficiencyAlgorithmType).includes(type)) return null;
+
+  const algorithm = ALGORITHMS[type || 'main'];
+  return metric === MetricEnum.EHB ? algorithm.bossMetas : algorithm.skillMetas;
+}
+
+export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
+  const { type = PlayerTypeEnum.REGULAR, build = PlayerBuild.MAIN } = player || {};
+
   if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE || type === PlayerType.ULTIMATE) {
     return ALGORITHMS.ironman;
   }
 
   switch (build) {
-    case 'f2p':
+    case PlayerBuild.F2P:
       return ALGORITHMS.f2p;
-    case 'lvl3':
+    case PlayerBuild.LVL3:
       return ALGORITHMS.lvl3;
     default:
       return ALGORITHMS.main;
@@ -116,12 +145,14 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[]) {
 
 function calculateMaximumEHP(metas: SkillMetaConfig[]) {
   const zeroStats = Object.fromEntries(Skills.map(s => [s, 0]));
+
   return calculateTT200m(zeroStats, metas);
 }
 
 function calculateMaxedEHP(metas: SkillMetaConfig[]) {
   const zeroStats = Object.fromEntries(Skills.map(s => [s, 0]));
   const maxedStats = Object.fromEntries(Skills.map(s => [s, SKILL_EXP_AT_99]));
+
   return calculateTT200m(zeroStats, metas) - calculateTT200m(maxedStats, metas);
 }
 
@@ -131,7 +162,7 @@ function calculateBossEHB(boss: BossEnum, killcount: number, metas: BossMetaConf
   const meta = metas.find(meta => meta.boss === boss);
   if (!meta || meta.rate <= 0) return 0;
 
-  return killcount / meta.rate;
+  return round(killcount / meta.rate, 5);
 }
 
 function calculateEHB(killcountMap: KillcountMap, metas: BossMetaConfig[]) {
@@ -185,5 +216,40 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
   });
 
   // Sum all inidividual skill times, into the total TTM
-  return skillTimes.reduce((a, c) => a + c);
+  return round(
+    skillTimes.reduce((a, c) => a + c),
+    5
+  );
 }
+
+function getKillcountMap(snapshot: Snapshot): KillcountMap {
+  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
+}
+
+function getExperienceMap(snapshot: Snapshot): ExperienceMap {
+  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
+}
+
+function getPlayerEHB(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {
+  const algorithm = getAlgorithm(player);
+  return algorithm.calculateEHB(getKillcountMap(snapshot));
+}
+
+function getPlayerEHP(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {
+  const algorithm = getAlgorithm(player);
+  return algorithm.calculateEHP(getExperienceMap(snapshot));
+}
+
+function getPlayerEfficiencyMap(snapshot: Snapshot, player: Pick<Player, 'type' | 'build'>): EfficiencyMap {
+  const algorithm = getAlgorithm(player);
+
+  const experienceMap = getExperienceMap(snapshot);
+  const killcountMap = getKillcountMap(snapshot);
+
+  return {
+    ...Object.fromEntries(Skills.map(s => [s, algorithm.calculateSkillEHP(s, experienceMap)])),
+    ...Object.fromEntries(Bosses.map(b => [b, algorithm.calculateBossEHB(b, killcountMap)]))
+  };
+}
+
+export { getPlayerEHB, getPlayerEHP, getPlayerEfficiencyMap, getKillcountMap, getExperienceMap };
