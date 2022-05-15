@@ -8,14 +8,13 @@ import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
-import redisService from '../external/redis.service';
+import * as playerUtils from '../../modules/players/player.utils';
 import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../modules/efficiency/efficiency.services';
 
-const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
@@ -37,61 +36,6 @@ export function setUpdateCooldown(seconds: number) {
 }
 
 /**
- * Format a username into a standardized version,
- * replacing any special characters, and forcing lower case.
- *
- * "Psikoi" -> "psikoi",
- * "Hello_world  " -> "hello world"
- */
-function standardize(username: string): string {
-  if (!username || typeof username !== 'string') return null;
-  return sanitize(username).toLowerCase();
-}
-
-function sanitize(username: string): string {
-  return username.replace(/[-_\s]/g, ' ').trim();
-}
-
-function isValidUsername(username: string): boolean {
-  if (typeof username !== 'string') return false;
-
-  const standardized = standardize(username);
-
-  if (!standardized) return false;
-
-  // If doesn't meet the size requirements
-  if (standardized.length < 1 || standardized.length > 12) return false;
-
-  // If starts or ends with a space
-  if (standardized.startsWith(' ') || standardized.endsWith(' ')) return false;
-
-  // If has any special characters
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) return false;
-
-  return true;
-}
-
-/**
- * Checks if a given player should have their player type reviewed.
- * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
- */
-async function shouldReviewType(player: Player): Promise<boolean> {
-  const { username, type, lastChangedAt } = player;
-
-  // Type reviews should only be done on iron players
-  if (type === PlayerTypeEnum.REGULAR || type === PlayerTypeEnum.UNKNOWN) return false;
-
-  // After checking a player's type, we add their username to a cache that blocks
-  // this action to be repeated again within the next week (as to not overload the server)
-  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', username));
-
-  // If player hasn't gained exp in over 24h, despite being updated recently
-  const isInactive = !lastChangedAt || (Date.now() - lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
-
-  return !hasCooldown && isInactive;
-}
-
-/**
  * Checks if a given player has been updated in the last 60 seconds.
  */
 function shouldUpdate(player: Player): boolean {
@@ -101,21 +45,6 @@ function shouldUpdate(player: Player): boolean {
   const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
 
   return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
-}
-
-/**
- * Checks if a given player has been imported from CML in the last 24 hours.
- */
-function shouldImport(player: Player): [boolean, number] {
-  // If the player's CML history has never been
-  // imported, should import the last years
-  if (!player.lastImportedAt || !isValidDate(player.lastImportedAt)) {
-    return [true, DECADE_IN_SECONDS];
-  }
-
-  const seconds = Math.floor((Date.now() - player.lastImportedAt.getTime()) / 1000);
-
-  return [seconds / 60 / 60 >= 24, seconds];
 }
 
 async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
@@ -162,7 +91,7 @@ async function search(username: string): Promise<Player[]> {
   const players = await Player.findAll({
     where: {
       username: {
-        [Op.like]: `${standardize(username)}%`
+        [Op.like]: `${playerUtils.standardize(username)}%`
       }
     },
     limit: 20
@@ -253,7 +182,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
  * attempt to import all the datapoints CML gathered since the last import.
  */
 async function importCML(player: Player): Promise<Snapshot[]> {
-  const [should, seconds] = shouldImport(player);
+  const [should, seconds] = playerUtils.shouldImport(player.lastImportedAt);
 
   // If the player hasn't imported in over 24h,
   // attempt to import its history from CML
@@ -366,17 +295,17 @@ async function assertName(player: Player): Promise<string> {
   const { username } = player;
 
   const hiscoresNames = await jagexService.getHiscoresNames(username);
-  const match = hiscoresNames.find(h => standardize(h) === username);
+  const match = hiscoresNames.find(h => playerUtils.standardize(h) === username);
 
   if (!match) {
     throw new ServerError(`Couldn't find a name match for ${username}`);
   }
 
-  if (standardize(match) !== player.username) {
+  if (playerUtils.standardize(match) !== player.username) {
     throw new ServerError(`Display name and username don't match for ${username}`);
   }
 
-  const newDisplayName = sanitize(match);
+  const newDisplayName = playerUtils.sanitize(match);
 
   if (player.displayName !== newDisplayName) {
     await player.update({ displayName: newDisplayName });
@@ -413,8 +342,8 @@ function getBuild(snapshot: Snapshot): PlayerBuildEnum {
 
 async function findOrCreate(username: string): Promise<[Player, boolean]> {
   const result = await Player.findOrCreate({
-    where: { username: standardize(username) },
-    defaults: { displayName: sanitize(username) }
+    where: { username: playerUtils.standardize(username) },
+    defaults: { displayName: playerUtils.sanitize(username) }
   });
 
   return result;
@@ -422,42 +351,10 @@ async function findOrCreate(username: string): Promise<[Player, boolean]> {
 
 async function find(username: string): Promise<Player | null> {
   const result = await Player.findOne({
-    where: { username: standardize(username) }
+    where: { username: playerUtils.standardize(username) }
   });
 
   return result;
-}
-
-async function findAllOrCreate(usernames: string[]): Promise<Player[]> {
-  const foundPlayers = await findAll(usernames);
-  if (foundPlayers.length === usernames.length) return foundPlayers;
-
-  // Find the already registered usernames
-  const foundUsernames = foundPlayers.map(f => f.username);
-
-  // Find the unregistered usernames
-  const missingUsernames = usernames.filter(u => !foundUsernames.includes(standardize(u)));
-
-  const newPlayers = await Player.bulkCreate(
-    missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) })),
-    { individualHooks: true }
-  );
-
-  // Sort the resulting players list by the order of the input usernames
-  const standardizedUsernames = usernames.map(standardize);
-  return [...foundPlayers, ...newPlayers].sort(
-    (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
-  );
-}
-
-async function findAll(usernames: string[]): Promise<Player[]> {
-  const standardizedUsernames = usernames.map(standardize);
-
-  const players = await Player.findAll({ where: { username: standardizedUsernames } });
-
-  return players.sort(
-    (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
-  );
 }
 
 async function findById(playerId: number): Promise<Player | null> {
@@ -468,22 +365,8 @@ async function findById(playerId: number): Promise<Player | null> {
   return players;
 }
 
-async function findAllByIds(playerIds: number[]): Promise<Player[]> {
-  const players = await Player.findAll({
-    where: { id: playerIds }
-  });
-
-  return players;
-}
-
 export {
-  standardize,
-  sanitize,
-  isValidUsername,
-  findAllOrCreate,
-  findAll,
   findById,
-  findAllByIds,
   find,
   getDetails,
   search,
@@ -492,8 +375,6 @@ export {
   assertType,
   assertName,
   updateCountry,
-  shouldImport,
-  shouldReviewType,
   resolve,
   resolveId
 };

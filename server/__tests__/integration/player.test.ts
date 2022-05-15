@@ -14,6 +14,9 @@ import {
   sleep
 } from '../utils';
 import * as playerService from '../../src/api/services/internal/player.service';
+import * as playerServices from '../../src/api/modules/players/player.services';
+import * as playerUtils from '../../src/api/modules/players/player.utils';
+
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
@@ -654,35 +657,43 @@ describe('Player API', () => {
 
   describe('8. Player Utils', () => {
     it('should sanitize usernames', () => {
-      expect(playerService.sanitize('PSIKOI')).toBe('PSIKOI');
-      expect(playerService.sanitize(' PSIKOI_')).toBe('PSIKOI');
-      expect(playerService.sanitize('___psikoi  ')).toBe('psikoi');
+      expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
+      expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
+      expect(playerUtils.sanitize('___psikoi  ')).toBe('psikoi');
     });
 
     it('should standardize usernames', () => {
-      expect(playerService.standardize('HELLO WORLD')).toBe('hello world');
-      expect(playerService.standardize(' HELLO   WORLD_')).toBe('hello   world');
-      expect(playerService.standardize('___hello_WORLD123  ')).toBe('hello world123');
+      expect(playerUtils.standardize('HELLO WORLD')).toBe('hello world');
+      expect(playerUtils.standardize(' HELLO   WORLD_')).toBe('hello   world');
+      expect(playerUtils.standardize('___hello_WORLD123  ')).toBe('hello world123');
     });
 
     it('should check for username validity', () => {
-      expect(playerService.isValidUsername('')).toBe(false);
-      expect(playerService.isValidUsername('aLongUsername')).toBe(false);
-      expect(playerService.isValidUsername('hello$#%')).toBe(false);
-      expect(playerService.isValidUsername('HELLO WORLD')).toBe(true);
-      expect(playerService.isValidUsername(' HELLO WORLD_')).toBe(true);
-      expect(playerService.isValidUsername('___hello_WORLD  ')).toBe(true);
+      expect(playerUtils.isValidUsername('')).toBe(false);
+      expect(playerUtils.isValidUsername('aLongUsername')).toBe(false);
+      expect(playerUtils.isValidUsername('hello$#%')).toBe(false);
+      expect(playerUtils.isValidUsername('HELLO WORLD')).toBe(true);
+      expect(playerUtils.isValidUsername(' HELLO WORLD_')).toBe(true);
+      expect(playerUtils.isValidUsername('___hello_WORLD  ')).toBe(true);
     });
 
     it('should find all players or create', async () => {
-      const existingPlayers = await playerService.findAllOrCreate(['PSIKOI', 'hydrox6', 'hydroman']);
+      const existingPlayers = await playerServices.findPlayers({
+        usernames: ['PSIKOI', 'hydrox6', 'hydroman'],
+        createIfNotFound: true
+      });
+
       expect(existingPlayers.length).toBe(3);
 
       expect(existingPlayers[0].username).toBe('psikoi');
       expect(existingPlayers[1].username).toBe('hydrox6');
       expect(existingPlayers[2].username).toBe('hydroman');
 
-      const oneNewPlayer = await playerService.findAllOrCreate(['PSIKOI', '_hydrox6 ', 'hydroman', 'Zezima']);
+      const oneNewPlayer = await playerServices.findPlayers({
+        usernames: ['PSIKOI', '_hydrox6 ', 'hydroman', 'Zezima'],
+        createIfNotFound: true
+      });
+
       expect(oneNewPlayer.length).toBe(4);
 
       expect(oneNewPlayer[0].username).toBe('psikoi');

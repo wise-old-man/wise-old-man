@@ -5,11 +5,11 @@ import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
 import * as competitionService from '../services/internal/competition.service';
-import * as playerService from '../services/internal/player.service';
+import * as playerServices from '../modules/players/player.services';
 
 async function onParticipantsJoined(_: number, playerIds: number[]) {
   // Fetch all the newly added participants
-  const players = await playerService.findAllByIds(playerIds);
+  const players = await playerServices.findPlayers({ ids: playerIds });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;

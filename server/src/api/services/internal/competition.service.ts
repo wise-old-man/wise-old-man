@@ -18,9 +18,10 @@ import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { buildQuery } from '../../util/query';
 import * as cryptService from '../external/crypt.service';
 import * as groupService from './group.service';
-import * as playerService from './player.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
+import * as playerServices from '../../modules/players/player.services';
 import * as deltaUtils from '../../modules/deltas/delta.utils';
+import * as playerUtils from '../../modules/players/player.utils';
 
 // Temporary
 const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
@@ -442,7 +443,7 @@ function validateTeamsList(teams: Team[]) {
 
   // standardize each player's username
   teams.forEach(t => {
-    t.participants = t.participants.map(playerService.standardize);
+    t.participants = t.participants.map(playerUtils.standardize);
   });
 
   const allUsernames = teams.map(t => t.participants).flat();
@@ -466,7 +467,7 @@ function validateParticipantsList(participants: string[]) {
     throw new BadRequestError('Invalid or empty participants list.');
   }
 
-  const invalidUsernames = participants.filter(username => !playerService.isValidUsername(username));
+  const invalidUsernames = participants.filter(username => !playerUtils.isValidUsername(username));
 
   if (invalidUsernames.length > 0) {
     throw new BadRequestError(
@@ -476,7 +477,7 @@ function validateParticipantsList(participants: string[]) {
     );
   }
 
-  const allUsernames = participants.map(playerService.standardize);
+  const allUsernames = participants.map(playerUtils.standardize);
   const duplicateUsernames = filter(allUsernames, (val, i, it) => includes(it, val, i + 1));
 
   if (duplicateUsernames && duplicateUsernames.length > 0) {
@@ -688,8 +689,10 @@ async function setTeams(competition: Competition, teams: Team[]) {
     where: { competitionId: competition.id }
   });
 
-  const allUsernames = teams.map(t => t.participants.map(playerService.standardize)).flat();
-  const allPlayers = await playerService.findAllOrCreate(allUsernames);
+  const allPlayers = await playerServices.findPlayers({
+    usernames: teams.map(t => t.participants.map(playerUtils.standardize)).flat(),
+    createIfNotFound: true
+  });
 
   const playersMap = Object.fromEntries(allPlayers.map(p => [p.username, p]));
 
@@ -699,7 +702,7 @@ async function setTeams(competition: Competition, teams: Team[]) {
   // Recalculate team and participant placements
   const editedTeams = teams.map(team => {
     return team.participants.map(p => {
-      const player = playersMap[playerService.standardize(p)];
+      const player = playersMap[playerUtils.standardize(p)];
       const participation = player && existingParticipations.find(e => e.playerId === player.id);
 
       return {
@@ -731,27 +734,30 @@ async function setTeams(competition: Competition, teams: Team[]) {
 async function setParticipants(competition: Competition, usernames: string[]) {
   if (!competition) throw new BadRequestError(`Invalid competition.`);
 
-  const uniqueUsernames = uniqBy(usernames, u => playerService.standardize(u));
+  const uniqueUsernames = uniqBy(usernames, u => playerUtils.standardize(u));
 
   const existingParticipants = await competition.$get('participants');
   const existingUsernames = existingParticipants.map(e => e.username);
 
-  const usernamesToAdd = uniqueUsernames.filter(
-    u => !existingUsernames.includes(playerService.standardize(u))
-  );
+  const usernamesToAdd = uniqueUsernames.filter(u => !existingUsernames.includes(playerUtils.standardize(u)));
 
   const playersToRemove = existingParticipants.filter(
-    p => !uniqueUsernames.map(playerService.standardize).includes(p.username)
+    p => !uniqueUsernames.map(playerUtils.standardize).includes(p.username)
   );
 
-  const playersToAdd = await playerService.findAllOrCreate(usernamesToAdd);
+  const playersToAdd = await playerServices.findPlayers({
+    usernames: usernamesToAdd,
+    createIfNotFound: true
+  });
 
   if (playersToRemove && playersToRemove.length > 0) {
     await competition.$remove('participants', playersToRemove);
   }
 
   if (playersToAdd && playersToAdd.length > 0) {
-    await competition.$add('participants', playersToAdd);
+    await Participation.bulkCreate(
+      playersToAdd.map(p => ({ playerId: p.id, competitionId: competition.id }))
+    );
   }
 
   const participants = await competition.$get('participants');
@@ -789,7 +795,7 @@ async function addParticipants(competition: Competition, usernames: string[]) {
     throw new BadRequestError('Empty participants list.');
   }
 
-  const invalidUsernames = usernames.filter(u => !playerService.isValidUsername(u));
+  const invalidUsernames = usernames.filter(u => !playerUtils.isValidUsername(u));
 
   if (invalidUsernames && invalidUsernames.length > 0) {
     throw new BadRequestError(
@@ -803,14 +809,15 @@ async function addParticipants(competition: Competition, usernames: string[]) {
   const existingIds = (await competition.$get('participants')).map(p => p.id);
 
   // Find or create all players with the given usernames
-  const players = await playerService.findAllOrCreate(usernames);
+  const players = await playerServices.findPlayers({ usernames, createIfNotFound: true });
+
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
 
   if (!newPlayers || !newPlayers.length) {
     throw new BadRequestError('All players given are already competing.');
   }
 
-  await competition.$add('participants', newPlayers);
+  await Participation.bulkCreate(newPlayers.map(p => ({ playerId: p.id, competitionId: competition.id })));
 
   // Update the "updatedAt" timestamp on the competition model
   await competition.changed('updatedAt', true);
@@ -831,14 +838,16 @@ async function removeParticipants(competition: Competition, usernames: string[])
     throw new BadRequestError('Empty participants list.');
   }
 
-  const playersToRemove = await playerService.findAll(usernames);
+  const playersToRemove = await playerServices.findPlayers({ usernames });
 
   if (!playersToRemove || !playersToRemove.length) {
     throw new BadRequestError('No valid tracked players were given.');
   }
 
   // Remove all specific players, and return the removed count
-  const removedPlayersCount = await competition.$remove('participants', playersToRemove);
+  const removedPlayersCount = await Participation.destroy({
+    where: { competitionId: competition.id, playerId: playersToRemove.map(p => p.id) }
+  });
 
   if (!removedPlayersCount) {
     throw new BadRequestError('None of the players given were competing.');
@@ -886,7 +895,7 @@ async function addTeams(competition: Competition, teams: Team[]) {
     throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
   }
 
-  const invalidUsernames = newUsernames.filter(t => !playerService.isValidUsername(t));
+  const invalidUsernames = newUsernames.filter(t => !playerUtils.isValidUsername(t));
 
   if (invalidUsernames && invalidUsernames.length > 0) {
     throw new BadRequestError(
@@ -896,16 +905,18 @@ async function addTeams(competition: Competition, teams: Team[]) {
     );
   }
 
-  const newPlayers = await playerService.findAllOrCreate(newUsernames);
+  const newPlayers = await playerServices.findPlayers({ usernames: newUsernames, createIfNotFound: true });
   const playersMap = Object.fromEntries(newPlayers.map(p => [p.username, p]));
 
   const formattedTeams = await Promise.all(
     teams.map(async team => {
       const teamName = team.name;
-      const participants = team.participants.map(p => playersMap[playerService.standardize(p)]);
+      const participants = team.participants.map(p => playersMap[playerUtils.standardize(p)]);
 
       // Add new team
-      await competition.$add('participants', participants, { through: { teamName } });
+      await Participation.bulkCreate(
+        newPlayers.map(p => ({ playerId: p.id, competitionId: competition.id, teamName }))
+      );
 
       return { teamName, participants };
     })

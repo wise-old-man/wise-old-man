@@ -1,12 +1,13 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
-import { Achievement } from '../../../prisma';
+import { Achievement, Player as PrismaPlayer } from '../../../prisma';
 import { Competition, Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';
 import * as groupService from '../internal/group.service';
 import * as playerService from '../internal/player.service';
+import * as playerServices from '../../modules/players/player.services';
 
 /**
  * Dispatch an event to our Discord Bot API.
@@ -86,7 +87,7 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchMembersJoined(groupId: number, players: Player[]) {
+async function dispatchMembersJoined(groupId: number, players: PrismaPlayer[]) {
   if (!players || players.length === 0) return;
   dispatch('GROUP_MEMBERS_JOINED', { groupId, players });
 }
@@ -96,8 +97,7 @@ async function dispatchMembersJoined(groupId: number, players: Player[]) {
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
-  // Fetch all the players for these ids
-  const players = await playerService.findAllByIds(playerIds);
+  const players = await playerServices.findPlayers({ ids: playerIds });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;

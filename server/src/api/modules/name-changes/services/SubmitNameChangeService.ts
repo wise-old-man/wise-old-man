@@ -2,15 +2,16 @@ import { z } from 'zod';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
+import * as playerUtils from '../../../modules/players/player.utils';
 
 const inputSchema = z
   .object({
     oldName: z.string(),
     newName: z.string()
   })
-  .refine(s => playerService.isValidUsername(s.oldName), { message: 'Invalid old name.' })
-  .refine(s => playerService.isValidUsername(s.newName), { message: 'Invalid new name.' })
-  .refine(s => playerService.sanitize(s.oldName) !== playerService.sanitize(s.newName), {
+  .refine(s => playerUtils.isValidUsername(s.oldName), { message: 'Invalid old name.' })
+  .refine(s => playerUtils.isValidUsername(s.newName), { message: 'Invalid new name.' })
+  .refine(s => playerUtils.sanitize(s.oldName) !== playerUtils.sanitize(s.newName), {
     message: 'Old name and new name cannot be the same.'
   });
 
@@ -20,8 +21,8 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   const params = inputSchema.parse(payload);
 
   // Standardize both input usernames (convert to lower case, remove symbols)
-  const stOldName = playerService.standardize(params.oldName);
-  const stNewName = playerService.standardize(params.newName);
+  const stOldName = playerUtils.standardize(params.oldName);
+  const stNewName = playerUtils.standardize(params.newName);
 
   // Check if a player with the "oldName" username is registered
   const oldPlayer = await playerService.find(stOldName);
@@ -56,7 +57,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
         orderBy: { createdAt: 'desc' }
       });
 
-      if (lastChange && playerService.standardize(lastChange.oldName) === stOldName) {
+      if (lastChange && playerUtils.standardize(lastChange.oldName) === stOldName) {
         throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
       }
     }
@@ -67,7 +68,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
     data: {
       playerId: oldPlayer.id,
       oldName: oldPlayer.displayName,
-      newName: playerService.sanitize(params.newName)
+      newName: playerUtils.sanitize(params.newName)
     }
   });
 

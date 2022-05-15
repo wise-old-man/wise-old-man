@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BadRequestError } from '../../../errors';
-import * as playerService from '../../../services/internal/player.service';
+import * as playerUtils from '../../players/player.utils';
 import { submitNameChange } from './SubmitNameChangeService';
 
 const submitNameEntrySchema = z
@@ -11,9 +11,9 @@ const submitNameEntrySchema = z
     },
     { invalid_type_error: 'All name change objects must have "oldName" and "newName" properties.' }
   )
-  .refine(s => playerService.isValidUsername(s.oldName), { message: 'Invalid old name.' })
-  .refine(s => playerService.isValidUsername(s.newName), { message: 'Invalid new name.' })
-  .refine(s => playerService.sanitize(s.oldName) !== playerService.sanitize(s.newName), {
+  .refine(s => playerUtils.isValidUsername(s.oldName), { message: 'Invalid old name.' })
+  .refine(s => playerUtils.isValidUsername(s.newName), { message: 'Invalid new name.' })
+  .refine(s => playerUtils.sanitize(s.oldName) !== playerUtils.sanitize(s.newName), {
     message: 'Old name and new name cannot be the same.'
   });
 

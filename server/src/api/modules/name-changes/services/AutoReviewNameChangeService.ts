@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { getLevel } from '@wise-old-man/utils';
 import prisma, { MetricEnum, NameChange, NameChangeStatus, Skills } from '../../../../prisma';
-import * as playerService from '../../../services/internal/player.service';
 import * as nameChangeServices from '../name-change.services';
+import * as playerUtils from '../../players/player.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -30,7 +30,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
 
   // If it's a capitalization change, auto-approve
-  if (playerService.standardize(nameChange.oldName) === playerService.standardize(nameChange.newName)) {
+  if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
     await nameChangeServices.approveNameChange({ id: params.id });
     return;
   }

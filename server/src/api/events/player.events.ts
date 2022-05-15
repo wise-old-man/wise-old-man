@@ -7,6 +7,7 @@ import * as achievementServices from '../modules/achievements/achievement.servic
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as playerService from '../services/internal/player.service';
+import * as playerUtils from '../modules/players/player.utils';
 
 async function onPlayerTypeChanged(player: Player, previousType: string) {
   if (previousType === PlayerTypeEnum.HARDCORE && player.type === PlayerTypeEnum.IRONMAN) {
@@ -58,7 +59,8 @@ async function onPlayerUpdated(snapshot: Snapshot) {
 
     // If this player is an inactive iron player, their type should be reviewed
     // This allows us to catch de-iron players early, and adjust their type accordingly
-    if (await playerService.shouldReviewType(player)) {
+    // TODO:
+    if (await playerUtils.shouldReviewType(player as any)) {
       jobs.add('ReviewPlayerType', { id: player.id });
     }
   }

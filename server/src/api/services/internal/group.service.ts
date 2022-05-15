@@ -22,8 +22,9 @@ import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experie
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
-import * as playerService from './player.service';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
+import * as playerUtils from '../../modules/players/player.utils';
+import * as playerServices from '../../modules/players/player.services';
 
 interface Member extends Player {
   role: string;
@@ -333,7 +334,7 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
   if (members && members.length > 0) {
     const invalidUsernames = members
       .map(member => member.username)
-      .filter(username => !playerService.isValidUsername(username));
+      .filter(username => !playerUtils.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
@@ -345,8 +346,8 @@ async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
   }
 
   const [code, hash] = await cryptService.generateVerification();
-  const sanitizedDescription = description ? playerService.sanitize(description) : null;
-  const sanitizedClanChat = clanChat ? playerService.sanitize(clanChat) : null;
+  const sanitizedDescription = description ? playerUtils.sanitize(description) : null;
+  const sanitizedClanChat = clanChat ? playerUtils.sanitize(clanChat) : null;
 
   const group = await Group.create({
     name: sanitizedName,
@@ -387,7 +388,7 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
   if (members) {
     const invalidUsernames = members
       .map(({ username }) => username)
-      .filter(username => !playerService.isValidUsername(username));
+      .filter(username => !playerUtils.isValidUsername(username));
 
     if (invalidUsernames.length > 0) {
       throw new BadRequestError(
@@ -423,11 +424,11 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
     }
 
     if (description && description.length !== 0) {
-      group.description = playerService.sanitize(description);
+      group.description = playerUtils.sanitize(description);
     }
 
     if (clanChat && clanChat.length !== 0) {
-      group.clanChat = playerService.sanitize(clanChat);
+      group.clanChat = playerUtils.sanitize(clanChat);
     }
 
     if (homeworld && typeof homeworld === 'number') {
@@ -477,10 +478,10 @@ async function setMembers(group: Group, members: MemberFragment[]): Promise<Memb
   }
 
   // Ignore any duplicate names
-  const uniqueNames = uniqBy(members, m => playerService.standardize(m.username)).map(m => m.username);
+  const uniqueNames = uniqBy(members, m => playerUtils.standardize(m.username)).map(m => m.username);
 
   // Fetch (or create) player from the unique usernames
-  const players = await playerService.findAllOrCreate(uniqueNames);
+  const players = await playerServices.findPlayers({ usernames: uniqueNames, createIfNotFound: true });
 
   // Define membership models for each player
   const memberships = players.map((player, i) => ({
@@ -566,7 +567,7 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
       throw new BadRequestError('Invalid members list. Each member must have a "username".');
     }
 
-    if (!playerService.isValidUsername(m.username)) {
+    if (!playerUtils.isValidUsername(m.username)) {
       throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
     }
 
@@ -579,7 +580,10 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
   const existingIds = (await group.$get('members')).map(p => p.id);
 
   // Find or create all players with the given usernames
-  const players = await playerService.findAllOrCreate(members.map(m => m.username));
+  const players = await playerServices.findPlayers({
+    usernames: members.map(m => m.username),
+    createIfNotFound: true
+  });
 
   // Filter out any already existing usersnames to find the new unique usernames
   const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
@@ -589,11 +593,11 @@ async function addMembers(group: Group, members: MemberFragment[]): Promise<Memb
   }
 
   // Add the new players to the group (as members)
-  await group.$add('members', newPlayers);
+  await Membership.bulkCreate(newPlayers.map(p => ({ playerId: p.id, groupId: group.id })));
 
   const nonMemberRoleUsernames = members
     .filter(m => m.role && m.role !== 'member')
-    .map(m => ({ ...m, username: playerService.standardize(m.username) }));
+    .map(m => ({ ...m, username: playerUtils.standardize(m.username) }));
 
   // If there are any non-member specific roles used, we need to set them correctly since group.$add does not
   if (nonMemberRoleUsernames && nonMemberRoleUsernames.length > 0) {
@@ -635,14 +639,16 @@ async function removeMembers(group: Group, usernames: string[]) {
     throw new BadRequestError('Invalid or empty members list.');
   }
 
-  const playersToRemove = await playerService.findAll(usernames);
+  const playersToRemove = await playerServices.findPlayers({ usernames });
 
   if (!playersToRemove || !playersToRemove.length) {
     throw new BadRequestError('No valid tracked players were given.');
   }
 
   // Remove all specific players, and return the removed count
-  const removedPlayersCount = await group.$remove('members', playersToRemove);
+  const removedPlayersCount = await Membership.destroy({
+    where: { groupId: group.id, playerId: playersToRemove.map(p => p.id) }
+  });
 
   if (!removedPlayersCount) {
     throw new BadRequestError('None of the players given were members of that group.');
@@ -663,7 +669,7 @@ async function changeRole(group: Group, member: MemberFragment): Promise<[Player
 
   const membership = await Membership.findOne({
     where: { groupId: group.id },
-    include: [{ model: Player, where: { username: playerService.standardize(username) } }]
+    include: [{ model: Player, where: { username: playerUtils.standardize(username) } }]
   });
 
   if (!membership) {

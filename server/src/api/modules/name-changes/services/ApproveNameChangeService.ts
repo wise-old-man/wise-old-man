@@ -7,6 +7,7 @@ import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as playerService from '../../../services/internal/player.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import * as playerUtils from '../../players/player.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -82,8 +83,8 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
     }
 
     // Update the player to the new username & displayName
-    oldPlayer.username = playerService.standardize(newName);
-    oldPlayer.displayName = playerService.sanitize(newName);
+    oldPlayer.username = playerUtils.standardize(newName);
+    oldPlayer.displayName = playerUtils.sanitize(newName);
     oldPlayer.flagged = false;
 
     await oldPlayer.save({ transaction });
