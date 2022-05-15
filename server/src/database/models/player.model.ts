@@ -9,7 +9,6 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { PlayerType, PlayerBuild, PLAYER_TYPES, PLAYER_BUILDS } from '@wise-old-man/utils';
 import {
   Achievement,
   Competition,
@@ -27,9 +26,7 @@ const options = {
   createdAt: 'registeredAt',
   validate: {
     validateUsername,
-    validateDisplayName,
-    validateType,
-    validateBuild
+    validateDisplayName
   },
   indexes: [
     {
@@ -54,12 +51,19 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.STRING(20) })
   displayName: string;
 
-  @Default(PlayerType.UNKNOWN)
-  @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
-  type: PlayerType;
+  @Default('unknown')
+  @Column({
+    type: DataType.ENUM(...['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']),
+    allowNull: false
+  })
+  type: string;
 
-  @Column({ type: DataType.STRING(10), allowNull: false, defaultValue: PlayerBuild.MAIN })
-  build: PlayerBuild;
+  @Column({
+    type: DataType.ENUM(...['main', 'f2p', 'lvl3', 'zerker', 'def1', 'hp10']),
+    allowNull: false,
+    defaultValue: 'main'
+  })
+  build: string;
 
   @Column({ type: DataType.STRING(3) })
   country: string;
@@ -122,18 +126,6 @@ export default class Player extends Model<Player> {
  */
 function parseExp(this: any) {
   return parseInt(this.getDataValue('exp', 10));
-}
-
-function validateType(this: Player) {
-  if (!PLAYER_TYPES.includes(this.type as PlayerType)) {
-    throw new Error('Invalid player type.');
-  }
-}
-
-function validateBuild(this: Player) {
-  if (!PLAYER_BUILDS.includes(this.build as PlayerBuild)) {
-    throw new Error('Invalid player build.');
-  }
 }
 
 function validateUsername(this: Player) {

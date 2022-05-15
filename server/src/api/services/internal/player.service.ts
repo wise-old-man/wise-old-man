@@ -1,7 +1,8 @@
-import { findCountry, PlayerBuild, PlayerType } from '@wise-old-man/utils';
+import { findCountry } from '@wise-old-man/utils';
 import { isTesting } from '../../../env';
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
+import { PlayerBuildEnum, PlayerTypeEnum } from '../../../prisma';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { isValidDate } from '../../util/dates';
 import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
@@ -78,7 +79,7 @@ async function shouldReviewType(player: Player): Promise<boolean> {
   const { username, type, lastChangedAt } = player;
 
   // Type reviews should only be done on iron players
-  if (type === PlayerType.REGULAR || type === PlayerType.UNKNOWN) return false;
+  if (type === PlayerTypeEnum.REGULAR || type === PlayerTypeEnum.UNKNOWN) return false;
 
   // After checking a player's type, we add their username to a cache that blocks
   // this action to be repeated again within the next week (as to not overload the server)
@@ -144,10 +145,10 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
 async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
-  const stats = snapshot || ((await snapshotServices.findPlayerSnapshot({ id: player.id })) as any);
+  const stats = snapshot || (await snapshotServices.findPlayerSnapshot({ id: player.id }));
 
-  const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player);
-  const combatLevel = getCombatLevel(stats);
+  const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player as any);
+  const combatLevel = getCombatLevel(stats as any);
 
   const latestSnapshot = snapshotUtils.format(stats, efficiency);
 
@@ -185,7 +186,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
   try {
     // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === PlayerType.UNKNOWN) {
+    if (player.type === PlayerTypeEnum.UNKNOWN) {
       player.type = await getType(player);
     }
 
@@ -211,7 +212,10 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     player.build = getBuild(currentStats);
     player.flagged = false;
 
-    const virtuals = await efficiencyServices.computePlayerVirtuals({ player, snapshot: currentStats });
+    const virtuals = await efficiencyServices.computePlayerVirtuals({
+      player: player as any,
+      snapshot: currentStats
+    });
 
     // Set the player's global virtual data
     player.exp = currentStats.overallExperience;
@@ -234,7 +238,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   } catch (e) {
     // If the player was just registered and it failed to fetch hiscores,
     // set updatedAt to null to allow for re-attempts without the 60s waiting period
-    if (isNew && player.type !== PlayerType.UNKNOWN) {
+    if (isNew && player.type !== PlayerTypeEnum.UNKNOWN) {
       await Player.update({ updatedAt: null }, { where: { id: player.id }, silent: true });
     }
 
@@ -295,9 +299,9 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   return savedSnapshots;
 }
 
-async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
+async function fetchStats(player: Player, type?: PlayerTypeEnum): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.getHiscoresData(player.username, (type || player.type) as any);
 
   // Convert the csv data to a Snapshot instance (saved in the DB)
   const newSnapshot = await snapshotService.legacy_fromRS(player.id, hiscoresCSV);
@@ -309,7 +313,7 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
  * Gets a player's overall exp in a specific hiscores endpoint.
  * Note: This is an auxilary function for the getType function.
  */
-async function getOverallExperience(player: Player, type: PlayerType): Promise<number | null> {
+async function getOverallExperience(player: Player, type: PlayerTypeEnum): Promise<number | null> {
   try {
     return (await fetchStats(player, type)).overallExperience;
   } catch (e) {
@@ -318,24 +322,24 @@ async function getOverallExperience(player: Player, type: PlayerType): Promise<n
   }
 }
 
-async function getType(player: Player): Promise<PlayerType> {
-  const regularExp = await getOverallExperience(player, PlayerType.REGULAR);
+async function getType(player: Player): Promise<PlayerTypeEnum> {
+  const regularExp = await getOverallExperience(player, PlayerTypeEnum.REGULAR);
 
   // This username is not on the hiscores
   if (!regularExp) {
     throw new BadRequestError(`Failed to load hiscores for ${player.displayName}.`);
   }
 
-  const ironmanExp = await getOverallExperience(player, PlayerType.IRONMAN);
-  if (!ironmanExp || ironmanExp < regularExp) return PlayerType.REGULAR;
+  const ironmanExp = await getOverallExperience(player, PlayerTypeEnum.IRONMAN);
+  if (!ironmanExp || ironmanExp < regularExp) return PlayerTypeEnum.REGULAR;
 
-  const hardcoreExp = await getOverallExperience(player, PlayerType.HARDCORE);
-  if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerType.HARDCORE;
+  const hardcoreExp = await getOverallExperience(player, PlayerTypeEnum.HARDCORE);
+  if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerTypeEnum.HARDCORE;
 
-  const ultimateExp = await getOverallExperience(player, PlayerType.ULTIMATE);
-  if (ultimateExp && ultimateExp >= ironmanExp) return PlayerType.ULTIMATE;
+  const ultimateExp = await getOverallExperience(player, PlayerTypeEnum.ULTIMATE);
+  if (ultimateExp && ultimateExp >= ironmanExp) return PlayerTypeEnum.ULTIMATE;
 
-  return PlayerType.IRONMAN;
+  return PlayerTypeEnum.IRONMAN;
 }
 
 /**
@@ -396,15 +400,15 @@ async function updateCountry(player: Player, country: string) {
   return countryObj;
 }
 
-function getBuild(snapshot: Snapshot): PlayerBuild {
-  if (isF2p(snapshot)) return PlayerBuild.F2P;
-  if (isLvl3(snapshot)) return PlayerBuild.LVL3;
+function getBuild(snapshot: Snapshot): PlayerBuildEnum {
+  if (isF2p(snapshot)) return PlayerBuildEnum.F2P;
+  if (isLvl3(snapshot)) return PlayerBuildEnum.LVL3;
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot)) return PlayerBuild.HP10;
-  if (is1Def(snapshot)) return PlayerBuild.DEF1;
-  if (isZerker(snapshot)) return PlayerBuild.ZERKER;
+  if (is10HP(snapshot)) return PlayerBuildEnum.HP10;
+  if (is1Def(snapshot)) return PlayerBuildEnum.DEF1;
+  if (isZerker(snapshot)) return PlayerBuildEnum.ZERKER;
 
-  return PlayerBuild.MAIN;
+  return PlayerBuildEnum.MAIN;
 }
 
 async function findOrCreate(username: string): Promise<[Player, boolean]> {

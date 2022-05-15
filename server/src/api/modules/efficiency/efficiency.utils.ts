@@ -1,12 +1,10 @@
 import {
   MAX_SKILL_EXP,
   SKILL_EXP_AT_99,
-  PlayerType,
   getMetricValueKey,
   BOSSES,
   SKILLS,
-  round,
-  PlayerBuild
+  round
 } from '@wise-old-man/utils';
 import { mapValues } from 'lodash';
 import {
@@ -18,7 +16,8 @@ import {
   Skills,
   Snapshot,
   VirtualEnum,
-  PlayerTypeEnum
+  PlayerTypeEnum,
+  PlayerBuildEnum
 } from '../../../prisma';
 import {
   AlgorithmCache,
@@ -103,16 +102,20 @@ export function getRates(metric: VirtualEnum, type: EfficiencyAlgorithmType) {
 }
 
 export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
-  const { type = PlayerTypeEnum.REGULAR, build = PlayerBuild.MAIN } = player || {};
+  const { type = PlayerTypeEnum.REGULAR, build = PlayerBuildEnum.MAIN } = player || {};
 
-  if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE || type === PlayerType.ULTIMATE) {
+  if (
+    type === PlayerTypeEnum.IRONMAN ||
+    type === PlayerTypeEnum.HARDCORE ||
+    type === PlayerTypeEnum.ULTIMATE
+  ) {
     return ALGORITHMS.ironman;
   }
 
   switch (build) {
-    case PlayerBuild.F2P:
+    case PlayerBuildEnum.F2P:
       return ALGORITHMS.f2p;
-    case PlayerBuild.LVL3:
+    case PlayerBuildEnum.LVL3:
       return ALGORITHMS.lvl3;
     default:
       return ALGORITHMS.main;

@@ -16,7 +16,10 @@ import {
   MetricEnum,
   PeriodEnum,
   Periods,
+  PlayerTypes,
+  PlayerBuilds,
   PlayerTypeEnum,
+  PlayerBuildEnum,
   NameChangeStatus,
   Metrics,
   Skills,
@@ -110,6 +113,7 @@ export {
   MetricEnum,
   PeriodEnum,
   PlayerTypeEnum,
+  PlayerBuildEnum,
   NameChangeStatus,
   // List
   Periods,
@@ -118,6 +122,8 @@ export {
   Bosses,
   Activities,
   Virtuals,
+  PlayerTypes,
+  PlayerBuilds,
   // Utils
   modifyDeltas,
   modifyPlayers,

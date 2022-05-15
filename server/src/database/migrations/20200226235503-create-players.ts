@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { QueryInterface } from 'sequelize/types';
-import { PlayerType, PLAYER_TYPES } from '@wise-old-man/utils';
 
 function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('players', {
@@ -15,8 +14,8 @@ function up(queryInterface: QueryInterface, dataTypes: any) {
       allowNull: false
     },
     type: {
-      type: dataTypes.ENUM(PLAYER_TYPES),
-      defaultValue: PlayerType.UNKNOWN
+      type: dataTypes.ENUM(['unknown', 'regular', 'ironman', 'hardcore', 'ultimate']),
+      defaultValue: 'unknown'
     },
     lastImportedAt: {
       type: dataTypes.DATE

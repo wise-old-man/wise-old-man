@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { PlayerBuild, COUNTRIES } from '@wise-old-man/utils';
+import { COUNTRIES } from '@wise-old-man/utils';
 import prisma, {
   Record,
   PeriodEnum,
   MetricEnum,
   PlayerTypeEnum,
+  PlayerBuildEnum,
   PrismaTypes,
   modifyRecords
 } from '../../../../prisma';
@@ -19,7 +20,7 @@ const inputSchema = z
     period: z.nativeEnum(PeriodEnum),
     metric: z.nativeEnum(MetricEnum),
     playerType: z.nativeEnum(PlayerTypeEnum).optional(),
-    playerBuild: z.nativeEnum(PlayerBuild).optional(),
+    playerBuild: z.nativeEnum(PlayerBuildEnum).optional(),
     country: z.string().optional()
   })
   .refine(s => !s.country || COUNTRY_CODES.includes(s.country), {

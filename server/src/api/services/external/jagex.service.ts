@@ -1,7 +1,7 @@
-import { PlayerType } from '@wise-old-man/utils';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
+import { PlayerTypeEnum } from '../../../prisma';
 import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
@@ -19,7 +19,7 @@ const SCRAPING_HEADERS = {
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username: string, type = PlayerType.REGULAR): Promise<string> {
+async function getHiscoresData(username: string, type = PlayerTypeEnum.REGULAR): Promise<string> {
   const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 

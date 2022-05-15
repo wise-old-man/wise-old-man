@@ -1,11 +1,11 @@
 import fs from 'fs';
-import { Metric, METRICS, PlayerType } from '@wise-old-man/utils';
+import { Metric, METRICS } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter/types';
-import prisma from '../src/prisma';
+import prisma, { PlayerTypeEnum } from '../src/prisma';
 import { OSRS_HISCORES } from '../src/api/constants';
 
 type HiscoresMockConfig = {
-  [playerType in PlayerType]?: {
+  [playerType in PlayerTypeEnum]?: {
     statusCode: number;
     rawData?: string;
   };

@@ -231,13 +231,13 @@ model Participation {
 model Player {
   id             Int         @id @unique(map: "players_id") @default(autoincrement())
   username       String      @unique(map: "players_username") @db.VarChar(20)
-  type           PlayerType? @default(unknown)
+  type           PlayerType  @default(unknown)
+  build          PlayerBuild @default(main)
   lastImportedAt DateTime?   @db.Timestamptz(6)
   registeredAt   DateTime?   @default(now())
   updatedAt      DateTime?   @updatedAt
   displayName    String?     @db.VarChar(20)
   flagged        Boolean?    @default(false)
-  build          String      @default("main") @db.VarChar(255)
   exp            BigInt      @default(0)
   ehp            Float       @default(0)
   ehb            Float       @default(0)
@@ -583,6 +583,15 @@ enum PlayerType {
   ultimate
 
   @@map("enum_players_type")
+}
+
+enum PlayerBuild {
+  main
+  f2p
+  lvl3
+  zerker
+  def1
+  hp10
 }
 
 enum Period {

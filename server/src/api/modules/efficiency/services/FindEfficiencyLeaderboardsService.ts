@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { PlayerBuild, COUNTRIES, PlayerType } from '@wise-old-man/utils';
+import { COUNTRIES } from '@wise-old-man/utils';
 import prisma, {
   MetricEnum,
   modifyPlayers,
   Player,
   PlayerTypeEnum,
+  PlayerBuildEnum,
   PrismaPlayer,
   PrismaTypes,
   VirtualEnum
@@ -20,7 +21,7 @@ const inputSchema = z
   .object({
     metric: z.enum([VirtualEnum.EHP, VirtualEnum.EHB, COMBINED_METRIC]),
     playerType: z.nativeEnum(PlayerTypeEnum).optional().default(PlayerTypeEnum.REGULAR),
-    playerBuild: z.nativeEnum(PlayerBuild).optional(),
+    playerBuild: z.nativeEnum(PlayerBuildEnum).optional(),
     country: z.string().optional()
   })
   .merge(PAGINATION_SCHEMA)
@@ -80,7 +81,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   let playerQuery =
-    params.playerType !== PlayerType.IRONMAN
+    params.playerType !== PlayerTypeEnum.IRONMAN
       ? `"type" = '${params.playerType}'`
       : `("type" = '${PlayerTypeEnum.IRONMAN}' OR "type" = '${PlayerTypeEnum.HARDCORE}' OR "type" = '${PlayerTypeEnum.ULTIMATE}')`;
 

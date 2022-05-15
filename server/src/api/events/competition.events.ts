@@ -1,6 +1,6 @@
-import { PlayerType } from '@wise-old-man/utils';
 import { Competition } from '../../database/models';
 import { EventPeriodDelay } from '../../types';
+import { PlayerTypeEnum } from '../../prisma';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
@@ -16,7 +16,7 @@ async function onParticipantsJoined(_: number, playerIds: number[]) {
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
-    if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
+    if (type !== PlayerTypeEnum.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
     jobs.add('UpdatePlayer', { username, source: 'Competition:OnParticipantsJoined' });
   });
 }

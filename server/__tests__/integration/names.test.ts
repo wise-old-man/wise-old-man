@@ -1,11 +1,11 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, getMetricValueKey, getMetricRankKey, METRICS } from '@wise-old-man/utils';
+import { getMetricValueKey, getMetricRankKey, METRICS } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
-import prisma from '../../src/prisma';
+import prisma, { PlayerTypeEnum } from '../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile } from '../utils';
 
 const api = supertest(apiServer);
@@ -30,8 +30,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-    [PlayerType.IRONMAN]: { statusCode: 404 }
+    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
   });
 
   done();

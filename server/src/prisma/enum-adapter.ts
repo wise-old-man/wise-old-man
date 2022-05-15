@@ -2,6 +2,7 @@ import {
   Metric as PrismaMetric,
   Period as PrismaPeriod,
   PlayerType as PrismaPlayerType,
+  PlayerBuild as PrismaPlayerBuild,
   NameChangeStatus as PrismaNameChangeStatus
 } from '@prisma/client';
 
@@ -193,3 +194,16 @@ export const PlayerTypeEnum = {
 } as const;
 
 export type PlayerTypeEnum = typeof PlayerTypeEnum[keyof typeof PlayerTypeEnum];
+export const PlayerTypes = Object.values(PlayerTypeEnum);
+
+export const PlayerBuildEnum = {
+  MAIN: PrismaPlayerBuild.main,
+  F2P: PrismaPlayerBuild.f2p,
+  LVL3: PrismaPlayerBuild.lvl3,
+  ZERKER: PrismaPlayerBuild.zerker,
+  DEF1: PrismaPlayerBuild.def1,
+  HP10: PrismaPlayerBuild.hp10
+} as const;
+
+export type PlayerBuildEnum = typeof PlayerBuildEnum[keyof typeof PlayerBuildEnum];
+export const PlayerBuilds = Object.values(PlayerBuildEnum);
