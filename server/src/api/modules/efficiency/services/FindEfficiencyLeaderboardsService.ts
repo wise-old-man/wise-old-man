@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { COUNTRIES } from '@wise-old-man/utils';
+
 import prisma, {
   MetricEnum,
   modifyPlayers,
+  Country,
   Player,
   PlayerTypeEnum,
   PlayerBuildEnum,
@@ -14,21 +15,14 @@ import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
 
-// TODO: improve when "Countries" is refactored into prisma enum
-const COUNTRY_CODES = COUNTRIES.map(c => c.code);
-
 const inputSchema = z
   .object({
     metric: z.enum([VirtualEnum.EHP, VirtualEnum.EHB, COMBINED_METRIC]),
+    country: z.nativeEnum(Country).optional(),
     playerType: z.nativeEnum(PlayerTypeEnum).optional().default(PlayerTypeEnum.REGULAR),
-    playerBuild: z.nativeEnum(PlayerBuildEnum).optional(),
-    country: z.string().optional()
+    playerBuild: z.nativeEnum(PlayerBuildEnum).optional()
   })
-  .merge(PAGINATION_SCHEMA)
-  .refine(s => !s.country || COUNTRY_CODES.includes(s.country), {
-    message: `Invalid enum value for 'country'. You must either supply a valid country code, according to the ISO 3166-1 standard. \
-    Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
-  });
+  .merge(PAGINATION_SCHEMA);
 
 type FindEfficiencyLeaderboardsParams = z.infer<typeof inputSchema>;
 

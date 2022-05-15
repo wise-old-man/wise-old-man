@@ -9,6 +9,13 @@ z.setErrorMap((issue, ctx) => {
       return { message: `Parameter '${issue.path}' is undefined.` };
     }
   } else if (issue.code === z.ZodIssueCode.invalid_enum_value) {
+    if (issue.path.length === 1 && issue.path[0] === 'country') {
+      return {
+        message: `Invalid enum value for 'country'. You must either supply a valid country code, according to the ISO 3166-1 standard. \
+        Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
+      };
+    }
+
     if (issue.options.length < 5) {
       return { message: `Invalid enum value for '${issue.path}'. Expected ${issue.options.join(' | ')}` };
     }

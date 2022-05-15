@@ -4,13 +4,13 @@ import * as efficiencyUtils from '../modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../modules/efficiency/efficiency.services';
 
 import { ControllerResponse } from '../util/routing';
-import { getEnum, getNumber, getString } from '../util/validation';
+import { getEnum, getNumber } from '../util/validation';
 
 // GET /efficiency/leaderboard
 async function leaderboard(req: Request): Promise<ControllerResponse> {
   const results = await efficiencyServices.findEfficiencyLeaderboards({
     metric: getEnum(req.query.metric),
-    country: getString(req.query.country),
+    country: getEnum(req.query.country),
     playerType: getEnum(req.query.playerType),
     playerBuild: getEnum(req.query.playerBuild),
     limit: getNumber(req.query.limit),

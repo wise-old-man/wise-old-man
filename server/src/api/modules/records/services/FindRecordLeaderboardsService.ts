@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { COUNTRIES } from '@wise-old-man/utils';
 import prisma, {
+  Country,
   Record,
   PeriodEnum,
   MetricEnum,
@@ -12,21 +12,13 @@ import prisma, {
 
 const MAX_RESULTS = 20;
 
-// TODO: improve when "Countries" is refactored into prisma enum
-const COUNTRY_CODES = COUNTRIES.map(c => c.code);
-
-const inputSchema = z
-  .object({
-    period: z.nativeEnum(PeriodEnum),
-    metric: z.nativeEnum(MetricEnum),
-    playerType: z.nativeEnum(PlayerTypeEnum).optional(),
-    playerBuild: z.nativeEnum(PlayerBuildEnum).optional(),
-    country: z.string().optional()
-  })
-  .refine(s => !s.country || COUNTRY_CODES.includes(s.country), {
-    message: `Invalid enum value for 'country'. You must either supply a valid country code, according to the ISO 3166-1 standard. \
-    Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
-  });
+const inputSchema = z.object({
+  period: z.nativeEnum(PeriodEnum),
+  metric: z.nativeEnum(MetricEnum),
+  country: z.nativeEnum(Country).optional(),
+  playerType: z.nativeEnum(PlayerTypeEnum).optional(),
+  playerBuild: z.nativeEnum(PlayerBuildEnum).optional()
+});
 
 type FindRecordLeaderboardsParams = z.infer<typeof inputSchema>;
 

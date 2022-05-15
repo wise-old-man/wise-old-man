@@ -6,7 +6,8 @@ import {
   Snapshot as PrismaSnapshot,
   Achievement as PrismaAchievement,
   NameChange,
-  Prisma
+  Prisma,
+  Country
 } from '@prisma/client';
 import {
   SkillEnum,
@@ -106,6 +107,7 @@ export {
   ModifiedSnapshot as Snapshot,
   ModifiedAchievement as Achievement,
   // Enums
+  Country,
   SkillEnum,
   BossEnum,
   ActivityEnum,

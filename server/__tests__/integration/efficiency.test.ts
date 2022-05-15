@@ -34,6 +34,7 @@ beforeAll(async done => {
       await prisma.player.create({
         data: {
           username: `player ${i + 1}`,
+          displayName: `player ${i + 1}`,
           type: i >= 80 && i < 90 ? 'ironman' : 'regular',
           registeredAt: new Date(Date.now() + i * 10_000),
           ehp: i < 10 ? 1000 : 1000 - i,
@@ -47,6 +48,7 @@ beforeAll(async done => {
   await prisma.player.create({
     data: {
       username: `player hcim`,
+      displayName: `player hcim`,
       type: 'hardcore',
       build: 'lvl3',
       ehp: 2
@@ -57,6 +59,7 @@ beforeAll(async done => {
   await prisma.player.create({
     data: {
       username: `player ult`,
+      displayName: `player ult`,
       type: 'ultimate',
       build: 'lvl3'
     }
@@ -66,6 +69,7 @@ beforeAll(async done => {
   await prisma.player.create({
     data: {
       username: `player PT`,
+      displayName: `player PT`,
       type: 'regular',
       country: 'PT'
     }
