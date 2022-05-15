@@ -265,7 +265,7 @@ describe('Snapshots API', () => {
       expect(utils.hasNegativeGains(globalData.snapshots[10], unrankedFarming)).toBe(false);
     });
 
-    it('should detect excessive gains between snapshots', async () => {
+    it('should detect excessive gains between snapshots', () => {
       // No changes between these
       expect(utils.hasExcessiveGains(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
       // Small changes between these

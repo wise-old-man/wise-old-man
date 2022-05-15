@@ -351,7 +351,7 @@ async function deletePlayer(req: Request, res: Response, next: NextFunction) {
     const player = await playerService.resolve({ username });
     await player.destroy();
 
-    res.json({ message: `Successfully deleted player: ${username}` });
+    res.json({ message: `Successfully deleted player: ${player.displayName}` });
   } catch (e) {
     next(e);
   }

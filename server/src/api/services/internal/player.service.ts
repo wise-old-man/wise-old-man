@@ -18,7 +18,7 @@ const DAY_IN_SECONDS = 86_400;
 const YEAR_IN_SECONDS = 31_556_926;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-const UPDATE_COOLDOWN = isTesting() ? 0 : 60;
+let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 interface PlayerResolvable {
   id?: number;
@@ -28,6 +28,11 @@ interface PlayerResolvable {
 interface PlayerDetails extends Player {
   combatLevel: number;
   latestSnapshot: any;
+}
+
+// For integration testing purposes
+export function setUpdateCooldown(seconds: number) {
+  UPDATE_COOLDOWN = seconds;
 }
 
 /**
@@ -50,6 +55,8 @@ function isValidUsername(username: string): boolean {
   if (typeof username !== 'string') return false;
 
   const standardized = standardize(username);
+
+  if (!standardized) return false;
 
   // If doesn't meet the size requirements
   if (standardized.length < 1 || standardized.length > 12) return false;
@@ -105,7 +112,7 @@ function shouldImport(player: Player): [boolean, number] {
     return [true, DECADE_IN_SECONDS];
   }
 
-  const seconds = Math.floor(Date.now() - player.lastImportedAt.getTime() / 1000);
+  const seconds = Math.floor((Date.now() - player.lastImportedAt.getTime()) / 1000);
 
   return [seconds / 60 / 60 >= 24, seconds];
 }
