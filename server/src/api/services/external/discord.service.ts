@@ -6,7 +6,6 @@ import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';
 import * as groupService from '../internal/group.service';
-import * as playerService from '../internal/player.service';
 import * as playerServices from '../../modules/players/player.services';
 
 /**
@@ -42,7 +41,7 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   // that are group members, so ignore any that aren't
   if (!groups || groups.length === 0) return;
 
-  const player = await playerService.findById(playerId);
+  const [player] = await playerServices.findPlayer({ id: playerId });
 
   groups.forEach(({ id }) => {
     dispatch('MEMBER_ACHIEVEMENTS', { groupId: id, player, achievements: recent });

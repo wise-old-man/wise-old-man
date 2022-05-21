@@ -31,23 +31,33 @@ function sanitize(username: string): string {
   return username.replace(/[-_\s]/g, ' ').trim();
 }
 
-function isValidUsername(username: string): boolean {
-  if (typeof username !== 'string') return false;
-
+function validateUsername(username: string): Error | null {
   const standardized = standardize(username);
 
-  if (!standardized) return false;
+  if (!standardized) {
+    return new Error('Username must be defined.');
+  }
 
   // If doesn't meet the size requirements
-  if (standardized.length < 1 || standardized.length > 12) return false;
+  if (standardized.length < 1 || standardized.length > 12) {
+    return new Error('Username must be between 1 and 12 characters long.');
+  }
 
   // If starts or ends with a space
-  if (standardized.startsWith(' ') || standardized.endsWith(' ')) return false;
+  if (standardized.startsWith(' ') || standardized.endsWith(' ')) {
+    return new Error('Username cannot start or end with spaces.');
+  }
 
   // If has any special characters
-  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) return false;
+  if (!new RegExp(/^[a-zA-Z0-9 ]{1,12}$/).test(standardized)) {
+    return new Error('Username cannot contain any special characters.');
+  }
 
-  return true;
+  return null;
+}
+
+function isValidUsername(username: string): boolean {
+  return validateUsername(username) === null;
 }
 
 /**
@@ -108,4 +118,13 @@ function getBuild(snapshot: Snapshot): PlayerBuildEnum {
   return PlayerBuildEnum.MAIN;
 }
 
-export { standardize, sanitize, isValidUsername, shouldUpdate, shouldImport, shouldReviewType, getBuild };
+export {
+  standardize,
+  sanitize,
+  validateUsername,
+  isValidUsername,
+  shouldUpdate,
+  shouldImport,
+  shouldReviewType,
+  getBuild
+};

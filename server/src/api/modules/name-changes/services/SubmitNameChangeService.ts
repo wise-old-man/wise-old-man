@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
-import * as playerService from '../../../services/internal/player.service';
 import * as playerUtils from '../../../modules/players/player.utils';
+import * as playerServices from '../../../modules/players/player.services';
 
 const inputSchema = z
   .object({
@@ -25,7 +25,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   const stNewName = playerUtils.standardize(params.newName);
 
   // Check if a player with the "oldName" username is registered
-  const oldPlayer = await playerService.find(stOldName);
+  const [oldPlayer] = await playerServices.findPlayer({ username: stOldName });
 
   if (!oldPlayer) {
     throw new BadRequestError(`Player '${params.oldName}' is not tracked yet.`);
@@ -46,7 +46,7 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
       throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
     }
 
-    const newPlayer = await playerService.find(stNewName);
+    const [newPlayer] = await playerServices.findPlayer({ username: stNewName });
 
     // To prevent people from submitting duplicate name change requests, which then
     // will waste time and resources to process and deny, it's best to check if this

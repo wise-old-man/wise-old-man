@@ -5,8 +5,8 @@ import { Membership, Participation, Player, Record, Snapshot } from '../../../..
 import { Op, Transaction, WhereOptions } from 'sequelize';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
-import * as playerService from '../../../services/internal/player.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import * as playerServices from '../../players/player.services';
 import * as playerUtils from '../../players/player.utils';
 
 const inputSchema = z.object({
@@ -30,15 +30,15 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     throw new BadRequestError('Name change status must be PENDING');
   }
 
-  const oldPlayer = await playerService.find(nameChange.oldName);
-  const newPlayer = await playerService.find(nameChange.newName);
+  const [oldPlayer] = await playerServices.findPlayer({ username: nameChange.oldName });
+  const [newPlayer] = await playerServices.findPlayer({ username: nameChange.newName });
 
   if (!oldPlayer) {
     throw new ServerError('Old Player cannot be found in the database anymore.');
   }
 
   // Attempt to transfer data between both accounts
-  await transferData(oldPlayer, newPlayer, nameChange.newName);
+  await transferData(oldPlayer as any, newPlayer as any, nameChange.newName);
 
   // If successful, resolve the name change
   const updatedNameChange = await prisma.nameChange.update({
@@ -54,6 +54,8 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 
 async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
   const transitionDate = (await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
+
+  const playerUpdateFields: any = {};
 
   await sequelize.transaction(async transaction => {
     if (newPlayer && oldPlayer.id !== newPlayer.id) {
@@ -75,19 +77,19 @@ async function transferData(oldPlayer: Player, newPlayer: Player, newName: strin
 
       // Transfer the player's country, if needed/possible
       if (newPlayer.country && !oldPlayer.country) {
-        oldPlayer.country = newPlayer.country;
+        playerUpdateFields.country = newPlayer.country;
       }
 
       // Delete the new player account
-      await newPlayer.destroy({ transaction });
+      await Player.destroy({ where: { id: newPlayer.id }, transaction });
     }
 
     // Update the player to the new username & displayName
-    oldPlayer.username = playerUtils.standardize(newName);
-    oldPlayer.displayName = playerUtils.sanitize(newName);
-    oldPlayer.flagged = false;
+    playerUpdateFields.username = playerUtils.standardize(newName);
+    playerUpdateFields.displayName = playerUtils.sanitize(newName);
+    playerUpdateFields.flagged = false;
 
-    await oldPlayer.save({ transaction });
+    await Player.update(playerUpdateFields, { where: { id: oldPlayer.id }, transaction });
   });
 }
 

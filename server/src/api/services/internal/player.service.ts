@@ -1,13 +1,12 @@
 import { findCountry } from '@wise-old-man/utils';
-import { isTesting } from '../../../env';
 import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
-import { PlayerBuildEnum, PlayerTypeEnum } from '../../../prisma';
+import { PlayerTypeEnum, Player as PlayerModel } from '../../../prisma';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
-import { isValidDate } from '../../util/dates';
-import { getCombatLevel, is10HP, is1Def, isF2p, isLvl3, isZerker } from '../../util/experience';
+import { getCombatLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
+import * as playerServices from '../../modules/players/player.services';
 import * as playerUtils from '../../modules/players/player.utils';
 import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
@@ -18,42 +17,23 @@ import * as efficiencyServices from '../../modules/efficiency/efficiency.service
 const YEAR_IN_SECONDS = 31_556_926;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
-
 interface PlayerResolvable {
   id?: number;
   username?: string;
 }
 
-interface PlayerDetails extends Player {
+interface PlayerDetails extends PlayerModel {
   combatLevel: number;
   latestSnapshot: any;
 }
 
-// For integration testing purposes
-export function setUpdateCooldown(seconds: number) {
-  UPDATE_COOLDOWN = seconds;
-}
-
-/**
- * Checks if a given player has been updated in the last 60 seconds.
- */
-function shouldUpdate(player: Player): boolean {
-  if (!player.updatedAt || !isValidDate(player.updatedAt)) return true;
-
-  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
-  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
-
-  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
-}
-
-async function resolve(playerResolvable: PlayerResolvable): Promise<Player> {
-  let player;
+async function resolve(playerResolvable: PlayerResolvable): Promise<PlayerModel> {
+  let player: PlayerModel;
 
   if (playerResolvable.id) {
-    player = await findById(playerResolvable.id);
+    player = (await playerServices.findPlayer({ id: playerResolvable.id }))[0];
   } else if (playerResolvable.username) {
-    player = await find(playerResolvable.username);
+    player = (await playerServices.findPlayer({ username: playerResolvable.username }))[0];
   }
 
   if (!player) {
@@ -73,7 +53,7 @@ async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
 /**
  * Get the latest date on a given username. (Player info and latest snapshot)
  */
-async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDetails> {
+async function getDetails(player: PlayerModel, snapshot?: Snapshot): Promise<PlayerDetails> {
   const stats = snapshot || (await snapshotServices.findPlayerSnapshot({ id: player.id }));
 
   const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player as any);
@@ -81,7 +61,7 @@ async function getDetails(player: Player, snapshot?: Snapshot): Promise<PlayerDe
 
   const latestSnapshot = snapshotUtils.format(stats, efficiency);
 
-  return { ...(player.toJSON() as any), combatLevel, latestSnapshot };
+  return { ...player, combatLevel, latestSnapshot };
 }
 
 /**
@@ -106,10 +86,10 @@ async function search(username: string): Promise<Player[]> {
  */
 async function update(username: string): Promise<[PlayerDetails, boolean]> {
   // Find a player with the given username or create a new one if needed
-  const [player, isNew] = await findOrCreate(username);
+  const [player, isNew] = await playerServices.findPlayer({ username, createIfNotFound: true });
 
   // If the player was updated recently, don't update it
-  if (!shouldUpdate(player) && !isNew) {
+  if (!playerUtils.shouldUpdate(player) && !isNew) {
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
@@ -127,7 +107,8 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     // There has been a radical change in this player's stats, mark it as flagged
     if (!snapshotUtils.withinRange(previousStats, currentStats)) {
-      await player.update({ flagged: true });
+      await Player.update({ flagged: true }, { where: { id: player.id } });
+
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
@@ -138,11 +119,11 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     }
 
     // Refresh the player's build
-    player.build = getBuild(currentStats);
+    player.build = playerUtils.getBuild(currentStats);
     player.flagged = false;
 
     const virtuals = await efficiencyServices.computePlayerVirtuals({
-      player: player as any,
+      player,
       snapshot: currentStats
     });
 
@@ -156,8 +137,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
     // Add the virtual data and save the snapshot
     Object.assign(currentStats, virtuals);
 
-    await player.changed('updatedAt', true);
-    await player.save();
+    await Player.update({ ...player, updatedAt: new Date() }, { where: { id: player.id } });
 
     await currentStats.save();
 
@@ -181,7 +161,9 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
  * datapoints as it can. If it has imported in the past, it will
  * attempt to import all the datapoints CML gathered since the last import.
  */
-async function importCML(player: Player): Promise<Snapshot[]> {
+async function importCML(
+  player: Pick<PlayerModel, 'id' | 'lastImportedAt' | 'username'>
+): Promise<Snapshot[]> {
   const [should, seconds] = playerUtils.shouldImport(player.lastImportedAt);
 
   // If the player hasn't imported in over 24h,
@@ -207,12 +189,15 @@ async function importCML(player: Player): Promise<Snapshot[]> {
   }
 
   // Update the "lastImportedAt" field in the player model
-  await player.update({ lastImportedAt: new Date() });
+  await Player.update({ lastImportedAt: new Date() }, { where: { id: player.id } });
 
   return importedSnapshots;
 }
 
-async function importCMLSince(player: Player, time: number): Promise<Snapshot[]> {
+async function importCMLSince(
+  player: Pick<PlayerModel, 'id' | 'username'>,
+  time: number
+): Promise<Snapshot[]> {
   // Load the CML history
   const history = await cmlService.getCMLHistory(player.username, time);
 
@@ -228,7 +213,10 @@ async function importCMLSince(player: Player, time: number): Promise<Snapshot[]>
   return savedSnapshots;
 }
 
-async function fetchStats(player: Player, type?: PlayerTypeEnum): Promise<Snapshot> {
+async function fetchStats(
+  player: Pick<PlayerModel, 'id' | 'username' | 'type'>,
+  type?: PlayerTypeEnum
+): Promise<Snapshot> {
   // Load data from OSRS hiscores
   const hiscoresCSV = await jagexService.getHiscoresData(player.username, (type || player.type) as any);
 
@@ -242,7 +230,10 @@ async function fetchStats(player: Player, type?: PlayerTypeEnum): Promise<Snapsh
  * Gets a player's overall exp in a specific hiscores endpoint.
  * Note: This is an auxilary function for the getType function.
  */
-async function getOverallExperience(player: Player, type: PlayerTypeEnum): Promise<number | null> {
+async function getOverallExperience(
+  player: Pick<PlayerModel, 'id' | 'username' | 'type'>,
+  type: PlayerTypeEnum
+): Promise<number | null> {
   try {
     return (await fetchStats(player, type)).overallExperience;
   } catch (e) {
@@ -251,7 +242,9 @@ async function getOverallExperience(player: Player, type: PlayerTypeEnum): Promi
   }
 }
 
-async function getType(player: Player): Promise<PlayerTypeEnum> {
+async function getType(
+  player: Pick<PlayerModel, 'id' | 'username' | 'type' | 'displayName'>
+): Promise<PlayerTypeEnum> {
   const regularExp = await getOverallExperience(player, PlayerTypeEnum.REGULAR);
 
   // This username is not on the hiscores
@@ -274,7 +267,9 @@ async function getType(player: Player): Promise<PlayerTypeEnum> {
 /**
  * Fetch various hiscores endpoints to find the correct player type of a given player.
  */
-async function assertType(player: Player): Promise<string> {
+async function assertType(
+  player: Pick<PlayerModel, 'id' | 'username' | 'type' | 'displayName' | 'flagged'>
+): Promise<string> {
   if (player.flagged) {
     throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
   }
@@ -282,39 +277,13 @@ async function assertType(player: Player): Promise<string> {
   const type = await getType(player);
 
   if (player.type !== type) {
-    await player.update({ type });
+    await Player.update({ type }, { where: { id: player.id } });
   }
 
   return type;
 }
 
-/**
- * Fetch the hiscores table overall to find the correct capitalization of a given player.
- */
-async function assertName(player: Player): Promise<string> {
-  const { username } = player;
-
-  const hiscoresNames = await jagexService.getHiscoresNames(username);
-  const match = hiscoresNames.find(h => playerUtils.standardize(h) === username);
-
-  if (!match) {
-    throw new ServerError(`Couldn't find a name match for ${username}`);
-  }
-
-  if (playerUtils.standardize(match) !== player.username) {
-    throw new ServerError(`Display name and username don't match for ${username}`);
-  }
-
-  const newDisplayName = playerUtils.sanitize(match);
-
-  if (player.displayName !== newDisplayName) {
-    await player.update({ displayName: newDisplayName });
-  }
-
-  return newDisplayName;
-}
-
-async function updateCountry(player: Player, country: string) {
+async function updateCountry(player: PlayerModel, country: string) {
   const countryObj = country ? findCountry(country) : null;
   const countryCode = countryObj?.code;
 
@@ -325,56 +294,9 @@ async function updateCountry(player: Player, country: string) {
     );
   }
 
-  await player.update({ country: countryCode });
+  await Player.update({ country: countryCode }, { where: { id: player.id } });
+
   return countryObj;
 }
 
-function getBuild(snapshot: Snapshot): PlayerBuildEnum {
-  if (isF2p(snapshot)) return PlayerBuildEnum.F2P;
-  if (isLvl3(snapshot)) return PlayerBuildEnum.LVL3;
-  // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot)) return PlayerBuildEnum.HP10;
-  if (is1Def(snapshot)) return PlayerBuildEnum.DEF1;
-  if (isZerker(snapshot)) return PlayerBuildEnum.ZERKER;
-
-  return PlayerBuildEnum.MAIN;
-}
-
-async function findOrCreate(username: string): Promise<[Player, boolean]> {
-  const result = await Player.findOrCreate({
-    where: { username: playerUtils.standardize(username) },
-    defaults: { displayName: playerUtils.sanitize(username) }
-  });
-
-  return result;
-}
-
-async function find(username: string): Promise<Player | null> {
-  const result = await Player.findOne({
-    where: { username: playerUtils.standardize(username) }
-  });
-
-  return result;
-}
-
-async function findById(playerId: number): Promise<Player | null> {
-  const players = await Player.findOne({
-    where: { id: playerId }
-  });
-
-  return players;
-}
-
-export {
-  findById,
-  find,
-  getDetails,
-  search,
-  update,
-  importCML,
-  assertType,
-  assertName,
-  updateCountry,
-  resolve,
-  resolveId
-};
+export { getDetails, search, update, importCML, assertType, updateCountry, resolve, resolveId };

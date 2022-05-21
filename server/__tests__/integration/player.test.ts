@@ -13,7 +13,6 @@ import {
   modifyRawHiscoresData,
   sleep
 } from '../utils';
-import * as playerService from '../../src/api/services/internal/player.service';
 import * as playerServices from '../../src/api/modules/players/player.services';
 import * as playerUtils from '../../src/api/modules/players/player.utils';
 
@@ -71,7 +70,7 @@ describe('Player API', () => {
     it('should not track player (invalid characters)', async () => {
       const response = await api.post(`/api/players/track`).send({ username: 'wow$%#' });
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       expect(response.body.message).toMatch(
         'Validation error: Username cannot contain any special characters'
       );
@@ -80,7 +79,7 @@ describe('Player API', () => {
     it('should not track player (lengthy username)', async () => {
       const response = await api.post(`/api/players/track`).send({ username: 'ALongUsername' });
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
     });
 
@@ -251,14 +250,14 @@ describe('Player API', () => {
 
     it('should not track player (too soon)', async () => {
       // This cooldown is set to 0 during testing by default
-      playerService.setUpdateCooldown(60);
+      playerUtils.setUpdateCooldown(60);
 
       const response = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error: hydrox6 has been updated recently.');
 
-      playerService.setUpdateCooldown(0);
+      playerUtils.setUpdateCooldown(0);
     });
 
     it('should not track player (excessive gains)', async () => {
@@ -701,10 +700,12 @@ describe('Player API', () => {
       expect(oneNewPlayer[2].username).toBe('hydroman');
       expect(oneNewPlayer[3].username).toBe('zezima');
 
-      const newPlayer = await playerService.find('zezima');
-      expect(newPlayer).not.toBeNull();
-      expect(newPlayer.username).toBe('zezima');
-      expect(newPlayer.displayName).toBe('Zezima');
+      const [player, isNew] = await playerServices.findPlayer({ username: 'zezima' });
+
+      expect(isNew).toBe(false);
+      expect(player).not.toBeNull();
+      expect(player.username).toBe('zezima');
+      expect(player.displayName).toBe('Zezima');
     });
   });
 });

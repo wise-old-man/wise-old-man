@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { Player } from '../../database/models';
 import { BadRequestError, ForbiddenError, ServerError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementServices from '../modules/achievements/achievement.services';
@@ -349,7 +350,8 @@ async function deletePlayer(req: Request, res: Response, next: NextFunction) {
     }
 
     const player = await playerService.resolve({ username });
-    await player.destroy();
+
+    await Player.destroy({ where: { id: player.id } });
 
     res.json({ message: `Successfully deleted player: ${player.displayName}` });
   } catch (e) {

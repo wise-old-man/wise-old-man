@@ -129,6 +129,10 @@ function parseExp(this: any) {
 }
 
 function validateUsername(this: Player) {
+  if (!this.username) {
+    return;
+  }
+
   if (this.username.length < 1 || this.username.length > 12) {
     throw new Error('Username must be between 1 and 12 characters long.');
   }
