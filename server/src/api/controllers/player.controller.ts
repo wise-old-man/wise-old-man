@@ -320,13 +320,13 @@ async function names(req: Request, res: Response, next: NextFunction) {
 
 // PUT /players/username/:username/country
 // REQUIRES ADMIN PASSWORD
-async function updateCountry(req: Request, res: Response, next: NextFunction) {
+async function changeCountry(req: Request, res: Response, next: NextFunction) {
   try {
     if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 
-    const updatedPlayer = await playerServices.updatePlayerCountry({
+    const updatedPlayer = await playerServices.changePlayerCountry({
       username: getString(req.params.username),
       country: getString(req.body.country)
     });
@@ -372,6 +372,6 @@ export {
   records,
   snapshots,
   names,
-  updateCountry,
+  changeCountry,
   deletePlayer
 };

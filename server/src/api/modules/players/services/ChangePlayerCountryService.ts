@@ -17,9 +17,9 @@ const inputSchema = z
     message: 'Undefined id and username.'
   });
 
-type UpdatePlayerCountryParams = z.infer<typeof inputSchema>;
+type ChangePlayerCountryParams = z.infer<typeof inputSchema>;
 
-async function updatePlayerCountry(payload: UpdatePlayerCountryParams): Promise<Player> {
+async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<Player> {
   const params = inputSchema.parse(payload);
 
   const countryObject = params.country ? findCountry(params.country) : null;
@@ -49,4 +49,4 @@ async function updatePlayerCountry(payload: UpdatePlayerCountryParams): Promise<
   }
 }
 
-export { updatePlayerCountry };
+export { changePlayerCountry };

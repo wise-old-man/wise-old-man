@@ -3,12 +3,42 @@ import { isTesting } from '../../../env';
 import { Player, PlayerBuildEnum, PlayerTypeEnum, Snapshot } from '../../../prisma';
 import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../../util/experience';
 import redisService from '../../services/external/redis.service';
+import { findPlayer } from './services/FindPlayerService';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 const DAY_IN_SECONDS = PeriodProps[Period.DAY].milliseconds / 1000;
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
+
+async function resolvePlayerId(username: string): Promise<number | null> {
+  if (!username || username.length === 0) return null;
+
+  const cachedId = await getCachedPlayerId(username);
+  if (cachedId) return cachedId;
+
+  // Include username in the selected fields too, so that it can be cached for later
+  const [player] = await findPlayer({ username }, ['id', 'username']);
+  return player ? player.id : null;
+}
+
+async function getCachedPlayerId(username: string): Promise<number | null> {
+  if (!username || username.length === 0) return null;
+
+  const id = await redisService.getValue('player', standardize(username));
+  return id ? Number(id) : null;
+}
+
+async function setCachedPlayerId(username: string, id: number | null) {
+  if (!username || username.length === 0) return;
+
+  if (id !== null) {
+    // Store this username->ID in cache for an hour
+    await redisService.setValue('player', standardize(username), id, 3_600_000);
+  } else {
+    await redisService.deleteKey(`player:${standardize(username)}`);
+  }
+}
 
 // For integration testing purposes
 export function setUpdateCooldown(seconds: number) {
@@ -126,5 +156,7 @@ export {
   shouldUpdate,
   shouldImport,
   shouldReviewType,
-  getBuild
+  getBuild,
+  resolvePlayerId,
+  setCachedPlayerId
 };

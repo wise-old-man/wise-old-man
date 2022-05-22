@@ -18,7 +18,7 @@ api.get('/username/:username/achievements', controller.achievements);
 api.get('/username/:username/achievements/progress', controller.achievementsProgress);
 api.get('/username/:username/competitions', controller.competitions);
 api.get('/username/:username/names', controller.names);
-api.put('/username/:username/country', controller.updateCountry);
+api.put('/username/:username/country', controller.changeCountry);
 api.delete('/username/:username', controller.deletePlayer);
 
 api.get('/:id', controller.details);

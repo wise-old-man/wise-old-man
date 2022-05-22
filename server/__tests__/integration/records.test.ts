@@ -531,7 +531,7 @@ describe('Records API', () => {
         .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
-      expect(updateCountryResponse.body.message).toMatch('Successfully changed country to: Sweden (SE)');
+      expect(updateCountryResponse.body).toMatchObject({ username: 'usbc', country: 'SE' });
 
       const response = await api
         .get(`/api/records/leaderboard`)

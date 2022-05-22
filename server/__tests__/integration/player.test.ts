@@ -11,7 +11,8 @@ import {
   resetDatabase,
   readFile,
   modifyRawHiscoresData,
-  sleep
+  sleep,
+  resetRedis
 } from '../utils';
 import * as playerServices from '../../src/api/modules/players/player.services';
 import * as playerUtils from '../../src/api/modules/players/player.utils';
@@ -30,6 +31,7 @@ const globalData = {
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);

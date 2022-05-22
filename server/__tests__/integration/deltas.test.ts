@@ -544,7 +544,7 @@ describe('Deltas API', () => {
         .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
-      expect(updateCountryResponse.body.message).toMatch('Successfully changed country to: Sweden (SE)');
+      expect(updateCountryResponse.body).toMatchObject({ username: 'psikoi', country: 'SE' });
 
       const response = await api
         .get(`/api/deltas/leaderboard`)

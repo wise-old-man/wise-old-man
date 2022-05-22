@@ -2,6 +2,7 @@ import fs from 'fs';
 import { Metric, METRICS } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma, { PlayerTypeEnum } from '../src/prisma';
+import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES } from '../src/api/constants';
 
 type HiscoresMockConfig = {
@@ -18,6 +19,10 @@ async function readFile(path: string) {
 async function resetDatabase() {
   const modelNames = Object.keys(prisma).filter(k => !k.startsWith('_'));
   await Promise.all(modelNames.map(model => prisma[model].deleteMany()));
+}
+
+async function resetRedis() {
+  await redisService.flushAll();
 }
 
 function sleep(ms: number) {
@@ -59,4 +64,12 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-export { resetDatabase, sleep, readFile, registerCMLMock, registerHiscoresMock, modifyRawHiscoresData };
+export {
+  resetDatabase,
+  resetRedis,
+  sleep,
+  readFile,
+  registerCMLMock,
+  registerHiscoresMock,
+  modifyRawHiscoresData
+};
