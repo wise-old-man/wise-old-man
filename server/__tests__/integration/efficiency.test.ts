@@ -12,12 +12,13 @@ import lvl3TestSkillingMetas from '../data/efficiency/configs/ehp/lvl3-test.ehp'
 import lvl3TestBossingMetas from '../data/efficiency/configs/ehb/lvl3-test.ehb';
 import f2pTestSkillingMetas from '../data/efficiency/configs/ehp/f2p-test.ehp';
 import f2pTestBossingMetas from '../data/efficiency/configs/ehb/f2p-test.ehb';
-import { resetDatabase } from '../utils';
+import { resetDatabase, resetRedis } from '../utils';
 
 const api = supertest(apiServer);
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   // Override the cache algorithms with these test rate configs, for consistent testing
   Object.assign(ALGORITHMS, {

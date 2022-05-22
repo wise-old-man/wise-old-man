@@ -19,8 +19,6 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     onDeltaUpdated(params.args.data);
   }
 
-  // TODO: clear name cache when a player's name updatyes
-
   if (params.model === 'Player') {
     if (
       params.action === 'findFirst' ||

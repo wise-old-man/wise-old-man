@@ -2,8 +2,10 @@ import { Period, PeriodProps } from '@wise-old-man/utils';
 import { isTesting } from '../../../env';
 import { Player, PlayerBuildEnum, PlayerTypeEnum, Snapshot } from '../../../prisma';
 import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../../util/experience';
+import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import { findPlayer } from './services/FindPlayerService';
+import { PlayerResolvable } from './player.types';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
@@ -11,15 +13,40 @@ const DAY_IN_SECONDS = PeriodProps[Period.DAY].milliseconds / 1000;
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-async function resolvePlayerId(username: string): Promise<number | null> {
-  if (!username || username.length === 0) return null;
+async function resolvePlayerId(playerResolvable: PlayerResolvable): Promise<number | null> {
+  if (playerResolvable.id) return playerResolvable.id;
+
+  const { username } = playerResolvable;
+
+  if (!username || username.length === 0) {
+    throw new BadRequestError(`Parameter 'username' is undefined.`);
+  }
 
   const cachedId = await getCachedPlayerId(username);
   if (cachedId) return cachedId;
 
   // Include username in the selected fields too, so that it can be cached for later
   const [player] = await findPlayer({ username }, ['id', 'username']);
-  return player ? player.id : null;
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  return player.id;
+}
+
+async function resolvePlayer(playerResolvable: PlayerResolvable): Promise<Player | null> {
+  if (!playerResolvable.username && !playerResolvable.id) {
+    throw new BadRequestError('Undefined id and username.');
+  }
+
+  const [player] = await findPlayer(playerResolvable);
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  return player;
 }
 
 async function getCachedPlayerId(username: string): Promise<number | null> {
@@ -157,6 +184,7 @@ export {
   shouldImport,
   shouldReviewType,
   getBuild,
+  resolvePlayer,
   resolvePlayerId,
   setCachedPlayerId
 };

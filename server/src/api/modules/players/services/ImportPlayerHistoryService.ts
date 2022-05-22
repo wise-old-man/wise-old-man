@@ -1,49 +1,25 @@
 import { z } from 'zod';
 import { Period, PeriodProps } from '@wise-old-man/utils';
 import prisma, { Snapshot } from '../../../../prisma';
-import { NotFoundError, RateLimitError, ServerError } from '../../../errors';
-import { findPlayer } from './FindPlayerService';
+import { RateLimitError } from '../../../errors';
 import * as playerUtils from '../player.utils';
 import * as snapshotService from '../../../services/internal/snapshot.service';
 import * as cmlService from '../../../services/external/cml.service';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 
-const inputSchema = z
-  .object({
-    id: z.number().positive().optional(),
-    username: z.string().optional(),
-    lastImportedAt: z.date().optional()
-  })
-  .refine(s => s.id || s.username, {
-    message: 'Undefined id and username.'
-  });
+const inputSchema = z.object({
+  id: z.number().positive(),
+  username: z.string(),
+  lastImportedAt: z.date().or(z.null())
+});
 
 type ImportPlayerHistoryParams = z.infer<typeof inputSchema>;
 
 async function importPlayerHistory(payload: ImportPlayerHistoryParams): Promise<Snapshot[]> {
   const params = inputSchema.parse(payload);
 
-  if (!payload.lastImportedAt) {
-    // Fetch this player, but only select these three required fields
-    const [player] = await findPlayer(params, ['id', 'username', 'lastImportedAt']);
-
-    if (!player) {
-      throw new NotFoundError('Player not found.');
-    }
-
-    return await importCMLHistory(player);
-  }
-
-  if (!params.id || !params.username || !params.lastImportedAt) {
-    throw new ServerError('Failed to validate inputs for ImportPlayerHistoryService');
-  }
-
-  return await importCMLHistory(params as Required<ImportPlayerHistoryParams>);
-}
-
-async function importCMLHistory(player: Required<ImportPlayerHistoryParams>): Promise<Snapshot[]> {
-  const [shouldImport, secondsSinceImport] = playerUtils.shouldImport(player.lastImportedAt);
+  const [shouldImport, secondsSinceImport] = playerUtils.shouldImport(params.lastImportedAt);
 
   // If the player has been imported in the last 24h
   if (!shouldImport) {
@@ -55,20 +31,20 @@ async function importCMLHistory(player: Required<ImportPlayerHistoryParams>): Pr
 
   // If the player hasn't imported in over a year import the last year and decade.
   if (secondsSinceImport >= YEAR_IN_SECONDS) {
-    const yearSnapshots = await importCMLHistorySince(player.id, player.username, YEAR_IN_SECONDS);
-    const decadeSnapshots = await importCMLHistorySince(player.id, player.username, YEAR_IN_SECONDS * 10);
+    const yearSnapshots = await importCMLHistorySince(params.id, params.username, YEAR_IN_SECONDS);
+    const decadeSnapshots = await importCMLHistorySince(params.id, params.username, YEAR_IN_SECONDS * 10);
 
     importedSnapshots.push(yearSnapshots);
     importedSnapshots.push(decadeSnapshots);
   } else {
-    const recentSnapshots = await importCMLHistorySince(player.id, player.username, secondsSinceImport);
+    const recentSnapshots = await importCMLHistorySince(params.id, params.username, secondsSinceImport);
     importedSnapshots.push(recentSnapshots);
   }
 
   // Update the player's "last imported at" date
   await prisma.player.update({
     data: { lastImportedAt: new Date() },
-    where: { id: player.id }
+    where: { id: params.id }
   });
 
   return importedSnapshots;

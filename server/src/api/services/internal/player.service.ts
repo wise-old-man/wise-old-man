@@ -1,6 +1,6 @@
 import { Player, Snapshot } from '../../../database/models';
 import { PlayerTypeEnum, Player as PlayerModel } from '../../../prisma';
-import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
+import { BadRequestError, RateLimitError, ServerError } from '../../errors';
 import { getCombatLevel } from '../../util/experience';
 import * as jagexService from '../external/jagex.service';
 import * as playerServices from '../../modules/players/player.services';
@@ -11,37 +11,9 @@ import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../modules/efficiency/efficiency.services';
 
-interface PlayerResolvable {
-  id?: number;
-  username?: string;
-}
-
 interface PlayerDetails extends PlayerModel {
   combatLevel: number;
   latestSnapshot: any;
-}
-
-async function resolve(playerResolvable: PlayerResolvable): Promise<PlayerModel> {
-  let player: PlayerModel;
-
-  if (playerResolvable.id) {
-    player = (await playerServices.findPlayer({ id: playerResolvable.id }))[0];
-  } else if (playerResolvable.username) {
-    player = (await playerServices.findPlayer({ username: playerResolvable.username }))[0];
-  }
-
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
-
-  return player;
-}
-
-async function resolveId(playerResolvable: PlayerResolvable): Promise<number> {
-  if (playerResolvable.id) return playerResolvable.id;
-
-  const player = await resolve(playerResolvable);
-  return player.id;
 }
 
 /**
@@ -203,4 +175,4 @@ async function assertType(
   return type;
 }
 
-export { getDetails, update, assertType, resolve, resolveId };
+export { getDetails, update, assertType };

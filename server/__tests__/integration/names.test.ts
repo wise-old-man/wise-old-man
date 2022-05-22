@@ -6,7 +6,7 @@ import env from '../../src/env';
 import apiServer from '../../src/api';
 import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
 import prisma, { PlayerTypeEnum } from '../../src/prisma';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, readFile } from '../utils';
+import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../utils';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -22,6 +22,7 @@ const globalData = {
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 
@@ -291,7 +292,7 @@ describe('Names API', () => {
       const response = await api.get(`/api/players/ddd/names`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'id' is not a valid number.");
+      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
     it('should not fetch list (player not found)', async () => {

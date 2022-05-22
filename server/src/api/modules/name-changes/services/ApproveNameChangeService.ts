@@ -49,6 +49,10 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     }
   });
 
+  // Update the player ID caches
+  await playerUtils.setCachedPlayerId(nameChange.oldName, null);
+  await playerUtils.setCachedPlayerId(nameChange.newName, nameChange.playerId);
+
   return updatedNameChange;
 }
 

@@ -2,7 +2,7 @@ import supertest from 'supertest';
 import api from '../../src/api';
 import { Competition, Group, Membership, Player } from '../../src/database/models';
 import { TestData } from '../types';
-import { resetDatabase } from '../utils';
+import { resetDatabase, resetRedis } from '../utils';
 
 const TEST_DATA: TestData = {};
 const TEST_ID = 300000;
@@ -17,6 +17,7 @@ const request = supertest(api);
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   const player1 = await Player.create({
     id: 1000000,
@@ -351,9 +352,7 @@ describe('Competition API', () => {
       const response = await request.post(BASE_URL).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'All teams must have a valid (non-empty) array of participants.'
-      );
+      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
 
       done();
     });
@@ -580,9 +579,7 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'The competition has started, the start date cannot be changed.'
-      );
+      expect(response.body.message).toMatch('The competition has started, the start date cannot be changed.');
 
       done();
     });
@@ -599,9 +596,7 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'The competition has started, the metric cannot be changed.'
-      );
+      expect(response.body.message).toMatch('The competition has started, the metric cannot be changed.');
 
       done();
     });
@@ -705,9 +700,7 @@ describe('Competition API', () => {
       const response = await request.put(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'All teams must have a valid (non-empty) array of participants.'
-      );
+      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
 
       done();
     });
@@ -1074,9 +1067,7 @@ describe('Competition API', () => {
       const response = await request.post(url).send(body);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'All teams must have a valid (non-empty) array of participants.'
-      );
+      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
 
       done();
     });

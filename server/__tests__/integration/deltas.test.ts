@@ -9,6 +9,7 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   resetDatabase,
+  resetRedis,
   sleep,
   readFile,
   modifyRawHiscoresData
@@ -30,6 +31,7 @@ const globalData = {
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   globalData.hiscoresRawData = await readFile(HISCORES_FILE_PATH);
 

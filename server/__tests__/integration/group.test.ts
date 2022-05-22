@@ -2,7 +2,7 @@ import supertest from 'supertest';
 import api from '../../src/api';
 import { Player } from '../../src/database/models';
 import { TestData } from '../types';
-import { resetDatabase } from '../utils';
+import { resetDatabase, resetRedis } from '../utils';
 
 const request = supertest(api);
 
@@ -12,6 +12,7 @@ const TEST_DATA: TestData = {};
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   await Player.create({ id: 1000000, username: 'test player', displayName: 'Test Player' });
   await Player.create({ id: 200000, username: 'alt player', displayName: 'Alt Player' });

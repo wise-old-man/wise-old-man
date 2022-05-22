@@ -7,7 +7,7 @@ import * as service from '../../src/api/services/internal/snapshot.service';
 import * as services from '../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../src/api/modules/snapshots/snapshot.utils';
 import apiServer from '../../src/api';
-import { resetDatabase, readFile, registerHiscoresMock, registerCMLMock } from '../utils';
+import { resetDatabase, resetRedis, readFile, registerHiscoresMock, registerCMLMock } from '../utils';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -32,6 +32,7 @@ const globalData = {
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   // Fake the current date to be May 8th 2020 (when the CML history ends)
   jest.useFakeTimers('modern').setSystemTime(new Date('2020-05-08T17:14:00.000Z'));

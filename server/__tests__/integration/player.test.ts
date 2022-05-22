@@ -318,14 +318,14 @@ describe('Player API', () => {
       const response = await api.post(`/api/players/import`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not import player (empty username)', async () => {
       const response = await api.post(`/api/players/import`).send({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not import player (player not found)', async () => {
@@ -471,14 +471,14 @@ describe('Player API', () => {
       const response = await api.post(`/api/players/assert-type`).send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not assert player type(empty username)', async () => {
       const response = await api.post(`/api/players/assert-type`).send({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not assert player type(player not found)', async () => {

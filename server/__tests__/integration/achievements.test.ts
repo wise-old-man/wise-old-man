@@ -5,7 +5,7 @@ import MockAdapter from 'axios-mock-adapter';
 import api from '../../src/api';
 import { PlayerTypeEnum } from '../../src/prisma';
 import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/achievement.templates';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, sleep, readFile } from '../utils';
+import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, sleep, readFile } from '../utils';
 
 const apiMock = supertest(api);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -25,6 +25,7 @@ const globalData = {
 
 beforeAll(async done => {
   await resetDatabase();
+  await resetRedis();
 
   globalData.cmlRawData = await readFile(CML_FILE_PATH);
   globalData.hiscoresRawDataA = await readFile(HISCORES_FILE_PATH_A);
