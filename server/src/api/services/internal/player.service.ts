@@ -1,10 +1,7 @@
-import { findCountry } from '@wise-old-man/utils';
-import { Op } from 'sequelize';
 import { Player, Snapshot } from '../../../database/models';
 import { PlayerTypeEnum, Player as PlayerModel } from '../../../prisma';
 import { BadRequestError, NotFoundError, RateLimitError, ServerError } from '../../errors';
 import { getCombatLevel } from '../../util/experience';
-import * as cmlService from '../external/cml.service';
 import * as jagexService from '../external/jagex.service';
 import * as playerServices from '../../modules/players/player.services';
 import * as playerUtils from '../../modules/players/player.utils';
@@ -13,9 +10,6 @@ import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../modules/efficiency/efficiency.services';
-
-const YEAR_IN_SECONDS = 31_556_926;
-const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
 interface PlayerResolvable {
   id?: number;
@@ -62,22 +56,6 @@ async function getDetails(player: PlayerModel, snapshot?: Snapshot): Promise<Pla
   const latestSnapshot = snapshotUtils.format(stats, efficiency);
 
   return { ...player, combatLevel, latestSnapshot };
-}
-
-/**
- * Search for players with a (partially) matching username.
- */
-async function search(username: string): Promise<Player[]> {
-  const players = await Player.findAll({
-    where: {
-      username: {
-        [Op.like]: `${playerUtils.standardize(username)}%`
-      }
-    },
-    limit: 20
-  });
-
-  return players;
 }
 
 /**
@@ -155,64 +133,6 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
   }
 }
 
-/**
- * Import a given username from CML.
- * If this is a first import, it will attempt to import as many
- * datapoints as it can. If it has imported in the past, it will
- * attempt to import all the datapoints CML gathered since the last import.
- */
-async function importCML(
-  player: Pick<PlayerModel, 'id' | 'lastImportedAt' | 'username'>
-): Promise<Snapshot[]> {
-  const [should, seconds] = playerUtils.shouldImport(player.lastImportedAt);
-
-  // If the player hasn't imported in over 24h,
-  // attempt to import its history from CML
-  if (!should) {
-    const timeLeft = Math.floor((24 * 3600 - seconds) / 60);
-    throw new RateLimitError(`Imported too soon, please wait another ${timeLeft} minutes.`);
-  }
-
-  const importedSnapshots = [];
-
-  // If the player hasn't imported in over a year
-  // import the last year and decade.
-  if (seconds >= YEAR_IN_SECONDS) {
-    const yearSnapshots = await importCMLSince(player, YEAR_IN_SECONDS);
-    const decadeSnapshots = await importCMLSince(player, DECADE_IN_SECONDS);
-
-    importedSnapshots.push(...yearSnapshots);
-    importedSnapshots.push(...decadeSnapshots);
-  } else {
-    const recentSnapshots = await importCMLSince(player, seconds);
-    importedSnapshots.push(recentSnapshots);
-  }
-
-  // Update the "lastImportedAt" field in the player model
-  await Player.update({ lastImportedAt: new Date() }, { where: { id: player.id } });
-
-  return importedSnapshots;
-}
-
-async function importCMLSince(
-  player: Pick<PlayerModel, 'id' | 'username'>,
-  time: number
-): Promise<Snapshot[]> {
-  // Load the CML history
-  const history = await cmlService.getCMLHistory(player.username, time);
-
-  // Convert the CML csv data to Snapshot instances
-  const snapshots = await Promise.all(history.map(row => snapshotService.legacy_fromCML(player.id, row)));
-
-  // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
-  const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
-
-  // Save new snapshots to db
-  const savedSnapshots = await snapshotService.saveAll(pastSnapshots);
-
-  return savedSnapshots;
-}
-
 async function fetchStats(
   player: Pick<PlayerModel, 'id' | 'username' | 'type'>,
   type?: PlayerTypeEnum
@@ -283,20 +203,4 @@ async function assertType(
   return type;
 }
 
-async function updateCountry(player: PlayerModel, country: string) {
-  const countryObj = country ? findCountry(country) : null;
-  const countryCode = countryObj?.code;
-
-  if (country && !countryCode) {
-    throw new BadRequestError(
-      `Invalid country. You must either supply a valid code or name, according to the ISO 3166-1 standard. \
-      Please see: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2`
-    );
-  }
-
-  await Player.update({ country: countryCode }, { where: { id: player.id } });
-
-  return countryObj;
-}
-
-export { getDetails, search, update, importCML, assertType, updateCountry, resolve, resolveId };
+export { getDetails, update, assertType, resolve, resolveId };

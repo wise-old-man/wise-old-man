@@ -403,20 +403,30 @@ describe('Player API', () => {
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
-    it('should search players (partial username)', async () => {
-      const response = await api.get('/api/players/search').query({ username: 'hydro' });
+    it('should search players (partial username w/ offset)', async () => {
+      const firstResponse = await api.get('/api/players/search').query({ username: 'HYDRO' });
 
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(2);
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body.length).toBe(2);
 
-      expect(response.body[0]).toMatchObject({
+      expect(firstResponse.body[0]).toMatchObject({
+        username: 'hydrox6',
+        type: 'ironman'
+      });
+
+      expect(firstResponse.body[1]).toMatchObject({
         username: 'hydroman',
         type: 'unknown'
       });
 
-      expect(response.body[1]).toMatchObject({
-        username: 'hydrox6',
-        type: 'ironman'
+      const secondResponse = await api.get('/api/players/search').query({ username: 'HYDRO', offset: 1 });
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.length).toBe(1);
+
+      expect(secondResponse.body[0]).toMatchObject({
+        username: 'hydroman',
+        type: 'unknown'
       });
     });
 
@@ -552,20 +562,6 @@ describe('Player API', () => {
   });
 
   describe('6. Updating Country', () => {
-    it('should not update player country (undefined country)', async () => {
-      const response = await api.put(`/api/players/username/psikoi/country`).send({});
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' is undefined.");
-    });
-
-    it('should not update player country (empty country)', async () => {
-      const response = await api.put(`/api/players/username/psikoi/country`).send({ country: '' });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'country' is undefined.");
-    });
-
     it('should not update player country (invalid admin password)', async () => {
       const response = await api.put(`/api/players/username/psikoi/country`).send({ country: 'PT' });
 
@@ -580,6 +576,24 @@ describe('Player API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not update player country (undefined country)', async () => {
+      const response = await api
+        .put(`/api/players/username/psikoi/country`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'country' is undefined.");
+    });
+
+    it('should not update player country (empty country)', async () => {
+      const response = await api
+        .put(`/api/players/username/psikoi/country`)
+        .send({ country: '', adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'country' is undefined.");
     });
 
     it('should not update player country (player not found)', async () => {
@@ -606,11 +620,16 @@ describe('Player API', () => {
         .send({ country: 'pt', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
-      expect(updateCountryResponse.body.message).toMatch('Successfully changed country to: Portugal (PT)');
+
+      expect(updateCountryResponse.body).toMatchObject({
+        username: 'psikoi',
+        country: 'PT'
+      });
 
       const detailsResponse = await api.get('/api/players/username/PsiKOI');
 
       expect(detailsResponse.status).toBe(200);
+      expect(detailsResponse.body.username).toBe('psikoi');
       expect(detailsResponse.body.country).toBe('PT');
     });
   });

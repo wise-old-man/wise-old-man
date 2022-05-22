@@ -7,23 +7,26 @@ import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
+import * as playerServices from '../modules/players/player.services';
 import * as playerService from '../services/internal/player.service';
 import * as snapshotServices from '../modules/snapshots/snapshot.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
 import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
-import { getEnum } from '../util/validation';
+import { getEnum, getNumber, getString } from '../util/validation';
 
 // GET /players/search?username={username}
 async function search(req: Request, res: Response, next: NextFunction) {
   try {
-    const username = extractString(req.query, { key: 'username', required: true });
-
     // Search for players with a partial username match
-    const players = await playerService.search(username);
+    const results = await playerServices.searchPlayers({
+      username: getString(req.query.username),
+      limit: getNumber(req.query.limit),
+      offset: getNumber(req.query.offset)
+    });
 
-    res.json(players);
+    res.json(results);
   } catch (e) {
     next(e);
   }
@@ -85,11 +88,7 @@ async function importPlayer(req: Request, res: Response, next: NextFunction) {
   try {
     const username = extractString(req.body, { key: 'username', required: true });
 
-    // Find the player using the username body param
-    const player = await playerService.resolve({ username });
-
-    // Attempt to import the player's history from CML
-    const history = await playerService.importCML(player);
+    const history = await playerServices.importPlayerHistory({ username });
 
     res.json({ message: `${history.length} snapshots imported from CML` });
   } catch (e) {
@@ -323,17 +322,16 @@ async function names(req: Request, res: Response, next: NextFunction) {
 // REQUIRES ADMIN PASSWORD
 async function updateCountry(req: Request, res: Response, next: NextFunction) {
   try {
-    const username = extractString(req.params, { key: 'username', required: true });
-    const country = extractString(req.body, { key: 'country', required: true });
-
     if (!adminGuard.checkAdminPermissions(req)) {
       throw new ForbiddenError('Incorrect admin password.');
     }
 
-    const player = await playerService.resolve({ username });
-    const { code, name } = await playerService.updateCountry(player, country);
+    const updatedPlayer = await playerServices.updatePlayerCountry({
+      username: getString(req.params.username),
+      country: getString(req.body.country)
+    });
 
-    res.json({ message: `Successfully changed country to: ${name} (${code})` });
+    res.json(updatedPlayer);
   } catch (e) {
     next(e);
   }

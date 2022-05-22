@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayers, Player, PrismaPlayer } from '../../../../prisma';
+import prisma, { modifyPlayers, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import { sanitize, standardize, validateUsername } from '../player.utils';
 
@@ -17,15 +17,17 @@ const inputSchema = z
   });
 
 type FindPlayerParams = z.infer<typeof inputSchema>;
-type FindPlayerResults = [player: Player | null, isNew: boolean];
+type FindPlayerResults = Promise<[player: Player | null, isNew: boolean]>;
+type PlayerSelectFields = (keyof PrismaTypes.PlayerSelect)[];
 
-async function findPlayer(payload: FindPlayerParams): Promise<FindPlayerResults> {
+async function findPlayer(payload: FindPlayerParams, selectedFields?: PlayerSelectFields): FindPlayerResults {
   const params = inputSchema.parse(payload);
 
   if (params.id) {
     const player = await prisma.player
       .findUnique({
-        where: { id: params.id }
+        where: { id: params.id },
+        select: mapSelectedFields(selectedFields)
       })
       .then(modifyPlayer);
 
@@ -36,7 +38,8 @@ async function findPlayer(payload: FindPlayerParams): Promise<FindPlayerResults>
 
   const player = await prisma.player
     .findFirst({
-      where: { username: standardize(params.username) }
+      where: { username: standardize(params.username) },
+      select: mapSelectedFields(selectedFields)
     })
     .then(modifyPlayer);
 
@@ -46,6 +49,11 @@ async function findPlayer(payload: FindPlayerParams): Promise<FindPlayerResults>
   }
 
   return [player, false];
+}
+
+function mapSelectedFields(fields: PlayerSelectFields): PrismaTypes.PlayerSelect {
+  if (!fields || fields.length === 0) return null;
+  return Object.fromEntries(fields.map(f => [f, true]));
 }
 
 async function createPlayer(username: string): Promise<Player> {

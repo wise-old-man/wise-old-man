@@ -6,8 +6,8 @@ import metrics from '../services/external/metrics.service';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
 import * as deltaServices from '../modules/deltas/delta.services';
-import * as playerService from '../services/internal/player.service';
 import * as playerUtils from '../modules/players/player.utils';
+import * as playerServices from '../modules/players/player.services';
 
 async function onPlayerTypeChanged(player: Player, previousType: string) {
   if (previousType === PlayerTypeEnum.HARDCORE && player.type === PlayerTypeEnum.IRONMAN) {
@@ -46,21 +46,18 @@ async function onPlayerUpdated(snapshot: Snapshot) {
   );
   // }
 
-  const player = await snapshot.$get('player');
+  const [player] = await playerServices.findPlayer({ id: snapshot.playerId });
 
   if (player) {
     // Update this player's deltas (gains)
-    await metrics.measureReaction('SyncDeltas', () =>
-      deltaServices.syncPlayerDeltas(player as any, snapshot)
-    );
+    await metrics.measureReaction('SyncDeltas', () => deltaServices.syncPlayerDeltas(player, snapshot));
 
     // Attempt to import this player's history from CML
-    await metrics.measureReaction('ImportCML', () => playerService.importCML(player));
+    await metrics.measureReaction('ImportCML', () => playerServices.importPlayerHistory(player));
 
     // If this player is an inactive iron player, their type should be reviewed
     // This allows us to catch de-iron players early, and adjust their type accordingly
-    // TODO:
-    if (await playerUtils.shouldReviewType(player as any)) {
+    if (await playerUtils.shouldReviewType(player)) {
       jobs.add('ReviewPlayerType', { id: player.id });
     }
   }
