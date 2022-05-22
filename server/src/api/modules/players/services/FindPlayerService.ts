@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayers, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
+import prisma, { modifyPlayer, Player, PrismaTypes } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import { sanitize, standardize, validateUsername } from '../player.utils';
 
@@ -75,10 +75,6 @@ async function createPlayer(username: string): Promise<Player> {
     .then(modifyPlayer);
 
   return newPlayer;
-}
-
-function modifyPlayer(player: PrismaPlayer): Player {
-  return player ? modifyPlayers([player])[0] : null;
 }
 
 export { findPlayer };

@@ -1,6 +1,5 @@
 import metricsService from '../../services/external/metrics.service';
 import redisService from '../../services/external/redis.service';
-import * as playerService from '../../services/internal/player.service';
 import * as playerServices from '../../modules/players/player.services';
 import { Job } from '../index';
 
@@ -19,7 +18,7 @@ class ReviewPlayerType implements Job {
 
     try {
       const [player] = await playerServices.findPlayer({ id: data.id });
-      await playerService.assertType(player as any);
+      await playerServices.assertPlayerType(player, true);
 
       // Store the current timestamp to activate the cooldown
       await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), REVIEW_COOLDOWN);

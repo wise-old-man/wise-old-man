@@ -62,6 +62,10 @@ function modifyPlayers(players: PrismaPlayer[]): ModifiedPlayer[] {
   return players.map(p => ({ ...p, exp: parseBigInt(p.exp) }));
 }
 
+function modifyPlayer(player: PrismaPlayer): ModifiedPlayer {
+  return player ? { ...player, exp: parseBigInt(player.exp) } : null;
+}
+
 function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
   return records.map(a => {
     // All records' values are stored as an Integer, but EHP/EHB records can have
@@ -128,6 +132,7 @@ export {
   PlayerBuilds,
   // Utils
   modifyDeltas,
+  modifyPlayer,
   modifyPlayers,
   modifyRecords,
   modifySnapshots,

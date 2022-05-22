@@ -405,6 +405,20 @@ describe('Player API', () => {
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
+    it('should not search players (negative pagination limit)', async () => {
+      const response = await api.get(`/api/players/search`).query({ username: 'hydro', limit: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
+    });
+
+    it('should not search players (negative pagination offset)', async () => {
+      const response = await api.get(`/api/players/search`).query({ username: 'hydro', offset: -5 });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
+    });
+
     it('should search players (partial username w/ offset)', async () => {
       const firstResponse = await api.get('/api/players/search').query({ username: 'HYDRO' });
 
@@ -438,13 +452,9 @@ describe('Player API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
     });
-
-    it.todo('should search players (with limit and offset)');
   });
 
   describe('4. Viewing', () => {
-    it.todo('SUPPORT ID ENDPOINTS');
-
     it('should not view player details (player not found)', async () => {
       const response = await api.get('/api/players/username/zezima');
 
@@ -539,7 +549,7 @@ describe('Player API', () => {
       const response = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(200);
-      expect(response.body.type).toBe('regular');
+      expect(response.body).toMatchObject({ username: 'psikoi', type: 'regular' });
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -554,7 +564,7 @@ describe('Player API', () => {
       const assertTypeResponse = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
 
       expect(assertTypeResponse.status).toBe(200);
-      expect(assertTypeResponse.body.type).toBe('ultimate');
+      expect(assertTypeResponse.body).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
       const detailsResponse = await api.get('/api/players/username/PsiKOI');
 

@@ -1,6 +1,5 @@
 import { JobOptions, RateLimiter } from 'bull';
 import metricsService from '../../services/external/metrics.service';
-import * as playerService from '../../services/internal/player.service';
 import * as playerServices from '../../modules/players/player.services';
 import { NotFoundError } from '../../errors';
 import { Job } from '../index';
@@ -26,7 +25,7 @@ class AssertPlayerType implements Job {
         throw new NotFoundError('Player not found.');
       }
 
-      await playerService.assertType(player);
+      await playerServices.assertPlayerType(player, true);
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
       metricsService.trackJobEnded(endTimer, this.name, 0);

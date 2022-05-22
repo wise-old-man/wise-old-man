@@ -1,34 +1,14 @@
 import { Player, Snapshot } from '../../../database/models';
 import { PlayerTypeEnum, Player as PlayerModel } from '../../../prisma';
 import { BadRequestError, RateLimitError, ServerError } from '../../errors';
-import { getCombatLevel } from '../../util/experience';
 import * as jagexService from '../external/jagex.service';
 import * as playerServices from '../../modules/players/player.services';
 import * as playerUtils from '../../modules/players/player.utils';
 import * as snapshotService from './snapshot.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
-import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../modules/efficiency/efficiency.services';
-
-interface PlayerDetails extends PlayerModel {
-  combatLevel: number;
-  latestSnapshot: any;
-}
-
-/**
- * Get the latest date on a given username. (Player info and latest snapshot)
- */
-async function getDetails(player: PlayerModel, snapshot?: Snapshot): Promise<PlayerDetails> {
-  const stats = snapshot || (await snapshotServices.findPlayerSnapshot({ id: player.id }));
-
-  const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player as any);
-  const combatLevel = getCombatLevel(stats as any);
-
-  const latestSnapshot = snapshotUtils.format(stats, efficiency);
-
-  return { ...player, combatLevel, latestSnapshot };
-}
+import { PlayerDetails } from '../../modules/players/player.types';
 
 /**
  * Update a given username, by getting its latest
@@ -91,7 +71,7 @@ async function update(username: string): Promise<[PlayerDetails, boolean]> {
 
     await currentStats.save();
 
-    const playerDetails = await getDetails(player, currentStats);
+    const playerDetails = await playerServices.fetchPlayerDetails(player, currentStats);
 
     return [playerDetails, isNew];
   } catch (e) {
@@ -156,23 +136,4 @@ async function getType(
   return PlayerTypeEnum.IRONMAN;
 }
 
-/**
- * Fetch various hiscores endpoints to find the correct player type of a given player.
- */
-async function assertType(
-  player: Pick<PlayerModel, 'id' | 'username' | 'type' | 'displayName' | 'flagged'>
-): Promise<string> {
-  if (player.flagged) {
-    throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
-  }
-
-  const type = await getType(player);
-
-  if (player.type !== type) {
-    await Player.update({ type }, { where: { id: player.id } });
-  }
-
-  return type;
-}
-
-export { getDetails, update, assertType };
+export { update };

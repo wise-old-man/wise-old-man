@@ -24,7 +24,7 @@ export function getCappedExp(snapshot: Snapshot, max: number) {
     .reduce((acc, cur) => acc + cur);
 }
 
-export function getCombatLevel(snapshot: Snapshot) {
+export function getCombatLevel(snapshot: PrismaSnapshot) {
   if (!snapshot) return 0;
 
   return calcCombat(

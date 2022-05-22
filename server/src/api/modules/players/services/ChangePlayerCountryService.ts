@@ -1,6 +1,6 @@
 import { findCountry } from '@wise-old-man/utils';
 import { z } from 'zod';
-import prisma, { Country, modifyPlayers, Player } from '../../../../prisma';
+import prisma, { Country, modifyPlayer, Player } from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { standardize } from '../player.utils';
 
@@ -37,14 +37,16 @@ async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<
   }
 
   try {
-    const updatedPlayer = await prisma.player.update({
-      data: { country: countryCode as Country },
-      where: { id: params.id, username: standardize(params.username) }
-    });
+    const updatedPlayer = await prisma.player
+      .update({
+        data: { country: countryCode as Country },
+        where: { id: params.id, username: standardize(params.username) }
+      })
+      .then(modifyPlayer);
 
-    return modifyPlayers([updatedPlayer])[0];
+    return updatedPlayer;
   } catch (error) {
-    // Failed to find player with that username
+    // Failed to find player with that username or id
     throw new NotFoundError('Player not found.');
   }
 }

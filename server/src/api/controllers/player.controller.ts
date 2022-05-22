@@ -1,5 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
-import { Player } from '../../database/models';
+import { Request } from 'express';
 import { BadRequestError, ForbiddenError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementServices from '../modules/achievements/achievement.services';
@@ -16,335 +15,280 @@ import * as playerUtils from '../modules/players/player.utils';
 import { extractDate, extractNumber, extractString } from '../util/http';
 import * as pagination from '../util/pagination';
 import { getEnum, getNumber, getString } from '../util/validation';
+import { ControllerResponse } from '../util/routing';
 
 // GET /players/search?username={username}
-async function search(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Search for players with a partial username match
-    const results = await playerServices.searchPlayers({
-      username: getString(req.query.username),
-      limit: getNumber(req.query.limit),
-      offset: getNumber(req.query.offset)
-    });
+async function search(req: Request): Promise<ControllerResponse> {
+  // Search for players with a partial username match
+  const results = await playerServices.searchPlayers({
+    username: getString(req.query.username),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // POST /players/track/
-async function track(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.body, { key: 'username', required: true });
+async function track(req: Request): Promise<ControllerResponse> {
+  const username = extractString(req.body, { key: 'username', required: true });
 
-    if (!username) throw new BadRequestError('Invalid username.');
+  if (!username) throw new BadRequestError('Invalid username.');
 
-    // Update the player, by creating a new snapshot
-    const [playerDetails, isNew] = await playerService.update(username);
+  // Update the player, by creating a new snapshot
+  const [playerDetails, isNew] = await playerService.update(username);
 
-    res.status(isNew ? 201 : 200).json(playerDetails);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: isNew ? 201 : 200, response: playerDetails };
 }
 
 // POST /players/assert-type
-async function assertType(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Find the player using the username body param
-    const player = await playerUtils.resolvePlayer({
-      username: getString(req.body.username)
-    });
+async function assertType(req: Request): Promise<ControllerResponse> {
+  // Find the player using the username body param
+  const player = await playerUtils.resolvePlayer({
+    username: getString(req.body.username)
+  });
 
-    // (Forcefully) Assert the player's account type
-    const type = await playerService.assertType(player);
+  // (Forcefully) Assert the player's account type
+  const [, updatedPlayer] = await playerServices.assertPlayerType(player, true);
 
-    res.json({ type });
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: updatedPlayer };
 }
 
 // POST /players/import
-async function importPlayer(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Find the player using the username body param
-    const player = await playerUtils.resolvePlayer({
-      username: getString(req.body.username)
-    });
+async function importPlayer(req: Request): Promise<ControllerResponse> {
+  // Find the player using the username body param
+  const player = await playerUtils.resolvePlayer({
+    username: getString(req.body.username)
+  });
 
-    const history = await playerServices.importPlayerHistory(player);
+  const history = await playerServices.importPlayerHistory(player);
 
-    res.json({ message: `${history.length} snapshots imported from CML` });
-  } catch (e) {
-    next(e);
-  }
+  return {
+    statusCode: 200,
+    response: { message: `${history.length} snapshots imported from CML` }
+  };
 }
 
 // GET /players/:id
 // GET /players/username/:username
-async function details(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Find the player by either the id or the username
-    const player = await playerUtils.resolvePlayer({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function details(req: Request): Promise<ControllerResponse> {
+  // Find the player by either the id or the username
+  const player = await playerUtils.resolvePlayer({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    // Fetch the player's details
-    const playerDetails = await playerService.getDetails(player);
+  // Fetch the player's details
+  const playerDetails = await playerServices.fetchPlayerDetails(player);
 
-    res.json(playerDetails);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: playerDetails };
 }
 
 // GET /players/:id/achievements
 // GET /players/username/:username/achievements
-async function achievements(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function achievements(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    // Get all player achievements (by player id)
-    const achievements = await achievementServices.findPlayerAchievements({ id: playerId });
+  // Get all player achievements (by player id)
+  const achievements = await achievementServices.findPlayerAchievements({ id: playerId });
 
-    if (playerId && achievements.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(achievements);
-  } catch (e) {
-    next(e);
+  if (playerId && achievements.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: achievements };
 }
 
 // GET /players/:id/achievements/progress
 // GET /players/username/:username/achievements/progress
-async function achievementsProgress(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function achievementsProgress(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    // Get all player achievements (by player id)
-    const result = await achievementServices.findPlayerAchievementProgress({ id: playerId });
+  // Get all player achievements (by player id)
+  const result = await achievementServices.findPlayerAchievementProgress({ id: playerId });
 
-    if (playerId && result.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(result);
-  } catch (e) {
-    next(e);
+  if (playerId && result.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: result };
 }
 
 // GET /players/:id/competitions
 // GET /players/username/:username/competitions
-async function competitions(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function competitions(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    // Get all player competitions (by player id)
-    const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
+  // Get all player competitions (by player id)
+  const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
 
-    if (playerId && playerCompetitions.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(playerCompetitions);
-  } catch (e) {
-    next(e);
+  if (playerId && playerCompetitions.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: playerCompetitions };
 }
 
 // GET /players/:id/groups
 // GET /players/username/:username/groups
-async function groups(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function groups(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+  const limit = extractNumber(req.query, { key: 'limit' });
+  const offset = extractNumber(req.query, { key: 'offset' });
 
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
+  const paginationConfig = pagination.getPaginationConfig(limit, offset);
 
-    // Get all player groups (by player id)
-    const playerGroups = await groupService.getPlayerGroups(playerId, paginationConfig);
+  // Get all player groups (by player id)
+  const playerGroups = await groupService.getPlayerGroups(playerId, paginationConfig);
 
-    if (playerId && playerGroups.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(playerGroups);
-  } catch (e) {
-    next(e);
+  if (playerId && playerGroups.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: playerGroups };
 }
 
 // GET /players/:id/gained
 // GET /players/username/:username/gained
-async function gained(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function gained(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    const period = extractString(req.query, { key: 'period' });
-    const startDate = extractDate(req.query, { key: 'startDate' });
-    const endDate = extractDate(req.query, { key: 'endDate' });
-    const formatting = extractString(req.query, { key: 'formatting' });
+  const period = extractString(req.query, { key: 'period' });
+  const startDate = extractDate(req.query, { key: 'startDate' });
+  const endDate = extractDate(req.query, { key: 'endDate' });
+  const formatting = extractString(req.query, { key: 'formatting' });
 
-    const results = await deltaServices.findPlayerDeltas({
-      id: playerId,
-      period,
-      minDate: startDate,
-      maxDate: endDate,
-      formatting: getEnum(formatting)
-    });
+  const results = await deltaServices.findPlayerDeltas({
+    id: playerId,
+    period,
+    minDate: startDate,
+    maxDate: endDate,
+    formatting: getEnum(formatting)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /players/:id/records
 // GET /players/username/:username/records
-async function records(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function records(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    // Fetch all player records for the given period and metric
-    const results = await recordServices.findPlayerRecords({
-      id: playerId,
-      period: getEnum(req.query.period),
-      metric: getEnum(req.query.metric)
-    });
+  // Fetch all player records for the given period and metric
+  const results = await recordServices.findPlayerRecords({
+    id: playerId,
+    period: getEnum(req.query.period),
+    metric: getEnum(req.query.metric)
+  });
 
-    if (playerId && results.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(results);
-  } catch (e) {
-    next(e);
+  if (playerId && results.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: results };
 }
 
 // GET /players/:id/snapshots
 // GET /players/username/:username/snapshots
-async function snapshots(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function snapshots(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    const period = extractString(req.query, { key: 'period' });
-    const startDate = extractDate(req.query, { key: 'startDate', required: !period });
-    const endDate = extractDate(req.query, { key: 'endDate', required: !period });
+  const period = extractString(req.query, { key: 'period' });
+  const startDate = extractDate(req.query, { key: 'startDate', required: !period });
+  const endDate = extractDate(req.query, { key: 'endDate', required: !period });
 
-    const results = await snapshotServices.findPlayerSnapshots({
-      id: playerId,
-      period,
-      minDate: startDate,
-      maxDate: endDate
-    });
+  const results = await snapshotServices.findPlayerSnapshots({
+    id: playerId,
+    period,
+    minDate: startDate,
+    maxDate: endDate
+  });
 
-    const formattedSnapshots = results.map(snapshotUtils.format);
+  const formattedSnapshots = results.map(snapshotUtils.format);
 
-    if (playerId && formattedSnapshots.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(formattedSnapshots);
-  } catch (e) {
-    next(e);
+  if (playerId && formattedSnapshots.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: formattedSnapshots };
 }
 
 // GET /players/:id/names
 // GET /players/username/:username/names
-async function names(req: Request, res: Response, next: NextFunction) {
-  try {
-    const playerId = await playerUtils.resolvePlayerId({
-      id: getNumber(req.params.id),
-      username: getString(req.params.username)
-    });
+async function names(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
 
-    const result = await nameChangeServices.findPlayerNameChanges({ playerId });
+  const result = await nameChangeServices.findPlayerNameChanges({ playerId });
 
-    if (playerId && result.length === 0) {
-      // Ensure this player ID exists (if not, it'll throw a 404 error)
-      await playerUtils.resolvePlayer({ id: playerId });
-    }
-
-    res.json(result);
-  } catch (e) {
-    next(e);
+  if (playerId && result.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
   }
+
+  return { statusCode: 200, response: result };
 }
 
 // PUT /players/username/:username/country
 // REQUIRES ADMIN PASSWORD
-async function changeCountry(req: Request, res: Response, next: NextFunction) {
-  try {
-    if (!adminGuard.checkAdminPermissions(req)) {
-      throw new ForbiddenError('Incorrect admin password.');
-    }
-
-    const updatedPlayer = await playerServices.changePlayerCountry({
-      username: getString(req.params.username),
-      country: getString(req.body.country)
-    });
-
-    res.json(updatedPlayer);
-  } catch (e) {
-    next(e);
+async function changeCountry(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
   }
+
+  const updatedPlayer = await playerServices.changePlayerCountry({
+    username: getString(req.params.username),
+    country: getString(req.body.country)
+  });
+
+  return { statusCode: 200, response: updatedPlayer };
 }
 
 // DELETE /players/username/:username
 // REQUIRES ADMIN PASSWORD
-async function deletePlayer(req: Request, res: Response, next: NextFunction) {
-  try {
-    const username = extractString(req.params, { key: 'username', required: true });
-
-    if (!adminGuard.checkAdminPermissions(req)) {
-      throw new ForbiddenError('Incorrect admin password.');
-    }
-
-    const player = await playerUtils.resolvePlayer({ username });
-
-    await Player.destroy({ where: { id: player.id } });
-
-    res.json({ message: `Successfully deleted player: ${player.displayName}` });
-  } catch (e) {
-    next(e);
+async function deletePlayer(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
   }
+
+  const deletedPlayer = await playerServices.deletePlayer({
+    username: getString(req.params.username)
+  });
+
+  return {
+    statusCode: 200,
+    response: { message: `Successfully deleted player: ${deletedPlayer.displayName}` }
+  };
 }
 
 export {
