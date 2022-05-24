@@ -187,10 +187,10 @@ async function calculatePastDates(playerId: number, definitions: AchievementDefi
       // Check if the previous value is > -1, this prevents this calc from setting the first snapshot
       // after May 10th 2020 as the achievement date for any pre-WOM boss achievements
       // (boss tracking was introduced on May 10th 2020)
-      const wasUnranked =
-        METRICS.includes(d.metric as Metric) && prev[getMetricValueKey(d.metric as Metric)] > -1;
+      const wasRanked =
+        !METRICS.includes(d.metric as Metric) || prev[getMetricValueKey(d.metric as Metric)] > -1;
 
-      return !d.validate(prev) && d.validate(next) && wasUnranked;
+      return !d.validate(prev) && d.validate(next) && wasRanked;
     });
 
     valid.forEach(v => {
