@@ -52,7 +52,7 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
  * Send a "HCIM Player Died" notification to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchHardcoreDied(player: Player) {
+async function dispatchHardcoreDied(player: PrismaPlayer) {
   // Find all the groups for which this player is a member
   const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
 

@@ -3,11 +3,12 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, SKILLS, Metrics } from '@wise-old-man/utils';
 import { PlayerTypeEnum } from '../../src/prisma';
-import * as service from '../../src/api/services/internal/snapshot.service';
+import * as playerServices from '../../src/api/modules/players/player.services';
 import * as services from '../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../src/api/modules/snapshots/snapshot.utils';
 import apiServer from '../../src/api';
 import { resetDatabase, resetRedis, readFile, registerHiscoresMock, registerCMLMock } from '../utils';
+import { SnapshotDataSource } from '../../src/api/modules/snapshots/snapshot.types';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -133,7 +134,7 @@ describe('Snapshots API', () => {
         services.buildSnapshot({
           playerId: 1,
           rawCSV: null,
-          source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+          source: SnapshotDataSource.CRYSTAL_MATH_LABS
         })
       ).rejects.toThrow();
     });
@@ -148,7 +149,7 @@ describe('Snapshots API', () => {
         services.buildSnapshot({
           playerId: 1,
           rawCSV: missingData,
-          source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+          source: SnapshotDataSource.CRYSTAL_MATH_LABS
         })
       ).rejects.toThrow('The CML API was updated. Please wait for a fix.');
 
@@ -158,7 +159,7 @@ describe('Snapshots API', () => {
         services.buildSnapshot({
           playerId: 1,
           rawCSV: excessiveData,
-          source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+          source: SnapshotDataSource.CRYSTAL_MATH_LABS
         })
       ).rejects.toThrow('The CML API was updated. Please wait for a fix.');
     });
@@ -169,7 +170,7 @@ describe('Snapshots API', () => {
       const snapshot: any = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
-        source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+        source: SnapshotDataSource.CRYSTAL_MATH_LABS
       });
 
       expect(snapshot.playerId).toBe(1);
@@ -192,7 +193,7 @@ describe('Snapshots API', () => {
       const snapshot: any = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
-        source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+        source: SnapshotDataSource.CRYSTAL_MATH_LABS
       });
 
       expect(snapshot.playerId).toBe(1);
@@ -223,18 +224,25 @@ describe('Snapshots API', () => {
           return services.buildSnapshot({
             playerId: globalData.testPlayerId,
             rawCSV: row,
-            source: services.SnapshotDataSource.CRYSTAL_MATH_LABS
+            source: SnapshotDataSource.CRYSTAL_MATH_LABS
           });
         })
       );
 
-      const saved = await service.saveAll(snapshots);
+      const { count } = await playerServices.saveAllSnapshots(snapshots);
+      expect(count).toBe(219);
 
-      globalData.snapshots = saved;
+      const snapshotResponse = await services.findPlayerSnapshots({
+        id: trackResponse.body.id,
+        minDate: new Date('2010-01-01T00:00:00.000Z'),
+        maxDate: new Date('2030-01-01T00:00:00.000Z')
+      });
 
-      expect(saved.length).toBe(219);
+      globalData.snapshots = snapshotResponse.slice(1);
 
-      saved.forEach(snapshot => {
+      expect(snapshotResponse.length).toBe(220); // 219 imported + 1 tracked
+
+      snapshotResponse.forEach(snapshot => {
         expect(snapshot.playerId).toBe(globalData.testPlayerId);
       });
     });
@@ -250,7 +258,7 @@ describe('Snapshots API', () => {
       // Some changes between these
       expect(utils.hasChanged(globalData.snapshots[10], globalData.snapshots[0])).toBe(true);
       // EHP and EHB changed shouldn't count, as they can fluctuate without the player's envolvement
-      const ehpChanged = { ...globalData.snapshots[0].toJSON(), ehpValue: 1, ehbValue: 1 };
+      const ehpChanged = { ...globalData.snapshots[0], ehpValue: 1, ehbValue: 1 };
       expect(utils.hasChanged(globalData.snapshots[0], ehpChanged)).toBe(false);
     });
 
@@ -260,10 +268,10 @@ describe('Snapshots API', () => {
       // Positive changes between these
       expect(utils.hasNegativeGains(globalData.snapshots[10], globalData.snapshots[0])).toBe(false);
       // Negative firemaking gains
-      const negativeFiremaking = { ...globalData.snapshots[0].toJSON(), firemakingExperience: 1 };
+      const negativeFiremaking = { ...globalData.snapshots[0], firemakingExperience: 1 };
       expect(utils.hasNegativeGains(globalData.snapshots[10], negativeFiremaking)).toBe(true);
       // Unranked farming exp., shouldn't count
-      const unrankedFarming = { ...globalData.snapshots[0].toJSON(), farmingExperience: -1 };
+      const unrankedFarming = { ...globalData.snapshots[0], farmingExperience: -1 };
       expect(utils.hasNegativeGains(globalData.snapshots[10], unrankedFarming)).toBe(false);
     });
 
@@ -273,7 +281,7 @@ describe('Snapshots API', () => {
       // Small changes between these
       expect(utils.hasExcessiveGains(globalData.snapshots[10], globalData.snapshots[0])).toBe(false);
       // Excessive changes between these
-      const bigGains = { ...globalData.snapshots[0].toJSON(), runecraftingExperience: 200_000_000 };
+      const bigGains = { ...globalData.snapshots[0], runecraftingExperience: 200_000_000 };
       expect(utils.hasExcessiveGains(globalData.snapshots[10], bigGains)).toBe(true);
     });
   });
@@ -347,6 +355,11 @@ describe('Snapshots API', () => {
       const result = await services.findPlayerSnapshots({ id: 2_000_000 });
 
       expect(result.length).toBe(0);
+
+      const response = await api.get(`/api/players/200000/snapshots`).query({ period: 'week' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Player not found.');
     });
 
     it('should fetch all snapshots (high limit)', async () => {

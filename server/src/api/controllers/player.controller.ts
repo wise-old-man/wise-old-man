@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { BadRequestError, ForbiddenError } from '../errors';
+import { ForbiddenError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
@@ -7,7 +7,6 @@ import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
 import * as playerServices from '../modules/players/player.services';
-import * as playerService from '../services/internal/player.service';
 import * as snapshotServices from '../modules/snapshots/snapshot.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
@@ -33,10 +32,8 @@ async function search(req: Request): Promise<ControllerResponse> {
 async function track(req: Request): Promise<ControllerResponse> {
   const username = extractString(req.body, { key: 'username', required: true });
 
-  if (!username) throw new BadRequestError('Invalid username.');
-
   // Update the player, by creating a new snapshot
-  const [playerDetails, isNew] = await playerService.update(username);
+  const [playerDetails, isNew] = await playerServices.updatePlayer({ username });
 
   return { statusCode: isNew ? 201 : 200, response: playerDetails };
 }
@@ -61,11 +58,11 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
     username: getString(req.body.username)
   });
 
-  const history = await playerServices.importPlayerHistory(player);
+  const { count } = await playerServices.importPlayerHistory(player);
 
   return {
     statusCode: 200,
-    response: { message: `${history.length} snapshots imported from CML` }
+    response: { message: `${count} snapshots imported from CML` }
   };
 }
 
@@ -114,7 +111,7 @@ async function achievementsProgress(req: Request): Promise<ControllerResponse> {
   // Get all player achievements (by player id)
   const result = await achievementServices.findPlayerAchievementProgress({ id: playerId });
 
-  if (playerId && result.length === 0) {
+  if (playerId && result.filter(a => a.absoluteProgress > 0).length === 0) {
     // Ensure this player ID exists (if not, it'll throw a 404 error)
     await playerUtils.resolvePlayer({ id: playerId });
   }

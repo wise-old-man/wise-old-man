@@ -51,6 +51,24 @@ afterAll(async done => {
 
 describe('Achievements API', () => {
   describe('Achievements Sync', () => {
+    test('Fetch Achievement from unknown player', async () => {
+      const firstResponse = await apiMock.get(`/api/players/username/idk/achievements`);
+      expect(firstResponse.status).toBe(404);
+      expect(firstResponse.body.message).toBe('Player not found.');
+
+      const secondResponse = await apiMock.get(`/api/players/username/idk/achievements/progress`);
+      expect(secondResponse.status).toBe(404);
+      expect(secondResponse.body.message).toBe('Player not found.');
+
+      const thirdResponse = await apiMock.get(`/api/players/2000000/achievements`);
+      expect(thirdResponse.status).toBe(404);
+      expect(thirdResponse.body.message).toBe('Player not found.');
+
+      const fourthResponse = await apiMock.get(`/api/players/2000000/achievements/progress`);
+      expect(fourthResponse.status).toBe(404);
+      expect(fourthResponse.body.message).toBe('Player not found.');
+    });
+
     test('Track Player (first time), no achievements', async () => {
       // Track player (first time)
       const trackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Psikoi' });

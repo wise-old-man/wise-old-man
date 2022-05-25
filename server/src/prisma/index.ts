@@ -28,23 +28,27 @@ import {
   Activities,
   Virtuals
 } from './enum-adapter';
-import { routeAfterHook, routeBeforeHook } from './hooks';
+import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';
+
+let hooksEnabled = true;
 
 const prisma = new PrismaClient();
 
 // Register Hooks
 prisma.$use(async (params, next) => {
-  // These hooks are executed before the database operation is executed
-  routeBeforeHook(params);
-
   const result = await next(params);
 
   // These hooks are executed after the database operation has executed
-  routeAfterHook(params, result);
+  if (hooksEnabled) routeAfterHook(params, result);
 
   return result;
 });
+
+// Used for testing purposes
+function setHooksEnabled(enabled: boolean) {
+  hooksEnabled = enabled;
+}
 
 function modifyAchievements(achievements: PrismaAchievement[]): ModifiedAchievement[] {
   return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
@@ -64,6 +68,10 @@ function modifyPlayers(players: PrismaPlayer[]): ModifiedPlayer[] {
 
 function modifyPlayer(player: PrismaPlayer): ModifiedPlayer {
   return player ? { ...player, exp: parseBigInt(player.exp) } : null;
+}
+
+function modifySnapshot(snapshot: PrismaSnapshot): ModifiedSnapshot {
+  return snapshot ? { ...snapshot, overallExperience: parseBigInt(snapshot.overallExperience) } : null;
 }
 
 function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
@@ -131,10 +139,12 @@ export {
   PlayerTypes,
   PlayerBuilds,
   // Utils
+  setHooksEnabled,
   modifyDeltas,
   modifyPlayer,
   modifyPlayers,
   modifyRecords,
+  modifySnapshot,
   modifySnapshots,
   modifyAchievements
 };

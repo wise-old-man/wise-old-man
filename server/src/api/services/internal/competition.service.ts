@@ -1094,7 +1094,7 @@ async function updateAll(competition: Competition, force: boolean, updateFn: (pl
  * When a player is updated, this should be executed by a job.
  * This should update all the "endSnapshotId" field in the player's participations.
  */
-async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
+async function syncParticipations(playerId: number, latestSnapshotId: number) {
   const currentDate = new Date();
 
   // Get all on-going participations
@@ -1120,7 +1120,7 @@ async function syncParticipations(playerId: number, latestSnapshot: Snapshot) {
       const { competition } = participation;
 
       // Update this participation's latest (end) snapshot
-      participation.endSnapshotId = latestSnapshot.id;
+      participation.endSnapshotId = latestSnapshotId;
 
       // If this participation's starting snapshot has not been set,
       // find the first snapshot created since the start date and set it

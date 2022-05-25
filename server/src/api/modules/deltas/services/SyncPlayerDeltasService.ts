@@ -23,7 +23,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     });
 
     // The player only has one snapshot in this period, can't calculate diffs
-    if (latestSnapshot.id === startSnapshot.id) return;
+    if (!latestSnapshot || !startSnapshot || latestSnapshot.id === startSnapshot.id) return;
 
     // const cachedValues: { [metric in MetricEnum]?: number } = {};
     const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);

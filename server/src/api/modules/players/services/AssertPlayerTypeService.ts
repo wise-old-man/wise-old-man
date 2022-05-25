@@ -1,7 +1,8 @@
 import { BadRequestError, ServerError } from '../../../errors';
 import prisma, { modifyPlayer, Player, PlayerTypeEnum } from '../../../../prisma';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as snapshotService from '../../../services/internal/snapshot.service';
+import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
+import { onPlayerTypeChanged } from '../../../events/player.events';
 
 type AssertPlayerTypeResult = [type: PlayerTypeEnum, player: Player, changed: boolean];
 
@@ -19,6 +20,10 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
         where: { id: player.id }
       })
       .then(modifyPlayer);
+
+    // TODO: this can be improved with that hook buffer needed for isChange, isPotentialRecord, etc
+    // Explicitly call this event, unlike most others that are handled via prisma hooks
+    onPlayerTypeChanged(updatedPlayer, player.type);
 
     return [confirmedType, updatedPlayer, true];
   }
@@ -49,10 +54,11 @@ async function getType(player: Pick<Player, 'username' | 'type'>): Promise<Playe
 async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, type: PlayerTypeEnum) {
   try {
     // Load data from OSRS hiscores
-    const hiscoresCSV = await jagexService.getHiscoresData(player.username, (type || player.type) as any);
+    const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
 
     // Convert the csv data to a Snapshot instance
-    const snapshot = await snapshotService.legacy_fromRS(0, hiscoresCSV);
+    // The playerId doesn't matter here, this snapshot won't be saved to this id
+    const snapshot = await snapshotServices.buildSnapshot({ playerId: 1, rawCSV: hiscoresCSV });
 
     return snapshot.overallExperience;
   } catch (e) {

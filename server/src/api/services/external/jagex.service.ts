@@ -19,7 +19,10 @@ const SCRAPING_HEADERS = {
 /**
  * Fetches the player data from the Hiscores API.
  */
-async function getHiscoresData(username: string, type = PlayerTypeEnum.REGULAR): Promise<string> {
+async function getHiscoresData(
+  username: string,
+  type: PlayerTypeEnum = PlayerTypeEnum.REGULAR
+): Promise<string> {
   const proxy = proxiesService.getNextProxy();
   const URL = `${OSRS_HISCORES[type]}?player=${username}`;
 

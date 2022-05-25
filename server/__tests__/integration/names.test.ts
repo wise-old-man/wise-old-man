@@ -5,7 +5,7 @@ import { getMetricValueKey, getMetricRankKey, METRICS } from '@wise-old-man/util
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
-import prisma, { PlayerTypeEnum } from '../../src/prisma';
+import prisma, { PlayerTypeEnum, setHooksEnabled } from '../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../utils';
 
 const api = supertest(apiServer);
@@ -296,10 +296,15 @@ describe('Names API', () => {
     });
 
     it('should not fetch list (player not found)', async () => {
-      const response = await api.get(`/api/players/username/Jakesterwars/names`);
+      const firstResponse = await api.get(`/api/players/username/Jakesterwars/names`);
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+      expect(firstResponse.status).toBe(404);
+      expect(firstResponse.body.message).toMatch('Player not found.');
+
+      const secondResponse = await api.get(`/api/players/2000000/names`);
+
+      expect(secondResponse.status).toBe(404);
+      expect(secondResponse.body.message).toMatch('Player not found.');
     });
 
     it('should fetch list', async () => {
@@ -497,7 +502,7 @@ describe('Names API', () => {
         value: 10_000
       });
 
-      // Check if none of the pre-teansition records have been transfered
+      // Check if none of the pre-transition snapshots have been transfered
       const snapshotsResponse = await api
         .get(`/api/players/username/USBC/snapshots`)
         .query({ period: 'week' });
@@ -505,14 +510,14 @@ describe('Names API', () => {
       expect(snapshotsResponse.status).toBe(200);
       expect(snapshotsResponse.body.filter(s => s.obor.kills > -1).length).toBe(0);
 
-      // Check if none of the pre-teansition memberships have been transfered
+      // Check if none of the pre-transition memberships have been transfered
       const groupsResponse = await api.get(`/api/players/username/USBC/groups`);
 
       expect(groupsResponse.status).toBe(200);
       expect(groupsResponse.body.length).toBe(1);
       expect(groupsResponse.body[0]).toMatchObject({ name: 'Test Transfer Group', role: 'archer' });
 
-      // Check if none of the pre-teansition participations have been transfered
+      // Check if none of the pre-transition participations have been transfered
       const competitionsResponse = await api.get(`/api/players/username/USBC/competitions`);
 
       expect(competitionsResponse.status).toBe(200);
@@ -675,10 +680,12 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
     filteredSnapshotData[getMetricRankKey(m)] = snapshotData[getMetricRankKey(m)];
   });
 
+  setHooksEnabled(false); // disable hooks to prevent gains/records from being calculated from this
   // Create a pre-transition-date snapshot
   await prisma.snapshot.create({
     data: { ...filteredSnapshotData, playerId: newPlayerId, oborKills: 30, createdAt: mockDate }
   });
+  setHooksEnabled(true);
 
   // Create a pre-transition-date test competition and add this player to it
   await prisma.competition.create({

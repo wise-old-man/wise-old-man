@@ -1,13 +1,8 @@
 import { DestroyOptions, UpdateOptions } from 'sequelize/types';
-import { Competition, Membership, Participation, Player, Snapshot } from '../database/models';
+import { Competition, Membership, Participation, Player } from '../database/models';
 import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
 import { onMembersJoined, onMembersLeft } from './events/group.events';
-import {
-  onPlayerImported,
-  onPlayerNameChanged,
-  onPlayerTypeChanged,
-  onPlayerUpdated
-} from './events/player.events';
+import { onPlayerNameChanged } from './events/player.events';
 
 function setup() {
   Player.afterUpdate((player: Player, options: UpdateOptions) => {
@@ -16,18 +11,6 @@ function setup() {
     if (options.fields.includes('username')) {
       onPlayerNameChanged(player, player.previous('displayName'));
     }
-
-    if (options.fields.includes('type')) {
-      onPlayerTypeChanged(player, player.previous('type'));
-    }
-  });
-
-  Snapshot.afterCreate((snapshot: Snapshot) => {
-    onPlayerUpdated(snapshot);
-  });
-
-  Snapshot.afterBulkCreate((snapshots: Snapshot[]) => {
-    onPlayerImported(snapshots[0].playerId);
   });
 
   Participation.afterBulkCreate((participations: Participation[]) => {

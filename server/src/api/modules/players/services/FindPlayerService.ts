@@ -25,7 +25,7 @@ async function findPlayer(payload: FindPlayerParams, selectedFields?: PlayerSele
 
   if (params.id) {
     const player = await prisma.player
-      .findUnique({
+      .findFirst({
         where: { id: params.id },
         select: mapSelectedFields(selectedFields)
       })

@@ -1,5 +1,5 @@
-import { PlayerTypeEnum } from '../../prisma';
-import { Player, Snapshot } from '../../database/models';
+import { PlayerTypeEnum, Snapshot, Player as PrismaPlayer } from '../../prisma';
+import { Player } from '../../database/models';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';
@@ -9,7 +9,7 @@ import * as deltaServices from '../modules/deltas/delta.services';
 import * as playerUtils from '../modules/players/player.utils';
 import * as playerServices from '../modules/players/player.services';
 
-async function onPlayerTypeChanged(player: Player, previousType: string) {
+async function onPlayerTypeChanged(player: PrismaPlayer, previousType: string) {
   if (previousType === PlayerTypeEnum.HARDCORE && player.type === PlayerTypeEnum.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
     await metrics.measureReaction('DiscordHardcoreDied', () => discordService.dispatchHardcoreDied(player));
@@ -35,7 +35,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
 async function onPlayerUpdated(snapshot: Snapshot) {
   // Update this player's competition participations (gains)
   await metrics.measureReaction('SyncParticipations', () =>
-    competitionService.syncParticipations(snapshot.playerId, snapshot)
+    competitionService.syncParticipations(snapshot.playerId, snapshot.id)
   );
 
   // Only sync achievements if the player gained any exp/kc this update

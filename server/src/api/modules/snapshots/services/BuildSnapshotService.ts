@@ -3,11 +3,7 @@ import csv from 'csvtojson';
 import { getMetricRankKey, getMetricValueKey } from '@wise-old-man/utils';
 import { Activities, Bosses, MetricEnum, Skills, Snapshot } from '../../../../prisma';
 import { ServerError } from '../../../errors';
-
-export enum SnapshotDataSource {
-  HISCORES,
-  CRYSTAL_MATH_LABS
-}
+import { SnapshotDataSource } from '../snapshot.types';
 
 const inputSchema = z.object({
   playerId: z.number().int().positive(),

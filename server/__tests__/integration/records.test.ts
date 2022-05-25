@@ -161,10 +161,15 @@ describe('Records API', () => {
 
   describe('2 - Fetch Player Records', () => {
     it('should not fetch records (player not found)', async () => {
-      const response = await api.get(`/api/players/username/unknown_username/records`);
+      const firstResponse = await api.get(`/api/players/username/unknown_username/records`);
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Player not found.');
+      expect(firstResponse.status).toBe(404);
+      expect(firstResponse.body.message).toBe('Player not found.');
+
+      const secondResponse = await api.get(`/api/players/2000000/records`);
+
+      expect(secondResponse.status).toBe(404);
+      expect(secondResponse.body.message).toBe('Player not found.');
     });
 
     it('should not fetch records (invalid period)', async () => {

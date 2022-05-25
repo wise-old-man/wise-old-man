@@ -1,7 +1,7 @@
 import { JobOptions, RateLimiter } from 'bull';
 import redisService from '../../services/external/redis.service';
 import metricsService from '../../services/external/metrics.service';
-import * as playerService from '../../services/internal/player.service';
+import * as playerServices from '../../modules/players/player.services';
 import { Job } from '../index';
 
 class UpdatePlayer implements Job {
@@ -21,7 +21,7 @@ class UpdatePlayer implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      await playerService.update(data.username);
+      await playerServices.updatePlayer({ username: data.username });
       metricsService.trackJobEnded(endTimer, this.name, 1, data.source);
     } catch (error) {
       metricsService.trackJobEnded(endTimer, this.name, 0, data.source);

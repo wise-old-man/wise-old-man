@@ -122,6 +122,9 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
+      expect(response.body.ehp).toBe(response.body.latestSnapshot.ehp.value);
+      expect(response.body.ehb).toBe(response.body.latestSnapshot.ehb.value);
+
       globalData.testPlayerId = response.body.id;
     });
 
