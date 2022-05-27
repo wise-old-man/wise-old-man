@@ -1,7 +1,7 @@
 import { PeriodProps } from '@wise-old-man/utils';
 
 import prisma, {
-  PeriodEnum,
+  Period,
   Periods,
   Player,
   Snapshot,
@@ -15,7 +15,7 @@ import { calculatePlayerDeltas } from '../delta.utils';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Build the update/create promise for a given period
-  async function buildUpdatePromise(period: PeriodEnum) {
+  async function buildUpdatePromise(period: Period) {
     // Find the first snapshot within the period
     const startSnapshot = await snapshotServices.findPlayerSnapshot({
       id: player.id,

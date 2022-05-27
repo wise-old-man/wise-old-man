@@ -1,10 +1,10 @@
 import { BadRequestError, ServerError } from '../../../errors';
-import prisma, { modifyPlayer, Player, PlayerTypeEnum } from '../../../../prisma';
+import prisma, { modifyPlayer, Player, PlayerType } from '../../../../prisma';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
 import { onPlayerTypeChanged } from '../../../events/player.events';
 
-type AssertPlayerTypeResult = [type: PlayerTypeEnum, player: Player, changed: boolean];
+type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
 async function assertPlayerType(player: Player, updateIfChanged = false): Promise<AssertPlayerTypeResult> {
   if (player.flagged) {
@@ -31,27 +31,27 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
   return [confirmedType, player, false];
 }
 
-async function getType(player: Pick<Player, 'username' | 'type'>): Promise<PlayerTypeEnum> {
-  const regularExp = await getOverallExperience(player, PlayerTypeEnum.REGULAR);
+async function getType(player: Pick<Player, 'username' | 'type'>): Promise<PlayerType> {
+  const regularExp = await getOverallExperience(player, PlayerType.REGULAR);
 
   // This username is not on the hiscores
   if (!regularExp) {
     throw new BadRequestError(`Failed to load hiscores for ${player.username}.`);
   }
 
-  const ironmanExp = await getOverallExperience(player, PlayerTypeEnum.IRONMAN);
-  if (!ironmanExp || ironmanExp < regularExp) return PlayerTypeEnum.REGULAR;
+  const ironmanExp = await getOverallExperience(player, PlayerType.IRONMAN);
+  if (!ironmanExp || ironmanExp < regularExp) return PlayerType.REGULAR;
 
-  const hardcoreExp = await getOverallExperience(player, PlayerTypeEnum.HARDCORE);
-  if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerTypeEnum.HARDCORE;
+  const hardcoreExp = await getOverallExperience(player, PlayerType.HARDCORE);
+  if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerType.HARDCORE;
 
-  const ultimateExp = await getOverallExperience(player, PlayerTypeEnum.ULTIMATE);
-  if (ultimateExp && ultimateExp >= ironmanExp) return PlayerTypeEnum.ULTIMATE;
+  const ultimateExp = await getOverallExperience(player, PlayerType.ULTIMATE);
+  if (ultimateExp && ultimateExp >= ironmanExp) return PlayerType.ULTIMATE;
 
-  return PlayerTypeEnum.IRONMAN;
+  return PlayerType.IRONMAN;
 }
 
-async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, type: PlayerTypeEnum) {
+async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, type: PlayerType) {
   try {
     // Load data from OSRS hiscores
     const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);

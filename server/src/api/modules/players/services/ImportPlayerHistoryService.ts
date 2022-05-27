@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { Period, PeriodProps } from '@wise-old-man/utils';
-import prisma from '../../../../prisma';
+import { PeriodProps } from '@wise-old-man/utils';
+import prisma, { Period } from '../../../../prisma';
 import { RateLimitError } from '../../../errors';
 import * as playerUtils from '../player.utils';
 import * as cmlService from '../../../services/external/cml.service';

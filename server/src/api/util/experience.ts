@@ -1,26 +1,23 @@
 import {
   getCombatLevel as calcCombat,
   getLevel,
-  SKILLS,
-  Metrics,
   getMetricValueKey,
-  BOSSES,
   F2P_BOSSES,
   MEMBER_SKILLS,
   MAX_SKILL_EXP
 } from '@wise-old-man/utils';
-import { Snapshot as PrismaSnapshot } from '../../prisma';
+import { Snapshot as PrismaSnapshot, Skills, MetricEnum, Bosses } from '../../prisma';
 import { Snapshot } from '../../database/models';
 
 export function getMinimumExp(snapshot: PrismaSnapshot) {
-  return SKILLS.filter(s => s !== Metrics.OVERALL)
-    .map(s => Math.max(0, snapshot[getMetricValueKey(s)]))
+  return Skills.filter(s => s !== MetricEnum.OVERALL)
+    .map(s => Math.max(0, snapshot[getMetricValueKey(s as any)]))
     .sort((a, b) => a - b)[0];
 }
 
 export function getCappedExp(snapshot: Snapshot, max: number) {
-  return SKILLS.filter(s => s !== Metrics.OVERALL)
-    .map(s => Math.min(snapshot[getMetricValueKey(s)], max))
+  return Skills.filter(s => s !== MetricEnum.OVERALL)
+    .map(s => Math.min(snapshot[getMetricValueKey(s as any)], max))
     .reduce((acc, cur) => acc + cur);
 }
 
@@ -39,18 +36,22 @@ export function getCombatLevel(snapshot: PrismaSnapshot) {
 }
 
 export function getTotalLevel(snapshot: Snapshot) {
-  return SKILLS.filter(s => s !== Metrics.OVERALL)
-    .map(s => getLevel(snapshot[getMetricValueKey(s)]))
+  return Skills.filter(s => s !== MetricEnum.OVERALL)
+    .map(s => getLevel(snapshot[getMetricValueKey(s as any)]))
     .reduce((acc, cur) => acc + cur);
 }
 
 export function get200msCount(snapshot: any) {
-  return SKILLS.filter(s => s !== Metrics.OVERALL && snapshot[getMetricValueKey(s)] === MAX_SKILL_EXP).length;
+  return Skills.filter(
+    s => s !== MetricEnum.OVERALL && snapshot[getMetricValueKey(s as any)] === MAX_SKILL_EXP
+  ).length;
 }
 
 export function isF2p(snapshot: Snapshot) {
   const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getMetricValueKey(s)]) > 1);
-  const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getMetricValueKey(b)] > 0);
+  const hasBossKc = Bosses.filter(b => !F2P_BOSSES.includes(b as any)).some(
+    b => snapshot[getMetricValueKey(b as any)] > 0
+  );
 
   return !hasMemberStats && !hasBossKc;
 }

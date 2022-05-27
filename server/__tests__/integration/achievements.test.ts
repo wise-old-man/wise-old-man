@@ -3,7 +3,7 @@ import moment from 'moment';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import api from '../../src/api';
-import { PlayerTypeEnum } from '../../src/prisma';
+import { PlayerType } from '../../src/prisma';
 import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/achievement.templates';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, sleep, readFile } from '../utils';
 
@@ -37,8 +37,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataA },
-    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataA },
+    [PlayerType.IRONMAN]: { statusCode: 404 }
   });
 
   done();
@@ -201,8 +201,8 @@ describe('Achievements API', () => {
 
       // Change the mock hiscores data ro "B" (Lynx Titan));
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataB },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataB },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const failedFetchResponse = await apiMock.get(`/api/groups/200000000/achievements`);
@@ -274,8 +274,8 @@ describe('Achievements API', () => {
         .join('\n');
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       // Track player (third time)

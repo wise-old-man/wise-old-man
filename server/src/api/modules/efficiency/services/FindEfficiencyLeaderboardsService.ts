@@ -5,8 +5,8 @@ import prisma, {
   modifyPlayers,
   Country,
   Player,
-  PlayerTypeEnum,
-  PlayerBuildEnum,
+  PlayerType,
+  PlayerBuild,
   PrismaPlayer,
   PrismaTypes,
   VirtualEnum
@@ -19,8 +19,8 @@ const inputSchema = z
   .object({
     metric: z.enum([VirtualEnum.EHP, VirtualEnum.EHB, COMBINED_METRIC]),
     country: z.nativeEnum(Country).optional(),
-    playerType: z.nativeEnum(PlayerTypeEnum).optional().default(PlayerTypeEnum.REGULAR),
-    playerBuild: z.nativeEnum(PlayerBuildEnum).optional()
+    playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
+    playerBuild: z.nativeEnum(PlayerBuild).optional()
   })
   .merge(PAGINATION_SCHEMA);
 
@@ -31,11 +31,7 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
 
   const players = await fetchPlayersList(params);
 
-  if (
-    params.offset < 50 &&
-    params.metric === MetricEnum.EHP &&
-    params.playerType === PlayerTypeEnum.REGULAR
-  ) {
+  if (params.offset < 50 && params.metric === MetricEnum.EHP && params.playerType === PlayerType.REGULAR) {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
@@ -54,8 +50,8 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     };
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
-    if (playerQuery.type === PlayerTypeEnum.IRONMAN) {
-      playerQuery.type = { in: [PlayerTypeEnum.IRONMAN, PlayerTypeEnum.HARDCORE, PlayerTypeEnum.ULTIMATE] };
+    if (playerQuery.type === PlayerType.IRONMAN) {
+      playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
     }
 
     if (params.country) playerQuery.country = params.country;
@@ -75,9 +71,9 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   let playerQuery =
-    params.playerType !== PlayerTypeEnum.IRONMAN
+    params.playerType !== PlayerType.IRONMAN
       ? `"type" = '${params.playerType}'`
-      : `("type" = '${PlayerTypeEnum.IRONMAN}' OR "type" = '${PlayerTypeEnum.HARDCORE}' OR "type" = '${PlayerTypeEnum.ULTIMATE}')`;
+      : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
 
   if (params.country) playerQuery += ` AND "country" = '${params.country}'`;
   if (params.playerBuild) playerQuery += ` AND "build" = '${params.playerBuild}'`;

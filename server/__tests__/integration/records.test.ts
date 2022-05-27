@@ -13,7 +13,7 @@ import {
   modifyRawHiscoresData,
   sleep
 } from '../utils';
-import prisma, { PlayerTypeEnum } from '../../src/prisma';
+import prisma, { PlayerType } from '../../src/prisma';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -37,8 +37,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+    [PlayerType.IRONMAN]: { statusCode: 404 }
   });
 
   done();
@@ -67,8 +67,8 @@ describe('Records API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -94,8 +94,8 @@ describe('Records API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -117,8 +117,8 @@ describe('Records API', () => {
 
     it('should not replace existing player records (lower value)', async () => {
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'sethmare' });
@@ -140,8 +140,8 @@ describe('Records API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'sethmare' });
@@ -279,10 +279,10 @@ describe('Records API', () => {
     it('should fetch records', async () => {
       // Mock the hiscores to mark the next tracked player as a regular ironman
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 404 },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       // Track Jakesterwars as ironman
@@ -300,10 +300,10 @@ describe('Records API', () => {
 
       // Mock the hiscores to mark the next tracked player as a regular ironman (and modified data)
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 404 },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       // Track Jakesterwars again
@@ -445,10 +445,10 @@ describe('Records API', () => {
     it('should fetch leaderboards (no player filters)', async () => {
       // Mock the hiscores to mark the next tracked player as a regular ironman
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       // Track Jakesterwars as ironman
@@ -466,10 +466,10 @@ describe('Records API', () => {
 
       // Mock the hiscores to mark the next tracked player as a regular ironman (and modified data)
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       // Track Jakesterwars again

@@ -3,10 +3,10 @@ import { PeriodProps } from '@wise-old-man/utils';
 import prisma, {
   Player,
   Country,
-  PeriodEnum,
+  Period,
   MetricEnum,
-  PlayerTypeEnum,
-  PlayerBuildEnum,
+  PlayerType,
+  PlayerBuild,
   PrismaTypes,
   modifyDeltas,
   Delta
@@ -16,11 +16,11 @@ import { parseNum } from '../delta.utils';
 const MAX_RESULTS = 20;
 
 const inputSchema = z.object({
-  period: z.nativeEnum(PeriodEnum),
+  period: z.nativeEnum(Period),
   metric: z.nativeEnum(MetricEnum),
   country: z.nativeEnum(Country).optional(),
-  playerType: z.nativeEnum(PlayerTypeEnum).optional(),
-  playerBuild: z.nativeEnum(PlayerBuildEnum).optional()
+  playerType: z.nativeEnum(PlayerType).optional(),
+  playerBuild: z.nativeEnum(PlayerBuild).optional()
 });
 
 type FindDeltaLeaderboardsParams = z.infer<typeof inputSchema>;
@@ -44,8 +44,8 @@ async function findDeltaLeaderboards(
   if (params.playerBuild) playerQuery.build = params.playerBuild;
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerTypeEnum.IRONMAN) {
-    playerQuery.type = { in: [PlayerTypeEnum.IRONMAN, PlayerTypeEnum.HARDCORE, PlayerTypeEnum.ULTIMATE] };
+  if (playerQuery.type === PlayerType.IRONMAN) {
+    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
   // Fetch the top 20 deltas for this period & metric

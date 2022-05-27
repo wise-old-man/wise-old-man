@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import prisma, { Record, PeriodEnum, MetricEnum, modifyRecords } from '../../../../prisma';
+import prisma, { Record, Period, MetricEnum, modifyRecords } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 
 const inputSchema = z
   .object({
     id: z.number().int().positive(),
-    period: z.nativeEnum(PeriodEnum),
+    period: z.nativeEnum(Period),
     metric: z.nativeEnum(MetricEnum)
   })
   .merge(PAGINATION_SCHEMA);

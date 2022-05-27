@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import prisma, { Record, PeriodEnum, MetricEnum, PrismaTypes, modifyRecords } from '../../../../prisma';
+import prisma, { Record, Period, MetricEnum, PrismaTypes, modifyRecords } from '../../../../prisma';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
-  period: z.nativeEnum(PeriodEnum).optional(),
+  period: z.nativeEnum(Period).optional(),
   metric: z.nativeEnum(MetricEnum).optional()
 });
 

@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import { PlayerTypeEnum, PlayerBuildEnum, Snapshot, VirtualEnum } from '../../../../prisma';
+import { PlayerType, PlayerBuild, Snapshot, VirtualEnum } from '../../../../prisma';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
 
 const inputSchema = z.object({
   player: z.object({
     id: z.number().int().positive(),
-    type: z.nativeEnum(PlayerTypeEnum),
-    build: z.nativeEnum(PlayerBuildEnum)
+    type: z.nativeEnum(PlayerType),
+    build: z.nativeEnum(PlayerBuild)
   })
 });
 

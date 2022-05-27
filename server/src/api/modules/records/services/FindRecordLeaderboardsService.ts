@@ -2,10 +2,10 @@ import { z } from 'zod';
 import prisma, {
   Country,
   Record,
-  PeriodEnum,
+  Period,
   MetricEnum,
-  PlayerTypeEnum,
-  PlayerBuildEnum,
+  PlayerType,
+  PlayerBuild,
   PrismaTypes,
   modifyRecords
 } from '../../../../prisma';
@@ -13,11 +13,11 @@ import prisma, {
 const MAX_RESULTS = 20;
 
 const inputSchema = z.object({
-  period: z.nativeEnum(PeriodEnum),
+  period: z.nativeEnum(Period),
   metric: z.nativeEnum(MetricEnum),
   country: z.nativeEnum(Country).optional(),
-  playerType: z.nativeEnum(PlayerTypeEnum).optional(),
-  playerBuild: z.nativeEnum(PlayerBuildEnum).optional()
+  playerType: z.nativeEnum(PlayerType).optional(),
+  playerBuild: z.nativeEnum(PlayerBuild).optional()
 });
 
 type FindRecordLeaderboardsParams = z.infer<typeof inputSchema>;
@@ -32,8 +32,8 @@ async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Pr
   if (params.playerBuild) playerQuery.build = params.playerBuild;
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  if (playerQuery.type === PlayerTypeEnum.IRONMAN) {
-    playerQuery.type = { in: [PlayerTypeEnum.IRONMAN, PlayerTypeEnum.HARDCORE, PlayerTypeEnum.ULTIMATE] };
+  if (playerQuery.type === PlayerType.IRONMAN) {
+    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
   const records = await prisma.record

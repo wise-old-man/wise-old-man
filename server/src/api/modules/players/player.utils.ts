@@ -1,6 +1,6 @@
-import { Period, PeriodProps } from '@wise-old-man/utils';
+import { PeriodProps } from '@wise-old-man/utils';
 import { isTesting } from '../../../env';
-import { Player, PlayerBuildEnum, PlayerTypeEnum, Snapshot } from '../../../prisma';
+import { Player, PlayerBuild, PlayerType, Snapshot, Period } from '../../../prisma';
 import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../../util/experience';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
@@ -152,7 +152,7 @@ async function shouldReviewType(
   const { username, type, lastChangedAt } = player;
 
   // Type reviews should only be done on iron players
-  if (type === PlayerTypeEnum.REGULAR || type === PlayerTypeEnum.UNKNOWN) return false;
+  if (type === PlayerType.REGULAR || type === PlayerType.UNKNOWN) return false;
 
   // After checking a player's type, we add their username to a cache that blocks
   // this action to be repeated again within the next week (as to not overload the server)
@@ -164,15 +164,15 @@ async function shouldReviewType(
   return !hasCooldown && isInactive;
 }
 
-function getBuild(snapshot: Snapshot): PlayerBuildEnum {
-  if (isF2p(snapshot as any)) return PlayerBuildEnum.F2P;
-  if (isLvl3(snapshot as any)) return PlayerBuildEnum.LVL3;
+function getBuild(snapshot: Snapshot): PlayerBuild {
+  if (isF2p(snapshot as any)) return PlayerBuild.F2P;
+  if (isLvl3(snapshot as any)) return PlayerBuild.LVL3;
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot as any)) return PlayerBuildEnum.HP10;
-  if (is1Def(snapshot as any)) return PlayerBuildEnum.DEF1;
-  if (isZerker(snapshot as any)) return PlayerBuildEnum.ZERKER;
+  if (is10HP(snapshot as any)) return PlayerBuild.HP10;
+  if (is1Def(snapshot as any)) return PlayerBuild.DEF1;
+  if (isZerker(snapshot as any)) return PlayerBuild.ZERKER;
 
-  return PlayerBuildEnum.MAIN;
+  return PlayerBuild.MAIN;
 }
 
 export {

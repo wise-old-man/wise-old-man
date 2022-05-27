@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, ForbiddenError } from '../errors';
-import { MetricEnum, PeriodEnum } from '../../prisma';
+import { MetricEnum, Period } from '../../prisma';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
@@ -296,7 +296,7 @@ async function monthlyTop(req: Request, res: Response, next: NextFunction) {
       id,
       limit: 1,
       metric: MetricEnum.OVERALL,
-      period: PeriodEnum.MONTH
+      period: Period.MONTH
     });
 
     res.json(topPlayers[0] || null);

@@ -3,7 +3,7 @@ import prisma, {
   modifyPlayer,
   modifySnapshot,
   Player,
-  PlayerTypeEnum,
+  PlayerType,
   PrismaTypes,
   Snapshot
 } from '../../../../prisma';
@@ -40,7 +40,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     const updatedPlayerFields: PrismaTypes.PlayerUpdateInput = {};
 
     // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === PlayerTypeEnum.UNKNOWN) {
+    if (player.type === PlayerType.UNKNOWN) {
       const [type] = await assertPlayerType(player);
       updatedPlayerFields.type = type;
     }
@@ -49,7 +49,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
 
     // Fetch the new player stats from the hiscores API
-    const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerTypeEnum);
+    const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
 
     // There has been a radical change in this player's stats, mark it as flagged
     if (!snapshotUtils.withinRange(previousStats, currentStats)) {
@@ -100,7 +100,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     return [playerDetails, isNew];
   } catch (error) {
-    if (isNew && player.type !== PlayerTypeEnum.UNKNOWN) {
+    if (isNew && player.type !== PlayerType.UNKNOWN) {
       // If the player was just registered and it failed to fetch hiscores,
       // set updatedAt to null to allow for re-attempts without the 60s waiting period
       await prisma.player.update({ data: { updatedAt: null }, where: { id: player.id } });
@@ -110,7 +110,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 }
 
-async function fetchStats(player: Player, type?: PlayerTypeEnum): Promise<Snapshot> {
+async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
   // Load data from OSRS hiscores
   const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
 

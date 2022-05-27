@@ -1,10 +1,10 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { BOSSES, Metrics } from '@wise-old-man/utils';
+import { Metrics } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
-import { PlayerTypeEnum } from '../../src/prisma';
+import { PlayerType, Bosses } from '../../src/prisma';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -41,8 +41,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+    [PlayerType.IRONMAN]: { statusCode: 404 }
   });
 
   done();
@@ -88,7 +88,7 @@ describe('Player API', () => {
     it('should not track player (hiscores failed)', async () => {
       // Mock the hiscores to fail
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 500, rawData: '' }
+        [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
       const response = await api.post(`/api/players/track`).send({ username: 'hydroman' });
@@ -98,8 +98,8 @@ describe('Player API', () => {
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
     });
 
@@ -134,8 +134,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: data1Def },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: data1Def },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const responseDef1 = await api.post(`/api/players/track`).send({ username: 'def1' });
@@ -150,8 +150,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: dataZerker },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: dataZerker },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const responseZerker = await api.post(`/api/players/track`).send({ username: 'zerker' });
@@ -166,8 +166,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: data10HP },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: data10HP },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const response10HP = await api.post(`/api/players/track`).send({ username: 'hp10' });
@@ -188,8 +188,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: dataLvl3 },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: dataLvl3 },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const responseLvl3 = await api.post(`/api/players/track`).send({ username: 'lvl3' });
@@ -208,14 +208,14 @@ describe('Player API', () => {
         { metric: Metrics.HUNTER, value: 0 },
         { metric: Metrics.THIEVING, value: 0 },
         { metric: Metrics.SLAYER, value: 0 },
-        ...BOSSES.map(b => ({ metric: b, value: 0 })),
+        ...Bosses.map(b => ({ metric: b as any, value: 0 })),
         { metric: Metrics.BRYOPHYTA, value: 10 },
         { metric: Metrics.OBOR, value: 10 }
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: dataF2P },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: dataF2P },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const responseF2P = await api.post(`/api/players/track`).send({ username: 'f2p' });
@@ -227,10 +227,10 @@ describe('Player API', () => {
     it('should track player (ironman)', async () => {
       // Mock the hiscores to mark the next tracked player as a regular ironman
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 404 },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       const response = await api.post(`/api/players/track`).send({ username: 'Hydrox6' });
@@ -248,8 +248,8 @@ describe('Player API', () => {
 
       // Revert the hiscores mocking back to "regular" player type
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
     });
 
@@ -271,8 +271,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -287,8 +287,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -304,8 +304,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -507,8 +507,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -534,8 +534,8 @@ describe('Player API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       // Unflag the player
@@ -545,8 +545,8 @@ describe('Player API', () => {
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const response = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
@@ -558,10 +558,10 @@ describe('Player API', () => {
     it('should assert player type (regular -> ultimate)', async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
       });
 
       const assertTypeResponse = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });

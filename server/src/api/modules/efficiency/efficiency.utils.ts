@@ -1,11 +1,4 @@
-import {
-  MAX_SKILL_EXP,
-  SKILL_EXP_AT_99,
-  getMetricValueKey,
-  BOSSES,
-  SKILLS,
-  round
-} from '@wise-old-man/utils';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99, getMetricValueKey, round } from '@wise-old-man/utils';
 import { mapValues } from 'lodash';
 import {
   BossEnum,
@@ -16,8 +9,8 @@ import {
   Skills,
   Snapshot,
   VirtualEnum,
-  PlayerTypeEnum,
-  PlayerBuildEnum
+  PlayerType,
+  PlayerBuild
 } from '../../../prisma';
 import {
   AlgorithmCache,
@@ -102,20 +95,16 @@ export function getRates(metric: VirtualEnum, type: EfficiencyAlgorithmType) {
 }
 
 export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
-  const { type = PlayerTypeEnum.REGULAR, build = PlayerBuildEnum.MAIN } = player || {};
+  const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
 
-  if (
-    type === PlayerTypeEnum.IRONMAN ||
-    type === PlayerTypeEnum.HARDCORE ||
-    type === PlayerTypeEnum.ULTIMATE
-  ) {
+  if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE || type === PlayerType.ULTIMATE) {
     return ALGORITHMS.ironman;
   }
 
   switch (build) {
-    case PlayerBuildEnum.F2P:
+    case PlayerBuild.F2P:
       return ALGORITHMS.f2p;
-    case PlayerBuildEnum.LVL3:
+    case PlayerBuild.LVL3:
       return ALGORITHMS.lvl3;
     default:
       return ALGORITHMS.main;
@@ -226,11 +215,11 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
 }
 
 function getKillcountMap(snapshot: Snapshot): KillcountMap {
-  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
+  return Object.fromEntries(Bosses.map(b => [b, snapshot[getMetricValueKey(b as any)]]));
 }
 
 function getExperienceMap(snapshot: Snapshot): ExperienceMap {
-  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
+  return Object.fromEntries(Skills.map(s => [s, snapshot[getMetricValueKey(s as any)]]));
 }
 
 function getPlayerEHB(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {

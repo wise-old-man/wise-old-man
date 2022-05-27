@@ -2,7 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import { Metrics } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerTypeEnum } from '../../src/prisma';
+import { PlayerType } from '../../src/prisma';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import {
@@ -40,8 +40,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+    [PlayerType.IRONMAN]: { statusCode: 404 }
   });
 
   done();
@@ -85,8 +85,8 @@ describe('Deltas API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const secondTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -122,8 +122,8 @@ describe('Deltas API', () => {
       ]);
 
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
       const thirdTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
@@ -131,10 +131,10 @@ describe('Deltas API', () => {
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       // Wait for the deltas to update
@@ -496,10 +496,10 @@ describe('Deltas API', () => {
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
       registerHiscoresMock(axiosMock, {
-        [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerTypeEnum.ULTIMATE]: { statusCode: 404 }
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
       const trackResponse = await api.post(`/api/players/track`).send({ username: 'hydrox6' });

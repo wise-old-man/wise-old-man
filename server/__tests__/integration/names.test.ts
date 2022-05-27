@@ -5,7 +5,7 @@ import { getMetricValueKey, getMetricRankKey, METRICS } from '@wise-old-man/util
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
-import prisma, { PlayerTypeEnum, setHooksEnabled } from '../../src/prisma';
+import prisma, { PlayerType, setHooksEnabled } from '../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../utils';
 
 const api = supertest(apiServer);
@@ -31,8 +31,8 @@ beforeAll(async done => {
 
   // Mock regular hiscores data, and block any ironman requests
   registerHiscoresMock(axiosMock, {
-    [PlayerTypeEnum.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
-    [PlayerTypeEnum.IRONMAN]: { statusCode: 404 }
+    [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+    [PlayerType.IRONMAN]: { statusCode: 404 }
   });
 
   done();

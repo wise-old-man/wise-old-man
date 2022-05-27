@@ -1,16 +1,9 @@
 import { z } from 'zod';
-import prisma, {
-  Record,
-  PeriodEnum,
-  MetricEnum,
-  PrismaTypes,
-  VirtualEnum,
-  Virtuals
-} from '../../../../prisma';
+import prisma, { Record, Period, MetricEnum, PrismaTypes, VirtualEnum, Virtuals } from '../../../../prisma';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
-  period: z.nativeEnum(PeriodEnum),
+  period: z.nativeEnum(Period),
   metricDeltas: z.array(
     z.object({
       metric: z.nativeEnum(MetricEnum),
