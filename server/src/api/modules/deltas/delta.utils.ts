@@ -1,4 +1,3 @@
-import { round } from '@wise-old-man/utils';
 import { Snapshot, Player } from '../../../prisma';
 import {
   getTotalLevel,
@@ -16,7 +15,8 @@ import {
   isVirtualMetric,
   getMinimumBossKc,
   getMetricRankKey,
-  getMetricValueKey
+  getMetricValueKey,
+  round
 } from '../../../utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import {

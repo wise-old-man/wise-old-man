@@ -1,6 +1,6 @@
-import { parsePeriodExpression } from '@wise-old-man/utils';
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
+import { parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';

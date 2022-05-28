@@ -1,6 +1,6 @@
-import { parsePeriodExpression } from '@wise-old-man/utils';
 import { z } from 'zod';
 import prisma, { Snapshot, modifySnapshots, PrismaTypes } from '../../../../prisma';
+import { parsePeriodExpression } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
 const inputSchema = z

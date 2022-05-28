@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { parsePeriodExpression } from '@wise-old-man/utils';
-import { Metric } from '../../../../utils';
+import { Metric, parsePeriodExpression } from '../../../../utils';
 import prisma, { Snapshot, Player, modifyPlayer } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
