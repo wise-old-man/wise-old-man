@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayers, Country, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild } from '../../../../utils/players';
-import { Metric, Virtual } from '../../../../utils/metrics';
+import { PlayerType, PlayerBuild, Metric, Virtual } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';

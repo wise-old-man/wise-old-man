@@ -1,4 +1,4 @@
-import { PERIODS, Period, PeriodProps, findPeriod, parsePeriodExpression } from '../../src/utils/periods';
+import { PERIODS, Period, PeriodProps, findPeriod, parsePeriodExpression } from '../../src/utils';
 
 describe('Util - Periods', () => {
   test('Props', () => {

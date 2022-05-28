@@ -7,7 +7,7 @@ import {
   COMPETITION_STATUSES,
   CompetitionStatus
 } from '@wise-old-man/utils';
-import { Metric, METRICS, getMetricValueKey, isVirtualMetric } from '../../../utils/metrics';
+import { Metric, METRICS, getMetricValueKey, isVirtualMetric } from '../../../utils';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';

@@ -1,5 +1,4 @@
-import { Period, PeriodProps, PERIODS } from '../../../../utils/periods';
-import { SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils/metrics';
+import { Period, PeriodProps, PERIODS, SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils';
 import prisma, { Player, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePlayerDeltas } from '../delta.utils';

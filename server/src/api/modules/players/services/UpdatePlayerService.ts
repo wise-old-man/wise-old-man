@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerType } from '../../../../utils/players';
+import { PlayerType } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
 import { getBuild, shouldUpdate } from '../player.utils';
 import * as jagexService from '../../../services/external/jagex.service';

@@ -1,4 +1,4 @@
-import { Activity, Boss, Skill, Virtual } from '../../../utils/metrics';
+import { Activity, Boss, Skill, Virtual } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;

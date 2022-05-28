@@ -1,4 +1,4 @@
-import { METRICS } from '../../utils/metrics';
+import { METRICS } from '../../utils';
 import { Delta } from '../../prisma';
 import metrics from '../services/external/metrics.service';
 import * as recordServices from '../modules/records/record.services';

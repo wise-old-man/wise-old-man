@@ -1,4 +1,4 @@
-import { Metric } from '../../../utils/metrics';
+import { Metric } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 
 interface AchievementTemplate {

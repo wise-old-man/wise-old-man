@@ -8,9 +8,12 @@ import {
   getMetricValueKey,
   getMetricMeasure,
   getMetricRankKey,
-  isSkill
-} from '../../../utils/metrics';
-import { get200msCount, getCombatLevel, getTotalLevel, getLevel } from '../../../utils/experience';
+  isSkill,
+  get200msCount,
+  getCombatLevel,
+  getTotalLevel,
+  getLevel
+} from '../../../utils';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Snapshot } from '../../../database/models';

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { Metric } from '../../../../utils/metrics';
-import { Period } from '../../../../utils/periods';
+import { Period, Metric } from '../../../../utils';
 import prisma, { Record, modifyRecords } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';

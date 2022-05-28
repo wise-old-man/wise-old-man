@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { Virtual } from '../../../../utils/metrics';
-import { PlayerType } from '../../../../utils/players';
+import { Virtual, PlayerType } from '../../../../utils';
 import prisma from '../../../../prisma';
 
 const inputSchema = z.object({

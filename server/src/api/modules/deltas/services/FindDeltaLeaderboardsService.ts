@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { Metric } from '../../../../utils/metrics';
-import { Period, PeriodProps } from '../../../../utils/periods';
-import { PlayerType, PlayerBuild } from '../../../../utils/players';
+import { Period, PeriodProps, Metric, PlayerType, PlayerBuild } from '../../../../utils';
 import prisma, { Player, Country, PrismaTypes, modifyDeltas, Delta } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 

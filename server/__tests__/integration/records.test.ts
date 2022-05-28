@@ -4,8 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import prisma from '../../src/prisma';
-import { Metric } from '../../src/utils/metrics';
-import { PlayerType } from '../../src/utils/players';
+import { PlayerType, Metric } from '../../src/utils';
 import {
   registerCMLMock,
   registerHiscoresMock,

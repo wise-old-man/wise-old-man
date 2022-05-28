@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { Metric } from '../../../../utils/metrics';
-import { Period } from '../../../../utils/periods';
+import { Period, Metric } from '../../../../utils';
 import prisma, { Record, PrismaTypes, modifyRecords } from '../../../../prisma';
 
 const inputSchema = z.object({

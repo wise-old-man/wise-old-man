@@ -1,13 +1,6 @@
 import { z } from 'zod';
 import csv from 'csvtojson';
-import {
-  BOSSES,
-  ACTIVITIES,
-  Metric,
-  SKILLS,
-  getMetricRankKey,
-  getMetricValueKey
-} from '../../../../utils/metrics';
+import { BOSSES, ACTIVITIES, Metric, SKILLS, getMetricRankKey, getMetricValueKey } from '../../../../utils';
 import { Snapshot } from '../../../../prisma';
 import { ServerError } from '../../../errors';
 import { SnapshotDataSource } from '../snapshot.types';

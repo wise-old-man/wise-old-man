@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { round } from '@wise-old-man/utils';
-import { Metric, MetricMeasure } from '../../../../utils/metrics';
+import { Metric, MetricMeasure } from '../../../../utils';
 import prisma, { Achievement, modifyAchievements } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { ProgressAchievement, AchievementDefinition } from '../achievement.types';

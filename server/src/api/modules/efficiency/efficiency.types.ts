@@ -1,4 +1,4 @@
-import { Skill, Boss } from '../../../utils/metrics';
+import { Skill, Boss } from '../../../utils';
 
 export type ExperienceMap = {
   [skill in Skill]?: number;

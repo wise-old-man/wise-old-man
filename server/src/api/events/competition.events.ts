@@ -1,6 +1,6 @@
 import { Competition } from '../../database/models';
 import { EventPeriodDelay } from '../../types';
-import { PlayerType } from '../../utils/players';
+import { PlayerType } from '../../utils';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';
 import metrics from '../services/external/metrics.service';

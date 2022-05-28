@@ -9,7 +9,7 @@ import {
   Prisma,
   Country
 } from '@prisma/client';
-import { isVirtualMetric } from '../utils/metrics';
+import { isVirtualMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';

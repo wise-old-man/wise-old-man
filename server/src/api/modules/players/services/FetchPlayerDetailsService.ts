@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../../prisma';
-import { getCombatLevel } from '../../../../utils/experience';
+import { getCombatLevel } from '../../../../utils';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';

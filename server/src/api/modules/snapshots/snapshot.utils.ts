@@ -6,7 +6,7 @@ import {
   isSkill,
   Metric,
   METRICS
-} from '../../../utils/metrics';
+} from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';

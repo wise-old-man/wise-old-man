@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { Metric } from '../../../../utils/metrics';
-import { Period } from '../../../../utils/periods';
-import { PlayerType, PlayerBuild } from '../../../../utils/players';
+import { PlayerType, PlayerBuild, Period, Metric } from '../../../../utils';
 import prisma, { Country, Record, PrismaTypes, modifyRecords } from '../../../../prisma';
 
 const MAX_RESULTS = 20;

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import prisma, { Record, PrismaTypes } from '../../../../prisma';
-import { isVirtualMetric, Metric } from '../../../../utils/metrics';
-import { Period } from '../../../../utils/periods';
+import { Period, isVirtualMetric, Metric } from '../../../../utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),

@@ -3,8 +3,7 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import env from '../../src/env';
 import apiServer from '../../src/api';
-import { BOSSES, Metric } from '../../src/utils/metrics';
-import { PlayerType } from '../../src/utils/players';
+import { BOSSES, Metric, PlayerType } from '../../src/utils';
 import {
   registerCMLMock,
   registerHiscoresMock,

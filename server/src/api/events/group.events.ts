@@ -1,4 +1,4 @@
-import { PlayerType } from '../../utils/players';
+import { PlayerType } from '../../utils';
 import * as discordService from '../services/external/discord.service';
 import logger from '../services/external/logger.service';
 import metrics from '../services/external/metrics.service';

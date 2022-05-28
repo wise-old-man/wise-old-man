@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Period, PeriodProps } from '../../../../utils/periods';
+import { Period, PeriodProps } from '../../../../utils';
 import prisma from '../../../../prisma';
 import { RateLimitError } from '../../../errors';
 import * as playerUtils from '../player.utils';

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { Period } from '../../../utils/periods';
+import { Period } from '../../../utils';
 import { Delta } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import { Job } from '../index';

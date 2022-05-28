@@ -1,6 +1,6 @@
 import { BadRequestError, ServerError } from '../../../errors';
 import prisma, { modifyPlayer, Player } from '../../../../prisma';
-import { PlayerType } from '../../../../utils/players';
+import { PlayerType } from '../../../../utils';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
 import { onPlayerTypeChanged } from '../../../events/player.events';

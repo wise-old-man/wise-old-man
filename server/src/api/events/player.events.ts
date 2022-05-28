@@ -1,5 +1,5 @@
 import { Snapshot, Player as PrismaPlayer } from '../../prisma';
-import { PlayerType } from '../../utils/players';
+import { PlayerType } from '../../utils';
 import { Player } from '../../database/models';
 import jobs from '../jobs';
 import * as discordService from '../services/external/discord.service';

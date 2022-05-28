@@ -1,7 +1,8 @@
 import { round } from '@wise-old-man/utils';
-import { getTotalLevel, getLevel } from '../../../utils/experience';
 import { Snapshot, Player } from '../../../prisma';
 import {
+  getTotalLevel,
+  getLevel,
   SKILLS,
   BOSSES,
   ACTIVITIES,
@@ -16,7 +17,7 @@ import {
   getMinimumBossKc,
   getMetricRankKey,
   getMetricValueKey
-} from '../../../utils/metrics';
+} from '../../../utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityDelta,

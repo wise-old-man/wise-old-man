@@ -1,4 +1,4 @@
-import { isActivity, isBoss, isSkill, Metric } from '../../../utils/metrics';
+import { isActivity, isBoss, isSkill, Metric } from '../../../utils';
 import { Competition } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
