@@ -1,8 +1,8 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { getMetricValueKey, getMetricRankKey, Metrics } from '@wise-old-man/utils';
-import { PlayerType, Skills } from '../../src/prisma';
+import { SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../src/utils/metrics';
+import { PlayerType } from '../../src/prisma';
 import * as playerServices from '../../src/api/modules/players/player.services';
 import * as services from '../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../src/api/modules/snapshots/snapshot.utils';
@@ -87,13 +87,13 @@ describe('Snapshots API', () => {
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
 
-      Skills.forEach(skill => {
-        if (skill === Metrics.OVERALL) {
+      SKILLS.forEach(skill => {
+        if (skill === Metric.OVERALL) {
           expect(snapshot.overallRank).toBe(1);
-          expect(snapshot.overallExperience).toBe((Skills.length - 1) * 200000000);
+          expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
         } else {
-          expect(snapshot[getMetricRankKey(skill as any)]).toBeLessThan(1000);
-          expect(snapshot[getMetricValueKey(skill as any)]).toBe(200000000);
+          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(1000);
+          expect(snapshot[getMetricValueKey(skill)]).toBe(200000000);
         }
       });
 
@@ -110,13 +110,13 @@ describe('Snapshots API', () => {
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
 
-      Skills.forEach(skill => {
-        if (skill === Metrics.OVERALL) {
+      SKILLS.forEach(skill => {
+        if (skill === Metric.OVERALL) {
           expect(snapshot.overallRank).toBe(51181);
           expect(snapshot.overallExperience).toBe(300_192_115);
         } else {
-          expect(snapshot[getMetricRankKey(skill as any)]).toBeLessThan(260_000);
-          expect(snapshot[getMetricValueKey(skill as any)]).toBeGreaterThan(4_000_000);
+          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(260_000);
+          expect(snapshot[getMetricValueKey(skill)]).toBeGreaterThan(4_000_000);
         }
       });
 
@@ -176,13 +176,13 @@ describe('Snapshots API', () => {
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).not.toBeUndefined();
 
-      Skills.forEach(skill => {
-        if (skill === Metrics.OVERALL) {
+      SKILLS.forEach(skill => {
+        if (skill === Metric.OVERALL) {
           expect(snapshot.overallRank).toBe(1);
-          expect(snapshot.overallExperience).toBe((Skills.length - 1) * 200000000);
+          expect(snapshot.overallExperience).toBe((SKILLS.length - 1) * 200000000);
         } else {
-          expect(snapshot[getMetricRankKey(skill as any)]).toBeLessThan(1000);
-          expect(snapshot[getMetricValueKey(skill as any)]).toBe(200000000);
+          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(1000);
+          expect(snapshot[getMetricValueKey(skill)]).toBe(200000000);
         }
       });
     });
@@ -200,13 +200,13 @@ describe('Snapshots API', () => {
       expect(snapshot.createdAt.getTime()).toBe(1588939931000);
       expect(snapshot.importedAt).not.toBeUndefined();
 
-      Skills.forEach(skill => {
-        if (skill === Metrics.OVERALL) {
+      SKILLS.forEach(skill => {
+        if (skill === Metric.OVERALL) {
           expect(snapshot.overallRank).toBe(30156);
           expect(snapshot.overallExperience).toBe(279142172);
         } else {
-          expect(snapshot[getMetricRankKey(skill as any)]).toBeLessThan(260_000);
-          expect(snapshot[getMetricValueKey(skill as any)]).toBeGreaterThan(3_000_000);
+          expect(snapshot[getMetricRankKey(skill)]).toBeLessThan(260_000);
+          expect(snapshot[getMetricValueKey(skill)]).toBeGreaterThan(3_000_000);
         }
       });
     });

@@ -1,27 +1,22 @@
+import { round, getLevel } from '@wise-old-man/utils';
+import { getTotalLevel } from '../../util/experience';
+import { Snapshot, Player } from '../../../prisma';
 import {
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  VIRTUALS,
+  Metric,
+  Skill,
+  Boss,
+  Activity,
+  Virtual,
   isSkill,
   isVirtualMetric,
-  Metric,
   getMinimumBossKc,
   getMetricRankKey,
-  getMetricValueKey,
-  round,
-  getLevel
-} from '@wise-old-man/utils';
-import { getTotalLevel } from '../../util/experience';
-import {
-  Snapshot,
-  Player,
-  Skills,
-  Bosses,
-  Activities,
-  Virtuals,
-  MetricEnum,
-  SkillEnum,
-  BossEnum,
-  ActivityEnum,
-  VirtualEnum
-} from '../../../prisma';
+  getMetricValueKey
+} from '../../../utils/metrics';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import {
   ActivityDelta,
@@ -36,8 +31,8 @@ import { EfficiencyMap } from '../efficiency/efficiency.types';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 
-export function parseNum(metric: MetricEnum, val: string) {
-  return isVirtualMetric(metric as Metric) ? parseFloat(val) : parseInt(val);
+export function parseNum(metric: Metric, val: string) {
+  return isVirtualMetric(metric) ? parseFloat(val) : parseInt(val);
 }
 
 export function flattenPlayerDeltas(deltas: PlayerDeltasMap): PlayerDeltasArray {
@@ -58,16 +53,15 @@ export function flattenPlayerDeltas(deltas: PlayerDeltasMap): PlayerDeltasArray 
  * - Ending Snapshot: Attack Rank: 57,331
  * - Output: { start: 45636, end:  57331, gained: 11695 }
  */
-function calculateRankDiff(metric: MetricEnum, startSnapshot: Snapshot, endSnapshot: Snapshot) {
-  const rankKey = getMetricRankKey(metric as Metric);
+function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
+  const rankKey = getMetricRankKey(metric);
 
   const startRank: number = startSnapshot[rankKey] || -1;
   const endRank: number = endSnapshot[rankKey] || -1;
 
   // Do not use initial ranks for skill, to prevent -1 ranks from creating crazy diffs
   // (introduced by https://github.com/wise-old-man/wise-old-man/pull/93)
-  const gainedRank =
-    isSkill(metric as Metric) && startSnapshot[rankKey] === -1 ? 0 : endRank - Math.max(0, startRank);
+  const gainedRank = isSkill(metric) && startSnapshot[rankKey] === -1 ? 0 : endRank - Math.max(0, startRank);
 
   return {
     gained: gainedRank,
@@ -95,9 +89,9 @@ function calculateRankDiff(metric: MetricEnum, startSnapshot: Snapshot, endSnaps
  * - Ending Snapshot: OverallExp: 5,566,255
  * - Output: { start: -1, end:  5566255, gained: 0 }
  */
-function calculateValueDiff(metric: MetricEnum, startSnapshot: Snapshot, endSnapshot: Snapshot) {
-  const minimumValue = getMinimumBossKc(metric as Metric);
-  const valueKey = getMetricValueKey(metric as Metric);
+function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
+  const minimumValue = getMinimumBossKc(metric);
+  const valueKey = getMetricValueKey(metric);
 
   const startValue = parseNum(metric, startSnapshot[valueKey] || -1);
   const endValue = parseNum(metric, endSnapshot[valueKey] || -1);
@@ -107,7 +101,7 @@ function calculateValueDiff(metric: MetricEnum, startSnapshot: Snapshot, endSnap
   // Some players with low total level (but high exp) can sometimes fall off the hiscores
   // causing their starting exp to be -1, this would then cause the diff to think
   // that their entire ranked exp has just been gained (by jumping from -1 to 40m, for example)
-  if (metric === MetricEnum.OVERALL && startValue === -1) gainedValue = 0;
+  if (metric === Metric.OVERALL && startValue === -1) gainedValue = 0;
 
   return {
     gained: gainedValue,
@@ -119,7 +113,7 @@ function calculateValueDiff(metric: MetricEnum, startSnapshot: Snapshot, endSnap
 /**
  * Calculates the efficiency (ehp/ehb) difference between two snapshots, for a given metric.
  */
-function calculateEfficiencyDiff(metric: MetricEnum, startMap: EfficiencyMap, endMap: EfficiencyMap) {
+function calculateEfficiencyDiff(metric: Metric, startMap: EfficiencyMap, endMap: EfficiencyMap) {
   // Calculate EHP/EHB diffs
   const startEfficiency = startMap[metric];
   const endEfficiency = endMap[metric];
@@ -166,12 +160,12 @@ function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
  * by summing the levels of each individual skill.
  */
 function calculateLevelDiff(
-  metric: MetricEnum,
+  metric: Metric,
   startSnapshot: Snapshot,
   endSnapshot: Snapshot,
   valueDiff: MeasuredDeltaProgress
 ) {
-  if (metric === MetricEnum.OVERALL) {
+  if (metric === Metric.OVERALL) {
     const startTotalLevel = getTotalLevel(startSnapshot as any);
     const endTotalLevel = getTotalLevel(endSnapshot as any);
 
@@ -198,12 +192,12 @@ function calculateLevelDiff(
  */
 export function calculateMetricDelta(
   player: Player,
-  metric: MetricEnum,
+  metric: Metric,
   startSnapshot: Snapshot,
   endSnapshot: Snapshot
 ) {
-  if (metric === MetricEnum.EHP) return calculateEHPDiff(startSnapshot, endSnapshot, player);
-  if (metric === MetricEnum.EHB) return calculateEHBDiff(startSnapshot, endSnapshot, player);
+  if (metric === Metric.EHP) return calculateEHPDiff(startSnapshot, endSnapshot, player);
+  if (metric === Metric.EHB) return calculateEHBDiff(startSnapshot, endSnapshot, player);
   return calculateValueDiff(metric, startSnapshot, endSnapshot);
 }
 
@@ -214,7 +208,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
   const startEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(startSnapshot, player);
   const endEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(endSnapshot, player);
 
-  function calculateSkillDelta(skill: SkillEnum): SkillDelta {
+  function calculateSkillDelta(skill: Skill): SkillDelta {
     const valueDiff = calculateValueDiff(skill, startSnapshot, endSnapshot);
 
     return {
@@ -226,7 +220,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateBossDelta(boss: BossEnum): BossDelta {
+  function calculateBossDelta(boss: Boss): BossDelta {
     return {
       metric: boss,
       ehb: calculateEfficiencyDiff(boss, startEfficiencyMap, endEfficiencyMap),
@@ -235,7 +229,7 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateActivityDelta(activity: ActivityEnum): ActivityDelta {
+  function calculateActivityDelta(activity: Activity): ActivityDelta {
     return {
       metric: activity,
       rank: calculateRankDiff(activity, startSnapshot, endSnapshot),
@@ -243,9 +237,9 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateVirtualDelta(virtual: VirtualEnum): VirtualDelta {
+  function calculateVirtualDelta(virtual: Virtual): VirtualDelta {
     const valueDiff =
-      virtual === VirtualEnum.EHP
+      virtual === Virtual.EHP
         ? calculateEHPDiff(startSnapshot, endSnapshot, player)
         : calculateEHBDiff(startSnapshot, endSnapshot, player);
 
@@ -257,10 +251,10 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
   }
 
   const deltas: PlayerDeltasMap = {
-    skills: Object.fromEntries(Skills.map(s => [s, calculateSkillDelta(s)])),
-    bosses: Object.fromEntries(Bosses.map(b => [b, calculateBossDelta(b)])),
-    activities: Object.fromEntries(Activities.map(a => [a, calculateActivityDelta(a)])),
-    virtuals: Object.fromEntries(Virtuals.map(v => [v, calculateVirtualDelta(v)]))
+    skills: Object.fromEntries(SKILLS.map(s => [s, calculateSkillDelta(s)])),
+    bosses: Object.fromEntries(BOSSES.map(b => [b, calculateBossDelta(b)])),
+    activities: Object.fromEntries(ACTIVITIES.map(a => [a, calculateActivityDelta(a)])),
+    virtuals: Object.fromEntries(VIRTUALS.map(v => [v, calculateVirtualDelta(v)]))
   };
 
   // Special Handling for Overall EHP
@@ -271,25 +265,25 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
 
 export function emptyPlayerDelta(): PlayerDeltasArray {
   return {
-    skills: Skills.map(skill => ({
+    skills: SKILLS.map(skill => ({
       metric: skill,
       ehp: EMPTY_PROGRESS,
       rank: EMPTY_PROGRESS,
       level: EMPTY_PROGRESS,
       experience: EMPTY_PROGRESS
     })),
-    bosses: Bosses.map(boss => ({
+    bosses: BOSSES.map(boss => ({
       metric: boss,
       ehb: EMPTY_PROGRESS,
       rank: EMPTY_PROGRESS,
       kills: EMPTY_PROGRESS
     })),
-    activities: Activities.map(activity => ({
+    activities: ACTIVITIES.map(activity => ({
       metric: activity,
       rank: EMPTY_PROGRESS,
       score: EMPTY_PROGRESS
     })),
-    virtuals: Virtuals.map(virtual => ({
+    virtuals: VIRTUALS.map(virtual => ({
       metric: virtual,
       rank: EMPTY_PROGRESS,
       value: EMPTY_PROGRESS

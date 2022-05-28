@@ -9,24 +9,15 @@ import {
   Prisma,
   Country
 } from '@prisma/client';
+import { isVirtualMetric } from '../utils/metrics';
 import {
-  SkillEnum,
-  BossEnum,
-  ActivityEnum,
-  VirtualEnum,
-  MetricEnum,
   Period,
   Periods,
   PlayerTypes,
   PlayerType,
   PlayerBuilds,
   PlayerBuild,
-  NameChangeStatus,
-  Metrics,
-  Skills,
-  Bosses,
-  Activities,
-  Virtuals
+  NameChangeStatus
 } from './enum-adapter';
 import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';
@@ -79,8 +70,8 @@ function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
     // All records' values are stored as an Integer, but EHP/EHB records can have
     // float values, so they're multiplied by 10,000 when saving to the database.
     // Inversely, we need to divide any EHP/EHB records by 10,000 when fetching from the database.
-    const isVirtualMetric = Virtuals.includes(a.metric as VirtualEnum);
-    const convertedValue = isVirtualMetric ? parseBigInt(a.value) / 10_000 : parseBigInt(a.value);
+    const isVirtual = isVirtualMetric(a.metric);
+    const convertedValue = isVirtual ? parseBigInt(a.value) / 10_000 : parseBigInt(a.value);
 
     return { ...a, value: convertedValue };
   });
@@ -120,22 +111,12 @@ export {
   ModifiedAchievement as Achievement,
   // Enums
   Country,
-  SkillEnum,
-  BossEnum,
-  ActivityEnum,
-  VirtualEnum,
-  MetricEnum,
   Period,
   PlayerType,
   PlayerBuild,
   NameChangeStatus,
   // List
   Periods,
-  Metrics,
-  Skills,
-  Bosses,
-  Activities,
-  Virtuals,
   PlayerTypes,
   PlayerBuilds,
   // Utils

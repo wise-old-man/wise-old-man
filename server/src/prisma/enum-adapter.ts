@@ -154,12 +154,6 @@ export const MetricEnum = {
   ...VirtualEnum
 } as const;
 
-export const Metrics = Object.values(MetricEnum);
-export const Skills = Object.values(SkillEnum);
-export const Bosses = Object.values(BossEnum);
-export const Activities = Object.values(ActivityEnum);
-export const Virtuals = Object.values(VirtualEnum);
-
 export type SkillEnum = typeof SkillEnum[keyof typeof SkillEnum];
 export type ActivityEnum = typeof ActivityEnum[keyof typeof ActivityEnum];
 export type BossEnum = typeof BossEnum[keyof typeof BossEnum];

@@ -1,4 +1,5 @@
-import { Snapshot, MetricEnum } from '../../../prisma';
+import { Snapshot } from '../../../prisma';
+import { Metric } from '../../../utils/metrics';
 import { AchievementTemplate } from './achievement.types';
 import { getMinimumExp } from '../../util/experience';
 
@@ -8,7 +9,7 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
   {
     name: 'Base {level} Stats',
-    metric: MetricEnum.OVERALL,
+    metric: Metric.OVERALL,
     measure: 'levels',
     thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
     getCurrentValue: (snapshot: Snapshot) => {
@@ -20,122 +21,122 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
   {
     name: '{threshold} Overall Exp.',
-    metric: MetricEnum.OVERALL,
+    metric: Metric.OVERALL,
     thresholds: [100_000_000, 200_000_000, 500_000_000, 1_000_000_000, 2_000_000_000, 4_600_000_000]
   },
   {
     name: '{threshold} Attack',
-    metric: MetricEnum.ATTACK,
+    metric: Metric.ATTACK,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Defence',
-    metric: MetricEnum.DEFENCE,
+    metric: Metric.DEFENCE,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Strength',
-    metric: MetricEnum.STRENGTH,
+    metric: Metric.STRENGTH,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Hitpoints',
-    metric: MetricEnum.HITPOINTS,
+    metric: Metric.HITPOINTS,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Ranged',
-    metric: MetricEnum.RANGED,
+    metric: Metric.RANGED,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Prayer',
-    metric: MetricEnum.PRAYER,
+    metric: Metric.PRAYER,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Magic',
-    metric: MetricEnum.MAGIC,
+    metric: Metric.MAGIC,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Cooking',
-    metric: MetricEnum.COOKING,
+    metric: Metric.COOKING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Woodcutting',
-    metric: MetricEnum.WOODCUTTING,
+    metric: Metric.WOODCUTTING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Fletching',
-    metric: MetricEnum.FLETCHING,
+    metric: Metric.FLETCHING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Fishing',
-    metric: MetricEnum.FISHING,
+    metric: Metric.FISHING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Firemaking',
-    metric: MetricEnum.FIREMAKING,
+    metric: Metric.FIREMAKING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Crafting',
-    metric: MetricEnum.CRAFTING,
+    metric: Metric.CRAFTING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Smithing',
-    metric: MetricEnum.SMITHING,
+    metric: Metric.SMITHING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Mining',
-    metric: MetricEnum.MINING,
+    metric: Metric.MINING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Herblore',
-    metric: MetricEnum.HERBLORE,
+    metric: Metric.HERBLORE,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Agility',
-    metric: MetricEnum.AGILITY,
+    metric: Metric.AGILITY,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Thieving',
-    metric: MetricEnum.THIEVING,
+    metric: Metric.THIEVING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Slayer',
-    metric: MetricEnum.SLAYER,
+    metric: Metric.SLAYER,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Farming',
-    metric: MetricEnum.FARMING,
+    metric: Metric.FARMING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Runecrafting',
-    metric: MetricEnum.RUNECRAFTING,
+    metric: Metric.RUNECRAFTING,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Hunter',
-    metric: MetricEnum.HUNTER,
+    metric: Metric.HUNTER,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   {
     name: '{threshold} Construction',
-    metric: MetricEnum.CONSTRUCTION,
+    metric: Metric.CONSTRUCTION,
     thresholds: [13_034_431, 50_000_000, 100_000_000, 200_000_000]
   },
   // -----------------
@@ -143,242 +144,242 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // -----------------
   {
     name: '{threshold} Abyssal Sire kills',
-    metric: MetricEnum.ABYSSAL_SIRE,
+    metric: Metric.ABYSSAL_SIRE,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Alchemical Hydra kills',
-    metric: MetricEnum.ALCHEMICAL_HYDRA,
+    metric: Metric.ALCHEMICAL_HYDRA,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Barrows Chests',
-    metric: MetricEnum.BARROWS_CHESTS,
+    metric: Metric.BARROWS_CHESTS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Bryophyta kills',
-    metric: MetricEnum.BRYOPHYTA,
+    metric: Metric.BRYOPHYTA,
     thresholds: [50, 100, 500, 1000]
   },
   {
     name: '{threshold} Callisto kills',
-    metric: MetricEnum.CALLISTO,
+    metric: Metric.CALLISTO,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Cerberus kills',
-    metric: MetricEnum.CERBERUS,
+    metric: Metric.CERBERUS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Chambers Of Xeric kills',
-    metric: MetricEnum.CHAMBERS_OF_XERIC,
+    metric: Metric.CHAMBERS_OF_XERIC,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Chambers Of Xeric (CM) kills',
-    metric: MetricEnum.CHAMBERS_OF_XERIC_CM,
+    metric: Metric.CHAMBERS_OF_XERIC_CM,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Chaos Elemental kills',
-    metric: MetricEnum.CHAOS_ELEMENTAL,
+    metric: Metric.CHAOS_ELEMENTAL,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Chaos Fanatic kills',
-    metric: MetricEnum.CHAOS_FANATIC,
+    metric: Metric.CHAOS_FANATIC,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Commander Zilyana kills',
-    metric: MetricEnum.COMMANDER_ZILYANA,
+    metric: Metric.COMMANDER_ZILYANA,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Corporeal Beast kills',
-    metric: MetricEnum.CORPOREAL_BEAST,
+    metric: Metric.CORPOREAL_BEAST,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Crazy Archaeologist kills',
-    metric: MetricEnum.CRAZY_ARCHAEOLOGIST,
+    metric: Metric.CRAZY_ARCHAEOLOGIST,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Dagannoth Prime kills',
-    metric: MetricEnum.DAGANNOTH_PRIME,
+    metric: Metric.DAGANNOTH_PRIME,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Dagannoth Rex kills',
-    metric: MetricEnum.DAGANNOTH_REX,
+    metric: Metric.DAGANNOTH_REX,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Dagannoth Supreme kills',
-    metric: MetricEnum.DAGANNOTH_SUPREME,
+    metric: Metric.DAGANNOTH_SUPREME,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Deranged Archaeologist kills',
-    metric: MetricEnum.DERANGED_ARCHAEOLOGIST,
+    metric: Metric.DERANGED_ARCHAEOLOGIST,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} General Graardor kills',
-    metric: MetricEnum.GENERAL_GRAARDOR,
+    metric: Metric.GENERAL_GRAARDOR,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Giant Mole kills',
-    metric: MetricEnum.GIANT_MOLE,
+    metric: Metric.GIANT_MOLE,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Grotesque Guardians kills',
-    metric: MetricEnum.GROTESQUE_GUARDIANS,
+    metric: Metric.GROTESQUE_GUARDIANS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Hespori kills',
-    metric: MetricEnum.HESPORI,
+    metric: Metric.HESPORI,
     thresholds: [50, 100, 500, 1000]
   },
   {
     name: '{threshold} Kalphite Queen kills',
-    metric: MetricEnum.KALPHITE_QUEEN,
+    metric: Metric.KALPHITE_QUEEN,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} King Black Dragon kills',
-    metric: MetricEnum.KING_BLACK_DRAGON,
+    metric: Metric.KING_BLACK_DRAGON,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Kraken kills',
-    metric: MetricEnum.KRAKEN,
+    metric: Metric.KRAKEN,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: "{threshold} Kree'Arra kills",
-    metric: MetricEnum.KREEARRA,
+    metric: Metric.KREEARRA,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: "{threshold} K'ril Tsutsaroth kills",
-    metric: MetricEnum.KRIL_TSUTSAROTH,
+    metric: Metric.KRIL_TSUTSAROTH,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Mimic kills',
-    metric: MetricEnum.MIMIC,
+    metric: Metric.MIMIC,
     thresholds: [10, 50, 100, 200]
   },
   {
     name: '{threshold} Nex kills',
-    metric: MetricEnum.NEX,
+    metric: Metric.NEX,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Nightmare kills',
-    metric: MetricEnum.NIGHTMARE,
+    metric: Metric.NIGHTMARE,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: "{threshold} Phosani's Nightmare kills",
-    metric: MetricEnum.PHOSANIS_NIGHTMARE,
+    metric: Metric.PHOSANIS_NIGHTMARE,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Obor kills',
-    metric: MetricEnum.OBOR,
+    metric: Metric.OBOR,
     thresholds: [50, 100, 500, 1000]
   },
   {
     name: '{threshold} Sarachnis kills',
-    metric: MetricEnum.SARACHNIS,
+    metric: Metric.SARACHNIS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Scorpia kills',
-    metric: MetricEnum.SCORPIA,
+    metric: Metric.SCORPIA,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Skotizo kills',
-    metric: MetricEnum.SKOTIZO,
+    metric: Metric.SKOTIZO,
     thresholds: [50, 100, 500, 1000]
   },
   {
     name: '{threshold} Tempoross kills',
-    metric: MetricEnum.TEMPOROSS,
+    metric: Metric.TEMPOROSS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} The Gauntlet kills',
-    metric: MetricEnum.THE_GAUNTLET,
+    metric: Metric.THE_GAUNTLET,
     thresholds: [100, 200, 1000, 2000]
   },
   {
     name: '{threshold} The Corrupted Gauntlet kills',
-    metric: MetricEnum.THE_CORRUPTED_GAUNTLET,
+    metric: Metric.THE_CORRUPTED_GAUNTLET,
     thresholds: [100, 200, 1000, 2000]
   },
   {
     name: '{threshold} Theatre Of Blood kills',
-    metric: MetricEnum.THEATRE_OF_BLOOD,
+    metric: Metric.THEATRE_OF_BLOOD,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Theatre Of Blood (HM) kills',
-    metric: MetricEnum.THEATRE_OF_BLOOD_HARD_MODE,
+    metric: Metric.THEATRE_OF_BLOOD_HARD_MODE,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Thermonuclear Smoke Devil kills',
-    metric: MetricEnum.THERMONUCLEAR_SMOKE_DEVIL,
+    metric: Metric.THERMONUCLEAR_SMOKE_DEVIL,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} TzKal-Zuk kills',
-    metric: MetricEnum.TZKAL_ZUK,
+    metric: Metric.TZKAL_ZUK,
     thresholds: [10, 50, 100, 200]
   },
   {
     name: '{threshold} TzTok-Jad kills',
-    metric: MetricEnum.TZTOK_JAD,
+    metric: Metric.TZTOK_JAD,
     thresholds: [50, 100, 500, 1000]
   },
   {
     name: '{threshold} Venenatis kills',
-    metric: MetricEnum.VENENATIS,
+    metric: Metric.VENENATIS,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: "{threshold} Vet'ion kills",
-    metric: MetricEnum.VETION,
+    metric: Metric.VETION,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Vorkath kills',
-    metric: MetricEnum.VORKATH,
+    metric: Metric.VORKATH,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Wintertodt kills',
-    metric: MetricEnum.WINTERTODT,
+    metric: Metric.WINTERTODT,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Zalcano kills',
-    metric: MetricEnum.ZALCANO,
+    metric: Metric.ZALCANO,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Zulrah kills',
-    metric: MetricEnum.ZULRAH,
+    metric: Metric.ZULRAH,
     thresholds: [500, 1000, 5000, 10_000]
   },
   // ---------------------
@@ -386,57 +387,57 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ---------------------
   {
     name: '{threshold} Bounty Hunter (Hunter) score',
-    metric: MetricEnum.BOUNTY_HUNTER_HUNTER,
+    metric: Metric.BOUNTY_HUNTER_HUNTER,
     thresholds: [1000, 5000, 10_000]
   },
   {
     name: '{threshold} Bounty Hunter (Rogue) score',
-    metric: MetricEnum.BOUNTY_HUNTER_ROGUE,
+    metric: Metric.BOUNTY_HUNTER_ROGUE,
     thresholds: [1000, 5000, 10_000]
   },
   {
     name: '{threshold} Clue Scrolls (All)',
-    metric: MetricEnum.CLUE_SCROLLS_ALL,
+    metric: Metric.CLUE_SCROLLS_ALL,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Clue Scrolls (Beginner)',
-    metric: MetricEnum.CLUE_SCROLLS_BEGINNER,
+    metric: Metric.CLUE_SCROLLS_BEGINNER,
     thresholds: [200, 500, 1000, 5000]
   },
   {
     name: '{threshold} Clue Scrolls (Easy)',
-    metric: MetricEnum.CLUE_SCROLLS_EASY,
+    metric: Metric.CLUE_SCROLLS_EASY,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Clue Scrolls (Medium)',
-    metric: MetricEnum.CLUE_SCROLLS_MEDIUM,
+    metric: Metric.CLUE_SCROLLS_MEDIUM,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Clue Scrolls (Hard)',
-    metric: MetricEnum.CLUE_SCROLLS_HARD,
+    metric: Metric.CLUE_SCROLLS_HARD,
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Clue Scrolls (Elite)',
-    metric: MetricEnum.CLUE_SCROLLS_ELITE,
+    metric: Metric.CLUE_SCROLLS_ELITE,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Clue Scrolls (Master)',
-    metric: MetricEnum.CLUE_SCROLLS_MASTER,
+    metric: Metric.CLUE_SCROLLS_MASTER,
     thresholds: [100, 500, 1000, 5000]
   },
   {
     name: '{threshold} Last Man Standing score',
-    metric: MetricEnum.LAST_MAN_STANDING,
+    metric: Metric.LAST_MAN_STANDING,
     thresholds: [2000, 5000, 10_000, 15_000]
   },
   {
     name: '{threshold} Soul Wars Zeal',
-    metric: MetricEnum.SOUL_WARS_ZEAL,
+    metric: Metric.SOUL_WARS_ZEAL,
     thresholds: [5000, 10_000, 20_000]
   }
 ];

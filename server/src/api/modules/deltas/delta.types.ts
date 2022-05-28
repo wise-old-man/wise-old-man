@@ -1,4 +1,4 @@
-import { ActivityEnum, BossEnum, SkillEnum, VirtualEnum } from '../../../prisma';
+import { Activity, Boss, Skill, Virtual } from '../../../utils/metrics';
 
 export interface MeasuredDeltaProgress {
   start: number;
@@ -7,7 +7,7 @@ export interface MeasuredDeltaProgress {
 }
 
 export interface SkillDelta {
-  metric: SkillEnum;
+  metric: Skill;
   ehp: MeasuredDeltaProgress;
   rank: MeasuredDeltaProgress;
   level: MeasuredDeltaProgress;
@@ -15,20 +15,20 @@ export interface SkillDelta {
 }
 
 export interface BossDelta {
-  metric: BossEnum;
+  metric: Boss;
   ehb: MeasuredDeltaProgress;
   rank: MeasuredDeltaProgress;
   kills: MeasuredDeltaProgress;
 }
 
 export interface ActivityDelta {
-  metric: ActivityEnum;
+  metric: Activity;
   rank: MeasuredDeltaProgress;
   score: MeasuredDeltaProgress;
 }
 
 export interface VirtualDelta {
-  metric: VirtualEnum;
+  metric: Virtual;
   rank: MeasuredDeltaProgress;
   value: MeasuredDeltaProgress;
 }
@@ -42,15 +42,15 @@ export interface PlayerDeltasArray {
 
 export interface PlayerDeltasMap {
   skills: {
-    [skill in SkillEnum]?: SkillDelta;
+    [skill in Skill]?: SkillDelta;
   };
   bosses: {
-    [boss in BossEnum]?: BossDelta;
+    [boss in Boss]?: BossDelta;
   };
   activities: {
-    [activity in ActivityEnum]?: ActivityDelta;
+    [activity in Activity]?: ActivityDelta;
   };
   virtuals: {
-    [virtual in VirtualEnum]?: VirtualDelta;
+    [virtual in Virtual]?: VirtualDelta;
   };
 }

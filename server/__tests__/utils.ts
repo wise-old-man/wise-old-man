@@ -1,9 +1,9 @@
 import fs from 'fs';
-import { Metric, METRICS } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma, { PlayerType } from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES } from '../src/api/constants';
+import { METRICS, Metric } from '../src/utils/metrics';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {

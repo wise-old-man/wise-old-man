@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getLevel } from '@wise-old-man/utils';
-import prisma, { MetricEnum, NameChange, NameChangeStatus, Skills } from '../../../../prisma';
+import { Metric, REAL_SKILLS } from '../../../../utils/metrics';
+import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';
 
@@ -54,7 +55,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   }
 
   const baseMaxHours = 504;
-  const extraHours = (oldStats[MetricEnum.OVERALL].experience / 2_000_000) * 168;
+  const extraHours = (oldStats[Metric.OVERALL].experience / 2_000_000) * 168;
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
   if (hoursDiff > (baseMaxHours + extraHours) * bundleModifier) {
@@ -66,9 +67,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
     return;
   }
 
-  const totalLevel = Skills.filter(s => s !== MetricEnum.OVERALL)
-    .map(s => getLevel(oldStats[s].experience))
-    .reduce((acc, cur) => acc + cur);
+  const totalLevel = REAL_SKILLS.map(s => getLevel(oldStats[s].experience)).reduce((acc, cur) => acc + cur);
 
   // If is high level enough (high level swaps are harder to fake)
   if (totalLevel < 700 / bundleModifier) {

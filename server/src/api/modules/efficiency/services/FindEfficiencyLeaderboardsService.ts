@@ -1,23 +1,22 @@
 import { z } from 'zod';
 
 import prisma, {
-  MetricEnum,
   modifyPlayers,
   Country,
   Player,
   PlayerType,
   PlayerBuild,
   PrismaPlayer,
-  PrismaTypes,
-  VirtualEnum
+  PrismaTypes
 } from '../../../../prisma';
+import { Metric, Virtual } from '../../../../utils/metrics';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
 
 const inputSchema = z
   .object({
-    metric: z.enum([VirtualEnum.EHP, VirtualEnum.EHB, COMBINED_METRIC]),
+    metric: z.enum([Virtual.EHP, Virtual.EHB, COMBINED_METRIC]),
     country: z.nativeEnum(Country).optional(),
     playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
     playerBuild: z.nativeEnum(PlayerBuild).optional()
@@ -31,7 +30,7 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
 
   const players = await fetchPlayersList(params);
 
-  if (params.offset < 50 && params.metric === MetricEnum.EHP && params.playerType === PlayerType.REGULAR) {
+  if (params.offset < 50 && params.metric === Metric.EHP && params.playerType === PlayerType.REGULAR) {
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.

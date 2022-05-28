@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { parsePeriodExpression } from '@wise-old-man/utils';
-import prisma, { Snapshot, MetricEnum, Player, modifyPlayer } from '../../../../prisma';
+import { Metric } from '../../../../utils/metrics';
+import prisma, { Snapshot, Player, modifyPlayer } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -10,7 +11,7 @@ import { calculateMetricDelta } from '../delta.utils';
 const inputSchema = z
   .object({
     id: z.number().int().positive(),
-    metric: z.nativeEnum(MetricEnum),
+    metric: z.nativeEnum(Metric),
     // These can be filtered by a period string (week, day, 2m3w6d)
     period: z.string().optional(),
     // or by a time range (min date and max date)

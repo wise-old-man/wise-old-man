@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import prisma, { Record, Period, MetricEnum, PrismaTypes, modifyRecords } from '../../../../prisma';
+import { Metric } from '../../../../utils/metrics';
+import prisma, { Record, Period, PrismaTypes, modifyRecords } from '../../../../prisma';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
   period: z.nativeEnum(Period).optional(),
-  metric: z.nativeEnum(MetricEnum).optional()
+  metric: z.nativeEnum(Metric).optional()
 });
 
 type FindPlayerRecordParams = z.infer<typeof inputSchema>;

@@ -1,19 +1,20 @@
 import { z } from 'zod';
-import prisma, { Record, Period, MetricEnum, PrismaTypes, VirtualEnum, Virtuals } from '../../../../prisma';
+import prisma, { Record, Period, PrismaTypes } from '../../../../prisma';
+import { isVirtualMetric, Metric } from '../../../../utils/metrics';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
   period: z.nativeEnum(Period),
   metricDeltas: z.array(
     z.object({
-      metric: z.nativeEnum(MetricEnum),
+      metric: z.nativeEnum(Metric),
       value: z.number()
     })
   )
 });
 
 type RecordMap = {
-  [metric in MetricEnum]?: Record;
+  [metric in Metric]?: Record;
 };
 
 type SyncPlayerRecordsParams = z.infer<typeof inputSchema>;
@@ -70,8 +71,8 @@ async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void
 // All records' values are stored as an Integer, but EHP/EHB records can have
 // float values, so they're multiplied by 10,000 when saving to the database.
 // Inversely, we need to divide any EHP/EHB records by 10,000 when fetching from the database.
-function prepareRecordValue(metric: MetricEnum, value: number) {
-  return Virtuals.includes(metric as VirtualEnum) ? Math.floor(value * 10_000) : value;
+function prepareRecordValue(metric: Metric, value: number) {
+  return isVirtualMetric(metric) ? Math.floor(value * 10_000) : value;
 }
 
 export { syncPlayerRecords };

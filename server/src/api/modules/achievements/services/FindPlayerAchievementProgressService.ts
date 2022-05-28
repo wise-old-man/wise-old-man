@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { round, MetricMeasure } from '@wise-old-man/utils';
-import prisma, { Achievement, modifyAchievements, MetricEnum } from '../../../../prisma';
+import { round } from '@wise-old-man/utils';
+import { Metric, MetricMeasure } from '../../../../utils/metrics';
+import prisma, { Achievement, modifyAchievements } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { ProgressAchievement, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
@@ -47,10 +48,9 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
-  if (definition.metric === MetricEnum.HITPOINTS) return 1154;
-  if (definition.metric === MetricEnum.LAST_MAN_STANDING) return 500;
-  if (definition.metric === MetricEnum.OVERALL && definition.measure === MetricMeasure.EXPERIENCE)
-    return 1154;
+  if (definition.metric === Metric.HITPOINTS) return 1154;
+  if (definition.metric === Metric.LAST_MAN_STANDING) return 500;
+  if (definition.metric === Metric.OVERALL && definition.measure === MetricMeasure.EXPERIENCE) return 1154;
 
   return 0;
 }

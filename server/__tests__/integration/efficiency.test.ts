@@ -1,6 +1,7 @@
 import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
 import supertest from 'supertest';
-import prisma, { BossEnum, Skills } from '../../src/prisma';
+import prisma from '../../src/prisma';
+import { Boss, SKILLS } from '../../src/utils/metrics';
 import apiServer from '../../src/api';
 import { ALGORITHMS, buildAlgorithmCache } from '../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../src/api/modules/efficiency/efficiency.services';
@@ -98,7 +99,7 @@ describe('Efficiency API', () => {
 
   describe('2 - Player EHP calcs', () => {
     test('Maximum EHP calcs (main)', () => {
-      const maximumStats = Object.fromEntries(Skills.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
 
       expect(ALGORITHMS.main.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.main.maximumEHP, 4);
       expect(ALGORITHMS.main.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
@@ -115,7 +116,7 @@ describe('Efficiency API', () => {
     });
 
     test('Maximum EHP calcs (f2p)', () => {
-      const maximumStats = Object.fromEntries(Skills.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
 
       expect(ALGORITHMS.f2p.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.f2p.maximumEHP, 4);
       expect(ALGORITHMS.f2p.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
@@ -137,7 +138,7 @@ describe('Efficiency API', () => {
     });
 
     test('Maxed EHP calcs', () => {
-      const maxedStats = Object.fromEntries(Skills.map(s => [s, SKILL_EXP_AT_99]));
+      const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
 
       expect(ALGORITHMS.main.calculateEHP(maxedStats)).toBeCloseTo(ALGORITHMS.main.maxedEHP, 4);
       expect(ALGORITHMS.main.calculateTTM(maxedStats)).toBeCloseTo(0, 4);
@@ -153,7 +154,7 @@ describe('Efficiency API', () => {
     });
 
     test('Skill EHP calcs', () => {
-      const maximumStats = Object.fromEntries(Skills.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
 
       expect(
         ALGORITHMS.main.calculateSkillEHP('woodcutting', { ...maximumStats, woodcutting: 0 })
@@ -225,7 +226,7 @@ describe('Efficiency API', () => {
       expect(ALGORITHMS.main.calculateEHB(killcountMap)).toBeCloseTo(139.82981, 4);
 
       const ehbSum = Object.keys(killcountMap)
-        .map(b => ALGORITHMS.main.calculateBossEHB(b as BossEnum, killcountMap))
+        .map(b => ALGORITHMS.main.calculateBossEHB(b as Boss, killcountMap))
         .reduce((acc, curr) => acc + curr);
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB
@@ -246,7 +247,7 @@ describe('Efficiency API', () => {
       expect(ALGORITHMS.ironman.calculateEHB(killcountMap)).toBeCloseTo(159.25034, 4);
 
       const ehbSum = Object.keys(killcountMap)
-        .map(b => ALGORITHMS.ironman.calculateBossEHB(b as BossEnum, killcountMap))
+        .map(b => ALGORITHMS.ironman.calculateBossEHB(b as Boss, killcountMap))
         .reduce((acc, curr) => acc + curr);
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB

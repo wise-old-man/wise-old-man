@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { PlayerType, PlayerBuild, Snapshot, VirtualEnum } from '../../../../prisma';
+import { PlayerType, PlayerBuild, Snapshot } from '../../../../prisma';
+import { Virtual } from '../../../../utils/metrics';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
 
@@ -35,13 +36,13 @@ async function computePlayerVirtuals(payload: ComputePlayerVirtualsParams) {
 
   const ehpRank = await efficiencyServices.computeEfficiencyRank({
     player,
-    metric: VirtualEnum.EHP,
+    metric: Virtual.EHP,
     value: ehpValue
   });
 
   const ehbRank = await efficiencyServices.computeEfficiencyRank({
     player,
-    metric: VirtualEnum.EHB,
+    metric: Virtual.EHB,
     value: ehpValue
   });
 

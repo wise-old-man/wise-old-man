@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, ForbiddenError } from '../errors';
-import { MetricEnum, Period } from '../../prisma';
+import { Metric } from '../../utils/metrics';
+import { Period } from '../../prisma';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';
@@ -295,7 +296,7 @@ async function monthlyTop(req: Request, res: Response, next: NextFunction) {
     const topPlayers = await deltaServices.findGroupDeltas({
       id,
       limit: 1,
-      metric: MetricEnum.OVERALL,
+      metric: Metric.OVERALL,
       period: Period.MONTH
     });
 

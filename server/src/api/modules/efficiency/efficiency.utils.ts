@@ -1,17 +1,7 @@
-import { MAX_SKILL_EXP, SKILL_EXP_AT_99, getMetricValueKey, round } from '@wise-old-man/utils';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99, round } from '@wise-old-man/utils';
 import { mapValues } from 'lodash';
-import {
-  BossEnum,
-  Bosses,
-  Player,
-  MetricEnum,
-  SkillEnum,
-  Skills,
-  Snapshot,
-  VirtualEnum,
-  PlayerType,
-  PlayerBuild
-} from '../../../prisma';
+import { Player, Snapshot, PlayerType, PlayerBuild } from '../../../prisma';
+import { SKILLS, BOSSES, Skill, Boss, Virtual, Metric, getMetricValueKey } from '../../../utils/metrics';
 import {
   AlgorithmCache,
   Bonus,
@@ -64,11 +54,11 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
     return maxedEHP - _calculateEHP(cappedExp);
   }
 
-  function _calculateSkillEHP(skill: SkillEnum, experienceMap: ExperienceMap) {
+  function _calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap) {
     return _calculateTT200m({ ...experienceMap, [skill]: 0 }) - _calculateTT200m(experienceMap);
   }
 
-  function _calculateBossEHB(boss: BossEnum, killcountMap: KillcountMap) {
+  function _calculateBossEHB(boss: Boss, killcountMap: KillcountMap) {
     return calculateBossEHB(boss, killcountMap[boss], bossMetas);
   }
 
@@ -86,12 +76,12 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   };
 }
 
-export function getRates(metric: VirtualEnum, type: EfficiencyAlgorithmType) {
+export function getRates(metric: Virtual, type: EfficiencyAlgorithmType) {
   // Wrong algorithm type
   if (!Object.values(EfficiencyAlgorithmType).includes(type)) return null;
 
   const algorithm = ALGORITHMS[type || 'main'];
-  return metric === MetricEnum.EHB ? algorithm.bossMetas : algorithm.skillMetas;
+  return metric === Metric.EHB ? algorithm.bossMetas : algorithm.skillMetas;
 }
 
 export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
@@ -136,19 +126,19 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[]) {
 }
 
 function calculateMaximumEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(Skills.map(s => [s, 0]));
+  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
 
   return calculateTT200m(zeroStats, metas);
 }
 
 function calculateMaxedEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(Skills.map(s => [s, 0]));
-  const maxedStats = Object.fromEntries(Skills.map(s => [s, SKILL_EXP_AT_99]));
+  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
+  const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
 
   return calculateTT200m(zeroStats, metas) - calculateTT200m(maxedStats, metas);
 }
 
-function calculateBossEHB(boss: BossEnum, killcount: number, metas: BossMetaConfig[]) {
+function calculateBossEHB(boss: Boss, killcount: number, metas: BossMetaConfig[]) {
   if (!killcount || killcount <= 0) return 0;
 
   const meta = metas.find(meta => meta.boss === boss);
@@ -158,21 +148,21 @@ function calculateBossEHB(boss: BossEnum, killcount: number, metas: BossMetaConf
 }
 
 function calculateEHB(killcountMap: KillcountMap, metas: BossMetaConfig[]) {
-  return Bosses.map(b => calculateBossEHB(b, killcountMap[b], metas)).reduce((a, c) => a + c);
+  return BOSSES.map(b => calculateBossEHB(b, killcountMap[b], metas)).reduce((a, c) => a + c);
 }
 
 function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[]): number {
   const startBonusExp = calculateBonuses(experienceMap, getBonuses(metas, BonusType.START));
   const endBonusExp = calculateBonuses(experienceMap, getBonuses(metas, BonusType.END));
 
-  const startExps = Object.fromEntries(Skills.map(s => [s, experienceMap[s] + (startBonusExp[s] || 0)]));
+  const startExps = Object.fromEntries(SKILLS.map(s => [s, experienceMap[s] + (startBonusExp[s] || 0)]));
 
   const targetExps = Object.fromEntries(
-    Skills.map(s => [s, s in endBonusExp ? MAX_SKILL_EXP - endBonusExp[s] : MAX_SKILL_EXP])
+    SKILLS.map(s => [s, s in endBonusExp ? MAX_SKILL_EXP - endBonusExp[s] : MAX_SKILL_EXP])
   );
 
-  const skillTimes = Skills.map(skill => {
-    if (skill === MetricEnum.OVERALL) return 0;
+  const skillTimes = SKILLS.map(skill => {
+    if (skill === Metric.OVERALL) return 0;
 
     const methods = metas.find(sm => sm.skill === skill)?.methods;
     const startExp = startExps[skill];
@@ -215,11 +205,11 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
 }
 
 function getKillcountMap(snapshot: Snapshot): KillcountMap {
-  return Object.fromEntries(Bosses.map(b => [b, snapshot[getMetricValueKey(b as any)]]));
+  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
 }
 
 function getExperienceMap(snapshot: Snapshot): ExperienceMap {
-  return Object.fromEntries(Skills.map(s => [s, snapshot[getMetricValueKey(s as any)]]));
+  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
 }
 
 function getPlayerEHB(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {
@@ -239,8 +229,8 @@ function getPlayerEfficiencyMap(snapshot: Snapshot, player: Pick<Player, 'type' 
   const killcountMap = getKillcountMap(snapshot);
 
   return {
-    ...Object.fromEntries(Skills.map(s => [s, algorithm.calculateSkillEHP(s, experienceMap)])),
-    ...Object.fromEntries(Bosses.map(b => [b, algorithm.calculateBossEHB(b, killcountMap)]))
+    ...Object.fromEntries(SKILLS.map(s => [s, algorithm.calculateSkillEHP(s, experienceMap)])),
+    ...Object.fromEntries(BOSSES.map(b => [b, algorithm.calculateBossEHB(b, killcountMap)]))
   };
 }
 

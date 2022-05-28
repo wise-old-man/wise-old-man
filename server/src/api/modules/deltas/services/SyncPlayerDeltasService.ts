@@ -1,15 +1,7 @@
 import { PeriodProps } from '@wise-old-man/utils';
 
-import prisma, {
-  Period,
-  Periods,
-  Player,
-  Snapshot,
-  Skills,
-  Bosses,
-  Activities,
-  Virtuals
-} from '../../../../prisma';
+import { SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils/metrics';
+import prisma, { Period, Periods, Player, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePlayerDeltas } from '../delta.utils';
 
@@ -25,7 +17,6 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // The player only has one snapshot in this period, can't calculate diffs
     if (!latestSnapshot || !startSnapshot || latestSnapshot.id === startSnapshot.id) return;
 
-    // const cachedValues: { [metric in MetricEnum]?: number } = {};
     const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
 
     const newDelta = {
@@ -33,10 +24,10 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       playerId: player.id,
       startedAt: startSnapshot.createdAt,
       endedAt: latestSnapshot.createdAt,
-      ...Object.fromEntries(Skills.map(s => [s, periodDiffs.skills[s].experience.gained])),
-      ...Object.fromEntries(Bosses.map(b => [b, periodDiffs.bosses[b].kills.gained])),
-      ...Object.fromEntries(Virtuals.map(v => [v, periodDiffs.virtuals[v].value.gained])),
-      ...Object.fromEntries(Activities.map(a => [a, periodDiffs.activities[a].score.gained]))
+      ...Object.fromEntries(SKILLS.map(s => [s, periodDiffs.skills[s].experience.gained])),
+      ...Object.fromEntries(BOSSES.map(b => [b, periodDiffs.bosses[b].kills.gained])),
+      ...Object.fromEntries(VIRTUALS.map(v => [v, periodDiffs.virtuals[v].value.gained])),
+      ...Object.fromEntries(ACTIVITIES.map(a => [a, periodDiffs.activities[a].score.gained]))
     };
 
     // Find the existing cached delta for this period

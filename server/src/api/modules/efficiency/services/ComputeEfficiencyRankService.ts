@@ -1,12 +1,13 @@
 import { z } from 'zod';
-import prisma, { PlayerType, VirtualEnum } from '../../../../prisma';
+import { Virtual } from '../../../../utils/metrics';
+import prisma, { PlayerType } from '../../../../prisma';
 
 const inputSchema = z.object({
   player: z.object({
     id: z.number().int().positive(),
     type: z.nativeEnum(PlayerType)
   }),
-  metric: z.nativeEnum(VirtualEnum),
+  metric: z.nativeEnum(Virtual),
   value: z.number().gte(0)
 });
 

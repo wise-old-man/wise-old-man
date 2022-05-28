@@ -1,9 +1,10 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { Metrics } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
+import prisma, { PlayerType } from '../../src/prisma';
+import { Metric } from '../../src/utils/metrics';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -13,7 +14,6 @@ import {
   modifyRawHiscoresData,
   sleep
 } from '../utils';
-import prisma, { PlayerType } from '../../src/prisma';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -63,7 +63,7 @@ describe('Records API', () => {
       jest.useRealTimers();
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.SMITHING, value: 6_177_978 + 50_000 }
+        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -81,16 +81,16 @@ describe('Records API', () => {
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(6);
       expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(3);
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.SMITHING).length).toBe(3);
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHP).length).toBe(3);
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHP)[0].value).toBeLessThan(1);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.SMITHING).length).toBe(3);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.EHP).length).toBe(3);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.EHP)[0].value).toBeLessThan(1);
       expect(recordsResponse.body.map(r => r.period)).not.toContain('day');
       expect(recordsResponse.body.map(r => r.period)).not.toContain('five_min');
     });
 
     it('should replace & create player records (day, five_min)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.SMITHING, value: 6_177_978 + 50_000 + 20_000 }
+        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 + 20_000 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -109,8 +109,8 @@ describe('Records API', () => {
       expect(recordsResponse.body.length).toBe(10);
       expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.value === 20_000).length).toBe(2);
-      expect(recordsResponse.body.filter(r => r.value < 1 && r.metric === Metrics.EHP).length).toBe(5);
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.SMITHING).length).toBe(5);
+      expect(recordsResponse.body.filter(r => r.value < 1 && r.metric === Metric.EHP).length).toBe(5);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.SMITHING).length).toBe(5);
       expect(recordsResponse.body.map(r => r.period)).toContain('day');
       expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
     });
@@ -128,15 +128,15 @@ describe('Records API', () => {
       // Create records manually
       await prisma.record.createMany({
         data: [
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'day' },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'week' },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'month' },
-          { playerId: firstTrackResponse.body.id, metric: Metrics.ZULRAH, value: 100, period: 'year' }
+          { playerId: firstTrackResponse.body.id, metric: Metric.ZULRAH, value: 100, period: 'day' },
+          { playerId: firstTrackResponse.body.id, metric: Metric.ZULRAH, value: 100, period: 'week' },
+          { playerId: firstTrackResponse.body.id, metric: Metric.ZULRAH, value: 100, period: 'month' },
+          { playerId: firstTrackResponse.body.id, metric: Metric.ZULRAH, value: 100, period: 'year' }
         ]
       });
 
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 1646 + 10 }
+        { metric: Metric.ZULRAH, value: 1646 + 10 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -153,8 +153,8 @@ describe('Records API', () => {
       const recordsResponse = await api.get(`/api/players/username/sethmare/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.ZULRAH).length).toBe(5);
-      expect(recordsResponse.body.filter(r => r.metric === Metrics.EHB && r.value < 1).length).toBe(5);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.ZULRAH).length).toBe(5);
+      expect(recordsResponse.body.filter(r => r.metric === Metric.EHB && r.value < 1).length).toBe(5);
       expect(recordsResponse.body.filter(r => r.value === 10).length).toBe(1); // none of the day+ records updated, only five_min was added
     });
   });
@@ -191,8 +191,8 @@ describe('Records API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(10);
-      expect(response.body.map(r => r.metric)).toContain(Metrics.SMITHING);
-      expect(response.body.map(r => r.metric)).toContain(Metrics.EHP);
+      expect(response.body.map(r => r.metric)).toContain(Metric.SMITHING);
+      expect(response.body.map(r => r.metric)).toContain(Metric.EHP);
     });
 
     it('should fetch records (undefined filters, ignored)', async () => {
@@ -202,19 +202,19 @@ describe('Records API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(10);
-      expect(response.body.map(r => r.metric)).toContain(Metrics.ZULRAH);
-      expect(response.body.map(r => r.metric)).toContain(Metrics.EHB);
-      expect(response.body.filter(r => r.metric === Metrics.EHB)[0].value).toBeLessThan(1);
+      expect(response.body.map(r => r.metric)).toContain(Metric.ZULRAH);
+      expect(response.body.map(r => r.metric)).toContain(Metric.EHB);
+      expect(response.body.filter(r => r.metric === Metric.EHB)[0].value).toBeLessThan(1);
     });
 
     it('should fetch records (with filters)', async () => {
       const response = await api
         .get(`/api/players/username/sethmare/records`)
-        .query({ metric: Metrics.ZULRAH, period: 'week' });
+        .query({ metric: Metric.ZULRAH, period: 'week' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
-      expect(response.body[0]).toMatchObject({ value: 100, metric: Metrics.ZULRAH, period: 'week' });
+      expect(response.body[0]).toMatchObject({ value: 100, metric: Metric.ZULRAH, period: 'week' });
     });
   });
 
@@ -294,8 +294,8 @@ describe('Records API', () => {
 
       // Add zulrah and smithing gains
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 1646 + 7 },
-        { metric: Metrics.SMITHING, value: 6_177_978 + 1337 }
+        { metric: Metric.ZULRAH, value: 1646 + 7 },
+        { metric: Metric.SMITHING, value: 6_177_978 + 1337 }
       ]);
 
       // Mock the hiscores to mark the next tracked player as a regular ironman (and modified data)
@@ -460,8 +460,8 @@ describe('Records API', () => {
 
       // Add zulrah and smithing gains
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 1646 + 70 },
-        { metric: Metrics.SMITHING, value: 6_177_978 + 620_000 }
+        { metric: Metric.ZULRAH, value: 1646 + 70 },
+        { metric: Metric.SMITHING, value: 6_177_978 + 620_000 }
       ]);
 
       // Mock the hiscores to mark the next tracked player as a regular ironman (and modified data)

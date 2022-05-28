@@ -4,9 +4,9 @@ import {
   getMetricValueKey,
   isBoss,
   isSkill,
-  Metrics,
+  Metric,
   METRICS
-} from '@wise-old-man/utils';
+} from '../../../utils/metrics';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
@@ -28,7 +28,7 @@ function format(snapshot: Snapshot, efficiency?: any) {
       [getMetricMeasure(m)]: snapshot[getMetricValueKey(m)]
     };
 
-    if (m === Metrics.OVERALL) {
+    if (m === Metric.OVERALL) {
       obj[m].ehp = Math.max(0, snapshot.ehpValue);
     } else if (efficiency) {
       // Add individual ehp/ehb values

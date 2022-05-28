@@ -1,10 +1,10 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { Metrics } from '@wise-old-man/utils';
 import env from '../../src/env';
 import apiServer from '../../src/api';
-import { PlayerType, Bosses } from '../../src/prisma';
+import { BOSSES, Metric } from '../../src/utils/metrics';
+import { PlayerType } from '../../src/prisma';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -130,7 +130,7 @@ describe('Player API', () => {
 
     it('should track player (1 def)', async () => {
       const data1Def = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.DEFENCE, value: 0 } // 1 defence
+        { metric: Metric.DEFENCE, value: 0 } // 1 defence
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -146,7 +146,7 @@ describe('Player API', () => {
 
     it('should track player (zerker)', async () => {
       const dataZerker = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.DEFENCE, value: 61_512 } // 45 defence
+        { metric: Metric.DEFENCE, value: 61_512 } // 45 defence
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -162,7 +162,7 @@ describe('Player API', () => {
 
     it('should track player (10hp)', async () => {
       const data10HP = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.HITPOINTS, value: 1154 } // 10 Hitpoints
+        { metric: Metric.HITPOINTS, value: 1154 } // 10 Hitpoints
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -178,13 +178,13 @@ describe('Player API', () => {
 
     it('should track player (lvl3)', async () => {
       const dataLvl3 = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ATTACK, value: 0 },
-        { metric: Metrics.STRENGTH, value: 0 },
-        { metric: Metrics.DEFENCE, value: 0 },
-        { metric: Metrics.HITPOINTS, value: 1154 },
-        { metric: Metrics.PRAYER, value: 0 },
-        { metric: Metrics.RANGED, value: 0 },
-        { metric: Metrics.MAGIC, value: 0 }
+        { metric: Metric.ATTACK, value: 0 },
+        { metric: Metric.STRENGTH, value: 0 },
+        { metric: Metric.DEFENCE, value: 0 },
+        { metric: Metric.HITPOINTS, value: 1154 },
+        { metric: Metric.PRAYER, value: 0 },
+        { metric: Metric.RANGED, value: 0 },
+        { metric: Metric.MAGIC, value: 0 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -200,17 +200,17 @@ describe('Player API', () => {
 
     it('should track player (f2p)', async () => {
       const dataF2P = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.AGILITY, value: 0 },
-        { metric: Metrics.CONSTRUCTION, value: 0 },
-        { metric: Metrics.FARMING, value: 0 },
-        { metric: Metrics.FLETCHING, value: 0 },
-        { metric: Metrics.HERBLORE, value: 0 },
-        { metric: Metrics.HUNTER, value: 0 },
-        { metric: Metrics.THIEVING, value: 0 },
-        { metric: Metrics.SLAYER, value: 0 },
-        ...Bosses.map(b => ({ metric: b as any, value: 0 })),
-        { metric: Metrics.BRYOPHYTA, value: 10 },
-        { metric: Metrics.OBOR, value: 10 }
+        { metric: Metric.AGILITY, value: 0 },
+        { metric: Metric.CONSTRUCTION, value: 0 },
+        { metric: Metric.FARMING, value: 0 },
+        { metric: Metric.FLETCHING, value: 0 },
+        { metric: Metric.HERBLORE, value: 0 },
+        { metric: Metric.HUNTER, value: 0 },
+        { metric: Metric.THIEVING, value: 0 },
+        { metric: Metric.SLAYER, value: 0 },
+        ...BOSSES.map(b => ({ metric: b, value: 0 })),
+        { metric: Metric.BRYOPHYTA, value: 10 },
+        { metric: Metric.OBOR, value: 10 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -267,7 +267,7 @@ describe('Player API', () => {
 
     it('should not track player (excessive gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
+        { metric: Metric.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -283,7 +283,7 @@ describe('Player API', () => {
 
     it('should not track player (negative gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.RUNECRAFTING, value: 100_000 } // player's RC exp goes down to 100k
+        { metric: Metric.RUNECRAFTING, value: 100_000 } // player's RC exp goes down to 100k
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -299,8 +299,8 @@ describe('Player API', () => {
 
     it('should track player (new gains)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 1646 + 7 }, // player gains 7 zulrah kc
-        { metric: Metrics.SMITHING, value: 6_177_978 + 1337 } // player gains 1337 smithing exp
+        { metric: Metric.ZULRAH, value: 1646 + 7 }, // player gains 7 zulrah kc
+        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // player gains 1337 smithing exp
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -503,7 +503,7 @@ describe('Player API', () => {
 
     it('should not assert player type (player is flagged)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 100 } // player's zulrah kc drops below current kc
+        { metric: Metric.ZULRAH, value: 100 } // player's zulrah kc drops below current kc
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -529,8 +529,8 @@ describe('Player API', () => {
 
     it('should assert player type (regular)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
-        { metric: Metrics.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
+        { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
+        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
       ]);
 
       registerHiscoresMock(axiosMock, {

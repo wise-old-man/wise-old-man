@@ -1,5 +1,6 @@
-import { Metric, getMetricMeasure, getLevel, getMetricValueKey, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
-import { Achievement, Snapshot, MetricEnum } from '../../../prisma';
+import { getLevel, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
+import { Metric, getMetricMeasure, getMetricValueKey } from '../../../utils/metrics';
+import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
 
@@ -8,9 +9,9 @@ function extend(achievement: Achievement): ExtendedAchievement {
   return { ...achievement, measure };
 }
 
-function getAchievementMeasure(metric: string, threshold: number): string {
-  if (metric === MetricEnum.OVERALL && threshold <= SKILL_EXP_AT_99) return 'levels';
-  return getMetricMeasure(metric as Metric);
+function getAchievementMeasure(metric: Metric, threshold: number): string {
+  if (metric === Metric.OVERALL && threshold <= SKILL_EXP_AT_99) return 'levels';
+  return getMetricMeasure(metric);
 }
 
 function getAchievemenName(name: string, threshold: number): string {
@@ -47,9 +48,7 @@ function getAchievementDefinitions(): AchievementDefinition[] {
       const newName = getAchievemenName(name, threshold);
 
       const getCurrentValueFn = (snapshot: Snapshot) => {
-        return getCurrentValue
-          ? getCurrentValue(snapshot, threshold)
-          : snapshot[getMetricValueKey(metric as Metric)];
+        return getCurrentValue ? getCurrentValue(snapshot, threshold) : snapshot[getMetricValueKey(metric)];
       };
 
       const validateFn = (snapshot: Snapshot) => {
@@ -59,7 +58,7 @@ function getAchievementDefinitions(): AchievementDefinition[] {
       definitions.push({
         name: newName,
         metric,
-        measure: measure || getMetricMeasure(metric as Metric),
+        measure: measure || getMetricMeasure(metric),
         threshold,
         validate: validateFn,
         getCurrentValue: getCurrentValueFn

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import supertest from 'supertest';
-import { Metrics } from '@wise-old-man/utils';
 import MockAdapter from 'axios-mock-adapter';
+import { Metric } from '../../src/utils/metrics';
 import { PlayerType } from '../../src/prisma';
 import env from '../../src/env';
 import apiServer from '../../src/api';
@@ -78,10 +78,10 @@ describe('Deltas API', () => {
       expect(firstDeltas.length).toBe(0);
 
       let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.LAST_MAN_STANDING, value: 500 },
-        { metric: Metrics.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metrics.OVERALL, value: -1 },
-        { metric: Metrics.NEX, value: 53 }
+        { metric: Metric.LAST_MAN_STANDING, value: 500 },
+        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
+        { metric: Metric.OVERALL, value: -1 },
+        { metric: Metric.NEX, value: 53 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -114,11 +114,11 @@ describe('Deltas API', () => {
       expect(secondDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.SMITHING, value: 6_177_978 + 50_000 },
-        { metric: Metrics.LAST_MAN_STANDING, value: 450 },
-        { metric: Metrics.NEX, value: 54 },
-        { metric: Metrics.TZKAL_ZUK, value: 1 },
-        { metric: Metrics.SOUL_WARS_ZEAL, value: 7 }
+        { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
+        { metric: Metric.LAST_MAN_STANDING, value: 450 },
+        { metric: Metric.NEX, value: 54 },
+        { metric: Metric.TZKAL_ZUK, value: 1 },
+        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -487,11 +487,11 @@ describe('Deltas API', () => {
 
     it('should fetch leaderboards (no player filters)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metrics.SMITHING, value: 7_000_000 },
-        { metric: Metrics.LAST_MAN_STANDING, value: 450 },
-        { metric: Metrics.NEX, value: 54 },
-        { metric: Metrics.TZKAL_ZUK, value: 1 },
-        { metric: Metrics.SOUL_WARS_ZEAL, value: 7 }
+        { metric: Metric.SMITHING, value: 7_000_000 },
+        { metric: Metric.LAST_MAN_STANDING, value: 450 },
+        { metric: Metric.NEX, value: 54 },
+        { metric: Metric.TZKAL_ZUK, value: 1 },
+        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
       ]);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)

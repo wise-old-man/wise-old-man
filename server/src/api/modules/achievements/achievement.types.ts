@@ -1,8 +1,9 @@
-import { Achievement, Snapshot, MetricEnum } from '../../../prisma';
+import { Metric } from '../../../utils/metrics';
+import { Achievement, Snapshot } from '../../../prisma';
 
 interface AchievementTemplate {
   name: string;
-  metric: MetricEnum;
+  metric: Metric;
   measure?: string;
   thresholds: number[];
   getCurrentValue?: (snapshot: Snapshot, threshold: number) => number;
@@ -10,7 +11,7 @@ interface AchievementTemplate {
 
 interface AchievementDefinition {
   name: string;
-  metric: MetricEnum;
+  metric: Metric;
   measure: string;
   threshold: number;
   validate: (snapshot: Snapshot) => boolean;

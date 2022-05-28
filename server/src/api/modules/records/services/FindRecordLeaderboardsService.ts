@@ -1,9 +1,9 @@
 import { z } from 'zod';
+import { Metric } from '../../../../utils/metrics';
 import prisma, {
   Country,
   Record,
   Period,
-  MetricEnum,
   PlayerType,
   PlayerBuild,
   PrismaTypes,
@@ -14,7 +14,7 @@ const MAX_RESULTS = 20;
 
 const inputSchema = z.object({
   period: z.nativeEnum(Period),
-  metric: z.nativeEnum(MetricEnum),
+  metric: z.nativeEnum(Metric),
   country: z.nativeEnum(Country).optional(),
   playerType: z.nativeEnum(PlayerType).optional(),
   playerBuild: z.nativeEnum(PlayerBuild).optional()

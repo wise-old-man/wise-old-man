@@ -2,15 +2,12 @@ import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, Sequelize } from 'sequelize';
 import {
-  Metric,
-  METRICS,
   CompetitionType,
   COMPETITION_TYPES,
   COMPETITION_STATUSES,
-  CompetitionStatus,
-  getMetricValueKey,
-  isVirtualMetric
+  CompetitionStatus
 } from '@wise-old-man/utils';
+import { Metric, METRICS, getMetricValueKey, isVirtualMetric } from '../../../utils/metrics';
 import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';

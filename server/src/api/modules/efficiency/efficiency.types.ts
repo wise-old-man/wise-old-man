@@ -1,15 +1,15 @@
-import { SkillEnum, BossEnum } from '../../../prisma';
+import { Skill, Boss } from '../../../utils/metrics';
 
 export type ExperienceMap = {
-  [skill in SkillEnum]?: number;
+  [skill in Skill]?: number;
 };
 
 export type KillcountMap = {
-  [boss in BossEnum]?: number;
+  [boss in Boss]?: number;
 };
 
 export type EfficiencyMap = {
-  [m in SkillEnum | BossEnum]?: number;
+  [m in Skill | Boss]?: number;
 };
 
 export enum BonusType {
@@ -25,7 +25,7 @@ export enum EfficiencyAlgorithmType {
 }
 
 export interface SkillMetaConfig {
-  skill: SkillEnum;
+  skill: Skill;
   methods: Array<{
     rate: number;
     startExp: number;
@@ -35,13 +35,13 @@ export interface SkillMetaConfig {
 }
 
 export interface BossMetaConfig {
-  boss: BossEnum;
+  boss: Boss;
   rate: number;
 }
 
 export interface Bonus {
-  originSkill: SkillEnum;
-  bonusSkill: SkillEnum;
+  originSkill: Skill;
+  bonusSkill: Skill;
   startExp: number;
   endExp: number;
   end: boolean;
@@ -58,8 +58,8 @@ export interface EfficiencyAlgorithm {
   calculateEHP(experienceMap: ExperienceMap): number;
   calculateTTM(experienceMap: ExperienceMap): number;
   calculateTT200m(experienceMap: ExperienceMap): number;
-  calculateSkillEHP(skill: SkillEnum, experienceMap: ExperienceMap): number;
-  calculateBossEHB(boss: BossEnum, killcountMap: KillcountMap): number;
+  calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap): number;
+  calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }
 
 export type AlgorithmCache = {

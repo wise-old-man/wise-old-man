@@ -1,19 +1,15 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { getLevel, GROUP_ROLES, PRIVELEGED_GROUP_ROLES, GroupRole } from '@wise-old-man/utils';
 import {
+  Metric,
+  METRICS,
+  getMetricValueKey,
   getMetricMeasure,
   getMetricRankKey,
-  getMetricValueKey,
-  isSkill,
-  Metric,
-  Metrics,
-  METRICS,
-  getLevel,
-  GROUP_ROLES,
-  PRIVELEGED_GROUP_ROLES,
-  GroupRole
-} from '@wise-old-man/utils';
+  isSkill
+} from '../../../utils/metrics';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Snapshot } from '../../../database/models';
@@ -238,7 +234,7 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
     };
 
     if (isSkill(metric as Metric)) {
-      data.level = metric === Metrics.OVERALL ? getTotalLevel(d as Snapshot) : getLevel(data.experience);
+      data.level = metric === Metric.OVERALL ? getTotalLevel(d as Snapshot) : getLevel(data.experience);
     }
 
     return data;

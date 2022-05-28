@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import csv from 'csvtojson';
-import { getMetricRankKey, getMetricValueKey } from '@wise-old-man/utils';
-import { Activities, Bosses, MetricEnum, Skills, Snapshot } from '../../../../prisma';
+import {
+  BOSSES,
+  ACTIVITIES,
+  Metric,
+  SKILLS,
+  getMetricRankKey,
+  getMetricValueKey
+} from '../../../../utils/metrics';
+import { Snapshot } from '../../../../prisma';
 import { ServerError } from '../../../errors';
 import { SnapshotDataSource } from '../snapshot.types';
 
@@ -30,7 +37,7 @@ async function buildFromRS(playerId: number, rawCSV: string) {
 
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
-  if (rows.length !== Skills.length + Activities.length + Bosses.length) {
+  if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
     throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
@@ -40,26 +47,26 @@ async function buildFromRS(playerId: number, rawCSV: string) {
   };
 
   // Populate the skills' values with the values from the csv
-  Skills.forEach((s, i) => {
+  SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
     const expNum = parseInt(experience);
 
-    snapshotFields[getMetricRankKey(s as any)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s as any)] = s === MetricEnum.OVERALL && expNum === 0 ? -1 : expNum;
+    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
+    snapshotFields[getMetricValueKey(s)] = s === Metric.OVERALL && expNum === 0 ? -1 : expNum;
   });
 
   // Populate the activities' values with the values from the csv
-  Activities.forEach((s, i) => {
-    const [rank, score] = rows[Skills.length + i];
-    snapshotFields[getMetricRankKey(s as any)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s as any)] = parseInt(score);
+  ACTIVITIES.forEach((s, i) => {
+    const [rank, score] = rows[SKILLS.length + i];
+    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
+    snapshotFields[getMetricValueKey(s)] = parseInt(score);
   });
 
   // Populate the bosses' values with the values from the csv
-  Bosses.forEach((s, i) => {
-    const [rank, kills] = rows[Skills.length + Activities.length + i];
-    snapshotFields[getMetricRankKey(s as any)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s as any)] = parseInt(kills);
+  BOSSES.forEach((s, i) => {
+    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
+    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
+    snapshotFields[getMetricValueKey(s)] = parseInt(kills);
   });
 
   return snapshotFields;
@@ -77,7 +84,7 @@ async function buildFromCML(playerId: number, rawCSV: string) {
 
   // If a new skill/activity/boss was added to the CML API,
   // prevent any further snapshot saves to prevent incorrect DB data
-  if (exps.length !== Skills.length || ranks.length !== Skills.length) {
+  if (exps.length !== SKILLS.length || ranks.length !== SKILLS.length) {
     throw new ServerError('The CML API was updated. Please wait for a fix.');
   }
 
@@ -89,9 +96,9 @@ async function buildFromCML(playerId: number, rawCSV: string) {
   };
 
   // Populate the skills' values with experience and rank data
-  Skills.forEach((s, i) => {
-    snapshotFields[getMetricRankKey(s as any)] = parseInt(ranks[i]);
-    snapshotFields[getMetricValueKey(s as any)] = parseInt(exps[i]);
+  SKILLS.forEach((s, i) => {
+    snapshotFields[getMetricRankKey(s)] = parseInt(ranks[i]);
+    snapshotFields[getMetricValueKey(s)] = parseInt(exps[i]);
   });
 
   return snapshotFields;
