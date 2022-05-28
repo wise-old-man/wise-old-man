@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { getLevel } from '@wise-old-man/utils';
 import { Metric, REAL_SKILLS } from '../../../../utils/metrics';
+import { getLevel } from '../../../../utils/experience';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';

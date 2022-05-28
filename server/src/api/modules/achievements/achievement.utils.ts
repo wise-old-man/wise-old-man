@@ -1,5 +1,5 @@
-import { getLevel, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
 import { Metric, getMetricMeasure, getMetricValueKey } from '../../../utils/metrics';
+import { getLevel, SKILL_EXP_AT_99 } from '../../../utils/experience';
 import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';

@@ -1,7 +1,7 @@
 import { Snapshot } from '../../../prisma';
 import { Metric } from '../../../utils/metrics';
+import { getMinimumExp } from '../../../utils/experience';
 import { AchievementTemplate } from './achievement.types';
-import { getMinimumExp } from '../../util/experience';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------

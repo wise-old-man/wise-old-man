@@ -1,7 +1,7 @@
-import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '@wise-old-man/utils';
 import supertest from 'supertest';
 import prisma from '../../src/prisma';
 import { Boss, SKILLS } from '../../src/utils/metrics';
+import { MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../src/utils/experience';
 import apiServer from '../../src/api';
 import { ALGORITHMS, buildAlgorithmCache } from '../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../src/api/modules/efficiency/efficiency.services';

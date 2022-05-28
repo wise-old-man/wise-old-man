@@ -2,7 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../src/utils/metrics';
-import { PlayerType } from '../../src/prisma';
+import { PlayerType } from '../../src/utils/players';
 import * as playerServices from '../../src/api/modules/players/player.services';
 import * as services from '../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../src/api/modules/snapshots/snapshot.utils';

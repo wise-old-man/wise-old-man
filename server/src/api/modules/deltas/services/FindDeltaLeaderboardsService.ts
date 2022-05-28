@@ -1,16 +1,8 @@
 import { z } from 'zod';
-import { PeriodProps } from '@wise-old-man/utils';
 import { Metric } from '../../../../utils/metrics';
-import prisma, {
-  Player,
-  Country,
-  Period,
-  PlayerType,
-  PlayerBuild,
-  PrismaTypes,
-  modifyDeltas,
-  Delta
-} from '../../../../prisma';
+import { Period, PeriodProps } from '../../../../utils/periods';
+import { PlayerType, PlayerBuild } from '../../../../utils/players';
+import prisma, { Player, Country, PrismaTypes, modifyDeltas, Delta } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;

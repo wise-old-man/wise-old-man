@@ -10,15 +10,7 @@ import {
   Country
 } from '@prisma/client';
 import { isVirtualMetric } from '../utils/metrics';
-import {
-  Period,
-  Periods,
-  PlayerTypes,
-  PlayerType,
-  PlayerBuilds,
-  PlayerBuild,
-  NameChangeStatus
-} from './enum-adapter';
+import { NameChangeStatus } from './enum-adapter';
 import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';
 
@@ -111,14 +103,7 @@ export {
   ModifiedAchievement as Achievement,
   // Enums
   Country,
-  Period,
-  PlayerType,
-  PlayerBuild,
   NameChangeStatus,
-  // List
-  Periods,
-  PlayerTypes,
-  PlayerBuilds,
   // Utils
   setHooksEnabled,
   modifyDeltas,

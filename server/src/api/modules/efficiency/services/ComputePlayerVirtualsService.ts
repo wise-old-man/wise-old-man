@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { PlayerType, PlayerBuild, Snapshot } from '../../../../prisma';
+import { Snapshot } from '../../../../prisma';
 import { Virtual } from '../../../../utils/metrics';
+import { PlayerType, PlayerBuild } from '../../../../utils/players';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
 

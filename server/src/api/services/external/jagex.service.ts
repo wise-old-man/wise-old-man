@@ -1,7 +1,7 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
-import { PlayerType } from '../../../prisma';
+import { PlayerType } from '../../../utils/players';
 import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';

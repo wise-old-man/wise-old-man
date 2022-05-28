@@ -3,7 +3,7 @@ import moment from 'moment';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import api from '../../src/api';
-import { PlayerType } from '../../src/prisma';
+import { PlayerType } from '../../src/utils/players';
 import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/achievement.templates';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, sleep, readFile } from '../utils';
 

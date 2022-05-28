@@ -159,6 +159,14 @@ const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
 const MEMBER_SKILLS = SKILLS.filter(s => MetricProps[s].isMembers);
 const COMBAT_SKILLS = SKILLS.filter(s => MetricProps[s].isCombat);
 
+function findMetric(metricName: string): Metric | null {
+  for (const [key, value] of Object.entries(MetricProps)) {
+    if (value.name.toUpperCase() === metricName.toUpperCase()) return key as Metric;
+  }
+
+  return null;
+}
+
 function isSkill(metric: Metric) {
   return metric in SkillProps;
 }
@@ -521,6 +529,7 @@ export {
   MEMBER_SKILLS,
   COMBAT_SKILLS,
   // Functions
+  findMetric,
   parseMetricAbbreviation,
   getMetricRankKey,
   getMetricValueKey,

@@ -1,7 +1,6 @@
-import { PeriodProps } from '@wise-old-man/utils';
-
+import { Period, PeriodProps, PERIODS } from '../../../../utils/periods';
 import { SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils/metrics';
-import prisma, { Period, Periods, Player, Snapshot } from '../../../../prisma';
+import prisma, { Player, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePlayerDeltas } from '../delta.utils';
 
@@ -46,7 +45,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
   }
 
   // Execute all update promises, sequentially
-  await Promise.all(Periods.map(buildUpdatePromise));
+  await Promise.all(PERIODS.map(buildUpdatePromise));
 }
 
 export { syncPlayerDeltas };

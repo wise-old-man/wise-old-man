@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, ForbiddenError } from '../errors';
 import { Metric } from '../../utils/metrics';
-import { Period } from '../../prisma';
+import { Period } from '../../utils/periods';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
 import jobs from '../jobs';

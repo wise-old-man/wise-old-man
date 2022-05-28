@@ -2,10 +2,11 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, METRICS } from '../../src/utils/metrics';
+import { PlayerType } from '../../src/utils/players';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import * as snapshotServices from '../../src/api/modules/snapshots/snapshot.services';
-import prisma, { PlayerType, setHooksEnabled } from '../../src/prisma';
+import prisma, { setHooksEnabled } from '../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../utils';
 
 const api = supertest(apiServer);

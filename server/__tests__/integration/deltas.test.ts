@@ -2,7 +2,7 @@ import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { Metric } from '../../src/utils/metrics';
-import { PlayerType } from '../../src/prisma';
+import { PlayerType } from '../../src/utils/players';
 import env from '../../src/env';
 import apiServer from '../../src/api';
 import {

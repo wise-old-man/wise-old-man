@@ -1,7 +1,7 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { getLevel, GROUP_ROLES, PRIVELEGED_GROUP_ROLES, GroupRole } from '@wise-old-man/utils';
+import { GROUP_ROLES, PRIVELEGED_GROUP_ROLES, GroupRole } from '@wise-old-man/utils';
 import {
   Metric,
   METRICS,
@@ -10,11 +10,11 @@ import {
   getMetricRankKey,
   isSkill
 } from '../../../utils/metrics';
+import { get200msCount, getCombatLevel, getTotalLevel, getLevel } from '../../../utils/experience';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
 import { Group, Membership, Player, Snapshot } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
-import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';

@@ -1,0 +1,51 @@
+import { PlayerTypeEnum as PlayerType, PlayerBuildEnum as PlayerBuild } from '../prisma/enum-adapter';
+
+const PlayerTypeProps = {
+  [PlayerType.UNKNOWN]: { name: 'Unknown' },
+  [PlayerType.REGULAR]: { name: 'Regular' },
+  [PlayerType.IRONMAN]: { name: 'Ironman' },
+  [PlayerType.HARDCORE]: { name: 'Hardcore' },
+  [PlayerType.ULTIMATE]: { name: 'Ultimate' }
+};
+
+const PlayerBuildProps = {
+  [PlayerBuild.MAIN]: { name: 'Main' },
+  [PlayerBuild.F2P]: { name: 'F2P' },
+  [PlayerBuild.LVL3]: { name: 'Level 3' },
+  [PlayerBuild.ZERKER]: { name: 'Zerker Pure' },
+  [PlayerBuild.DEF1]: { name: '1 Defence Pure' },
+  [PlayerBuild.HP10]: { name: '10 Hitpoints Pure' }
+};
+
+const PLAYER_TYPES = Object.values(PlayerType);
+const PLAYER_BUILDS = Object.values(PlayerBuild);
+
+function findPlayerType(typeName: string): PlayerType | null {
+  for (const [key, value] of Object.entries(PlayerTypeProps)) {
+    if (value.name.toUpperCase() === typeName.toUpperCase()) return key as PlayerType;
+  }
+
+  return null;
+}
+
+function findPlayerBuild(buildName: string): PlayerBuild | null {
+  for (const [key, value] of Object.entries(PlayerBuildProps)) {
+    if (value.name.toUpperCase() === buildName.toUpperCase()) return key as PlayerBuild;
+  }
+
+  return null;
+}
+
+export {
+  // Enums
+  PlayerType,
+  PlayerBuild,
+  PlayerTypeProps,
+  PlayerBuildProps,
+  // Lists
+  PLAYER_TYPES,
+  PLAYER_BUILDS,
+  // Functions
+  findPlayerType,
+  findPlayerBuild
+};

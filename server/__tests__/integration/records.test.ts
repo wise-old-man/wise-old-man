@@ -3,8 +3,9 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import env from '../../src/env';
 import apiServer from '../../src/api';
-import prisma, { PlayerType } from '../../src/prisma';
+import prisma from '../../src/prisma';
 import { Metric } from '../../src/utils/metrics';
+import { PlayerType } from '../../src/utils/players';
 import {
   registerCMLMock,
   registerHiscoresMock,

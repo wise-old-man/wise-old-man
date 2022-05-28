@@ -168,7 +168,7 @@ export const NameChangeStatus = {
 
 export type NameChangeStatus = typeof NameChangeStatus[keyof typeof NameChangeStatus];
 
-export const Period = {
+export const PeriodEnum = {
   FIVE_MIN: PrismaPeriod.five_min,
   DAY: PrismaPeriod.day,
   WEEK: PrismaPeriod.week,
@@ -176,10 +176,9 @@ export const Period = {
   YEAR: PrismaPeriod.year
 } as const;
 
-export type Period = typeof Period[keyof typeof Period];
-export const Periods = Object.values(Period);
+export type PeriodEnum = typeof PeriodEnum[keyof typeof PeriodEnum];
 
-export const PlayerType = {
+export const PlayerTypeEnum = {
   UNKNOWN: PrismaPlayerType.unknown,
   REGULAR: PrismaPlayerType.regular,
   IRONMAN: PrismaPlayerType.ironman,
@@ -187,10 +186,9 @@ export const PlayerType = {
   ULTIMATE: PrismaPlayerType.ultimate
 } as const;
 
-export type PlayerType = typeof PlayerType[keyof typeof PlayerType];
-export const PlayerTypes = Object.values(PlayerType);
+export type PlayerTypeEnum = typeof PlayerTypeEnum[keyof typeof PlayerTypeEnum];
 
-export const PlayerBuild = {
+export const PlayerBuildEnum = {
   MAIN: PrismaPlayerBuild.main,
   F2P: PrismaPlayerBuild.f2p,
   LVL3: PrismaPlayerBuild.lvl3,
@@ -199,5 +197,4 @@ export const PlayerBuild = {
   HP10: PrismaPlayerBuild.hp10
 } as const;
 
-export type PlayerBuild = typeof PlayerBuild[keyof typeof PlayerBuild];
-export const PlayerBuilds = Object.values(PlayerBuild);
+export type PlayerBuildEnum = typeof PlayerBuildEnum[keyof typeof PlayerBuildEnum];

@@ -1,5 +1,5 @@
-import { round, getLevel } from '@wise-old-man/utils';
-import { getTotalLevel } from '../../util/experience';
+import { round } from '@wise-old-man/utils';
+import { getTotalLevel, getLevel } from '../../../utils/experience';
 import { Snapshot, Player } from '../../../prisma';
 import {
   SKILLS,
