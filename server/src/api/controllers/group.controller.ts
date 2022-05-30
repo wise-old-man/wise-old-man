@@ -208,10 +208,6 @@ async function addMembers(req: Request, res: Response, next: NextFunction) {
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const members = req.body.members;
 
-    if (!Array.isArray(members)) {
-      throw new BadRequestError('Members should be an array of names.');
-    }
-
     const group = await groupService.resolve(id, true);
     const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
