@@ -61,7 +61,6 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const clanChat = extractString(req.body, { key: 'clanChat' });
     const homeworld = extractNumber(req.body, { key: 'homeworld' });
     const description = extractString(req.body, { key: 'description' });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const members = req.body.members;
 
     if (!name && !members && !clanChat && !homeworld && !description) {
@@ -69,13 +68,13 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     }
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
     }
 
-    const dto = { name, clanChat, members, homeworld, description, verificationCode };
+    const dto = { name, clanChat, members, homeworld, description };
     const [editedGroup, newMembers] = await groupService.edit(group, dto);
 
     res.status(200).json({ ...editedGroup.toJSON(), members: newMembers });
@@ -86,11 +85,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
 
 // DELETE /groups/:id
 async function remove(req: Request): Promise<ControllerResponse> {
-  const id = extractNumber(req.params, { key: 'id', required: true });
-  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-
-  const group = await groupService.resolve(id, true);
-  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
   if (!isVerifiedCode) {
     throw new ForbiddenError('Incorrect verification code.');
@@ -134,11 +129,7 @@ async function verifyGroup(req: Request): Promise<ControllerResponse> {
 
 // PUT /groups/:id/change-role
 async function changeRole(req: Request): Promise<ControllerResponse> {
-  const id = extractNumber(req.params, { key: 'id', required: true });
-  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-
-  const group = await groupService.resolve(id, true);
-  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
   if (!isVerifiedCode) {
     throw new ForbiddenError('Incorrect verification code.');
@@ -155,17 +146,16 @@ async function changeRole(req: Request): Promise<ControllerResponse> {
 
 // POST /groups/:id/update-all
 async function updateAll(req: Request): Promise<ControllerResponse> {
-  const id = extractNumber(req.params, { key: 'id', required: true });
-  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-
-  const group = await groupService.resolve(id, true);
-  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
   if (!isVerifiedCode) {
     throw new ForbiddenError('Incorrect verification code.');
   }
 
-  const outdatedCount = await groupServices.updateAllMembers({ id });
+  const outdatedCount = await groupServices.updateAllMembers({
+    id: getNumber(req.params.id)
+  });
+
   const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
 
   return {
@@ -178,11 +168,10 @@ async function updateAll(req: Request): Promise<ControllerResponse> {
 async function addMembers(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
     const members = req.body.members;
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -201,10 +190,9 @@ async function removeMembers(req: Request, res: Response, next: NextFunction) {
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const members = extractStrings(req.body, { key: 'members', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
     const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -248,111 +236,78 @@ async function competitions(req: Request, res: Response, next: NextFunction) {
 }
 
 // GET /groups/:id/monthly-top
-async function monthlyTop(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function monthlyTop(req: Request): Promise<ControllerResponse> {
+  // Get the member with the most monthly overall gains
+  const topPlayers = await deltaServices.findGroupDeltas({
+    id: getNumber(req.params.id),
+    limit: 1,
+    metric: Metric.OVERALL,
+    period: Period.MONTH
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    // Get the member with the most monthly overall gains
-    const topPlayers = await deltaServices.findGroupDeltas({
-      id,
-      limit: 1,
-      metric: Metric.OVERALL,
-      period: Period.MONTH
-    });
-
-    res.json(topPlayers[0] || null);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: topPlayers[0] || null };
 }
 
 // GET /groups/:id/gained
-async function gained(req: Request, res: Response, next: NextFunction) {
-  try {
-    const results = await deltaServices.findGroupDeltas({
-      id: getNumber(req.params.id),
-      metric: getEnum(req.query.metric),
-      period: getEnum(req.query.period),
-      minDate: getDate(req.query.startDate),
-      maxDate: getDate(req.query.endDate),
-      limit: getNumber(req.query.limit),
-      offset: getNumber(req.query.offset)
-    });
+async function gained(req: Request): Promise<ControllerResponse> {
+  const results = await deltaServices.findGroupDeltas({
+    id: getNumber(req.params.id),
+    metric: getEnum(req.query.metric),
+    period: getEnum(req.query.period),
+    minDate: getDate(req.query.startDate),
+    maxDate: getDate(req.query.endDate),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/achievements
-async function achievements(req: Request, res: Response, next: NextFunction) {
-  try {
-    const results = await achievementServices.findGroupAchievements({
-      id: getNumber(req.params.id),
-      limit: getNumber(req.query.limit),
-      offset: getNumber(req.query.offset)
-    });
+async function achievements(req: Request): Promise<ControllerResponse> {
+  const results = await achievementServices.findGroupAchievements({
+    id: getNumber(req.params.id),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/records
-async function records(req: Request, res: Response, next: NextFunction) {
-  try {
-    const results = await recordServices.findGroupRecords({
-      id: getNumber(req.params.id),
-      period: getEnum(req.query.period),
-      metric: getEnum(req.query.metric),
-      limit: getNumber(req.query.limit),
-      offset: getNumber(req.query.offset)
-    });
+async function records(req: Request): Promise<ControllerResponse> {
+  const results = await recordServices.findGroupRecords({
+    id: getNumber(req.params.id),
+    period: getEnum(req.query.period),
+    metric: getEnum(req.query.metric),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/hiscores
-async function hiscores(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const metric = extractString(req.query, { key: 'metric', required: true });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function hiscores(req: Request): Promise<ControllerResponse> {
+  const results = await groupServices.fetchGroupHiscores({
+    id: getNumber(req.params.id),
+    metric: getEnum(req.query.metric),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getHiscores(id, metric, paginationConfig);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/name-changes
-async function nameChanges(req: Request, res: Response, next: NextFunction) {
-  try {
-    const results = await nameChangeServices.findGroupNameChanges({
-      id: getNumber(req.params.id),
-      limit: getNumber(req.query.limit),
-      offset: getNumber(req.query.offset)
-    });
+async function nameChanges(req: Request): Promise<ControllerResponse> {
+  const results = await nameChangeServices.findGroupNameChanges({
+    id: getNumber(req.params.id),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/statistics

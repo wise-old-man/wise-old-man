@@ -591,13 +591,13 @@ describe('Snapshots API', () => {
       expect(results.length).toBe(2);
 
       expect(results[0]).toMatchObject({
-        playerId: globalData.testPlayerId,
-        createdAt: new Date('2020-05-08T17:14:00.000Z')
+        playerId: globalData.secondaryPlayerId,
+        createdAt: new Date('2020-05-08T17:14:30.000Z')
       });
 
       expect(results[1]).toMatchObject({
-        playerId: globalData.secondaryPlayerId,
-        createdAt: new Date('2020-05-08T17:14:30.000Z')
+        playerId: globalData.testPlayerId,
+        createdAt: new Date('2020-05-08T17:14:00.000Z')
       });
     });
 
@@ -610,13 +610,13 @@ describe('Snapshots API', () => {
       expect(results.length).toBe(2);
 
       expect(results[0]).toMatchObject({
-        playerId: globalData.testPlayerId,
-        createdAt: new Date('2020-05-08T17:14:00.000Z')
+        playerId: globalData.secondaryPlayerId,
+        createdAt: new Date('2020-05-08T17:14:30.000Z')
       });
 
       expect(results[1]).toMatchObject({
-        playerId: globalData.secondaryPlayerId,
-        createdAt: new Date('2020-05-08T17:14:30.000Z')
+        playerId: globalData.testPlayerId,
+        createdAt: new Date('2020-05-08T17:14:00.000Z')
       });
     });
 
@@ -629,13 +629,13 @@ describe('Snapshots API', () => {
       expect(results.length).toBe(2);
 
       expect(results[0]).toMatchObject({
-        playerId: globalData.testPlayerId,
-        createdAt: new Date('2020-04-16T19:54:23.000Z')
+        playerId: globalData.secondaryPlayerId,
+        createdAt: new Date('2020-05-08T17:14:30.000Z')
       });
 
       expect(results[1]).toMatchObject({
-        playerId: globalData.secondaryPlayerId,
-        createdAt: new Date('2020-05-08T17:14:30.000Z')
+        playerId: globalData.testPlayerId,
+        createdAt: new Date('2020-04-16T19:54:23.000Z')
       });
     });
 
@@ -648,13 +648,13 @@ describe('Snapshots API', () => {
       expect(results.length).toBe(2);
 
       expect(results[0]).toMatchObject({
-        playerId: globalData.testPlayerId,
-        createdAt: new Date('2020-04-16T19:54:23.000Z')
+        playerId: globalData.secondaryPlayerId,
+        createdAt: new Date('2020-05-08T17:14:30.000Z')
       });
 
       expect(results[1]).toMatchObject({
-        playerId: globalData.secondaryPlayerId,
-        createdAt: new Date('2020-05-08T17:14:30.000Z')
+        playerId: globalData.testPlayerId,
+        createdAt: new Date('2020-04-16T19:54:23.000Z')
       });
     });
   });

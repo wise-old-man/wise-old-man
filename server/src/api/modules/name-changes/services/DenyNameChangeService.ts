@@ -11,7 +11,7 @@ type DenyNameChangeParams = z.infer<typeof inputSchema>;
 async function denyNameChange(payload: DenyNameChangeParams): Promise<NameChange> {
   const params = inputSchema.parse(payload);
 
-  const nameChange = await prisma.nameChange.findUnique({
+  const nameChange = await prisma.nameChange.findFirst({
     where: { id: params.id }
   });
 

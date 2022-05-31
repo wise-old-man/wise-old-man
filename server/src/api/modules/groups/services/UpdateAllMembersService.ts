@@ -17,7 +17,7 @@ async function updateAllMembers(payload: UpdateAllMembersParams): Promise<number
   const outdatedPlayers = await getOutdatedMembers(params.id);
 
   if (!outdatedPlayers || outdatedPlayers.length === 0) {
-    const group = await prisma.group.findUnique({
+    const group = await prisma.group.findFirst({
       where: { id: params.id }
     });
 

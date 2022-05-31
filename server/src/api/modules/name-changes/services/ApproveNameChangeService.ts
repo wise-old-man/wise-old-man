@@ -18,7 +18,7 @@ type ApproveNameChangeService = z.infer<typeof inputSchema>;
 async function approveNameChange(payload: ApproveNameChangeService): Promise<NameChange> {
   const params = inputSchema.parse(payload);
 
-  const nameChange = await prisma.nameChange.findUnique({
+  const nameChange = await prisma.nameChange.findFirst({
     where: { id: params.id }
   });
 

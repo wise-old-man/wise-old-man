@@ -24,7 +24,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
   });
 
   if (!membership) {
-    const group = await prisma.group.findUnique({
+    const group = await prisma.group.findFirst({
       where: { id: params.id }
     });
 

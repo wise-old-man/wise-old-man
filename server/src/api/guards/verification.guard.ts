@@ -1,9 +1,27 @@
-import { Competition, Group } from '../../database/models';
-import { ServerError } from '../errors';
+import { Request } from 'express';
+import prisma from '../../prisma';
+import { Competition } from '../../database/models';
+import { BadRequestError, NotFoundError, ServerError } from '../errors';
 import * as cryptService from '../services/external/crypt.service';
 
-async function verifyGroupCode(group: Group, verificationCode: string) {
-  const verified = await cryptService.verifyCode(group.verificationHash, verificationCode);
+async function verifyGroupCode(request: Request) {
+  const { id } = request.params;
+  const { verificationCode } = request.body;
+
+  if (!id) throw new BadRequestError("Parameter 'id' is required.");
+  if (!verificationCode) throw new BadRequestError("Parameter 'verificationCode' is required.");
+
+  const group = await prisma.group.findFirst({
+    where: { id: Number(id) },
+    select: { verificationHash: true }
+  });
+
+  if (!group) {
+    throw new NotFoundError('Group not found.');
+  }
+
+  const verified = await cryptService.verifyCode(group.verificationHash, String(verificationCode));
+
   return verified;
 }
 

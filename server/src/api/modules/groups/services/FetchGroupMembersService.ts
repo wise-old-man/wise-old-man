@@ -19,7 +19,7 @@ async function fetchGroupMembers(payload: FetchGroupMembersParams): Promise<Memb
   });
 
   if (!memberships || memberships.length === 0) {
-    const group = await prisma.group.findUnique({
+    const group = await prisma.group.findFirst({
       where: { id: params.id }
     });
 

@@ -277,13 +277,6 @@ describe('Group API', () => {
   });
 
   describe('2 - Edit', () => {
-    it('should not edit (invalid verification code)', async () => {
-      const response = await api.put('/api/groups/1000').send({});
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
-    });
-
     it('should not edit (empty params)', async () => {
       const response = await api.put('/api/groups/1000').send({ verificationCode: 'XYZ' });
 
@@ -296,6 +289,13 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
+    });
+
+    it('should not edit (invalid verification code)', async () => {
+      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({ name: 'idk' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
     });
 
     it('should not edit (incorrect verification code)', async () => {
@@ -506,13 +506,6 @@ describe('Group API', () => {
   });
 
   describe('4 - Add Members', () => {
-    it('should not add members (invalid verification code)', async () => {
-      const response = await api.post('/api/groups/1000/add-members');
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
-    });
-
     it('should not add members (group not found)', async () => {
       const response = await api.post('/api/groups/1000/add-members').send({
         verificationCode: 'XYZ',
@@ -521,6 +514,15 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
+    });
+
+    it('should not add members (invalid verification code)', async () => {
+      const response = await api
+        .post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`)
+        .send({ members: [] });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
     });
 
     it('should not add members (incorrect verification code)', async () => {
@@ -541,7 +543,7 @@ describe('Group API', () => {
       });
 
       expect(response.body).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
     });
 
     it('should not add members (empty members list)', async () => {
@@ -630,7 +632,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not change role (incorrect verification code)', async () => {
@@ -822,12 +824,12 @@ describe('Group API', () => {
     });
 
     it('should not remove members (invalid verification code)', async () => {
-      const response = await api.post(`/api/groups/123456789/remove-members`).send({
+      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         members: ['sethmare']
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not remove members (incorrect verification code)', async () => {
@@ -907,7 +909,7 @@ describe('Group API', () => {
       const response = await api.delete(`/api/groups/123456789`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not delete (incorrect verification code)', async () => {
@@ -990,14 +992,14 @@ describe('Group API', () => {
       const response = await api.get(`/api/groups/100000/hiscores`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not view hiscores (empty metric)', async () => {
       const response = await api.get(`/api/groups/100000/hiscores`).query({ metric: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'metric' is undefined.");
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not view hiscores (group not found)', async () => {
@@ -1013,7 +1015,7 @@ describe('Group API', () => {
         .query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric: sailing.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not view hiscores (empty group)', async () => {
@@ -1063,21 +1065,36 @@ describe('Group API', () => {
       expect(response.body.length).toBe(3);
 
       expect(response.body[0]).toMatchObject({
-        player: { username: 'alexsuperfly' },
-        experience: 200_000_000,
-        level: 99
+        membership: {
+          groupId: globalData.testGroupOneLeader.id,
+          player: { username: 'alexsuperfly' }
+        },
+        data: {
+          experience: 200_000_000,
+          level: 99
+        }
       });
 
       expect(response.body[1]).toMatchObject({
-        player: { username: 'psikoi' },
-        experience: 19_288_604,
-        level: 99
+        membership: {
+          groupId: globalData.testGroupOneLeader.id,
+          player: { username: 'psikoi' }
+        },
+        data: {
+          experience: 19_288_604,
+          level: 99
+        }
       });
 
       expect(response.body[2]).toMatchObject({
-        player: { username: 'zezima' },
-        experience: 5_500_000,
-        level: 90
+        membership: {
+          groupId: globalData.testGroupOneLeader.id,
+          player: { username: 'zezima' }
+        },
+        data: {
+          experience: 5_500_000,
+          level: 90
+        }
       });
     });
 
@@ -1090,12 +1107,17 @@ describe('Group API', () => {
       expect(response.body.length).toBe(1);
 
       expect(response.body[0]).toMatchObject({
-        player: { username: 'zezima' },
-        kills: 100
+        membership: {
+          groupId: globalData.testGroupOneLeader.id,
+          player: { username: 'zezima' }
+        },
+        data: {
+          kills: 100
+        }
       });
     });
 
-    it.skip('should not view hiscores (negative offset)', async () => {
+    it('should not view hiscores (negative offset)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', offset: -5 });
@@ -1104,7 +1126,7 @@ describe('Group API', () => {
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
-    it.skip('should not view hiscores (negative limit)', async () => {
+    it('should not view hiscores (negative limit)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', limit: -5 });
@@ -1113,7 +1135,7 @@ describe('Group API', () => {
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
-    it.skip('should not view hiscores (limit > 50)', async () => {
+    it('should not view hiscores (limit > 50)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', limit: 1000 });
@@ -1166,7 +1188,7 @@ describe('Group API', () => {
       const response = await api.post(`/api/groups/123456789/update-all`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not update all (group not found)', async () => {

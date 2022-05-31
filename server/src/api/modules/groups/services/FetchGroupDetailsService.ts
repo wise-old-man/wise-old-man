@@ -13,7 +13,7 @@ type FetchGroupDetailsParams = z.infer<typeof inputSchema>;
 async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<GroupWithCount> {
   const params = inputSchema.parse(payload);
 
-  const group = await prisma.group.findUnique({
+  const group = await prisma.group.findFirst({
     where: { id: params.id },
     include: {
       _count: {

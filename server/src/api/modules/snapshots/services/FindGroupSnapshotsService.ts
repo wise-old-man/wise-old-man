@@ -22,9 +22,18 @@ const inputSchema = z
     message: 'Min and max dates should be valid when using "includeAllBetween=true"'
   });
 
+interface QueryParams {
+  sortBy: keyof PrismaTypes.SnapshotOrderByWithRelationInput;
+  limit: number;
+  offset: number;
+}
+
 type FindGroupSnapshotsParams = z.infer<typeof inputSchema>;
 
-async function findGroupSnapshots(payload: FindGroupSnapshotsParams): Promise<Snapshot[]> {
+async function findGroupSnapshots(
+  payload: FindGroupSnapshotsParams,
+  queryParams?: QueryParams
+): Promise<Snapshot[]> {
   const params = inputSchema.parse(payload);
 
   // Use the player ids provided in params, or fetch them through the group id.
@@ -51,12 +60,12 @@ async function findGroupSnapshots(payload: FindGroupSnapshotsParams): Promise<Sn
 
   if (params.minDate) {
     // Get the first snapshot AFTER min date (for each player id)
-    return await getFirstSnapshot(playerIds, params.minDate);
+    return await getFirstSnapshot(playerIds, params.minDate, queryParams);
   }
 
   if (params.maxDate) {
     // Get the last snapshot BEFORE max date (for each player id)
-    return await getLastSnapshot(playerIds, params.maxDate);
+    return await getLastSnapshot(playerIds, params.maxDate, queryParams);
   }
 
   return [];
@@ -84,8 +93,13 @@ async function resolvePlayerIds(params: FindGroupSnapshotsParams): Promise<numbe
 /**
  * Gets the last snapshot (before maxDate) for each playerId
  */
-async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snapshot[]> {
+async function getLastSnapshot(
+  playerIds: number[],
+  maxDate: Date,
+  queryParams?: QueryParams
+): Promise<Snapshot[]> {
   const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
+  const formattedColumnName = PrismaTypes.raw(queryParams?.sortBy || 'id');
 
   const snapshots = await prisma.$queryRaw<PrismaSnapshot[]>`
       SELECT s.*, s."playerId", s."createdAt"
@@ -95,7 +109,10 @@ async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snap
             GROUP BY q."playerId"
           ) r
       JOIN public.snapshots s
-      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date`;
+      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
+      ORDER BY s."${formattedColumnName}" DESC
+      LIMIT ${queryParams?.limit ?? 100_000}
+      OFFSET ${queryParams?.offset ?? 0}`;
 
   // For some reason, the raw query returns dates as strings
   const fixedDates = snapshots.map(s => ({
@@ -110,8 +127,13 @@ async function getLastSnapshot(playerIds: number[], maxDate: Date): Promise<Snap
 /**
  * Gets the first snapshot (after minDate) for each playerId
  */
-async function getFirstSnapshot(playerIds: number[], minDate: Date): Promise<Snapshot[]> {
+async function getFirstSnapshot(
+  playerIds: number[],
+  minDate: Date,
+  queryParams?: QueryParams
+): Promise<Snapshot[]> {
   const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
+  const formattedColumnName = PrismaTypes.raw(queryParams?.sortBy || 'id');
 
   const snapshots = await prisma.$queryRaw<PrismaSnapshot[]>`
       SELECT s.*, s."playerId", s."createdAt"
@@ -121,7 +143,10 @@ async function getFirstSnapshot(playerIds: number[], minDate: Date): Promise<Sna
             GROUP BY q."playerId"
           ) r
       JOIN public.snapshots s
-          ON s."playerId" = r."playerId" AND s."createdAt" = r.min_date`;
+          ON s."playerId" = r."playerId" AND s."createdAt" = r.min_date
+      ORDER BY s."${formattedColumnName}" DESC
+      LIMIT ${queryParams?.limit ?? 100_000}
+      OFFSET ${queryParams?.offset ?? 0}`;
 
   // For some reason, the raw query returns dates as strings
   const fixedDates = snapshots.map(s => ({

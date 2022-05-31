@@ -17,7 +17,7 @@ async function findGroupAchievements(payload: FindGroupAchievementsParams): Prom
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
-  const groupAndMemberships = await prisma.group.findUnique({
+  const groupAndMemberships = await prisma.group.findFirst({
     where: { id: params.id },
     include: { memberships: { select: { playerId: true } } }
   });

@@ -38,7 +38,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<FindGrou
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
-  const groupAndMemberships = await prisma.group.findUnique({
+  const groupAndMemberships = await prisma.group.findFirst({
     where: { id: params.id },
     include: { memberships: { select: { player: true } } }
   });

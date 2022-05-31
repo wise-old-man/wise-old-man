@@ -20,12 +20,12 @@ api.post('/:id/remove-members', controller.removeMembers);
 
 api.get('/:id/members', setupController(controller.listMembers));
 api.get('/:id/competitions', controller.competitions);
-api.get('/:id/monthly-top', controller.monthlyTop);
-api.get('/:id/gained', controller.gained);
-api.get('/:id/achievements', controller.achievements);
-api.get('/:id/records', controller.records);
-api.get('/:id/hiscores', controller.hiscores);
-api.get('/:id/name-changes', controller.nameChanges);
+api.get('/:id/monthly-top', setupController(controller.monthlyTop));
+api.get('/:id/gained', setupController(controller.gained));
+api.get('/:id/achievements', setupController(controller.achievements));
+api.get('/:id/records', setupController(controller.records));
+api.get('/:id/hiscores', setupController(controller.hiscores));
+api.get('/:id/name-changes', setupController(controller.nameChanges));
 api.get('/:id/statistics', controller.statistics);
 
 api.get('/migrate/temple/:id', controller.migrateTemple);
