@@ -894,7 +894,7 @@ describe('Group API', () => {
   });
 
   describe('8 - Delete', () => {
-    it('should not change role (group not found)', async () => {
+    it('should not delete (group not found)', async () => {
       const response = await api.delete(`/api/groups/123456789`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
@@ -903,14 +903,14 @@ describe('Group API', () => {
       expect(response.body.message).toBe('Group not found.');
     });
 
-    it('should not change role (invalid verification code)', async () => {
+    it('should not delete (invalid verification code)', async () => {
       const response = await api.delete(`/api/groups/123456789`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
     });
 
-    it('should not change role (incorrect verification code)', async () => {
+    it('should not delete (incorrect verification code)', async () => {
       const response = await api.delete(`/api/groups/${globalData.testGroupNoLeaders.id}`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
@@ -925,7 +925,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toMatch('Successfully deleted group');
+      expect(response.body.message).toMatch('Successfully deleted group:');
 
       const fetchConfirmResponse = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
@@ -945,10 +945,14 @@ describe('Group API', () => {
       const response = await api.get(`/api/groups/${globalData.testGroupOneLeader.id}`);
 
       expect(response.status).toBe(200);
+
+      expect(response.body.verificationHash).not.toBeDefined();
+
       expect(response.body).toMatchObject({
         clanChat: 'wiseoldman',
         description: 'when I was a young boy, my father took me into the city to see a marching band',
-        homeworld: 302
+        homeworld: 302,
+        memberCount: 4
       });
     });
   });
@@ -974,10 +978,10 @@ describe('Group API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(4);
 
-      expect(response.body[0]).toMatchObject({ username: 'alexsuperfly', role: 'leader' });
-      expect(response.body[1]).toMatchObject({ username: 'psikoi', role: 'achiever' });
-      expect(response.body[2]).toMatchObject({ username: 'zezima', role: 'firemaker' });
-      expect(response.body[3]).toMatchObject({ username: 'rorro', role: 'member' });
+      expect(response.body[0]).toMatchObject({ role: 'leader', player: { username: 'alexsuperfly' } });
+      expect(response.body[1]).toMatchObject({ role: 'achiever', player: { username: 'psikoi' } });
+      expect(response.body[2]).toMatchObject({ role: 'firemaker', player: { username: 'zezima' } });
+      expect(response.body[3]).toMatchObject({ role: 'member', player: { username: 'rorro' } });
     });
   });
 
@@ -1189,7 +1193,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('This group has no outdated members (updated over 1h ago).');
+      expect(response.body.message).toBe('This group has no outdated members (updated over 24h ago).');
     });
 
     it('should update all', async () => {

@@ -1,9 +1,7 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
-import moment from 'moment';
-import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import {
   GROUP_ROLES,
-  PRIVELEGED_GROUP_ROLES,
   GroupRole,
   Metric,
   METRICS,
@@ -81,57 +79,6 @@ async function resolve(groupId: number, exposeHash = false): Promise<Group> {
   }
 
   return group;
-}
-
-/**
- * Given a list of groups, it will fetch the member count of each,
- * and inserts a "memberCount" field in every group object.
- */
-async function extendGroups(groups: Group[]): Promise<ExtendedGroup[]> {
-  /**
-   * Will return a members count for every group, with the format:
-   * [ {groupId: 35, count: "4"}, {groupId: 41, count: "31"} ]
-   */
-  const memberCount = await Membership.findAll({
-    where: { groupId: groups.map(g => g.id) },
-    attributes: ['groupId', [Sequelize.fn('COUNT', Sequelize.col('groupId')), 'count']],
-    group: ['groupId'],
-    raw: true
-  });
-
-  return groups.map(g => {
-    const match: any = memberCount.find(m => m.groupId === g.id);
-    return { ...(g.toJSON() as any), memberCount: parseInt(match ? match.count : 0) };
-  });
-}
-
-/**
- * Get all the data on a given group. (Info and members)
- */
-async function getDetails(group: Group): Promise<ExtendedGroup> {
-  // Format, and calculate the "memberCount" property
-  const extendedGroup = (await extendGroups([group]))[0];
-  return extendedGroup;
-}
-
-async function getMembersList(group: Group): Promise<Member[]> {
-  // Fetch all memberships for the group
-  const memberships = await Membership.findAll({
-    attributes: ['groupId', 'playerId', 'role', 'createdAt'],
-    where: { groupId: group.id },
-    include: [{ model: Player }]
-  });
-
-  if (!memberships || memberships.length === 0) {
-    return [];
-  }
-
-  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
-
-  // Format all the members, add each experience to its respective player, and sort them by role
-  return memberships
-    .map(({ player, role, createdAt }) => ({ ...(player.toJSON() as any), role, joinedAt: createdAt }))
-    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
 }
 
 /**
@@ -395,16 +342,6 @@ async function edit(group: Group, dto: EditGroupDTO): Promise<[Group, Member[]]>
 }
 
 /**
- * Permanently delete a group and all associated memberships.
- */
-async function destroy(group: Group): Promise<string> {
-  const groupName = group.name;
-
-  await group.destroy();
-  return groupName;
-}
-
-/**
  * Set the members of a group.
  *
  * Note: This will replace any existing members.
@@ -600,108 +537,6 @@ async function removeMembers(group: Group, usernames: string[]) {
   return removedPlayersCount;
 }
 
-/**
- * Change the role of a given username, in a group.
- */
-async function changeRole(group: Group, member: MemberFragment): Promise<[Player, string]> {
-  const { username, role } = member;
-
-  const membership = await Membership.findOne({
-    where: { groupId: group.id },
-    include: [{ model: Player, where: { username: playerUtils.standardize(username) } }]
-  });
-
-  if (!membership) {
-    throw new BadRequestError(`${username} is not a member of ${group.name}.`);
-  }
-
-  if (membership.role === role) {
-    throw new BadRequestError(`${username} is already a ${role}.`);
-  }
-
-  if (!GROUP_ROLES.includes(member.role as GroupRole)) {
-    throw new BadRequestError(`${member.role} is not a valid role.`);
-  }
-
-  await membership.update({ role });
-
-  // Update the "updatedAt" timestamp on the group model
-  group.changed('updatedAt', true);
-  await group.save();
-
-  return [membership.player, role];
-}
-
-/**
- * Get all members for a specific group id.
- */
-async function getMembers(groupId) {
-  // Fetch all members
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    include: [{ model: Player }]
-  });
-
-  // Format the members
-  const members = memberships.map(({ player, role }) => {
-    return { ...player.toJSON(), role };
-  });
-
-  return members;
-}
-
-async function findOne(groupId) {
-  const group = await Group.findOne({ where: { id: groupId } });
-  return group;
-}
-
-/**
- * Update all members of a group.
- *
- * An update action must be supplied, to be executed for every member.
- * This is to prevent calling jobs from within the service (circular dependency).
- * I'd rather call them from the controller.
- */
-async function updateAllMembers(group: Group, updateAction: (player: Player) => void) {
-  const members = await getOutdatedMembers(group.id);
-
-  if (!members || members.length === 0) {
-    throw new BadRequestError('This group has no outdated members (updated over 1h ago).');
-  }
-
-  // Execute the update action for every member
-  members.forEach(player => updateAction(player));
-
-  return members;
-}
-
-/**
- * Get outdated members of a specific group id.
- * A member is considered outdated 24 hours after their last update.
- */
-async function getOutdatedMembers(groupId) {
-  if (!groupId) {
-    throw new BadRequestError('Invalid group id.');
-  }
-
-  const hourAgo = moment().subtract(24, 'hour');
-
-  const membersToUpdate = await Membership.findAll({
-    attributes: ['groupId', 'playerId'],
-    where: { groupId },
-    include: [
-      {
-        model: Player,
-        where: {
-          updatedAt: { [Op.lt]: hourAgo.toDate() }
-        }
-      }
-    ]
-  });
-
-  return membersToUpdate.map(({ player }) => player);
-}
-
 async function importTempleGroup(templeGroupId: number): Promise<MigratedGroupInfo> {
   if (!templeGroupId) throw new BadRequestError('Invalid temple group ID.');
 
@@ -718,19 +553,12 @@ async function importCMLGroup(cmlGroupId: number): Promise<MigratedGroupInfo> {
 
 export {
   resolve,
-  getMembers,
-  findOne,
-  getDetails,
   getHiscores,
-  getMembersList,
   getStatistics,
   create,
   edit,
-  destroy,
   addMembers,
   removeMembers,
-  changeRole,
-  updateAllMembers,
   importTempleGroup,
   importCMLGroup
 };

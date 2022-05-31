@@ -8,7 +8,7 @@ import {
   CompetitionStatus
 } from '@wise-old-man/utils';
 import { Metric, METRICS, getMetricValueKey, isVirtualMetric } from '../../../utils';
-import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
+import { Competition, Group, Membership, Participation, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
@@ -765,8 +765,14 @@ async function setParticipants(competition: Competition, usernames: string[]) {
  * Add all members of a group as participants of a competition.
  */
 async function addAllGroupMembers(competition, groupId) {
-  // Find all the group's members
-  const members = await groupService.getMembers(groupId);
+  const memberships = await Membership.findAll({
+    where: { groupId },
+    include: [{ model: Player }]
+  });
+
+  const members = memberships.map(({ player, role }) => {
+    return { ...player.toJSON(), role };
+  });
 
   // Manually create participations for all these players
   await Participation.bulkCreate(

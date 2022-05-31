@@ -2,7 +2,7 @@ import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import { Group } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
-import * as groupService from '../../services/internal/group.service';
+import * as groupServices from '../../modules/groups/group.services';
 import { Job } from '../index';
 
 class RefreshGroupRankings implements Job {
@@ -41,7 +41,7 @@ async function calculateScore(group: Group): Promise<number> {
   let score = 0;
 
   const now = new Date();
-  const members = await groupService.getMembersList(group);
+  const members = await groupServices.fetchGroupMembers({ id: group.id });
   const pagination = { limit: 100, offset: 0 };
   const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
   const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;

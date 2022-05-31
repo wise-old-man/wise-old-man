@@ -7,18 +7,18 @@ const api = Router();
 api.get('/', setupController(controller.search));
 api.post('/', controller.create);
 
-api.get('/:id', controller.details);
+api.get('/:id', setupController(controller.details));
 api.put('/:id', controller.edit);
-api.delete('/:id', controller.remove);
+api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetGroupCode));
 api.put('/:id/verify', setupController(controller.verifyGroup));
 api.put('/:id/change-role', setupController(controller.changeRole));
-api.post('/:id/update-all', controller.updateAll);
+api.post('/:id/update-all', setupController(controller.updateAll));
 api.post('/:id/add-members', controller.addMembers);
 api.post('/:id/remove-members', controller.removeMembers);
 
-api.get('/:id/members', controller.listMembers);
+api.get('/:id/members', setupController(controller.listMembers));
 api.get('/:id/competitions', controller.competitions);
 api.get('/:id/monthly-top', controller.monthlyTop);
 api.get('/:id/gained', controller.gained);

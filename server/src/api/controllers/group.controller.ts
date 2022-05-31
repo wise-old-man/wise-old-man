@@ -3,7 +3,6 @@ import { BadRequestError, ForbiddenError } from '../errors';
 import { Period, Metric } from '../../utils';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
-import jobs from '../jobs';
 import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
@@ -46,17 +45,12 @@ async function create(req: Request, res: Response, next: NextFunction) {
 }
 
 // GET /groups/:id
-async function details(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function details(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.fetchGroupDetails({
+    id: getNumber(req.params.id)
+  });
 
-    const group = await groupService.resolve(id);
-    const groupDetails = await groupService.getDetails(group);
-
-    res.json(groupDetails);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // PUT /groups/:id
@@ -91,25 +85,25 @@ async function edit(req: Request, res: Response, next: NextFunction) {
 }
 
 // DELETE /groups/:id
-async function remove(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+async function remove(req: Request): Promise<ControllerResponse> {
+  const id = extractNumber(req.params, { key: 'id', required: true });
+  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const group = await groupService.resolve(id, true);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const groupName = await groupService.destroy(group);
-    const message = `Successfully deleted group '${groupName}'. (id: ${id})`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const deletedGroup = await groupServices.deleteGroup({
+    id: getNumber(req.params.id)
+  });
+
+  return {
+    statusCode: 200,
+    response: { message: `Successfully deleted group: ${deletedGroup.name} (ID: ${deletedGroup.id})` }
+  };
 }
 
 // PUT /groups/:id/reset-code
@@ -160,28 +154,24 @@ async function changeRole(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /groups/:id/update-all
-async function updateAll(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+async function updateAll(req: Request): Promise<ControllerResponse> {
+  const id = extractNumber(req.params, { key: 'id', required: true });
+  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const group = await groupService.resolve(id, true);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const members = await groupService.updateAllMembers(group, ({ username }) => {
-      jobs.add('UpdatePlayer', { username, source: 'Group:UpdateAll' });
-    });
-
-    const message = `${members.length} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const outdatedCount = await groupServices.updateAllMembers({ id });
+  const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
+
+  return {
+    statusCode: 200,
+    response: { message }
+  };
 }
 
 // POST /groups/:id/add-members
@@ -230,17 +220,12 @@ async function removeMembers(req: Request, res: Response, next: NextFunction) {
 }
 
 // GET /groups/:id/members
-async function listMembers(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function listMembers(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.fetchGroupMembers({
+    id: getNumber(req.params.id)
+  });
 
-    const group = await groupService.resolve(id);
-    const membersList = await groupService.getMembersList(group);
-
-    res.json(membersList);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // GET /groups/:id/competitions
