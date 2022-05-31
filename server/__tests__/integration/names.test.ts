@@ -515,7 +515,10 @@ describe('Names API', () => {
 
       expect(groupsResponse.status).toBe(200);
       expect(groupsResponse.body.length).toBe(1);
-      expect(groupsResponse.body[0]).toMatchObject({ name: 'Test Transfer Group', role: 'archer' });
+      expect(groupsResponse.body[0]).toMatchObject({
+        role: 'archer',
+        group: { name: 'Test Transfer Group' }
+      });
 
       // Check if none of the pre-transition participations have been transfered
       const competitionsResponse = await api.get(`/api/players/username/USBC/competitions`);

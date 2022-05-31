@@ -1,11 +1,10 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
-import { Achievement, Player as PrismaPlayer } from '../../../prisma';
+import prisma, { Achievement, Player as PrismaPlayer } from '../../../prisma';
 import { Competition, Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';
-import * as groupService from '../internal/group.service';
 import * as playerServices from '../../modules/players/player.services';
 
 /**
@@ -34,17 +33,16 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   // If no new achievements are found, ignore this event
   if (recent.length === 0) return;
 
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(playerId, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({ where: { playerId } });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
   const [player] = await playerServices.findPlayer({ id: playerId });
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_ACHIEVEMENTS', { groupId: id, player, achievements: recent });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });
   });
 }
 
@@ -53,15 +51,16 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchHardcoreDied(player: PrismaPlayer) {
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({
+    where: { playerId: player.id }
+  });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_HCIM_DIED', { groupId: id, player });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_HCIM_DIED', { groupId, player });
   });
 }
 
@@ -70,15 +69,16 @@ async function dispatchHardcoreDied(player: PrismaPlayer) {
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchNameChanged(player: Player, previousDisplayName: string) {
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({
+    where: { playerId: player.id }
+  });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_NAME_CHANGED', { groupId: id, player, previousName: previousDisplayName });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
   });
 }
 

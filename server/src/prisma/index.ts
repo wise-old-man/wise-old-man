@@ -6,6 +6,8 @@ import {
   Snapshot as PrismaSnapshot,
   Achievement as PrismaAchievement,
   NameChange,
+  Group,
+  Membership,
   Prisma,
   Country
 } from '@prisma/client';
@@ -96,6 +98,8 @@ export {
   PrismaSnapshot,
   // Models
   NameChange,
+  Group,
+  Membership,
   ModifiedPlayer as Player,
   ModifiedDelta as Delta,
   ModifiedRecord as Record,

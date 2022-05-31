@@ -3,16 +3,15 @@ import { ForbiddenError } from '../errors';
 import * as adminGuard from '../guards/admin.guard';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import * as competitionService from '../services/internal/competition.service';
-import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
+import * as groupServices from '../modules/groups/group.services';
 import * as playerServices from '../modules/players/player.services';
 import * as snapshotServices from '../modules/snapshots/snapshot.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
 import * as playerUtils from '../modules/players/player.utils';
-import { extractDate, extractNumber, extractString } from '../util/http';
-import * as pagination from '../util/pagination';
+import { extractDate, extractString } from '../util/http';
 import { getEnum, getNumber, getString } from '../util/validation';
 import { ControllerResponse } from '../util/routing';
 
@@ -146,20 +145,18 @@ async function groups(req: Request): Promise<ControllerResponse> {
     username: getString(req.params.username)
   });
 
-  const limit = extractNumber(req.query, { key: 'limit' });
-  const offset = extractNumber(req.query, { key: 'offset' });
+  const results = await groupServices.findPlayerMemberships({
+    playerId,
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-  const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-  // Get all player groups (by player id)
-  const playerGroups = await groupService.getPlayerGroups(playerId, paginationConfig);
-
-  if (playerId && playerGroups.length === 0) {
+  if (playerId && results.length === 0) {
     // Ensure this player ID exists (if not, it'll throw a 404 error)
     await playerUtils.resolvePlayer({ id: playerId });
   }
 
-  return { statusCode: 200, response: playerGroups };
+  return { statusCode: 200, response: results };
 }
 
 // GET /players/:id/gained

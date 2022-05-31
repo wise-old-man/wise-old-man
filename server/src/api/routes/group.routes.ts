@@ -1,18 +1,19 @@
 import { Router } from 'express';
+import { setupController } from '../util/routing';
 import * as controller from '../controllers/group.controller';
 
 const api = Router();
 
-api.get('/', controller.index);
+api.get('/', setupController(controller.search));
 api.post('/', controller.create);
 
 api.get('/:id', controller.details);
 api.put('/:id', controller.edit);
 api.delete('/:id', controller.remove);
 
-api.put('/:id/reset-code', controller.resetVerificationCode);
-api.put('/:id/verify', controller.verifyGroup);
-api.put('/:id/change-role', controller.changeRole);
+api.put('/:id/reset-code', setupController(controller.resetGroupCode));
+api.put('/:id/verify', setupController(controller.verifyGroup));
+api.put('/:id/change-role', setupController(controller.changeRole));
 api.post('/:id/update-all', controller.updateAll);
 api.post('/:id/add-members', controller.addMembers);
 api.post('/:id/remove-members', controller.removeMembers);

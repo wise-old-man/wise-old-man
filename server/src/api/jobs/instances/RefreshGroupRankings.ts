@@ -1,4 +1,4 @@
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '@wise-old-man/utils';
+import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import { Group } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';

@@ -8,28 +8,23 @@ import * as competitionService from '../services/internal/competition.service';
 import * as groupService from '../services/internal/group.service';
 import * as nameChangeServices from '../modules/name-changes/name-change.services';
 import * as recordServices from '../modules/records/record.services';
+import * as groupServices from '../modules/groups/group.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
 import { extractNumber, extractString, extractStrings } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
-import { getNumber, getEnum, getDate } from '../util/validation';
+import { getNumber, getEnum, getDate, getString } from '../util/validation';
+import { ControllerResponse } from '../util/routing';
 
 // GET /groups
-async function index(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Search filter query
-    const name = extractString(req.query, { key: 'name' });
-    // Pagination query
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function search(req: Request): Promise<ControllerResponse> {
+  const results = await groupServices.searchGroups({
+    name: getString(req.query.name),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    const paginationConfig = getPaginationConfig(limit, offset);
-    const results = await groupService.getList(name, paginationConfig);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // POST /groups
@@ -118,62 +113,50 @@ async function remove(req: Request, res: Response, next: NextFunction) {
 }
 
 // PUT /groups/:id/reset-code
-async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-
-    if (!adminGuard.checkAdminPermissions(req)) {
-      throw new ForbiddenError('Incorrect admin password.');
-    }
-
-    const group = await groupService.resolve(id, true);
-    const newCode = await groupService.resetVerificationCode(group);
-
-    res.json({ newCode });
-  } catch (e) {
-    next(e);
+async function resetGroupCode(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
   }
+
+  const result = await groupServices.resetGroupCode({
+    id: getNumber(req.params.id)
+  });
+
+  return { statusCode: 200, response: result };
 }
 
 // PUT /groups/:id/verify
-async function verifyGroup(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-
-    if (!adminGuard.checkAdminPermissions(req)) {
-      throw new ForbiddenError('Incorrect admin password.');
-    }
-
-    const group = await groupService.resolve(id);
-    await group.update({ verified: true });
-
-    res.json({ ...group.toJSON() });
-  } catch (e) {
-    next(e);
+async function verifyGroup(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
   }
+
+  const result = await groupServices.verifyGroup({
+    id: getNumber(req.params.id)
+  });
+
+  return { statusCode: 200, response: result };
 }
 
 // PUT /groups/:id/change-role
-async function changeRole(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const username = extractString(req.body, { key: 'username', required: true });
-    const role = extractString(req.body, { key: 'role', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+async function changeRole(req: Request): Promise<ControllerResponse> {
+  const id = extractNumber(req.params, { key: 'id', required: true });
+  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
+  const group = await groupService.resolve(id, true);
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(group, verificationCode);
 
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const [player, newRole] = await groupService.changeRole(group, { username, role });
-
-    res.json({ ...player.toJSON(), role: newRole });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await groupServices.changeMemberRole({
+    id: getNumber(req.params.id),
+    role: getEnum(req.body.role),
+    username: getString(req.body.username)
+  });
+
+  return { statusCode: 200, response: result };
 }
 
 // POST /groups/:id/update-all
@@ -431,7 +414,7 @@ async function migrateCML(req: Request, res: Response, next: NextFunction) {
 }
 
 export {
-  index,
+  search,
   create,
   edit,
   remove,
@@ -451,6 +434,6 @@ export {
   removeMembers,
   migrateTemple,
   migrateCML,
-  resetVerificationCode,
+  resetGroupCode,
   verifyGroup
 };

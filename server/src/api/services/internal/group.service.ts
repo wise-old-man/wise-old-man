@@ -1,8 +1,10 @@
 import { keyBy, mapValues, uniqBy } from 'lodash';
 import moment from 'moment';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { GROUP_ROLES, PRIVELEGED_GROUP_ROLES, GroupRole } from '@wise-old-man/utils';
 import {
+  GROUP_ROLES,
+  PRIVELEGED_GROUP_ROLES,
+  GroupRole,
   Metric,
   METRICS,
   getMetricValueKey,
@@ -79,57 +81,6 @@ async function resolve(groupId: number, exposeHash = false): Promise<Group> {
   }
 
   return group;
-}
-
-/**
- * Returns a list of all groups that partially match the given name.
- */
-async function getList(name: string, pagination: Pagination): Promise<ExtendedGroup[]> {
-  // Fetch all groups that match the name
-  const groups = await Group.findAll({
-    where: name && {
-      name: { [Op.iLike]: `%${sanitizeName(name)}%` }
-    },
-    order: [
-      ['score', 'DESC'],
-      ['id', 'ASC']
-    ],
-    limit: pagination.limit,
-    offset: pagination.offset
-  });
-
-  // Fetch and attach member counts for each group
-  const extendedGroups = await extendGroups(groups);
-
-  return extendedGroups;
-}
-
-/**
- * Returns a list of all groups of which a given player is a member.
- */
-async function getPlayerGroups(playerId: number, pagination: Pagination): Promise<ExtendedGroup[]> {
-  // Find all memberships for the player
-  const memberships = await Membership.findAll({
-    where: { playerId },
-    include: [{ model: Group }]
-  });
-
-  // Extract all the unique groups from the memberships, and format them.
-  const groups = uniqBy(memberships, (m: Membership) => m.group.id)
-    .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(p => p.group)
-    .sort((a, b) => b.score - a.score);
-
-  const extendedGroups = await extendGroups(groups);
-
-  // Add the player's role to every group object
-  extendedGroups.forEach(g => {
-    memberships.forEach(m => {
-      if (m.groupId === g.id) g.role = m.role;
-    });
-  });
-
-  return extendedGroups;
 }
 
 /**
@@ -454,17 +405,6 @@ async function destroy(group: Group): Promise<string> {
 }
 
 /**
- * Resets a group's verification code by generating a new one
- * and updating the verificationHash field in the database.
- */
-async function resetVerificationCode(group: Group): Promise<string> {
-  const [code, hash] = await cryptService.generateVerification();
-  await group.update({ verificationHash: hash });
-
-  return code;
-}
-
-/**
  * Set the members of a group.
  *
  * Note: This will replace any existing members.
@@ -780,16 +720,13 @@ export {
   resolve,
   getMembers,
   findOne,
-  getList,
   getDetails,
-  getPlayerGroups,
   getHiscores,
   getMembersList,
   getStatistics,
   create,
   edit,
   destroy,
-  resetVerificationCode,
   addMembers,
   removeMembers,
   changeRole,
