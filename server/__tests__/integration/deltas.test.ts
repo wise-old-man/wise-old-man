@@ -59,7 +59,7 @@ describe('Deltas API', () => {
 
       const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
       expect(firstTrackResponse.status).toBe(201);
-      expect(firstTrackResponse.body.latestSnapshot.smithing.experience).toBe(6_177_978);
+      expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
 
       globalData.testPlayerId = firstTrackResponse.body.id;
 
@@ -504,7 +504,7 @@ describe('Deltas API', () => {
       const trackResponse = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.type).toBe('hardcore');
-      expect(trackResponse.body.latestSnapshot.smithing.experience).toBe(7_000_000);
+      expect(trackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(7_000_000);
 
       await sleep(500);
 

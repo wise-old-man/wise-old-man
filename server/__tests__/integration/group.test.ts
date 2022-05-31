@@ -1169,14 +1169,20 @@ describe('Group API', () => {
         maxedTotalCount: 1,
         maxed200msCount: 23,
         averageStats: {
-          abyssal_sire: {
-            kills: 699 // (1049 + 1049 + 0) / 3
-          },
-          zulrah: {
-            kills: 582 // (1646 + 100 + 0) / 3
-          },
-          magic: {
-            experience: 74929535 // (19288604 + 200000000 + 5500000) / 3
+          data: {
+            bosses: {
+              abyssal_sire: {
+                kills: 699 // (1049 + 1049 + 0) / 3
+              },
+              zulrah: {
+                kills: 582 // (1646 + 100 + 0) / 3
+              }
+            },
+            skills: {
+              magic: {
+                experience: 74929535 // (19288604 + 200000000 + 5500000) / 3
+              }
+            }
           }
         }
       });

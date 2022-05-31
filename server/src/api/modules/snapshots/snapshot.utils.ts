@@ -1,46 +1,93 @@
 import {
-  getMetricMeasure,
+  BOSSES,
   getMetricRankKey,
   getMetricValueKey,
-  isBoss,
-  isSkill,
+  getTotalLevel,
   Metric,
-  METRICS
+  METRICS,
+  VIRTUALS
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
+import { EfficiencyMap } from '../efficiency/efficiency.types';
+import { BossValue, FormattedSnapshot, SkillValue } from './snapshot.types';
+import { ACTIVITIES, getLevel, SKILLS } from '@wise-old-man/utils';
 
-/**
- * Converts a Snapshot instance into a JSON friendlier format
- */
-function format(snapshot: Snapshot, efficiency?: any) {
+function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
   if (!snapshot) return null;
 
-  const obj = {
-    createdAt: snapshot.createdAt,
-    importedAt: snapshot.importedAt
-  };
+  const { id, playerId, createdAt, importedAt } = snapshot;
 
-  METRICS.forEach(m => {
-    obj[m] = {
-      rank: snapshot[getMetricRankKey(m)],
-      [getMetricMeasure(m)]: snapshot[getMetricValueKey(m)]
-    };
+  return {
+    id,
+    playerId,
+    createdAt,
+    importedAt,
+    data: {
+      skills: Object.fromEntries(
+        SKILLS.map(s => {
+          const experience = snapshot[getMetricValueKey(s)];
 
-    if (m === Metric.OVERALL) {
-      obj[m].ehp = Math.max(0, snapshot.ehpValue);
-    } else if (efficiency) {
-      // Add individual ehp/ehb values
-      if (isSkill(m)) {
-        obj[m].ehp = efficiency[m];
-      } else if (isBoss(m)) {
-        obj[m].ehb = efficiency[m];
-      }
+          const value: SkillValue = {
+            metric: s,
+            experience,
+            rank: snapshot[getMetricRankKey(s)],
+            level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience)
+          };
+
+          if (efficiencyMap) {
+            if (s === Metric.OVERALL) {
+              value.ehp = snapshot.ehpValue;
+            } else if (efficiencyMap[s] !== undefined) {
+              value.ehp = efficiencyMap[s];
+            }
+          }
+
+          return [s, value];
+        })
+      ),
+      bosses: Object.fromEntries(
+        BOSSES.map(b => {
+          const value: BossValue = {
+            metric: b,
+            kills: snapshot[getMetricValueKey(b)],
+            rank: snapshot[getMetricRankKey(b)]
+          };
+
+          if (efficiencyMap && efficiencyMap[b] !== undefined) {
+            value.ehb = efficiencyMap[b];
+          }
+
+          return [b, value];
+        })
+      ),
+      activities: Object.fromEntries(
+        ACTIVITIES.map(a => {
+          return [
+            a,
+            {
+              metric: a,
+              score: snapshot[getMetricValueKey(a)],
+              rank: snapshot[getMetricRankKey(a)]
+            }
+          ];
+        })
+      ),
+      virtuals: Object.fromEntries(
+        VIRTUALS.map(v => {
+          return [
+            v,
+            {
+              metric: v,
+              value: snapshot[getMetricValueKey(v)],
+              rank: snapshot[getMetricRankKey(v)]
+            }
+          ];
+        })
+      )
     }
-  });
-
-  return obj;
+  };
 }
 
 /**

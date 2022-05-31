@@ -57,7 +57,7 @@ describe('Records API', () => {
 
       const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
       expect(firstTrackResponse.status).toBe(201);
-      expect(firstTrackResponse.body.latestSnapshot.smithing.experience).toBe(6_177_978);
+      expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
@@ -123,7 +123,7 @@ describe('Records API', () => {
 
       const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'sethmare' });
       expect(firstTrackResponse.status).toBe(201);
-      expect(firstTrackResponse.body.latestSnapshot.zulrah.kills).toBe(1646);
+      expect(firstTrackResponse.body.latestSnapshot.data.bosses.zulrah.kills).toBe(1646);
 
       // Create records manually
       await prisma.record.createMany({

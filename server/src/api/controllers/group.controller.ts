@@ -311,18 +311,12 @@ async function nameChanges(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /groups/:id/statistics
-async function statistics(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function statistics(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.fetchGroupStatistics({
+    id: getNumber(req.params.id)
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const results = await groupService.getStatistics(id);
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // GET /groups/migrate/temple/:id

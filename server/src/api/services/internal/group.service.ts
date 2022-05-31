@@ -9,8 +9,6 @@ import {
   getMetricMeasure,
   getMetricRankKey,
   isSkill,
-  get200msCount,
-  getCombatLevel,
   getTotalLevel,
   getLevel
 } from '../../../utils';
@@ -21,7 +19,6 @@ import { BadRequestError, NotFoundError } from '../../errors';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
-import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 import * as playerUtils from '../../modules/players/player.utils';
 import * as playerServices from '../../modules/players/player.services';
 
@@ -146,59 +143,6 @@ async function getHiscores(groupId: number, metric: string, pagination: Paginati
     .filter(({ playerId }: any) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
     .map(({ player }: any) => ({ player: player.toJSON(), ...experienceMap[player.id] }))
     .sort((a, b) => b[measure] - a[measure]);
-}
-
-/**
- * Gets the stats for every member of a group (latest snapshot)
- */
-async function getMembersStats(groupId: number): Promise<Snapshot[]> {
-  // Fetch all memberships for the group
-  const memberships = await Membership.findAll({
-    attributes: ['playerId'],
-    where: { groupId }
-  });
-
-  if (!memberships || memberships.length === 0) {
-    return [];
-  }
-
-  const memberIds = memberships.map(m => m.playerId);
-
-  const query = `
-    SELECT s.*
-    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-          FROM public.snapshots q
-          WHERE q."playerId" IN (${memberIds.join(',')})
-          GROUP BY q."playerId"
-          ) r
-    JOIN public.snapshots s
-      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
-  `;
-
-  // Execute the query above, which returns the latest snapshot for each member
-  const latestSnapshots = await sequelize.query(query, { type: QueryTypes.SELECT });
-
-  // Formats the snapshots to a playerId:snapshot map, for easier lookup
-  const snapshotMap = mapValues(keyBy(latestSnapshots, 'playerId'));
-
-  return memberships
-    .filter(({ playerId }) => playerId in snapshotMap)
-    .map(({ playerId }) => Snapshot.build({ ...snapshotMap[playerId] }));
-}
-
-async function getStatistics(groupId: number) {
-  const stats = await getMembersStats(groupId);
-
-  if (!stats || stats.length === 0) {
-    throw new BadRequestError("Couldn't find any stats for this group.");
-  }
-
-  const maxedCombatCount = stats.filter(s => getCombatLevel(s) === 126).length;
-  const maxedTotalCount = stats.filter(s => getTotalLevel(s) === 2277).length;
-  const maxed200msCount = stats.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
-  const averageStats = snapshotUtils.format(snapshotUtils.average(stats));
-
-  return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }
 
 async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
@@ -551,14 +495,4 @@ async function importCMLGroup(cmlGroupId: number): Promise<MigratedGroupInfo> {
   return groupInfo;
 }
 
-export {
-  resolve,
-  getHiscores,
-  getStatistics,
-  create,
-  edit,
-  addMembers,
-  removeMembers,
-  importTempleGroup,
-  importCMLGroup
-};
+export { resolve, getHiscores, create, edit, addMembers, removeMembers, importTempleGroup, importCMLGroup };

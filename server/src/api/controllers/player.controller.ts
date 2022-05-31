@@ -225,7 +225,7 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
     maxDate: endDate
   });
 
-  const formattedSnapshots = results.map(snapshotUtils.format);
+  const formattedSnapshots = results.map(s => snapshotUtils.format(s));
 
   if (playerId && formattedSnapshots.length === 0) {
     // Ensure this player ID exists (if not, it'll throw a 404 error)

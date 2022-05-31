@@ -121,8 +121,8 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(response.body.ehp).toBe(response.body.latestSnapshot.ehp.value);
-      expect(response.body.ehb).toBe(response.body.latestSnapshot.ehb.value);
+      expect(response.body.ehp).toBe(response.body.latestSnapshot.data.virtuals.ehp.value);
+      expect(response.body.ehb).toBe(response.body.latestSnapshot.data.virtuals.ehb.value);
 
       globalData.testPlayerId = response.body.id;
     });

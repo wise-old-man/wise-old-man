@@ -6,6 +6,7 @@ import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
+import { FormattedSnapshot } from '../../snapshots/snapshot.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -24,8 +25,8 @@ type FetcDetailsResult = {
     hoursDiff: number;
     ehpDiff: number;
     ehbDiff: number;
-    oldStats: any; // TODO: change these "any" when snapshots are refactored
-    newStats: any;
+    oldStats: FormattedSnapshot;
+    newStats: FormattedSnapshot;
   };
 };
 
@@ -86,7 +87,7 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcD
     });
 
     if (postChangeSnapshot) {
-      newStats = postChangeSnapshot as any;
+      newStats = postChangeSnapshot;
     }
   }
 

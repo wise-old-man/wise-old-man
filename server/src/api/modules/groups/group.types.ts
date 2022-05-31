@@ -1,5 +1,6 @@
 import { GroupRole } from '../../../utils';
 import { Group, Membership, Player } from '../../../prisma';
+import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export interface GroupWithCount extends Omit<Group, 'verificationHash'> {
   memberCount: number;
@@ -42,4 +43,11 @@ interface VirtualHiscoresItem {
 export interface GroupHiscoresEntry {
   membership: MembershipWithPlayer;
   data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | VirtualHiscoresItem;
+}
+
+export interface GroupStatistics {
+  maxedCombatCount: number;
+  maxedTotalCount: number;
+  maxed200msCount: number;
+  averageStats: FormattedSnapshot;
 }

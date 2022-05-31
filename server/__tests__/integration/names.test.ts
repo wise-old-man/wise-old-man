@@ -508,7 +508,7 @@ describe('Names API', () => {
         .query({ period: 'week' });
 
       expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.filter(s => s.obor.kills > -1).length).toBe(0);
+      expect(snapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
 
       // Check if none of the pre-transition memberships have been transfered
       const groupsResponse = await api.get(`/api/players/username/USBC/groups`);
