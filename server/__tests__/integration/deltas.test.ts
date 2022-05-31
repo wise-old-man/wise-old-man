@@ -542,14 +542,19 @@ describe('Deltas API', () => {
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
         .put('/api/players/username/psikoi/country')
-        .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
+        .send({ country: 'USA', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
-      expect(updateCountryResponse.body).toMatchObject({ username: 'psikoi', country: 'SE' });
+      expect(updateCountryResponse.body).toMatchObject({
+        username: 'psikoi',
+        // USA is not a valid country code, but it is part of the few common aliases we accept
+        // and should get replaced by US, so might as well test that it works
+        country: 'US'
+      });
 
       const response = await api
         .get(`/api/deltas/leaderboard`)
-        .query({ period: 'month', metric: 'smithing', country: 'SE' });
+        .query({ period: 'month', metric: 'smithing', country: 'US' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);

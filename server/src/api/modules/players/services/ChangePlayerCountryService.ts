@@ -1,6 +1,6 @@
-import { findCountry } from '@wise-old-man/utils';
 import { z } from 'zod';
-import prisma, { Country, modifyPlayer, Player } from '../../../../prisma';
+import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import { Country, findCountry } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import { standardize } from '../player.utils';
 
