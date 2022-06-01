@@ -20,7 +20,7 @@ z.setErrorMap((issue, ctx) => {
       return { message: `Invalid enum value for '${issue.path}'. Expected ${issue.options.join(' | ')}` };
     }
 
-    return { message: `Invalid enum value for '${issue.path}'.` };
+    return { message: `Invalid enum value for '${issue.path[issue.path.length - 1]}'.` };
   }
 
   return { message: ctx.defaultError };

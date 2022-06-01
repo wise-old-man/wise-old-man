@@ -10,7 +10,7 @@ import * as recordServices from '../modules/records/record.services';
 import * as groupServices from '../modules/groups/group.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
-import { extractNumber, extractString, extractStrings } from '../util/http';
+import { extractNumber, extractString } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
 import { getNumber, getEnum, getDate, getString } from '../util/validation';
 import { ControllerResponse } from '../util/routing';
@@ -165,46 +165,41 @@ async function updateAll(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /groups/:id/add-members
-async function addMembers(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const members = req.body.members;
+async function addMembers(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const result = await groupService.addMembers(group, members);
-
-    res.json({ members: result });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await groupServices.addMembers({
+    id: getNumber(req.params.id),
+    members: req.body.members
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully added ${result.count} members.` }
+  };
 }
 
 // POST /groups/:id/remove-members
-async function removeMembers(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const members = extractStrings(req.body, { key: 'members', required: true });
+async function removeMembers(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const count = await groupService.removeMembers(group, members);
-    const message = `Successfully removed ${count} members from group of id: ${id}`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await groupServices.removeMembers({
+    id: getNumber(req.params.id),
+    usernames: req.body.members
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully removed ${result.count} members.` }
+  };
 }
 
 // GET /groups/:id/members

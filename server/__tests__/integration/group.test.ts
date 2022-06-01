@@ -553,7 +553,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid or empty members list.');
+      expect(response.body.message).toMatch('Empty members list.');
     });
 
     it('should not add members (invalid member object shape)', async () => {
@@ -569,13 +569,13 @@ describe('Group API', () => {
     it('should not add members (invalid member name)', async () => {
       const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
-        members: [{ username: 'elvard@invalid' }]
+        members: [{ username: 'elvard@invalid' }, { username: 'alright' }]
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        "At least one of the member's usernames is not a valid OSRS username."
-      );
+      expect(response.body.message).toMatch('Found 1 invalid usernames:');
+      expect(response.body.data.length).toBe(1);
+      expect(response.body.data).toContain('elvard@invalid');
     });
 
     it('should not add members (invalid member role)', async () => {
@@ -585,7 +585,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('invalid is not a valid role.');
+      expect(response.body.message).toMatch("Invalid enum value for 'role'.");
     });
 
     it('should not add members (already members)', async () => {
@@ -599,6 +599,9 @@ describe('Group API', () => {
     });
 
     it('should add members', async () => {
+      const before = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      expect(before.status).toBe(200);
+
       const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [
@@ -609,7 +612,19 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.members.length).toBe(7); // had 5 previously
+      expect(response.body).toMatchObject({
+        count: 2,
+        message: 'Successfully added 2 members.'
+      });
+
+      const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.memberCount).toBe(7); // had 5 previously
+
+      // ensure group.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
+      );
     });
   });
 
@@ -727,6 +742,7 @@ describe('Group API', () => {
       const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
 
+      // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
@@ -859,7 +875,7 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid or empty members list.');
+      expect(response.body.message).toBe('Empty members list.');
     });
 
     it('should not remove members (no valid players found)', async () => {
@@ -883,14 +899,27 @@ describe('Group API', () => {
     });
 
     it('should remove members', async () => {
+      const before = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      expect(before.status).toBe(200);
+
       const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
-        members: ['SETHmare  ', 'ZEZIMA', '__BOOM']
+        members: ['SETHmare  ', 'ZEZIMA', '__BOOM'] // boom should get ignored
       });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toBe(
-        `Successfully removed 2 members from group of id: ${globalData.testGroupNoLeaders.id}`
+      expect(response.body).toMatchObject({
+        count: 2,
+        message: 'Successfully removed 2 members.'
+      });
+
+      const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.memberCount).toBe(5); // had 7 previously
+
+      // ensure group.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
       );
     });
   });

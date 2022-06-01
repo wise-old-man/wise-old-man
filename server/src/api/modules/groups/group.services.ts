@@ -1,3 +1,4 @@
+export * from './services/AddMembersService';
 export * from './services/ChangeMemberRoleService';
 export * from './services/DeleteGroupService';
 export * from './services/FetchGroupDetailsService';
@@ -5,6 +6,7 @@ export * from './services/FetchGroupHiscoresService';
 export * from './services/FetchGroupMembersService';
 export * from './services/FetchGroupStatisticsService';
 export * from './services/FindPlayerMembershipsService';
+export * from './services/RemoveMembersService';
 export * from './services/ResetGroupCodeService';
 export * from './services/SearchGroupsService';
 export * from './services/UpdateAllMembersService';

@@ -356,6 +356,10 @@ describe('Player API', () => {
 
       const importResponse = await api.post(`/api/players/import`).send({ username: 'psikoi' });
       expect(importResponse.status).toBe(200);
+      expect(importResponse.body).toMatchObject({
+        count: 219,
+        message: 'Sucessfully imported 219 snapshots from CML.'
+      });
 
       const detailsResponse = await api.get(`/api/players/username/psikoi`);
       expect(detailsResponse.status).toBe(200);

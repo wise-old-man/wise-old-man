@@ -61,7 +61,7 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
 
   return {
     statusCode: 200,
-    response: { message: `${count} snapshots imported from CML` }
+    response: { count, message: `Sucessfully imported ${count} snapshots from CML.` }
   };
 }
 

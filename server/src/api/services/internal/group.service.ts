@@ -1,20 +1,7 @@
-import { keyBy, mapValues, uniqBy } from 'lodash';
-import { QueryTypes } from 'sequelize';
-import {
-  GROUP_ROLES,
-  GroupRole,
-  Metric,
-  METRICS,
-  getMetricValueKey,
-  getMetricMeasure,
-  getMetricRankKey,
-  isSkill,
-  getTotalLevel,
-  getLevel
-} from '../../../utils';
-import { MigratedGroupInfo, Pagination } from '../../../types';
-import { sequelize } from '../../../database';
-import { Group, Membership, Player, Snapshot } from '../../../database/models';
+import { uniqBy } from 'lodash';
+import { GROUP_ROLES, GroupRole } from '../../../utils';
+import { MigratedGroupInfo } from '../../../types';
+import { Group, Membership, Player } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
@@ -76,73 +63,6 @@ async function resolve(groupId: number, exposeHash = false): Promise<Group> {
   }
 
   return group;
-}
-
-/**
- * Gets the group hiscores for a specific metric.
- * All members which HAVE SNAPSHOTS will included and sorted by rank.
- */
-async function getHiscores(groupId: number, metric: string, pagination: Pagination) {
-  if (!metric || !METRICS.includes(metric as Metric)) {
-    throw new BadRequestError(`Invalid metric: ${metric}.`);
-  }
-
-  // Fetch all memberships for the group
-  const memberships = await Membership.findAll({
-    attributes: ['playerId'],
-    where: { groupId },
-    include: [{ model: Player }]
-  });
-
-  if (!memberships || memberships.length === 0) {
-    return [];
-  }
-
-  const valueKey = getMetricValueKey(metric as Metric);
-  const rankKey = getMetricRankKey(metric as Metric);
-  const measure = getMetricMeasure(metric as Metric);
-  const memberIds = memberships.map(m => m.player.id);
-
-  const query = `
-    SELECT s.*
-    FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
-          FROM public.snapshots q
-          WHERE q."playerId" IN (${memberIds.join(',')})
-          GROUP BY q."playerId"
-          ) r
-    JOIN public.snapshots s
-      ON s."playerId" = r."playerId" AND s."createdAt" = r.max_date
-    ORDER BY s."${valueKey}" DESC
-    LIMIT :limit
-    OFFSET :offset
-  `;
-
-  // Execute the query above, which returns the latest snapshot for each member
-  const latestSnapshots = await sequelize.query(query, {
-    type: QueryTypes.SELECT,
-    replacements: { ...pagination }
-  });
-
-  // Formats the experience snapshots to a key:value map.
-  // Example: { '1623': { rank: 350567, experience: 6412215 } }
-  const experienceMap = mapValues(keyBy(latestSnapshots, 'playerId'), d => {
-    const data = {
-      rank: parseInt(d[rankKey], 10),
-      [measure]: parseInt(d[valueKey], 10)
-    };
-
-    if (isSkill(metric as Metric)) {
-      data.level = metric === Metric.OVERALL ? getTotalLevel(d as Snapshot) : getLevel(data.experience);
-    }
-
-    return data;
-  });
-
-  // Format all the members, add each experience to its respective player, and sort them by exp
-  return memberships
-    .filter(({ playerId }: any) => experienceMap[playerId] && experienceMap[playerId].rank > 0)
-    .map(({ player }: any) => ({ player: player.toJSON(), ...experienceMap[player.id] }))
-    .sort((a, b) => b[measure] - a[measure]);
 }
 
 async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
@@ -370,117 +290,6 @@ async function setMembers(group: Group, members: MemberFragment[]): Promise<Memb
   return formatted as Member[];
 }
 
-/**
- * Adds all the usernames as group members.
- *
- * Note: The members array should have this format:
- * [{username: "ABC", role: "member"}]
- */
-async function addMembers(group: Group, members: MemberFragment[]): Promise<Member[]> {
-  if (!members || members.length === 0) {
-    throw new BadRequestError('Invalid or empty members list.');
-  }
-
-  // check and throw an error if the model is invalid, or the username is invalid
-  members.forEach(m => {
-    if (!m.username) {
-      throw new BadRequestError('Invalid members list. Each member must have a "username".');
-    }
-
-    if (!playerUtils.isValidUsername(m.username)) {
-      throw new BadRequestError("At least one of the member's usernames is not a valid OSRS username.");
-    }
-
-    if (m.role && !GROUP_ROLES.includes(m.role as GroupRole)) {
-      throw new BadRequestError(`${m.role} is not a valid role.`);
-    }
-  });
-
-  // Find all existing members
-  const existingIds = (await group.$get('members')).map(p => p.id);
-
-  // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
-    usernames: members.map(m => m.username),
-    createIfNotFound: true
-  });
-
-  // Filter out any already existing usersnames to find the new unique usernames
-  const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
-
-  if (!newPlayers || !newPlayers.length) {
-    throw new BadRequestError('All players given are already members.');
-  }
-
-  // Add the new players to the group (as members)
-  await Membership.bulkCreate(newPlayers.map(p => ({ playerId: p.id, groupId: group.id })));
-
-  const nonMemberRoleUsernames = members
-    .filter(m => m.role && m.role !== 'member')
-    .map(m => ({ ...m, username: playerUtils.standardize(m.username) }));
-
-  // If there are any non-member specific roles used, we need to set them correctly since group.$add does not
-  if (nonMemberRoleUsernames && nonMemberRoleUsernames.length > 0) {
-    const roleHash = {};
-    for (const newMember of nonMemberRoleUsernames) {
-      if (Object.keys(roleHash).includes(newMember.role)) {
-        roleHash[newMember.role] = [...roleHash[newMember.role], newMember.username];
-      } else {
-        roleHash[newMember.role] = [newMember.username];
-      }
-    }
-
-    const allMembers = await group.$get('members');
-
-    for (const role of Object.keys(roleHash)) {
-      const roleList = allMembers.filter(m => roleHash[role].includes(m.username));
-      await group.$add('members', roleList, { through: { role } });
-    }
-  }
-
-  // Update the "updatedAt" timestamp on the group model
-  group.changed('updatedAt', true);
-  await group.save();
-
-  const allMembers = await group.$get('members');
-
-  return allMembers.map((m: any) => ({
-    ...(m.toJSON() as any),
-    role: m.memberships.role,
-    memberships: undefined
-  }));
-}
-
-/**
- * Removes all the usernames (members) from a group.
- */
-async function removeMembers(group: Group, usernames: string[]) {
-  if (!usernames || usernames.length === 0) {
-    throw new BadRequestError('Invalid or empty members list.');
-  }
-
-  const playersToRemove = await playerServices.findPlayers({ usernames });
-
-  if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid tracked players were given.');
-  }
-
-  // Remove all specific players, and return the removed count
-  const removedPlayersCount = await Membership.destroy({
-    where: { groupId: group.id, playerId: playersToRemove.map(p => p.id) }
-  });
-
-  if (!removedPlayersCount) {
-    throw new BadRequestError('None of the players given were members of that group.');
-  }
-
-  // Update the "updatedAt" timestamp on the group model
-  group.changed('updatedAt', true);
-  await group.save();
-
-  return removedPlayersCount;
-}
-
 async function importTempleGroup(templeGroupId: number): Promise<MigratedGroupInfo> {
   if (!templeGroupId) throw new BadRequestError('Invalid temple group ID.');
 
@@ -495,4 +304,4 @@ async function importCMLGroup(cmlGroupId: number): Promise<MigratedGroupInfo> {
   return groupInfo;
 }
 
-export { resolve, getHiscores, create, edit, addMembers, removeMembers, importTempleGroup, importCMLGroup };
+export { resolve, create, edit, importTempleGroup, importCMLGroup };
