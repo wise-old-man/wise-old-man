@@ -273,9 +273,9 @@ describe('Deltas API', () => {
       });
 
       expect(createGroupResponse.status).toBe(201);
-      expect(createGroupResponse.body.members.length).toBe(2);
+      expect(createGroupResponse.body.group.memberships.length).toBe(2);
 
-      globalData.testGroupId = createGroupResponse.body.id;
+      globalData.testGroupId = createGroupResponse.body.group.id;
 
       await expect(
         services.findGroupDeltas({

@@ -245,10 +245,10 @@ describe('Records API', () => {
     it('should not fetch records (invalid period)', async () => {
       const createGroupResponse = await api.post('/api/groups').send({ name: 'Test (empty)', members: [] });
 
-      globalData.testEmptyGroupId = createGroupResponse.body.id;
+      globalData.testEmptyGroupId = createGroupResponse.body.group.id;
 
       expect(createGroupResponse.status).toBe(201);
-      expect(createGroupResponse.body.members).toEqual([]);
+      expect(createGroupResponse.body.group.memberships).toEqual([]);
 
       const response = await api
         .get(`/api/groups/${globalData.testEmptyGroupId}/records`)
@@ -319,7 +319,7 @@ describe('Records API', () => {
         members: ['Psikoi', 'sethmare', 'jakesterwars'].map(username => ({ username }))
       });
 
-      globalData.testRegularGroupId = createGroupResponse.body.id;
+      globalData.testRegularGroupId = createGroupResponse.body.group.id;
 
       const rangedRecordsResponse = await api
         .get(`/api/groups/${globalData.testRegularGroupId}/records`)

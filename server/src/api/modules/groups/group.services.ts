@@ -1,5 +1,6 @@
 export * from './services/AddMembersService';
 export * from './services/ChangeMemberRoleService';
+export * from './services/CreateGroupService';
 export * from './services/DeleteGroupService';
 export * from './services/FetchGroupDetailsService';
 export * from './services/FetchGroupHiscoresService';

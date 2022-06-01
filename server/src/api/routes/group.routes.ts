@@ -5,7 +5,7 @@ import * as controller from '../controllers/group.controller';
 const api = Router();
 
 api.get('/', setupController(controller.search));
-api.post('/', controller.create);
+api.post('/', setupController(controller.create));
 
 api.get('/:id', setupController(controller.details));
 api.put('/:id', controller.edit);

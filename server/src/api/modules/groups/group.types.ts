@@ -6,6 +6,10 @@ export interface GroupWithCount extends Omit<Group, 'verificationHash'> {
   memberCount: number;
 }
 
+export interface GroupWithMemberships extends GroupWithCount {
+  memberships: MembershipWithPlayer[];
+}
+
 export interface MembershipWithGroup extends Membership {
   group: GroupWithCount;
 }

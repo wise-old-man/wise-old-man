@@ -516,7 +516,7 @@ describe('Snapshots API', () => {
         members: [{ username: 'Psikoi' }]
       });
 
-      globalData.testGroupId = createGroupResponse.body.id;
+      globalData.testGroupId = createGroupResponse.body.group.id;
       globalData.testGroupCode = createGroupResponse.body.verificationCode;
 
       await expect(

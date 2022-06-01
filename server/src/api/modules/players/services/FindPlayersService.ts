@@ -61,7 +61,7 @@ async function findOrCreatePlayersByUsername(usernames: string[]): Promise<Playe
   const newPlayerInputs = missingUsernames.map(m => ({ username: standardize(m), displayName: sanitize(m) }));
 
   // Add new players
-  await prisma.player.createMany({ data: newPlayerInputs });
+  await prisma.player.createMany({ data: newPlayerInputs, skipDuplicates: true });
 
   const newPlayers = await prisma.player
     .findMany({

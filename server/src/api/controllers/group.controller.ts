@@ -27,21 +27,16 @@ async function search(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /groups
-async function create(req: Request, res: Response, next: NextFunction) {
-  try {
-    const name = extractString(req.body, { key: 'name', required: true });
-    const clanChat = extractString(req.body, { key: 'clanChat' });
-    const homeworld = extractNumber(req.body, { key: 'homeworld' });
-    const description = extractString(req.body, { key: 'description' });
-    const members = req.body.members;
+async function create(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.createGroup({
+    name: getString(req.body.name),
+    clanChat: getString(req.body.clanChat),
+    homeworld: req.body.homeworld,
+    description: getString(req.body.description),
+    members: req.body.members
+  });
 
-    const dto = { name, clanChat, homeworld, members, description };
-    const [group, newMembers] = await groupService.create(dto);
-
-    res.status(201).json({ ...group.toJSON(), members: newMembers });
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 201, response: result };
 }
 
 // GET /groups/:id

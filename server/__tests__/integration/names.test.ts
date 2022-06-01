@@ -561,10 +561,12 @@ describe('Names API', () => {
       const createGroupResponse = await api.post('/api/groups').send(payload);
 
       expect(createGroupResponse.status).toBe(201);
-      expect(createGroupResponse.body.members.map(m => m.username)).toContain('usbc');
-      expect(createGroupResponse.body.members.map(m => m.username)).toContain('jakesterwars');
+      expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain('usbc');
+      expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain(
+        'jakesterwars'
+      );
 
-      globalData.testGroupId = createGroupResponse.body.id;
+      globalData.testGroupId = createGroupResponse.body.group.id;
 
       const fetchResponse = await api
         .get(`/api/groups/${globalData.testGroupId}/name-changes`)

@@ -4,7 +4,6 @@ import { MigratedGroupInfo } from '../../../types';
 import { Group, Membership, Player } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
 import * as cmlService from '../external/cml.service';
-import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
 import * as playerUtils from '../../modules/players/player.utils';
 import * as playerServices from '../../modules/players/player.services';
@@ -16,19 +15,6 @@ interface Member extends Player {
 interface MemberFragment {
   username: string;
   role: string;
-}
-
-interface ExtendedGroup extends Group {
-  memberCount: number;
-  role?: string;
-}
-
-interface CreateGroupDTO {
-  name: string;
-  clanChat?: string;
-  homeworld?: number;
-  description?: string;
-  members?: MemberFragment[];
 }
 
 interface EditGroupDTO {
@@ -63,68 +49,6 @@ async function resolve(groupId: number, exposeHash = false): Promise<Group> {
   }
 
   return group;
-}
-
-async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
-  const { name, clanChat, homeworld, members, description } = dto;
-  const sanitizedName = sanitizeName(name);
-
-  // Check for duplicate names
-  if (await Group.findOne({ where: { name: sanitizedName } })) {
-    throw new BadRequestError(`Group name '${sanitizedName}' is already taken.`);
-  }
-
-  // All elements of the "members" array must have a "username" key.
-  if (members && members.filter(m => m.username).length !== members.length) {
-    throw new BadRequestError('Invalid members list. Each array element must have a username key.');
-  }
-
-  // Check if there are any invalid roles given
-  if (members && members.length > 0) {
-    const invalidRoles = members.filter(m => m.role && !GROUP_ROLES.includes(m.role as GroupRole));
-
-    if (invalidRoles.length > 0) {
-      throw new BadRequestError(
-        'Invalid member roles. Please check the roles of the given members.',
-        invalidRoles.map(m => ({ username: m.username, role: m.role }))
-      );
-    }
-  }
-
-  // Check if every username in the list is valid
-  if (members && members.length > 0) {
-    const invalidUsernames = members
-      .map(member => member.username)
-      .filter(username => !playerUtils.isValidUsername(username));
-
-    if (invalidUsernames.length > 0) {
-      throw new BadRequestError(
-        `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-         contain no special characters, and/or contain no space at the beginning or end of the name.`,
-        invalidUsernames
-      );
-    }
-  }
-
-  const [code, hash] = await cryptService.generateVerification();
-  const sanitizedDescription = description ? playerUtils.sanitize(description) : null;
-  const sanitizedClanChat = clanChat ? playerUtils.sanitize(clanChat) : null;
-
-  const group = await Group.create({
-    name: sanitizedName,
-    description: sanitizedDescription,
-    clanChat: sanitizedClanChat,
-    homeworld,
-    verificationCode: code,
-    verificationHash: hash
-  });
-
-  // Hide the verificationHash from the response
-  group.verificationHash = undefined;
-
-  const newMembers = members ? await setMembers(group, members) : [];
-
-  return [group, newMembers];
 }
 
 /**
@@ -304,4 +228,4 @@ async function importCMLGroup(cmlGroupId: number): Promise<MigratedGroupInfo> {
   return groupInfo;
 }
 
-export { resolve, create, edit, importTempleGroup, importCMLGroup };
+export { resolve, edit, importTempleGroup, importCMLGroup };

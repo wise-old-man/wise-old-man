@@ -233,12 +233,12 @@ describe('Achievements API', () => {
       const createGroupResponse = await apiMock.post('/api/groups').send(payload);
 
       expect(createGroupResponse.status).toBe(201);
-      expect(createGroupResponse.body.members.map(m => m.username)).toContain('psikoi');
-      expect(createGroupResponse.body.members.map(m => m.username)).toContain('lynx titan');
+      expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain('psikoi');
+      expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain('lynx titan');
 
       // Fetch 1-50
       const firstFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 'abc' }); // the invalid offset value should be ignored by the API
 
       expect(firstFetchResponse.status).toBe(200);
@@ -246,7 +246,7 @@ describe('Achievements API', () => {
 
       // Fetch 51-100
       const secondFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 50 });
 
       expect(secondFetchResponse.status).toBe(200);
@@ -254,7 +254,7 @@ describe('Achievements API', () => {
 
       // Fetch 101-140
       const thirdFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.id}/achievements`)
+        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 100 });
 
       expect(thirdFetchResponse.status).toBe(200);
