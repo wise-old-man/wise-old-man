@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 
@@ -58,29 +58,17 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
     throw new BadRequestError('All players given are already members.');
   }
 
-  const roleMap: { [g in GroupRole]?: number[] } = {};
-
-  newPlayers.forEach(player => {
+  const newMemberships = newPlayers.map(player => {
     const role = params.members.find(m => standardize(m.username) === player.username)?.role;
 
     if (!role) return;
 
-    if (role in roleMap) {
-      roleMap[role] = [...roleMap[role], player.id];
-    } else {
-      roleMap[role] = [player.id];
-    }
+    return { groupId: params.id, playerId: player.id, role };
   });
 
-  const counts = await Promise.all(
-    Object.keys(roleMap).map(async (role: GroupRole) => {
-      const { count } = await prisma.membership.createMany({
-        data: roleMap[role].map(playerId => ({ groupId: params.id, playerId, role }))
-      });
-
-      return count;
-    })
-  );
+  const { count } = await prisma.membership.createMany({
+    data: newMemberships
+  });
 
   try {
     await prisma.group.update({
@@ -88,10 +76,10 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
       data: { updatedAt: new Date() }
     });
   } catch (error) {
-    throw new NotFoundError('Group not found.');
+    throw new ServerError('Failed to add members.');
   }
 
-  return { count: counts.reduce((acc, cur) => acc + cur, 0) };
+  return { count };
 }
 
 export { addMembers };

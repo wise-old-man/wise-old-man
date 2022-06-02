@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
-import { BadRequestError, NotFoundError } from '../../../errors';
+import { BadRequestError, ServerError } from '../../../errors';
 import { MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
 
@@ -31,7 +31,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
     if (group) {
       throw new BadRequestError(`${params.username} is not a member of ${group.name}.`);
     } else {
-      throw new NotFoundError('Group not found.');
+      throw new ServerError('Failed to change member role.');
     }
   }
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { Group } from '../../../../prisma';
-import { NotFoundError } from '../../../errors';
+import { ServerError } from '../../../errors';
 
 const inputSchema = z.object({
   id: z.number().positive()
@@ -18,8 +18,7 @@ async function deleteGroup(payload: DeleteGroupParams): Promise<Group> {
 
     return deletedGroup;
   } catch (error) {
-    // Failed to find group with that id
-    throw new NotFoundError('Group not found.');
+    throw new ServerError('Failed to delete group.');
   }
 }
 

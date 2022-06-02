@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { BadRequestError, ForbiddenError } from '../errors';
+import { ForbiddenError } from '../errors';
 import { Period, Metric } from '../../utils';
 import * as adminGuard from '../guards/admin.guard';
 import * as verificationGuard from '../guards/verification.guard';
@@ -10,7 +10,7 @@ import * as recordServices from '../modules/records/record.services';
 import * as groupServices from '../modules/groups/group.services';
 import * as deltaServices from '../modules/deltas/delta.services';
 import * as achievementServices from '../modules/achievements/achievement.services';
-import { extractNumber, extractString } from '../util/http';
+import { extractNumber } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
 import { getNumber, getEnum, getDate, getString } from '../util/validation';
 import { ControllerResponse } from '../util/routing';
@@ -39,6 +39,26 @@ async function create(req: Request): Promise<ControllerResponse> {
   return { statusCode: 201, response: result };
 }
 
+// PUT /groups/:id
+async function edit(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
+
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
+  }
+
+  const result = await groupServices.editGroup({
+    id: getNumber(req.params.id),
+    name: getString(req.body.name),
+    clanChat: getString(req.body.clanChat),
+    description: getString(req.body.description),
+    homeworld: getNumber(req.body.homeworld),
+    members: req.body.members
+  });
+
+  return { statusCode: 200, response: result };
+}
+
 // GET /groups/:id
 async function details(req: Request): Promise<ControllerResponse> {
   const result = await groupServices.fetchGroupDetails({
@@ -46,36 +66,6 @@ async function details(req: Request): Promise<ControllerResponse> {
   });
 
   return { statusCode: 200, response: result };
-}
-
-// PUT /groups/:id
-async function edit(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const name = extractString(req.body, { key: 'name' });
-    const clanChat = extractString(req.body, { key: 'clanChat' });
-    const homeworld = extractNumber(req.body, { key: 'homeworld' });
-    const description = extractString(req.body, { key: 'description' });
-    const members = req.body.members;
-
-    if (!name && !members && !clanChat && !homeworld && !description) {
-      throw new BadRequestError('Nothing to update.');
-    }
-
-    const group = await groupService.resolve(id, true);
-    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const dto = { name, clanChat, members, homeworld, description };
-    const [editedGroup, newMembers] = await groupService.edit(group, dto);
-
-    res.status(200).json({ ...editedGroup.toJSON(), members: newMembers });
-  } catch (e) {
-    next(e);
-  }
 }
 
 // DELETE /groups/:id

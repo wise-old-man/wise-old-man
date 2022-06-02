@@ -69,7 +69,7 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
   });
 
   if (duplicateGroup) {
-    throw new BadRequestError(`Group name '${name}' is already taken.`);
+    throw new BadRequestError(`Group name '${name}' is already taken. (ID: ${duplicateGroup.id})`);
   }
 
   const [code, hash] = await cryptService.generateVerification();

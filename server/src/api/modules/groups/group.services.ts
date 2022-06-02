@@ -2,6 +2,7 @@ export * from './services/AddMembersService';
 export * from './services/ChangeMemberRoleService';
 export * from './services/CreateGroupService';
 export * from './services/DeleteGroupService';
+export * from './services/EditGroupService';
 export * from './services/FetchGroupDetailsService';
 export * from './services/FetchGroupHiscoresService';
 export * from './services/FetchGroupMembersService';

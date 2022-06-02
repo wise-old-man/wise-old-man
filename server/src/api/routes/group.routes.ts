@@ -8,7 +8,7 @@ api.get('/', setupController(controller.search));
 api.post('/', setupController(controller.create));
 
 api.get('/:id', setupController(controller.details));
-api.put('/:id', controller.edit);
+api.put('/:id', setupController(controller.edit));
 api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetGroupCode));

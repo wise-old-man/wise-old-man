@@ -314,20 +314,6 @@ describe('Group API', () => {
   });
 
   describe('2 - Edit', () => {
-    it('should not edit (empty params)', async () => {
-      const response = await api.put('/api/groups/1000').send({ verificationCode: 'XYZ' });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Nothing to update.');
-    });
-
-    it('should not edit (group not found)', async () => {
-      const response = await api.put('/api/groups/1000').send({ verificationCode: 'XYZ', name: 'ABC' });
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
-    });
-
     it('should not edit (invalid verification code)', async () => {
       const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({ name: 'idk' });
 
@@ -344,6 +330,22 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('Incorrect verification code');
     });
 
+    it('should not edit (empty params)', async () => {
+      const response = await api
+        .put(`/api/groups/${globalData.testGroupNoMembers.id}`)
+        .send({ verificationCode: globalData.testGroupNoMembers.verificationCode });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Nothing to update.');
+    });
+
+    it('should not edit (group not found)', async () => {
+      const response = await api.put('/api/groups/1000').send({ verificationCode: 'XYZ', name: 'ABC' });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Group not found.');
+    });
+
     it('should not edit (name already taken)', async () => {
       const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
@@ -356,15 +358,16 @@ describe('Group API', () => {
       );
     });
 
-    // TODO: should error on shape, not username
-    it.skip('should not edit (invalid member object shape)', async () => {
+    it('should not edit (invalid member object shape)', async () => {
       const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: ['One', 'Two']
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 2 invalid usernames');
+      expect(response.body.message).toMatch(
+        'Invalid members list. Must be an array of { username: string; role?: string; }.'
+      );
     });
 
     it('should not edit (invalid member role)', async () => {
@@ -374,18 +377,17 @@ describe('Group API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid member roles.');
+      expect(response.body.message).toMatch("Invalid enum value for 'role'.");
     });
 
-    // TODO:
-    it.skip('should not edit (invalid members list)', async () => {
+    it('should not edit (invalid members list)', async () => {
       const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: 123
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found 1 invalid usernames');
+      expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
     });
 
     it('should not edit (invalid member name)', async () => {
@@ -408,22 +410,25 @@ describe('Group API', () => {
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         members: [
           { username: 'Psikoi', role: 'achiever' },
-          { username: 'zezIMA', role: 'firemaker' },
+          { username: ' ZezIMA___', role: 'collector' },
+          { username: 'swampletics', role: 'artisan' },
           { username: 'alexsuperfly', role: 'leader' },
+          { username: 'zezIMA', role: 'firemaker' },
           { username: 'rorro' }
         ]
       });
 
       expect(response.status).toBe(200);
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
-      expect(response.body.members.map(m => m.username)).toContain('psikoi');
-      expect(response.body.members.map(m => m.username)).toContain('zezima');
-      expect(response.body.members.map(m => m.username)).toContain('alexsuperfly');
-      expect(response.body.members.map(m => m.username)).toContain('rorro');
-      expect(response.body.members.filter(m => m.role === 'achiever').length).toBe(1);
-      expect(response.body.members.filter(m => m.role === 'firemaker').length).toBe(1);
-      expect(response.body.members.filter(m => m.role === 'member').length).toBe(1);
-      expect(response.body.members.filter(m => m.role === 'leader').length).toBe(1);
+      expect(response.body.memberCount).toBe(5);
+      expect(response.body.memberships.map(m => m.player.username)).toContain('psikoi');
+      expect(response.body.memberships.map(m => m.player.username)).toContain('zezima');
+      expect(response.body.memberships.map(m => m.player.username)).toContain('alexsuperfly');
+      expect(response.body.memberships.map(m => m.player.username)).toContain('rorro');
+      expect(response.body.memberships.filter(m => m.role === 'achiever').length).toBe(1);
+      expect(response.body.memberships.filter(m => m.role === 'firemaker').length).toBe(1);
+      expect(response.body.memberships.filter(m => m.role === 'member').length).toBe(1);
+      expect(response.body.memberships.filter(m => m.role === 'leader').length).toBe(1);
     });
 
     it('should edit name', async () => {
@@ -434,6 +439,7 @@ describe('Group API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('New name!');
+      expect(response.body.memberCount).toBe(5); // shouldn't change
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
     });
 
@@ -449,7 +455,8 @@ describe('Group API', () => {
       expect(response.body).toMatchObject({
         clanChat: 'wiseoldman',
         description: 'when I was a young boy, my father took me into the city to see a marching band',
-        homeworld: 302
+        homeworld: 302,
+        memberCount: 5 // shouldn't change
       });
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
     });
@@ -478,7 +485,7 @@ describe('Group API', () => {
       // These should be ordered by score, then id
       expect(response.body[0]).toMatchObject({
         id: globalData.testGroupOneLeader.id,
-        memberCount: 4
+        memberCount: 5
       });
 
       expect(response.body[1]).toMatchObject({
@@ -653,19 +660,20 @@ describe('Group API', () => {
         members: [
           { username: 'zezima' }, // should ignore this username, since it's already a member
           { username: ' sethmare___', role: 'magician' },
-          { username: 'RRO', role: 'ranger' }
+          { username: 'RRO', role: 'ranger' },
+          { username: 'lynx titan', role: 'magician' }
         ]
       });
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
-        count: 2,
-        message: 'Successfully added 2 members.'
+        count: 3,
+        message: 'Successfully added 3 members.'
       });
 
       const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.memberCount).toBe(7); // had 5 previously
+      expect(after.body.memberCount).toBe(8); // had 5 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -842,7 +850,7 @@ describe('Group API', () => {
         role: 'firemaker',
         group: {
           id: globalData.testGroupOneLeader.id,
-          memberCount: 4,
+          memberCount: 5,
           score: 100
         }
       });
@@ -860,7 +868,7 @@ describe('Group API', () => {
         role: 'member',
         group: {
           id: globalData.testGroupNoLeaders.id,
-          memberCount: 7,
+          memberCount: 8,
           score: 0
         }
       });
@@ -973,7 +981,7 @@ describe('Group API', () => {
 
       const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.memberCount).toBe(5); // had 7 previously
+      expect(after.body.memberCount).toBe(6); // had 8 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -1041,7 +1049,7 @@ describe('Group API', () => {
         clanChat: 'wiseoldman',
         description: 'when I was a young boy, my father took me into the city to see a marching band',
         homeworld: 302,
-        memberCount: 4
+        memberCount: 5
       });
     });
   });
@@ -1065,12 +1073,13 @@ describe('Group API', () => {
       const response = await api.get(`/api/groups/${globalData.testGroupOneLeader.id}/members`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(4);
+      expect(response.body.length).toBe(5);
 
       expect(response.body[0]).toMatchObject({ role: 'leader', player: { username: 'alexsuperfly' } });
       expect(response.body[1]).toMatchObject({ role: 'achiever', player: { username: 'psikoi' } });
-      expect(response.body[2]).toMatchObject({ role: 'firemaker', player: { username: 'zezima' } });
-      expect(response.body[3]).toMatchObject({ role: 'member', player: { username: 'rorro' } });
+      expect(response.body[2]).toMatchObject({ role: 'artisan', player: { username: 'swampletics' } });
+      expect(response.body[3]).toMatchObject({ role: 'firemaker', player: { username: 'zezima' } });
+      expect(response.body[4]).toMatchObject({ role: 'member', player: { username: 'rorro' } });
     });
   });
 
@@ -1144,14 +1153,14 @@ describe('Group API', () => {
       expect(anotherTrackResponse.body.ttm).toBe(0);
       expect(anotherTrackResponse.body.ehp).toBeGreaterThan(trackResponse.body.ehp);
 
-      const response = await api
+      const skillHiscoresResponse = await api
         .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic' });
 
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
+      expect(skillHiscoresResponse.status).toBe(200);
+      expect(skillHiscoresResponse.body.length).toBe(3);
 
-      expect(response.body[0]).toMatchObject({
+      expect(skillHiscoresResponse.body[0]).toMatchObject({
         membership: {
           groupId: globalData.testGroupOneLeader.id,
           player: { username: 'alexsuperfly' }
@@ -1162,7 +1171,7 @@ describe('Group API', () => {
         }
       });
 
-      expect(response.body[1]).toMatchObject({
+      expect(skillHiscoresResponse.body[1]).toMatchObject({
         membership: {
           groupId: globalData.testGroupOneLeader.id,
           player: { username: 'psikoi' }
@@ -1173,7 +1182,7 @@ describe('Group API', () => {
         }
       });
 
-      expect(response.body[2]).toMatchObject({
+      expect(skillHiscoresResponse.body[2]).toMatchObject({
         membership: {
           groupId: globalData.testGroupOneLeader.id,
           player: { username: 'zezima' }
@@ -1183,6 +1192,24 @@ describe('Group API', () => {
           level: 90
         }
       });
+
+      const activityHiscoresResponse = await api
+        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .query({ metric: 'clue_scrolls_all' });
+
+      expect(activityHiscoresResponse.status).toBe(200);
+      expect(activityHiscoresResponse.body.length).toBe(3);
+      expect(activityHiscoresResponse.body[0].data.score).toBeDefined();
+      expect(activityHiscoresResponse.body[0].data.rank).toBeDefined();
+
+      const virtualHiscoresResponse = await api
+        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .query({ metric: 'ehp' });
+
+      expect(virtualHiscoresResponse.status).toBe(200);
+      expect(virtualHiscoresResponse.body.length).toBe(3);
+      expect(virtualHiscoresResponse.body[0].data.value).toBeDefined();
+      expect(virtualHiscoresResponse.body[0].data.rank).toBeDefined();
     });
 
     it('should view hiscores (w/ limit & offset)', async () => {

@@ -1,5 +1,6 @@
 import {
   PrismaClient,
+  PrismaPromise,
   Delta as PrismaDelta,
   Player as PrismaPlayer,
   Record as PrismaRecord,
@@ -93,6 +94,7 @@ type ModifiedPlayer = Omit<PrismaPlayer, 'exp'> & {
 
 export {
   Prisma as PrismaTypes,
+  PrismaPromise,
   // Original Models
   PrismaPlayer,
   PrismaSnapshot,

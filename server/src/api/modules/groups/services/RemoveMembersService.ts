@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { NotFoundError, BadRequestError } from '../../../errors';
+import { ServerError, BadRequestError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 
 const inputSchema = z.object({
@@ -44,7 +44,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
       data: { updatedAt: new Date() }
     });
   } catch (error) {
-    throw new NotFoundError('Group not found.');
+    throw new ServerError('Failed to remove members.');
   }
 
   return { count };
