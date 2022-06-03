@@ -2,6 +2,22 @@ import { GroupRole } from '../../../utils';
 import { Group, Membership, Player } from '../../../prisma';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
+export enum MigrationDataSource {
+  TEMPLE_OSRS,
+  CRYSTAL_MATH_LABS
+}
+
+export interface CMLGroupData {
+  name: string;
+  members: string[];
+}
+
+export interface TempleGroupData {
+  name: string;
+  members: string[];
+  leaders: string[];
+}
+
 export interface GroupWithCount extends Omit<Group, 'verificationHash'> {
   memberCount: number;
 }

@@ -28,7 +28,7 @@ api.get('/:id/hiscores', setupController(controller.hiscores));
 api.get('/:id/name-changes', setupController(controller.nameChanges));
 api.get('/:id/statistics', setupController(controller.statistics));
 
-api.get('/migrate/temple/:id', controller.migrateTemple);
-api.get('/migrate/cml/:id', controller.migrateCML);
+api.get('/migrate/temple/:id', setupController(controller.migrateTemple));
+api.get('/migrate/cml/:id', setupController(controller.migrateCML));
 
 export default api;

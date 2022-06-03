@@ -14,6 +14,7 @@ import { extractNumber } from '../util/http';
 import { getPaginationConfig } from '../util/pagination';
 import { getNumber, getEnum, getDate, getString } from '../util/validation';
 import { ControllerResponse } from '../util/routing';
+import { MigrationDataSource } from '../modules/groups/group.types';
 
 // GET /groups
 async function search(req: Request): Promise<ControllerResponse> {
@@ -300,31 +301,23 @@ async function statistics(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /groups/migrate/temple/:id
-async function migrateTemple(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function migrateTemple(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.migrateGroup({
+    externalId: getNumber(req.params.id),
+    externalSource: MigrationDataSource.TEMPLE_OSRS
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    const results = await groupService.importTempleGroup(id);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // GET /groups/migrate/cml/:id
-async function migrateCML(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
+async function migrateCML(req: Request): Promise<ControllerResponse> {
+  const result = await groupServices.migrateGroup({
+    externalId: getNumber(req.params.id),
+    externalSource: MigrationDataSource.CRYSTAL_MATH_LABS
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    const results = await groupService.importCMLGroup(id);
-
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 export {

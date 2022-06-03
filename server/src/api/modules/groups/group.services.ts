@@ -8,6 +8,7 @@ export * from './services/FetchGroupHiscoresService';
 export * from './services/FetchGroupMembersService';
 export * from './services/FetchGroupStatisticsService';
 export * from './services/FindPlayerMembershipsService';
+export * from './services/MigrateGroupService';
 export * from './services/RemoveMembersService';
 export * from './services/ResetGroupCodeService';
 export * from './services/SearchGroupsService';

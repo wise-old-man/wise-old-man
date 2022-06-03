@@ -2,7 +2,7 @@ import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
-import { OSRS_HISCORES } from '../src/api/constants';
+import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
 import { PlayerType, METRICS, Metric } from '../src/utils';
 
 type HiscoresMockConfig = {
@@ -33,12 +33,16 @@ function registerCMLMock(adapter: MockAdapter, statusCode: number, rawData?: str
   return adapter.onGet(new RegExp(`crystalmathlabs.com`)).reply(statusCode, rawData || '');
 }
 
+function registerTempleMock(adapter: MockAdapter, statusCode: number, rawData?: string) {
+  return adapter.onGet(new RegExp(`templeosrs.com`)).reply(statusCode, rawData || '');
+}
+
 function registerHiscoresMock(adapter: MockAdapter, config: HiscoresMockConfig) {
   let localAdapter = adapter;
 
   for (const [key, value] of Object.entries(config)) {
     localAdapter = localAdapter
-      .onGet(new RegExp(OSRS_HISCORES[key]))
+      .onGet(new RegExp(OSRS_HISCORES_URLS[key]))
       .reply(value.statusCode, value.rawData || '');
   }
 
@@ -70,6 +74,7 @@ export {
   sleep,
   readFile,
   registerCMLMock,
+  registerTempleMock,
   registerHiscoresMock,
   modifyRawHiscoresData
 };

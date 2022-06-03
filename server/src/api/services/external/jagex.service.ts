@@ -2,9 +2,16 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import tableParser from 'cheerio-tableparser';
 import { PlayerType } from '../../../utils';
-import { OSRS_HISCORES } from '../../constants';
 import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
+
+export const OSRS_HISCORES_URLS = {
+  regular: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
+  ironman: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
+  hardcore: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
+  ultimate: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
+  nameCheck: 'https://secure.runescape.com/m=hiscore_oldschool/overall?table=0'
+};
 
 const SCRAPING_HEADERS = {
   Host: 'secure.runescape.com',
@@ -21,7 +28,7 @@ const SCRAPING_HEADERS = {
  */
 async function getHiscoresData(username: string, type: PlayerType = PlayerType.REGULAR): Promise<string> {
   const proxy = proxiesService.getNextProxy();
-  const URL = `${OSRS_HISCORES[type]}?player=${username}`;
+  const URL = `${OSRS_HISCORES_URLS[type]}?player=${username}`;
 
   try {
     // Fetch the data through the API Url
@@ -49,7 +56,7 @@ async function getHiscoresData(username: string, type: PlayerType = PlayerType.R
  * where "username" is listed in.
  */
 async function getHiscoresNames(username: string): Promise<string[]> {
-  const URL = `${OSRS_HISCORES.nameCheck}&user=${username}`;
+  const URL = `${OSRS_HISCORES_URLS.nameCheck}&user=${username}`;
 
   try {
     // Fetch the data through the API Url

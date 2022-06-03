@@ -7,9 +7,3 @@ export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
 }
-
-export interface MigratedGroupInfo {
-  members: string[];
-  leaders?: string[];
-  name?: string;
-}
