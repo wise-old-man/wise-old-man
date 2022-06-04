@@ -1,4 +1,4 @@
-import { Snapshot } from '../../src/prisma';
+import { Snapshot } from '../../../src/prisma';
 import {
   SKILLS,
   getMetricValueKey,
@@ -17,7 +17,7 @@ import {
   getMinimumExp,
   getCappedExp,
   getTotalLevel
-} from '../../src/utils';
+} from '../../../src/utils';
 
 describe('Util - Experience', () => {
   test('getExpForLevel', () => {

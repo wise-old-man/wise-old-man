@@ -15,7 +15,7 @@ import {
   getParentVirtualMetric,
   parseMetricAbbreviation,
   MetricMeasure
-} from '../../src/utils';
+} from '../../../src/utils';
 
 describe('Util - Metrics', () => {
   test('Props', () => {

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import env from '../../src/env';
-import apiServer from '../../src/api';
-import { BOSSES, Metric, PlayerType } from '../../src/utils';
+import env from '../../../src/env';
+import apiServer from '../../../src/api';
+import { BOSSES, Metric, PlayerType } from '../../../src/utils';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -12,15 +12,15 @@ import {
   modifyRawHiscoresData,
   sleep,
   resetRedis
-} from '../utils';
-import * as playerServices from '../../src/api/modules/players/player.services';
-import * as playerUtils from '../../src/api/modules/players/player.utils';
+} from '../../utils';
+import * as playerServices from '../../../src/api/modules/players/player.services';
+import * as playerUtils from '../../../src/api/modules/players/player.utils';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const CML_FILE_PATH = `${__dirname}/../data/cml/psikoi_cml.txt`;
-const HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
+const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
+const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const globalData = {
   testPlayerId: -1,

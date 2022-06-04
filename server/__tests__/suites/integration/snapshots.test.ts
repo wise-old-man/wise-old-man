@@ -1,22 +1,22 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../src/utils';
-import * as playerServices from '../../src/api/modules/players/player.services';
-import * as services from '../../src/api/modules/snapshots/snapshot.services';
-import * as utils from '../../src/api/modules/snapshots/snapshot.utils';
-import apiServer from '../../src/api';
-import { resetDatabase, resetRedis, readFile, registerHiscoresMock, registerCMLMock } from '../utils';
-import { SnapshotDataSource } from '../../src/api/modules/snapshots/snapshot.types';
+import { PlayerType, SKILLS, getMetricValueKey, getMetricRankKey, Metric } from '../../../src/utils';
+import * as playerServices from '../../../src/api/modules/players/player.services';
+import * as services from '../../../src/api/modules/snapshots/snapshot.services';
+import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
+import apiServer from '../../../src/api';
+import { resetDatabase, resetRedis, readFile, registerHiscoresMock, registerCMLMock } from '../../utils';
+import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const HISCORES_FILE_PATH_P = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
-const CML_FILE_PATH_P = `${__dirname}/../data/cml/psikoi_cml.txt`;
+const HISCORES_FILE_PATH_P = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
+const CML_FILE_PATH_P = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 
-const HISCORES_FILE_PATH_LT = `${__dirname}/../data/hiscores/lynx_titan_hiscores.txt`;
-const CML_FILE_PATH_LT = `${__dirname}/../data/cml/lynx_titan_cml.txt`;
+const HISCORES_FILE_PATH_LT = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
+const CML_FILE_PATH_LT = `${__dirname}/../../data/cml/lynx_titan_cml.txt`;
 
 const globalData = {
   hiscoresRawDataP: '',

@@ -7,7 +7,7 @@ import {
   PlayerBuild,
   findPlayerType,
   findPlayerBuild
-} from '../../src/utils';
+} from '../../../src/utils';
 
 describe('Util - Players', () => {
   test('Props', () => {

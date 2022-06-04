@@ -1,10 +1,10 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import env from '../../src/env';
-import apiServer from '../../src/api';
-import prisma from '../../src/prisma';
-import { PlayerType } from '../../src/utils';
+import env from '../../../src/env';
+import apiServer from '../../../src/api';
+import prisma from '../../../src/prisma';
+import { PlayerType } from '../../../src/utils';
 import {
   resetDatabase,
   resetRedis,
@@ -13,15 +13,15 @@ import {
   readFile,
   modifyRawHiscoresData,
   registerTempleMock
-} from '../utils';
+} from '../../utils';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const P_HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
-const LT_HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/lynx_titan_hiscores.txt`;
-const TEMPLE_GROUP_FILE_PATH = `${__dirname}/../data/temple/omnia_group.json`;
-const CML_GROUP_FILE_PATH = `${__dirname}/../data/cml/rspt_group_cml.txt`;
+const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
+const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
+const TEMPLE_GROUP_FILE_PATH = `${__dirname}/../../data/temple/omnia_group.json`;
+const CML_GROUP_FILE_PATH = `${__dirname}/../../data/cml/rspt_group_cml.txt`;
 
 const globalData = {
   pHiscoresRawData: '',

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import { PlayerType, Metric } from '../../src/utils';
-import env from '../../src/env';
-import apiServer from '../../src/api';
+import { PlayerType, Metric } from '../../../src/utils';
+import env from '../../../src/env';
+import apiServer from '../../../src/api';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -12,14 +12,14 @@ import {
   sleep,
   readFile,
   modifyRawHiscoresData
-} from '../utils';
-import prisma from '../../src/prisma';
-import * as services from '../../src/api/modules/deltas/delta.services';
+} from '../../utils';
+import prisma from '../../../src/prisma';
+import * as services from '../../../src/api/modules/deltas/delta.services';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const HISCORES_FILE_PATH = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
+const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const globalData = {
   hiscoresRawData: '',

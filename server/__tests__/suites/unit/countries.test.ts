@@ -5,7 +5,7 @@ import {
   CountryProps,
   COUNTRY_CODES,
   Country
-} from '../../src/utils';
+} from '../../../src/utils';
 
 describe('Util - Countries', () => {
   test('Props', () => {

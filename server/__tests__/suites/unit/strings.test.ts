@@ -1,4 +1,4 @@
-import { formatNumber, padNumber, round } from '../../src/utils';
+import { formatNumber, padNumber, round } from '../../../src/utils';
 
 describe('Util - Strings', () => {
   test('formatNumber', () => {

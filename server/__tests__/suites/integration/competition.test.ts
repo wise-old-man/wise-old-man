@@ -1,8 +1,8 @@
 import supertest from 'supertest';
-import api from '../../src/api';
-import { Competition, Group, Membership, Player } from '../../src/database/models';
-import { TestData } from '../types';
-import { resetDatabase, resetRedis } from '../utils';
+import api from '../../../src/api';
+import { Competition, Group, Membership, Player } from '../../../src/database/models';
+import { TestData } from '../../types';
+import { resetDatabase, resetRedis } from '../../utils';
 
 const TEST_DATA: TestData = {};
 const TEST_ID = 300000;

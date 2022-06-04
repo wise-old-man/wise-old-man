@@ -1,18 +1,18 @@
 import supertest from 'supertest';
-import prisma from '../../src/prisma';
-import { Boss, SKILLS, MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../src/utils';
-import apiServer from '../../src/api';
-import { ALGORITHMS, buildAlgorithmCache } from '../../src/api/modules/efficiency/efficiency.utils';
-import * as efficiencyServices from '../../src/api/modules/efficiency/efficiency.services';
-import mainTestSkillingMetas from '../data/efficiency/configs/ehp/main-test.ehp';
-import mainTestBossingMetas from '../data/efficiency/configs/ehb/main-test.ehb';
-import ironmanTestSkillingMetas from '../data/efficiency/configs/ehp/ironman-test.ehp';
-import ironmanTestBossingMetas from '../data/efficiency/configs/ehb/ironman-test.ehb';
-import lvl3TestSkillingMetas from '../data/efficiency/configs/ehp/lvl3-test.ehp';
-import lvl3TestBossingMetas from '../data/efficiency/configs/ehb/lvl3-test.ehb';
-import f2pTestSkillingMetas from '../data/efficiency/configs/ehp/f2p-test.ehp';
-import f2pTestBossingMetas from '../data/efficiency/configs/ehb/f2p-test.ehb';
-import { resetDatabase, resetRedis } from '../utils';
+import prisma from '../../../src/prisma';
+import { Boss, SKILLS, MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../src/utils';
+import apiServer from '../../../src/api';
+import { ALGORITHMS, buildAlgorithmCache } from '../../../src/api/modules/efficiency/efficiency.utils';
+import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
+import mainTestSkillingMetas from '../../data/efficiency/configs/ehp/main-test.ehp';
+import mainTestBossingMetas from '../../data/efficiency/configs/ehb/main-test.ehb';
+import ironmanTestSkillingMetas from '../../data/efficiency/configs/ehp/ironman-test.ehp';
+import ironmanTestBossingMetas from '../../data/efficiency/configs/ehb/ironman-test.ehb';
+import lvl3TestSkillingMetas from '../../data/efficiency/configs/ehp/lvl3-test.ehp';
+import lvl3TestBossingMetas from '../../data/efficiency/configs/ehb/lvl3-test.ehb';
+import f2pTestSkillingMetas from '../../data/efficiency/configs/ehp/f2p-test.ehp';
+import f2pTestBossingMetas from '../../data/efficiency/configs/ehb/f2p-test.ehb';
+import { resetDatabase, resetRedis } from '../../utils';
 
 const api = supertest(apiServer);
 

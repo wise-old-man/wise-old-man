@@ -2,18 +2,25 @@ import axios from 'axios';
 import moment from 'moment';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
-import api from '../../src/api';
-import { PlayerType } from '../../src/utils';
-import { ACHIEVEMENT_TEMPLATES } from '../../src/api/modules/achievements/achievement.templates';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, sleep, readFile } from '../utils';
+import api from '../../../src/api';
+import { PlayerType } from '../../../src/utils';
+import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import {
+  registerCMLMock,
+  registerHiscoresMock,
+  resetDatabase,
+  resetRedis,
+  sleep,
+  readFile
+} from '../../utils';
 
 const apiMock = supertest(api);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
-const CML_FILE_PATH = `${__dirname}/../data/cml/psikoi_cml.txt`;
-const ACHIEVEMENTS_FILE_PATH = `${__dirname}/../data/achievements/psikoi_achievements.json`;
-const HISCORES_FILE_PATH_A = `${__dirname}/../data/hiscores/psikoi_hiscores.txt`;
-const HISCORES_FILE_PATH_B = `${__dirname}/../data/hiscores/lynx_titan_hiscores.txt`;
+const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
+const ACHIEVEMENTS_FILE_PATH = `${__dirname}/../../data/achievements/psikoi_achievements.json`;
+const HISCORES_FILE_PATH_A = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
+const HISCORES_FILE_PATH_B = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
 
 const globalData = {
   cmlRawData: '',
