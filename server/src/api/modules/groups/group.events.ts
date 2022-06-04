@@ -1,10 +1,10 @@
-import { PlayerType } from '../../utils';
-import * as discordService from '../services/external/discord.service';
-import logger from '../services/external/logger.service';
-import metrics from '../services/external/metrics.service';
-import * as competitionService from '../services/internal/competition.service';
-import * as playerServices from '../modules/players/player.services';
-import jobs from '../jobs';
+import { PlayerType } from '../../../utils';
+import * as discordService from '../../services/external/discord.service';
+import logger from '../../services/external/logger.service';
+import metrics from '../../services/external/metrics.service';
+import * as competitionService from '../../services/internal/competition.service';
+import * as playerServices from '../players/player.services';
+import jobs from '../../jobs';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {
   // Temporary logging

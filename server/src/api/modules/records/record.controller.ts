@@ -1,11 +1,11 @@
 import { Request } from 'express';
-import * as deltaServices from '../modules/deltas/delta.services';
-import { getEnum } from '../util/validation';
-import { ControllerResponse } from '../util/routing';
+import * as recordServices from './record.services';
+import { getEnum } from '../../util/validation';
+import { ControllerResponse } from '../../util/routing';
 
-// GET /deltas/leaderboard
+// GET /records/leaderboard
 async function leaderboard(req: Request): Promise<ControllerResponse> {
-  const results = await deltaServices.findDeltaLeaderboards({
+  const results = await recordServices.findRecordLeaderboards({
     metric: getEnum(req.query.metric),
     period: getEnum(req.query.period),
     country: getEnum(req.query.country),

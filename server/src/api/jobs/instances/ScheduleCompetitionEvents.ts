@@ -6,7 +6,7 @@ import {
   onCompetitionEnding,
   onCompetitionStarted,
   onCompetitionStarting
-} from '../../events/competition.events';
+} from '../../modules/competitions/competition.events';
 import metricsService from '../../services/external/metrics.service';
 import { Job } from '../index';
 

@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
-import { BadRequestError, ForbiddenError } from '../errors';
-import * as adminGuard from '../guards/admin.guard';
-import * as verificationGuard from '../guards/verification.guard';
-import jobs from '../jobs';
-import * as service from '../services/internal/competition.service';
-import { extractDate, extractNumber, extractString, extractStrings } from '../util/http';
-import * as pagination from '../util/pagination';
+import { BadRequestError, ForbiddenError } from '../../errors';
+import * as adminGuard from '../../guards/admin.guard';
+import * as verificationGuard from '../../guards/verification.guard';
+import jobs from '../../jobs';
+import * as service from '../../services/internal/competition.service';
+import { extractDate, extractNumber, extractString, extractStrings } from '../../util/http';
+import * as pagination from '../../util/pagination';
 
 // GET /competitions
 async function index(req: Request, res: Response, next: NextFunction) {

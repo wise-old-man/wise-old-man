@@ -1,11 +1,11 @@
-import { Competition } from '../../database/models';
-import { EventPeriodDelay } from '../../types';
-import { PlayerType } from '../../utils';
-import jobs from '../jobs';
-import * as discordService from '../services/external/discord.service';
-import metrics from '../services/external/metrics.service';
-import * as competitionService from '../services/internal/competition.service';
-import * as playerServices from '../modules/players/player.services';
+import { Competition } from '../../../database/models';
+import { EventPeriodDelay } from '../../../types';
+import { PlayerType } from '../../../utils';
+import jobs from '../../jobs';
+import * as discordService from '../../services/external/discord.service';
+import metrics from '../../services/external/metrics.service';
+import * as competitionService from '../../services/internal/competition.service';
+import * as playerServices from '../players/player.services';
 
 async function onParticipantsJoined(_: number, playerIds: number[]) {
   // Fetch all the newly added participants

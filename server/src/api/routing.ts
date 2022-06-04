@@ -1,18 +1,18 @@
 import { ZodError } from 'zod';
 import * as Sentry from '@sentry/node';
 import express from 'express';
+import { getThreadIndex } from '../env';
 import { NotFoundError } from './errors';
-import competitionRoutes from './routes/competition.routes';
-import deltaRoutes from './routes/delta.routes';
-import efficiencyRoutes from './routes/efficiency.routes';
-import groupRoutes from './routes/group.routes';
-import metricsRoutes from './routes/metrics.routes';
-import nameRoutes from './routes/name.routes';
-import playerRoutes from './routes/player.routes';
-import recordRoutes from './routes/record.routes';
+import competitionRoutes from './modules/competitions/competition.routes';
+import deltaRoutes from './modules/deltas/delta.routes';
+import efficiencyRoutes from './modules/efficiency/efficiency.routes';
+import groupRoutes from './modules/groups/group.routes';
+import nameRoutes from './modules/name-changes/name-change.routes';
+import playerRoutes from './modules/players/player.routes';
+import recordRoutes from './modules/records/record.routes';
 import logger from './services/external/logger.service';
+import metricsService from './services/external/metrics.service';
 import { metricAbbreviation } from './util/middlewares';
-
 class RoutingHandler {
   router: express.Router;
 
@@ -40,7 +40,11 @@ class RoutingHandler {
     this.router.use('/groups', groupRoutes);
     this.router.use('/names', nameRoutes);
     this.router.use('/efficiency', efficiencyRoutes);
-    this.router.use('/metrics', metricsRoutes);
+
+    this.router.get('/metrics', async (req, res) => {
+      const metrics = await metricsService.getMetrics();
+      res.json({ threadIndex: getThreadIndex(), data: metrics });
+    });
   }
 
   setupFallbacks() {

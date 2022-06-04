@@ -1,10 +1,10 @@
 import { Request } from 'express';
-import { EfficiencyAlgorithmType } from '../modules/efficiency/efficiency.types';
-import * as efficiencyUtils from '../modules/efficiency/efficiency.utils';
-import * as efficiencyServices from '../modules/efficiency/efficiency.services';
+import { EfficiencyAlgorithmType } from './efficiency.types';
+import * as efficiencyUtils from './efficiency.utils';
+import * as efficiencyServices from './efficiency.services';
 
-import { ControllerResponse } from '../util/routing';
-import { getEnum, getNumber } from '../util/validation';
+import { ControllerResponse } from '../../util/routing';
+import { getEnum, getNumber } from '../../util/validation';
 
 // GET /efficiency/leaderboard
 async function leaderboard(req: Request): Promise<ControllerResponse> {

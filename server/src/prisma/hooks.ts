@@ -1,9 +1,9 @@
 import { Prisma } from '@prisma/client';
 import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
-import { onNameChangeCreated } from '../api/events/name.events';
-import { onPlayerImported, onPlayerUpdated } from '../api/events/player.events';
-import { onDeltaUpdated } from '../api/events/delta.events';
-import { onMembersJoined, onMembersLeft } from '../api/events/group.events';
+import { onNameChangeCreated } from '../api/modules/name-changes/name-change.events';
+import { onPlayerImported, onPlayerUpdated } from '../api/modules/players/player.events';
+import { onDeltaUpdated } from '../api/modules/deltas/delta.events';
+import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
 import * as playerUtils from '../api/modules/players/player.utils';
 import { modifyAchievements, modifyDeltas, modifySnapshot } from '.';
 

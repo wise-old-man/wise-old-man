@@ -1,7 +1,7 @@
-import { isTesting } from '../../env';
-import { NameChange } from '../../prisma';
-import metrics from '../services/external/metrics.service';
-import * as nameChangeServices from '../modules/name-changes/name-change.services';
+import { isTesting } from '../../../env';
+import { NameChange } from '../../../prisma';
+import metrics from '../../services/external/metrics.service';
+import * as nameChangeServices from './name-change.services';
 
 async function onNameChangeCreated(nameChange: NameChange) {
   if (isTesting()) return;

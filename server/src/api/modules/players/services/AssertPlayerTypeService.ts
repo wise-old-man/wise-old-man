@@ -3,7 +3,7 @@ import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
-import { onPlayerTypeChanged } from '../../../events/player.events';
+import { onPlayerTypeChanged } from '../player.events';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 

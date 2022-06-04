@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { setupController } from '../util/routing';
-import * as controller from '../controllers/delta.controller';
+import { setupController } from '../../util/routing';
+import * as controller from './record.controller';
 
 const api = Router();
 

@@ -1,7 +1,7 @@
-import { METRICS } from '../../utils';
-import { Delta } from '../../prisma';
-import metrics from '../services/external/metrics.service';
-import * as recordServices from '../modules/records/record.services';
+import { METRICS } from '../../../utils';
+import { Delta } from '../../../prisma';
+import metrics from '../../services/external/metrics.service';
+import * as recordServices from '../records/record.services';
 
 async function onDeltaUpdated(delta: Delta) {
   // if (!delta.isPotentialRecord) return;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { setupController } from '../util/routing';
-import * as controller from '../controllers/group.controller';
+import { setupController } from '../../util/routing';
+import * as controller from './group.controller';
 
 const api = Router();
 

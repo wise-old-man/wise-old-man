@@ -1,8 +1,8 @@
 import { UpdateOptions } from 'sequelize/types';
 import { Competition, Participation, Player } from '../database/models';
-import { onCompetitionCreated, onParticipantsJoined } from './events/competition.events';
+import { onCompetitionCreated, onParticipantsJoined } from './modules/competitions/competition.events';
 
-import { onPlayerNameChanged } from './events/player.events';
+import { onPlayerNameChanged } from './modules/players/player.events';
 
 function setup() {
   Player.afterUpdate((player: Player, options: UpdateOptions) => {

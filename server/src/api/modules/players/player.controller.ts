@@ -1,19 +1,19 @@
 import { Request } from 'express';
-import { ForbiddenError } from '../errors';
-import * as adminGuard from '../guards/admin.guard';
-import * as achievementServices from '../modules/achievements/achievement.services';
-import * as competitionService from '../services/internal/competition.service';
-import * as nameChangeServices from '../modules/name-changes/name-change.services';
-import * as recordServices from '../modules/records/record.services';
-import * as groupServices from '../modules/groups/group.services';
-import * as playerServices from '../modules/players/player.services';
-import * as snapshotServices from '../modules/snapshots/snapshot.services';
-import * as deltaServices from '../modules/deltas/delta.services';
-import * as snapshotUtils from '../modules/snapshots/snapshot.utils';
-import * as playerUtils from '../modules/players/player.utils';
-import { extractDate, extractString } from '../util/http';
-import { getEnum, getNumber, getString } from '../util/validation';
-import { ControllerResponse } from '../util/routing';
+import { ForbiddenError } from '../../errors';
+import * as adminGuard from '../../guards/admin.guard';
+import * as achievementServices from '../achievements/achievement.services';
+import * as competitionService from '../../services/internal/competition.service';
+import * as nameChangeServices from '../name-changes/name-change.services';
+import * as recordServices from '../records/record.services';
+import * as groupServices from '../groups/group.services';
+import * as playerServices from './player.services';
+import * as snapshotServices from '../snapshots/snapshot.services';
+import * as deltaServices from '../deltas/delta.services';
+import * as snapshotUtils from '../snapshots/snapshot.utils';
+import * as playerUtils from './player.utils';
+import { extractDate, extractString } from '../../util/http';
+import { getEnum, getNumber, getString } from '../../util/validation';
+import { ControllerResponse } from '../../util/routing';
 
 // GET /players/search?username={username}
 async function search(req: Request): Promise<ControllerResponse> {

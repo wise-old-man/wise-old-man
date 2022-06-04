@@ -1,14 +1,14 @@
-import { Snapshot, Player as PrismaPlayer } from '../../prisma';
-import { PlayerType } from '../../utils';
-import { Player } from '../../database/models';
-import jobs from '../jobs';
-import * as discordService from '../services/external/discord.service';
-import metrics from '../services/external/metrics.service';
-import * as achievementServices from '../modules/achievements/achievement.services';
-import * as competitionService from '../services/internal/competition.service';
-import * as deltaServices from '../modules/deltas/delta.services';
-import * as playerUtils from '../modules/players/player.utils';
-import * as playerServices from '../modules/players/player.services';
+import { Snapshot, Player as PrismaPlayer } from '../../../prisma';
+import { PlayerType } from '../../../utils';
+import { Player } from '../../../database/models';
+import jobs from '../../jobs';
+import * as discordService from '../../services/external/discord.service';
+import metrics from '../../services/external/metrics.service';
+import * as achievementServices from '../achievements/achievement.services';
+import * as competitionService from '../../services/internal/competition.service';
+import * as deltaServices from '../deltas/delta.services';
+import * as playerUtils from './player.utils';
+import * as playerServices from './player.services';
 
 async function onPlayerTypeChanged(player: PrismaPlayer, previousType: string) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {

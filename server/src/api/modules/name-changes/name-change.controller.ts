@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import { ForbiddenError } from '../errors';
-import * as nameChangeServices from '../modules/name-changes/name-change.services';
-import * as adminGuard from '../guards/admin.guard';
-import { getNumber, getString, getEnum } from '../util/validation';
-import { ControllerResponse } from '../util/routing';
+import { ForbiddenError } from '../../errors';
+import * as nameChangeServices from './name-change.services';
+import * as adminGuard from '../../guards/admin.guard';
+import { getNumber, getString, getEnum } from '../../util/validation';
+import { ControllerResponse } from '../../util/routing';
 
 // GET /names
 async function index(req: Request): Promise<ControllerResponse> {

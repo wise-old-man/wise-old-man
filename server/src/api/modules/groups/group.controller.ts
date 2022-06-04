@@ -1,20 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import { ForbiddenError } from '../errors';
-import { Period, Metric } from '../../utils';
-import * as adminGuard from '../guards/admin.guard';
-import * as verificationGuard from '../guards/verification.guard';
-import * as competitionService from '../services/internal/competition.service';
-import * as groupService from '../services/internal/group.service';
-import * as nameChangeServices from '../modules/name-changes/name-change.services';
-import * as recordServices from '../modules/records/record.services';
-import * as groupServices from '../modules/groups/group.services';
-import * as deltaServices from '../modules/deltas/delta.services';
-import * as achievementServices from '../modules/achievements/achievement.services';
-import { extractNumber } from '../util/http';
-import { getPaginationConfig } from '../util/pagination';
-import { getNumber, getEnum, getDate, getString } from '../util/validation';
-import { ControllerResponse } from '../util/routing';
-import { MigrationDataSource } from '../modules/groups/group.types';
+import { ForbiddenError } from '../../errors';
+import { Period, Metric } from '../../../utils';
+import * as adminGuard from '../../guards/admin.guard';
+import * as verificationGuard from '../../guards/verification.guard';
+import * as competitionService from '../../services/internal/competition.service';
+import * as groupService from '../../services/internal/group.service';
+import * as nameChangeServices from '../name-changes/name-change.services';
+import * as recordServices from '../records/record.services';
+import * as groupServices from './group.services';
+import * as deltaServices from '../deltas/delta.services';
+import * as achievementServices from '../achievements/achievement.services';
+import { extractNumber } from '../../util/http';
+import { getPaginationConfig } from '../../util/pagination';
+import { getNumber, getEnum, getDate, getString } from '../../util/validation';
+import { ControllerResponse } from '../../util/routing';
+import { MigrationDataSource } from './group.types';
 
 // GET /groups
 async function search(req: Request): Promise<ControllerResponse> {

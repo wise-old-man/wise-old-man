@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { setupController } from '../util/routing';
-import * as controller from '../controllers/name.controller';
+import { setupController } from '../../util/routing';
+import * as controller from './name-change.controller';
 
 const namesRouter = Router();
 
