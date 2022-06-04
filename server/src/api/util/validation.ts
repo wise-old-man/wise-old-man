@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import isISODate from 'is-iso-date';
 
 // Add a global error map to zod validations
 z.setErrorMap((issue, ctx) => {
@@ -59,7 +60,8 @@ export function getEnum(payload: any): any | undefined {
 
 export function getDate(payload: any): Date | undefined {
   try {
-    return z.date().parse(payload);
+    const dateString = z.string().refine(isISODate).parse(payload);
+    return new Date(dateString);
   } catch (error) {
     return undefined;
   }

@@ -393,6 +393,15 @@ describe('Deltas API', () => {
       );
 
       expect(recentGains[0].endDate.getTime()).toBeLessThan(new Date('2025-12-14T04:15:36.000Z').getTime());
+
+      const apiResponse = await api.get(`/api/groups/${globalData.testGroupId}/gained`).query({
+        metric: 'smithing',
+        startDate: '2021-12-14T04:15:36.000Z',
+        endDate: '2025-12-14T04:15:36.000Z'
+      });
+
+      expect(apiResponse.status).toBe(200);
+      expect(JSON.stringify(apiResponse.body)).toEqual(JSON.stringify(recentGains));
     });
 
     it('should not fetch group deltas (negative offset)', async () => {
@@ -432,7 +441,57 @@ describe('Deltas API', () => {
     });
   });
 
-  describe('3 - Fetch Deltas Leaderboards', () => {
+  describe('3 - Fetch Group Monthly Top', () => {
+    it('should not fetch group monthly top (group not found)', async () => {
+      const response = await api.get('/api/groups/10000/monthly-top');
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+    });
+
+    it('should fetch group monthly top', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.OVERALL, value: 500_000_000 },
+        { metric: Metric.SMITHING, value: 7_000_000 },
+        { metric: Metric.LAST_MAN_STANDING, value: 450 },
+        { metric: Metric.NEX, value: 54 },
+        { metric: Metric.TZKAL_ZUK, value: 1 },
+        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
+      ]);
+
+      // Setup mocks for HCIM for the second test player later on (hydrox6)
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
+      expect(trackResponse.status).toBe(200);
+
+      const response = await api.get(`/api/groups/${globalData.testGroupId}/monthly-top`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        player: { username: 'hydrox6' },
+        data: { end: 500000000, gained: 199807885, start: 300192115 }
+      });
+    });
+
+    it('should fetch group monthly top (empty group)', async () => {
+      const emptyGroup = await prisma.group.create({
+        data: { name: 'Empty Group', verificationHash: '' }
+      });
+
+      const response = await api.get(`/api/groups/${emptyGroup.id}/monthly-top`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeNull();
+    });
+  });
+
+  describe('4 - Fetch Deltas Leaderboards', () => {
     it('should not fetch leaderboards (undefined period)', async () => {
       const response = await api.get(`/api/deltas/leaderboard`);
       expect(response.status).toBe(400);
@@ -486,6 +545,7 @@ describe('Deltas API', () => {
 
     it('should fetch leaderboards (no player filters)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.OVERALL, value: 500_000_000 },
         { metric: Metric.SMITHING, value: 7_000_000 },
         { metric: Metric.LAST_MAN_STANDING, value: 450 },
         { metric: Metric.NEX, value: 54 },
