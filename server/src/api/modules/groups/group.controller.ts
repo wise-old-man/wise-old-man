@@ -136,15 +136,12 @@ async function updateAll(req: Request): Promise<ControllerResponse> {
   }
 
   const outdatedCount = await groupServices.updateAllMembers({
-    id: getNumber(req.params.id)
+    groupId: getNumber(req.params.id)
   });
 
   const message = `${outdatedCount} outdated (updated > 24h ago) players are being updated. This can take up to a few minutes.`;
 
-  return {
-    statusCode: 200,
-    response: { message }
-  };
+  return { statusCode: 200, response: { message } };
 }
 
 // POST /groups/:id/add-members

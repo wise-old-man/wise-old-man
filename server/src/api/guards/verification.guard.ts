@@ -25,7 +25,31 @@ async function verifyGroupCode(request: Request) {
   return verified;
 }
 
-async function verifyCompetitionCode(competition: Competition, verificationCode: string) {
+async function verifyCompetitionCode(request: Request) {
+  const { id } = request.params;
+  const { verificationCode } = request.body;
+
+  if (!id) throw new BadRequestError("Parameter 'id' is required.");
+  if (!verificationCode) throw new BadRequestError("Parameter 'verificationCode' is required.");
+
+  const competition = await prisma.competition.findFirst({
+    where: { id: Number(id) },
+    select: { verificationHash: true, group: { select: { verificationHash: true } } }
+  });
+
+  if (!competition) {
+    throw new NotFoundError('Competition not found.');
+  }
+
+  // If it is a group competition, use the group's code to verify instead
+  const hash = competition.group ? competition.group.verificationHash : competition.verificationHash;
+
+  const verified = await cryptService.verifyCode(hash, verificationCode);
+
+  return verified;
+}
+
+async function legacy_verifyCompetitionCode(competition: Competition, verificationCode: string) {
   const { groupId, verificationHash } = competition;
 
   let hash = verificationHash;
@@ -43,4 +67,4 @@ async function verifyCompetitionCode(competition: Competition, verificationCode:
   return verified;
 }
 
-export { verifyCompetitionCode, verifyGroupCode };
+export { verifyCompetitionCode, verifyGroupCode, legacy_verifyCompetitionCode };

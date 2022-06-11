@@ -15,17 +15,15 @@ const MEMBER_INPUT_SCHEMA = z.object(
 
 const inputSchema = z.object({
   id: z.number().positive(),
-  members: z.array(MEMBER_INPUT_SCHEMA, { invalid_type_error: "Parameter 'members' is not a valid array." })
+  members: z
+    .array(MEMBER_INPUT_SCHEMA, { invalid_type_error: "Parameter 'members' is not a valid array." })
+    .nonempty({ message: 'Empty members list.' })
 });
 
 type AddMembersService = z.infer<typeof inputSchema>;
 
 async function addMembers(payload: AddMembersService): Promise<{ count: number }> {
   const params = inputSchema.parse(payload);
-
-  if (params.members.length === 0) {
-    throw new BadRequestError('Empty members list.');
-  }
 
   const invalidUsernames = params.members.map(m => m.username).filter(u => !isValidUsername(u));
 

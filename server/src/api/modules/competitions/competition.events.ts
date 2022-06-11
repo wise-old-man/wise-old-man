@@ -6,6 +6,7 @@ import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import * as playerServices from '../players/player.services';
+import * as competitionServices from '../competitions/competition.services';
 
 async function onParticipantsJoined(_: number, playerIds: number[]) {
   // Fetch all the newly added participants
@@ -31,10 +32,7 @@ async function onCompetitionCreated(competition: Competition) {
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
   await metrics.measureReaction('UpdateAllCompetitionStart', async () => {
-    // Attempt this 3 times per player, waiting 65 seconds in between
-    await competitionService.updateAll(competition, true, ({ username }) => {
-      jobs.add('UpdatePlayer', { username, source: 'Competition:OnCompetitionStarted' });
-    });
+    await competitionServices.updateAllParticipants({ competitionId: competition.id, forcedUpdate: true });
   });
 
   const competitionDetails = await competitionService.getDetails(competition);

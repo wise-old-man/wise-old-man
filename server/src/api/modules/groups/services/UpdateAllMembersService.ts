@@ -6,7 +6,7 @@ import { NotFoundError, BadRequestError } from '../../../errors';
 import jobs from '../../../jobs';
 
 const inputSchema = z.object({
-  id: z.number().positive()
+  groupId: z.number().positive()
 });
 
 type UpdateAllMembersParams = z.infer<typeof inputSchema>;
@@ -14,11 +14,11 @@ type UpdateAllMembersParams = z.infer<typeof inputSchema>;
 async function updateAllMembers(payload: UpdateAllMembersParams): Promise<number> {
   const params = inputSchema.parse(payload);
 
-  const outdatedPlayers = await getOutdatedMembers(params.id);
+  const outdatedPlayers = await getOutdatedMembers(params.groupId);
 
   if (!outdatedPlayers || outdatedPlayers.length === 0) {
     const group = await prisma.group.findFirst({
-      where: { id: params.id }
+      where: { id: params.groupId }
     });
 
     if (!group) {

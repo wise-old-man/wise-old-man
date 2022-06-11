@@ -13,10 +13,10 @@ api.put('/:id', controller.edit);
 api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetVerificationCode));
-api.post('/:id/add-participants', controller.addParticipants);
-api.post('/:id/remove-participants', controller.removeParticipants);
+api.post('/:id/add-participants', setupController(controller.addParticipants));
+api.post('/:id/remove-participants', setupController(controller.removeParticipants));
 api.post('/:id/add-teams', controller.addTeams);
-api.post('/:id/remove-teams', controller.removeTeams);
-api.post('/:id/update-all', controller.updateAllParticipants);
+api.post('/:id/remove-teams', setupController(controller.removeTeams));
+api.post('/:id/update-all', setupController(controller.updateAllParticipants));
 
 export default api;

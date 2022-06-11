@@ -5,19 +5,15 @@ import * as playerServices from '../../players/player.services';
 
 const inputSchema = z.object({
   id: z.number().positive(),
-  usernames: z.array(z.string(), {
-    invalid_type_error: "Parameter 'members' is not a valid array."
-  })
+  usernames: z
+    .array(z.string(), { invalid_type_error: "Parameter 'members' is not a valid array." })
+    .nonempty({ message: 'Empty members list.' })
 });
 
 type RemoveMembersService = z.infer<typeof inputSchema>;
 
 async function removeMembers(payload: RemoveMembersService): Promise<{ count: number }> {
   const params = inputSchema.parse(payload);
-
-  if (params.usernames.length === 0) {
-    throw new BadRequestError('Empty members list.');
-  }
 
   const playersToRemove = await playerServices.findPlayers({
     usernames: params.usernames

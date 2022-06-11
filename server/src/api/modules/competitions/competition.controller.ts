@@ -3,7 +3,6 @@ import { omit } from 'lodash';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
-import jobs from '../../jobs';
 import * as service from '../../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../../util/http';
 import { getNumber, getEnum, getString } from '../../util/validation';
@@ -98,7 +97,10 @@ async function edit(req: Request, res: Response, next: NextFunction) {
     const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.legacy_verifyCompetitionCode(
+      competition,
+      verificationCode
+    );
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -118,11 +120,7 @@ async function edit(req: Request, res: Response, next: NextFunction) {
 
 // DELETE /competitions/:id
 async function remove(req: Request): Promise<ControllerResponse> {
-  const id = extractNumber(req.params, { key: 'id', required: true });
-  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-
-  const competition = await service.resolve(id, { includeHash: true });
-  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
   if (!isVerifiedCode) {
     throw new ForbiddenError('Incorrect verification code.');
@@ -152,48 +150,41 @@ async function resetVerificationCode(req: Request): Promise<ControllerResponse> 
 }
 
 // POST /competitions/:id/add-participants
-async function addParticipants(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-    const participants = extractStrings(req.body, { key: 'participants', required: true });
+async function addParticipants(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const result = await service.addParticipants(competition, participants);
-
-    res.json({ newParticipants: result });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await competitionServices.addParticipants({
+    id: getNumber(req.params.id),
+    participants: req.body.participants
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully added ${result.count} participants.` }
+  };
 }
 
 // POST /competitions/:id/remove-participants
-async function removeParticipants(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-    const participants = extractStrings(req.body, { key: 'participants', required: true });
+async function removeParticipants(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const count = await service.removeParticipants(competition, participants);
-    const message = `Successfully removed ${count} participants from "${competition.title}".`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await competitionServices.removeParticipants({
+    id: getNumber(req.params.id),
+    participants: req.body.participants
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully removed ${result.count} participants.` }
+  };
 }
 
 // POST /competitions/:id/add-teams
@@ -204,7 +195,10 @@ async function addTeams(req: Request, res: Response, next: NextFunction) {
     const teams = req.body.teams;
 
     const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
+    const isVerifiedCode = await verificationGuard.legacy_verifyCompetitionCode(
+      competition,
+      verificationCode
+    );
 
     if (!isVerifiedCode) {
       throw new ForbiddenError('Incorrect verification code.');
@@ -219,52 +213,39 @@ async function addTeams(req: Request, res: Response, next: NextFunction) {
 }
 
 // POST /competitions/:id/remove-teams
-async function removeTeams(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-    const teamNames = extractStrings(req.body, { key: 'teamNames', required: true });
+async function removeTeams(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const count = await service.removeTeams(competition, teamNames);
-    const message = `Successfully removed ${count} participants from "${competition.title}".`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await competitionServices.removeTeams({
+    id: getNumber(req.params.id),
+    teamNames: req.body.teamNames
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully removed ${result.count} participants.` }
+  };
 }
 
 // POST /competitions/:id/update-all
-async function updateAllParticipants(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+async function updateAllParticipants(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const result = await service.updateAll(competition, false, ({ username }) => {
-      jobs.add('UpdatePlayer', { username, source: 'Competition:UpdateAll' });
-    });
-
-    const { participants, cooldownDuration } = result;
-    const message = `${participants.length} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const { outdatedCount, cooldownDuration } = await competitionServices.updateAllParticipants({
+    competitionId: getNumber(req.params.id)
+  });
+
+  const message = `${outdatedCount} outdated (updated > ${cooldownDuration}h ago) players are being updated. This can take up to a few minutes.`;
+
+  return { statusCode: 200, response: { message } };
 }
 
 export {

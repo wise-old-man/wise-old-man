@@ -2,8 +2,8 @@ import { PlayerType } from '../../../utils';
 import * as discordService from '../../services/external/discord.service';
 import logger from '../../services/external/logger.service';
 import metrics from '../../services/external/metrics.service';
-import * as competitionService from '../../services/internal/competition.service';
 import * as playerServices from '../players/player.services';
+import * as competitionServices from '../competitions/competition.services';
 import jobs from '../../jobs';
 
 async function onMembersJoined(groupId: number, playerIds: number[]) {
@@ -14,7 +14,7 @@ async function onMembersJoined(groupId: number, playerIds: number[]) {
 
   // Add these new members to all upcoming and ongoing competitions
   await metrics.measureReaction('AddToGroupCompetitions', () =>
-    competitionService.addToGroupCompetitions(groupId, playerIds)
+    competitionServices.addToGroupCompetitions({ groupId, playerIds })
   );
 
   // Fetch all the newly added members
@@ -43,7 +43,7 @@ async function onMembersLeft(groupId: number, playerIds: number[]) {
 
   // Remove these players from ongoing/upcoming group competitions
   await metrics.measureReaction('RemoveFromGroupCompetitions', () =>
-    competitionService.removeFromGroupCompetitions(groupId, playerIds)
+    competitionServices.removeFromGroupCompetitions({ groupId, playerIds })
   );
 
   // Dispatch this event to the discord service

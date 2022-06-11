@@ -11,7 +11,8 @@ import {
   registerCMLMock,
   registerHiscoresMock,
   readFile,
-  modifyRawHiscoresData
+  modifyRawHiscoresData,
+  sleep
 } from '../../utils';
 
 const api = supertest(apiServer);
@@ -1105,7 +1106,7 @@ describe('Competition API', () => {
         .send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
     });
 
     it('should not add participants (competition not found)', async () => {
@@ -1214,9 +1215,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.newParticipants.length).toBe(2);
-      expect(response.body.newParticipants.map(p => p.username)).toContain('lynx titan');
-      expect(response.body.newParticipants.map(p => p.username)).toContain('zulu');
+      expect(response.body.count).toBe(2);
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`);
       expect(after.status).toBe(200);
@@ -1236,7 +1235,7 @@ describe('Competition API', () => {
         .send({ participants: ['psikoi'] });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
     });
 
     it('should not remove participants (competition not found)', async () => {
@@ -1345,7 +1344,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toMatch('Successfully removed 2 participants from');
+      expect(response.body.message).toBe('Successfully removed 2 participants.');
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionOngoing.id}`);
       expect(after.status).toBe(200);
@@ -1597,7 +1596,7 @@ describe('Competition API', () => {
       const response = await api.post(`/api/competitions/100000/remove-teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not remove teams (competition not found)', async () => {
@@ -1669,6 +1668,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('No players were removed from the competition.');
     });
 
+    // TODO: needs add teams fixed first
     // TODO: ensure comp updatedAt changed
     it.skip('should remove teams', async () => {
       const response = await api
@@ -1751,6 +1751,9 @@ describe('Competition API', () => {
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
+      // Wait a bit to allow the players' participations to be synced
+      await sleep(500);
+
       // Change the mock hiscores data to return 60 zulrah kc
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: {
@@ -1798,6 +1801,9 @@ describe('Competition API', () => {
       // Track Psikoi again at 1000 kc (previously 1000)
       const trackResponse4b = await api.post('/api/players/track').send({ username: 'psikoi' });
       expect(trackResponse4b.status).toBe(200);
+
+      // Wait a bit to allow the players' participations to be synced
+      await sleep(500);
 
       const response = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`);
 
@@ -2108,7 +2114,7 @@ describe('Competition API', () => {
       const response = await api.post(`/api/competitions/123456789/update-all`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not update all (competition not found)', async () => {
@@ -2349,7 +2355,7 @@ describe('Competition API', () => {
       const response = await api.delete(`/api/competitions/123456789`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not delete (incorrect verification code)', async () => {
@@ -2372,6 +2378,185 @@ describe('Competition API', () => {
       const fetchConfirmResponse = await api.get(`/api/competitions/${globalData.testCompetitionOngoing.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
       expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+    });
+  });
+
+  describe('15 - Group Event Side Effects', () => {
+    it('should remove from group competitions', async () => {
+      const createGroupResponse = await api.post('/api/groups').send({
+        name: 'Test 123',
+        members: [{ username: 'psikoi' }, { username: 'boom' }, { username: 'sethmare' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const createClassicCompResponse = await api.post('/api/competitions').send({
+        title: 'Thieving SOTW',
+        metric: 'thieving',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(createClassicCompResponse.status).toBe(201);
+
+      const createTeamCompResponse = await api.post('/api/competitions').send({
+        title: 'Zulrah BOTW',
+        metric: 'zulrah',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        teams: [
+          { name: 'Warriors', participants: ['psikoi', 'hydrox6'] },
+          { name: 'Soldiers', participants: ['alexsuperfly', 'boom'] }
+        ],
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(createTeamCompResponse.status).toBe(201);
+
+      // Wait a bit to let the group events run
+      await sleep(500);
+
+      const classicCompDetailsA = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      expect(classicCompDetailsA.status).toBe(200);
+      expect(classicCompDetailsA.body.participants.length).toBe(3);
+
+      const classicCompParticipantsA = classicCompDetailsA.body.participants.map(p => p.username);
+      expect(classicCompParticipantsA).toContain('psikoi');
+      expect(classicCompParticipantsA).toContain('boom');
+      expect(classicCompParticipantsA).toContain('sethmare');
+
+      const teamCompDetailsA = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      expect(teamCompDetailsA.status).toBe(200);
+      expect(teamCompDetailsA.body.participants.length).toBe(4);
+
+      const teamCompParticipantsA = teamCompDetailsA.body.participants.map(p => p.username);
+      expect(teamCompParticipantsA).toContain('psikoi');
+      expect(teamCompParticipantsA).toContain('boom');
+      expect(teamCompParticipantsA).toContain('hydrox6');
+      expect(teamCompParticipantsA).toContain('alexsuperfly');
+
+      // Delete these two players from the group
+      const removeMembersResponse = await api
+        .post(`/api/groups/${createGroupResponse.body.group.id}/remove-members`)
+        .send({
+          members: ['psikoi', 'boom'],
+          verificationCode: createGroupResponse.body.verificationCode
+        });
+
+      expect(removeMembersResponse.status).toBe(200);
+      expect(removeMembersResponse.body.count).toBe(2);
+
+      // Wait a bit to let the group events run
+      await sleep(500);
+
+      const classicCompDetailsB = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      expect(classicCompDetailsB.status).toBe(200);
+      expect(classicCompDetailsB.body.participants.length).toBe(1); // previously 3
+
+      const classicCompParticipantsB = classicCompDetailsB.body.participants.map(p => p.username);
+      expect(classicCompParticipantsB).toContain('sethmare');
+
+      const teamCompDetailsB = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      expect(teamCompDetailsB.status).toBe(200);
+      expect(teamCompDetailsB.body.participants.length).toBe(2); // previously 4
+
+      const teamCompParticipantsB = teamCompDetailsB.body.participants.map(p => p.username);
+      expect(teamCompParticipantsB).toContain('hydrox6');
+      expect(teamCompParticipantsB).toContain('alexsuperfly');
+    });
+
+    it('should add to group competitions', async () => {
+      const createGroupResponse = await api.post('/api/groups').send({
+        name: 'Test 456',
+        members: [{ username: 'psikoi' }, { username: 'boom' }, { username: 'sethmare' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const createClassicCompResponse = await api.post('/api/competitions').send({
+        title: 'Thieving SOTW',
+        metric: 'thieving',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(createClassicCompResponse.status).toBe(201);
+
+      const createTeamCompResponse = await api.post('/api/competitions').send({
+        title: 'Zulrah BOTW',
+        metric: 'zulrah',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        teams: [
+          { name: 'Warriors', participants: ['psikoi', 'hydrox6'] },
+          { name: 'Soldiers', participants: ['alexsuperfly', 'boom'] }
+        ],
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(createTeamCompResponse.status).toBe(201);
+
+      // Wait a bit to let the group events run
+      await sleep(500);
+
+      const classicCompDetailsA = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      expect(classicCompDetailsA.status).toBe(200);
+      expect(classicCompDetailsA.body.participants.length).toBe(3);
+
+      const classicCompParticipantsA = classicCompDetailsA.body.participants.map(p => p.username);
+      expect(classicCompParticipantsA).toContain('psikoi');
+      expect(classicCompParticipantsA).toContain('boom');
+      expect(classicCompParticipantsA).toContain('sethmare');
+
+      const teamCompDetailsA = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      expect(teamCompDetailsA.status).toBe(200);
+      expect(teamCompDetailsA.body.participants.length).toBe(4);
+
+      const teamCompParticipantsA = teamCompDetailsA.body.participants.map(p => p.username);
+      expect(teamCompParticipantsA).toContain('psikoi');
+      expect(teamCompParticipantsA).toContain('boom');
+      expect(teamCompParticipantsA).toContain('hydrox6');
+      expect(teamCompParticipantsA).toContain('alexsuperfly');
+
+      // Add these two players to the group
+      const addMembersResponse = await api
+        .post(`/api/groups/${createGroupResponse.body.group.id}/add-members`)
+        .send({
+          members: [
+            { username: 'usbc', role: 'archer' },
+            { username: 'jakesterwars', role: 'ruby' }
+          ],
+          verificationCode: createGroupResponse.body.verificationCode
+        });
+
+      expect(addMembersResponse.status).toBe(200);
+      expect(addMembersResponse.body.count).toBe(2);
+
+      // Wait a bit to let the group events run
+      await sleep(500);
+
+      const classicCompDetailsB = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      expect(classicCompDetailsB.status).toBe(200);
+      expect(classicCompDetailsB.body.participants.length).toBe(5); // previously 3
+
+      const classicCompParticipantsB = classicCompDetailsB.body.participants.map(p => p.username);
+      expect(classicCompParticipantsB).toContain('usbc');
+      expect(classicCompParticipantsB).toContain('jakesterwars');
+
+      const teamCompDetailsB = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      expect(teamCompDetailsB.status).toBe(200);
+      expect(teamCompDetailsB.body.participants.length).toBe(4); // previously 4 (no change)
+
+      // player shouldn't be auto-added to team comps
+      const teamCompParticipantsB = teamCompDetailsB.body.participants.map(p => p.username);
+      expect(teamCompParticipantsB).not.toContain('usbc');
+      expect(teamCompParticipantsB).not.toContain('jakesterwars');
     });
   });
 });

@@ -5,7 +5,7 @@ import jobs from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as achievementServices from '../achievements/achievement.services';
-import * as competitionService from '../../services/internal/competition.service';
+import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerUtils from './player.utils';
 import * as playerServices from './player.services';
@@ -36,7 +36,7 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
 async function onPlayerUpdated(snapshot: Snapshot) {
   // Update this player's competition participations (gains)
   await metrics.measureReaction('SyncParticipations', () =>
-    competitionService.syncParticipations(snapshot.playerId, snapshot.id)
+    competitionServices.syncParticipations({ playerId: snapshot.playerId, latestSnapshotId: snapshot.id })
   );
 
   // Only sync achievements if the player gained any exp/kc this update

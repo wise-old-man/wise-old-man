@@ -1,6 +1,4 @@
 import { filter, includes, omit, uniq, uniqBy } from 'lodash';
-import moment from 'moment';
-import { Op } from 'sequelize';
 import { Metric, METRICS, getMetricValueKey, isVirtualMetric, CompetitionType } from '../../../utils';
 import { Competition, Group, Membership, Participation, Player, Snapshot } from '../../../database/models';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
@@ -12,6 +10,7 @@ import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as playerServices from '../../modules/players/player.services';
 import * as deltaUtils from '../../modules/deltas/delta.utils';
 import * as playerUtils from '../../modules/players/player.utils';
+import * as competitionUtils from '../../modules/competitions/competition.utils';
 
 // Temporary
 const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
@@ -41,21 +40,9 @@ export interface CompetitionDetails extends Competition {
   participants: CompetitionParticipant[];
 }
 
-interface ExtendedCompetition extends Competition {
-  participantCount: number;
-  duration: string;
-}
-
 interface ResolveOptions {
   includeGroup?: boolean;
   includeHash?: boolean;
-}
-
-interface CompetitionListFilter {
-  title?: string;
-  metric?: string;
-  status?: string;
-  type?: string;
 }
 
 interface CreateCompetitionDTO {
@@ -76,14 +63,6 @@ interface EditCompetitionDTO {
   endsAt?: Date;
   participants?: string[];
   teams?: Team[];
-}
-
-function sanitizeTitle(title: string): string {
-  return title
-    .replace(/_/g, ' ')
-    .replace(/-/g, ' ')
-    .replace(/ +(?= )/g, '')
-    .trim();
 }
 
 async function resolve(competitionId: number, options?: ResolveOptions): Promise<Competition> {
@@ -292,7 +271,7 @@ function validateTeamsList(teams: Team[]) {
 
   // Sanitize each team's name
   teams.forEach(t => {
-    t.name = sanitizeTitle(t.name);
+    t.name = competitionUtils.sanitizeTitle(t.name);
   });
 
   // Find duplicate team names
@@ -417,7 +396,7 @@ async function create(dto: CreateCompetitionDTO) {
   const [code, hash] = await cryptService.generateVerification();
 
   const competition = await Competition.create({
-    title: sanitizeTitle(title),
+    title: competitionUtils.sanitizeTitle(title),
     metric,
     verificationCode: code,
     verificationHash: hash,
@@ -497,7 +476,7 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   }
 
   const newValues = buildQuery({
-    title: title && sanitizeTitle(title),
+    title: title && competitionUtils.sanitizeTitle(title),
     metric,
     startsAt,
     endsAt
@@ -642,83 +621,6 @@ async function addAllGroupMembers(competition, groupId) {
   return members;
 }
 
-/**
- * Adds all the usernames as competition participants.
- */
-async function addParticipants(competition: Competition, usernames: string[]) {
-  if (competition.type === CompetitionType.TEAM) {
-    throw new BadRequestError('Cannot add participants to a team competition.');
-  }
-
-  if (usernames.length === 0) {
-    throw new BadRequestError('Empty participants list.');
-  }
-
-  const invalidUsernames = usernames.filter(u => !playerUtils.isValidUsername(u));
-
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  // Find all existing participants
-  const existingIds = (await competition.$get('participants')).map(p => p.id);
-
-  // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({ usernames, createIfNotFound: true });
-
-  const newPlayers = players.filter(p => existingIds && !existingIds.includes(p.id));
-
-  if (!newPlayers || !newPlayers.length) {
-    throw new BadRequestError('All players given are already competing.');
-  }
-
-  await Participation.bulkCreate(newPlayers.map(p => ({ playerId: p.id, competitionId: competition.id })));
-
-  // Update the "updatedAt" timestamp on the competition model
-  await competition.changed('updatedAt', true);
-  await competition.save();
-
-  return newPlayers;
-}
-
-/**
- * Removes all the usernames (participants) from a competition.
- */
-async function removeParticipants(competition: Competition, usernames: string[]) {
-  if (competition.type === CompetitionType.TEAM) {
-    throw new BadRequestError('Cannot remove participants from a team competition.');
-  }
-
-  if (usernames.length === 0) {
-    throw new BadRequestError('Empty participants list.');
-  }
-
-  const playersToRemove = await playerServices.findPlayers({ usernames });
-
-  if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid tracked players were given.');
-  }
-
-  // Remove all specific players, and return the removed count
-  const removedPlayersCount = await Participation.destroy({
-    where: { competitionId: competition.id, playerId: playersToRemove.map(p => p.id) }
-  });
-
-  if (!removedPlayersCount) {
-    throw new BadRequestError('None of the players given were competing.');
-  }
-
-  // Update the "updatedAt" timestamp on the competition model
-  await competition.changed('updatedAt', true);
-  await competition.save();
-
-  return removedPlayersCount;
-}
-
 async function addTeams(competition: Competition, teams: Team[]) {
   if (!teams || teams.length === 0) {
     throw new BadRequestError('Empty teams list.');
@@ -788,37 +690,6 @@ async function addTeams(competition: Competition, teams: Team[]) {
   return formattedTeams;
 }
 
-async function removeTeams(competition: Competition, teamNames: string[]) {
-  if (competition.type !== CompetitionType.TEAM) {
-    throw new BadRequestError('Cannot remove teams from a classic competition.');
-  }
-
-  if (teamNames.length === 0) {
-    throw new BadRequestError('Empty team names list.');
-  }
-
-  if (teamNames.some(t => typeof t !== 'string' || t.length === 0)) {
-    throw new BadRequestError('All team names must be non-empty strings.');
-  }
-
-  const removedPlayersCount = await Participation.destroy({
-    where: {
-      competitionId: competition.id,
-      teamName: teamNames.map(sanitizeTitle)
-    }
-  });
-
-  if (!removedPlayersCount) {
-    throw new BadRequestError('No players were removed from the competition.');
-  }
-
-  // Update the "updatedAt" timestamp on the competition model
-  await competition.changed('updatedAt', true);
-  await competition.save();
-
-  return removedPlayersCount;
-}
-
 async function getTeams(competition: Competition) {
   const participants = await competition.$get('participants');
 
@@ -840,179 +711,4 @@ async function getTeams(competition: Competition) {
   return Object.values(teamsMap);
 }
 
-/**
- * Get outdated participants for a specific competition id.
- * A participant is considered outdated 24 hours (or 1h) after their last update
- */
-async function getOutdatedParticipants(competitionId: number, cooldownDuration: number) {
-  if (!competitionId) throw new BadRequestError('Invalid competition id.');
-
-  const cooldownExpiration = moment().subtract(cooldownDuration, 'hours');
-
-  const participantsToUpdate = await Participation.findAll({
-    attributes: ['competitionId', 'playerId'],
-    where: { competitionId },
-    include: [
-      {
-        model: Player,
-        where: { updatedAt: { [Op.lt]: cooldownExpiration.toDate() } }
-      }
-    ]
-  });
-
-  return participantsToUpdate.map(({ player }) => player);
-}
-
-/**
- * Adds all the playerIds to all ongoing/upcoming competitions of a specific group.
- *
- * This should be executed when players are added to a group, so that they can
- * participate in future or current group competitions.
- */
-async function addToGroupCompetitions(groupId, playerIds) {
-  // Find all upcoming/ongoing competitions for the group
-  const competitions = await Competition.findAll({
-    attributes: ['id'],
-    where: {
-      groupId,
-      type: CompetitionType.CLASSIC,
-      endsAt: { [Op.gt]: new Date() }
-    }
-  });
-
-  const participations = [];
-
-  // Build an array of all (supposed) participations
-  competitions.forEach(c => {
-    playerIds.forEach(playerId => {
-      participations.push({ playerId, competitionId: c.id });
-    });
-  });
-
-  // Bulk create all the participations, ignoring any duplicates
-  await Participation.bulkCreate(participations, { ignoreDuplicates: true });
-}
-
-/**
- * Removes all the playerIds from all ongoing/upcoming competitions of a specific group.
- *
- * This should be executed when players are removed from a group, so that they are
- * no longer participating in future or current group competitions.
- */
-async function removeFromGroupCompetitions(groupId, playerIds) {
-  // Find all upcoming/ongoing competitions for the group
-  const competitionIds = (
-    await Competition.findAll({
-      attributes: ['id'],
-      where: {
-        groupId,
-        endsAt: { [Op.gt]: new Date() }
-      }
-    })
-  ).map(c => c.id);
-
-  await Participation.destroy({ where: { competitionId: competitionIds, playerId: playerIds } });
-}
-
-/**
- * Update all participants of a competition.
- *
- * An update action must be supplied, to be executed for
- * every participant. This is to prevent calling jobs from
- * within the service (circular dependency).
- * I'd rather call them from the controller.
- */
-async function updateAll(competition: Competition, force: boolean, updateFn: (player: Player) => void) {
-  if (competition.endsAt.getTime() < Date.now()) {
-    throw new BadRequestError('This competition has ended. Cannot update all.');
-  }
-
-  const hoursTillEnd = Math.max(0, (competition.endsAt.getTime() - Date.now()) / 1000 / 60 / 60);
-  const hoursFromStart = Math.max(0, (Date.now() - competition.startsAt.getTime()) / 1000 / 60 / 60);
-
-  const hasReducedCooldown = hoursTillEnd < 6 || (hoursFromStart < 6 && hoursFromStart > 0);
-  const cooldownDuration = hasReducedCooldown ? 1 : 24;
-
-  const participants = force
-    ? await competition.$get('participants')
-    : await getOutdatedParticipants(competition.id, cooldownDuration);
-
-  if (!participants || participants.length === 0) {
-    throw new BadRequestError(
-      `This competition has no outdated participants (updated over ${cooldownDuration}h ago).`
-    );
-  }
-
-  // Execute the update action for every participant
-  participants.forEach(player => updateFn(player));
-
-  return { participants, cooldownDuration };
-}
-
-/**
- * Sync all participations for a given player id.
- *
- * When a player is updated, this should be executed by a job.
- * This should update all the "endSnapshotId" field in the player's participations.
- */
-async function syncParticipations(playerId: number, latestSnapshotId: number) {
-  const currentDate = new Date();
-
-  // Get all on-going participations
-  const participations = await Participation.findAll({
-    attributes: ['competitionId', 'playerId'],
-    where: { playerId },
-    include: [
-      {
-        model: Competition,
-        attributes: ['startsAt', 'endsAt'],
-        where: {
-          startsAt: { [Op.lt]: currentDate },
-          endsAt: { [Op.gte]: currentDate }
-        }
-      }
-    ]
-  });
-
-  if (!participations || participations.length === 0) return;
-
-  await Promise.all(
-    participations.map(async participation => {
-      const { competition } = participation;
-
-      // Update this participation's latest (end) snapshot
-      participation.endSnapshotId = latestSnapshotId;
-
-      // If this participation's starting snapshot has not been set,
-      // find the first snapshot created since the start date and set it
-      if (!participation.startSnapshot) {
-        const startSnapshot = await snapshotServices.findPlayerSnapshot({
-          id: playerId,
-          minDate: competition.startsAt
-        });
-
-        participation.startSnapshotId = startSnapshot.id;
-      }
-
-      await participation.save();
-
-      return participation;
-    })
-  );
-}
-
-export {
-  resolve,
-  getDetails,
-  getCSV,
-  create,
-  edit,
-  addParticipants,
-  removeParticipants,
-  addTeams,
-  removeTeams,
-  addToGroupCompetitions,
-  removeFromGroupCompetitions,
-  updateAll,
-  syncParticipations
-};
+export { resolve, getDetails, getCSV, create, edit, addTeams };
