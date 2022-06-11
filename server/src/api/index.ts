@@ -41,12 +41,14 @@ class API {
     this.express.use(cors());
 
     // Limits 500 requests per ip, every 5 minutes
-    this.express.use(
-      rateLimit({
-        windowMs: RATE_LIMIT_MINUTES * 60 * 1000,
-        max: RATE_LIMIT_REQUESTS
-      })
-    );
+    if (!isTesting()) {
+      this.express.use(
+        rateLimit({
+          windowMs: RATE_LIMIT_MINUTES * 60 * 1000,
+          max: RATE_LIMIT_REQUESTS
+        })
+      );
+    }
 
     // Register each http request for metrics processing
     this.express.use((req, res, next) => {

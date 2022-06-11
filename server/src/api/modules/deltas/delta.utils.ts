@@ -94,8 +94,12 @@ function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot
   const minimumValue = getMinimumBossKc(metric);
   const valueKey = getMetricValueKey(metric);
 
-  const startValue = parseNum(metric, startSnapshot[valueKey] || -1);
-  const endValue = parseNum(metric, endSnapshot[valueKey] || -1);
+  const startValue = parseNum(
+    metric,
+    startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1
+  );
+
+  const endValue = parseNum(metric, endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1);
 
   let gainedValue = round(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
 
