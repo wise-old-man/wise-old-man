@@ -525,7 +525,10 @@ describe('Names API', () => {
 
       expect(competitionsResponse.status).toBe(200);
       expect(competitionsResponse.body.length).toBe(1);
-      expect(competitionsResponse.body[0]).toMatchObject({ title: 'Test Comp' });
+      expect(competitionsResponse.body[0].competition).toMatchObject({
+        title: 'Test Comp',
+        metric: 'thieving'
+      });
 
       const detailsResponse = await api.get(`/api/players/username/USBC`);
 

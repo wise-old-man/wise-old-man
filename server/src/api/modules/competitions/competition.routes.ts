@@ -1,17 +1,18 @@
 import { Router } from 'express';
+import { setupController } from '../../util/routing';
 import * as controller from './competition.controller';
 
 const api = Router();
 
-api.get('/', controller.index);
+api.get('/', setupController(controller.search));
 api.get('/:id', controller.details);
 api.get('/:id/csv', controller.detailsCSV);
 
 api.post('/', controller.create);
 api.put('/:id', controller.edit);
-api.delete('/:id', controller.remove);
+api.delete('/:id', setupController(controller.remove));
 
-api.put('/:id/reset-code', controller.resetVerificationCode);
+api.put('/:id/reset-code', setupController(controller.resetVerificationCode));
 api.post('/:id/add-participants', controller.addParticipants);
 api.post('/:id/remove-participants', controller.removeParticipants);
 api.post('/:id/add-teams', controller.addTeams);

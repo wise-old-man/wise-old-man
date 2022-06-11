@@ -1,15 +1,8 @@
 import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import moment from 'moment';
-import { Op, Sequelize } from 'sequelize';
-import {
-  CompetitionType,
-  COMPETITION_TYPES,
-  COMPETITION_STATUSES,
-  CompetitionStatus
-} from '@wise-old-man/utils';
-import { Metric, METRICS, getMetricValueKey, isVirtualMetric } from '../../../utils';
+import { Op } from 'sequelize';
+import { Metric, METRICS, getMetricValueKey, isVirtualMetric, CompetitionType } from '../../../utils';
 import { Competition, Group, Membership, Participation, Player, Snapshot } from '../../../database/models';
-import { Pagination } from '../../../types';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { buildQuery } from '../../util/query';
@@ -110,122 +103,6 @@ async function resolve(competitionId: number, options?: ResolveOptions): Promise
   }
 
   return competition;
-}
-
-/**
- * Returns a list of all competitions that
- * match the query parameters (title, status, metric).
- */
-async function getList(filter: CompetitionListFilter, pagination: Pagination) {
-  const { title, status, metric, type } = filter;
-
-  // The status is optional, however if present, should be valid
-  if (status && !COMPETITION_STATUSES.includes(status.toLowerCase() as CompetitionStatus)) {
-    throw new BadRequestError(`Invalid status.`);
-  }
-
-  // The metric is optional, however if present, should be valid
-  if (metric && !METRICS.includes(metric.toLowerCase() as Metric)) {
-    throw new BadRequestError(`Invalid metric.`);
-  }
-
-  // The type is optional, however if present, should be valid
-  if (type && !COMPETITION_TYPES.includes(type.toLowerCase() as CompetitionType)) {
-    throw new BadRequestError(`Invalid type.`);
-  }
-
-  const query = buildQuery({
-    title: title && { [Op.iLike]: `%${sanitizeTitle(title)}%` },
-    metric: metric?.toLowerCase(),
-    type: type?.toLowerCase()
-  });
-
-  if (status) {
-    const formattedStatus = status.toLowerCase();
-    const now = new Date();
-
-    if (formattedStatus === CompetitionStatus.FINISHED) {
-      query.endsAt = { [Op.lt]: now };
-    } else if (formattedStatus === CompetitionStatus.UPCOMING) {
-      query.startsAt = { [Op.gt]: now };
-    } else if (formattedStatus === CompetitionStatus.ONGOING) {
-      query.startsAt = { [Op.lt]: now };
-      query.endsAt = { [Op.gt]: now };
-    }
-  }
-
-  const competitions = await Competition.findAll({
-    where: query,
-    order: [
-      ['score', 'DESC'],
-      ['createdAt', 'DESC']
-    ],
-    limit: pagination.limit,
-    offset: pagination.offset
-  });
-
-  const extendedCompetitions = await extendCompetitions(competitions);
-
-  return extendedCompetitions;
-}
-
-/**
- * Returns a list of all competitions for a specific group.
- */
-async function getGroupCompetitions(groupId: number, pagination: Pagination): Promise<Competition[]> {
-  const competitions = await Competition.findAll({
-    where: { groupId },
-    order: [['id', 'DESC']],
-    limit: pagination.limit,
-    offset: pagination.offset
-  });
-
-  const extendedCompetitions = await extendCompetitions(competitions);
-
-  return extendedCompetitions;
-}
-
-/**
- * Find all competitions that a given player is participating in. (Or has participated)
- */
-async function getPlayerCompetitions(playerId: number, pagination = { limit: 10000, offset: 0 }) {
-  const participations = await Participation.findAll({
-    where: { playerId },
-    attributes: [],
-    include: [{ model: Competition }]
-  });
-
-  const preparedCompetitions = participations
-    .slice(pagination.offset, pagination.offset + pagination.limit)
-    .map(p => p.competition)
-    .sort((a, b) => b.id - a.id);
-
-  const extendedCompetitions = await extendCompetitions(preparedCompetitions);
-
-  return extendedCompetitions;
-}
-
-/**
- * Given a list of competitions, it will fetch the participant count of each,
- * and inserts a "participantCount" field in every competition object.
- */
-async function extendCompetitions(competitions: Competition[]): Promise<ExtendedCompetition[]> {
-  /**
-   * Will return a participant count for every competition, with the format:
-   * [ {competitionId: 35, count: "4"}, {competitionId: 41, count: "31"} ]
-   */
-  const participantCount = await Participation.findAll({
-    where: { competitionId: competitions.map(countMap => countMap.id) },
-    attributes: ['competitionId', [Sequelize.fn('COUNT', Sequelize.col('competitionId')), 'count']],
-    group: ['competitionId'],
-    raw: true
-  });
-
-  return competitions.map(c => {
-    const match: any = participantCount.find(m => m.competitionId === c.id);
-    const duration = durationBetween(c.startsAt, c.endsAt);
-    return { ...(c.toJSON() as any), duration, participantCount: parseInt(match ? match.count : 0) };
-  });
 }
 
 function getCSV(details: CompetitionDetails, table: string, teamName?: string): string {
@@ -656,27 +533,6 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
   const currentParticipants = participations.map(p => omit(p.toJSON(), ['participations']));
 
   return { ...competition.toJSON(), participants: currentParticipants };
-}
-
-/**
- * Permanently delete a competition and all associated participations.
- */
-async function destroy(competition: Competition) {
-  const competitionTitle = competition.title;
-
-  await competition.destroy();
-  return competitionTitle;
-}
-
-/**
- * Resets a competition's verification code by generating a new one
- * and updating the verificationHash field in the database.
- */
-async function resetVerificationCode(competition: Competition): Promise<string> {
-  const [code, hash] = await cryptService.generateVerification();
-  await competition.update({ verificationHash: hash });
-
-  return code;
 }
 
 async function setTeams(competition: Competition, teams: Team[]) {
@@ -1147,15 +1003,10 @@ async function syncParticipations(playerId: number, latestSnapshotId: number) {
 
 export {
   resolve,
-  getList,
-  getGroupCompetitions,
-  getPlayerCompetitions,
   getDetails,
   getCSV,
   create,
   edit,
-  destroy,
-  resetVerificationCode,
   addParticipants,
   removeParticipants,
   addTeams,

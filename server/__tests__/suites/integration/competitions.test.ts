@@ -918,24 +918,25 @@ describe('Competition API', () => {
       const response = await api.get('/api/competitions').query({ status: 'invalid' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid status.');
+      expect(response.body.message).toBe(
+        "Invalid enum value for 'status'. Expected upcoming | ongoing | finished"
+      );
     });
 
     it('should not search competitions (invalid metric)', async () => {
       const response = await api.get('/api/competitions').query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid metric.');
+      expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not search competitions (invalid type)', async () => {
       const response = await api.get('/api/competitions').query({ type: 'invalid' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid type.');
+      expect(response.body.message).toBe("Invalid enum value for 'type'. Expected classic | team");
     });
 
-    // ensure sorted by score
     it('should search competitions', async () => {
       await prisma.competition.update({
         where: { id: globalData.testCompetitionStarting.id },
@@ -1079,17 +1080,17 @@ describe('Competition API', () => {
       const response = await api.get(`/api/competitions`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid offset: must a positive number.');
+      expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should not search competitions (negative limit)', async () => {
       const response = await api.get(`/api/competitions`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid limit: must be > 0');
+      expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
-    it.skip('should not search competitions (limit > 50)', async () => {
+    it('should not search competitions (limit > 50)', async () => {
       const response = await api.get(`/api/competitions`).query({ limit: 1000 });
 
       expect(response.status).toBe(400);
@@ -1915,21 +1916,21 @@ describe('Competition API', () => {
       expect(idResponse.body.message).toMatch('Player not found.');
     });
 
-    it.skip('should not list player competitions (negative offset)', async () => {
+    it('should not list player competitions (negative offset)', async () => {
       const response = await api.get(`/api/players/username/psikoi/competitions`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
-    it.skip('should not list player competitions (negative limit)', async () => {
+    it('should not list player competitions (negative limit)', async () => {
       const response = await api.get(`/api/players/username/psikoi/competitions`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
-    it.skip('should not list player competitions (limit > 50)', async () => {
+    it('should not list player competitions (limit > 50)', async () => {
       const response = await api.get(`/api/players/username/psikoi/competitions`).query({ limit: 1000 });
 
       expect(response.status).toBe(400);
@@ -1943,25 +1944,40 @@ describe('Competition API', () => {
       expect(response.body.length).toBe(3);
 
       // Hashes shouldn't be exposed to the API consumer
-      expect(response.body.filter(pg => !!pg.verificationHash).length).toBe(0);
+      expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
+      // Snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
+      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        participantCount: 4
+        teamName: 'Contributors',
+        competitionId: globalData.testCompetitionEnding.id,
+        competition: {
+          id: globalData.testCompetitionEnding.id,
+          participantCount: 8
+        }
       });
 
       expect(response.body[1]).toMatchObject({
-        id: globalData.testCompetitionEnding.id,
-        participantCount: 8
+        teamName: 'Warriors',
+        competitionId: globalData.testCompetitionWithGroup.id,
+        competition: {
+          id: globalData.testCompetitionWithGroup.id,
+          participantCount: 4
+        }
       });
 
       expect(response.body[2]).toMatchObject({
-        id: globalData.testCompetitionStarted.id,
-        participantCount: 5
+        teamName: null,
+        competitionId: globalData.testCompetitionStarted.id,
+        competition: {
+          id: globalData.testCompetitionStarted.id,
+          participantCount: 5
+        }
       });
     });
 
-    it.skip('should list player competitions (w/ limit & offset)', async () => {
+    it('should list player competitions (w/ limit & offset)', async () => {
       const response = await api
         .get(`/api/players/username/psikoi/competitions`)
         .query({ limit: 1, offset: 1 });
@@ -1969,12 +1985,18 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
 
-      // Hashes shouldn't be exposed to the API consumer
-      expect(response.body[0].verificationHash).not.toBeDefined();
+      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body[0].competition.verificationHash).not.toBeDefined();
+      expect(response.body[0].startSnapshotId).not.toBeDefined();
+      expect(response.body[0].endSnapshotId).not.toBeDefined();
 
       expect(response.body[0]).toMatchObject({
-        id: globalData.testCompetitionEnding.id,
-        participantCount: 8
+        teamName: 'Warriors',
+        competitionId: globalData.testCompetitionWithGroup.id,
+        competition: {
+          id: globalData.testCompetitionWithGroup.id,
+          participantCount: 4
+        }
       });
     });
   });
@@ -1987,7 +2009,7 @@ describe('Competition API', () => {
       expect(usernameResponse.body.message).toMatch('Group not found.');
     });
 
-    it.skip('should not list group competitions (negative offset)', async () => {
+    it('should not list group competitions (negative offset)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroup.id}/competitions`)
         .query({ offset: -5 });
@@ -1996,7 +2018,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
-    it.skip('should not list group competitions (negative limit)', async () => {
+    it('should not list group competitions (negative limit)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroup.id}/competitions`)
         .query({ limit: -5 });
@@ -2005,7 +2027,7 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
-    it.skip('should not list group competitions (limit > 50)', async () => {
+    it('should not list group competitions (limit > 50)', async () => {
       const response = await api
         .get(`/api/groups/${globalData.testGroup.id}/competitions`)
         .query({ limit: 1000 });
@@ -2268,6 +2290,17 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Competition not found.');
+    });
+
+    it('should not reset code (group competition)', async () => {
+      const response = await api
+        .put(`/api/competitions/${globalData.testCompetitionWithGroup.id}/reset-code`)
+        .send({
+          adminPassword: env.ADMIN_PASSWORD
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Cannot reset competition codes for group competitions.');
     });
 
     it('should reset code', async () => {

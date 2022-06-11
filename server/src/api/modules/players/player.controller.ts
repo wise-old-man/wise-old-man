@@ -2,10 +2,10 @@ import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as achievementServices from '../achievements/achievement.services';
-import * as competitionService from '../../services/internal/competition.service';
 import * as nameChangeServices from '../name-changes/name-change.services';
 import * as recordServices from '../records/record.services';
 import * as groupServices from '../groups/group.services';
+import * as competitionServices from '../competitions/competition.services';
 import * as playerServices from './player.services';
 import * as snapshotServices from '../snapshots/snapshot.services';
 import * as deltaServices from '../deltas/delta.services';
@@ -126,15 +126,18 @@ async function competitions(req: Request): Promise<ControllerResponse> {
     username: getString(req.params.username)
   });
 
-  // Get all player competitions (by player id)
-  const playerCompetitions = await competitionService.getPlayerCompetitions(playerId);
+  const results = await competitionServices.findPlayerParticipations({
+    playerId,
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-  if (playerId && playerCompetitions.length === 0) {
+  if (playerId && results.length === 0) {
     // Ensure this player ID exists (if not, it'll throw a 404 error)
     await playerUtils.resolvePlayer({ id: playerId });
   }
 
-  return { statusCode: 200, response: playerCompetitions };
+  return { statusCode: 200, response: results };
 }
 
 // GET /players/:id/groups

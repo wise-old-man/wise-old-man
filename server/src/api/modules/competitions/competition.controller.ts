@@ -1,33 +1,27 @@
 import { NextFunction, Request, Response } from 'express';
 import { omit } from 'lodash';
-import { BadRequestError, ForbiddenError } from '../../errors';
+import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import jobs from '../../jobs';
 import * as service from '../../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../../util/http';
-import * as pagination from '../../util/pagination';
+import { getNumber, getEnum, getString } from '../../util/validation';
+import { ControllerResponse } from '../../util/routing';
+import * as competitionServices from './competition.services';
 
 // GET /competitions
-async function index(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Search filter query
-    const title = extractString(req.query, { key: 'title' });
-    const status = extractString(req.query, { key: 'status' });
-    const metric = extractString(req.query, { key: 'metric' });
-    const type = extractString(req.query, { key: 'type' });
-    // Pagination query
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function search(req: Request): Promise<ControllerResponse> {
+  const results = await competitionServices.searchCompetitions({
+    title: getString(req.query.title),
+    status: getEnum(req.query.status),
+    metric: getEnum(req.query.metric),
+    type: getEnum(req.query.type),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    const filter = { title, status, metric, type };
-    const paginationConfig = pagination.getPaginationConfig(limit, offset);
-
-    const results = await service.getList(filter, paginationConfig);
-    res.json(results);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /competitions/:id
@@ -123,48 +117,38 @@ async function edit(req: Request, res: Response, next: NextFunction) {
 }
 
 // DELETE /competitions/:id
-async function remove(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
+async function remove(req: Request): Promise<ControllerResponse> {
+  const id = extractNumber(req.params, { key: 'id', required: true });
+  const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
+  const competition = await service.resolve(id, { includeHash: true });
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(competition, verificationCode);
 
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const competitionName = await service.destroy(competition);
-    const message = `Successfully deleted competition '${competitionName}' (id: ${id})`;
-
-    res.json({ message });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const deletedCompetition = await competitionServices.deleteCompetition({
+    id: getNumber(req.params.id)
+  });
+
+  return {
+    statusCode: 200,
+    response: { message: `Successfully deleted competition: ${deletedCompetition.title}` }
+  };
 }
 
 // PUT /competitions/:id/reset-code
-async function resetVerificationCode(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-
-    if (!adminGuard.checkAdminPermissions(req)) {
-      throw new ForbiddenError('Incorrect admin password.');
-    }
-
-    const competition = await service.resolve(id, { includeHash: true });
-
-    if (competition.groupId) {
-      throw new BadRequestError('Cannot reset verification code for group competition.');
-    }
-
-    const newCode = await service.resetVerificationCode(competition);
-
-    res.json({ newCode });
-  } catch (e) {
-    next(e);
+async function resetVerificationCode(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
   }
+
+  const result = await competitionServices.resetCompetitionCode({
+    id: getNumber(req.params.id)
+  });
+
+  return { statusCode: 200, response: result };
 }
 
 // POST /competitions/:id/add-participants
@@ -284,7 +268,7 @@ async function updateAllParticipants(req: Request, res: Response, next: NextFunc
 }
 
 export {
-  index,
+  search,
   details,
   detailsCSV,
   create,

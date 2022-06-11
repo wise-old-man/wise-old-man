@@ -5,14 +5,16 @@ import {
   getTotalLevel,
   Metric,
   METRICS,
-  VIRTUALS
+  VIRTUALS,
+  ACTIVITIES,
+  getLevel,
+  SKILLS
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
 import { BossValue, FormattedSnapshot, SkillValue } from './snapshot.types';
-import { ACTIVITIES, getLevel, SKILLS } from '@wise-old-man/utils';
 
 function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
   if (!snapshot) return null;

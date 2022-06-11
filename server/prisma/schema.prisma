@@ -25,17 +25,17 @@ model Achievement {
 }
 
 model Competition {
-  id               Int       @id @unique(map: "competitions_id") @default(autoincrement())
-  title            String    @db.VarChar(50)
-  metric           String    @db.VarChar(100)
-  verificationHash String    @db.VarChar(255)
-  startsAt         DateTime  @db.Timestamptz(6)
-  endsAt           DateTime  @db.Timestamptz(6)
-  createdAt        DateTime? @default(now())
-  updatedAt        DateTime? @updatedAt
+  id               Int             @id @unique(map: "competitions_id") @default(autoincrement())
+  title            String          @db.VarChar(50)
+  metric           Metric
+  type             CompetitionType @default(classic)
+  startsAt         DateTime        @db.Timestamptz(6)
+  endsAt           DateTime        @db.Timestamptz(6)
   groupId          Int?
-  score            Int?      @default(0)
-  type             String?   @default("classic") @db.VarChar(20)
+  score            Int             @default(0)
+  verificationHash String          @db.VarChar(255)
+  createdAt        DateTime?       @default(now())
+  updatedAt        DateTime?       @updatedAt
 
   // Relations
   group          Group?          @relation(fields: [groupId], references: [id], onUpdate: NoAction)
@@ -210,11 +210,11 @@ model NameChange {
 model Participation {
   playerId        Int
   competitionId   Int
-  createdAt       DateTime? @default(now())
-  updatedAt       DateTime? @updatedAt
   startSnapshotId Int?
   endSnapshotId   Int?
   teamName        String?   @db.VarChar(30)
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
 
   // Relations
   player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -839,6 +839,11 @@ enum Country {
   ZA
   ZM
   ZW
+}
+
+enum CompetitionType {
+  classic
+  team
 }
 
 enum GroupRole {

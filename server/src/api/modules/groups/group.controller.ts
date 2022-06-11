@@ -1,17 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
 import { Period, Metric } from '../../../utils';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
-import * as competitionService from '../../services/internal/competition.service';
-import * as groupService from '../../services/internal/group.service';
 import * as nameChangeServices from '../name-changes/name-change.services';
 import * as recordServices from '../records/record.services';
 import * as groupServices from './group.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as achievementServices from '../achievements/achievement.services';
-import { extractNumber } from '../../util/http';
-import { getPaginationConfig } from '../../util/pagination';
+import * as competitionServices from '../competitions/competition.services';
 import { getNumber, getEnum, getDate, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import { MigrationDataSource } from './group.types';
@@ -83,7 +80,7 @@ async function remove(req: Request): Promise<ControllerResponse> {
 
   return {
     statusCode: 200,
-    response: { message: `Successfully deleted group: ${deletedGroup.name} (ID: ${deletedGroup.id})` }
+    response: { message: `Successfully deleted group: ${deletedGroup.name}` }
   };
 }
 
@@ -198,22 +195,14 @@ async function listMembers(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /groups/:id/competitions
-async function competitions(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const limit = extractNumber(req.query, { key: 'limit' });
-    const offset = extractNumber(req.query, { key: 'offset' });
+async function competitions(req: Request): Promise<ControllerResponse> {
+  const results = await competitionServices.findGroupCompetitions({
+    groupId: getNumber(req.params.id),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
 
-    // Ensure this group Id exists (if not, it'll throw a 404 error)
-    await groupService.resolve(id);
-
-    const paginationConfig = getPaginationConfig(limit, offset);
-    const groupCompetitions = await competitionService.getGroupCompetitions(id, paginationConfig);
-
-    res.json(groupCompetitions);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: results };
 }
 
 // GET /groups/:id/monthly-top

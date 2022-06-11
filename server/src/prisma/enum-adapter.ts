@@ -4,7 +4,8 @@ import {
   PlayerType as PrismaPlayerType,
   PlayerBuild as PrismaPlayerBuild,
   GroupRole as PrismaGroupRole,
-  NameChangeStatus as PrismaNameChangeStatus
+  NameChangeStatus as PrismaNameChangeStatus,
+  CompetitionType as PrismaCompetitionType
 } from '@prisma/client';
 
 /**
@@ -199,6 +200,13 @@ export const PlayerBuildEnum = {
 } as const;
 
 export type PlayerBuildEnum = typeof PlayerBuildEnum[keyof typeof PlayerBuildEnum];
+
+export const CompetitionTypeEnum = {
+  CLASSIC: PrismaCompetitionType.classic,
+  TEAM: PrismaCompetitionType.team
+} as const;
+
+export type CompetitionTypeEnum = typeof CompetitionTypeEnum[keyof typeof CompetitionTypeEnum];
 
 export const GroupRoleEnum = {
   ACHIEVER: PrismaGroupRole.achiever,

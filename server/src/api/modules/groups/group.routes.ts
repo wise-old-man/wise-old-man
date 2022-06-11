@@ -19,7 +19,7 @@ api.post('/:id/add-members', setupController(controller.addMembers));
 api.post('/:id/remove-members', setupController(controller.removeMembers));
 
 api.get('/:id/members', setupController(controller.listMembers));
-api.get('/:id/competitions', controller.competitions);
+api.get('/:id/competitions', setupController(controller.competitions));
 api.get('/:id/monthly-top', setupController(controller.monthlyTop));
 api.get('/:id/gained', setupController(controller.gained));
 api.get('/:id/achievements', setupController(controller.achievements));
