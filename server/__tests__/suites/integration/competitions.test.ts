@@ -79,14 +79,14 @@ describe('Competition API', () => {
       const response = await api.post('/api/competitions').send({ title: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'title' is undefined.");
+      expect(response.body.message).toMatch('Competition title must have at least one character.');
     });
 
     it('should not create (undefined metric)', async () => {
       const response = await api.post('/api/competitions').send({ title: 'hello' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'metric' is undefined.");
+      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
     it('should not create (undefined start date)', async () => {
@@ -102,7 +102,7 @@ describe('Competition API', () => {
         .send({ title: 'hello', metric: 'smithing', startsAt: 123 });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'startsAt' is not a valid date.");
+      expect(response.body.message).toMatch("Parameter 'startsAt' is undefined.");
     });
 
     it('should not create (undefined end date)', async () => {
@@ -120,7 +120,7 @@ describe('Competition API', () => {
         .send({ title: 'hello', metric: 'smithing', endsAt: 123, startsAt: VALID_START_DATE });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'endsAt' is not a valid date.");
+      expect(response.body.message).toMatch("Parameter 'endsAt' is undefined.");
     });
 
     it('should not create (end date before start date)', async () => {
@@ -149,7 +149,7 @@ describe('Competition API', () => {
       const response = await api.post('/api/competitions').send({ ...VALID_CREATE_BASE, metric: 'sailing' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid competition metric.');
+      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
     });
 
     it('should not create (title too long)', async () => {
@@ -158,20 +158,18 @@ describe('Competition API', () => {
         title: 'jklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjnjklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksd'
       });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch(
-        'Validation error: Competition title must be shorted than 50 characters.'
-      );
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Competition title cannot be longer than 50 characters.');
     });
 
-    it.skip('should not create (invalid participants list)', async () => {
+    it('should not create (invalid participants list)', async () => {
       const response = await api.post('/api/competitions').send({
         ...VALID_CREATE_BASE,
         participants: 123
       });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Invalid list type???');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
     });
 
     it('should not create (invalid player name)', async () => {
@@ -198,14 +196,14 @@ describe('Competition API', () => {
       );
     });
 
-    it.skip('should not create (invalid teams list type)', async () => {
+    it('should not create (invalid teams list type)', async () => {
       const response = await api.post('/api/competitions').send({
         ...VALID_CREATE_BASE,
         teams: 123
       });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Invalid list type???');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Parameter 'teams' is not a valid array.");
     });
 
     it('should not create (invalid team shape)', async () => {
@@ -215,17 +213,21 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
-    it.skip('should not create (invalid team players list)', async () => {
+    it('should not create (invalid team players list)', async () => {
       const response = await api.post('/api/competitions').send({
         ...VALID_CREATE_BASE,
         teams: [{ name: '?', participants: 123 }]
       });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Invalid list type???');
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not create (undefined team players list)', async () => {
@@ -235,7 +237,9 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not create (empty team players list)', async () => {
@@ -245,7 +249,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
+      expect(response.body.message).toMatch('All teams must have a valid non-empty participants array.');
     });
 
     it('should not create (undefined team name)', async () => {
@@ -255,7 +259,9 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not create (empty team name)', async () => {
@@ -265,7 +271,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch('Team names must have at least one character.');
     });
 
     it('should not create (team name too long)', async () => {
@@ -275,17 +281,15 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch(
-        'Team names can only be 30 characters max. The following are invalid: [hjsdfhfiwsehflskdhfsdkljfhsdljkfhdsljkfh]'
-      );
+      expect(response.body.message).toMatch('Team names cannot be longer than 30 characters.');
     });
 
     it('should not create (duplicated team name)', async () => {
       const response = await api.post('/api/competitions').send({
         ...VALID_CREATE_BASE,
         teams: [
-          { name: 'warriors', participants: ['zezima', 'psikoi'] },
-          { name: 'warriors', participants: ['hydrox6', 'jakesterwars'] }
+          { name: 'WARRIORS ', participants: ['zezima', 'psikoi'] },
+          { name: '_warriors', participants: ['hydrox6', 'jakesterwars'] }
         ]
       });
 
@@ -298,7 +302,7 @@ describe('Competition API', () => {
         ...VALID_CREATE_BASE,
         teams: [
           { name: 'warriors', participants: ['zezima', 'psikoi'] },
-          { name: 'soldiers', participants: ['hydrox6', 'zezima'] }
+          { name: 'soldiers', participants: ['hydrox6', ' ZEZIMA__'] }
         ]
       });
 
@@ -324,7 +328,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Invalid verification code.');
+      expect(response.body.message).toMatch('Invalid group verification code.');
     });
 
     it('should not create (incorrect group verification code)', async () => {
@@ -372,7 +376,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'Wise Old Man',
         metric: 'smithing',
         startsAt: VALID_START_DATE.toISOString(),
@@ -380,7 +384,7 @@ describe('Competition API', () => {
       });
 
       globalData.testCompetitionStarting = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
     });
@@ -402,23 +406,24 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'BOTW Zulrah #3',
         metric: 'zulrah',
         startsAt: startDate.toISOString(),
-        endsAt: endDate.toISOString()
+        endsAt: endDate.toISOString(),
+        participantCount: 4
       });
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
       globalData.testCompetitionStarted = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
     });
 
-    it('should create (w/ group)', async () => {
+    it('should create (w/ participants)', async () => {
       // Fake the current date to be 2 days ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 172_800_000));
 
@@ -435,23 +440,24 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'SOTW Thieving 💰 #5', // test emoji support
         metric: 'thieving',
         startsAt: startDate.toISOString(),
-        endsAt: endDate.toISOString()
+        endsAt: endDate.toISOString(),
+        participantCount: 4
       });
-      expect(response.body.participants.length).toBe(4);
-      expect(response.body.participants.map(p => p.username)).toContain('psikoi');
-      expect(response.body.participants.map(p => p.username)).toContain('zezima');
-      expect(response.body.participants.map(p => p.username)).toContain('rorro');
-      expect(response.body.participants.map(p => p.username)).toContain('usbc');
+      expect(response.body.competition.participations.length).toBe(4);
+      expect(response.body.competition.participations.map(p => p.player.username)).toContain('psikoi');
+      expect(response.body.competition.participations.map(p => p.player.username)).toContain('zezima');
+      expect(response.body.competition.participations.map(p => p.player.username)).toContain('rorro');
+      expect(response.body.competition.participations.map(p => p.player.username)).toContain('usbc');
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
       globalData.testCompetitionOngoing = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
     });
@@ -476,33 +482,36 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'Soul Wars Competition',
         metric: 'soul_wars_zeal',
         startsAt: startDate.toISOString(),
-        endsAt: endDate.toISOString()
+        endsAt: endDate.toISOString(),
+        participantCount: 4
       });
-      expect(response.body.participants.length).toBe(4);
+      expect(response.body.competition.participations.length).toBe(4);
 
-      const sortedParticipants = response.body.participants.sort((a, b) => a.id - b.id);
+      const sortedParticipants = response.body.competition.participations.sort(
+        (a, b) => a.player.id - b.player.id
+      );
 
       expect(sortedParticipants[0]).toMatchObject({
-        username: 'psikoi',
+        player: { username: 'psikoi' },
         teamName: 'Warriors'
       });
 
       expect(sortedParticipants[1]).toMatchObject({
-        username: 'zezima',
+        player: { username: 'zezima' },
         teamName: 'Warriors'
       });
 
       expect(sortedParticipants[2]).toMatchObject({
-        username: 'usbc',
+        player: { username: 'usbc' },
         teamName: 'Scouts'
       });
 
       expect(sortedParticipants[3]).toMatchObject({
-        username: 'hydrox6',
+        player: { username: 'hydrox6' },
         teamName: 'Scouts'
       });
 
@@ -510,7 +519,7 @@ describe('Competition API', () => {
       jest.useRealTimers();
 
       globalData.testCompetitionEnding = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
     });
@@ -532,19 +541,20 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'OVERALL Competition',
         metric: 'overall',
         startsAt: startDate.toISOString(),
-        endsAt: endDate.toISOString()
+        endsAt: endDate.toISOString(),
+        participantCount: 0
       });
-      expect(response.body.participants.length).toBe(0);
+      expect(response.body.competition.participations.length).toBe(0);
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
       globalData.testCompetitionEnded = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
     });
@@ -571,16 +581,17 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(201);
-      expect(response.body).toMatchObject({
+      expect(response.body.competition).toMatchObject({
         title: 'Fishing Competition',
         metric: 'fishing',
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
-        groupId: globalData.testGroup.id
+        groupId: globalData.testGroup.id,
+        participantCount: 4
       });
 
       globalData.testCompetitionWithGroup = {
-        id: response.body.id,
+        id: response.body.competition.id,
         verificationCode: response.body.verificationCode
       };
 
@@ -781,8 +792,8 @@ describe('Competition API', () => {
       const response = await api.put(`/api/competitions/${globalData.testCompetitionEnding.id}`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         teams: [
-          { name: 'warriors', participants: ['zezima', 'psikoi'] },
-          { name: 'warriors', participants: ['hydrox6', 'jakesterwars'] }
+          { name: 'warriors_', participants: ['zezima', 'psikoi'] },
+          { name: ' WARRIORS', participants: ['hydrox6', 'jakesterwars'] }
         ]
       });
 
@@ -795,7 +806,7 @@ describe('Competition API', () => {
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         teams: [
           { name: 'warriors', participants: ['zezima', 'psikoi'] },
-          { name: 'soldiers', participants: ['hydrox6', 'zezima'] }
+          { name: 'soldiers', participants: ['hydrox6', '_ZEZIMA'] }
         ]
       });
 
@@ -960,38 +971,50 @@ describe('Competition API', () => {
       // These should be ordered by score, then id
       expect(response.body[0]).toMatchObject({
         id: globalData.testCompetitionStarting.id,
+        title: 'Worked! 👍',
         type: 'classic',
+        metric: 'agility',
         participantCount: 0
       });
 
       expect(response.body[1]).toMatchObject({
         id: globalData.testCompetitionEnding.id,
+        title: 'Soul Wars Competition',
         type: 'team',
+        metric: 'soul_wars_zeal',
         participantCount: 8
       });
 
       expect(response.body[2]).toMatchObject({
-        id: globalData.testCompetitionStarted.id,
-        type: 'classic',
-        participantCount: 3
+        id: globalData.testCompetitionWithGroup.id,
+        title: 'Fishing Competition',
+        type: 'team',
+        metric: 'fishing',
+        participantCount: 4
       });
 
       expect(response.body[3]).toMatchObject({
-        id: globalData.testCompetitionWithGroup.id,
-        type: 'team',
-        participantCount: 4
-      });
-
-      expect(response.body[4]).toMatchObject({
         id: globalData.testCompetitionEnded.id,
+        title: 'OVERALL Competition',
         type: 'classic',
+        metric: 'overall',
         participantCount: 0
       });
 
-      expect(response.body[5]).toMatchObject({
+      expect(response.body[4]).toMatchObject({
         id: globalData.testCompetitionOngoing.id,
+        title: 'SOTW Thieving 💰 #5',
         type: 'classic',
+        metric: 'thieving',
         participantCount: 4
+      });
+
+      expect(response.body[5]).toMatchObject({
+        id: globalData.testCompetitionStarted.id,
+        title: 'BOTW Zulrah #3',
+        type: 'classic',
+        metric: 'zulrah',
+        participantCount: 3
       });
     });
 
@@ -1045,12 +1068,18 @@ describe('Competition API', () => {
 
       expect(response.body[0]).toMatchObject({
         id: globalData.testCompetitionStarting.id,
-        type: 'classic'
+        title: 'Worked! 👍',
+        type: 'classic',
+        metric: 'agility',
+        participantCount: 0
       });
 
       expect(response.body[1]).toMatchObject({
-        id: globalData.testCompetitionStarted.id,
-        type: 'classic'
+        id: globalData.testCompetitionEnded.id,
+        title: 'OVERALL Competition',
+        type: 'classic',
+        metric: 'overall',
+        participantCount: 0
       });
 
       // Hashes shouldn't be exposed to the API consumer
@@ -1064,13 +1093,19 @@ describe('Competition API', () => {
       expect(response.body.length).toBe(2); // 4 results, limited to 2
 
       expect(response.body[0]).toMatchObject({
-        id: globalData.testCompetitionStarted.id,
-        type: 'classic'
+        id: globalData.testCompetitionEnded.id,
+        title: 'OVERALL Competition',
+        type: 'classic',
+        metric: 'overall',
+        participantCount: 0
       });
 
       expect(response.body[1]).toMatchObject({
-        id: globalData.testCompetitionEnded.id,
-        type: 'classic'
+        id: globalData.testCompetitionOngoing.id,
+        title: 'SOTW Thieving 💰 #5',
+        type: 'classic',
+        metric: 'thieving',
+        participantCount: 4
       });
 
       // Hashes shouldn't be exposed to the API consumer
@@ -1176,6 +1211,18 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 2 invalid usernames:');
+    });
+
+    it('should not add participants (repeated participant username)', async () => {
+      const response = await api
+        .post(`/api/competitions/${globalData.testCompetitionStarting.id}/add-participants`)
+        .send({
+          participants: ['zezima', 'psikoi', 'rorro', '_ZEZIMA', 'sethmare', ' ROrro__'],
+          verificationCode: globalData.testCompetitionStarting.verificationCode
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Found repeated usernames: [zezima, rorro]');
     });
 
     it('should not add participants (already participants)', async () => {
@@ -1362,7 +1409,7 @@ describe('Competition API', () => {
       const response = await api.post(`/api/competitions/100000/add-teams`);
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("Parameter 'verificationCode' is undefined.");
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not add teams (competition not found)', async () => {
@@ -1389,10 +1436,10 @@ describe('Competition API', () => {
         .send({ verificationCode: globalData.testCompetitionEnding.verificationCode });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Empty teams list.');
+      expect(response.body.message).toBe("Parameter 'teams' is not a valid array.");
     });
 
-    it.skip('should not add teams (invalid teams list)', async () => {
+    it('should not add teams (invalid teams list)', async () => {
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/add-teams`)
         .send({
@@ -1401,7 +1448,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Incorrect verification code.');
+      expect(response.body.message).toBe("Parameter 'teams' is not a valid array.");
     });
 
     it('should not add teams (empty teams list)', async () => {
@@ -1425,10 +1472,12 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
-    it.skip('should not add teams (invalid team players list)', async () => {
+    it('should not add teams (invalid team players list)', async () => {
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/add-teams`)
         .send({
@@ -1437,7 +1486,9 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('tbd');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not add teams (undefined team players list)', async () => {
@@ -1449,7 +1500,9 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not add teams (empty team players list)', async () => {
@@ -1461,7 +1514,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a valid (non-empty) array of participants.');
+      expect(response.body.message).toMatch('All teams must have a valid non-empty participants array.');
     });
 
     it('should not add teams (invalid team player username)', async () => {
@@ -1486,7 +1539,23 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
+    });
+
+    it('should not add teams (invalid team name)', async () => {
+      const response = await api
+        .post(`/api/competitions/${globalData.testCompetitionEnding.id}/add-teams`)
+        .send({
+          verificationCode: globalData.testCompetitionEnding.verificationCode,
+          teams: [{ name: 123, participants: ['psikoi'] }]
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
+      );
     });
 
     it('should not add teams (empty team name)', async () => {
@@ -1498,7 +1567,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('All teams must have a name property.');
+      expect(response.body.message).toMatch('Team names must have at least one character.');
     });
 
     it('should not add teams (team name too long)', async () => {
@@ -1510,7 +1579,7 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Team names can only be 30 characters max.');
+      expect(response.body.message).toMatch('Team names cannot be longer than 30 characters.');
     });
 
     it('should not add teams (duplicate team names in response)', async () => {
@@ -1519,8 +1588,8 @@ describe('Competition API', () => {
         .send({
           verificationCode: globalData.testCompetitionEnding.verificationCode,
           teams: [
-            { name: 'Warriors', participants: ['psikoi'] },
-            { name: 'Warriors', participants: ['zezima'] }
+            { name: 'WARRIORS', participants: ['psikoi'] },
+            { name: '_warriors', participants: ['zezima'] }
           ]
         });
 
@@ -1534,13 +1603,13 @@ describe('Competition API', () => {
         .send({
           verificationCode: globalData.testCompetitionEnding.verificationCode,
           teams: [
-            { name: 'Mods', participants: ['zezima'] },
+            { name: '__MODS', participants: ['zezima'] },
             { name: 'Soldiers', participants: ['boom', 'usbc'] }
           ]
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('Found repeated team names: [Mods]');
+      expect(response.body.message).toMatch('Found repeated team names: [mods]');
     });
 
     it('should not add teams (duplicate team players)', async () => {
@@ -1549,7 +1618,7 @@ describe('Competition API', () => {
         .send({
           verificationCode: globalData.testCompetitionEnding.verificationCode,
           teams: [
-            { name: 'Warriors', participants: ['psikoi', 'rorro'] },
+            { name: 'Warriors', participants: ['psikoi', '__RORRO'] },
             { name: 'Soldiers', participants: ['boom', 'rorro', 'usbc'] }
           ]
         });
@@ -1570,11 +1639,14 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Teams can't be added to a classic competition.");
+      expect(response.body.message).toMatch('Cannot add teams to a classic competition.');
     });
 
-    // TODO: ensure comp updatedAt changed
-    it.skip('should add teams', async () => {
+    it('should add teams', async () => {
+      const before = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(before.body.participants.length).toBe(8);
+      expect(before.status).toBe(200);
+
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/add-teams`)
         .send({
@@ -1587,7 +1659,16 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.newTeams.length).toBe(3);
+      expect(response.body).toMatchObject({ count: 7, message: 'Successfully added 7 participants.' });
+
+      const after = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.participants.length).toBe(15); // had 8 previously
+
+      // ensure group.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
+      );
     });
   });
 
@@ -1668,9 +1749,11 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('No players were removed from the competition.');
     });
 
-    // TODO: needs add teams fixed first
-    // TODO: ensure comp updatedAt changed
-    it.skip('should remove teams', async () => {
+    it('should remove teams', async () => {
+      const before = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(before.body.participants.length).toBe(15);
+      expect(before.status).toBe(200);
+
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/remove-teams`)
         .send({
@@ -1679,7 +1762,16 @@ describe('Competition API', () => {
         });
 
       expect(response.status).toBe(200);
-      expect(response.body.message).toMatch('idk');
+      expect(response.body).toMatchObject({ count: 4, message: 'Successfully removed 4 participants.' });
+
+      const after = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.participants.length).toBe(11); // had 15 previously
+
+      // ensure group.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
+      );
     });
   });
 
@@ -1960,7 +2052,7 @@ describe('Competition API', () => {
         competitionId: globalData.testCompetitionEnding.id,
         competition: {
           id: globalData.testCompetitionEnding.id,
-          participantCount: 8
+          participantCount: 11
         }
       });
 
@@ -2076,12 +2168,12 @@ describe('Competition API', () => {
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
-        id: createThirdCompetitionResponse.body.id,
+        id: createThirdCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
       });
 
       expect(response.body[1]).toMatchObject({
-        id: createSecondCompetitionResponse.body.id,
+        id: createSecondCompetitionResponse.body.competition.id,
         participantCount: 2 // inherits all members of the group as participants
       });
 
@@ -2419,7 +2511,10 @@ describe('Competition API', () => {
       // Wait a bit to let the group events run
       await sleep(500);
 
-      const classicCompDetailsA = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      const classicCompDetailsA = await api.get(
+        `/api/competitions/${createClassicCompResponse.body.competition.id}`
+      );
+
       expect(classicCompDetailsA.status).toBe(200);
       expect(classicCompDetailsA.body.participants.length).toBe(3);
 
@@ -2428,7 +2523,9 @@ describe('Competition API', () => {
       expect(classicCompParticipantsA).toContain('boom');
       expect(classicCompParticipantsA).toContain('sethmare');
 
-      const teamCompDetailsA = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      const teamCompDetailsA = await api.get(
+        `/api/competitions/${createTeamCompResponse.body.competition.id}`
+      );
       expect(teamCompDetailsA.status).toBe(200);
       expect(teamCompDetailsA.body.participants.length).toBe(4);
 
@@ -2452,14 +2549,20 @@ describe('Competition API', () => {
       // Wait a bit to let the group events run
       await sleep(500);
 
-      const classicCompDetailsB = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      const classicCompDetailsB = await api.get(
+        `/api/competitions/${createClassicCompResponse.body.competition.id}`
+      );
+
       expect(classicCompDetailsB.status).toBe(200);
       expect(classicCompDetailsB.body.participants.length).toBe(1); // previously 3
 
       const classicCompParticipantsB = classicCompDetailsB.body.participants.map(p => p.username);
       expect(classicCompParticipantsB).toContain('sethmare');
 
-      const teamCompDetailsB = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      const teamCompDetailsB = await api.get(
+        `/api/competitions/${createTeamCompResponse.body.competition.id}`
+      );
+
       expect(teamCompDetailsB.status).toBe(200);
       expect(teamCompDetailsB.body.participants.length).toBe(2); // previously 4
 
@@ -2505,7 +2608,10 @@ describe('Competition API', () => {
       // Wait a bit to let the group events run
       await sleep(500);
 
-      const classicCompDetailsA = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      const classicCompDetailsA = await api.get(
+        `/api/competitions/${createClassicCompResponse.body.competition.id}`
+      );
+
       expect(classicCompDetailsA.status).toBe(200);
       expect(classicCompDetailsA.body.participants.length).toBe(3);
 
@@ -2514,7 +2620,10 @@ describe('Competition API', () => {
       expect(classicCompParticipantsA).toContain('boom');
       expect(classicCompParticipantsA).toContain('sethmare');
 
-      const teamCompDetailsA = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      const teamCompDetailsA = await api.get(
+        `/api/competitions/${createTeamCompResponse.body.competition.id}`
+      );
+
       expect(teamCompDetailsA.status).toBe(200);
       expect(teamCompDetailsA.body.participants.length).toBe(4);
 
@@ -2541,7 +2650,10 @@ describe('Competition API', () => {
       // Wait a bit to let the group events run
       await sleep(500);
 
-      const classicCompDetailsB = await api.get(`/api/competitions/${createClassicCompResponse.body.id}`);
+      const classicCompDetailsB = await api.get(
+        `/api/competitions/${createClassicCompResponse.body.competition.id}`
+      );
+
       expect(classicCompDetailsB.status).toBe(200);
       expect(classicCompDetailsB.body.participants.length).toBe(5); // previously 3
 
@@ -2549,7 +2661,10 @@ describe('Competition API', () => {
       expect(classicCompParticipantsB).toContain('usbc');
       expect(classicCompParticipantsB).toContain('jakesterwars');
 
-      const teamCompDetailsB = await api.get(`/api/competitions/${createTeamCompResponse.body.id}`);
+      const teamCompDetailsB = await api.get(
+        `/api/competitions/${createTeamCompResponse.body.competition.id}`
+      );
+
       expect(teamCompDetailsB.status).toBe(200);
       expect(teamCompDetailsB.body.participants.length).toBe(4); // previously 4 (no change)
 

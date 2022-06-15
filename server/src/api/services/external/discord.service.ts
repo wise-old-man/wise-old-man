@@ -1,7 +1,7 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
-import prisma, { Achievement, Player as PrismaPlayer } from '../../../prisma';
-import { Competition, Player } from '../../../database/models';
+import prisma, { Achievement, Player as PrismaPlayer, Competition } from '../../../prisma';
+import { Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
 import { durationBetween } from '../../util/dates';
 import { CompetitionDetails } from '../internal/competition.service';
@@ -112,7 +112,7 @@ function dispatchCompetitionCreated(competition: Competition) {
 
   dispatch('COMPETITION_CREATED', {
     groupId: competition.groupId,
-    competition: { ...competition.toJSON(), duration }
+    competition: { ...competition, duration }
   });
 }
 

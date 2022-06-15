@@ -1,5 +1,7 @@
 export * from './services/AddParticipantsService';
+export * from './services/AddTeamsService';
 export * from './services/AddToGroupCompetitionsService';
+export * from './services/CreateCompetitionService';
 export * from './services/DeleteCompetitionService';
 export * from './services/FindGroupCompetitionsService';
 export * from './services/FindPlayerParticipationsService';

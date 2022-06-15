@@ -5,7 +5,7 @@ import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import * as service from '../../services/internal/competition.service';
 import { extractDate, extractNumber, extractString, extractStrings } from '../../util/http';
-import { getNumber, getEnum, getString } from '../../util/validation';
+import { getNumber, getEnum, getString, getDate } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import * as competitionServices from './competition.services';
 
@@ -58,30 +58,19 @@ async function detailsCSV(req: Request, res: Response, next: NextFunction) {
 }
 
 // POST /competitions
-async function create(req: Request, res: Response, next: NextFunction) {
-  try {
-    const title = extractString(req.body, { key: 'title', required: true });
-    const metric = extractString(req.body, { key: 'metric', required: true });
-    const startsAt = extractDate(req.body, { key: 'startsAt', required: true });
-    const endsAt = extractDate(req.body, { key: 'endsAt', required: true });
-    const groupId = extractNumber(req.body, { key: 'groupId' });
-    const groupVerificationCode = extractString(req.body, { key: 'groupVerificationCode' });
-    const participants = extractStrings(req.body, { key: 'participants' });
-    const teams = req.body.teams;
+async function create(req: Request): Promise<ControllerResponse> {
+  const result = await competitionServices.createCompetition({
+    title: getString(req.body.title),
+    metric: getEnum(req.body.metric),
+    startsAt: getDate(req.body.startsAt),
+    endsAt: getDate(req.body.endsAt),
+    participants: req.body.participants,
+    teams: req.body.teams,
+    groupId: req.body.groupId,
+    groupVerificationCode: req.body.groupVerificationCode
+  });
 
-    const dto = { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams };
-    const competition = await service.create(dto);
-
-    // Omit some secrets from the response
-    const response = omit(
-      competition,
-      groupId ? ['verificationHash', 'verificationCode'] : ['verificationHash']
-    );
-
-    res.status(201).json(response);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 201, response: result };
 }
 
 // PUT /competitions/:id
@@ -188,28 +177,22 @@ async function removeParticipants(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /competitions/:id/add-teams
-async function addTeams(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-    const teams = req.body.teams;
+async function addTeams(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.legacy_verifyCompetitionCode(
-      competition,
-      verificationCode
-    );
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const result = await service.addTeams(competition, teams);
-
-    res.json({ newTeams: result });
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await competitionServices.addTeams({
+    id: getNumber(req.params.id),
+    teams: req.body.teams
+  });
+
+  return {
+    statusCode: 200,
+    response: { count: result.count, message: `Successfully added ${result.count} participants.` }
+  };
 }
 
 // POST /competitions/:id/remove-teams

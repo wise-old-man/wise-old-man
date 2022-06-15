@@ -4,6 +4,7 @@ import { onNameChangeCreated } from '../api/modules/name-changes/name-change.eve
 import { onPlayerImported, onPlayerUpdated } from '../api/modules/players/player.events';
 import { onDeltaUpdated } from '../api/modules/deltas/delta.events';
 import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
+import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
 import * as playerUtils from '../api/modules/players/player.utils';
 import { modifyAchievements, modifyDeltas, modifySnapshot } from '.';
 
@@ -44,6 +45,29 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
       );
     }
 
+    return;
+  }
+
+  if (params.model === 'Participation') {
+    if (params.action === 'createMany' && params.args?.data?.length > 0) {
+      onParticipantsJoined(
+        params.args.data[0].competitionId,
+        params.args.data.map(d => d.playerId)
+      );
+    }
+
+    return;
+  }
+
+  if (params.model === 'Competition' && params.action === 'create') {
+    if (result?.participations?.length > 0) {
+      onParticipantsJoined(
+        result.id,
+        result.participations.map(d => d.playerId)
+      );
+    }
+
+    onCompetitionCreated(result);
     return;
   }
 

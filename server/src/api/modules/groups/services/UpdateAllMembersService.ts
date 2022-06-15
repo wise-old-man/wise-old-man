@@ -1,6 +1,5 @@
-import { Player } from 'src/database/models';
 import { z } from 'zod';
-import prisma from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
 import jobs from '../../../jobs';

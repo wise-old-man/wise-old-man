@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { isValidUsername } from '../../players/player.utils';
+import { isValidUsername, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 
 const inputSchema = z.object({
@@ -41,6 +41,13 @@ async function addParticipants(payload: AddParticipantsParams): Promise<{ count:
        contain no special characters, and/or contain no space at the beginning or end of the name.`,
       invalidUsernames
     );
+  }
+
+  const usernames = params.participants.map(standardize);
+  const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
+
+  if (duplicateUsernames && duplicateUsernames.length > 0) {
+    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
   }
 
   // Find all existing participants' ids

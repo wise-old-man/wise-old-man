@@ -1,11 +1,9 @@
 import { filter, includes, omit, uniq, uniqBy } from 'lodash';
 import { Metric, METRICS, getMetricValueKey, isVirtualMetric, CompetitionType } from '../../../utils';
-import { Competition, Group, Membership, Participation, Player, Snapshot } from '../../../database/models';
-import { BadRequestError, ForbiddenError, NotFoundError } from '../../errors';
+import { Competition, Group, Participation, Player, Snapshot } from '../../../database/models';
+import { BadRequestError, NotFoundError } from '../../errors';
 import { durationBetween, formatDate, isPast } from '../../util/dates';
 import { buildQuery } from '../../util/query';
-import * as cryptService from '../external/crypt.service';
-import * as groupService from './group.service';
 import * as snapshotServices from '../../modules/snapshots/snapshot.services';
 import * as playerServices from '../../modules/players/player.services';
 import * as deltaUtils from '../../modules/deltas/delta.utils';
@@ -43,17 +41,6 @@ export interface CompetitionDetails extends Competition {
 interface ResolveOptions {
   includeGroup?: boolean;
   includeHash?: boolean;
-}
-
-interface CreateCompetitionDTO {
-  title: string;
-  metric: string;
-  startsAt: Date;
-  endsAt: Date;
-  groupId?: number;
-  groupVerificationCode?: string;
-  participants?: string[];
-  teams?: Team[];
 }
 
 interface EditCompetitionDTO {
@@ -247,19 +234,6 @@ async function getDetails(competition: Competition, metric?: string): Promise<Co
   return { ...competition.toJSON(), duration, totalGained, participants, group: competition.group };
 }
 
-async function validateGroupVerification(groupId: number, groupVerificationCode: string) {
-  if (!groupVerificationCode) {
-    throw new BadRequestError('Invalid verification code.');
-  }
-
-  const group = await groupService.resolve(groupId, true);
-  const verified = await cryptService.verifyCode(group.verificationHash, groupVerificationCode);
-
-  if (!verified) {
-    throw new ForbiddenError('Incorrect group verification code.');
-  }
-}
-
 function validateTeamsList(teams: Team[]) {
   if (!teams || teams.length === 0) {
     throw new BadRequestError('Invalid or empty teams list.');
@@ -336,93 +310,6 @@ function validateParticipantsList(participants: string[]) {
   if (duplicateUsernames && duplicateUsernames.length > 0) {
     throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
   }
-}
-
-/**
- * Create a new competition.
- *
- * Note: if a groupId is given, the participants will be
- * the group's members, and the "participants" argument will be ignored.
- */
-async function create(dto: CreateCompetitionDTO) {
-  const { title, metric, startsAt, endsAt, groupId, groupVerificationCode, participants, teams } = dto;
-
-  if (!metric || !METRICS.includes(metric as Metric)) {
-    throw new BadRequestError('Invalid competition metric.');
-  }
-
-  if (startsAt.getTime() - endsAt.getTime() > 0) {
-    throw new BadRequestError('Start date must be before the end date.');
-  }
-
-  if (isPast(startsAt) || isPast(endsAt)) {
-    throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
-  }
-
-  if (startsAt >= MAINTENANCE_START && startsAt <= MAINTENANCE_END) {
-    throw new BadRequestError(
-      'Please choose another start date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
-    );
-  }
-
-  if (endsAt >= MAINTENANCE_START && endsAt <= MAINTENANCE_END) {
-    throw new BadRequestError(
-      'Please choose another end date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
-    );
-  }
-
-  const isGroupCompetition = !!groupId;
-  const isTeamCompetition = teams && teams.length > 0;
-  const hasParticipants = participants && participants.length > 0;
-
-  if (hasParticipants && isGroupCompetition) {
-    throw new BadRequestError(
-      `Cannot include both "participants" and "groupId", they are mutually exclusive. 
-      All group members will be registered as participants instead.`
-    );
-  }
-
-  if (hasParticipants && isTeamCompetition) {
-    throw new BadRequestError('Cannot include both "participants" and "teams", they are mutually exclusive.');
-  }
-
-  // Check if group verification code is valid
-  if (isGroupCompetition) await validateGroupVerification(groupId, groupVerificationCode);
-  // Check if every username in the list is valid
-  if (hasParticipants) validateParticipantsList(participants);
-  // Check if all teams are valid and correctly formatted
-  if (isTeamCompetition) validateTeamsList(teams);
-
-  const [code, hash] = await cryptService.generateVerification();
-
-  const competition = await Competition.create({
-    title: competitionUtils.sanitizeTitle(title),
-    metric,
-    verificationCode: code,
-    verificationHash: hash,
-    type: isTeamCompetition ? CompetitionType.TEAM : CompetitionType.CLASSIC,
-    startsAt,
-    endsAt,
-    groupId
-  });
-
-  // If is empty competition
-  if (!isGroupCompetition && !hasParticipants && !isTeamCompetition) {
-    return { ...competition.toJSON(), participants: [] };
-  }
-
-  if (isTeamCompetition) {
-    const newParticipants = await setTeams(competition, teams);
-    return { ...competition.toJSON(), participants: newParticipants };
-  }
-
-  if (isGroupCompetition) {
-    const newParticipants = await addAllGroupMembers(competition, groupId);
-    return { ...competition.toJSON(), participants: newParticipants };
-  }
-
-  const newParticipants = await setParticipants(competition, participants);
-  return { ...competition.toJSON(), participants: newParticipants };
 }
 
 /**
@@ -596,119 +483,4 @@ async function setParticipants(competition: Competition, usernames: string[]) {
   return participants.map(p => omit(p.toJSON(), ['participations']));
 }
 
-/**
- * Add all members of a group as participants of a competition.
- */
-async function addAllGroupMembers(competition, groupId) {
-  const memberships = await Membership.findAll({
-    where: { groupId },
-    include: [{ model: Player }]
-  });
-
-  const members = memberships.map(({ player, role }) => {
-    return { ...player.toJSON(), role };
-  });
-
-  // Manually create participations for all these players
-  await Participation.bulkCreate(
-    members.map((p: any) => ({ competitionId: competition.id, playerId: p.id }))
-  );
-
-  // Update the "updatedAt" timestamp on the competition model
-  await competition.changed('updatedAt', true);
-  await competition.save();
-
-  return members;
-}
-
-async function addTeams(competition: Competition, teams: Team[]) {
-  if (!teams || teams.length === 0) {
-    throw new BadRequestError('Empty teams list.');
-  }
-
-  if (competition.type === CompetitionType.CLASSIC) {
-    throw new BadRequestError("Teams can't be added to a classic competition.");
-  }
-
-  // Check if all teams are valid and correctly formatted
-  validateTeamsList(teams);
-
-  // Fetch all current teams
-  const currentTeams = await getTeams(competition);
-
-  const currentTeamNames = currentTeams.map((t: any) => t.name);
-  const currentUsernames = currentTeams.map((t: any) => t.participants.map(p => p.username)).flat();
-
-  const newTeamNames = teams.map(t => t.name);
-  const newUsernames = teams.map(t => t.participants).flat();
-
-  const duplicateTeamNames = newTeamNames.filter(t =>
-    currentTeamNames.map((c: string) => c.toLowerCase()).includes(t.toLowerCase())
-  );
-
-  if (duplicateTeamNames && duplicateTeamNames.length > 0) {
-    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
-  }
-
-  const duplicateUsernames = newUsernames.filter(t => currentUsernames.map((c: string) => c).includes(t));
-
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
-  }
-
-  const invalidUsernames = newUsernames.filter(t => !playerUtils.isValidUsername(t));
-
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  const newPlayers = await playerServices.findPlayers({ usernames: newUsernames, createIfNotFound: true });
-  const playersMap = Object.fromEntries(newPlayers.map(p => [p.username, p]));
-
-  const formattedTeams = await Promise.all(
-    teams.map(async team => {
-      const teamName = team.name;
-      const participants = team.participants.map(p => playersMap[playerUtils.standardize(p)]);
-
-      // Add new team
-      await Participation.bulkCreate(
-        newPlayers.map(p => ({ playerId: p.id, competitionId: competition.id, teamName }))
-      );
-
-      return { teamName, participants };
-    })
-  );
-
-  // Update the "updatedAt" timestamp on the competition model
-  await competition.changed('updatedAt', true);
-  await competition.save();
-
-  return formattedTeams;
-}
-
-async function getTeams(competition: Competition) {
-  const participants = await competition.$get('participants');
-
-  const teamsMap = {};
-
-  participants.forEach(p => {
-    const instance: any = p;
-    const { teamName } = instance.participations;
-
-    const player = omit(p.toJSON(), ['participations']);
-
-    if (teamName in teamsMap) {
-      teamsMap[teamName].participants.push(player);
-    } else {
-      teamsMap[teamName] = { name: teamName, participants: [player] };
-    }
-  });
-
-  return Object.values(teamsMap);
-}
-
-export { resolve, getDetails, getCSV, create, edit, addTeams };
+export { resolve, getDetails, getCSV, edit };

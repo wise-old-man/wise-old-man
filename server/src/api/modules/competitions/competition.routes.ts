@@ -8,14 +8,14 @@ api.get('/', setupController(controller.search));
 api.get('/:id', controller.details);
 api.get('/:id/csv', controller.detailsCSV);
 
-api.post('/', controller.create);
+api.post('/', setupController(controller.create));
 api.put('/:id', controller.edit);
 api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetVerificationCode));
 api.post('/:id/add-participants', setupController(controller.addParticipants));
 api.post('/:id/remove-participants', setupController(controller.removeParticipants));
-api.post('/:id/add-teams', controller.addTeams);
+api.post('/:id/add-teams', setupController(controller.addTeams));
 api.post('/:id/remove-teams', setupController(controller.removeTeams));
 api.post('/:id/update-all', setupController(controller.updateAllParticipants));
 
