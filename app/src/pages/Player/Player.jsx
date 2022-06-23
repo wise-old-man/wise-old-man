@@ -182,9 +182,14 @@ function decodeURL(params, query) {
   const sections = TABS.map(t => t.toLowerCase());
   const metricTypes = ['skilling', 'bossing', 'activities'];
 
+  // TODO: quick dirty fix, needs to take more aliases into account
+  // whenever we have the WOM utils package properly configured
+  let queryMetric = query.metric;
+  if (queryMetric === 'runecraft') queryMetric = 'runecrafting';
+
   const isValidSection = params.section && sections.includes(params.section.toLowerCase());
   const isValidMetricType = params.metricType && metricTypes.includes(params.metricType.toLowerCase());
-  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
+  const isValidMetric = queryMetric && ALL_METRICS.includes(queryMetric.toLowerCase());
   const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
 
   const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);
@@ -193,7 +198,7 @@ function decodeURL(params, query) {
   const username = standardizeUsername(params.username);
   const section = isValidSection ? params.section : 'overview';
   const virtual = query.virtual || false;
-  const metric = isValidMetric ? query.metric : null;
+  const metric = isValidMetric ? queryMetric : null;
   const period = isValidPeriod || query.period === 'custom' ? query.period : 'week';
   const startDate = isValidStartDate ? new Date(query.startDate) : null;
   const endDate = isValidEndDate ? new Date(query.endDate) : null;
