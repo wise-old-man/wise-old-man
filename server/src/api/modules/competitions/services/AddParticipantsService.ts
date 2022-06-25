@@ -2,8 +2,8 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
-import { isValidUsername, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
+import { validateInvalidParticipants, validateParticipantDuplicates } from '../competition.utils';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -33,22 +33,10 @@ async function addParticipants(payload: AddParticipantsParams): Promise<{ count:
     throw new BadRequestError('Cannot add participants to a team competition.');
   }
 
-  const invalidUsernames = params.participants.filter(u => !isValidUsername(u));
-
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  const usernames = params.participants.map(standardize);
-  const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
-
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
-  }
+  // throws an error if any participant is invalid
+  validateInvalidParticipants(params.participants);
+  // throws an error if any participant is duplicated
+  validateParticipantDuplicates(params.participants);
 
   // Find all existing participants' ids
   const existingIds = (

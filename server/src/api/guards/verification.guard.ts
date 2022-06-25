@@ -1,7 +1,6 @@
 import { Request } from 'express';
 import prisma from '../../prisma';
-import { Competition } from '../../database/models';
-import { BadRequestError, NotFoundError, ServerError } from '../errors';
+import { BadRequestError, NotFoundError } from '../errors';
 import * as cryptService from '../services/external/crypt.service';
 
 async function verifyGroupCode(request: Request) {
@@ -49,22 +48,4 @@ async function verifyCompetitionCode(request: Request) {
   return verified;
 }
 
-async function legacy_verifyCompetitionCode(competition: Competition, verificationCode: string) {
-  const { groupId, verificationHash } = competition;
-
-  let hash = verificationHash;
-
-  // If it is a group competition, compare the code
-  // to the group's verification hash instead
-  if (groupId) {
-    const group = await competition.$get('group', { scope: 'withHash' });
-    if (!group) throw new ServerError(`Group of id ${groupId} was not found.`);
-
-    hash = group.verificationHash;
-  }
-
-  const verified = await cryptService.verifyCode(hash, verificationCode);
-  return verified;
-}
-
-export { verifyCompetitionCode, verifyGroupCode, legacy_verifyCompetitionCode };
+export { verifyCompetitionCode, verifyGroupCode };

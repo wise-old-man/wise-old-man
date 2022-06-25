@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { omit } from 'lodash';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import * as service from '../../services/internal/competition.service';
-import { extractDate, extractNumber, extractString, extractStrings } from '../../util/http';
+import { extractNumber, extractString } from '../../util/http';
 import { getNumber, getEnum, getString, getDate } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import * as competitionServices from './competition.services';
@@ -74,37 +73,24 @@ async function create(req: Request): Promise<ControllerResponse> {
 }
 
 // PUT /competitions/:id
-async function edit(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
-    const title = extractString(req.body, { key: 'title' });
-    const metric = extractString(req.body, { key: 'metric' });
-    const startsAt = extractDate(req.body, { key: 'startsAt' });
-    const endsAt = extractDate(req.body, { key: 'endsAt' });
-    const participants = extractStrings(req.body, { key: 'participants' });
-    const teams = req.body.teams;
+async function edit(req: Request): Promise<ControllerResponse> {
+  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-    const competition = await service.resolve(id, { includeHash: true });
-    const isVerifiedCode = await verificationGuard.legacy_verifyCompetitionCode(
-      competition,
-      verificationCode
-    );
-
-    if (!isVerifiedCode) {
-      throw new ForbiddenError('Incorrect verification code.');
-    }
-
-    const dto = { verificationCode, title, metric, startsAt, endsAt, participants, teams };
-    const editedCompetition = await service.edit(competition, dto);
-
-    // Omit the hash from the response
-    const response = omit(editedCompetition, ['verificationHash']);
-
-    res.json(response);
-  } catch (e) {
-    next(e);
+  if (!isVerifiedCode) {
+    throw new ForbiddenError('Incorrect verification code.');
   }
+
+  const result = await competitionServices.editCompetition({
+    id: getNumber(req.params.id),
+    title: getString(req.body.title),
+    metric: getEnum(req.body.metric),
+    startsAt: getDate(req.body.startsAt),
+    endsAt: getDate(req.body.endsAt),
+    participants: req.body.participants,
+    teams: req.body.teams
+  });
+
+  return { statusCode: 200, response: result };
 }
 
 // DELETE /competitions/:id

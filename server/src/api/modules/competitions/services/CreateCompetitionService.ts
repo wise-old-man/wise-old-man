@@ -2,11 +2,16 @@ import { z } from 'zod';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
-import * as playerUtils from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import * as cryptService from '../../../services/external/crypt.service';
 import { CompetitionWithParticipations, Team } from '../competition.types';
-import { sanitizeTitle } from '../competition.utils';
+import {
+  sanitizeTitle,
+  sanitizeTeams,
+  validateTeamDuplicates,
+  validateInvalidParticipants,
+  validateParticipantDuplicates
+} from '../competition.utils';
 import { omit } from 'lodash';
 
 const INVALID_TYPE_ERROR =
@@ -88,16 +93,24 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
   let participations: { playerId: number; teamName?: string }[] = [];
 
   if (hasParticipants) {
-    // throws errors if the participants are invalid or repeated
-    validateParticipantsList(params.participants);
+    // throws an error if any participant is invalid
+    validateInvalidParticipants(params.participants);
+    // throws an error if any participant is duplicated
+    validateParticipantDuplicates(params.participants);
+
     participations = await getParticipations(params.participants);
   }
 
   if (isTeamCompetition) {
-    // throws errors if there's repeated team names
-    const teams = validateTeamsList(params.teams);
-    // throws errors if the team members (participants) are invalid or repeated
-    validateParticipantsList(params.teams.map(t => t.participants).flat());
+    // ensures every team name is sanitized, and every username is standardized
+    const teams = sanitizeTeams(params.teams);
+    // throws an error if any team name is duplicated
+    validateTeamDuplicates(teams);
+    // throws an error if any team participant is invalid
+    validateInvalidParticipants(teams.map(t => t.participants).flat());
+    // throws an error if any team participant is duplicated
+    validateParticipantDuplicates(teams.map(t => t.participants).flat());
+
     participations = await getTeamsParticipations(teams);
   }
 
@@ -180,43 +193,6 @@ async function getGroupParticipations(groupId: number) {
   });
 
   return memberships.map(m => ({ playerId: m.playerId, teamName: null }));
-}
-
-function validateTeamsList(teamInputs: CreateCompetitionParams['teams']) {
-  // Sanitize the team inputs
-  const teams: Team[] = teamInputs.map(t => ({
-    name: sanitizeTitle(t.name),
-    participants: t.participants.map(playerUtils.standardize) as any
-  }));
-
-  // Check for duplicate team names
-  const teamNames = teams.map(t => t.name.toLowerCase());
-  const duplicateTeamNames = [...new Set(teamNames.filter(t => teamNames.filter(it => it === t).length > 1))];
-
-  if (duplicateTeamNames.length > 0) {
-    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
-  }
-
-  return teams;
-}
-
-function validateParticipantsList(participants: string[]) {
-  const invalidUsernames = participants.filter(u => !playerUtils.isValidUsername(u));
-
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  const usernames = participants.map(playerUtils.standardize);
-  const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
-
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
-  }
 }
 
 async function validateGroupVerification(groupId: number, groupVerificationCode: string) {

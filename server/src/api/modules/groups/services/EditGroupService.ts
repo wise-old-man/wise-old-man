@@ -132,8 +132,13 @@ async function executeUpdate(
   // This action updates the group's fields and returns all the new data + memberships,
   // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
   const groupUpdatePromise = prisma.group.update({
-    where: { id: params.id },
-    data: updatedGroupFields,
+    where: {
+      id: params.id
+    },
+    data: {
+      ...updatedGroupFields,
+      updatedAt: new Date() // Force update the "updatedAt" field
+    },
     include: {
       memberships: { include: { player: true } }
     }

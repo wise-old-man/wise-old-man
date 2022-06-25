@@ -3,8 +3,12 @@ import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { Team } from '../competition.types';
-import { sanitizeTitle } from '../competition.utils';
-import * as playerUtils from '../../players/player.utils';
+import {
+  sanitizeTeams,
+  validateInvalidParticipants,
+  validateParticipantDuplicates,
+  validateTeamDuplicates
+} from '../competition.utils';
 import * as playerServices from '../../players/player.services';
 
 const INVALID_TYPE_ERROR =
@@ -55,11 +59,23 @@ async function addTeams(payload: AddTeamsParams): Promise<{ count: number }> {
     throw new BadRequestError('Cannot add teams to a classic competition.');
   }
 
-  const newTeams = validateTeamsList(params.teams);
+  // ensures every team name is sanitized, and every username is standardized
+  const newTeams = sanitizeTeams(params.teams);
+  // fetch this competition's current teams
   const currentTeams = await fetchCurrentTeams(params.id);
 
-  // Throws errors if needed
-  validateRepeatedEntries(currentTeams, newTeams);
+  // throws an error if any team name is duplicated
+  validateTeamDuplicates([...newTeams, ...currentTeams]);
+  // throws an error if any team participant is invalid
+  validateInvalidParticipants([
+    ...newTeams.map(t => t.participants).flat(),
+    ...currentTeams.map(t => t.participants).flat()
+  ]);
+  // throws an error if any team participant is duplicated
+  validateParticipantDuplicates([
+    ...newTeams.map(t => t.participants).flat(),
+    ...currentTeams.map(t => t.participants).flat()
+  ]);
 
   const newPlayers = await playerServices.findPlayers({
     usernames: newTeams.map(t => t.participants).flat(),
@@ -106,71 +122,6 @@ async function fetchCurrentTeams(id: number): Promise<Team[]> {
     name: teamName,
     participants: teamNameMap[teamName]
   }));
-}
-
-function validateRepeatedEntries(currentTeams: Team[], newTeams: Team[]) {
-  const newTeamNames = newTeams.map(t => t.name.toLowerCase());
-  const newParticipants = newTeams.map(t => t.participants).flat();
-
-  const currentTeamNames = currentTeams.map(t => t.name.toLowerCase());
-  const currentParticipants = currentTeams.map(t => t.participants).flat();
-
-  const duplicateTeamNames = newTeamNames.filter(t => currentTeamNames.includes(t));
-
-  if (duplicateTeamNames.length > 0) {
-    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
-  }
-
-  const invalidUsernames = newParticipants.filter(t => !playerUtils.isValidUsername(t));
-
-  if (invalidUsernames && invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  const duplicateParticipants = newParticipants.filter(t => currentParticipants.includes(t));
-
-  if (duplicateParticipants.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateParticipants.join(', ')}]`);
-  }
-}
-
-function validateTeamsList(teamInputs: AddTeamsParams['teams']): Team[] {
-  // Sanitize the team inputs
-  const teams: Team[] = teamInputs.map(t => ({
-    name: sanitizeTitle(t.name),
-    participants: t.participants.map(playerUtils.standardize) as any
-  }));
-
-  // Check for duplicate team names
-  const teamNames = teams.map(t => t.name.toLowerCase());
-  const duplicateTeamNames = [...new Set(teamNames.filter(t => teamNames.filter(it => it === t).length > 1))];
-
-  if (duplicateTeamNames.length > 0) {
-    throw new BadRequestError(`Found repeated team names: [${duplicateTeamNames.join(', ')}]`);
-  }
-
-  const usernames = teams.map(t => t.participants).flat();
-  const duplicateUsernames = [...new Set(usernames.filter(u => usernames.filter(iu => iu === u).length > 1))];
-
-  if (duplicateUsernames && duplicateUsernames.length > 0) {
-    throw new BadRequestError(`Found repeated usernames: [${duplicateUsernames.join(', ')}]`);
-  }
-
-  const invalidUsernames = usernames.filter(u => !playerUtils.isValidUsername(u));
-
-  if (invalidUsernames.length > 0) {
-    throw new BadRequestError(
-      `Found ${invalidUsernames.length} invalid usernames: Names must be 1-12 characters long,
-       contain no special characters, and/or contain no space at the beginning or end of the name.`,
-      invalidUsernames
-    );
-  }
-
-  return teams;
 }
 
 export { addTeams };

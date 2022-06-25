@@ -3,6 +3,8 @@ export * from './services/AddTeamsService';
 export * from './services/AddToGroupCompetitionsService';
 export * from './services/CreateCompetitionService';
 export * from './services/DeleteCompetitionService';
+export * from './services/EditCompetitionService';
+export * from './services/EditCompetitionService';
 export * from './services/FindGroupCompetitionsService';
 export * from './services/FindPlayerParticipationsService';
 export * from './services/RemoveFromGroupCompetitionsService';

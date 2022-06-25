@@ -9,7 +9,7 @@ api.get('/:id', controller.details);
 api.get('/:id/csv', controller.detailsCSV);
 
 api.post('/', setupController(controller.create));
-api.put('/:id', controller.edit);
+api.put('/:id', setupController(controller.edit));
 api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetVerificationCode));
