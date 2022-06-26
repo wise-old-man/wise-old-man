@@ -1,7 +1,6 @@
 import { z } from 'zod';
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, { PrismaTypes, NameChange, NameChangeStatus } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { buildQuery } from '../../../util/query';
 
 const inputSchema = z
   .object({
@@ -15,7 +14,11 @@ type SearchNameChangesParams = z.infer<typeof inputSchema>;
 async function searchNameChanges(payload: SearchNameChangesParams): Promise<NameChange[]> {
   const params = inputSchema.parse(payload);
 
-  const query = buildQuery({ status: params.status });
+  const query: PrismaTypes.NameChangeWhereInput = {};
+
+  if (params.status) {
+    query.status = params.status;
+  }
 
   if (params.username && params.username.length > 0) {
     query.OR = [

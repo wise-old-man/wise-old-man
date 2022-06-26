@@ -236,29 +236,50 @@ function updateExistingRoles(
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = memberInputs.reverse();
 
-  return keptPlayers
-    .map(player => {
-      // Find the next role for this player
-      const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
+  const newRoleMap = new Map<GroupRole, number[]>();
+  const currentRoleMap = new Map<GroupRole, number[]>();
 
-      if (!role) return null;
+  currentMemberships.forEach(m => {
+    if (currentRoleMap.get(m.role)) {
+      currentRoleMap.set(m.role, [...currentRoleMap.get(m.role), m.playerId]);
+    } else {
+      currentRoleMap.set(m.role, [m.playerId]);
+    }
+  });
 
-      // Find the current membership for this player
-      const membership = currentMemberships.find(m => m.playerId === player.id);
+  keptPlayers.forEach(player => {
+    // Find the next role for this player
+    const role = reversedInputs.find(m => standardize(m.username) === player.username)?.role;
 
-      // Check if the role has changed
-      if (!membership || membership.role === role) return null;
+    if (!role) return null;
 
-      // Role has changed and should be updated
-      return { playerId: player.id, role: role };
-    })
-    .filter(t => t !== null) // filter out any early "null" returns
-    .map(r =>
-      prisma.membership.update({
-        where: { playerId_groupId: { groupId, playerId: r.playerId } },
-        data: { role: r.role }
-      })
-    );
+    // Find the current membership for this player
+    const membership = currentMemberships.find(m => m.playerId === player.id);
+
+    // Check if the role has changed
+    if (!membership || membership.role === role) return null;
+
+    // Player role hasn't changed
+    if (currentRoleMap.get(role)?.includes(player.id)) return;
+
+    if (newRoleMap.get(role)) {
+      newRoleMap.set(role, [...newRoleMap.get(role), player.id]);
+    } else {
+      newRoleMap.set(role, [player.id]);
+    }
+  });
+
+  return [...newRoleMap.keys()].map(role => {
+    return prisma.membership.updateMany({
+      where: {
+        groupId,
+        playerId: { in: newRoleMap.get(role) }
+      },
+      data: {
+        role
+      }
+    });
+  });
 }
 
 export { editGroup };

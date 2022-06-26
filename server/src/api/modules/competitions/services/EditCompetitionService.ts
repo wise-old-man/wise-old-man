@@ -233,7 +233,6 @@ async function executeUpdate(
   return results[results.length - 1];
 }
 
-// TODO: maybe also do this for edit group?
 function updateExistingTeams(
   competitionId: number,
   currentParticipations: Participation[],

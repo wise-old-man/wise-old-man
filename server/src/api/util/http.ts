@@ -6,18 +6,6 @@ interface ParameterOptions {
   required?: boolean;
 }
 
-function extractStrings(source: any, options: ParameterOptions): string[] | undefined {
-  if (!source || !options || !options.key || (!source[options.key] && options.required)) {
-    throw new BadRequestError(`Parameter '${options.key}' is undefined.`);
-  }
-
-  if (options.required && !Array.isArray(source[options.key])) {
-    throw new BadRequestError(`Parameter '${options.key}' is not a valid array.`);
-  }
-
-  return options.key in source ? source[options.key] : undefined;
-}
-
 function extractString(source: any, options: ParameterOptions): string | undefined {
   if (!source || !options || !options.key || (!source[options.key] && options.required)) {
     throw new BadRequestError(`Parameter '${options.key}' is undefined.`);
@@ -48,12 +36,4 @@ function extractNumber(source: any, options: ParameterOptions): number | undefin
   return source[options.key] ? Number(source[options.key]) : undefined;
 }
 
-function extractBoolean(source: any, options: ParameterOptions): boolean | undefined {
-  if (!source || !options || !options.key || (!source[options.key] && options.required)) {
-    throw new BadRequestError(`Parameter "${options.key}" is undefined.`);
-  }
-
-  return source[options.key]?.toLowerCase() === 'true';
-}
-
-export { extractString, extractNumber, extractBoolean, extractDate, extractStrings };
+export { extractString, extractNumber, extractDate };

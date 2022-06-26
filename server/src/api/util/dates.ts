@@ -4,18 +4,8 @@ function formatDate(date: Date, mask = 'MM-DD-YYYY HH:mm') {
   return moment(date).format(mask);
 }
 
-// TODO: This should be removed after TS migration is done
-// and we're using Date types for the other methods in this file
-function castToDate(date) {
-  return date instanceof Date ? date : new Date(date);
-}
-
 function isValidDate(date) {
   return date && moment(date, moment.ISO_8601).isValid();
-}
-
-function isPast(date) {
-  return castToDate(date) < new Date();
 }
 
 function durationBetween(startDate, endDate) {
@@ -69,4 +59,4 @@ function durationBetween(startDate, endDate) {
   return str;
 }
 
-export { formatDate, isValidDate, isPast, durationBetween };
+export { formatDate, isValidDate, durationBetween };
