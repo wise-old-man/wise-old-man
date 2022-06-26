@@ -5,7 +5,7 @@ import * as controller from './competition.controller';
 const api = Router();
 
 api.get('/', setupController(controller.search));
-api.get('/:id', controller.details);
+api.get('/:id', setupController(controller.details));
 api.get('/:id/csv', controller.detailsCSV);
 
 api.post('/', setupController(controller.create));

@@ -11,12 +11,13 @@ type ControllerFunction = (req: Request, res: Response, next: NextFunction) => P
  * Abstracts the express-related handling from controller functions
  * so that they only need to throw errors and return a ControllerResponse.
  */
-function setupController(controllerFn: ControllerFunction) {
+function setupController(controllerFn: ControllerFunction, logErrors = false) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { statusCode, response } = await controllerFn(req, res, next);
       res.status(statusCode || 200).json(response);
     } catch (error) {
+      if (logErrors) console.log(error);
       next(error);
     }
   };

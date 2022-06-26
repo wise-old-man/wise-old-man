@@ -23,18 +23,13 @@ async function search(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /competitions/:id
-async function details(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const metric = extractString(req.query, { key: 'metric' });
+async function details(req: Request): Promise<ControllerResponse> {
+  const result = await competitionServices.fetchCompetitionDetails({
+    id: getNumber(req.params.id),
+    metric: getEnum(req.query.metric)
+  });
 
-    const competition = await service.resolve(id, { includeGroup: true });
-    const competitionDetails = await service.getDetails(competition, metric);
-
-    res.json(competitionDetails);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // GET /competitions/:id/csv

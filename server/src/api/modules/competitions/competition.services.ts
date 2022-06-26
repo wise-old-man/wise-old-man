@@ -5,6 +5,7 @@ export * from './services/CreateCompetitionService';
 export * from './services/DeleteCompetitionService';
 export * from './services/EditCompetitionService';
 export * from './services/EditCompetitionService';
+export * from './services/FetchCompetitionDetailsService';
 export * from './services/FindGroupCompetitionsService';
 export * from './services/FindPlayerParticipationsService';
 export * from './services/RemoveFromGroupCompetitionsService';

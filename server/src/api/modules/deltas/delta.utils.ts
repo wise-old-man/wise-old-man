@@ -134,8 +134,8 @@ function calculateEfficiencyDiff(metric: Metric, startMap: EfficiencyMap, endMap
  * Calculates the total EHP difference between two snapshots.
  */
 function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHP = efficiencyUtils.getPlayerEHP(startSnapshot, player);
-  const endEHP = efficiencyUtils.getPlayerEHP(endSnapshot, player);
+  const startEHP = startSnapshot ? efficiencyUtils.getPlayerEHP(startSnapshot, player) : 0;
+  const endEHP = endSnapshot ? efficiencyUtils.getPlayerEHP(endSnapshot, player) : 0;
 
   return {
     gained: Math.max(0, round(endEHP - startEHP, 5)),
@@ -148,8 +148,8 @@ function calculateEHPDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player
  * Calculates the total EHB difference between two snapshots.
  */
 function calculateEHBDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: Player) {
-  const startEHB = efficiencyUtils.getPlayerEHB(startSnapshot, player);
-  const endEHB = efficiencyUtils.getPlayerEHB(endSnapshot, player);
+  const startEHB = startSnapshot ? efficiencyUtils.getPlayerEHB(startSnapshot, player) : 0;
+  const endEHB = endSnapshot ? efficiencyUtils.getPlayerEHB(endSnapshot, player) : 0;
 
   return {
     gained: Math.max(0, round(endEHB - startEHB, 5)),

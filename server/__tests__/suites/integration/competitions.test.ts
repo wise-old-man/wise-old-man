@@ -887,7 +887,8 @@ describe('Competition API', () => {
         `/api/competitions/${globalData.testCompetitionStarted.id}`
       );
       expect(detailsBeforeResponse.status).toBe(200);
-      expect(detailsBeforeResponse.body.participants.length).toBe(4);
+      expect(detailsBeforeResponse.body.participations.length).toBe(4);
+      expect(detailsBeforeResponse.body.participantCount).toBe(4);
 
       const response = await api.put(`/api/competitions/${globalData.testCompetitionStarted.id}`).send({
         verificationCode: globalData.testCompetitionStarted.verificationCode,
@@ -907,7 +908,8 @@ describe('Competition API', () => {
 
       const detailsResponse = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`);
       expect(detailsResponse.status).toBe(200);
-      expect(detailsResponse.body.participants.length).toBe(4);
+      expect(detailsResponse.body.participations.length).toBe(4);
+      expect(detailsResponse.body.participantCount).toBe(4);
 
       // ensure competition.updatedAt has been updated
       expect(new Date(detailsResponse.body.updatedAt).getTime()).toBeGreaterThan(
@@ -977,7 +979,8 @@ describe('Competition API', () => {
 
       const detailsResponse = await api.get(`/api/competitions/${createResponse.body.competition.id}`);
       expect(detailsResponse.status).toBe(200);
-      expect(detailsResponse.body.participants.length).toBe(10);
+      expect(detailsResponse.body.participantCount).toBe(10);
+      expect(detailsResponse.body.participations.length).toBe(10);
 
       // ensure competition.updatedAt has been updated
       expect(new Date(detailsResponse.body.updatedAt).getTime()).toBeGreaterThan(
@@ -1347,8 +1350,9 @@ describe('Competition API', () => {
 
     it('should add participants', async () => {
       const before = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`);
-      expect(before.body.participants.length).toBe(4);
       expect(before.status).toBe(200);
+      expect(before.body.participantCount).toBe(4);
+      expect(before.body.participations.length).toBe(4);
 
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionStarted.id}/add-participants`)
@@ -1362,7 +1366,8 @@ describe('Competition API', () => {
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participants.length).toBe(6); // had 4 previously
+      expect(after.body.participantCount).toBe(6); // had 4 previously
+      expect(after.body.participations.length).toBe(6); // had 4 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -1476,8 +1481,9 @@ describe('Competition API', () => {
 
     it('should remove participants', async () => {
       const before = await api.get(`/api/competitions/${globalData.testCompetitionOngoing.id}`);
-      expect(before.body.participants.length).toBe(4);
       expect(before.status).toBe(200);
+      expect(before.body.participantCount).toBe(4);
+      expect(before.body.participations.length).toBe(4);
 
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionOngoing.id}/remove-participants`)
@@ -1491,7 +1497,8 @@ describe('Competition API', () => {
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionOngoing.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participants.length).toBe(2); // had 4 previously
+      expect(after.body.participantCount).toBe(2); // had 4 previously
+      expect(after.body.participations.length).toBe(2); // had 4 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -1752,8 +1759,9 @@ describe('Competition API', () => {
 
     it('should add teams', async () => {
       const before = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
-      expect(before.body.participants.length).toBe(8);
       expect(before.status).toBe(200);
+      expect(before.body.participantCount).toBe(8);
+      expect(before.body.participations.length).toBe(8);
 
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/add-teams`)
@@ -1771,7 +1779,8 @@ describe('Competition API', () => {
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participants.length).toBe(15); // had 8 previously
+      expect(after.body.participantCount).toBe(15); // had 8 previously
+      expect(after.body.participations.length).toBe(15); // had 8 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -1859,8 +1868,9 @@ describe('Competition API', () => {
 
     it('should remove teams', async () => {
       const before = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
-      expect(before.body.participants.length).toBe(15);
       expect(before.status).toBe(200);
+      expect(before.body.participantCount).toBe(15);
+      expect(before.body.participations.length).toBe(15);
 
       const response = await api
         .post(`/api/competitions/${globalData.testCompetitionEnding.id}/remove-teams`)
@@ -1874,7 +1884,8 @@ describe('Competition API', () => {
 
       const after = await api.get(`/api/competitions/${globalData.testCompetitionEnding.id}`);
       expect(after.status).toBe(200);
-      expect(after.body.participants.length).toBe(11); // had 15 previously
+      expect(after.body.participantCount).toBe(11); // had 15 previously
+      expect(after.body.participations.length).toBe(11); // had 15 previously
 
       // ensure group.updatedAt has been updated
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
@@ -2025,34 +2036,33 @@ describe('Competition API', () => {
         title: 'BOTW Zulrah #3',
         type: 'classic',
         metric: 'zulrah',
-        totalGained: 68,
         groupId: null
       });
 
-      expect(response.body.participants.length).toBe(5);
+      expect(response.body.participations.length).toBe(5);
 
-      expect(response.body.participants[0]).toMatchObject({
-        username: 'rorro',
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'rorro' },
         progress: { start: 500, end: 557, gained: 57 }
       });
 
-      expect(response.body.participants[1]).toMatchObject({
-        username: 'usbc',
+      expect(response.body.participations[1]).toMatchObject({
+        player: { username: 'usbc' },
         progress: { start: -1, end: 60, gained: 11 } // we start counting at 49 kc (min kc is 50)
       });
 
-      expect(response.body.participants[2]).toMatchObject({
-        username: 'lynx titan',
+      expect(response.body.participations[2]).toMatchObject({
+        player: { username: 'lynx titan' },
         progress: { start: 1646, end: 1646, gained: 0 }
       });
 
-      expect(response.body.participants[3]).toMatchObject({
-        username: 'psikoi',
+      expect(response.body.participations[3]).toMatchObject({
+        player: { username: 'psikoi' },
         progress: { start: 1000, end: 1000, gained: 0 }
       });
 
-      expect(response.body.participants[4]).toMatchObject({
-        username: 'zulu',
+      expect(response.body.participations[4]).toMatchObject({
+        player: { username: 'zulu' },
         progress: { start: -1, end: -1, gained: 0 }
       });
     });
@@ -2069,34 +2079,33 @@ describe('Competition API', () => {
         title: 'BOTW Zulrah #3',
         type: 'classic',
         metric: 'zulrah',
-        totalGained: 260_000, // 250k from psikoi + 10k from rorro
         groupId: null
       });
 
-      expect(response.body.participants.length).toBe(5);
+      expect(response.body.participations.length).toBe(5);
 
-      expect(response.body.participants[0]).toMatchObject({
-        username: 'psikoi',
+      expect(response.body.participations[0]).toMatchObject({
+        player: { username: 'psikoi' },
         progress: { start: 500_000, end: 750_000, gained: 250_000 }
       });
 
-      expect(response.body.participants[1]).toMatchObject({
-        username: 'rorro',
+      expect(response.body.participations[1]).toMatchObject({
+        player: { username: 'rorro' },
         progress: { start: 100_000, end: 110_000, gained: 10_000 }
       });
 
-      expect(response.body.participants[2]).toMatchObject({
-        username: 'lynx titan',
+      expect(response.body.participations[2]).toMatchObject({
+        player: { username: 'lynx titan' },
         progress: { start: 5346679, end: 5346679, gained: 0 }
       });
 
-      expect(response.body.participants[3]).toMatchObject({
-        username: 'usbc',
+      expect(response.body.participations[3]).toMatchObject({
+        player: { username: 'usbc' },
         progress: { start: 50_000, end: 50_000, gained: 0 }
       });
 
-      expect(response.body.participants[4]).toMatchObject({
-        username: 'zulu',
+      expect(response.body.participations[4]).toMatchObject({
+        player: { username: 'zulu' },
         progress: { start: -1, end: -1, gained: 0 }
       });
     });
@@ -2635,9 +2644,9 @@ describe('Competition API', () => {
       );
 
       expect(classicCompDetailsA.status).toBe(200);
-      expect(classicCompDetailsA.body.participants.length).toBe(3);
+      expect(classicCompDetailsA.body.participations.length).toBe(3);
 
-      const classicCompParticipantsA = classicCompDetailsA.body.participants.map(p => p.username);
+      const classicCompParticipantsA = classicCompDetailsA.body.participations.map(p => p.player.username);
       expect(classicCompParticipantsA).toContain('psikoi');
       expect(classicCompParticipantsA).toContain('boom');
       expect(classicCompParticipantsA).toContain('sethmare');
@@ -2646,9 +2655,9 @@ describe('Competition API', () => {
         `/api/competitions/${createTeamCompResponse.body.competition.id}`
       );
       expect(teamCompDetailsA.status).toBe(200);
-      expect(teamCompDetailsA.body.participants.length).toBe(4);
+      expect(teamCompDetailsA.body.participations.length).toBe(4);
 
-      const teamCompParticipantsA = teamCompDetailsA.body.participants.map(p => p.username);
+      const teamCompParticipantsA = teamCompDetailsA.body.participations.map(p => p.player.username);
       expect(teamCompParticipantsA).toContain('psikoi');
       expect(teamCompParticipantsA).toContain('boom');
       expect(teamCompParticipantsA).toContain('hydrox6');
@@ -2673,9 +2682,9 @@ describe('Competition API', () => {
       );
 
       expect(classicCompDetailsB.status).toBe(200);
-      expect(classicCompDetailsB.body.participants.length).toBe(1); // previously 3
+      expect(classicCompDetailsB.body.participations.length).toBe(1); // previously 3
 
-      const classicCompParticipantsB = classicCompDetailsB.body.participants.map(p => p.username);
+      const classicCompParticipantsB = classicCompDetailsB.body.participations.map(p => p.player.username);
       expect(classicCompParticipantsB).toContain('sethmare');
 
       const teamCompDetailsB = await api.get(
@@ -2683,9 +2692,9 @@ describe('Competition API', () => {
       );
 
       expect(teamCompDetailsB.status).toBe(200);
-      expect(teamCompDetailsB.body.participants.length).toBe(2); // previously 4
+      expect(teamCompDetailsB.body.participations.length).toBe(2); // previously 4
 
-      const teamCompParticipantsB = teamCompDetailsB.body.participants.map(p => p.username);
+      const teamCompParticipantsB = teamCompDetailsB.body.participations.map(p => p.player.username);
       expect(teamCompParticipantsB).toContain('hydrox6');
       expect(teamCompParticipantsB).toContain('alexsuperfly');
     });
@@ -2732,9 +2741,9 @@ describe('Competition API', () => {
       );
 
       expect(classicCompDetailsA.status).toBe(200);
-      expect(classicCompDetailsA.body.participants.length).toBe(3);
+      expect(classicCompDetailsA.body.participations.length).toBe(3);
 
-      const classicCompParticipantsA = classicCompDetailsA.body.participants.map(p => p.username);
+      const classicCompParticipantsA = classicCompDetailsA.body.participations.map(p => p.player.username);
       expect(classicCompParticipantsA).toContain('psikoi');
       expect(classicCompParticipantsA).toContain('boom');
       expect(classicCompParticipantsA).toContain('sethmare');
@@ -2744,9 +2753,9 @@ describe('Competition API', () => {
       );
 
       expect(teamCompDetailsA.status).toBe(200);
-      expect(teamCompDetailsA.body.participants.length).toBe(4);
+      expect(teamCompDetailsA.body.participations.length).toBe(4);
 
-      const teamCompParticipantsA = teamCompDetailsA.body.participants.map(p => p.username);
+      const teamCompParticipantsA = teamCompDetailsA.body.participations.map(p => p.player.username);
       expect(teamCompParticipantsA).toContain('psikoi');
       expect(teamCompParticipantsA).toContain('boom');
       expect(teamCompParticipantsA).toContain('hydrox6');
@@ -2774,9 +2783,9 @@ describe('Competition API', () => {
       );
 
       expect(classicCompDetailsB.status).toBe(200);
-      expect(classicCompDetailsB.body.participants.length).toBe(5); // previously 3
+      expect(classicCompDetailsB.body.participations.length).toBe(5); // previously 3
 
-      const classicCompParticipantsB = classicCompDetailsB.body.participants.map(p => p.username);
+      const classicCompParticipantsB = classicCompDetailsB.body.participations.map(p => p.player.username);
       expect(classicCompParticipantsB).toContain('usbc');
       expect(classicCompParticipantsB).toContain('jakesterwars');
 
@@ -2785,10 +2794,10 @@ describe('Competition API', () => {
       );
 
       expect(teamCompDetailsB.status).toBe(200);
-      expect(teamCompDetailsB.body.participants.length).toBe(4); // previously 4 (no change)
+      expect(teamCompDetailsB.body.participations.length).toBe(4); // previously 4 (no change)
 
       // player shouldn't be auto-added to team comps
-      const teamCompParticipantsB = teamCompDetailsB.body.participants.map(p => p.username);
+      const teamCompParticipantsB = teamCompDetailsB.body.participations.map(p => p.player.username);
       expect(teamCompParticipantsB).not.toContain('usbc');
       expect(teamCompParticipantsB).not.toContain('jakesterwars');
     });
