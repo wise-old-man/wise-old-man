@@ -65,7 +65,7 @@ describe('Player API', () => {
       const response = await api.post(`/api/players/track`).send({ username: '' });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
+      expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not track player (invalid characters)', async () => {

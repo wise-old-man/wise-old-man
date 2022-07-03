@@ -11,8 +11,7 @@ import * as snapshotServices from '../snapshots/snapshot.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
 import * as playerUtils from './player.utils';
-import { extractDate, extractString } from '../../util/http';
-import { getEnum, getNumber, getString } from '../../util/validation';
+import { getDate, getEnum, getNumber, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 
 // GET /players/search?username={username}
@@ -29,10 +28,10 @@ async function search(req: Request): Promise<ControllerResponse> {
 
 // POST /players/track/
 async function track(req: Request): Promise<ControllerResponse> {
-  const username = extractString(req.body, { key: 'username', required: true });
-
   // Update the player, by creating a new snapshot
-  const [playerDetails, isNew] = await playerServices.updatePlayer({ username });
+  const [playerDetails, isNew] = await playerServices.updatePlayer({
+    username: getString(req.body.username)
+  });
 
   return { statusCode: isNew ? 201 : 200, response: playerDetails };
 }
@@ -170,17 +169,12 @@ async function gained(req: Request): Promise<ControllerResponse> {
     username: getString(req.params.username)
   });
 
-  const period = extractString(req.query, { key: 'period' });
-  const startDate = extractDate(req.query, { key: 'startDate' });
-  const endDate = extractDate(req.query, { key: 'endDate' });
-  const formatting = extractString(req.query, { key: 'formatting' });
-
   const results = await deltaServices.findPlayerDeltas({
     id: playerId,
-    period,
-    minDate: startDate,
-    maxDate: endDate,
-    formatting: getEnum(formatting)
+    period: getEnum(req.query.period),
+    minDate: getDate(req.query.startDate),
+    maxDate: getDate(req.query.endDate),
+    formatting: getEnum(req.query.formatting)
   });
 
   return { statusCode: 200, response: results };
@@ -217,15 +211,11 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
     username: getString(req.params.username)
   });
 
-  const period = extractString(req.query, { key: 'period' });
-  const startDate = extractDate(req.query, { key: 'startDate', required: !period });
-  const endDate = extractDate(req.query, { key: 'endDate', required: !period });
-
   const results = await snapshotServices.findPlayerSnapshots({
     id: playerId,
-    period,
-    minDate: startDate,
-    maxDate: endDate
+    period: getEnum(req.query.period),
+    minDate: getDate(req.query.startDate),
+    maxDate: getDate(req.query.endDate)
   });
 
   const formattedSnapshots = results.map(s => snapshotUtils.format(s));
