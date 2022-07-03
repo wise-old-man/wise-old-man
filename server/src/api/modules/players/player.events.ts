@@ -1,6 +1,5 @@
-import { Snapshot, Player as PrismaPlayer } from '../../../prisma';
+import { Snapshot, Player } from '../../../prisma';
 import { PlayerType } from '../../../utils';
-import { Player } from '../../../database/models';
 import jobs from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
@@ -10,7 +9,7 @@ import * as deltaServices from '../deltas/delta.services';
 import * as playerUtils from './player.utils';
 import * as playerServices from './player.services';
 
-async function onPlayerTypeChanged(player: PrismaPlayer, previousType: string) {
+async function onPlayerTypeChanged(player: Player, previousType: string) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
     await metrics.measureReaction('DiscordHardcoreDied', () => discordService.dispatchHardcoreDied(player));

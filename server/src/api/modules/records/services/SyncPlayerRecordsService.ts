@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma, { Record, PrismaTypes } from '../../../../prisma';
-import { Period, isVirtualMetric, Metric } from '../../../../utils';
+import { Period, Metric } from '../../../../utils';
+import { prepareRecordValue } from '../record.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -66,13 +67,6 @@ async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void
       toUpdate.map(r => prisma.record.update({ where: { id: r.recordId }, data: { value: r.newValue } }))
     );
   }
-}
-
-// All records' values are stored as an Integer, but EHP/EHB records can have
-// float values, so they're multiplied by 10,000 when saving to the database.
-// Inversely, we need to divide any EHP/EHB records by 10,000 when fetching from the database.
-function prepareRecordValue(metric: Metric, value: number) {
-  return isVirtualMetric(metric) ? Math.floor(value * 10_000) : value;
 }
 
 export { syncPlayerRecords };

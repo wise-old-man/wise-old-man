@@ -1,6 +1,5 @@
-import { Op } from 'sequelize';
 import { EventPeriodDelay } from '../../../types';
-import { Competition } from '../../../database/models';
+import prisma from '../../../prisma';
 import {
   onCompetitionEnded,
   onCompetitionEnding,
@@ -57,11 +56,16 @@ class ScheduleCompetitionEvents implements Job {
 }
 
 async function scheduleStarting(delayMs: number): Promise<void> {
-  const startSearchDate = Date.now() - SAFETY_GAP + delayMs;
-  const endSearchDate = startSearchDate + EXECUTION_FREQUENCY;
+  const startSearchDate = new Date(Date.now() - SAFETY_GAP + delayMs);
+  const endSearchDate = new Date(startSearchDate.getTime() + EXECUTION_FREQUENCY);
 
-  const competitionsStarting = await Competition.findAll({
-    where: { startsAt: { [Op.between]: [startSearchDate, endSearchDate] } }
+  const competitionsStarting = await prisma.competition.findMany({
+    where: {
+      startsAt: {
+        gte: startSearchDate,
+        lte: endSearchDate
+      }
+    }
   });
 
   competitionsStarting.forEach(c => {
@@ -79,11 +83,16 @@ async function scheduleStarting(delayMs: number): Promise<void> {
 }
 
 async function scheduleEnding(delayMs: number): Promise<void> {
-  const startSearchDate = Date.now() - SAFETY_GAP + delayMs;
-  const endSearchDate = startSearchDate + EXECUTION_FREQUENCY;
+  const startSearchDate = new Date(Date.now() - SAFETY_GAP + delayMs);
+  const endSearchDate = new Date(startSearchDate.getTime() + EXECUTION_FREQUENCY);
 
-  const competitionsEnding = await Competition.findAll({
-    where: { endsAt: { [Op.between]: [startSearchDate, endSearchDate] } }
+  const competitionsEnding = await prisma.competition.findMany({
+    where: {
+      endsAt: {
+        gte: startSearchDate,
+        lte: endSearchDate
+      }
+    }
   });
 
   competitionsEnding.forEach(c => {

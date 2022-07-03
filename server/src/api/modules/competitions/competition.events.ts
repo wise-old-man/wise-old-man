@@ -1,5 +1,4 @@
-import { Competition } from '../../../database/models';
-import { Competition as PrismaCompetition } from '../../../prisma';
+import { Competition } from '../../../prisma';
 import { EventPeriodDelay } from '../../../types';
 import { PlayerType } from '../../../utils';
 import jobs from '../../jobs';
@@ -22,7 +21,7 @@ async function onParticipantsJoined(_: number, playerIds: number[]) {
   });
 }
 
-async function onCompetitionCreated(competition: PrismaCompetition) {
+async function onCompetitionCreated(competition: Competition) {
   // Dispatch a competition created event to our discord bot API.
   await metrics.measureReaction('DiscordCompetitionCreated', () =>
     discordService.dispatchCompetitionCreated(competition)

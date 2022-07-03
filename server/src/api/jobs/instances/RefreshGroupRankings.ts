@@ -1,5 +1,5 @@
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import { Group } from '../../../database/models';
+import prisma, { Group } from '../../../prisma';
 import metricsService from '../../services/external/metrics.service';
 import * as groupServices from '../../modules/groups/group.services';
 import * as competitionServices from '../../modules/competitions/competition.services';
@@ -16,7 +16,7 @@ class RefreshGroupRankings implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const allGroups = await Group.findAll();
+      const allGroups = await prisma.group.findMany();
 
       await Promise.all(
         allGroups.map(async group => {
@@ -24,7 +24,10 @@ class RefreshGroupRankings implements Job {
           const newScore = await calculateScore(group);
 
           if (newScore !== currentScore) {
-            await group.update({ score: newScore });
+            await prisma.group.update({
+              where: { id: group.id },
+              data: { score: newScore }
+            });
           }
         })
       );

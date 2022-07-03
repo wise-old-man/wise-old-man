@@ -5,7 +5,6 @@ import express, { Express } from 'express';
 import rateLimit from 'express-rate-limit';
 import userAgent from 'express-useragent';
 import env, { isTesting } from '../env';
-import hooks from './hooks';
 import jobs from './jobs';
 import router from './routing';
 import metricsService from './services/external/metrics.service';
@@ -22,8 +21,6 @@ class API {
     if (!isTesting()) {
       this.setupServices();
     }
-
-    hooks.setup();
 
     this.setupMiddlewares();
     this.setupRouting();

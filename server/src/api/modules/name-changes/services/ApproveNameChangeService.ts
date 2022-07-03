@@ -1,13 +1,23 @@
 import { z } from 'zod';
-import { omit } from 'lodash';
-import { sequelize } from '../../../../database';
-import { Membership, Participation, Player, Record, Snapshot } from '../../../../database/models';
-import { Op, Transaction, WhereOptions } from 'sequelize';
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, {
+  Player,
+  Record,
+  Snapshot,
+  Membership,
+  Participation,
+  NameChange,
+  NameChangeStatus,
+  PrismaTypes,
+  modifyRecords,
+  PrismaPromise,
+  modifySnapshots
+} from '../../../../prisma';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
 import * as playerUtils from '../../players/player.utils';
+import { onPlayerNameChanged } from '../../players/player.events';
+import { prepareRecordValue } from '../../records/record.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -38,7 +48,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
   }
 
   // Attempt to transfer data between both accounts
-  await transferData(oldPlayer as any, newPlayer as any, nameChange.newName);
+  await transferPlayerData(oldPlayer, newPlayer, nameChange.newName);
 
   // If successful, resolve the name change
   const updatedNameChange = await prisma.nameChange.update({
@@ -56,92 +66,84 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
   return updatedNameChange;
 }
 
-async function transferData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
+async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {
   const transitionDate = (await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
+  const playerUpdateFields: PrismaTypes.PlayerUpdateInput = {};
 
-  const playerUpdateFields: any = {};
+  const promises: PrismaPromise<any>[] = [];
 
-  await sequelize.transaction(async transaction => {
-    if (newPlayer && oldPlayer.id !== newPlayer.id) {
-      // Include only the data gathered after the name change transition started
-      const createdFilter = {
-        playerId: newPlayer.id,
-        createdAt: { [Op.gte]: transitionDate }
-      };
+  if (newPlayer && oldPlayer.id !== newPlayer.id) {
+    // Fetch all of older player's records, to compare to the new ones
+    const oldRecords = await prisma.record
+      .findMany({
+        where: { playerId: oldPlayer.id }
+      })
+      .then(modifyRecords);
 
-      const updatedFilter = {
-        playerId: newPlayer.id,
-        updatedAt: { [Op.gte]: transitionDate }
-      };
+    // Find all of new player's records (post transition date)
+    const newRecords = await prisma.record
+      .findMany({ where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } } })
+      .then(modifyRecords);
 
-      await transferRecords(updatedFilter, oldPlayer.id, transaction);
-      await transferSnapshots(createdFilter, oldPlayer.id, transaction);
-      await transferMemberships(createdFilter, oldPlayer.id, transaction);
-      await transferParticipations(createdFilter, oldPlayer.id, transaction);
+    // Fetch all of new player's snapshots (post transition date)
+    const newSnapshots = await prisma.snapshot
+      .findMany({ where: { playerId: newPlayer.id, createdAt: { gte: transitionDate } } })
+      .then(modifySnapshots);
 
-      // Transfer the player's country, if needed/possible
-      if (newPlayer.country && !oldPlayer.country) {
-        playerUpdateFields.country = newPlayer.country;
-      }
+    // Fetch all of new player's memberships (post transition date)
+    const newMemberships = await prisma.membership.findMany({
+      where: { playerId: newPlayer.id, createdAt: { gte: transitionDate } }
+    });
 
-      // Delete the new player account
-      await Player.destroy({ where: { id: newPlayer.id }, transaction });
+    // Fetch all of new player's participations (post transition date)
+    const newParticipations = await prisma.participation.findMany({
+      where: { playerId: newPlayer.id, createdAt: { gte: transitionDate } }
+    });
+
+    promises.push(
+      // Transfer all snapshots from the newPlayer (post transition date) to the old player
+      transferSnapshots(oldPlayer.id, newSnapshots),
+
+      // Transfer all memberships from the newPlayer (post transition date) to the old player
+      transferMemberships(oldPlayer.id, newMemberships),
+
+      // Transfer all participations from the newPlayer (post transition date) to the old player
+      transferParticipations(oldPlayer.id, newParticipations),
+
+      // Transfer all records from the newPlayer (post transition date) to the old player
+      // If some records are lower than the oldPlayer already had, they are discarded in favor of existing ones
+      ...transferRecords(oldPlayer.id, oldRecords, newRecords),
+
+      // Delete the new player
+      prisma.player.delete({ where: { id: newPlayer.id } })
+    );
+
+    if (newPlayer.country && !oldPlayer.country) {
+      // Set the player's flag to the new one, if one didn't exist before
+      playerUpdateFields.country = newPlayer.country;
     }
+  }
 
-    // Update the player to the new username & displayName
-    playerUpdateFields.username = playerUtils.standardize(newName);
-    playerUpdateFields.displayName = playerUtils.sanitize(newName);
-    playerUpdateFields.flagged = false;
+  // Update the player to the new username & displayName
+  playerUpdateFields.username = playerUtils.standardize(newName);
+  playerUpdateFields.displayName = playerUtils.sanitize(newName);
+  playerUpdateFields.flagged = false;
 
-    await Player.update(playerUpdateFields, { where: { id: oldPlayer.id }, transaction });
-  });
+  const results = await prisma.$transaction([
+    ...promises,
+    prisma.player.update({ where: { id: oldPlayer.id }, data: playerUpdateFields })
+  ]);
+
+  // TODO: this can be improved with that hook buffer needed for isChange, isPotentialRecord, etc
+  // Explicitly call this event, unlike most others that are handled via prisma hooks
+  onPlayerNameChanged(results[results.length - 1], oldPlayer.displayName);
 }
 
-async function transferSnapshots(filter: WhereOptions, targetId: number, transaction: Transaction) {
-  // Fetch all of new player's snapshots (post transition date)
-  const newSnapshots = await Snapshot.findAll({ where: filter });
-
-  // Transfer all snapshots to the old player id
-  const movedSnapshots = newSnapshots.map(s => {
-    return omit({ ...s.toJSON(), playerId: targetId }, 'id');
-  });
-
-  // Add all these snapshots, ignoring duplicates
-  await Snapshot.bulkCreate(movedSnapshots, { ignoreDuplicates: true, transaction });
-}
-
-async function transferParticipations(filter: WhereOptions, targetId: number, transaction: Transaction) {
-  // Fetch all of new player's participations (post transition date)
-  const newParticipations = await Participation.findAll({ where: filter });
-
-  // Transfer all participations to the old player id
-  const movedParticipations = newParticipations.map(ns => ({
-    ...ns.toJSON(),
-    playerId: targetId,
-    startSnapshotId: null,
-    endSnapshotId: null
-  }));
-
-  // Add all these participations, ignoring duplicates
-  await Participation.bulkCreate(movedParticipations, { ignoreDuplicates: true, transaction });
-}
-
-async function transferMemberships(filter: WhereOptions, targetId: number, transaction: Transaction) {
-  // Fetch all of new player's memberships (post transition date)
-  const newMemberships = await Membership.findAll({ where: filter });
-
-  // Transfer all memberships to the old player id
-  const movedMemberships = newMemberships.map(ns => ({ ...ns.toJSON(), playerId: targetId }));
-
-  // Add all these memberships, ignoring duplicates
-  await Membership.bulkCreate(movedMemberships, { ignoreDuplicates: true, hooks: false, transaction });
-}
-
-async function transferRecords(filter: WhereOptions, targetId: number, transaction: Transaction) {
-  // Fetch all of the old records, and the recent new records
-  const oldRecords = await Record.findAll({ where: { playerId: targetId } });
-  const newRecords = await Record.findAll({ where: filter });
-
+function transferRecords(
+  oldPlayerId: number,
+  oldRecords: Record[],
+  newRecords: Record[]
+): PrismaPromise<any>[] {
   const recordsToAdd: Record[] = [];
   const recordsToUpdate: { record: Record; newValue: number }[] = [];
 
@@ -158,20 +160,71 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
     }
   });
 
+  const promises: PrismaPromise<any>[] = [];
+
   if (recordsToAdd.length > 0) {
-    await Record.bulkCreate(
-      recordsToAdd.map(({ period, metric, value }) => ({ playerId: targetId, period, metric, value })),
-      { transaction }
+    promises.push(
+      prisma.record.createMany({
+        data: recordsToAdd.map(record => ({
+          ...record,
+          id: undefined,
+          playerId: oldPlayerId,
+          value: prepareRecordValue(record.metric, record.value)
+        }))
+      })
     );
   }
 
   if (recordsToUpdate.length > 0) {
-    await Promise.all(
-      recordsToUpdate.map(async ({ record, newValue }) => {
-        await record.update({ value: newValue }, { transaction });
-      })
+    promises.push(
+      ...recordsToUpdate.map(({ record, newValue }) =>
+        prisma.record.update({
+          where: { id: record.id },
+          data: { value: prepareRecordValue(record.metric, newValue) }
+        })
+      )
     );
   }
+
+  return promises;
+}
+
+function transferSnapshots(
+  oldPlayerId: number,
+  newSnapshots: Snapshot[]
+): PrismaPromise<PrismaTypes.BatchPayload> {
+  // Transfer all snapshots to the old player id
+  return prisma.snapshot.createMany({
+    data: newSnapshots.map(snapshot => ({ ...snapshot, id: undefined, playerId: oldPlayerId })),
+    skipDuplicates: true
+  });
+}
+
+function transferMemberships(
+  oldPlayerId: number,
+  newMemberships: Membership[]
+): PrismaPromise<PrismaTypes.BatchPayload> {
+  // Transfer all memberships to the old player id
+  return prisma.membership.createMany({
+    data: newMemberships.map(membership => ({ ...membership, playerId: oldPlayerId })),
+    skipDuplicates: true
+  });
+}
+
+function transferParticipations(
+  oldPlayerId: number,
+  newParticipations: Participation[]
+): PrismaPromise<PrismaTypes.BatchPayload> {
+  // Transfer all participations to the old player id
+  return prisma.participation.createMany({
+    data: newParticipations.map(participation => ({
+      ...participation,
+      playerId: oldPlayerId,
+      startSnapshotId: null,
+      endSnapshotId: null
+    })),
+    skipDuplicates: true
+  });
 }
 
 export { approveNameChange };

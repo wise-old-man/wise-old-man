@@ -476,7 +476,7 @@ describe('Names API', () => {
       const recordsResponse = await api.get(`/api/players/username/USBC/records`);
 
       expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.length).toBe(4);
+      expect(recordsResponse.body.length).toBe(5);
 
       expect(recordsResponse.body.filter(r => r.metric === 'zulrah')[0]).toMatchObject({
         period: 'month',
@@ -500,6 +500,12 @@ describe('Names API', () => {
         period: 'day',
         metric: 'smithing',
         value: 10_000
+      });
+
+      expect(recordsResponse.body.filter(r => r.metric === 'ehp')[0]).toMatchObject({
+        period: 'day',
+        metric: 'ehp',
+        value: 5.67
       });
 
       // Check if none of the pre-transition snapshots have been transfered
@@ -727,7 +733,8 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
     data: [
       { playerId: newPlayerId, period: 'week', metric: 'agility', value: 50_000 },
       { playerId: newPlayerId, period: 'month', metric: 'zulrah', value: 500 },
-      { playerId: newPlayerId, period: 'year', metric: 'ranged', value: 1_350_000 }
+      { playerId: newPlayerId, period: 'year', metric: 'ranged', value: 1_350_000 },
+      { playerId: newPlayerId, period: 'day', metric: 'ehp', value: 5.67 * 10_000 } // ehp/ehb records get mapped to ints on the database
     ]
   });
 

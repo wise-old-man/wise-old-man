@@ -1,7 +1,6 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
-import prisma, { Achievement, Player as PrismaPlayer, Competition } from '../../../prisma';
-import { Player } from '../../../database/models';
+import prisma, { Achievement, Player, Competition } from '../../../prisma';
 import { EventPeriodDelay } from '../../../types';
 import { CompetitionDetails } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
@@ -49,7 +48,7 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
  * Send a "HCIM Player Died" notification to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchHardcoreDied(player: PrismaPlayer) {
+async function dispatchHardcoreDied(player: Player) {
   const memberships = await prisma.membership.findMany({
     where: { playerId: player.id }
   });
@@ -85,7 +84,7 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchMembersJoined(groupId: number, players: PrismaPlayer[]) {
+async function dispatchMembersJoined(groupId: number, players: Player[]) {
   if (!players || players.length === 0) return;
   dispatch('GROUP_MEMBERS_JOINED', { groupId, players });
 }
