@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { getMetricRankKey, getMetricValueKey, Metric } from '@wise-old-man/utils';
+import { getMetricRankKey, getMetricValueKey, Metric } from '../../utils';
 
 const SKILLS = [
   'overall',

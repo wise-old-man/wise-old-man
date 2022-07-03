@@ -9,7 +9,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { GroupRole, GROUP_ROLES } from '@wise-old-man/utils';
+import { GroupRole, GROUP_ROLES } from '../../utils';
 import { Group, Player } from '../../database/models';
 
 // Define other table options

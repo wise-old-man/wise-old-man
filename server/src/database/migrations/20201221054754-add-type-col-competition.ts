@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { CompetitionType } from '@wise-old-man/utils';
+import { CompetitionType } from '../../utils';
 
 function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.addColumn('competitions', 'type', {

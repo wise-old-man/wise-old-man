@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { getMetricRankKey, getMetricValueKey, Metric, Metrics } from '@wise-old-man/utils';
+import { getMetricRankKey, getMetricValueKey, Metric } from '../../utils';
 
 const BOSSES = [
   'abyssal_sire',
@@ -123,7 +123,7 @@ function buildDynamicSchema(DataTypes) {
 
   metrics.forEach(s => {
     obj[getMetricRankKey(s as Metric)] = DataTypes.INTEGER;
-    obj[getMetricValueKey(s as Metric)] = s === Metrics.OVERALL ? DataTypes.BIGINT : DataTypes.INTEGER;
+    obj[getMetricValueKey(s as Metric)] = s === Metric.OVERALL ? DataTypes.BIGINT : DataTypes.INTEGER;
   });
 
   return obj;

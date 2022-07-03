@@ -1,5 +1,5 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table, UpdatedAt } from 'sequelize-typescript';
-import { isValidPeriod, PERIODS, METRICS, Metric, Period, isVirtualMetric } from '@wise-old-man/utils';
+import { PERIODS, METRICS, Metric, Period, isVirtualMetric } from '../../utils';
 import { Player } from '../../database/models';
 
 // Define other table options
@@ -88,7 +88,7 @@ function validateMetric(this: Record) {
 }
 
 function validatePeriod(this: Record) {
-  if (!isValidPeriod(this.period)) {
+  if (!PERIODS.includes(this.period)) {
     throw new Error('Invalid period.');
   }
 }

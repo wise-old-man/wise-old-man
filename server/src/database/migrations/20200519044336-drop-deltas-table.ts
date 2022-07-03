@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { PERIODS } from '@wise-old-man/utils';
+import { PERIODS } from '../../utils';
 
 function up(queryInterface: QueryInterface) {
   return queryInterface.dropTable('deltas');

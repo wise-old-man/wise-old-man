@@ -9,7 +9,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { CompetitionType, Metric, METRICS } from '@wise-old-man/utils';
+import { CompetitionType, Metric, METRICS } from '../../utils';
 import { isValidDate } from '../../api/util/dates';
 import { Group, Participation, Player } from '../../database/models';
 

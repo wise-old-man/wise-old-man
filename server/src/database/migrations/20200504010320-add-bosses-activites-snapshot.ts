@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { getMetricValueKey, getMetricRankKey } from '@wise-old-man/utils';
+import { getMetricValueKey, getMetricRankKey } from '../../utils';
 
 const BOSSES = [
   'abyssal_sire',

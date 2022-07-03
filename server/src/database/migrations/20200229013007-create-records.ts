@@ -1,5 +1,5 @@
 import { QueryInterface } from 'sequelize/types';
-import { PERIODS, METRICS } from '@wise-old-man/utils';
+import { PERIODS, METRICS } from '../../utils';
 
 function up(queryInterface: QueryInterface, dataTypes: any) {
   return queryInterface.createTable('records', {
