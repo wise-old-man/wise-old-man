@@ -27,6 +27,7 @@ const globalData = {
   testGroup: EMPTY_DATA,
   testCompetitionStarting: EMPTY_DATA,
   testCompetitionStarted: EMPTY_DATA,
+  testCompetitionStartedTeam: EMPTY_DATA,
   testCompetitionOngoing: EMPTY_DATA,
   testCompetitionEnding: EMPTY_DATA,
   testCompetitionEnded: EMPTY_DATA,
@@ -414,12 +415,31 @@ describe('Competition API', () => {
         participantCount: 4
       });
 
+      // Create this competition here, as it'll be used in future tests
+      // as a team-type competition mirror for the one above
+      const secondResponse = await api.post('/api/competitions').send({
+        title: 'Team Comp Test 123',
+        metric: 'zulrah',
+        startsAt: startDate,
+        endsAt: endDate,
+        teams: [
+          { name: 'Team 1', participants: ['psikoi', 'rorro'] },
+          { name: 'Team 2', participants: ['zezima', 'usbc'] }
+        ]
+      });
+      expect(secondResponse.status).toBe(201);
+
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
       globalData.testCompetitionStarted = {
         id: response.body.competition.id,
         verificationCode: response.body.verificationCode
+      };
+
+      globalData.testCompetitionStartedTeam = {
+        id: secondResponse.body.competition.id,
+        verificationCode: secondResponse.body.verificationCode
       };
     });
 
@@ -1062,7 +1082,7 @@ describe('Competition API', () => {
       const response = await api.get('/api/competitions');
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(6);
+      expect(response.body.length).toBe(7);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
@@ -1109,6 +1129,14 @@ describe('Competition API', () => {
       });
 
       expect(response.body[5]).toMatchObject({
+        id: globalData.testCompetitionStartedTeam.id,
+        title: 'Team Comp Test 123',
+        type: 'team',
+        metric: 'zulrah',
+        participantCount: 4
+      });
+
+      expect(response.body[6]).toMatchObject({
         id: globalData.testCompetitionStarted.id,
         title: 'BOTW Zulrah #3',
         type: 'classic',
@@ -1141,7 +1169,7 @@ describe('Competition API', () => {
       const response = await api.get('/api/competitions').query({ metric: 'zulrah' });
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
+      expect(response.body.length).toBe(2);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
@@ -1151,9 +1179,10 @@ describe('Competition API', () => {
       const response = await api.get('/api/competitions').query({ type: 'team' });
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(2);
+      expect(response.body.length).toBe(3);
       expect(response.body[0].id).toBe(globalData.testCompetitionEnding.id);
       expect(response.body[1].id).toBe(globalData.testCompetitionWithGroup.id);
+      expect(response.body[2].id).toBe(globalData.testCompetitionStartedTeam.id);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
@@ -1902,6 +1931,15 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('Competition not found.');
     });
 
+    it('should not view details (invalid metric)', async () => {
+      const response = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}`).query({
+        metric: 'sailing'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+    });
+
     it('should view details', async () => {
       // This player was added to the test code after all the other tests were written
       // let's remove them instead of changing all the others tests to include them
@@ -2112,24 +2150,228 @@ describe('Competition API', () => {
   });
 
   describe('9 - View Top 5 Snapshots', () => {
-    // default:
-    //   rorro: 500, 557
-    //   usbc: -1, 60
-    //   lynx titan: 1646
-    //   psikoi: 1000, 1000
-    //   zulu: []
+    it('should not view top 5 snapshots (competition not found)', async () => {
+      const response = await api.get(`/api/competitions/100000/top-history`);
 
-    // hunter (preview metric):
-    //   psikoi: 500000, 750000
-    //   rorro: 100000, 110000
-    //   lynx titan: 5346679
-    //   usbc: 50000, 50000
-    //   zulu: []
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Competition not found.');
+    });
 
-    it.todo('placeholder');
+    it('should not view top 5 snapshots (invalid metric)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ metric: 'sailing' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+    });
+
+    it('should view top 5 snapshots', async () => {
+      const response = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}/top-history`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
+
+      expect(response.body[0].player.username).toBe('rorro');
+      expect(response.body[0].history.length).toBe(2);
+      expect(response.body[0].history[0].value).toBe(557);
+      expect(response.body[0].history[1].value).toBe(500);
+
+      expect(response.body[1].player.username).toBe('usbc');
+      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history[0].value).toBe(60);
+      expect(response.body[1].history[1].value).toBe(-1);
+
+      expect(response.body[2].player.username).toBe('lynx titan');
+      expect(response.body[2].history.length).toBe(1);
+      expect(response.body[2].history[0].value).toBe(1646);
+
+      expect(response.body[3].player.username).toBe('psikoi');
+      expect(response.body[3].history.length).toBe(2);
+      expect(response.body[3].history[0].value).toBe(1000);
+      expect(response.body[3].history[1].value).toBe(1000);
+
+      expect(response.body[4].player.username).toBe('zulu');
+      expect(response.body[4].history.length).toBe(0);
+    });
+
+    it('should view top 5 snapshots (other metric)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/top-history`)
+        .query({ metric: 'hunter' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
+
+      expect(response.body[0].player.username).toBe('psikoi');
+      expect(response.body[0].history.length).toBe(2);
+      expect(response.body[0].history[0].value).toBe(750_000);
+      expect(response.body[0].history[1].value).toBe(500_000);
+
+      expect(response.body[1].player.username).toBe('rorro');
+      expect(response.body[1].history.length).toBe(2);
+      expect(response.body[1].history[0].value).toBe(110_000);
+      expect(response.body[1].history[1].value).toBe(100_000);
+
+      expect(response.body[2].player.username).toBe('lynx titan');
+      expect(response.body[2].history.length).toBe(1);
+      expect(response.body[2].history[0].value).toBe(5_346_679);
+
+      expect(response.body[3].player.username).toBe('usbc');
+      expect(response.body[3].history.length).toBe(2);
+      expect(response.body[3].history[0].value).toBe(50_000);
+      expect(response.body[3].history[1].value).toBe(50_000);
+
+      expect(response.body[4].player.username).toBe('zulu');
+      expect(response.body[4].history.length).toBe(0);
+    });
   });
 
-  describe('10 - List Player Competitions', () => {
+  describe('10 - View CSV Export', () => {
+    it('should not view CSV export (competition not found)', async () => {
+      const response = await api.get(`/api/competitions/100000/csv`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Competition not found.');
+    });
+
+    it('should not view CSV export (invalid metric)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ metric: 'sailing' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+    });
+
+    it('should not view CSV export (invalid table)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ table: 'wrong' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch("Invalid enum value for 'table'.");
+    });
+
+    it('should not view CSV export (no teamName)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ table: 'team' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch(
+        'Team name is a required parameter for the table type of "team".'
+      );
+    });
+
+    it('should not view CSV export (team/teams table on a classic competition)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`)
+        .query({ table: 'teams' });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Cannot view team/teams table on a classic competition.');
+    });
+
+    it('should view CSV export (participants)', async () => {
+      const response = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`);
+      expect(response.status).toBe(200);
+
+      const rows = response.body.split('\n');
+
+      expect(rows.length).toBe(6);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
+
+      // Check the table body
+      expect(rows[1]).toMatch('1,rorro,500,557,57,');
+      expect(rows[2]).toMatch('2,usbc,-1,60,11,');
+      expect(rows[3]).toMatch('3,LYNX TITAN,1646,1646,0,');
+      expect(rows[4]).toMatch('4,Psikoi,1000,1000,0,');
+      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+    });
+
+    it('should view CSV export (participants & other metric)', async () => {
+      const response = await api.get(`/api/competitions/${globalData.testCompetitionStarted.id}/csv`).query({
+        metric: 'hunter'
+      });
+
+      expect(response.status).toBe(200);
+
+      const rows = response.body.split('\n');
+
+      expect(rows.length).toBe(6);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
+
+      // Check the table body
+      expect(rows[1]).toMatch('1,Psikoi,500000,750000,250000,');
+      expect(rows[2]).toMatch('2,rorro,100000,110000,10000,');
+      expect(rows[3]).toMatch('3,LYNX TITAN,5346679,5346679,');
+      expect(rows[4]).toMatch('4,usbc,50000,50000,0,');
+      expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
+    });
+
+    it('should view CSV export (participants on team comp)', async () => {
+      const response = await api.get(`/api/competitions/${globalData.testCompetitionStartedTeam.id}/csv`);
+      expect(response.status).toBe(200);
+
+      const rows = response.body.split('\n');
+
+      expect(rows.length).toBe(5);
+
+      // Check the table header, ensure it has a "Team" column
+      expect(rows[0]).toBe('Rank,Username,Team,Start,End,Gained,Last Updated');
+
+      // Check the table body, ensure it has a "Team" column
+      expect(rows[1]).toMatch('1,rorro,Team 1,500,557,57,');
+      expect(rows[2]).toMatch('2,usbc,Team 2,-1,60,11,');
+      expect(rows[3]).toMatch('3,Psikoi,Team 1,1000,1000,0,');
+      expect(rows[4]).toMatch('4,Zezima,Team 2,-1,-1,0,');
+    });
+
+    it('should view CSV export (teams)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStartedTeam.id}/csv`)
+        .query({ table: 'teams' });
+
+      expect(response.status).toBe(200);
+
+      const rows = response.body.split('\n');
+
+      expect(rows.length).toBe(3);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Name,Players,Total Gained,Average Gained,MVP');
+
+      // Check the table body
+      expect(rows[1]).toMatch('1,Team 1,2,57,28.5,rorro');
+      expect(rows[2]).toMatch('2,Team 2,2,11,5.5,usbc');
+    });
+
+    it('should view CSV export (team)', async () => {
+      const response = await api
+        .get(`/api/competitions/${globalData.testCompetitionStartedTeam.id}/csv`)
+        .query({ table: 'team', teamName: 'Team 1' });
+
+      expect(response.status).toBe(200);
+
+      const rows = response.body.split('\n');
+
+      expect(rows.length).toBe(3);
+
+      // Check the table header
+      expect(rows[0]).toBe('Rank,Username,Start,End,Gained,Last Updated');
+
+      // Check the table body
+      expect(rows[1]).toMatch('1,rorro,500,557,57,');
+      expect(rows[2]).toMatch('2,Psikoi,1000,1000,0,');
+    });
+  });
+
+  describe('11 - List Player Competitions', () => {
     it('should not list player competitions (player not found)', async () => {
       const usernameResponse = await api.get(`/api/players/username/raaandooom/competitions`);
 
@@ -2167,7 +2409,7 @@ describe('Competition API', () => {
       const response = await api.get(`/api/players/username/psikoi/competitions`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
+      expect(response.body.length).toBe(4);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
@@ -2194,6 +2436,15 @@ describe('Competition API', () => {
       });
 
       expect(response.body[2]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          participantCount: 4
+        }
+      });
+
+      expect(response.body[3]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
@@ -2227,7 +2478,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('11 - List Group Competitions', () => {
+  describe('12 - List Group Competitions', () => {
     it('should not list group competitions (group not found)', async () => {
       const usernameResponse = await api.get(`/api/groups/1000000/competitions`);
 
@@ -2329,7 +2580,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('12 - Update All', () => {
+  describe('13 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/api/competitions/123456789/update-all`);
 
@@ -2492,7 +2743,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('13 - Reset Verification Code', () => {
+  describe('14 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/api/competitions/100000/reset-code`);
 
@@ -2561,7 +2812,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('14 - Delete', () => {
+  describe('15 - Delete', () => {
     it('should not delete (competition not found)', async () => {
       const response = await api.delete(`/api/competitions/123456789`).send({
         verificationCode: 'xxx-xxx-xxx'
@@ -2599,9 +2850,25 @@ describe('Competition API', () => {
       expect(fetchConfirmResponse.status).toBe(404);
       expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
     });
+
+    it('should delete (with group code)', async () => {
+      const response = await api.delete(`/api/competitions/${globalData.testCompetitionWithGroup.id}`).send({
+        verificationCode: globalData.testGroup.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully deleted competition');
+
+      const fetchConfirmResponse = await api.get(
+        `/api/competitions/${globalData.testCompetitionWithGroup.id}`
+      );
+
+      expect(fetchConfirmResponse.status).toBe(404);
+      expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+    });
   });
 
-  describe('15 - Group Event Side Effects', () => {
+  describe('16 - Group Event Side Effects', () => {
     it('should remove from group competitions', async () => {
       const createGroupResponse = await api.post('/api/groups').send({
         name: 'Test 123',

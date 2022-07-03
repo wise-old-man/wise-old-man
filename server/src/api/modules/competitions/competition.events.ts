@@ -5,7 +5,6 @@ import { PlayerType } from '../../../utils';
 import jobs from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
-import * as competitionService from '../../services/internal/competition.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
@@ -36,17 +35,14 @@ async function onCompetitionStarted(competition: Competition) {
     await competitionServices.updateAllParticipants({ competitionId: competition.id, forcedUpdate: true });
   });
 
-  const competitionDetails = await competitionService.getDetails(competition);
-  if (!competitionDetails) return;
-
   // Dispatch a competition started event to our discord bot API.
   await metrics.measureReaction('DiscordCompetitionStarted', () =>
-    discordService.dispatchCompetitionStarted(competitionDetails)
+    discordService.dispatchCompetitionStarted(competition)
   );
 }
 
 async function onCompetitionEnded(competition: Competition) {
-  const competitionDetails = await competitionService.getDetails(competition);
+  const competitionDetails = await competitionServices.fetchCompetitionDetails({ id: competition.id });
   if (!competitionDetails) return;
 
   // Dispatch a competition ended event to our discord bot API.
@@ -56,22 +52,16 @@ async function onCompetitionEnded(competition: Competition) {
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
-  const competitionDetails = await competitionService.getDetails(competition);
-  if (!competitionDetails) return;
-
   // Dispatch a competition starting event to our discord bot API.
   await metrics.measureReaction('DiscordCompetitionStarting', () =>
-    discordService.dispatchCompetitionStarting(competitionDetails, period)
+    discordService.dispatchCompetitionStarting(competition, period)
   );
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
-  const competitionDetails = await competitionService.getDetails(competition);
-  if (!competitionDetails) return;
-
   // Dispatch a competition ending event to our discord bot API.
   await metrics.measureReaction('DiscordCompetitionEnding', () =>
-    discordService.dispatchCompetitionEnding(competitionDetails, period)
+    discordService.dispatchCompetitionEnding(competition, period)
   );
 }
 

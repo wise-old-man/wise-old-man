@@ -1,9 +1,7 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
-import * as service from '../../services/internal/competition.service';
-import { extractNumber, extractString } from '../../util/http';
 import { getNumber, getEnum, getString, getDate } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
 import * as competitionServices from './competition.services';
@@ -33,22 +31,25 @@ async function details(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /competitions/:id/csv
-async function detailsCSV(req: Request, res: Response, next: NextFunction) {
-  try {
-    const id = extractNumber(req.params, { key: 'id', required: true });
-    const table = extractString(req.query, { key: 'table', required: true });
-    const teamName = extractString(req.query, { key: 'teamName' });
-    const metric = extractString(req.query, { key: 'metric' });
+async function detailsCSV(req: Request): Promise<ControllerResponse> {
+  const result = await competitionServices.fetchCompetitionCSV({
+    id: getNumber(req.params.id),
+    metric: getEnum(req.query.metric),
+    table: getEnum(req.query.table),
+    teamName: getString(req.query.teamName)
+  });
 
-    const competition = await service.resolve(id, { includeGroup: true });
-    const competitionDetails = await service.getDetails(competition, metric);
+  return { statusCode: 200, response: result };
+}
 
-    const csv = service.getCSV(competitionDetails, table, teamName);
+// GET /competitions/:id/top-history
+async function topHistory(req: Request): Promise<ControllerResponse> {
+  const result = await competitionServices.fetchCompetitionTop5Progress({
+    id: getNumber(req.params.id),
+    metric: getEnum(req.query.metric)
+  });
 
-    res.end(csv);
-  } catch (e) {
-    next(e);
-  }
+  return { statusCode: 200, response: result };
 }
 
 // POST /competitions
@@ -216,6 +217,7 @@ export {
   search,
   details,
   detailsCSV,
+  topHistory,
   create,
   edit,
   remove,

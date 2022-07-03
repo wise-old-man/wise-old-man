@@ -28,11 +28,7 @@ async function findPlayerMemberships(payload: FindPlayerMembershipsParams): Prom
         }
       }
     },
-    orderBy: {
-      group: {
-        score: 'desc'
-      }
-    },
+    orderBy: [{ group: { score: 'desc' } }, { createdAt: 'desc' }],
     take: params.limit,
     skip: params.offset
   });

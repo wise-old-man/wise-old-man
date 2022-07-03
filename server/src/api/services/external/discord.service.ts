@@ -3,8 +3,7 @@ import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Player as PrismaPlayer, Competition } from '../../../prisma';
 import { Player } from '../../../database/models';
 import { EventPeriodDelay } from '../../../types';
-import { durationBetween } from '../../util/dates';
-import { CompetitionDetails } from '../internal/competition.service';
+import { CompetitionDetails } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
 
 /**
@@ -108,25 +107,20 @@ async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
  * Dispatch a competition created event to our discord bot API.
  */
 function dispatchCompetitionCreated(competition: Competition) {
-  const duration = durationBetween(competition.startsAt, competition.endsAt);
-
   dispatch('COMPETITION_CREATED', {
     groupId: competition.groupId,
-    competition: { ...competition, duration }
+    competition
   });
 }
 
 /**
  * Dispatch a competition created event to our discord bot API.
  */
-function dispatchCompetitionStarted(competition: CompetitionDetails) {
+function dispatchCompetitionStarted(competition: Competition) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_STARTED', { groupId, competition });
 }
@@ -135,23 +129,15 @@ function dispatchCompetitionStarted(competition: CompetitionDetails) {
  * Dispatch a competition ended event to our discord bot API.
  */
 function dispatchCompetitionEnded(competition: CompetitionDetails) {
-  const { groupId, participants } = competition;
+  const { groupId, participations } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
 
   // Map the competition's end standings
-  const standings = participants
+  const standings = participations
     .filter(p => p.progress.gained > 0)
-    .map((p: any) => {
-      const { displayName, teamName } = p;
-      const gained = p.progress.gained;
-
-      return { displayName, teamName, gained };
-    });
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
+    .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }));
 
   dispatch('COMPETITION_ENDED', { groupId, competition, standings });
 }
@@ -159,14 +145,11 @@ function dispatchCompetitionEnded(competition: CompetitionDetails) {
 /**
  * Dispatch a competition starting event to our discord bot API.
  */
-function dispatchCompetitionStarting(competition: CompetitionDetails, period: EventPeriodDelay) {
+function dispatchCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_STARTING', { groupId, competition, period });
 }
@@ -174,14 +157,11 @@ function dispatchCompetitionStarting(competition: CompetitionDetails, period: Ev
 /**
  * Dispatch a competition ending event to our discord bot API.
  */
-function dispatchCompetitionEnding(competition: CompetitionDetails, period: EventPeriodDelay) {
+function dispatchCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }

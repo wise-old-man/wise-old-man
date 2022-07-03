@@ -30,11 +30,7 @@ async function findPlayerParticipations(
         }
       }
     },
-    orderBy: {
-      competition: {
-        score: 'desc'
-      }
-    },
+    orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }],
     take: params.limit,
     skip: params.offset
   });

@@ -1,4 +1,4 @@
-import { Competition, Participation, Player } from '../../../prisma';
+import { Competition, Participation, Player, Group } from '../../../prisma';
 import { MeasuredDeltaProgress } from '../deltas/delta.types';
 
 export interface CompetitionWithCount extends Omit<Competition, 'verificationHash'> {
@@ -20,7 +20,12 @@ export interface CompetitionWithParticipations extends CompetitionWithCount {
 }
 
 export interface CompetitionDetails extends CompetitionWithCount {
-  participations: (ParticipationWithPlayer & { progress: MeasuredDeltaProgress })[];
+  group?: Group;
+  participations: ParticipationWithPlayerAndProgress[];
+}
+
+export interface ParticipationWithPlayerAndProgress extends ParticipationWithPlayer {
+  progress: MeasuredDeltaProgress;
 }
 
 export interface Team {

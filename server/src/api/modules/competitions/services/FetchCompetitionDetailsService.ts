@@ -3,16 +3,13 @@ import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot } from '../../../../prisma';
 import { getMetricValueKey, isVirtualMetric, Metric } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
 
-const inputSchema = z
-  .object({
-    id: z.number().int().positive(),
-    metric: z.nativeEnum(Metric).optional()
-  })
-  .merge(PAGINATION_SCHEMA);
+const inputSchema = z.object({
+  id: z.number().int().positive(),
+  metric: z.nativeEnum(Metric).optional()
+});
 
 type FetchCompetitionDetailsParams = z.infer<typeof inputSchema>;
 
@@ -20,7 +17,12 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
   const params = inputSchema.parse(payload);
 
   const competition = await prisma.competition.findFirst({
-    where: { id: params.id }
+    where: {
+      id: params.id
+    },
+    include: {
+      group: true
+    }
   });
 
   if (!competition) {
