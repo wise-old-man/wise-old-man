@@ -1,9 +1,13 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
-import { EventPeriodDelay } from '../../../types';
 import { CompetitionDetails } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
+
+export interface EventPeriodDelay {
+  hours?: number;
+  minutes?: number;
+}
 
 /**
  * Dispatch an event to our Discord Bot API.

@@ -1,5 +1,5 @@
-import { EventPeriodDelay } from '../../../types';
 import prisma from '../../../prisma';
+import { EventPeriodDelay } from '../../services/external/discord.service';
 import {
   onCompetitionEnded,
   onCompetitionEnding,

@@ -1,11 +1,11 @@
 import { Competition } from '../../../prisma';
-import { EventPeriodDelay } from '../../../types';
 import { PlayerType } from '../../../utils';
 import jobs from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
+import { EventPeriodDelay } from '../../services/external/discord.service';
 
 async function onParticipantsJoined(_: number, playerIds: number[]) {
   // Fetch all the newly added participants
