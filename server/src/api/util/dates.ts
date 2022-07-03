@@ -1,11 +1,11 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 function formatDate(date: Date, mask = 'MM-DD-YYYY HH:mm') {
-  return moment(date).format(mask);
+  return dayjs(date).format(mask);
 }
 
-function isValidDate(date) {
-  return date && moment(date, moment.ISO_8601).isValid();
+function isValidDate(dateString: string) {
+  return dateString && dayjs(dateString).isValid();
 }
 
 export { formatDate, isValidDate };

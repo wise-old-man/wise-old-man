@@ -1,5 +1,5 @@
 import axios from 'axios';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import api from '../../../src/api';
@@ -160,11 +160,13 @@ describe('Achievements API', () => {
       expect(achievementDateMap['Base 70 Stats']).toBe('2016-09-17T10:00:24.000Z');
       expect(achievementDateMap['Base 80 Stats']).toBe('2018-09-14T04:33:00.000Z');
 
+      const now = dayjs();
+
       // These achievements should be from today (within the last hour)
-      expect(moment(achievementDateMap['99 Cooking']).isSame(moment(), 'hour'));
-      expect(moment(achievementDateMap['99 Woodcutting']).isSame(moment(), 'hour'));
-      expect(moment(achievementDateMap['99 Firemaking']).isSame(moment(), 'hour'));
-      expect(moment(achievementDateMap['99 Fletching']).isSame(moment(), 'hour'));
+      expect(dayjs(achievementDateMap['99 Cooking']).isSame(now, 'hour'));
+      expect(dayjs(achievementDateMap['99 Woodcutting']).isSame(now, 'hour'));
+      expect(dayjs(achievementDateMap['99 Firemaking']).isSame(now, 'hour'));
+      expect(dayjs(achievementDateMap['99 Fletching']).isSame(now, 'hour'));
     }, 30_000);
 
     test('Check Achievements Progress', async () => {
