@@ -67,16 +67,44 @@ function Header(props) {
 function FlaggedWarning({ displayName }) {
   const nameChangeURL = `/names/submit/${displayName}`;
 
+  // return (
+  //   <div className="warning">
+  //     <img src="/img/runescape/icons_small/flagged.png" alt="" />
+  //     <span>
+  //       This player is flagged. This is likely caused by an unregistered name change or they have become
+  //       unranked in one or more skills due to lack of progress.
+  //       <br />
+  //       <br />
+  //       <Link to={nameChangeURL}>Click here to submit a name change</Link>
+  //       &nbsp; or join our &nbsp;
+  //       <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+  //         Discord server
+  //       </a>
+  //       &nbsp; for help.
+  //     </span>
+  //   </div>
+  // );
+
   return (
     <div className="warning">
       <img src="/img/runescape/icons_small/flagged.png" alt="" />
       <span>
-        This player is flagged. This is likely caused by an unregistered name change or they have become
-        unranked in one or more skills due to lack of progress.
+        This player is flagged.
         <br />
         <br />
-        <Link to={nameChangeURL}>Click here to submit a name change</Link>
-        &nbsp; or join our &nbsp;
+        <b>Update:</b> The official OSRS hiscores were down from Wednesday (July 6th) up until July 9th
+        during which time there were numerous rollbacks, which means some people's stats are higher on
+        WOM than on the current version of the hiscores. This caused a large amount of players to be
+        falsely detected as "flagged".
+        <br />
+        <br />
+        <b>
+          We recommend that these affected players should log in and out of the game (a few times if
+          possible) to update their hiscores, wait a few minutes, and then update their profile on WOM.
+        </b>
+        <br />
+        <br />
+        Didn't work? Join our &nbsp;
         <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
           Discord server
         </a>
