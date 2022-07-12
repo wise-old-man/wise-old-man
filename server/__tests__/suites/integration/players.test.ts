@@ -55,21 +55,21 @@ afterAll(async done => {
 describe('Player API', () => {
   describe('1. Tracking', () => {
     it('should not track player (undefined username)', async () => {
-      const response = await api.post(`/api/players/track`).send({});
+      const response = await api.post(`/players/track`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
     it('should not track player (empty username)', async () => {
-      const response = await api.post(`/api/players/track`).send({ username: '' });
+      const response = await api.post(`/players/track`).send({ username: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not track player (invalid characters)', async () => {
-      const response = await api.post(`/api/players/track`).send({ username: 'wow$%#' });
+      const response = await api.post(`/players/track`).send({ username: 'wow$%#' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(
@@ -78,7 +78,7 @@ describe('Player API', () => {
     });
 
     it('should not track player (lengthy username)', async () => {
-      const response = await api.post(`/api/players/track`).send({ username: 'ALongUsername' });
+      const response = await api.post(`/players/track`).send({ username: 'ALongUsername' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
@@ -90,7 +90,7 @@ describe('Player API', () => {
         [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
-      const response = await api.post(`/api/players/track`).send({ username: 'hydroman' });
+      const response = await api.post(`/players/track`).send({ username: 'hydroman' });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
@@ -103,7 +103,7 @@ describe('Player API', () => {
     });
 
     it('should track player', async () => {
-      const response = await api.post(`/api/players/track`).send({ username: ' PSIKOI_ ' });
+      const response = await api.post(`/players/track`).send({ username: ' PSIKOI_ ' });
 
       expect(response.status).toBe(201);
 
@@ -137,7 +137,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const responseDef1 = await api.post(`/api/players/track`).send({ username: 'def1' });
+      const responseDef1 = await api.post(`/players/track`).send({ username: 'def1' });
 
       expect(responseDef1.status).toBe(201);
       expect(responseDef1.body.build).toBe('def1');
@@ -153,7 +153,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const responseZerker = await api.post(`/api/players/track`).send({ username: 'zerker' });
+      const responseZerker = await api.post(`/players/track`).send({ username: 'zerker' });
 
       expect(responseZerker.status).toBe(201);
       expect(responseZerker.body.build).toBe('zerker');
@@ -169,7 +169,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const response10HP = await api.post(`/api/players/track`).send({ username: 'hp10' });
+      const response10HP = await api.post(`/players/track`).send({ username: 'hp10' });
 
       expect(response10HP.status).toBe(201);
       expect(response10HP.body.build).toBe('hp10');
@@ -191,7 +191,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const responseLvl3 = await api.post(`/api/players/track`).send({ username: 'lvl3' });
+      const responseLvl3 = await api.post(`/players/track`).send({ username: 'lvl3' });
 
       expect(responseLvl3.status).toBe(201);
       expect(responseLvl3.body.build).toBe('lvl3');
@@ -217,7 +217,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const responseF2P = await api.post(`/api/players/track`).send({ username: 'f2p' });
+      const responseF2P = await api.post(`/players/track`).send({ username: 'f2p' });
 
       expect(responseF2P.status).toBe(201);
       expect(responseF2P.body.build).toBe('f2p');
@@ -232,7 +232,7 @@ describe('Player API', () => {
         [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/api/players/track`).send({ username: 'Hydrox6' });
+      const response = await api.post(`/players/track`).send({ username: 'Hydrox6' });
 
       expect(response.status).toBe(201);
 
@@ -256,7 +256,7 @@ describe('Player API', () => {
       // This cooldown is set to 0 during testing by default
       playerUtils.setUpdateCooldown(60);
 
-      const response = await api.post(`/api/players/track`).send({ username: 'hydrox6' });
+      const response = await api.post(`/players/track`).send({ username: 'hydrox6' });
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error: hydrox6 has been updated recently.');
@@ -274,7 +274,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const response = await api.post(`/players/track`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
@@ -290,7 +290,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const response = await api.post(`/players/track`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
@@ -307,7 +307,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const response = await api.post(`/players/track`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(200);
       expect(response.body.lastChangedAt).not.toBeNull();
@@ -317,21 +317,21 @@ describe('Player API', () => {
 
   describe('2. Importing', () => {
     it('should not import player (undefined username)', async () => {
-      const response = await api.post(`/api/players/import`).send({});
+      const response = await api.post(`/players/import`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not import player (empty username)', async () => {
-      const response = await api.post(`/api/players/import`).send({ username: '' });
+      const response = await api.post(`/players/import`).send({ username: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not import player (player not found)', async () => {
-      const response = await api.post(`/api/players/import`).send({ username: 'zezima' });
+      const response = await api.post(`/players/import`).send({ username: 'zezima' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -341,7 +341,7 @@ describe('Player API', () => {
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
 
-      const response = await api.post(`/api/players/import`).send({ username: 'psikoi' });
+      const response = await api.post(`/players/import`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load history from CML.');
@@ -354,18 +354,18 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api.post(`/api/players/import`).send({ username: 'psikoi' });
+      const importResponse = await api.post(`/players/import`).send({ username: 'psikoi' });
       expect(importResponse.status).toBe(200);
       expect(importResponse.body).toMatchObject({
         count: 219,
         message: 'Sucessfully imported 219 snapshots from CML.'
       });
 
-      const detailsResponse = await api.get(`/api/players/username/psikoi`);
+      const detailsResponse = await api.get(`/players/username/psikoi`);
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.lastImportedAt).not.toBeNull();
 
-      const snapshotsResponse = await api.get(`/api/players/username/psikoi/snapshots`).query({
+      const snapshotsResponse = await api.get(`/players/username/psikoi/snapshots`).query({
         startDate: new Date('2010-01-01'),
         endDate: new Date('2030-01-01')
       });
@@ -387,7 +387,7 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api.post(`/api/players/import`).send({ username: 'psikoi' });
+      const importResponse = await api.post(`/players/import`).send({ username: 'psikoi' });
       expect(importResponse.status).toBe(429);
       expect(importResponse.body.message).toMatch('Imported too soon, please wait');
 
@@ -398,35 +398,35 @@ describe('Player API', () => {
 
   describe('3. Searching', () => {
     it('should not search players (undefined username)', async () => {
-      const response = await api.get('/api/players/search').query({});
+      const response = await api.get('/players/search').query({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
     it('should not search players (empty username)', async () => {
-      const response = await api.get('/api/players/search').query({ username: '' });
+      const response = await api.get('/players/search').query({ username: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
     it('should not search players (negative pagination limit)', async () => {
-      const response = await api.get(`/api/players/search`).query({ username: 'hydro', limit: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'hydro', limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not search players (negative pagination offset)', async () => {
-      const response = await api.get(`/api/players/search`).query({ username: 'hydro', offset: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'hydro', offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should search players (partial username w/ offset)', async () => {
-      const firstResponse = await api.get('/api/players/search').query({ username: 'HYDRO' });
+      const firstResponse = await api.get('/players/search').query({ username: 'HYDRO' });
 
       expect(firstResponse.status).toBe(200);
       expect(firstResponse.body.length).toBe(2);
@@ -441,7 +441,7 @@ describe('Player API', () => {
         type: 'unknown'
       });
 
-      const secondResponse = await api.get('/api/players/search').query({ username: 'HYDRO', offset: 1 });
+      const secondResponse = await api.get('/players/search').query({ username: 'HYDRO', offset: 1 });
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body.length).toBe(1);
@@ -453,7 +453,7 @@ describe('Player API', () => {
     });
 
     it('should search players (unknown partial username)', async () => {
-      const response = await api.get('/api/players/search').query({ username: 'zez' });
+      const response = await api.get('/players/search').query({ username: 'zez' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
@@ -462,14 +462,14 @@ describe('Player API', () => {
 
   describe('4. Viewing', () => {
     it('should not view player details (player not found)', async () => {
-      const response = await api.get('/api/players/username/zezima');
+      const response = await api.get('/players/username/zezima');
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
     });
 
     it('should view player details', async () => {
-      const response = await api.get('/api/players/username/PsiKOI');
+      const response = await api.get('/players/username/PsiKOI');
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
@@ -484,21 +484,21 @@ describe('Player API', () => {
 
   describe('5. Type Assertion', () => {
     it('should not assert player type(undefined username)', async () => {
-      const response = await api.post(`/api/players/assert-type`).send({});
+      const response = await api.post(`/players/assert-type`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not assert player type(empty username)', async () => {
-      const response = await api.post(`/api/players/assert-type`).send({ username: '' });
+      const response = await api.post(`/players/assert-type`).send({ username: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Undefined id and username.');
     });
 
     it('should not assert player type(player not found)', async () => {
-      const response = await api.post(`/api/players/assert-type`).send({ username: 'zezima' });
+      const response = await api.post(`/players/assert-type`).send({ username: 'zezima' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -514,17 +514,17 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
 
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toMatch('Failed to update: Unregistered name change.');
 
-      const detailsResponse = await api.get('/api/players/username/PsiKOI');
+      const detailsResponse = await api.get('/players/username/PsiKOI');
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.flagged).toBe(true);
 
-      const assertTypeResponse = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
+      const assertTypeResponse = await api.post(`/players/assert-type`).send({ username: 'psikoi' });
 
       expect(assertTypeResponse.status).toBe(400);
       expect(assertTypeResponse.body.message).toMatch('Type Assertion Not Allowed: Player is Flagged.');
@@ -542,7 +542,7 @@ describe('Player API', () => {
       });
 
       // Unflag the player
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.flagged).toBe(false);
 
@@ -552,7 +552,7 @@ describe('Player API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
+      const response = await api.post(`/players/assert-type`).send({ username: 'psikoi' });
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({ username: 'psikoi', type: 'regular' });
@@ -567,12 +567,12 @@ describe('Player API', () => {
         [PlayerType.HARDCORE]: { statusCode: 404 }
       });
 
-      const assertTypeResponse = await api.post(`/api/players/assert-type`).send({ username: 'psikoi' });
+      const assertTypeResponse = await api.post(`/players/assert-type`).send({ username: 'psikoi' });
 
       expect(assertTypeResponse.status).toBe(200);
       expect(assertTypeResponse.body).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
-      const detailsResponse = await api.get('/api/players/username/PsiKOI');
+      const detailsResponse = await api.get('/players/username/PsiKOI');
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.type).toBe('ultimate');
@@ -581,7 +581,7 @@ describe('Player API', () => {
 
   describe('6. Updating Country', () => {
     it('should not update player country (invalid admin password)', async () => {
-      const response = await api.put(`/api/players/username/psikoi/country`).send({ country: 'PT' });
+      const response = await api.put(`/players/username/psikoi/country`).send({ country: 'PT' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
@@ -589,7 +589,7 @@ describe('Player API', () => {
 
     it('should not update player country (incorrect admin password)', async () => {
       const response = await api
-        .put(`/api/players/username/psikoi/country`)
+        .put(`/players/username/psikoi/country`)
         .send({ country: 'PT', adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
@@ -598,7 +598,7 @@ describe('Player API', () => {
 
     it('should not update player country (undefined country)', async () => {
       const response = await api
-        .put(`/api/players/username/psikoi/country`)
+        .put(`/players/username/psikoi/country`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -607,7 +607,7 @@ describe('Player API', () => {
 
     it('should not update player country (empty country)', async () => {
       const response = await api
-        .put(`/api/players/username/psikoi/country`)
+        .put(`/players/username/psikoi/country`)
         .send({ country: '', adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -616,7 +616,7 @@ describe('Player API', () => {
 
     it('should not update player country (player not found)', async () => {
       const response = await api
-        .put(`/api/players/username/zezima/country`)
+        .put(`/players/username/zezima/country`)
         .send({ country: 'PT', adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
@@ -625,7 +625,7 @@ describe('Player API', () => {
 
     it('should not update player country (invalid country)', async () => {
       const response = await api
-        .put(`/api/players/username/PSIKOI/country`)
+        .put(`/players/username/PSIKOI/country`)
         .send({ country: 'XX', adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -634,7 +634,7 @@ describe('Player API', () => {
 
     it('should update player country', async () => {
       const updateCountryResponse = await api
-        .put(`/api/players/username/PSIKOI/country`)
+        .put(`/players/username/PSIKOI/country`)
         .send({ country: 'pt', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
@@ -644,7 +644,7 @@ describe('Player API', () => {
         country: 'PT'
       });
 
-      const detailsResponse = await api.get('/api/players/username/PsiKOI');
+      const detailsResponse = await api.get('/players/username/PsiKOI');
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.username).toBe('psikoi');
@@ -654,14 +654,14 @@ describe('Player API', () => {
 
   describe('7. Deleting', () => {
     it('should not delete player (invalid admin password)', async () => {
-      const response = await api.delete(`/api/players/username/psikoi`);
+      const response = await api.delete(`/players/username/psikoi`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not delete player (incorrect admin password)', async () => {
-      const response = await api.delete(`/api/players/username/psikoi`).send({ adminPassword: 'abc' });
+      const response = await api.delete(`/players/username/psikoi`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
@@ -669,7 +669,7 @@ describe('Player API', () => {
 
     it('should not delete player (player not found)', async () => {
       const response = await api
-        .delete(`/api/players/username/zezima`)
+        .delete(`/players/username/zezima`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
@@ -678,13 +678,13 @@ describe('Player API', () => {
 
     it('should delete player', async () => {
       const deletePlayerResponse = await api
-        .delete(`/api/players/username/psikoi`)
+        .delete(`/players/username/psikoi`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(deletePlayerResponse.status).toBe(200);
       expect(deletePlayerResponse.body.message).toMatch('Successfully deleted player: PSIKOI');
 
-      const detailsResponse = await api.get('/api/players/username/PsiKOI');
+      const detailsResponse = await api.get('/players/username/PsiKOI');
 
       expect(detailsResponse.status).toBe(404);
       expect(detailsResponse.body.message).toBe('Player not found.');

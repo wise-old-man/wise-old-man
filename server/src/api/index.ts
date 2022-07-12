@@ -55,7 +55,7 @@ class API {
         if (!req.route) return;
 
         const route = `${req.baseUrl}${req.route.path}`;
-        if (route === '/api/metrics/') return;
+        if (route === '/metrics/') return;
 
         const status = res.statusCode;
         const method = req.method;
@@ -72,7 +72,7 @@ class API {
   }
 
   setupRouting() {
-    this.express.use('/api', router);
+    this.express.use('/', router);
   }
 
   setupServices() {

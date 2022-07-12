@@ -79,14 +79,14 @@ afterAll(async done => {
 describe('Group API', () => {
   describe('1 - Create', () => {
     it('should not create (invalid name)', async () => {
-      const response = await api.post('/api/groups').send({});
+      const response = await api.post('/groups').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' is undefined.");
     });
 
     it('should not create (empty name)', async () => {
-      const response = await api.post('/api/groups').send({ name: '' });
+      const response = await api.post('/groups').send({ name: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Group name must have at least one character.');
@@ -94,7 +94,7 @@ describe('Group API', () => {
 
     it('should not create (name too long)', async () => {
       const response = await api
-        .post('/api/groups')
+        .post('/groups')
         .send({ name: 'jklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjn' });
 
       expect(response.status).toBe(400);
@@ -102,7 +102,7 @@ describe('Group API', () => {
     });
 
     it('should not create (invalid clanChat)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'ooops',
         clanChat: '#hey_',
         members: []
@@ -113,7 +113,7 @@ describe('Group API', () => {
     });
 
     it('should not create (clanChat too long)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'ooops',
         clanChat: 'jklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjn',
         members: []
@@ -124,7 +124,7 @@ describe('Group API', () => {
     });
 
     it('should not create (description too long)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'ooops',
         description:
           'jklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjnjklasjhfklsdhnfkjsdnfkdjsnfkdjsnfkjsdnfksdjnfksdjn1'
@@ -135,7 +135,7 @@ describe('Group API', () => {
     });
 
     it('should not create (invalid member object shape)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'A new test group',
         members: ['test player', 'alt player']
       });
@@ -147,7 +147,7 @@ describe('Group API', () => {
     });
 
     it('should not create (invalid member role)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'A new test group',
         members: [
           { username: 'test player', role: 'idk' },
@@ -161,7 +161,7 @@ describe('Group API', () => {
     });
 
     it('should not create (invalid member name)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'A new test group',
         members: [{ username: 'reallyreallylongusername', role: 'leader' }, { username: 'zezima' }]
       });
@@ -172,7 +172,7 @@ describe('Group API', () => {
     });
 
     it('should not create (invalid homeworld type)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: ' Some Group_',
         description: 'Test',
         clanChat: ' Test ',
@@ -185,7 +185,7 @@ describe('Group API', () => {
     });
 
     it('should create (no members)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: ' Some Group_',
         description: 'Test123',
         clanChat: ' Test ',
@@ -213,7 +213,7 @@ describe('Group API', () => {
     });
 
     it('should create (members w/ default roles)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: ' heyy_',
         members: [
           { username: '  Test_Player' },
@@ -249,7 +249,7 @@ describe('Group API', () => {
     });
 
     it('should create (members w/ roles)', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'woaaahh',
         members: [
           { username: 'TEST player', role: 'leader' },
@@ -277,14 +277,14 @@ describe('Group API', () => {
     });
 
     it('should not create (name already taken)', async () => {
-      const response = await api.post('/api/groups').send({ name: 'Some Group', members: [] });
+      const response = await api.post('/groups').send({ name: 'Some Group', members: [] });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('is already taken');
     });
 
     it('should create and correctly handle duplicate usernames', async () => {
-      const response = await api.post('/api/groups').send({
+      const response = await api.post('/groups').send({
         name: 'woaaahh 2',
         members: [
           { username: 'TEST player', role: 'leader' },
@@ -322,7 +322,7 @@ describe('Group API', () => {
 
   describe('2 - Edit', () => {
     it('should not edit (invalid verification code)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({ name: 'idk' });
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({ name: 'idk' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
@@ -330,7 +330,7 @@ describe('Group API', () => {
 
     it('should not edit (incorrect verification code)', async () => {
       const response = await api
-        .put(`/api/groups/${globalData.testGroupNoMembers.id}`)
+        .put(`/groups/${globalData.testGroupNoMembers.id}`)
         .send({ verificationCode: 'XYZ', name: 'ABC' });
 
       expect(response.status).toBe(403);
@@ -339,7 +339,7 @@ describe('Group API', () => {
 
     it('should not edit (empty params)', async () => {
       const response = await api
-        .put(`/api/groups/${globalData.testGroupNoMembers.id}`)
+        .put(`/groups/${globalData.testGroupNoMembers.id}`)
         .send({ verificationCode: globalData.testGroupNoMembers.verificationCode });
 
       expect(response.status).toBe(400);
@@ -347,14 +347,14 @@ describe('Group API', () => {
     });
 
     it('should not edit (group not found)', async () => {
-      const response = await api.put('/api/groups/1000').send({ verificationCode: 'XYZ', name: 'ABC' });
+      const response = await api.put('/groups/1000').send({ verificationCode: 'XYZ', name: 'ABC' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
     });
 
     it('should not edit (name already taken)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         name: ` ${globalData.testGroupNoLeaders.name}__`
       });
@@ -366,7 +366,7 @@ describe('Group API', () => {
     });
 
     it('should not edit (invalid member object shape)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: ['One', 'Two']
       });
@@ -378,7 +378,7 @@ describe('Group API', () => {
     });
 
     it('should not edit (invalid member role)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: [{ username: 'Test Player', role: 'what' }, { username: 'Alt Player' }]
       });
@@ -388,7 +388,7 @@ describe('Group API', () => {
     });
 
     it('should not edit (invalid members list)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: 123
       });
@@ -398,7 +398,7 @@ describe('Group API', () => {
     });
 
     it('should not edit (invalid member name)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoMembers.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoMembers.id}`).send({
         verificationCode: globalData.testGroupNoMembers.verificationCode,
         members: [
           { username: 'Test Player' },
@@ -413,7 +413,7 @@ describe('Group API', () => {
     });
 
     it('should edit members list', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         members: [
           { username: 'Psikoi', role: 'achiever' },
@@ -439,7 +439,7 @@ describe('Group API', () => {
     });
 
     it('should edit name', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         name: '__New name! '
       });
@@ -451,7 +451,7 @@ describe('Group API', () => {
     });
 
     it('should edit clanchat, homeworld & description', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}`).send({
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode,
         clanChat: 'wiseoldman  ',
         description: ' when I was a young boy, my father took me into the city to see a marching band  ',
@@ -481,7 +481,7 @@ describe('Group API', () => {
         data: { score: 30 }
       });
 
-      const response = await api.get('/api/groups');
+      const response = await api.get('/groups');
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(4);
@@ -512,7 +512,7 @@ describe('Group API', () => {
     });
 
     it('should search groups (w/ name query)', async () => {
-      const response = await api.get('/api/groups').query({ name: 'ey' });
+      const response = await api.get('/groups').query({ name: 'ey' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -523,7 +523,7 @@ describe('Group API', () => {
     });
 
     it('should search groups (w/ limit)', async () => {
-      const response = await api.get('/api/groups').query({ limit: 1 });
+      const response = await api.get('/groups').query({ limit: 1 });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -534,7 +534,7 @@ describe('Group API', () => {
     });
 
     it('should search groups (w/ limit & offset)', async () => {
-      const response = await api.get('/api/groups').query({ limit: 1, offset: 1 });
+      const response = await api.get('/groups').query({ limit: 1, offset: 1 });
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(g => !!g.verificationHash).length).toBe(0);
@@ -545,21 +545,21 @@ describe('Group API', () => {
     });
 
     it('should not search groups (negative offset)', async () => {
-      const response = await api.get(`/api/groups`).query({ offset: -5 });
+      const response = await api.get(`/groups`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should not search groups (negative limit)', async () => {
-      const response = await api.get(`/api/groups`).query({ limit: -5 });
+      const response = await api.get(`/groups`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not search groups (limit > 50)', async () => {
-      const response = await api.get(`/api/groups`).query({ limit: 1000 });
+      const response = await api.get(`/groups`).query({ limit: 1000 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The maximum results limit is 50');
@@ -568,7 +568,7 @@ describe('Group API', () => {
 
   describe('4 - Add Members', () => {
     it('should not add members (group not found)', async () => {
-      const response = await api.post('/api/groups/1000/add-members').send({
+      const response = await api.post('/groups/1000/add-members').send({
         verificationCode: 'XYZ',
         members: [{ username: 'elvard', role: 'leader' }]
       });
@@ -579,7 +579,7 @@ describe('Group API', () => {
 
     it('should not add members (invalid verification code)', async () => {
       const response = await api
-        .post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`)
+        .post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`)
         .send({ members: [] });
 
       expect(response.status).toBe(400);
@@ -587,7 +587,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (incorrect verification code)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: [{ username: 'elvard', role: 'leader' }]
       });
@@ -597,7 +597,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid members list)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: 123
       });
@@ -607,7 +607,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (empty members list)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: []
       });
@@ -617,7 +617,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member object shape)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['elvard@invalid']
       });
@@ -627,7 +627,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member name)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'elvard@invalid' }, { username: 'alright' }]
       });
@@ -639,7 +639,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member role)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'alexsuperfly', role: 'invalid' }]
       });
@@ -649,7 +649,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (already members)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'zezima' }]
       });
@@ -659,10 +659,10 @@ describe('Group API', () => {
     });
 
     it('should add members', async () => {
-      const before = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [
           { username: 'zezima' }, // should ignore this username, since it's already a member
@@ -678,7 +678,7 @@ describe('Group API', () => {
         message: 'Successfully added 3 members.'
       });
 
-      const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
       expect(after.body.memberCount).toBe(8); // had 5 previously
 
@@ -691,7 +691,7 @@ describe('Group API', () => {
 
   describe('5 - Change Role', () => {
     it('should not change role (group not found)', async () => {
-      const response = await api.put(`/api/groups/123456789/change-role`).send({
+      const response = await api.put(`/groups/123456789/change-role`).send({
         verificationCode: 'xxx-xxx-xxx',
         username: 'elvard',
         role: 'ranger'
@@ -702,7 +702,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (invalid verification code)', async () => {
-      const response = await api.put(`/api/groups/123456789/change-role`).send({
+      const response = await api.put(`/groups/123456789/change-role`).send({
         username: 'elvard',
         role: 'ranger'
       });
@@ -712,7 +712,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (incorrect verification code)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: 'xxx-xxx-xxx',
         username: 'elvard',
         role: 'ranger'
@@ -723,7 +723,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (undefined username)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode
       });
 
@@ -733,7 +733,7 @@ describe('Group API', () => {
 
     it('should not change role (undefined role)', async () => {
       const response = await api
-        .put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`)
+        .put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`)
         .send({ username: 'idk', verificationCode: globalData.testGroupNoLeaders.verificationCode });
 
       expect(response.status).toBe(400);
@@ -741,7 +741,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (empty role)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         username: 'idk',
         role: '',
         verificationCode: globalData.testGroupNoLeaders.verificationCode
@@ -752,7 +752,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (invalid role)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'zezima___',
         role: 'idk'
@@ -763,7 +763,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (not a member)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'usbc',
         role: 'beast'
@@ -774,7 +774,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (already has role)', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'sethmare',
         role: 'magician'
@@ -785,10 +785,10 @@ describe('Group API', () => {
     });
 
     it('should change role', async () => {
-      const before = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.put(`/api/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'sethmare',
         role: 'dragon'
@@ -800,7 +800,7 @@ describe('Group API', () => {
         player: { username: 'sethmare' }
       });
 
-      const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
 
       // ensure group.updatedAt has been updated
@@ -812,40 +812,40 @@ describe('Group API', () => {
 
   describe('6 - List Player Groups', () => {
     it('should not list player groups (player not found)', async () => {
-      const usernameResponse = await api.get(`/api/players/username/raaandooom/groups`);
+      const usernameResponse = await api.get(`/players/username/raaandooom/groups`);
 
       expect(usernameResponse.status).toBe(404);
       expect(usernameResponse.body.message).toMatch('Player not found.');
 
-      const idResponse = await api.get(`/api/players/100000/groups`);
+      const idResponse = await api.get(`/players/100000/groups`);
 
       expect(idResponse.status).toBe(404);
       expect(idResponse.body.message).toMatch('Player not found.');
     });
 
     it('should not list player groups (negative offset)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/groups`).query({ offset: -5 });
+      const response = await api.get(`/players/username/psikoi/groups`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should not list player groups (negative limit)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/groups`).query({ limit: -5 });
+      const response = await api.get(`/players/username/psikoi/groups`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not list player groups (limit > 50)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/groups`).query({ limit: 1000 });
+      const response = await api.get(`/players/username/psikoi/groups`).query({ limit: 1000 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The maximum results limit is 50');
     });
 
     it('should list player groups', async () => {
-      const response = await api.get(`/api/players/username/zezima/groups`);
+      const response = await api.get(`/players/username/zezima/groups`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
@@ -882,7 +882,7 @@ describe('Group API', () => {
     });
 
     it('should list player groups (w/ limit & offset)', async () => {
-      const response = await api.get(`/api/players/username/zezima/groups`).query({ limit: 1, offset: 1 });
+      const response = await api.get(`/players/username/zezima/groups`).query({ limit: 1, offset: 1 });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -903,7 +903,7 @@ describe('Group API', () => {
 
   describe('7 - Remove Members', () => {
     it('should not remove members (group not found)', async () => {
-      const response = await api.post(`/api/groups/123456789/remove-members`).send({
+      const response = await api.post(`/groups/123456789/remove-members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: ['sethmare']
       });
@@ -913,7 +913,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (invalid verification code)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         members: ['sethmare']
       });
 
@@ -922,7 +922,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (incorrect verification code)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: ['sethmare']
       });
@@ -932,7 +932,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (invalid members list)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: 123
       });
@@ -942,7 +942,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (empty members list)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: []
       });
@@ -952,7 +952,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (no valid players found)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['boom_']
       });
@@ -962,7 +962,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (not members)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['swampletics']
       });
@@ -972,10 +972,10 @@ describe('Group API', () => {
     });
 
     it('should remove members', async () => {
-      const before = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.post(`/api/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['SETHmare  ', 'ZEZIMA', '__BOOM'] // boom should get ignored
       });
@@ -986,7 +986,7 @@ describe('Group API', () => {
         message: 'Successfully removed 2 members.'
       });
 
-      const after = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
       expect(after.body.memberCount).toBe(6); // had 8 previously
 
@@ -999,7 +999,7 @@ describe('Group API', () => {
 
   describe('8 - Delete', () => {
     it('should not delete (group not found)', async () => {
-      const response = await api.delete(`/api/groups/123456789`).send({
+      const response = await api.delete(`/groups/123456789`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
 
@@ -1008,14 +1008,14 @@ describe('Group API', () => {
     });
 
     it('should not delete (invalid verification code)', async () => {
-      const response = await api.delete(`/api/groups/123456789`);
+      const response = await api.delete(`/groups/123456789`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not delete (incorrect verification code)', async () => {
-      const response = await api.delete(`/api/groups/${globalData.testGroupNoLeaders.id}`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
 
@@ -1024,14 +1024,14 @@ describe('Group API', () => {
     });
 
     it('should delete', async () => {
-      const response = await api.delete(`/api/groups/${globalData.testGroupNoLeaders.id}`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode
       });
 
       expect(response.status).toBe(200);
       expect(response.body.message).toMatch('Successfully deleted group:');
 
-      const fetchConfirmResponse = await api.get(`/api/groups/${globalData.testGroupNoLeaders.id}`);
+      const fetchConfirmResponse = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
       expect(fetchConfirmResponse.body.message).toBe('Group not found.');
     });
@@ -1039,14 +1039,14 @@ describe('Group API', () => {
 
   describe('9 - View Details', () => {
     it('should not view details (group not found)', async () => {
-      const response = await api.get('/api/groups/9999');
+      const response = await api.get('/groups/9999');
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
     });
 
     it('should view details', async () => {
-      const response = await api.get(`/api/groups/${globalData.testGroupOneLeader.id}`);
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
 
       expect(response.status).toBe(200);
 
@@ -1063,21 +1063,21 @@ describe('Group API', () => {
 
   describe('10 - List Members', () => {
     it('should not list members (group not found)', async () => {
-      const response = await api.get('/api/groups/9999/members');
+      const response = await api.get('/groups/9999/members');
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
     });
 
     it('should list members (empty group)', async () => {
-      const response = await api.get(`/api/groups/${globalData.testGroupNoMembers.id}/members`);
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/members`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
     });
 
     it('should list members', async () => {
-      const response = await api.get(`/api/groups/${globalData.testGroupOneLeader.id}/members`);
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/members`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(5);
@@ -1092,21 +1092,21 @@ describe('Group API', () => {
 
   describe('11 - View Hiscores', () => {
     it('should not view hiscores (undefined metric)', async () => {
-      const response = await api.get(`/api/groups/100000/hiscores`);
+      const response = await api.get(`/groups/100000/hiscores`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not view hiscores (empty metric)', async () => {
-      const response = await api.get(`/api/groups/100000/hiscores`).query({ metric: '' });
+      const response = await api.get(`/groups/100000/hiscores`).query({ metric: '' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not view hiscores (group not found)', async () => {
-      const response = await api.get(`/api/groups/100000/hiscores`).query({ metric: 'ranged' });
+      const response = await api.get(`/groups/100000/hiscores`).query({ metric: 'ranged' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
@@ -1114,7 +1114,7 @@ describe('Group API', () => {
 
     it('should not view hiscores (invalid metric)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
@@ -1123,7 +1123,7 @@ describe('Group API', () => {
 
     it('should not view hiscores (empty group)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupNoMembers.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupNoMembers.id}/hiscores`)
         .query({ metric: 'magic' });
 
       expect(response.status).toBe(200);
@@ -1131,7 +1131,7 @@ describe('Group API', () => {
     });
 
     it('should view hiscores', async () => {
-      const trackResponse = await api.post('/api/players/track').send({ username: 'psikoi' });
+      const trackResponse = await api.post('/players/track').send({ username: 'psikoi' });
       expect(trackResponse.status).toBe(200);
 
       const modifiedRawData = modifyRawHiscoresData(globalData.pHiscoresRawData, [
@@ -1145,7 +1145,7 @@ describe('Group API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secTrackResponse = await api.post('/api/players/track').send({ username: 'zezima' });
+      const secTrackResponse = await api.post('/players/track').send({ username: 'zezima' });
       expect(secTrackResponse.status).toBe(200);
 
       // Change the mock hiscores data to Lynx Titan
@@ -1154,14 +1154,14 @@ describe('Group API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const anotherTrackResponse = await api.post('/api/players/track').send({ username: 'alexsuperfly' });
+      const anotherTrackResponse = await api.post('/players/track').send({ username: 'alexsuperfly' });
       expect(anotherTrackResponse.status).toBe(200);
 
       expect(anotherTrackResponse.body.ttm).toBe(0);
       expect(anotherTrackResponse.body.ehp).toBeGreaterThan(trackResponse.body.ehp);
 
       const skillHiscoresResponse = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic' });
 
       expect(skillHiscoresResponse.status).toBe(200);
@@ -1201,7 +1201,7 @@ describe('Group API', () => {
       });
 
       const activityHiscoresResponse = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'clue_scrolls_all' });
 
       expect(activityHiscoresResponse.status).toBe(200);
@@ -1210,7 +1210,7 @@ describe('Group API', () => {
       expect(activityHiscoresResponse.body[0].data.rank).toBeDefined();
 
       const virtualHiscoresResponse = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'ehp' });
 
       expect(virtualHiscoresResponse.status).toBe(200);
@@ -1221,7 +1221,7 @@ describe('Group API', () => {
 
     it('should view hiscores (w/ limit & offset)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'zulrah', limit: 1, offset: 1 });
 
       expect(response.status).toBe(200);
@@ -1240,7 +1240,7 @@ describe('Group API', () => {
 
     it('should not view hiscores (negative offset)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', offset: -5 });
 
       expect(response.status).toBe(400);
@@ -1249,7 +1249,7 @@ describe('Group API', () => {
 
     it('should not view hiscores (negative limit)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', limit: -5 });
 
       expect(response.status).toBe(400);
@@ -1258,7 +1258,7 @@ describe('Group API', () => {
 
     it('should not view hiscores (limit > 50)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testGroupOneLeader.id}/hiscores`)
+        .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'magic', limit: 1000 });
 
       expect(response.status).toBe(400);
@@ -1268,21 +1268,21 @@ describe('Group API', () => {
 
   describe('12 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
-      const response = await api.get(`/api/groups/100000/statistics`);
+      const response = await api.get(`/groups/100000/statistics`);
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
     });
 
     it('should not view statistics (empty group)', async () => {
-      const response = await api.get(`/api/groups/${globalData.testGroupNoMembers.id}/statistics`);
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/statistics`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Couldn't find any stats for this group.");
     });
 
     it('should view statistics', async () => {
-      const response = await api.get(`/api/groups/${globalData.testGroupOneLeader.id}/statistics`);
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/statistics`);
 
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
@@ -1312,14 +1312,14 @@ describe('Group API', () => {
 
   describe('13 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
-      const response = await api.post(`/api/groups/123456789/update-all`);
+      const response = await api.post(`/groups/123456789/update-all`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
     });
 
     it('should not update all (group not found)', async () => {
-      const response = await api.post(`/api/groups/123456789/update-all`).send({
+      const response = await api.post(`/groups/123456789/update-all`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
 
@@ -1328,7 +1328,7 @@ describe('Group API', () => {
     });
 
     it('should not update all (incorrect verification code)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
+      const response = await api.post(`/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
         verificationCode: 'xxx-xxx-xxx'
       });
 
@@ -1337,7 +1337,7 @@ describe('Group API', () => {
     });
 
     it('should not update all (no outdated members)', async () => {
-      const response = await api.post(`/api/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
+      const response = await api.post(`/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
 
@@ -1354,7 +1354,7 @@ describe('Group API', () => {
         data: { updatedAt: dayOldDate }
       });
 
-      const response = await api.post(`/api/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
+      const response = await api.post(`/groups/${globalData.testGroupOneLeader.id}/update-all`).send({
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
 
@@ -1367,14 +1367,14 @@ describe('Group API', () => {
 
   describe('14 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
-      const response = await api.put(`/api/groups/100000/reset-code`);
+      const response = await api.put(`/groups/100000/reset-code`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not reset code (invalid admin password)', async () => {
-      const response = await api.put(`/api/groups/100000/reset-code`).send({
+      const response = await api.put(`/groups/100000/reset-code`).send({
         adminPassword: 'abcdef'
       });
 
@@ -1383,7 +1383,7 @@ describe('Group API', () => {
     });
 
     it('should not reset code (group not found)', async () => {
-      const response = await api.put(`/api/groups/100000/reset-code`).send({
+      const response = await api.put(`/groups/100000/reset-code`).send({
         adminPassword: env.ADMIN_PASSWORD
       });
 
@@ -1392,7 +1392,7 @@ describe('Group API', () => {
     });
 
     it('should reset code', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}/reset-code`).send({
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/reset-code`).send({
         adminPassword: env.ADMIN_PASSWORD
       });
 
@@ -1400,7 +1400,7 @@ describe('Group API', () => {
       expect(response.body.newCode).toBeDefined();
 
       // try to edit the group with the old code
-      const failEditAttempt = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}`).send({
+      const failEditAttempt = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         name: 'wow',
         verificationCode: globalData.testGroupOneLeader.verificationCode
       });
@@ -1409,7 +1409,7 @@ describe('Group API', () => {
       expect(failEditAttempt.body.message).toBe('Incorrect verification code.');
 
       // try to edit the group with the new code
-      const editAttempt = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}`).send({
+      const editAttempt = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
         name: 'worked',
         verificationCode: response.body.newCode
       });
@@ -1421,14 +1421,14 @@ describe('Group API', () => {
 
   describe('15 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
-      const response = await api.put(`/api/groups/100000/verify`);
+      const response = await api.put(`/groups/100000/verify`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not verify group (invalid admin password)', async () => {
-      const response = await api.put(`/api/groups/100000/verify`).send({
+      const response = await api.put(`/groups/100000/verify`).send({
         adminPassword: 'abcdef'
       });
 
@@ -1437,7 +1437,7 @@ describe('Group API', () => {
     });
 
     it('should not verify group (group not found)', async () => {
-      const response = await api.put(`/api/groups/100000/verify`).send({
+      const response = await api.put(`/groups/100000/verify`).send({
         adminPassword: env.ADMIN_PASSWORD
       });
 
@@ -1446,7 +1446,7 @@ describe('Group API', () => {
     });
 
     it('should verify group', async () => {
-      const response = await api.put(`/api/groups/${globalData.testGroupOneLeader.id}/verify`).send({
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}/verify`).send({
         adminPassword: env.ADMIN_PASSWORD
       });
 
@@ -1464,7 +1464,7 @@ describe('Group API', () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 404);
 
-      const response = await api.get('/api/groups/migrate/temple/3');
+      const response = await api.get('/groups/migrate/temple/3');
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Found no TempleOSRS members to import.');
     });
@@ -1473,7 +1473,7 @@ describe('Group API', () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 503);
 
-      const response = await api.get('/api/groups/migrate/temple/3');
+      const response = await api.get('/groups/migrate/temple/3');
       expect(response.status).toBe(500);
       expect(response.body.message).toBe('Failed to load TempleOSRS. Possible server failure on their end.');
     });
@@ -1482,7 +1482,7 @@ describe('Group API', () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 200, globalData.templeGroupRawData);
 
-      const response = await api.get('/api/groups/migrate/temple/3');
+      const response = await api.get('/groups/migrate/temple/3');
 
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('Omnia');
@@ -1496,7 +1496,7 @@ describe('Group API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 404);
 
-      const response = await api.get('/api/groups/migrate/cml/3');
+      const response = await api.get('/groups/migrate/cml/3');
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
     });
@@ -1505,7 +1505,7 @@ describe('Group API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200);
 
-      const response = await api.get('/api/groups/migrate/cml/3');
+      const response = await api.get('/groups/migrate/cml/3');
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
     });
@@ -1514,7 +1514,7 @@ describe('Group API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, 'random page content');
 
-      const response = await api.get('/api/groups/migrate/cml/3');
+      const response = await api.get('/groups/migrate/cml/3');
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Found no CrystalMathLabs members to import.');
     });
@@ -1523,7 +1523,7 @@ describe('Group API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlGroupRawData);
 
-      const response = await api.get('/api/groups/migrate/cml/3');
+      const response = await api.get('/groups/migrate/cml/3');
       expect(response.status).toBe(200);
       expect(response.body.name).toBe('RSPT MEMBERLIST');
       expect(response.body.members.length).toBe(52);

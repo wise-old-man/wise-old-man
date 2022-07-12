@@ -46,35 +46,35 @@ afterAll(async done => {
 describe('Names API', () => {
   describe('1 - Submitting', () => {
     it('should not submit (missing oldName)', async () => {
-      const response = await api.post(`/api/names`).send({});
+      const response = await api.post(`/names`).send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'oldName' is undefined.");
     });
 
     it('should not submit (missing newName)', async () => {
-      const response = await api.post(`/api/names`).send({ oldName: 'psikoi' });
+      const response = await api.post(`/names`).send({ oldName: 'psikoi' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'newName' is undefined.");
     });
 
     it('should not submit (invalid oldName)', async () => {
-      const response = await api.post(`/api/names`).send({ oldName: 'reallylongname', newName: 'good' });
+      const response = await api.post(`/names`).send({ oldName: 'reallylongname', newName: 'good' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid old name.');
     });
 
     it('should not submit (invalid newName)', async () => {
-      const response = await api.post(`/api/names`).send({ oldName: 'good', newName: 'reallylongname' });
+      const response = await api.post(`/names`).send({ oldName: 'good', newName: 'reallylongname' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid new name.');
     });
 
     it('should not submit (equal names)', async () => {
-      const response = await api.post(`/api/names`).send({ oldName: 'psikoi', newName: 'psikoi' });
+      const response = await api.post(`/names`).send({ oldName: 'psikoi', newName: 'psikoi' });
 
       // Note: We allow changes in capitalization, so this condition only fails for equal names (same capitalization)
       expect(response.status).toBe(400);
@@ -82,21 +82,21 @@ describe('Names API', () => {
     });
 
     it("should not submit (player doesn't exist)", async () => {
-      const response = await api.post(`/api/names`).send({ oldName: 'psikoi', newName: 'Psikoi' });
+      const response = await api.post(`/names`).send({ oldName: 'psikoi', newName: 'Psikoi' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Player 'psikoi' is not tracked yet.");
     });
 
     it('should submit (capitalization change)', async () => {
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('psikoi');
       expect(trackResponse.body.displayName).toBe('psikoi');
 
       // Adding spaces and invalid characters to ensure they get stripped out on submission
-      const submitResponse = await api.post(`/api/names`).send({ oldName: '_psikoi -', newName: ' Psikoi' });
+      const submitResponse = await api.post(`/names`).send({ oldName: '_psikoi -', newName: ' Psikoi' });
 
       expect(submitResponse.status).toBe(201);
       expect(submitResponse.body.status).toBe('pending');
@@ -108,16 +108,14 @@ describe('Names API', () => {
     });
 
     it('should submit (full name change)', async () => {
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'Hydrox6' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'Hydrox6' });
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('hydrox6');
       expect(trackResponse.body.displayName).toBe('Hydrox6');
 
       // Adding spaces and invalid characters to ensure they get stripped out on submission
-      const submitResponse = await api
-        .post(`/api/names`)
-        .send({ oldName: 'hydrox6', newName: 'alexsuperfly' });
+      const submitResponse = await api.post(`/names`).send({ oldName: 'hydrox6', newName: 'alexsuperfly' });
 
       expect(submitResponse.status).toBe(201);
       expect(submitResponse.body.status).toBe('pending');
@@ -128,24 +126,24 @@ describe('Names API', () => {
 
     it('should not submit (repeated approved submission)', async () => {
       // Track new player (zezima)
-      const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'Zezima' });
+      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'Zezima' });
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.username).toBe('zezima');
 
       // Track new player (sethmare)
-      const secondTrackResponse = await api.post(`/api/players/track`).send({ username: 'Sethmare' });
+      const secondTrackResponse = await api.post(`/players/track`).send({ username: 'Sethmare' });
       expect(secondTrackResponse.status).toBe(201);
       expect(secondTrackResponse.body.username).toBe('sethmare');
 
       // Change name from zezima to sethmare
-      const submitResponse = await api.post(`/api/names`).send({ oldName: 'zezima', newName: 'sethmare' });
+      const submitResponse = await api.post(`/names`).send({ oldName: 'zezima', newName: 'sethmare' });
       expect(submitResponse.status).toBe(201);
 
       globalData.secondNameChangeId = submitResponse.body.id;
 
       // Approve this name change
       const approvalResponse = await api
-        .post(`/api/names/${submitResponse.body.id}/approve`)
+        .post(`/names/${submitResponse.body.id}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
@@ -155,23 +153,19 @@ describe('Names API', () => {
       expect(approvalResponse.body.resolvedAt).not.toBe(null);
 
       // Track new player (zezima) (again)
-      const thirdTrackResponse = await api.post(`/api/players/track`).send({ username: 'Zezima' });
+      const thirdTrackResponse = await api.post(`/players/track`).send({ username: 'Zezima' });
       expect(thirdTrackResponse.status).toBe(201);
       expect(thirdTrackResponse.body.username).toBe('zezima');
 
       // Change name from zezima to sethmare (again)
-      const secondSubmitResponse = await api
-        .post(`/api/names`)
-        .send({ oldName: 'zezima', newName: 'sethmare' });
+      const secondSubmitResponse = await api.post(`/names`).send({ oldName: 'zezima', newName: 'sethmare' });
 
       expect(secondSubmitResponse.status).toBe(400);
       expect(secondSubmitResponse.body.message).toMatch('Cannot submit a duplicate (approved) name change');
     });
 
     it('should not submit (repeated pending submission)', async () => {
-      const submitResponse = await api
-        .post(`/api/names`)
-        .send({ oldName: 'hydrox6', newName: 'alexsuperfly' });
+      const submitResponse = await api.post(`/names`).send({ oldName: 'hydrox6', newName: 'alexsuperfly' });
 
       expect(submitResponse.status).toBe(400);
       expect(submitResponse.body.message).toMatch("There's already a similar pending name change.");
@@ -180,21 +174,21 @@ describe('Names API', () => {
 
   describe('2 - Details', () => {
     it('should not fetch details (missing id)', async () => {
-      const response = await api.get(`/api/names/wow`);
+      const response = await api.get(`/names/wow`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch details (id not found)', async () => {
-      const response = await api.get(`/api/names/2000000000`);
+      const response = await api.get(`/names/2000000000`);
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Name change id was not found.');
     });
 
     it('should fetch details (pending name change)', async () => {
-      const response = await api.get(`/api/names/${globalData.firstNameChangeId}`);
+      const response = await api.get(`/names/${globalData.firstNameChangeId}`);
 
       expect(response.status).toBe(200);
       expect(response.body.nameChange.id).toBe(globalData.firstNameChangeId);
@@ -206,7 +200,7 @@ describe('Names API', () => {
     });
 
     it('should fetch details (approved name change, no data)', async () => {
-      const response = await api.get(`/api/names/${globalData.secondNameChangeId}`);
+      const response = await api.get(`/names/${globalData.secondNameChangeId}`);
 
       expect(response.status).toBe(200);
       expect(response.body.nameChange.id).toBe(globalData.secondNameChangeId);
@@ -217,7 +211,7 @@ describe('Names API', () => {
 
   describe('3 - Listing', () => {
     it('should not fetch list (invalid status)', async () => {
-      const response = await api.get(`/api/names`).query({ status: 50 });
+      const response = await api.get(`/names`).query({ status: 50 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch(
@@ -226,21 +220,21 @@ describe('Names API', () => {
     });
 
     it('should not fetch list (negative pagination limit)', async () => {
-      const response = await api.get(`/api/names`).query({ limit: -5 });
+      const response = await api.get(`/names`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not fetch list (negative pagination offset)', async () => {
-      const response = await api.get(`/api/names`).query({ offset: -5 });
+      const response = await api.get(`/names`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should fetch list (no filters)', async () => {
-      const response = await api.get(`/api/names`);
+      const response = await api.get(`/names`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
@@ -251,7 +245,7 @@ describe('Names API', () => {
     });
 
     it('should fetch list (filtered by status)', async () => {
-      const response = await api.get(`/api/names`).query({ status: 'approved' });
+      const response = await api.get(`/names`).query({ status: 'approved' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -259,7 +253,7 @@ describe('Names API', () => {
     });
 
     it('should fetch list (filtered by username)', async () => {
-      const response = await api.get(`/api/names`).query({ username: 'zezi' });
+      const response = await api.get(`/names`).query({ username: 'zezi' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -267,19 +261,19 @@ describe('Names API', () => {
     });
 
     it('should fetch (empty) list (filtered by username & status)', async () => {
-      const response = await api.get(`/api/names`).query({ username: 'zez', status: 'pending' });
+      const response = await api.get(`/names`).query({ username: 'zez', status: 'pending' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(0);
     });
 
     it('should fetch list (with paginated results)', async () => {
-      const firstResponse = await api.get(`/api/names`).query({ limit: 1 });
+      const firstResponse = await api.get(`/names`).query({ limit: 1 });
 
       expect(firstResponse.status).toBe(200);
       expect(firstResponse.body.length).toBe(1);
 
-      const secondResponse = await api.get(`/api/names`).query({ limit: 1, offset: 1 });
+      const secondResponse = await api.get(`/names`).query({ limit: 1, offset: 1 });
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body.length).toBe(1);
@@ -289,44 +283,42 @@ describe('Names API', () => {
 
   describe('4 - Listing Player Names', () => {
     it('should not fetch list (invalid player id)', async () => {
-      const response = await api.get(`/api/players/ddd/names`);
+      const response = await api.get(`/players/ddd/names`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'username' is undefined.");
     });
 
     it('should not fetch list (player not found)', async () => {
-      const firstResponse = await api.get(`/api/players/username/Jakesterwars/names`);
+      const firstResponse = await api.get(`/players/username/Jakesterwars/names`);
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toMatch('Player not found.');
 
-      const secondResponse = await api.get(`/api/players/2000000/names`);
+      const secondResponse = await api.get(`/players/2000000/names`);
 
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toMatch('Player not found.');
     });
 
     it('should fetch list', async () => {
-      const response = await api.get(`/api/players/username/sethmare/names`);
+      const response = await api.get(`/players/username/sethmare/names`);
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
     });
 
     it('should fetch list (again, after a name change)', async () => {
-      const submitResponse = await api
-        .post(`/api/names`)
-        .send({ oldName: 'sethmare', newName: 'jakesterwars' });
+      const submitResponse = await api.post(`/names`).send({ oldName: 'sethmare', newName: 'jakesterwars' });
 
       expect(submitResponse.status).toBe(201);
 
       const approvalResponse = await api
-        .post(`/api/names/${submitResponse.body.id}/approve`)
+        .post(`/names/${submitResponse.body.id}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(approvalResponse.status).toBe(200);
 
-      const secondFetchResponse = await api.get(`/api/players/username/Jakesterwars/names`);
+      const secondFetchResponse = await api.get(`/players/username/Jakesterwars/names`);
       expect(secondFetchResponse.status).toBe(200);
       expect(secondFetchResponse.body.length).toBe(2);
     });
@@ -334,30 +326,28 @@ describe('Names API', () => {
 
   describe('5 - Denying', () => {
     it('should not deny (invalid admin password)', async () => {
-      const response = await api.post(`/api/names/2000000000/deny`);
+      const response = await api.post(`/names/2000000000/deny`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not deny (incorrect admin password)', async () => {
-      const response = await api.post(`/api/names/2000000000/deny`).send({ adminPassword: 'abc' });
+      const response = await api.post(`/names/2000000000/deny`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
     });
 
     it('should not deny (invalid id)', async () => {
-      const response = await api.post(`/api/names/abc/deny`).send({ adminPassword: env.ADMIN_PASSWORD });
+      const response = await api.post(`/names/abc/deny`).send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
     });
 
     it('should not deny (id not found)', async () => {
-      const response = await api
-        .post(`/api/names/2000000000/deny`)
-        .send({ adminPassword: env.ADMIN_PASSWORD });
+      const response = await api.post(`/names/2000000000/deny`).send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
@@ -365,7 +355,7 @@ describe('Names API', () => {
 
     it('should not deny (already approved)', async () => {
       const response = await api
-        .post(`/api/names/${globalData.secondNameChangeId}/deny`)
+        .post(`/names/${globalData.secondNameChangeId}/deny`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -374,7 +364,7 @@ describe('Names API', () => {
 
     it('should deny', async () => {
       const response = await api
-        .post(`/api/names/${globalData.firstNameChangeId}/deny`)
+        .post(`/names/${globalData.firstNameChangeId}/deny`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
@@ -386,21 +376,21 @@ describe('Names API', () => {
 
   describe('6 - Approving', () => {
     it('should not approve (invalid admin password)', async () => {
-      const response = await api.post(`/api/names/2000000000/approve`);
+      const response = await api.post(`/names/2000000000/approve`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
     it('should not approve (incorrect admin password)', async () => {
-      const response = await api.post(`/api/names/2000000000/approve`).send({ adminPassword: 'abc' });
+      const response = await api.post(`/names/2000000000/approve`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
     });
 
     it('should not approve (invalid id)', async () => {
-      const response = await api.post(`/api/names/abc/approve`).send({ adminPassword: env.ADMIN_PASSWORD });
+      const response = await api.post(`/names/abc/approve`).send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
@@ -408,7 +398,7 @@ describe('Names API', () => {
 
     it('should not approve (id not found)', async () => {
       const response = await api
-        .post(`/api/names/2000000000/approve`)
+        .post(`/names/2000000000/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
@@ -417,7 +407,7 @@ describe('Names API', () => {
 
     it('should not approve (not pending)', async () => {
       const response = await api
-        .post(`/api/names/${globalData.secondNameChangeId}/approve`)
+        .post(`/names/${globalData.secondNameChangeId}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(400);
@@ -426,13 +416,13 @@ describe('Names API', () => {
 
     it('should approve (capitalization change, no transfers)', async () => {
       const submitResponse = await api
-        .post(`/api/names`)
+        .post(`/names`)
         .send({ oldName: 'jakesterwars', newName: 'Jakesterwars' });
 
       expect(submitResponse.status).toBe(201);
 
       const response = await api
-        .post(`/api/names/${submitResponse.body.id}/approve`)
+        .post(`/names/${submitResponse.body.id}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
@@ -441,13 +431,13 @@ describe('Names API', () => {
     });
 
     it('should approve (and transfer data)', async () => {
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'USBC' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'USBC' });
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('usbc');
       expect(trackResponse.body.displayName).toBe('USBC');
 
-      const submitResponse = await api.post(`/api/names`).send({ oldName: 'psikoi', newName: 'USBC' });
+      const submitResponse = await api.post(`/names`).send({ oldName: 'psikoi', newName: 'USBC' });
 
       expect(submitResponse.status).toBe(201);
 
@@ -465,7 +455,7 @@ describe('Names API', () => {
       await seedPostTransitionData(oldPlayerId, newPlayerId);
 
       const response = await api
-        .post(`/api/names/${submitResponse.body.id}/approve`)
+        .post(`/names/${submitResponse.body.id}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
@@ -473,7 +463,7 @@ describe('Names API', () => {
       expect(response.body.resolvedAt).not.toBe(null);
 
       // Check if records transfered correctly
-      const recordsResponse = await api.get(`/api/players/username/USBC/records`);
+      const recordsResponse = await api.get(`/players/username/USBC/records`);
 
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(5);
@@ -509,15 +499,13 @@ describe('Names API', () => {
       });
 
       // Check if none of the pre-transition snapshots have been transfered
-      const snapshotsResponse = await api
-        .get(`/api/players/username/USBC/snapshots`)
-        .query({ period: 'week' });
+      const snapshotsResponse = await api.get(`/players/username/USBC/snapshots`).query({ period: 'week' });
 
       expect(snapshotsResponse.status).toBe(200);
       expect(snapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
 
       // Check if none of the pre-transition memberships have been transfered
-      const groupsResponse = await api.get(`/api/players/username/USBC/groups`);
+      const groupsResponse = await api.get(`/players/username/USBC/groups`);
 
       expect(groupsResponse.status).toBe(200);
       expect(groupsResponse.body.length).toBe(1);
@@ -527,7 +515,7 @@ describe('Names API', () => {
       });
 
       // Check if none of the pre-transition participations have been transfered
-      const competitionsResponse = await api.get(`/api/players/username/USBC/competitions`);
+      const competitionsResponse = await api.get(`/players/username/USBC/competitions`);
 
       expect(competitionsResponse.status).toBe(200);
       expect(competitionsResponse.body.length).toBe(1);
@@ -536,7 +524,7 @@ describe('Names API', () => {
         metric: 'thieving'
       });
 
-      const detailsResponse = await api.get(`/api/players/username/USBC`);
+      const detailsResponse = await api.get(`/players/username/USBC`);
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.id).toBe(oldPlayerId);
@@ -547,14 +535,14 @@ describe('Names API', () => {
 
   describe('7 - Listing Group Name Changes', () => {
     it('should not fetch (invalid id)', async () => {
-      const fetchResponse = await api.get(`/api/groups/abc/name-changes`);
+      const fetchResponse = await api.get(`/groups/abc/name-changes`);
 
       expect(fetchResponse.status).toBe(400);
       expect(fetchResponse.body.message).toBe("Parameter 'id' is not a valid number.");
     });
 
     it('should not fetch (group not found)', async () => {
-      const fetchResponse = await api.get(`/api/groups/2000000000/name-changes`);
+      const fetchResponse = await api.get(`/groups/2000000000/name-changes`);
 
       expect(fetchResponse.status).toBe(404);
       expect(fetchResponse.body.message).toBe('Group not found.');
@@ -567,7 +555,7 @@ describe('Names API', () => {
       };
 
       // Create group
-      const createGroupResponse = await api.post('/api/groups').send(payload);
+      const createGroupResponse = await api.post('/groups').send(payload);
 
       expect(createGroupResponse.status).toBe(201);
       expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain('usbc');
@@ -578,7 +566,7 @@ describe('Names API', () => {
       globalData.testGroupId = createGroupResponse.body.group.id;
 
       const fetchResponse = await api
-        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .get(`/groups/${globalData.testGroupId}/name-changes`)
         .query({ limit: -5 });
 
       expect(fetchResponse.status).toBe(400);
@@ -587,7 +575,7 @@ describe('Names API', () => {
 
     it('should not fetch (negative pagination offset)', async () => {
       const fetchResponse = await api
-        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .get(`/groups/${globalData.testGroupId}/name-changes`)
         .query({ limit: 3, offset: -5 });
 
       expect(fetchResponse.status).toBe(400);
@@ -596,14 +584,14 @@ describe('Names API', () => {
 
     it('should fetch group name changes', async () => {
       const fetchResponse = await api
-        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .get(`/groups/${globalData.testGroupId}/name-changes`)
         .query({ limit: null, offset: 'abc' }); // the API should ignore these invalid pagination params
 
       expect(fetchResponse.body.length).toBe(4); // 3 name changes from Jakesterwars, 1 from USBC
       expect(fetchResponse.body[0].player.username).toBe('usbc');
 
       const fetchResponseLimited = await api
-        .get(`/api/groups/${globalData.testGroupId}/name-changes`)
+        .get(`/groups/${globalData.testGroupId}/name-changes`)
         .query({ limit: 2, offset: 2 });
 
       expect(fetchResponseLimited.body.length).toBe(2); // Test the limit
@@ -613,28 +601,28 @@ describe('Names API', () => {
 
   describe('8 - Bulk Submission', () => {
     it('should not bulk submit (invalid payload)', async () => {
-      const response = await api.post('/api/names/bulk').send();
+      const response = await api.post('/names/bulk').send();
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid name change list format.');
     });
 
     it('should not bulk submit (not an array)', async () => {
-      const response = await api.post('/api/names/bulk').send({});
+      const response = await api.post('/names/bulk').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid name change list format.');
     });
 
     it('should not bulk submit (empty array)', async () => {
-      const response = await api.post('/api/names/bulk').send([]);
+      const response = await api.post('/names/bulk').send([]);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Empty name change list.');
     });
 
     it('should not bulk submit (incorrect object shape)', async () => {
-      const response = await api.post('/api/names/bulk').send([1, 2, 3]);
+      const response = await api.post('/names/bulk').send([1, 2, 3]);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All name change objects must have ');
@@ -646,7 +634,7 @@ describe('Names API', () => {
         { oldName: 'C', newName: 'D' }
       ];
 
-      const response = await api.post('/api/names/bulk').send(payload);
+      const response = await api.post('/names/bulk').send(payload);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Could not find any valid name changes to submit.');
@@ -659,7 +647,7 @@ describe('Names API', () => {
         { oldName: 'Jakesterwars', newName: 'rorro' }
       ];
 
-      const response = await api.post('/api/names/bulk').send(payload);
+      const response = await api.post('/names/bulk').send(payload);
 
       expect(response.status).toBe(201);
       expect(response.body.nameChangesSubmitted).toBe(2);

@@ -59,33 +59,33 @@ afterAll(async done => {
 describe('Achievements API', () => {
   describe('Achievements Sync', () => {
     test('Fetch Achievement from unknown player', async () => {
-      const firstResponse = await apiMock.get(`/api/players/username/idk/achievements`);
+      const firstResponse = await apiMock.get(`/players/username/idk/achievements`);
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toBe('Player not found.');
 
-      const secondResponse = await apiMock.get(`/api/players/username/idk/achievements/progress`);
+      const secondResponse = await apiMock.get(`/players/username/idk/achievements/progress`);
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toBe('Player not found.');
 
-      const thirdResponse = await apiMock.get(`/api/players/2000000/achievements`);
+      const thirdResponse = await apiMock.get(`/players/2000000/achievements`);
       expect(thirdResponse.status).toBe(404);
       expect(thirdResponse.body.message).toBe('Player not found.');
 
-      const fourthResponse = await apiMock.get(`/api/players/2000000/achievements/progress`);
+      const fourthResponse = await apiMock.get(`/players/2000000/achievements/progress`);
       expect(fourthResponse.status).toBe(404);
       expect(fourthResponse.body.message).toBe('Player not found.');
     });
 
     test('Track Player (first time), no achievements', async () => {
       // Track player (first time)
-      const trackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Psikoi' });
+      const trackResponse = await apiMock.post(`/players/track`).send({ username: 'Psikoi' });
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('psikoi');
       expect(trackResponse.body.type).toBe('regular');
 
       // Check their achievements
-      const fetchResponse = await apiMock.get(`/api/players/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await apiMock.get(`/players/${trackResponse.body.id}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(0);
@@ -95,7 +95,7 @@ describe('Achievements API', () => {
 
     test('Track Player (second time), all achievements (unknown dates)', async () => {
       // Track player (second time)
-      const trackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Psikoi' });
+      const trackResponse = await apiMock.post(`/players/track`).send({ username: 'Psikoi' });
 
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.username).toBe('psikoi');
@@ -104,7 +104,7 @@ describe('Achievements API', () => {
       await sleep(500);
 
       // Check their achievements (again)
-      const fetchResponse = await apiMock.get(`/api/players/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await apiMock.get(`/players/${trackResponse.body.id}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
@@ -112,7 +112,7 @@ describe('Achievements API', () => {
     });
 
     test('Check Achievements Match (unknown dates)', async () => {
-      const fetchResponse = await apiMock.get(`/api/players/${globalData.testPlayerId}/achievements`);
+      const fetchResponse = await apiMock.get(`/players/${globalData.testPlayerId}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(globalData.expectedAchievements.length);
@@ -128,14 +128,14 @@ describe('Achievements API', () => {
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
       // Import player history
-      const importResponse = await apiMock.post(`/api/players/import`).send({ username: 'Psikoi' });
+      const importResponse = await apiMock.post(`/players/import`).send({ username: 'Psikoi' });
       expect(importResponse.status).toBe(200);
 
       // Wait a bit for the onPlayerImported hook to fire
       await sleep(500);
 
       // Check their achievements
-      const fetchResponse = await apiMock.get(`/api/players/${globalData.testPlayerId}/achievements`);
+      const fetchResponse = await apiMock.get(`/players/${globalData.testPlayerId}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
@@ -170,9 +170,7 @@ describe('Achievements API', () => {
     }, 30_000);
 
     test('Check Achievements Progress', async () => {
-      const fetchResponse = await apiMock.get(
-        `/api/players/${globalData.testPlayerId}/achievements/progress`
-      );
+      const fetchResponse = await apiMock.get(`/players/${globalData.testPlayerId}/achievements/progress`);
 
       // Calculate the number of possible achievements, from the templates
       let achievementCount = 0;
@@ -214,18 +212,18 @@ describe('Achievements API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const failedFetchResponse = await apiMock.get(`/api/groups/200000000/achievements`);
+      const failedFetchResponse = await apiMock.get(`/groups/200000000/achievements`);
       expect(failedFetchResponse.status).toBe(404);
       expect(failedFetchResponse.body.message).toBe('Group not found.');
 
       // Track player
-      const firstTrackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Lynx Titan' });
+      const firstTrackResponse = await apiMock.post(`/players/track`).send({ username: 'Lynx Titan' });
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.username).toBe('lynx titan');
 
       // Track player (again)
-      const secondTrackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Lynx Titan' });
+      const secondTrackResponse = await apiMock.post(`/players/track`).send({ username: 'Lynx Titan' });
 
       expect(secondTrackResponse.status).toBe(200);
       expect(secondTrackResponse.body.username).toBe('lynx titan');
@@ -239,7 +237,7 @@ describe('Achievements API', () => {
       };
 
       // Create group
-      const createGroupResponse = await apiMock.post('/api/groups').send(payload);
+      const createGroupResponse = await apiMock.post('/groups').send(payload);
 
       expect(createGroupResponse.status).toBe(201);
       expect(createGroupResponse.body.group.memberships.map(m => m.player.username)).toContain('psikoi');
@@ -247,7 +245,7 @@ describe('Achievements API', () => {
 
       // Fetch 1-50
       const firstFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
+        .get(`/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 'abc' }); // the invalid offset value should be ignored by the API
 
       expect(firstFetchResponse.status).toBe(200);
@@ -255,7 +253,7 @@ describe('Achievements API', () => {
 
       // Fetch 51-100
       const secondFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
+        .get(`/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 50 });
 
       expect(secondFetchResponse.status).toBe(200);
@@ -263,7 +261,7 @@ describe('Achievements API', () => {
 
       // Fetch 101-140
       const thirdFetchResponse = await apiMock
-        .get(`/api/groups/${createGroupResponse.body.group.id}/achievements`)
+        .get(`/groups/${createGroupResponse.body.group.id}/achievements`)
         .query({ limit: 50, offset: 100 });
 
       expect(thirdFetchResponse.status).toBe(200);
@@ -288,7 +286,7 @@ describe('Achievements API', () => {
       });
 
       // Track player (third time)
-      const trackResponse = await apiMock.post(`/api/players/track`).send({ username: 'Psikoi' });
+      const trackResponse = await apiMock.post(`/players/track`).send({ username: 'Psikoi' });
 
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.username).toBe('psikoi');
@@ -297,7 +295,7 @@ describe('Achievements API', () => {
       await sleep(500);
 
       // Check their achievements (again)
-      const fetchResponse = await apiMock.get(`/api/players/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await apiMock.get(`/players/${trackResponse.body.id}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(38);

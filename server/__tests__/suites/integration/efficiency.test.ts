@@ -256,25 +256,25 @@ describe('Efficiency API', () => {
 
   describe('4 - List Rates', () => {
     it('should not list (invalid type)', async () => {
-      const response = await api.get(`/api/efficiency/rates`).query({ type: 'zerker' });
+      const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Incorrect type: zerker. Must be one of [main, ironman, lvl3, f2p]');
     });
 
     it('should list (invalid metric, default to EHP)', async () => {
-      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'something' });
+      const response = await api.get(`/efficiency/rates`).query({ type: 'main', metric: 'something' });
       expect(response.status).toBe(200);
       expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
     });
 
     it('should list (EHP)', async () => {
-      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'ehp' });
+      const response = await api.get(`/efficiency/rates`).query({ type: 'main', metric: 'ehp' });
       expect(response.status).toBe(200);
       expect(response.body[0]).toMatchObject({ skill: 'attack' }); // returning skilling metas
     });
 
     it('should list (EHB)', async () => {
-      const response = await api.get(`/api/efficiency/rates`).query({ type: 'main', metric: 'ehb' });
+      const response = await api.get(`/efficiency/rates`).query({ type: 'main', metric: 'ehb' });
       expect(response.status).toBe(200);
       expect(response.body[0]).toMatchObject({ boss: 'abyssal_sire' }); // returning bossing metas
     });
@@ -320,36 +320,34 @@ describe('Efficiency API', () => {
 
   describe('6 - Fetch Efficiency Leaderboards', () => {
     it('should not fetch leaderboards (invalid metric)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'abc' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'abc' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'. Expected ehp | ehb | ehp+ehb");
     });
 
     it('should not fetch leaderboards (invalid player type)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', playerType: 'a' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', playerType: 'a' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'playerType'.");
     });
 
     it('should not fetch leaderboards (invalid player build)', async () => {
-      const response = await api
-        .get(`/api/efficiency/leaderboard`)
-        .query({ metric: 'ehp', playerBuild: 'a' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', playerBuild: 'a' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'playerBuild'.");
     });
 
     it('should not fetch leaderboards (invalid player country)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', country: 'a' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', country: 'a' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'country'.");
     });
 
     it('should fetch EHP leaderboards (no player filters)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(20);
@@ -372,7 +370,7 @@ describe('Efficiency API', () => {
 
     it('should fetch EHP leaderboards (with player type filter)', async () => {
       const response = await api
-        .get(`/api/efficiency/leaderboard`)
+        .get(`/efficiency/leaderboard`)
         .query({ metric: 'ehp', playerType: 'ironman' });
 
       expect(response.status).toBe(200);
@@ -405,7 +403,7 @@ describe('Efficiency API', () => {
 
     it('should fetch EHB leaderboards (with player type + player build filters)', async () => {
       const firstResponse = await api
-        .get(`/api/efficiency/leaderboard`)
+        .get(`/efficiency/leaderboard`)
         .query({ metric: 'ehb', playerType: 'hardcore', playerBuild: 'lvl3' });
 
       expect(firstResponse.status).toBe(200);
@@ -418,7 +416,7 @@ describe('Efficiency API', () => {
       });
 
       const secondResponse = await api
-        .get(`/api/efficiency/leaderboard`)
+        .get(`/efficiency/leaderboard`)
         .query({ metric: 'ehb', playerType: 'hardcore', playerBuild: 'f2p' });
 
       expect(secondResponse.status).toBe(200);
@@ -426,7 +424,7 @@ describe('Efficiency API', () => {
     });
 
     it('should fetch EHB leaderboards (with player country filter)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehb', country: 'PT' });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehb', country: 'PT' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
@@ -436,7 +434,7 @@ describe('Efficiency API', () => {
 
     it('should fetch EHP+EHB leaderboards', async () => {
       const response = await api
-        .get(`/api/efficiency/leaderboard`)
+        .get(`/efficiency/leaderboard`)
         .query({ metric: 'ehp+ehb', playerType: 'ironman', playerBuild: 'lvl3' });
 
       expect(response.status).toBe(200);
@@ -463,30 +461,28 @@ describe('Efficiency API', () => {
     });
 
     it('should not fetch EHP leaderboards (negative offset)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', offset: -5 });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should not fetch EHP leaderboards (negative limit)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehp', limit: -5 });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not fetch EHB leaderboards (limit > 50)', async () => {
-      const response = await api.get(`/api/efficiency/leaderboard`).query({ metric: 'ehb', limit: 1000 });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehb', limit: 1000 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The maximum results limit is 50');
     });
 
     it('should fetch EHB leaderboards (with limit and offset)', async () => {
-      const response = await api
-        .get(`/api/efficiency/leaderboard`)
-        .query({ metric: 'ehb', limit: 5, offset: 3 });
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehb', limit: 5, offset: 3 });
 
       expect(response.body[0]).toMatchObject({
         username: 'player 97',

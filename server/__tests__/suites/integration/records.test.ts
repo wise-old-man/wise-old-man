@@ -55,7 +55,7 @@ describe('Records API', () => {
       // Fake the current date to be 3 days ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 86_400_000 * 3));
 
-      const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
 
@@ -71,13 +71,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/api/players/username/psikoi/records`);
+      const recordsResponse = await api.get(`/players/username/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(6);
       expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(3);
@@ -98,13 +98,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const trackResponse = await api.post(`/api/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
       expect(trackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/api/players/username/psikoi/records`);
+      const recordsResponse = await api.get(`/players/username/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(10);
       expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(3);
@@ -121,7 +121,7 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'sethmare' });
+      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'sethmare' });
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.bosses.zulrah.kills).toBe(1646);
 
@@ -144,13 +144,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'sethmare' });
+      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'sethmare' });
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/api/players/username/sethmare/records`);
+      const recordsResponse = await api.get(`/players/username/sethmare/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
       expect(recordsResponse.body.filter(r => r.metric === Metric.ZULRAH).length).toBe(5);
@@ -161,33 +161,33 @@ describe('Records API', () => {
 
   describe('2 - Fetch Player Records', () => {
     it('should not fetch records (player not found)', async () => {
-      const firstResponse = await api.get(`/api/players/username/unknown_username/records`);
+      const firstResponse = await api.get(`/players/username/unknown_username/records`);
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toBe('Player not found.');
 
-      const secondResponse = await api.get(`/api/players/2000000/records`);
+      const secondResponse = await api.get(`/players/2000000/records`);
 
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toBe('Player not found.');
     });
 
     it('should not fetch records (invalid period)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/records`).query({ period: 'decade' });
+      const response = await api.get(`/players/username/psikoi/records`).query({ period: 'decade' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (invalid metric)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/records`).query({ metric: 'sailing' });
+      const response = await api.get(`/players/username/psikoi/records`).query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should fetch records (no filters)', async () => {
-      const response = await api.get(`/api/players/username/psikoi/records`);
+      const response = await api.get(`/players/username/psikoi/records`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(10);
@@ -197,7 +197,7 @@ describe('Records API', () => {
 
     it('should fetch records (undefined filters, ignored)', async () => {
       const response = await api
-        .get(`/api/players/username/sethmare/records`)
+        .get(`/players/username/sethmare/records`)
         .query({ metric: undefined, period: undefined }); // The API should ignore these params
 
       expect(response.status).toBe(200);
@@ -209,7 +209,7 @@ describe('Records API', () => {
 
     it('should fetch records (with filters)', async () => {
       const response = await api
-        .get(`/api/players/username/sethmare/records`)
+        .get(`/players/username/sethmare/records`)
         .query({ metric: Metric.ZULRAH, period: 'week' });
 
       expect(response.status).toBe(200);
@@ -220,14 +220,14 @@ describe('Records API', () => {
 
   describe('3 - Fetch Group Records', () => {
     it('should not fetch records (undefined metric)', async () => {
-      const response = await api.get(`/api/groups/2000000000/records`);
+      const response = await api.get(`/groups/2000000000/records`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (undefined period)', async () => {
-      const response = await api.get(`/api/groups/2000000000/records`).query({ metric: 'a' });
+      const response = await api.get(`/groups/2000000000/records`).query({ metric: 'a' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
@@ -235,7 +235,7 @@ describe('Records API', () => {
 
     it('should not fetch records (group not found)', async () => {
       const response = await api
-        .get(`/api/groups/2000000000/records`)
+        .get(`/groups/2000000000/records`)
         .query({ metric: 'zulrah', period: 'week' });
 
       expect(response.status).toBe(404);
@@ -243,7 +243,7 @@ describe('Records API', () => {
     });
 
     it('should not fetch records (invalid period)', async () => {
-      const createGroupResponse = await api.post('/api/groups').send({ name: 'Test (empty)', members: [] });
+      const createGroupResponse = await api.post('/groups').send({ name: 'Test (empty)', members: [] });
 
       globalData.testEmptyGroupId = createGroupResponse.body.group.id;
 
@@ -251,7 +251,7 @@ describe('Records API', () => {
       expect(createGroupResponse.body.group.memberships).toEqual([]);
 
       const response = await api
-        .get(`/api/groups/${globalData.testEmptyGroupId}/records`)
+        .get(`/groups/${globalData.testEmptyGroupId}/records`)
         .query({ metric: 'a', period: 'b' });
 
       expect(response.status).toBe(400);
@@ -260,7 +260,7 @@ describe('Records API', () => {
 
     it('should not fetch records (invalid metric)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testEmptyGroupId}/records`)
+        .get(`/groups/${globalData.testEmptyGroupId}/records`)
         .query({ metric: 'a', period: 'day' });
 
       expect(response.status).toBe(400);
@@ -269,7 +269,7 @@ describe('Records API', () => {
 
     it('should fetch records (empty group)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testEmptyGroupId}/records`)
+        .get(`/groups/${globalData.testEmptyGroupId}/records`)
         .query({ metric: 'ranged', period: 'day' });
 
       expect(response.status).toBe(200);
@@ -286,7 +286,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars as ironman
-      const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'Jakesterwars' });
+      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'Jakesterwars' });
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.type).toBe('ironman');
@@ -307,14 +307,14 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars again
-      const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'Jakesterwars' });
+      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'Jakesterwars' });
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
       // Create new group, with 3 members
-      const createGroupResponse = await api.post('/api/groups').send({
+      const createGroupResponse = await api.post('/groups').send({
         name: 'Test',
         members: ['Psikoi', 'sethmare', 'jakesterwars'].map(username => ({ username }))
       });
@@ -322,14 +322,14 @@ describe('Records API', () => {
       globalData.testRegularGroupId = createGroupResponse.body.group.id;
 
       const rangedRecordsResponse = await api
-        .get(`/api/groups/${globalData.testRegularGroupId}/records`)
+        .get(`/groups/${globalData.testRegularGroupId}/records`)
         .query({ metric: 'ranged', period: 'day' });
 
       expect(rangedRecordsResponse.status).toBe(200);
       expect(rangedRecordsResponse.body.length).toBe(0);
 
       const smithingRecordsResponse = await api
-        .get(`/api/groups/${globalData.testRegularGroupId}/records`)
+        .get(`/groups/${globalData.testRegularGroupId}/records`)
         .query({ metric: 'smithing', period: 'day' });
 
       expect(smithingRecordsResponse.status).toBe(200);
@@ -360,7 +360,7 @@ describe('Records API', () => {
 
     it('should fetch records (and correctly parse virtual metrics)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testRegularGroupId}/records`)
+        .get(`/groups/${globalData.testRegularGroupId}/records`)
         .query({ metric: 'ehp', period: 'day' });
 
       expect(response.status).toBe(200);
@@ -370,7 +370,7 @@ describe('Records API', () => {
 
     it('should fetch records (with pagination)', async () => {
       const response = await api
-        .get(`/api/groups/${globalData.testRegularGroupId}/records`)
+        .get(`/groups/${globalData.testRegularGroupId}/records`)
         .query({ metric: 'smithing', period: 'day', limit: 1, offset: 1 });
 
       expect(response.status).toBe(200);
@@ -392,32 +392,32 @@ describe('Records API', () => {
 
   describe('4 - Leaderboards', () => {
     it('should not fetch leaderboards (undefined period)', async () => {
-      const response = await api.get(`/api/records/leaderboard`);
+      const response = await api.get(`/records/leaderboard`);
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch leaderboards (invalid period)', async () => {
-      const response = await api.get(`/api/records/leaderboard`).query({ period: 'decade' });
+      const response = await api.get(`/records/leaderboard`).query({ period: 'decade' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch leaderboards (undefined metric)', async () => {
-      const response = await api.get(`/api/records/leaderboard`).query({ period: 'week' });
+      const response = await api.get(`/records/leaderboard`).query({ period: 'week' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid metric)', async () => {
-      const response = await api.get(`/api/records/leaderboard`).query({ period: 'week', metric: 'abc' });
+      const response = await api.get(`/records/leaderboard`).query({ period: 'week', metric: 'abc' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should not fetch leaderboards (invalid player type)', async () => {
       const response = await api
-        .get(`/api/records/leaderboard`)
+        .get(`/records/leaderboard`)
         .query({ period: 'week', metric: 'obor', playerType: 'a' });
 
       expect(response.status).toBe(400);
@@ -426,7 +426,7 @@ describe('Records API', () => {
 
     it('should not fetch leaderboards (invalid player build)', async () => {
       const response = await api
-        .get(`/api/records/leaderboard`)
+        .get(`/records/leaderboard`)
         .query({ period: 'week', metric: 'obor', playerBuild: 'a' });
 
       expect(response.status).toBe(400);
@@ -435,7 +435,7 @@ describe('Records API', () => {
 
     it('should not fetch leaderboards (invalid player country)', async () => {
       const response = await api
-        .get(`/api/records/leaderboard`)
+        .get(`/records/leaderboard`)
         .query({ period: 'week', metric: 'obor', country: 'a' });
 
       expect(response.status).toBe(400);
@@ -452,7 +452,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars as ironman
-      const firstTrackResponse = await api.post(`/api/players/track`).send({ username: 'USBC' });
+      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'USBC' });
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.type).toBe('hardcore');
@@ -473,15 +473,13 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars again
-      const secondtrackResponse = await api.post(`/api/players/track`).send({ username: 'usbc' });
+      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'usbc' });
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const response = await api
-        .get(`/api/records/leaderboard`)
-        .query({ period: 'week', metric: 'smithing' });
+      const response = await api.get(`/records/leaderboard`).query({ period: 'week', metric: 'smithing' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
@@ -510,7 +508,7 @@ describe('Records API', () => {
 
     it('should fetch leaderboards (with player type filter)', async () => {
       const response = await api
-        .get(`/api/records/leaderboard`)
+        .get(`/records/leaderboard`)
         .query({ period: 'day', metric: 'smithing', playerType: 'ironman' });
 
       expect(response.status).toBe(200);
@@ -534,14 +532,14 @@ describe('Records API', () => {
 
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
-        .put('/api/players/username/usbc/country')
+        .put('/players/username/usbc/country')
         .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);
       expect(updateCountryResponse.body).toMatchObject({ username: 'usbc', country: 'SE' });
 
       const response = await api
-        .get(`/api/records/leaderboard`)
+        .get(`/records/leaderboard`)
         .query({ period: 'month', metric: 'smithing', country: 'SE' });
 
       expect(response.status).toBe(200);
@@ -556,7 +554,7 @@ describe('Records API', () => {
     });
 
     it('should fetch leaderboards (and correctly parse virtual metrics)', async () => {
-      const response = await api.get(`/api/records/leaderboard`).query({ period: 'month', metric: 'ehp' });
+      const response = await api.get(`/records/leaderboard`).query({ period: 'month', metric: 'ehp' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(3);
