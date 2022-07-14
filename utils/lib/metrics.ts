@@ -90,6 +90,7 @@ enum Activity {
   CLUE_SCROLLS_ELITE = 'clue_scrolls_elite',
   CLUE_SCROLLS_MASTER = 'clue_scrolls_master',
   LAST_MAN_STANDING = 'last_man_standing',
+  PVP_ARENA = 'pvp_arena',
   SOUL_WARS_ZEAL = 'soul_wars_zeal',
   GUARDIANS_OF_THE_RIFT = 'guardians_of_the_rift'
 }
@@ -210,6 +211,7 @@ const ActivityProps = mapValues(
     [Activity.CLUE_SCROLLS_ELITE]: { name: 'Clue Scrolls (Elite)' },
     [Activity.CLUE_SCROLLS_MASTER]: { name: 'Clue Scrolls (Master)' },
     [Activity.LAST_MAN_STANDING]: { name: 'Last Man Standing' },
+    [Activity.PVP_ARENA]: { name: 'PvP Arena' },
     [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal' },
     [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift' }
   },

@@ -108,7 +108,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
  */
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
   // Last man standing scores, ehp and ehb can fluctuate overtime
-  const keysToIgnore = ['last_man_standingScore', 'ehpValue', 'ehbValue'];
+  const keysToIgnore = ['last_man_standingScore', 'pvp_arenaScore', 'ehpValue', 'ehbValue'];
 
   const isValidKey = key => !keysToIgnore.includes(key);
   const keys = METRICS.map(m => getMetricValueKey(m));
