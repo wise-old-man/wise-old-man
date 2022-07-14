@@ -212,6 +212,12 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   last_man_standingScore: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  pvp_arenaRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  pvp_arenaScore: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   soul_wars_zealRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })

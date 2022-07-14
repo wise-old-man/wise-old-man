@@ -289,10 +289,13 @@ function calculateMetricDiff(player: Player, startSnapshot: Snapshot, endSnapsho
     return { start, end, gained: Math.max(0, round(end - start, 5)) };
   }
 
-  const minimumValue = getMinimumBossKc(metric);
+  let minimumValue = getMinimumBossKc(metric);
   const metricKey = getMetricValueKey(metric);
   const start = startSnapshot ? parseNum(metric, startSnapshot[metricKey]) : -1;
   const end = endSnapshot ? parseNum(metric, endSnapshot[metricKey]) : -1;
+
+  // TODO: temporary hack until api v2
+  if (metric === Metrics.PVP_ARENA) minimumValue = 2500;
 
   return { start, end, gained: Math.max(0, end - Math.max(minimumValue - 1, start)) };
 }
@@ -316,7 +319,10 @@ function calculateDiff(startSnapshot: Snapshot, endSnapshot: Snapshot, player: P
   METRICS.forEach(metric => {
     const rankKey = getMetricRankKey(metric);
     const valueKey = getMetricValueKey(metric);
-    const minimumValue = getMinimumBossKc(metric);
+    let minimumValue = getMinimumBossKc(metric);
+
+    // TODO: temporary hack until api v2
+    if (metric === Metrics.PVP_ARENA) minimumValue = 2500;
 
     const startRank = startSnapshot[rankKey] || -1;
     const startValue = parseNum(metric, startSnapshot[valueKey] || -1);
