@@ -179,6 +179,11 @@ export default [
         description: 'Clue Scroll (Master) rank and score.'
       },
       {
+        field: 'pvp_arena',
+        type: 'object',
+        description: 'Last Man Standing rank and score.'
+      },
+      {
         field: 'last_man_standing',
         type: 'object',
         description: 'Last Man Standing rank and score.'

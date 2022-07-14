@@ -215,6 +215,11 @@ export default [
         description: ''
       },
       {
+        field: 'pvp_arena',
+        type: 'integer',
+        description: ''
+      },
+      {
         field: 'soul_wars_zeal',
         type: 'integer',
         description: ''
@@ -521,6 +526,7 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'pvp_arena',
       'soul_wars_zeal',
       'guardians_of_the_rift',
       'abyssal_sire',
