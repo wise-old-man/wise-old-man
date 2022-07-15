@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { groupSelectors, groupActions } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
-import { getMetricIcon, getLevel, getMetricName } from 'utils';
+import { getMetricIcon, getLevel, getMetricName, formatNumber } from 'utils';
 import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { GroupContext } from '../context';
 
@@ -30,6 +30,12 @@ function Statistics() {
     <div className="group-statistics">
       <div className="statistics-block__container">
         <div className="statistics-block">
+          <span className="statistic-label">Average combat level</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : formatNumber(statistics.averageCombatLevel)}
+          </b>
+        </div>
+        <div className="statistics-block">
           <span className="statistic-label">Maxed overall players</span>
           <b className="statistic-value">
             {showPlaceholder ? 'Loading...' : statistics.maxedTotalCount}
@@ -42,14 +48,38 @@ function Statistics() {
           </b>
         </div>
         <div className="statistics-block">
-          <span className="statistic-label">Number of 200ms</span>
+          <span className="statistic-label">Number of a 200ms</span>
           <b className="statistic-value">
             {showPlaceholder ? 'Loading...' : statistics.maxed200msCount}
           </b>
         </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Players with 200m</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : statistics.playersWithMaxedSkill}
+          </b>
+        </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Inferno Cape players</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : formatNumber(statistics.playersWithInferno)}
+          </b>
+        </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Average EHP</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : formatNumber(statistics.averageEhpValue)}
+          </b>
+        </div>
+        <div className="statistics-block">
+          <span className="statistic-label">Average EHB</span>
+          <b className="statistic-value">
+            {showPlaceholder ? 'Loading...' : formatNumber(statistics.averageEhbValue)}
+          </b>
+        </div>
       </div>
       <div className="statistics-table">
-        <span className="widget-label">Average member stats</span>
+        <span className="widget-label">Member stats</span>
         {showPlaceholder ? <TablePlaceholder size={20} /> : renderTable(statistics.averageStats)}
       </div>
     </div>
@@ -69,17 +99,19 @@ function renderTable(snapshot) {
 
   const rows = [
     ...SKILLS.map(skill => {
-      const { experience, rank } = snapshot[skill];
+      const { experience, rank, total } = snapshot[skill];
+
       const level = skill === 'overall' ? totalLevel : getLevel(experience);
-      return { metric: skill, level, experience, rank, ehp: 0 };
+      const highest = skill === 'overall' ? 0 : getLevel(snapshot[skill].highest);
+      return { metric: skill, level, highest, experience, rank, ehp: 0, total };
     }),
     ...BOSSES.map(boss => {
-      const { kills, rank } = snapshot[boss];
-      return { metric: boss, kills, rank, ehp: 0 };
+      const { kills, rank, highest, total } = snapshot[boss];
+      return { metric: boss, kills, rank, ehp: 0, highest, total };
     }),
     ...ACTIVITIES.map(activity => {
-      const { score, rank } = snapshot[activity];
-      return { metric: activity, score, rank, ehp: 0 };
+      const { score, rank, highest, total } = snapshot[activity];
+      return { metric: activity, score, rank, ehp: 0, highest, total };
     })
   ];
 
@@ -98,17 +130,23 @@ function renderTable(snapshot) {
       )
     },
     {
-      key: 'level',
+      key: 'avg Level',
       get: row => row.level || -1,
       transform: val => (val === -1 ? '---' : val)
     },
     {
-      key: 'value',
+      key: 'avg value',
       get: getValue,
       transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
     },
     {
-      key: 'rank',
+      key: 'highest',
+      get: row =>  row.highest || -1,
+      transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
+    },
+    {
+      key: 'total',
+      get: row =>  row.total || -1,
       transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
     }
   ];

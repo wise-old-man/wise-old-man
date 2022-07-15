@@ -34,7 +34,9 @@ function format(snapshot: Snapshot, efficiency?: any) {
   METRICS.forEach(m => {
     obj[m] = {
       rank: snapshot[getMetricRankKey(m)],
-      [getMetricMeasure(m)]: snapshot[getMetricValueKey(m)]
+      [getMetricMeasure(m)]: snapshot[getMetricValueKey(m)],
+      highest: snapshot[`${m}HighestValue`],
+      total: snapshot[`${m}TotalValue`]
     };
 
     if (m === Metrics.OVERALL) {
@@ -194,7 +196,7 @@ async function findFirstSince(playerId: number, date: Date): Promise<Snapshot | 
   return result;
 }
 
-function average(snapshots: Snapshot[]): Snapshot {
+function average(snapshots: Snapshot[]): any {
   if (!snapshots && snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
@@ -215,6 +217,13 @@ function average(snapshots: Snapshot[]): Snapshot {
       .map((s: Snapshot) => s[valueKey])
       .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
 
+    const statistics = snapshots
+      .map((s: Snapshot) => s[valueKey])
+      .reduce((acc: { highest: number, total: number}, cur: any) => ({
+        highest: cur > acc.highest ? cur : acc.highest,
+        total: cur > 0 ? acc.total + cur : acc.total
+      }), { highest: 0, total: 0 });
+
     const rankSum = snapshots
       .map((s: Snapshot) => s[rankKey])
       .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
@@ -224,6 +233,8 @@ function average(snapshots: Snapshot[]): Snapshot {
 
     base[valueKey] = valueAvg;
     base[rankKey] = rankAvg;
+    base[`${metric}HighestValue`] = statistics.highest;
+    base[`${metric}TotalValue`] = statistics.total;
   });
 
   return base;
@@ -302,7 +313,7 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
   if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
-    throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
+    // throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
   const stats = {};

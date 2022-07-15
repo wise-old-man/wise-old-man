@@ -37,6 +37,14 @@ export function getCombatLevel(snapshot: Snapshot) {
   );
 }
 
+export function hasInfernoCape(snapshot: Snapshot) {
+  return snapshot.tzkal_zukKills > 0;
+}
+
+export function hasMaxedSkill(snapshot: Snapshot) {
+  return !! SKILLS.find(s => s !== Metrics.OVERALL && snapshot[getMetricValueKey(s)] === MAX_SKILL_EXP);
+}
+
 export function getTotalLevel(snapshot: Snapshot) {
   return SKILLS.filter(s => s !== Metrics.OVERALL)
     .map(s => getLevel(snapshot[getMetricValueKey(s)]))

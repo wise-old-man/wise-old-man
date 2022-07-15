@@ -29,7 +29,7 @@ import {
 } from '../../../database/models';
 import { BadRequestError, NotFoundError } from '../../errors';
 import { isValidDate } from '../../util/dates';
-import { get200msCount, getCombatLevel, getTotalLevel } from '../../util/experience';
+import { get200msCount, getCombatLevel, getTotalLevel, hasInfernoCape, hasMaxedSkill } from '../../util/experience';
 import * as cmlService from '../external/cml.service';
 import * as cryptService from '../external/crypt.service';
 import * as templeService from '../external/temple.service';
@@ -467,11 +467,16 @@ async function getStatistics(groupId: number) {
   }
 
   const maxedCombatCount = stats.filter(s => getCombatLevel(s) === 126).length;
+  const averageCombatLevel = stats.reduce((a, b) => a + getCombatLevel(b), 0) / stats.length;
+  const averageEhpValue = stats.reduce((a, b) => a + b.ehpValue, 0) / stats.length;
+  const playersWithInferno = stats.filter(s => hasInfernoCape(s)).length;
+  const averageEhbValue = stats.reduce((a, b) => a + b.ehbValue, 0) / stats.length;
   const maxedTotalCount = stats.filter(s => getTotalLevel(s) === 2277).length;
   const maxed200msCount = stats.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
   const averageStats = snapshotService.format(snapshotService.average(stats));
+  const playersWithMaxedSkill = stats.filter(s => hasMaxedSkill(s)).length;
 
-  return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
+  return { maxedCombatCount, maxedTotalCount, averageEhbValue, maxed200msCount, playersWithMaxedSkill, playersWithInferno, averageStats, averageEhpValue, averageCombatLevel };
 }
 
 async function create(dto: CreateGroupDTO): Promise<[Group, Member[]]> {
