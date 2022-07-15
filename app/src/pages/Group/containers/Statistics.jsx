@@ -48,7 +48,7 @@ function Statistics() {
           </b>
         </div>
         <div className="statistics-block">
-          <span className="statistic-label">Number of a 200ms</span>
+          <span className="statistic-label">Total 200ms</span>
           <b className="statistic-value">
             {showPlaceholder ? 'Loading...' : statistics.maxed200msCount}
           </b>
