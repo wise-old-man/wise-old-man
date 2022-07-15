@@ -313,7 +313,7 @@ async function fromRS(playerId: number, csvData: string): Promise<Snapshot> {
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
   if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
-    // throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
+    throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
   const stats = {};
