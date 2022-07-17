@@ -89,6 +89,7 @@ export const ActivityEnum = {
   CLUE_SCROLLS_ELITE: PrismaMetric.clue_scrolls_elite,
   CLUE_SCROLLS_MASTER: PrismaMetric.clue_scrolls_master,
   LAST_MAN_STANDING: PrismaMetric.last_man_standing,
+  PVP_ARENA: PrismaMetric.pvp_arena,
   SOUL_WARS_ZEAL: PrismaMetric.soul_wars_zeal,
   GUARDIANS_OF_THE_RIFT: PrismaMetric.guardians_of_the_rift
 };

@@ -112,6 +112,7 @@ const ActivityProps = {
   [Activity.CLUE_SCROLLS_ELITE]: { name: 'Clue Scrolls (Elite)' },
   [Activity.CLUE_SCROLLS_MASTER]: { name: 'Clue Scrolls (Master)' },
   [Activity.LAST_MAN_STANDING]: { name: 'Last Man Standing' },
+  [Activity.PVP_ARENA]: { name: 'PvP Arena' },
   [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal' },
   [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift' }
 };
