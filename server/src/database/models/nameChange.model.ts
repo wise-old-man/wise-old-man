@@ -44,7 +44,13 @@ export default class NameChange extends Model<NameChange> {
   @Column({ type: DataType.STRING(20), allowNull: false })
   newName: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  @Column({
+    type: DataType.INTEGER,
+    get: parseStatus,
+    set: setStatus,
+    allowNull: false,
+    defaultValue: 'pending'
+  })
   status: NameChangeStatus;
 
   @Column({ type: DataType.DATE })
@@ -60,6 +66,16 @@ export default class NameChange extends Model<NameChange> {
 
   @BelongsTo(() => Player)
   player: Player;
+}
+
+export const TEMP_NAME_CHANGE_STATUSES = ['pending', 'denied', 'approved'];
+
+function parseStatus(this: any) {
+  return TEMP_NAME_CHANGE_STATUSES.indexOf(this.getDataValue('status'));
+}
+
+function setStatus(status: number) {
+  this.setDataValue('status', TEMP_NAME_CHANGE_STATUSES[status]);
 }
 
 function validateOldName(this: NameChange) {
