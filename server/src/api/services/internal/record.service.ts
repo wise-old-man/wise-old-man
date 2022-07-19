@@ -88,7 +88,7 @@ async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): 
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const fixedPeriod = filter.period && filter.period === '5min' ? Period.FIVE_MIN : undefined;
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
 
   const records = await Record.findAll({
     where: buildQuery({ playerId, period: fixedPeriod, metric })
@@ -109,7 +109,7 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
-  const fixedPeriod = filter.period && filter.period === '5min' ? Period.FIVE_MIN : undefined;
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
 
   if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
@@ -167,7 +167,7 @@ async function getGroupLeaderboard(filter: GroupRecordsFilter, pagination: Pagin
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
-  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : undefined;
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
 
   const records = await Record.findAll({
     where: { playerId: playerIds, period: fixedPeriod, metric },
