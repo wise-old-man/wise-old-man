@@ -119,9 +119,18 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
+  if (
+    playerBuild &&
+    !PLAYER_BUILDS.includes(playerBuild as PlayerBuild) &&
+    playerBuild !== '10hp' &&
+    playerBuild !== '1def'
+  ) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
+
+  let fixedBuild = playerBuild;
+  if (playerBuild === '1def') fixedBuild = 'def1';
+  if (playerBuild === '10hp') fixedBuild = 'hp10';
 
   if (country && !countryCode) {
     throw new BadRequestError(
@@ -130,7 +139,11 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     );
   }
 
-  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
+  const query = buildQuery({
+    type: playerType,
+    build: fixedBuild,
+    country: countryCode
+  });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === PlayerType.IRONMAN) {

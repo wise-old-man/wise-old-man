@@ -176,7 +176,12 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
+  if (
+    playerBuild &&
+    !PLAYER_BUILDS.includes(playerBuild as PlayerBuild) &&
+    playerBuild !== '10hp' &&
+    playerBuild !== '1def'
+  ) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
@@ -187,9 +192,13 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     );
   }
 
+  let fixedBuild = playerBuild;
+  if (playerBuild === '1def') fixedBuild = 'def1';
+  if (playerBuild === '10hp') fixedBuild = 'hp10';
+
   const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
 
-  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
+  const query = buildQuery({ type: playerType, build: fixedBuild, country: countryCode });
   const startingDate = moment().subtract(PeriodProps[fixedPeriod].milliseconds, 'milliseconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM

@@ -63,7 +63,12 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
     throw new BadRequestError('Invalid metric. Must be one of [ehp, ehb, ehp+ehb]');
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
+  if (
+    playerBuild &&
+    !PLAYER_BUILDS.includes(playerBuild as PlayerBuild) &&
+    playerBuild !== '10hp' &&
+    playerBuild !== '1def'
+  ) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
@@ -79,7 +84,11 @@ async function getLeaderboard(filter: LeaderboardFilter, pagination: Pagination)
 
   const isCombined = metric === 'ehp+ehb';
 
-  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
+  let fixedBuild = playerBuild;
+  if (playerBuild === '1def') fixedBuild = 'def1';
+  if (playerBuild === '10hp') fixedBuild = 'hp10';
+
+  const query = buildQuery({ type: playerType, build: fixedBuild, country: countryCode });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === PlayerType.IRONMAN) {
@@ -182,9 +191,9 @@ function getAlgorithm(type: string, build: string): VirtualAlgorithm {
   }
 
   switch (build) {
-    case 'f2p':
+    case PlayerBuild.F2P:
       return f2pAlgorithm;
-    case 'lvl3':
+    case PlayerBuild.LVL3:
       return lvl3Algorithm;
     default:
       return mainAlgorithm;
