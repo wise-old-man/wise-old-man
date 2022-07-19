@@ -295,7 +295,7 @@ async function getRecords(
   period: string,
   pagination: Pagination
 ): Promise<Record[]> {
-  if (!period || !isValidPeriod(period)) {
+  if (!period || (!isValidPeriod(period) && period !== '5min')) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 

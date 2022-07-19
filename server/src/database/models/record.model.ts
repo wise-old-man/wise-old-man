@@ -40,7 +40,7 @@ export default class Record extends Model<Record> {
   @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
 
-  @Column({ type: DataType.ENUM(...PERIODS), allowNull: false })
+  @Column({ type: DataType.ENUM(...PERIODS), get: parsePeriod, set: setPeriod, allowNull: false })
   period: Period;
 
   @Column({ type: DataType.ENUM(...METRICS), allowNull: false })
@@ -56,6 +56,18 @@ export default class Record extends Model<Record> {
 
   @BelongsTo(() => Player)
   player: Player;
+}
+
+function parsePeriod(this: any) {
+  const period = this.getDataValue('period');
+
+  if (period === 'five_min') return '5min';
+
+  return period;
+}
+
+function setPeriod(period: any) {
+  this.setDataValue('period', period === '5min' ? 'five_min' : period);
 }
 
 /**

@@ -31,7 +31,6 @@ async function submit(req: Request, res: Response, next: NextFunction) {
     const result = await nameService.submit(oldName, newName);
     res.status(201).json(result);
   } catch (e) {
-    console.log(e);
     next(e);
   }
 }
