@@ -18,6 +18,7 @@ import {
 } from '@wise-old-man/utils';
 import { MigratedGroupInfo, Pagination } from '../../../types';
 import { sequelize } from '../../../database';
+import { adaptRole } from '../../../database/models/membership.model';
 import {
   Achievement,
   Group,
@@ -855,7 +856,7 @@ async function changeRole(group: Group, member: MemberFragment): Promise<[Player
   group.changed('updatedAt', true);
   await group.save();
 
-  return [membership.player, role];
+  return [membership.player, adaptRole(role)];
 }
 
 /**

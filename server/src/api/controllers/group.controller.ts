@@ -28,6 +28,12 @@ async function index(req: Request, res: Response, next: NextFunction) {
 
 // POST /groups
 async function create(req: Request, res: Response, next: NextFunction) {
+  req.body.members.forEach(member => {
+    if (member.role) {
+      member.role = String(member.role).replace(/ /g, '_').replace(/-/g, '_');
+    }
+  });
+
   try {
     const name = extractString(req.body, { key: 'name', required: true });
     const clanChat = extractString(req.body, { key: 'clanChat' });
@@ -60,6 +66,12 @@ async function details(req: Request, res: Response, next: NextFunction) {
 
 // PUT /groups/:id
 async function edit(req: Request, res: Response, next: NextFunction) {
+  req.body.members.forEach(member => {
+    if (member.role) {
+      member.role = String(member.role).replace(/ /g, '_').replace(/-/g, '_');
+    }
+  });
+
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const name = extractString(req.body, { key: 'name' });
@@ -151,6 +163,8 @@ async function verifyGroup(req: Request, res: Response, next: NextFunction) {
 
 // PUT /groups/:id/change-role
 async function changeRole(req: Request, res: Response, next: NextFunction) {
+  if (req.body.role) req.body.role = String(req.body.role).replace(/ /g, '_').replace(/-/g, '_');
+
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const username = extractString(req.body, { key: 'username', required: true });
@@ -199,6 +213,12 @@ async function updateAll(req: Request, res: Response, next: NextFunction) {
 
 // POST /groups/:id/add-members
 async function addMembers(req: Request, res: Response, next: NextFunction) {
+  req.body.members.forEach(member => {
+    if (member.role) {
+      member.role = String(member.role).replace(/ /g, '_').replace(/-/g, '_');
+    }
+  });
+
   try {
     const id = extractNumber(req.params, { key: 'id', required: true });
     const verificationCode = extractString(req.body, { key: 'verificationCode', required: true });
