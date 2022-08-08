@@ -6,7 +6,8 @@ import prisma, {
   Participation,
   PrismaTypes,
   PrismaPromise,
-  modifyPlayer
+  modifyPlayer,
+  Group
 } from '../../../../prisma';
 import * as playerServices from '../../players/player.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
@@ -164,16 +165,27 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
   }
 
   return {
-    ...omit(updatedCompetition, ['verificationHash']),
+    ...omit(updatedCompetition, 'verificationHash'),
+    group: updatedCompetition.group
+      ? {
+          ...omit(updatedCompetition.group, '_count', 'verificationHash'),
+          memberCount: updatedCompetition.group._count.memberships
+        }
+      : undefined,
     participantCount: updatedCompetition.participations.length,
     participations: updatedCompetition.participations.map(p => ({
-      ...omit(p, ['startSnapshotId', 'endSnapshotId']),
+      ...omit(p, 'startSnapshotId', 'endSnapshotId'),
       player: modifyPlayer(p.player)
     }))
   };
 }
 
 type UpdateExecutionResult = Competition & {
+  group: Group & {
+    _count: {
+      memberships: number;
+    };
+  };
   participations: (Participation & {
     player: PrismaPlayer;
   })[];
@@ -195,7 +207,20 @@ async function executeUpdate(
       updatedAt: new Date() // Force update the "updatedAt" field
     },
     include: {
-      participations: { include: { player: true } }
+      group: {
+        include: {
+          _count: {
+            select: {
+              memberships: true
+            }
+          }
+        }
+      },
+      participations: {
+        include: {
+          player: true
+        }
+      }
     }
   });
 

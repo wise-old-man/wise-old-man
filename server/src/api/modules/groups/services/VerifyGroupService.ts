@@ -2,7 +2,7 @@ import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
-import { GroupWithCount } from '../group.types';
+import { GroupListItem } from '../group.types';
 
 const inputSchema = z.object({
   id: z.number().positive()
@@ -10,7 +10,7 @@ const inputSchema = z.object({
 
 type VerifyGroupService = z.infer<typeof inputSchema>;
 
-async function verifyGroup(payload: VerifyGroupService): Promise<GroupWithCount> {
+async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> {
   const params = inputSchema.parse(payload);
 
   try {

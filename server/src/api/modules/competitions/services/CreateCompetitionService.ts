@@ -142,6 +142,15 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
       }
     },
     include: {
+      group: {
+        include: {
+          _count: {
+            select: {
+              memberships: true
+            }
+          }
+        }
+      },
       participations: {
         include: {
           player: true
@@ -152,10 +161,16 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
 
   return {
     competition: {
-      ...omit(createdCompetition, ['verificationHash']),
+      ...omit(createdCompetition, 'verificationHash'),
+      group: createdCompetition.group
+        ? {
+            ...omit(createdCompetition.group, '_count', 'verificationHash'),
+            memberCount: createdCompetition.group._count.memberships
+          }
+        : undefined,
       participantCount: createdCompetition.participations.length,
       participations: createdCompetition.participations.map(p => ({
-        ...omit(p, ['startSnapshotId', 'endSnapshotId']),
+        ...omit(p, 'startSnapshotId', 'endSnapshotId'),
         player: modifyPlayer(p.player)
       }))
     },

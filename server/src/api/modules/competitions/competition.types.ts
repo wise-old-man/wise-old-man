@@ -1,27 +1,32 @@
-import { Competition, Participation, Player, Group } from '../../../prisma';
+import { Competition, Participation, Player } from '../../../prisma';
 import { MeasuredDeltaProgress } from '../deltas/delta.types';
+import { GroupListItem } from '../groups/group.types';
 
-export interface CompetitionWithCount extends Omit<Competition, 'verificationHash'> {
+// The verification hash shouldn't be exposed to the user
+type CleanCompetition = Omit<Competition, 'verificationHash'>;
+
+// These IDs don't need to be exposed to the user
+type CleanParticipation = Omit<Participation, 'startSnapshotId' | 'endSnapshotId'>;
+
+export interface CompetitionListItem extends CleanCompetition {
+  group?: GroupListItem;
   participantCount: number;
 }
 
-type CleanParticipation = Omit<Participation, 'startSnapshotId' | 'endSnapshotId'>;
+export interface CompetitionDetails extends CompetitionListItem {
+  participations: ParticipationWithPlayerAndProgress[];
+}
+
+export interface CompetitionWithParticipations extends CompetitionListItem {
+  participations: ParticipationWithPlayer[];
+}
 
 export interface ParticipationWithCompetition extends CleanParticipation {
-  competition: CompetitionWithCount;
+  competition: CompetitionListItem;
 }
 
 export interface ParticipationWithPlayer extends CleanParticipation {
   player: Player;
-}
-
-export interface CompetitionWithParticipations extends CompetitionWithCount {
-  participations: ParticipationWithPlayer[];
-}
-
-export interface CompetitionDetails extends CompetitionWithCount {
-  group?: Group;
-  participations: ParticipationWithPlayerAndProgress[];
 }
 
 export interface ParticipationWithPlayerAndProgress extends ParticipationWithPlayer {

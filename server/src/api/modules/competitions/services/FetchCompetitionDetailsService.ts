@@ -21,7 +21,15 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
       id: params.id
     },
     include: {
-      group: true
+      group: {
+        include: {
+          _count: {
+            select: {
+              memberships: true
+            }
+          }
+        }
+      }
     }
   });
 
@@ -66,6 +74,12 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
 
   return {
     ...omit(competition, ['verificationHash']),
+    group: competition.group
+      ? {
+          ...omit(competition.group, '_count', 'verificationHash'),
+          memberCount: competition.group._count.memberships
+        }
+      : undefined,
     participantCount: participants.length,
     participations: participants
   };

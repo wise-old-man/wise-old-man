@@ -22,6 +22,15 @@ async function findPlayerParticipations(
     include: {
       competition: {
         include: {
+          group: {
+            include: {
+              _count: {
+                select: {
+                  memberships: true
+                }
+              }
+            }
+          },
           _count: {
             select: {
               participations: true
@@ -40,6 +49,12 @@ async function findPlayerParticipations(
       ...omit(participation, ['startSnapshotId', 'endSnapshotId']),
       competition: {
         ...omit(participation.competition, ['_count', 'verificationHash']),
+        group: participation.competition.group
+          ? {
+              ...omit(participation.competition.group, '_count', 'verificationHash'),
+              memberCount: participation.competition.group._count.memberships
+            }
+          : undefined,
         participantCount: participation.competition._count.participations
       }
     };

@@ -384,6 +384,10 @@ describe('Competition API', () => {
         endsAt: VALID_END_DATE.toISOString()
       });
 
+      expect(response.body.competition.groupId).toBeNull();
+      expect(response.body.competition.group).not.toBeDefined();
+      expect(response.body.competition.verificationHash).not.toBeDefined();
+
       globalData.testCompetitionStarting = {
         id: response.body.competition.id,
         verificationCode: response.body.verificationCode
@@ -414,6 +418,10 @@ describe('Competition API', () => {
         endsAt: endDate.toISOString(),
         participantCount: 4
       });
+
+      expect(response.body.competition.groupId).toBeNull();
+      expect(response.body.competition.group).not.toBeDefined();
+      expect(response.body.competition.verificationHash).not.toBeDefined();
 
       // Create this competition here, as it'll be used in future tests
       // as a team-type competition mirror for the one above
@@ -467,6 +475,10 @@ describe('Competition API', () => {
         endsAt: endDate.toISOString(),
         participantCount: 4
       });
+
+      expect(response.body.competition.groupId).toBeNull();
+      expect(response.body.competition.group).not.toBeDefined();
+      expect(response.body.competition.verificationHash).not.toBeDefined();
       expect(response.body.competition.participations.length).toBe(4);
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('psikoi');
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('zezima');
@@ -509,6 +521,9 @@ describe('Competition API', () => {
         endsAt: endDate.toISOString(),
         participantCount: 4
       });
+      expect(response.body.competition.groupId).toBeNull();
+      expect(response.body.competition.group).not.toBeDefined();
+      expect(response.body.competition.verificationHash).not.toBeDefined();
       expect(response.body.competition.participations.length).toBe(4);
 
       const sortedParticipants = response.body.competition.participations.sort(
@@ -557,6 +572,8 @@ describe('Competition API', () => {
         metric: 'overall',
         startsAt: startDate,
         endsAt: endDate,
+        groupId: globalData.testGroup.id,
+        groupVerificationCode: globalData.testGroup.verificationCode,
         teams: []
       });
 
@@ -566,9 +583,13 @@ describe('Competition API', () => {
         metric: 'overall',
         startsAt: startDate.toISOString(),
         endsAt: endDate.toISOString(),
-        participantCount: 0
+        participantCount: 2
       });
-      expect(response.body.competition.participations.length).toBe(0);
+      expect(response.body.competition.groupId).toBe(globalData.testGroup.id);
+      expect(response.body.competition.group.id).toBe(globalData.testGroup.id);
+      expect(response.body.competition.group.verificationHash).not.toBeDefined();
+      expect(response.body.competition.verificationHash).not.toBeDefined();
+      expect(response.body.competition.participations.length).toBe(2);
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
@@ -608,6 +629,12 @@ describe('Competition API', () => {
         endsAt: endDate.toISOString(),
         groupId: globalData.testGroup.id,
         participantCount: 4
+      });
+
+      expect(response.body.competition.groupId).toBe(globalData.testGroup.id);
+      expect(response.body.competition.verificationHash).not.toBeDefined();
+      expect(response.body.competition.group).toMatchObject({
+        id: globalData.testGroup.id
       });
 
       globalData.testCompetitionWithGroup = {
@@ -900,6 +927,9 @@ describe('Competition API', () => {
       });
       expect(response.body.participantCount).toBe(0);
       expect(response.body.participations.length).toBe(0);
+      expect(response.body.groupId).toBe(null);
+      expect(response.body.group).not.toBeDefined();
+      expect(response.body.verificationHash).not.toBeDefined();
     });
 
     it('should edit participants', async () => {
@@ -916,6 +946,9 @@ describe('Competition API', () => {
       expect(response.status).toBe(200);
       expect(response.body.participantCount).toBe(4);
       expect(response.body.participations.length).toBe(4);
+      expect(response.body.groupId).toBe(null);
+      expect(response.body.group).not.toBeDefined();
+      expect(response.body.verificationHash).not.toBeDefined();
 
       const participantUsernames = response.body.participations.map(p => p.player.username);
 
@@ -964,6 +997,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.participations.length).toBe(10);
+      expect(response.body.groupId).toBe(null);
+      expect(response.body.group).not.toBeDefined();
+      expect(response.body.verificationHash).not.toBeDefined();
 
       const usernameTeamMap: { [username: string]: string } = {};
 
@@ -1113,7 +1149,12 @@ describe('Competition API', () => {
         title: 'OVERALL Competition',
         type: 'classic',
         metric: 'overall',
-        participantCount: 0
+        groupId: globalData.testGroup.id,
+        group: {
+          id: globalData.testGroup.id,
+          memberCount: 2
+        },
+        participantCount: 2
       });
 
       expect(response.body[4]).toMatchObject({
@@ -1203,7 +1244,12 @@ describe('Competition API', () => {
         title: 'OVERALL Competition',
         type: 'classic',
         metric: 'overall',
-        participantCount: 0
+        groupId: globalData.testGroup.id,
+        group: {
+          id: globalData.testGroup.id,
+          memberCount: 2
+        },
+        participantCount: 2
       });
 
       // Hashes shouldn't be exposed to the API consumer
@@ -1221,7 +1267,12 @@ describe('Competition API', () => {
         title: 'OVERALL Competition',
         type: 'classic',
         metric: 'overall',
-        participantCount: 0
+        groupId: globalData.testGroup.id,
+        group: {
+          id: globalData.testGroup.id,
+          memberCount: 2
+        },
+        participantCount: 2
       });
 
       expect(response.body[1]).toMatchObject({
@@ -2373,7 +2424,7 @@ describe('Competition API', () => {
       const response = await api.get(`/players/username/psikoi/competitions`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(4);
+      expect(response.body.length).toBe(5);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
@@ -2400,6 +2451,20 @@ describe('Competition API', () => {
       });
 
       expect(response.body[2]).toMatchObject({
+        teamName: null,
+        competitionId: globalData.testCompetitionEnded.id,
+        competition: {
+          id: globalData.testCompetitionEnded.id,
+          groupId: globalData.testGroup.id,
+          group: {
+            id: globalData.testGroup.id,
+            memberCount: 2
+          },
+          participantCount: 2
+        }
+      });
+
+      expect(response.body[3]).toMatchObject({
         teamName: 'Team 1',
         competitionId: globalData.testCompetitionStartedTeam.id,
         competition: {
@@ -2408,7 +2473,7 @@ describe('Competition API', () => {
         }
       });
 
-      expect(response.body[3]).toMatchObject({
+      expect(response.body[4]).toMatchObject({
         teamName: null,
         competitionId: globalData.testCompetitionStarted.id,
         competition: {
@@ -2499,7 +2564,7 @@ describe('Competition API', () => {
       const response = await api.get(`/groups/${globalData.testGroup.id}/competitions`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
+      expect(response.body.length).toBe(4);
 
       // Hashes shouldn't be exposed to the API consumer
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
@@ -2592,7 +2657,7 @@ describe('Competition API', () => {
 
     it('should not update all (competition has ended)', async () => {
       const response = await api.post(`/competitions/${globalData.testCompetitionEnded.id}/update-all`).send({
-        verificationCode: globalData.testCompetitionEnded.verificationCode
+        verificationCode: globalData.testGroup.verificationCode
       });
 
       expect(response.status).toBe(400);

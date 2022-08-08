@@ -3,7 +3,7 @@ import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Metric, CompetitionStatus, CompetitionType } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { CompetitionWithCount } from '../competition.types';
+import { CompetitionListItem } from '../competition.types';
 
 const inputSchema = z
   .object({
@@ -16,7 +16,7 @@ const inputSchema = z
 
 type SearchCompetitionsParams = z.infer<typeof inputSchema>;
 
-async function searchCompetitions(payload: SearchCompetitionsParams): Promise<CompetitionWithCount[]> {
+async function searchCompetitions(payload: SearchCompetitionsParams): Promise<CompetitionListItem[]> {
   const params = inputSchema.parse(payload);
 
   const query: PrismaTypes.CompetitionWhereInput = {};
@@ -41,6 +41,15 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
   const competitions = await prisma.competition.findMany({
     where: { ...query },
     include: {
+      group: {
+        include: {
+          _count: {
+            select: {
+              memberships: true
+            }
+          }
+        }
+      },
       _count: {
         select: {
           participations: true
@@ -55,6 +64,12 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
   return competitions.map(g => {
     return {
       ...omit(g, ['_count', 'verificationHash']),
+      group: g.group
+        ? {
+            ...omit(g.group, '_count', 'verificationHash'),
+            memberCount: g.group._count.memberships
+          }
+        : undefined,
       participantCount: g._count.participations
     };
   });

@@ -2,7 +2,7 @@ import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { GroupWithCount } from '../group.types';
+import { GroupListItem } from '../group.types';
 
 const inputSchema = z
   .object({
@@ -12,7 +12,7 @@ const inputSchema = z
 
 type SearchGroupsParams = z.infer<typeof inputSchema>;
 
-async function searchGroups(payload: SearchGroupsParams): Promise<GroupWithCount[]> {
+async function searchGroups(payload: SearchGroupsParams): Promise<GroupListItem[]> {
   const params = inputSchema.parse(payload);
 
   const groups = await prisma.group.findMany({

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { CompetitionWithCount } from '../competition.types';
+import { CompetitionListItem } from '../competition.types';
 
 const inputSchema = z
   .object({
@@ -13,12 +13,21 @@ const inputSchema = z
 
 type FindGroupCompetitionsParams = z.infer<typeof inputSchema>;
 
-async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Promise<CompetitionWithCount[]> {
+async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Promise<CompetitionListItem[]> {
   const params = inputSchema.parse(payload);
 
   const competitions = await prisma.competition.findMany({
     where: { groupId: params.groupId },
     include: {
+      group: {
+        include: {
+          _count: {
+            select: {
+              memberships: true
+            }
+          }
+        }
+      },
       _count: {
         select: {
           participations: true
@@ -45,6 +54,12 @@ async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Prom
   return competitions.map(g => {
     return {
       ...omit(g, ['_count', 'verificationHash']),
+      group: g.group
+        ? {
+            ...omit(g.group, '_count', 'verificationHash'),
+            memberCount: g.group._count.memberships
+          }
+        : undefined,
       participantCount: g._count.participations
     };
   });
