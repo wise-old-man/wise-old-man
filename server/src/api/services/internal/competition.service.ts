@@ -499,13 +499,13 @@ async function create(dto: CreateCompetitionDTO) {
 
   if (startsAt >= MAINTENANCE_START && startsAt <= MAINTENANCE_END) {
     throw new BadRequestError(
-      'Please choose another start date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+      'Please choose another start date: Wise Old Man will be under maintenance from 07:00 to 11:00 (GMT)'
     );
   }
 
   if (endsAt >= MAINTENANCE_START && endsAt <= MAINTENANCE_END) {
     throw new BadRequestError(
-      'Please choose another end date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+      'Please choose another end date: Wise Old Man will be under maintenance from 07:00 to 11:00 (GMT)'
     );
   }
 
@@ -581,13 +581,13 @@ async function edit(competition: Competition, dto: EditCompetitionDTO) {
 
   if (startsAt >= MAINTENANCE_START && startsAt <= MAINTENANCE_END) {
     throw new BadRequestError(
-      'Please choose another start date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+      'Please choose another start date: Wise Old Man will be under maintenance from 07:00 to 11:00 (GMT)'
     );
   }
 
   if (endsAt >= MAINTENANCE_START && endsAt <= MAINTENANCE_END) {
     throw new BadRequestError(
-      'Please choose another end date: Wise Old Man will be under maintenance from 00:00 to 04:00 (GMT)'
+      'Please choose another end date: Wise Old Man will be under maintenance from 07:00 to 11:00 (GMT)'
     );
   }
 
