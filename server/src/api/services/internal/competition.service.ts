@@ -23,8 +23,8 @@ import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
 // Temporary
-const MAINTENANCE_START = new Date('2022-02-13T00:00:00.000Z');
-const MAINTENANCE_END = new Date('2022-02-13T04:00:00.000Z');
+const MAINTENANCE_START = new Date('2022-08-13T07:00:00.000Z');
+const MAINTENANCE_END = new Date('2022-08-13T11:00:00.000Z');
 
 interface Team {
   name: string;
