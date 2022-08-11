@@ -9,19 +9,19 @@ class Logger {
     this.errorLogger = winston.createLogger({
       level: 'error',
       format: winston.format.json(),
-      transports: [new winston.transports.File({ filename: 'error.log', level: 'error' })]
+      transports: [new winston.transports.File({ filename: 'logs/error.log', level: 'error' })]
     });
 
     this.debugLogger = winston.createLogger({
       level: 'debug',
       format: winston.format.json(),
-      transports: [new winston.transports.File({ filename: 'debug.log', level: 'debug' })]
+      transports: [new winston.transports.File({ filename: 'logs/debug.log', level: 'debug' })]
     });
 
     this.infoLogger = winston.createLogger({
       level: 'info',
       format: winston.format.json(),
-      transports: [new winston.transports.File({ filename: 'info.log', level: 'info' })]
+      transports: [new winston.transports.File({ filename: 'logs/info.log', level: 'info' })]
     });
   }
 
