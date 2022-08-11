@@ -12,7 +12,7 @@
     "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
-    "@prisma/client": "^3.9.2",
+    "@prisma/client": "^4.2.1",
     "@sentry/node": "^5.27.6",
     "@sentry/tracing": "^5.29.2",
     "axios": "^0.19.2",
@@ -55,7 +55,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
-    "prisma": "^3.9.2",
+    "prisma": "^4.2.1",
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
     "ts-node-dev": "^1.1.8",
