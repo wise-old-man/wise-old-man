@@ -397,6 +397,7 @@ export default [
       'clue_scrolls_elite',
       'clue_scrolls_master',
       'last_man_standing',
+      'pvp_arena',
       'soul_wars_zeal',
       'guardians_of_the_rift',
       'abyssal_sire',
