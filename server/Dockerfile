@@ -8,6 +8,7 @@ RUN npm install pm2 -g
 
 COPY . .
 
+RUN npx prisma generate
 RUN npm run build
 
 CMD ["npm", "run", "prod"]
