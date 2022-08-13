@@ -9,6 +9,7 @@
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "dev": "cross-env ./scripts/run-dev.sh",
+    "prod": "cross-env ./scripts/run-prod.sh",
     "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
