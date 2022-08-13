@@ -1,4 +1,11 @@
-import { Metric, getMetricMeasure, getMetricValueKey, getLevel, SKILL_EXP_AT_99 } from '../../../utils';
+import {
+  Metric,
+  getMetricMeasure,
+  getMetricValueKey,
+  getLevel,
+  SKILL_EXP_AT_99,
+  METRICS
+} from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
 import { ExtendedAchievement, AchievementDefinition } from './achievement.types';
@@ -85,7 +92,8 @@ function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementD
       // Check if the previous value is > -1, this prevents this calc from setting the first snapshot
       // after May 10th 2020 as the achievement date for any pre-WOM boss achievements
       // (boss tracking was introduced on May 10th 2020)
-      return !d.validate(prev) && d.validate(next) && prev[getMetricValueKey(d.metric as Metric)] > -1;
+      const wasRanked = !METRICS.includes(d.metric) || prev[getMetricValueKey(d.metric)] > -1;
+      return !d.validate(prev) && d.validate(next) && wasRanked;
     });
 
     valid.forEach(v => {
