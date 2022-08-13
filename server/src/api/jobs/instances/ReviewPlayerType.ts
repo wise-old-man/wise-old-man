@@ -1,6 +1,6 @@
 import metricsService from '../../services/external/metrics.service';
 import redisService from '../../services/external/redis.service';
-import * as playerService from '../../services/internal/player.service';
+import * as playerServices from '../../modules/players/player.services';
 import { Job } from '../index';
 
 // This review should only be executed a maximum of once every 7 days
@@ -17,8 +17,8 @@ class ReviewPlayerType implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const player = await playerService.findById(data.id);
-      await playerService.assertType(player);
+      const [player] = await playerServices.findPlayer({ id: data.id });
+      await playerServices.assertPlayerType(player, true);
 
       // Store the current timestamp to activate the cooldown
       await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), REVIEW_COOLDOWN);

@@ -1,13 +1,14 @@
 import axios from 'axios';
-import { MigratedGroupInfo } from '../../../types';
-import { TEMPLE_OSRS } from '../../constants';
 import { NotFoundError, ServerError } from '../../errors';
+import { TempleGroupData } from '../../modules/groups/group.types';
+
+const GROUP_INFO_URL = 'https://templeosrs.com/api/group_info.php';
 
 /**
  * Fetches the group members from the TempleOSRS API
  */
-async function fetchGroupInfo(gid: number): Promise<MigratedGroupInfo> {
-  const URL = `${TEMPLE_OSRS.GROUP_INFO}?id=${gid}`;
+async function fetchGroupInfo(gid: number): Promise<TempleGroupData> {
+  const URL = `${GROUP_INFO_URL}?id=${gid}`;
 
   try {
     const { data } = await axios.get(URL);

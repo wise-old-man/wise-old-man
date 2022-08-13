@@ -1,6 +1,8 @@
+import { Skill } from '../../../../../utils';
+
 export default [
   {
-    skill: 'attack',
+    skill: Skill.ATTACK,
     methods: [
       {
         startExp: 0,
@@ -36,7 +38,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'defence',
+    skill: Skill.DEFENCE,
     methods: [
       {
         startExp: 0,
@@ -47,7 +49,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'strength',
+    skill: Skill.STRENGTH,
     methods: [
       {
         startExp: 0,
@@ -88,7 +90,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'hitpoints',
+    skill: Skill.DEFENCE,
     methods: [
       {
         startExp: 0,
@@ -99,7 +101,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'ranged',
+    skill: Skill.RANGED,
     methods: [
       {
         startExp: 0,
@@ -120,7 +122,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'prayer',
+    skill: Skill.PRAYER,
     methods: [
       {
         startExp: 0,
@@ -136,7 +138,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'magic',
+    skill: Skill.MAGIC,
     methods: [
       {
         startExp: 0,
@@ -147,7 +149,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'cooking',
+    skill: Skill.COOKING,
     methods: [
       {
         startExp: 0,
@@ -198,7 +200,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'woodcutting',
+    skill: Skill.WOODCUTTING,
     methods: [
       {
         startExp: 0,
@@ -258,8 +260,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'woodcutting',
-        bonusSkill: 'firemaking',
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.FIREMAKING,
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
@@ -268,7 +270,7 @@ export default [
     ]
   },
   {
-    skill: 'fletching',
+    skill: Skill.FLETCHING,
     methods: [
       {
         startExp: 0,
@@ -279,7 +281,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'fishing',
+    skill: Skill.FISHING,
     methods: [
       {
         startExp: 0,
@@ -310,7 +312,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'firemaking',
+    skill: Skill.FIREMAKING,
     methods: [
       {
         startExp: 0,
@@ -360,8 +362,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'firemaking',
-        bonusSkill: 'cooking',
+        originSkill: Skill.FIREMAKING,
+        bonusSkill: Skill.COOKING,
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
@@ -370,7 +372,7 @@ export default [
     ]
   },
   {
-    skill: 'crafting',
+    skill: Skill.CRAFTING,
     methods: [
       {
         startExp: 0,
@@ -401,7 +403,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'smithing',
+    skill: Skill.SMITHING,
     methods: [
       {
         startExp: 0,
@@ -422,7 +424,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'mining',
+    skill: Skill.MINING,
     methods: [
       {
         startExp: 0,
@@ -482,8 +484,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'mining',
-        bonusSkill: 'smithing',
+        originSkill: Skill.MINING,
+        bonusSkill: Skill.SMITHING,
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
@@ -492,7 +494,7 @@ export default [
     ]
   },
   {
-    skill: 'herblore',
+    skill: Skill.HERBLORE,
     methods: [
       {
         startExp: 0,
@@ -528,7 +530,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'agility',
+    skill: Skill.AGILITY,
     methods: [
       {
         startExp: 0,
@@ -573,8 +575,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'agility',
-        bonusSkill: 'thieving',
+        originSkill: Skill.AGILITY,
+        bonusSkill: Skill.THIEVING,
         startExp: 6_517_253,
         endExp: 200_000_000,
         end: true,
@@ -583,7 +585,7 @@ export default [
     ]
   },
   {
-    skill: 'thieving',
+    skill: Skill.THIEVING,
     methods: [
       {
         startExp: 0,
@@ -619,7 +621,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'slayer',
+    skill: Skill.SLAYER,
     methods: [
       {
         startExp: 0,
@@ -669,168 +671,168 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'slayer',
-        bonusSkill: 'strength',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
         startExp: 0,
         endExp: 1_986_068,
         end: false,
         ratio: 0.23
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'strength',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
         startExp: 1_986_068,
         endExp: 3_258_594,
         end: false,
         ratio: 1.35
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'strength',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
         startExp: 3_258_594,
         endExp: 7_195_629,
         end: false,
         ratio: 0.81
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'strength',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
         startExp: 7_195_629,
         endExp: 200_000_000,
         end: false,
         ratio: 0.59
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'defence',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
         startExp: 0,
         endExp: 1_986_068,
         end: false,
         ratio: 0.47
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'defence',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
         startExp: 1_986_068,
         endExp: 3_258_594,
         end: false,
         ratio: 0.34
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'defence',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
         startExp: 3_258_594,
         endExp: 7_195_629,
         end: false,
         ratio: 0.47
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'defence',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
         startExp: 7_195_629,
         endExp: 13_034_431,
         end: false,
         ratio: 0.51
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'defence',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
         ratio: 0.52
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'ranged',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 0,
         endExp: 1_986_068,
         end: false,
         ratio: 0.62
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'ranged',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 1_986_068,
         endExp: 3_258_594,
         end: false,
         ratio: 0.47
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'ranged',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 3_258_594,
         endExp: 7_195_629,
         end: false,
         ratio: 0.37
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'ranged',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 7_195_629,
         endExp: 13_034_431,
         end: false,
         ratio: 0.31
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'ranged',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
         ratio: 0.3
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 0,
         endExp: 1_986_068,
         end: false,
         ratio: 0.019
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 1_986_068,
         endExp: 3_258_594,
         end: false,
         ratio: 0.058
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 3_258_594,
         endExp: 5_346_332,
         end: false,
         ratio: 0.112
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 5_346_332,
         endExp: 7_195_629,
         end: false,
         ratio: 0.213
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 7_195_629,
         endExp: 13_034_431,
         end: false,
         ratio: 0.194
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'prayer',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: false,
         ratio: 0.197
       },
       {
-        originSkill: 'slayer',
-        bonusSkill: 'attack',
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.ATTACK,
         startExp: 0,
         endExp: 200_000_000,
         end: false,
@@ -839,7 +841,7 @@ export default [
     ]
   },
   {
-    skill: 'farming',
+    skill: Skill.FARMING,
     methods: [
       {
         startExp: 0,
@@ -875,7 +877,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'runecrafting',
+    skill: Skill.RUNECRAFTING,
     methods: [
       {
         startExp: 0,
@@ -896,7 +898,7 @@ export default [
     bonuses: []
   },
   {
-    skill: 'hunter',
+    skill: Skill.HUNTER,
     methods: [
       {
         startExp: 0,
@@ -941,8 +943,8 @@ export default [
     ],
     bonuses: [
       {
-        originSkill: 'hunter',
-        bonusSkill: 'fishing',
+        originSkill: Skill.HUNTER,
+        bonusSkill: Skill.FISHING,
         startExp: 737_627,
         endExp: 200_000_000,
         end: true,
@@ -952,7 +954,7 @@ export default [
     ]
   },
   {
-    skill: 'construction',
+    skill: Skill.CONSTRUCTION,
     methods: [
       {
         startExp: 0,

@@ -1,4 +1,4 @@
-import { METRICS, parseMetricAbbreviation } from '@wise-old-man/utils';
+import { METRICS, parseMetricAbbreviation } from '../../utils';
 
 function metricAbbreviation(req, res, next) {
   if (!req) {

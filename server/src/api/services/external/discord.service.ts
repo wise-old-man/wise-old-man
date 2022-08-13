@@ -1,24 +1,26 @@
 import axios from 'axios';
-import { Achievement, Competition, Player } from '../../../database/models';
-import env from '../../../env';
-import { EventPeriodDelay } from '../../../types';
-import { durationBetween } from '../../util/dates';
-import { CompetitionDetails } from '../internal/competition.service';
-import * as groupService from '../internal/group.service';
-import * as playerService from '../internal/player.service';
+import env, { isTesting } from '../../../env';
+import prisma, { Achievement, Player, Competition } from '../../../prisma';
+import { CompetitionDetails } from '../../modules/competitions/competition.types';
+import * as playerServices from '../../modules/players/player.services';
+
+export interface EventPeriodDelay {
+  hours?: number;
+  minutes?: number;
+}
 
 /**
  * Dispatch an event to our Discord Bot API.
  */
 function dispatch(type: string, payload: any) {
+  if (isTesting()) return;
+
   const url = env.DISCORD_BOT_API_URL;
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
 
-  console.log('Sending discord event', type, payload);
-
-  axios.post(url, body).catch(e => {
-    console.log('Error sending discord event.', e);
+  axios.post(url, body).catch(() => {
+    console.log('Error sending discord event.');
   });
 }
 
@@ -33,17 +35,16 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   // If no new achievements are found, ignore this event
   if (recent.length === 0) return;
 
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(playerId, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({ where: { playerId } });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
-  const player = await playerService.findById(playerId);
+  const [player] = await playerServices.findPlayer({ id: playerId });
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_ACHIEVEMENTS', { groupId: id, player, achievements: recent });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });
   });
 }
 
@@ -52,15 +53,16 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchHardcoreDied(player: Player) {
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({
+    where: { playerId: player.id }
+  });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_HCIM_DIED', { groupId: id, player });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_HCIM_DIED', { groupId, player });
   });
 }
 
@@ -69,15 +71,16 @@ async function dispatchHardcoreDied(player: Player) {
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchNameChanged(player: Player, previousDisplayName: string) {
-  // Find all the groups for which this player is a member
-  const groups = await groupService.getPlayerGroups(player.id, { limit: 200, offset: 0 });
+  const memberships = await prisma.membership.findMany({
+    where: { playerId: player.id }
+  });
 
   // The following actions are only relevant to players
   // that are group members, so ignore any that aren't
-  if (!groups || groups.length === 0) return;
+  if (!memberships || memberships.length === 0) return;
 
-  groups.forEach(({ id }) => {
-    dispatch('MEMBER_NAME_CHANGED', { groupId: id, player, previousName: previousDisplayName });
+  memberships.forEach(({ groupId }) => {
+    dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
   });
 }
 
@@ -95,8 +98,7 @@ async function dispatchMembersJoined(groupId: number, players: Player[]) {
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
-  // Fetch all the players for these ids
-  const players = await playerService.findAllByIds(playerIds);
+  const players = await playerServices.findPlayers({ ids: playerIds });
 
   // If couldn't find any players for these ids, ignore event
   if (!players || players.length === 0) return;
@@ -108,25 +110,20 @@ async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
  * Dispatch a competition created event to our discord bot API.
  */
 function dispatchCompetitionCreated(competition: Competition) {
-  const duration = durationBetween(competition.startsAt, competition.endsAt);
-
   dispatch('COMPETITION_CREATED', {
     groupId: competition.groupId,
-    competition: { ...competition.toJSON(), duration }
+    competition
   });
 }
 
 /**
  * Dispatch a competition created event to our discord bot API.
  */
-function dispatchCompetitionStarted(competition: CompetitionDetails) {
+function dispatchCompetitionStarted(competition: Competition) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_STARTED', { groupId, competition });
 }
@@ -135,23 +132,15 @@ function dispatchCompetitionStarted(competition: CompetitionDetails) {
  * Dispatch a competition ended event to our discord bot API.
  */
 function dispatchCompetitionEnded(competition: CompetitionDetails) {
-  const { groupId, participants } = competition;
+  const { groupId, participations } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
 
   // Map the competition's end standings
-  const standings = participants
+  const standings = participations
     .filter(p => p.progress.gained > 0)
-    .map((p: any) => {
-      const { displayName, teamName } = p;
-      const gained = p.progress.gained;
-
-      return { displayName, teamName, gained };
-    });
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
+    .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }));
 
   dispatch('COMPETITION_ENDED', { groupId, competition, standings });
 }
@@ -159,14 +148,11 @@ function dispatchCompetitionEnded(competition: CompetitionDetails) {
 /**
  * Dispatch a competition starting event to our discord bot API.
  */
-function dispatchCompetitionStarting(competition: CompetitionDetails, period: EventPeriodDelay) {
+function dispatchCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_STARTING', { groupId, competition, period });
 }
@@ -174,14 +160,11 @@ function dispatchCompetitionStarting(competition: CompetitionDetails, period: Ev
 /**
  * Dispatch a competition ending event to our discord bot API.
  */
-function dispatchCompetitionEnding(competition: CompetitionDetails, period: EventPeriodDelay) {
+function dispatchCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
   const { groupId } = competition;
 
   // Only dispatch this event for group competitions
   if (!groupId) return;
-
-  // Do not send the competition's participants, to not exceed the HTTP character limit
-  delete competition.participants;
 
   dispatch('COMPETITION_ENDING', { groupId, competition, period });
 }

@@ -1,7 +1,7 @@
-import { isActivity, isBoss, isSkill, Metrics } from '@wise-old-man/utils';
-import { Competition } from '../../../database/models';
+import prisma, { Competition } from '../../../prisma';
+import { isActivity, isBoss, isSkill, Metric } from '../../../utils';
 import metricsService from '../../services/external/metrics.service';
-import * as competitionService from '../../services/internal/competition.service';
+import * as competitionServices from '../../modules/competitions/competition.services';
 import { Job } from '../index';
 
 class RefreshCompetitionRankings implements Job {
@@ -15,7 +15,7 @@ class RefreshCompetitionRankings implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const allCompetitions = await Competition.findAll();
+      const allCompetitions = await prisma.competition.findMany();
 
       await Promise.all(
         allCompetitions.map(async competition => {
@@ -23,7 +23,11 @@ class RefreshCompetitionRankings implements Job {
           const newScore = await calculateScore(competition);
 
           if (newScore !== currentScore) {
-            await competition.update({ score: newScore });
+            // Update this competition's score
+            await prisma.competition.update({
+              where: { id: competition.id },
+              data: { score: newScore }
+            });
           }
         })
       );
@@ -45,9 +49,13 @@ async function calculateScore(competition: Competition): Promise<number> {
     return score;
   }
 
-  const details = await competitionService.getDetails(competition);
-  const activeParticipants = details.participants.filter(p => p.progress.gained > 0);
-  const averageGained = details.totalGained / activeParticipants.length;
+  const details = await competitionServices.fetchCompetitionDetails({ id: competition.id });
+
+  const activeParticipants = details.participations.filter(p => p.progress.gained > 0);
+
+  const averageGained =
+    activeParticipants.map(a => a.progress.gained).reduce((acc, curr) => acc + curr, 0) /
+    activeParticipants.length;
 
   // If is ongoing
   if (competition.startsAt <= now && competition.endsAt >= now) {
@@ -67,7 +75,7 @@ async function calculateScore(competition: Competition): Promise<number> {
 
   // If is group competition
   if (details.group) {
-    // The highest of 30, or 30% of the group's score
+    // The highest of 40, or 40% of the group's score
     score += Math.max(40, details.group.score * 0.4);
 
     if (details.group.verified) {
@@ -87,12 +95,12 @@ async function calculateScore(competition: Competition): Promise<number> {
 
   if (isSkill(competition.metric)) {
     // If the average active participant has gained > 10k exp
-    if (averageGained > 10000) {
+    if (averageGained > 10_000) {
       score += 30;
     }
 
     // If the average active participant has gained > 100k exp
-    if (averageGained > 100000) {
+    if (averageGained > 100_000) {
       score += 50;
     }
   }
@@ -122,12 +130,12 @@ async function calculateScore(competition: Competition): Promise<number> {
   }
 
   // Discourage "overall" competitions, they are often tests
-  if (competition.metric !== Metrics.OVERALL) {
+  if (competition.metric !== Metric.OVERALL) {
     score += 30;
   }
 
   // Discourage "over 2 weeks long" competitions
-  if (competition.endsAt.getTime() - competition.startsAt.getTime() < 1209600000) {
+  if (competition.endsAt.getTime() - competition.startsAt.getTime() < 1_209_600_000) {
     score += 50;
   }
 

@@ -5,7 +5,6 @@ import express, { Express } from 'express';
 import rateLimit from 'express-rate-limit';
 import userAgent from 'express-useragent';
 import env, { isTesting } from '../env';
-import hooks from './hooks';
 import jobs from './jobs';
 import router from './routing';
 import metricsService from './services/external/metrics.service';
@@ -39,12 +38,14 @@ class API {
     this.express.use(cors());
 
     // Limits 500 requests per ip, every 5 minutes
-    this.express.use(
-      rateLimit({
-        windowMs: RATE_LIMIT_MINUTES * 60 * 1000,
-        max: RATE_LIMIT_REQUESTS
-      })
-    );
+    if (!isTesting()) {
+      this.express.use(
+        rateLimit({
+          windowMs: RATE_LIMIT_MINUTES * 60 * 1000,
+          max: RATE_LIMIT_REQUESTS
+        })
+      );
+    }
 
     // Register each http request for metrics processing
     this.express.use((req, res, next) => {
@@ -54,7 +55,7 @@ class API {
         if (!req.route) return;
 
         const route = `${req.baseUrl}${req.route.path}`;
-        if (route === '/api/metrics/') return;
+        if (route === '/metrics/') return;
 
         const status = res.statusCode;
         const method = req.method;
@@ -71,12 +72,11 @@ class API {
   }
 
   setupRouting() {
-    this.express.use('/api', router);
+    this.express.use('/', router);
   }
 
   setupServices() {
     jobs.init();
-    hooks.setup();
 
     Sentry.init({
       dsn: env.SENTRY_DSN,

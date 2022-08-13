@@ -1,8 +1,8 @@
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '@wise-old-man/utils';
-import { Group } from '../../../database/models';
+import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../utils';
+import prisma, { Group } from '../../../prisma';
 import metricsService from '../../services/external/metrics.service';
-import * as competitionService from '../../services/internal/competition.service';
-import * as groupService from '../../services/internal/group.service';
+import * as groupServices from '../../modules/groups/group.services';
+import * as competitionServices from '../../modules/competitions/competition.services';
 import { Job } from '../index';
 
 class RefreshGroupRankings implements Job {
@@ -16,7 +16,7 @@ class RefreshGroupRankings implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const allGroups = await Group.findAll();
+      const allGroups = await prisma.group.findMany();
 
       await Promise.all(
         allGroups.map(async group => {
@@ -24,7 +24,10 @@ class RefreshGroupRankings implements Job {
           const newScore = await calculateScore(group);
 
           if (newScore !== currentScore) {
-            await group.update({ score: newScore });
+            await prisma.group.update({
+              where: { id: group.id },
+              data: { score: newScore }
+            });
           }
         })
       );
@@ -41,9 +44,8 @@ async function calculateScore(group: Group): Promise<number> {
   let score = 0;
 
   const now = new Date();
-  const members = await groupService.getMembersList(group);
-  const pagination = { limit: 100, offset: 0 };
-  const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
+  const members = await groupServices.fetchGroupMembers({ id: group.id });
+  const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
   const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {

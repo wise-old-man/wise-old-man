@@ -1,6 +1,5 @@
-import moment from 'moment';
-import { Op } from 'sequelize';
-import { Delta } from '../../../database/models';
+import prisma from '../../../prisma';
+import { Period, PeriodProps } from '../../../utils';
 import metricsService from '../../services/external/metrics.service';
 import { Job } from '../index';
 
@@ -20,16 +19,16 @@ class InvalidateDeltas implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      // Delete any outdated "5min" deltas
-      await deleteInvalidPeriodDeltas('5min', moment().subtract(1, 'hour').toDate());
+      // Delete any outdated "five_min" deltas, if not updated within the past hour
+      await deleteInvalidPeriodDeltaz(Period.FIVE_MIN);
       // Delete any outdated "day" deltas
-      await deleteInvalidPeriodDeltas('day', moment().subtract(24, 'hour').toDate());
+      await deleteInvalidPeriodDeltaz(Period.DAY);
       // Delete any outdated "week" deltas
-      await deleteInvalidPeriodDeltas('week', moment().subtract(7, 'day').toDate());
+      await deleteInvalidPeriodDeltaz(Period.WEEK);
       // Delete any outdated "month" deltas
-      await deleteInvalidPeriodDeltas('month', moment().subtract(31, 'day').toDate());
+      await deleteInvalidPeriodDeltaz(Period.MONTH);
       // Delete any outdated "year" deltas
-      await deleteInvalidPeriodDeltas('year', moment().subtract(365, 'day').toDate());
+      await deleteInvalidPeriodDeltaz(Period.YEAR);
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
@@ -39,12 +38,16 @@ class InvalidateDeltas implements Job {
   }
 }
 
-async function deleteInvalidPeriodDeltas(period: string, thresholdDate: Date) {
-  await Delta.destroy({
-    where: {
-      period,
-      updatedAt: { [Op.lt]: thresholdDate }
-    }
+async function deleteInvalidPeriodDeltaz(period: Period) {
+  // Usually deltas become invalid after existing for more than their period's duration
+  // Except for 5min deltas, which only become invalid after 1 hour.
+  const thresholdMs =
+    period === Period.FIVE_MIN
+      ? PeriodProps[Period.FIVE_MIN].milliseconds * 12
+      : PeriodProps[period].milliseconds;
+
+  await prisma.delta.deleteMany({
+    where: { period, updatedAt: { lt: new Date(Date.now() - thresholdMs) } }
   });
 }
 

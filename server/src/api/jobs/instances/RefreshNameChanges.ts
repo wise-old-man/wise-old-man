@@ -1,6 +1,6 @@
-import { NameChangeStatus } from '../../../types';
+import { NameChangeStatus } from '../../../prisma';
 import metricsService from '../../services/external/metrics.service';
-import * as nameService from '../../services/internal/name.service';
+import * as nameChangeService from '../../modules/name-changes/name-change.services';
 import jobs, { Job } from '../index';
 
 /**
@@ -20,12 +20,15 @@ class RefreshNameChanges implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const pagination = { limit: 100, offset: 0 };
-      const pending = await nameService.getList(null, NameChangeStatus.PENDING, pagination);
+      // List the latest 100 pending name change requests
+      const pending = await nameChangeService.searchNameChanges({
+        status: NameChangeStatus.PENDING,
+        limit: 100
+      });
 
+      // Schedule a name change review for each, with a 90sec interval between them
       pending.forEach((p, i) => {
-        const delay = (i + 1) * REVIEW_COOLDOWN;
-        jobs.add('ReviewNameChange', { id: p.id }, { delay });
+        jobs.add('ReviewNameChange', { id: p.id }, { delay: (i + 1) * REVIEW_COOLDOWN });
       });
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
