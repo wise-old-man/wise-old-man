@@ -1,0 +1,22 @@
+name: Build API Image
+
+on:
+  push:
+    branches:
+      - add-api-v2-adapter
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.ORG_DOCKER_USERNAME }} -p ${{ secrets.ORG_DOCKER_PASSWORD }}
+
+      - name: Build and Push To Docker Hub
+        run: |
+          cd server
+          docker build . --file Dockerfile --tag wiseoldman/api-adapted:latest
+          docker push wiseoldman/api-adapted:latest

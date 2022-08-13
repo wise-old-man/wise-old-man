@@ -20,8 +20,8 @@ class InvalidateDeltas implements Job {
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      // Delete any outdated "5min" deltas
-      await deleteInvalidPeriodDeltas('5min', moment().subtract(1, 'hour').toDate());
+      // Delete any outdated "five_min" deltas
+      await deleteInvalidPeriodDeltas('five_min', moment().subtract(1, 'hour').toDate());
       // Delete any outdated "day" deltas
       await deleteInvalidPeriodDeltas('day', moment().subtract(24, 'hour').toDate());
       // Delete any outdated "week" deltas

@@ -21,7 +21,8 @@ import {
   isVirtualMetric,
   Metrics,
   round,
-  findCountry
+  findCountry,
+  Period
 } from '@wise-old-man/utils';
 import { Delta, Player, Snapshot } from '../../../database/models';
 import { Pagination } from '../../../types';
@@ -112,14 +113,20 @@ async function getPlayerTimeRangeDeltas(
 async function getPlayerPeriodDeltas(playerId: number, period: string, latest?: Snapshot, player?: Player) {
   const parsedPeriod = parsePeriodExpression(period);
 
-  if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
-
-  const startDate = new Date(Date.now() - parsedPeriod.durationMs);
+  let startDate;
   const endDate = new Date();
+
+  if (period === '5min') {
+    startDate = new Date(Date.now() - PeriodProps[Period.FIVE_MIN].milliseconds);
+  } else {
+    if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
+
+    startDate = new Date(Date.now() - parsedPeriod.durationMs);
+  }
 
   const deltas = await getPlayerTimeRangeDeltas(playerId, startDate, endDate, latest, player);
 
-  return { period: parsedPeriod.expression, ...deltas };
+  return { period: parsedPeriod ? parsedPeriod.expression : '5min', ...deltas };
 }
 
 /**
@@ -132,13 +139,21 @@ async function getPlayerDeltas(playerId: number) {
   const periodDeltas = await Promise.all(
     PERIODS.map(async period => {
       const deltas = await getPlayerPeriodDeltas(playerId, period, latest, player);
-      return { period, deltas };
+
+      const fixedPeriod = period === 'five_min' ? '5min' : period;
+
+      return { period: fixedPeriod, deltas };
     })
   );
 
   // Turn an array of deltas, into an object, using the period as a key,
   // then include only the deltas array in the final object, not the period fields
-  return mapValues(keyBy(periodDeltas, 'period'), p => p.deltas);
+  const mapped = mapValues(keyBy(periodDeltas, 'period'), p => p.deltas);
+
+  // quick fix
+  if (mapped && mapped['5min']) mapped['5min'].period = '5min';
+
+  return mapped;
 }
 
 /**
@@ -149,7 +164,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   const { metric, period, playerBuild, playerType, country } = filter;
   const countryCode = country ? findCountry(country)?.code : null;
 
-  if (!period || !isValidPeriod(period)) {
+  if (!period || (!isValidPeriod(period) && period !== '5min')) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -161,7 +176,12 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
+  if (
+    playerBuild &&
+    !PLAYER_BUILDS.includes(playerBuild as PlayerBuild) &&
+    playerBuild !== '10hp' &&
+    playerBuild !== '1def'
+  ) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
 
@@ -172,8 +192,14 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
     );
   }
 
-  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
-  const startingDate = moment().subtract(PeriodProps[period].milliseconds, 'milliseconds').toDate();
+  let fixedBuild = playerBuild;
+  if (playerBuild === '1def') fixedBuild = 'def1';
+  if (playerBuild === '10hp') fixedBuild = 'hp10';
+
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
+
+  const query = buildQuery({ type: playerType, build: fixedBuild, country: countryCode });
+  const startingDate = moment().subtract(PeriodProps[fixedPeriod].milliseconds, 'milliseconds').toDate();
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === PlayerType.IRONMAN) {
@@ -183,7 +209,7 @@ async function getLeaderboard(filter: GlobalDeltasFilter, pagination: Pagination
   const deltas = await Delta.findAll({
     attributes: [metric, 'startedAt', 'endedAt'],
     where: {
-      period,
+      period: fixedPeriod,
       updatedAt: { [Op.gte]: startingDate }
     },
     include: [{ model: Player, where: query }],
@@ -208,11 +234,19 @@ async function getGroupPeriodDeltas(
 ) {
   const parsedPeriod = parsePeriodExpression(period);
 
-  if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
+  let startDate;
+
+  if (period === '5min') {
+    startDate = new Date(Date.now() - PeriodProps[Period.FIVE_MIN].milliseconds);
+  } else {
+    if (!parsedPeriod) throw new BadRequestError(`Invalid period: ${period}.`);
+
+    startDate = new Date(Date.now() - parsedPeriod.durationMs);
+  }
 
   const deltas = await getGroupTimeRangeDeltas(
     metric as Metric,
-    new Date(Date.now() - parsedPeriod.durationMs),
+    startDate,
     new Date(),
     playerIds,
     pagination

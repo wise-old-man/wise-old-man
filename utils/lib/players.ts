@@ -11,8 +11,8 @@ enum PlayerBuild {
   F2P = 'f2p',
   LVL3 = 'lvl3',
   ZERKER = 'zerker',
-  DEF1 = '1def',
-  HP10 = '10hp'
+  DEF1 = 'def1',
+  HP10 = 'hp10'
 }
 
 const PlayerTypeProps = {

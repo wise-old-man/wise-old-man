@@ -11,6 +11,8 @@ import * as efficiencyService from './efficiency.service';
 import * as playerService from './player.service';
 import * as snapshotService from './snapshot.service';
 
+import { TEMP_NAME_CHANGE_STATUSES } from '../../../database/models/nameChange.model';
+
 /**
  * List all name changes, filtered by a specific status
  */
@@ -20,7 +22,7 @@ async function getList(username: string, status: number, pagination: Pagination)
     throw new BadRequestError('Invalid status.');
   }
 
-  const query = buildQuery({ status });
+  const query = buildQuery({ status: TEMP_NAME_CHANGE_STATUSES[status] });
 
   if (username && username.length > 0) {
     query[Op.or] = [
@@ -45,7 +47,7 @@ async function getList(username: string, status: number, pagination: Pagination)
 
 async function getPlayerNames(playerId: number): Promise<NameChange[]> {
   const nameChanges = await NameChange.findAll({
-    where: { playerId, status: NameChangeStatus.APPROVED },
+    where: { playerId, status: TEMP_NAME_CHANGE_STATUSES[NameChangeStatus.APPROVED] },
     order: [['resolvedAt', 'DESC']]
   });
 
@@ -54,7 +56,7 @@ async function getPlayerNames(playerId: number): Promise<NameChange[]> {
 
 async function findAllForGroup(playerIds: number[], pagination: Pagination): Promise<NameChange[]> {
   const nameChanges = await NameChange.findAll({
-    where: { playerId: playerIds, status: NameChangeStatus.APPROVED },
+    where: { playerId: playerIds, status: TEMP_NAME_CHANGE_STATUSES[NameChangeStatus.APPROVED] },
     include: [{ model: Player }],
     order: [['createdAt', 'DESC']],
     limit: pagination.limit,
@@ -150,7 +152,7 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
       where: {
         oldName: { [Op.iLike]: stOldName },
         newName: { [Op.iLike]: stNewName },
-        status: NameChangeStatus.PENDING
+        status: TEMP_NAME_CHANGE_STATUSES[NameChangeStatus.PENDING]
       }
     });
 
@@ -165,7 +167,7 @@ async function submit(oldName: string, newName: string): Promise<NameChange> {
     // exact same name change has been approved.
     if (newPlayer) {
       const lastChange = await NameChange.findOne({
-        where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
+        where: { playerId: newPlayer.id, status: TEMP_NAME_CHANGE_STATUSES[NameChangeStatus.APPROVED] },
         order: [['createdAt', 'DESC']]
       });
 

@@ -32,7 +32,7 @@ export default class Delta extends Model<Delta> {
   @Column({ type: DataType.INTEGER, allowNull: false, onDelete: 'CASCADE' })
   playerId: number;
 
-  @Column({ type: DataType.STRING(20), allowNull: false })
+  @Column({ type: DataType.STRING(20), get: parsePeriod, set: setPeriod, allowNull: false })
   period: string;
 
   @Column({ type: DataType.DATE, allowNull: false })
@@ -315,4 +315,16 @@ export default class Delta extends Model<Delta> {
 
   @BelongsTo(() => Player)
   player: Player;
+}
+
+function parsePeriod(this: any) {
+  const period = this.getDataValue('period');
+
+  if (period === 'five_min') return '5min';
+
+  return period;
+}
+
+function setPeriod(period: any) {
+  this.setDataValue('period', period === '5min' ? 'five_min' : period);
 }

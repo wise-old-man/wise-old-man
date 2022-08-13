@@ -9,7 +9,7 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { PlayerType, PlayerBuild, PLAYER_TYPES, PLAYER_BUILDS } from '@wise-old-man/utils';
+import { PlayerType, PlayerBuild, PLAYER_TYPES } from '@wise-old-man/utils';
 import {
   Achievement,
   Competition,
@@ -28,8 +28,7 @@ const options = {
   validate: {
     validateUsername,
     validateDisplayName,
-    validateType,
-    validateBuild
+    validateType
   },
   indexes: [
     {
@@ -58,7 +57,13 @@ export default class Player extends Model<Player> {
   @Column({ type: DataType.ENUM(...PLAYER_TYPES), allowNull: false })
   type: PlayerType;
 
-  @Column({ type: DataType.STRING(10), allowNull: false, defaultValue: PlayerBuild.MAIN })
+  @Column({
+    type: DataType.STRING(10),
+    get: parseBuild,
+    set: setBuild,
+    allowNull: false,
+    defaultValue: PlayerBuild.MAIN
+  })
   build: PlayerBuild;
 
   @Column({ type: DataType.STRING(3) })
@@ -115,6 +120,25 @@ export default class Player extends Model<Player> {
   achievements: Achievement[];
 }
 
+function parseBuild(this: any) {
+  const build = this.getDataValue('build');
+
+  if (build === 'def1') return '1def';
+  if (build === 'hp10') return '10hp';
+
+  return build;
+}
+
+function setBuild(build: any) {
+  if (build === '1def') {
+    this.setDataValue('build', 'def1');
+  } else if (build === '10hp') {
+    this.setDataValue('build', 'hp10');
+  } else {
+    this.setDataValue('build', build);
+  }
+}
+
 /**
  * As experience (overall) can exceed the integer maximum of 2.147b,
  * we have to store it into a BIGINT, however, sequelize returns bigints
@@ -127,12 +151,6 @@ function parseExp(this: any) {
 function validateType(this: Player) {
   if (!PLAYER_TYPES.includes(this.type as PlayerType)) {
     throw new Error('Invalid player type.');
-  }
-}
-
-function validateBuild(this: Player) {
-  if (!PLAYER_BUILDS.includes(this.build as PlayerBuild)) {
-    throw new Error('Invalid player build.');
   }
 }
 

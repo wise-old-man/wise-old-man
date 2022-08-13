@@ -7,7 +7,8 @@ import {
   METRICS,
   isValidPeriod,
   Metric,
-  findCountry
+  findCountry,
+  Period
 } from '@wise-old-man/utils';
 import { Delta, Player, Record } from '../../../database/models';
 import { Pagination } from '../../../types';
@@ -79,7 +80,7 @@ async function syncRecords(delta: Delta): Promise<void> {
 async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): Promise<Record[]> {
   const { period, metric } = filter;
 
-  if (period && !isValidPeriod(period)) {
+  if (period && !isValidPeriod(period) && period !== '5min') {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -87,8 +88,10 @@ async function getPlayerRecords(playerId: number, filter: PlayerRecordsFilter): 
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
+
   const records = await Record.findAll({
-    where: buildQuery({ playerId, period, metric })
+    where: buildQuery({ playerId, period: fixedPeriod, metric })
   });
 
   return records;
@@ -102,9 +105,11 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
   const { metric, period, playerBuild, playerType, country } = filter;
   const countryCode = country ? findCountry(country)?.code : null;
 
-  if (!period || !isValidPeriod(period)) {
+  if (!period || (!isValidPeriod(period) && period !== '5min')) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
+
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
 
   if (!metric || !METRICS.includes(metric as Metric)) {
     throw new BadRequestError(`Invalid metric: ${metric}.`);
@@ -114,9 +119,18 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     throw new BadRequestError(`Invalid player type: ${playerType}.`);
   }
 
-  if (playerBuild && !PLAYER_BUILDS.includes(playerBuild as PlayerBuild)) {
+  if (
+    playerBuild &&
+    !PLAYER_BUILDS.includes(playerBuild as PlayerBuild) &&
+    playerBuild !== '10hp' &&
+    playerBuild !== '1def'
+  ) {
     throw new BadRequestError(`Invalid player build: ${playerBuild}.`);
   }
+
+  let fixedBuild = playerBuild;
+  if (playerBuild === '1def') fixedBuild = 'def1';
+  if (playerBuild === '10hp') fixedBuild = 'hp10';
 
   if (country && !countryCode) {
     throw new BadRequestError(
@@ -125,7 +139,11 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
     );
   }
 
-  const query = buildQuery({ type: playerType, build: playerBuild, country: countryCode });
+  const query = buildQuery({
+    type: playerType,
+    build: fixedBuild,
+    country: countryCode
+  });
 
   // When filtering by player type, the ironman filter should include UIM and HCIM
   if (query.type && query.type === PlayerType.IRONMAN) {
@@ -133,7 +151,7 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
   }
 
   const records = await Record.findAll({
-    where: { period, metric },
+    where: { period: fixedPeriod, metric },
     include: [
       {
         model: Player,
@@ -154,7 +172,7 @@ async function getLeaderboard(filter: GlobalRecordsFilter, pagination: Paginatio
 async function getGroupLeaderboard(filter: GroupRecordsFilter, pagination: Pagination): Promise<Record[]> {
   const { playerIds, period, metric } = filter;
 
-  if (!period || !isValidPeriod(period)) {
+  if (!period || (!isValidPeriod(period) && period !== '5min')) {
     throw new BadRequestError(`Invalid period: ${period}.`);
   }
 
@@ -162,8 +180,10 @@ async function getGroupLeaderboard(filter: GroupRecordsFilter, pagination: Pagin
     throw new BadRequestError(`Invalid metric: ${metric}.`);
   }
 
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
+
   const records = await Record.findAll({
-    where: { playerId: playerIds, period, metric },
+    where: { playerId: playerIds, period: fixedPeriod, metric },
     include: [{ model: Player }],
     order: [['value', 'DESC']],
     limit: pagination.limit,

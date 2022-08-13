@@ -1,6 +1,6 @@
 import { Snapshot } from '../../../database/models';
 import { AchievementTemplate } from '../../services/internal/achievement.service';
-import { getCombatLevel, getMinimumExp } from '../../util/experience';
+import { getMinimumExp } from '../../util/experience';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
   // ------------------
@@ -13,15 +13,6 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
     getCurrentValue: (snapshot: Snapshot) => {
       return getMinimumExp(snapshot);
-    }
-  },
-  {
-    name: '126 Combat',
-    metric: 'combat',
-    measure: 'levels',
-    thresholds: [126],
-    getCurrentValue: (snapshot: Snapshot) => {
-      return getCombatLevel(snapshot);
     }
   },
   // ------------------
