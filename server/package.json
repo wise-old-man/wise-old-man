@@ -9,8 +9,8 @@
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "dev": "cross-env ./scripts/run-dev.sh",
-    "test": "cross-env ./scripts/run-tests.sh",
-    "prod": "pm2-runtime dist/src/server.js -i 4"
+    "prod": "cross-env ./scripts/run-prod.sh",
+    "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
