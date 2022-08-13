@@ -1,6 +1,6 @@
 # Migrate the production database.
 # This will check for, and apply any missing migrations
-# prisma migrate deploy DON'T DO THIS FOR NOW
+prisma migrate deploy
 
 # Run pm2 (on 4 CPU cores) on dist/src/server.ts and keep the process alive, restarting if it crashes
 export NODE_ENV=production
