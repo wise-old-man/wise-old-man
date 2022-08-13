@@ -1,6 +1,6 @@
 {
   "name": "wise-old-man-server",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "author": "Psikoi",
   "license": "ISC",
@@ -9,8 +9,8 @@
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "dev": "cross-env ./scripts/run-dev.sh",
-    "prod": "cross-env ./scripts/run-prod.sh",
-    "test": "cross-env ./scripts/run-tests.sh"
+    "test": "cross-env ./scripts/run-tests.sh",
+    "prod": "pm2-runtime dist/server.js -i 4"
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
