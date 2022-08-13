@@ -1,0 +1,60 @@
+name: Run API (v2) Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - release/v2
+    paths:
+      - "server/**"
+
+jobs:
+  integration-test:
+    name: Integration Test (API)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.16.0]
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci-database
+      REDIS_PORT: 6379
+      ADMIN_PASSWORD: testpassword123
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: cd server && npm ci
+
+      - name: Run Integration Tests
+        run: |
+          cd server
+          npx prisma migrate reset --force
+          export NODE_ENV=test TZ=UTC
+          npx jest __tests__/suites --detectOpenHandles --verbose --force-exit
