@@ -4,13 +4,13 @@
   "description": "",
   "author": "Psikoi",
   "license": "ISC",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "dev": "cross-env ./scripts/run-dev.sh",
     "test": "cross-env ./scripts/run-tests.sh",
-    "prod": "pm2-runtime dist/server.js -i 4"
+    "prod": "pm2-runtime dist/src/server.js -i 4"
   },
   "dependencies": {
     "@prisma/client": "^4.2.1",
