@@ -144,7 +144,7 @@ async function updateAll(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: { message } };
 }
 
-// POST /groups/:id/add-members
+// POST /groups/:id/members
 async function addMembers(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
@@ -163,7 +163,7 @@ async function addMembers(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// POST /groups/:id/remove-members
+// DELETE /groups/:id/members
 async function removeMembers(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 

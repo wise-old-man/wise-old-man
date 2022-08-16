@@ -26,21 +26,21 @@ async function search(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// POST /players/track/
+// POST /players/:username
 async function track(req: Request): Promise<ControllerResponse> {
   // Update the player, by creating a new snapshot
   const [playerDetails, isNew] = await playerServices.updatePlayer({
-    username: getString(req.body.username)
+    username: getString(req.params.username)
   });
 
   return { statusCode: isNew ? 201 : 200, response: playerDetails };
 }
 
-// POST /players/assert-type
+// POST /players/:username/assert-type
 async function assertType(req: Request): Promise<ControllerResponse> {
-  // Find the player using the username body param
+  // Find the player using the username param
   const player = await playerUtils.resolvePlayer({
-    username: getString(req.body.username)
+    username: getString(req.params.username)
   });
 
   // (Forcefully) Assert the player's account type
@@ -49,11 +49,11 @@ async function assertType(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: updatedPlayer };
 }
 
-// POST /players/import
+// POST /players/:username/import
 async function importPlayer(req: Request): Promise<ControllerResponse> {
-  // Find the player using the username body param
+  // Find the player using the username param
   const player = await playerUtils.resolvePlayer({
-    username: getString(req.body.username)
+    username: getString(req.params.username)
   });
 
   const { count } = await playerServices.importPlayerHistory(player);
@@ -64,8 +64,8 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// GET /players/:id
-// GET /players/username/:username
+// GET /players/:username
+// GET /players/id/:id
 async function details(req: Request): Promise<ControllerResponse> {
   // Find the player by either the id or the username
   const player = await playerUtils.resolvePlayer({
@@ -79,8 +79,8 @@ async function details(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: playerDetails };
 }
 
-// GET /players/:id/achievements
-// GET /players/username/:username/achievements
+// GET /players/:username/achievements
+// GET /players/id/:id/achievements
 async function achievements(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -98,8 +98,8 @@ async function achievements(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: achievements };
 }
 
-// GET /players/:id/achievements/progress
-// GET /players/username/:username/achievements/progress
+// GET /players/:username/achievements/progress
+// GET /players/id/:id/achievements/progress
 async function achievementsProgress(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -117,8 +117,8 @@ async function achievementsProgress(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
-// GET /players/:id/competitions
-// GET /players/username/:username/competitions
+// GET /players/:username/competitions
+// GET /players/id/:id/competitions
 async function competitions(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -139,8 +139,8 @@ async function competitions(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// GET /players/:id/groups
-// GET /players/username/:username/groups
+// GET /players/:username/groups
+// GET /players/id/:id/groups
 async function groups(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -161,8 +161,8 @@ async function groups(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// GET /players/:id/gained
-// GET /players/username/:username/gained
+// GET /players/:username/gained
+// GET /players/id/:id/gained
 async function gained(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -180,8 +180,8 @@ async function gained(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// GET /players/:id/records
-// GET /players/username/:username/records
+// GET /players/:username/records
+// GET /players/id/:id/records
 async function records(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -203,8 +203,8 @@ async function records(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// GET /players/:id/snapshots
-// GET /players/username/:username/snapshots
+// GET /players/:username/snapshots
+// GET /players/id/:id/snapshots
 async function snapshots(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -228,8 +228,8 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: formattedSnapshots };
 }
 
-// GET /players/:id/names
-// GET /players/username/:username/names
+// GET /players/:username/names
+// GET /players/id/:id/names
 async function names(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId({
     id: getNumber(req.params.id),
@@ -246,7 +246,7 @@ async function names(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
-// PUT /players/username/:username/country
+// PUT /players/:username/country
 // REQUIRES ADMIN PASSWORD
 async function changeCountry(req: Request): Promise<ControllerResponse> {
   if (!adminGuard.checkAdminPermissions(req)) {
@@ -261,7 +261,7 @@ async function changeCountry(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: updatedPlayer };
 }
 
-// DELETE /players/username/:username
+// DELETE /players/:username
 // REQUIRES ADMIN PASSWORD
 async function deletePlayer(req: Request): Promise<ControllerResponse> {
   if (!adminGuard.checkAdminPermissions(req)) {

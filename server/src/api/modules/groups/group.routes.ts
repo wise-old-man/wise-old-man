@@ -15,8 +15,9 @@ api.put('/:id/reset-code', setupController(controller.resetGroupCode));
 api.put('/:id/verify', setupController(controller.verifyGroup));
 api.put('/:id/change-role', setupController(controller.changeRole));
 api.post('/:id/update-all', setupController(controller.updateAll));
-api.post('/:id/add-members', setupController(controller.addMembers));
-api.post('/:id/remove-members', setupController(controller.removeMembers));
+
+api.post('/:id/members', setupController(controller.addMembers));
+api.delete('/:id/members', setupController(controller.removeMembers));
 
 api.get('/:id/members', setupController(controller.listMembers));
 api.get('/:id/competitions', setupController(controller.competitions));

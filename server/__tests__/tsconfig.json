@@ -3,6 +3,8 @@
   "compilerOptions": {
     "strict": false,
     "strictNullChecks": false,
-    "noImplicitAny": false
-  }
+    "noImplicitAny": false,
+    "types": ["jest", "node"]
+  },
+  "exclude": ["../dist", "../node_modules"]
 }

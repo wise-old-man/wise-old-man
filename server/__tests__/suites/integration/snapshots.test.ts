@@ -211,7 +211,7 @@ describe('Snapshots API', () => {
     });
 
     it('should save all CML history as snapshots', async () => {
-      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/psikoi`);
       expect(trackResponse.status).toBe(201);
 
       globalData.testPlayerId = trackResponse.body.id;
@@ -355,7 +355,7 @@ describe('Snapshots API', () => {
 
       expect(result.length).toBe(0);
 
-      const response = await api.get(`/players/200000/snapshots`).query({ period: 'week' });
+      const response = await api.get(`/players/id/200000/snapshots`).query({ period: 'week' });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
@@ -529,12 +529,12 @@ describe('Snapshots API', () => {
       // is the last snapshot that gets added
       jest.useFakeTimers('modern').setSystemTime(new Date('2020-05-08T17:14:30.000Z'));
 
-      const trackResponse = await api.post(`/players/track`).send({ username: 'jakesterwars' });
+      const trackResponse = await api.post(`/players/jakesterwars`);
       expect(trackResponse.status).toBe(201);
 
       globalData.secondaryPlayerId = trackResponse.body.id;
 
-      const addToGroupResponse = await api.post(`/groups/${globalData.testGroupId}/add-members`).send({
+      const addToGroupResponse = await api.post(`/groups/${globalData.testGroupId}/members`).send({
         verificationCode: globalData.testGroupCode,
         members: [{ username: 'jakesterwars' }]
       });
