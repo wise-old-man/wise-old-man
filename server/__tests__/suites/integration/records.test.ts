@@ -55,7 +55,7 @@ describe('Records API', () => {
       // Fake the current date to be 3 days ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 86_400_000 * 3));
 
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
 
@@ -71,13 +71,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const secondtrackResponse = await api.post(`/players/psikoi`);
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/players/username/psikoi/records`);
+      const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(6);
       expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(3);
@@ -98,13 +98,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/psikoi`);
       expect(trackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/players/username/psikoi/records`);
+      const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(10);
       expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(3);
@@ -121,7 +121,7 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'sethmare' });
+      const firstTrackResponse = await api.post(`/players/sethmare`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.bosses.zulrah.kills).toBe(1646);
 
@@ -144,13 +144,13 @@ describe('Records API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'sethmare' });
+      const secondtrackResponse = await api.post(`/players/sethmare`);
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
       await sleep(500);
 
-      const recordsResponse = await api.get(`/players/username/sethmare/records`);
+      const recordsResponse = await api.get(`/players/sethmare/records`);
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.map(r => r.period)).toContain('five_min');
       expect(recordsResponse.body.filter(r => r.metric === Metric.ZULRAH).length).toBe(5);
@@ -161,33 +161,33 @@ describe('Records API', () => {
 
   describe('2 - Fetch Player Records', () => {
     it('should not fetch records (player not found)', async () => {
-      const firstResponse = await api.get(`/players/username/unknown_username/records`);
+      const firstResponse = await api.get(`/players/unknown_username/records`);
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toBe('Player not found.');
 
-      const secondResponse = await api.get(`/players/2000000/records`);
+      const secondResponse = await api.get(`/players/id/2000000/records`);
 
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toBe('Player not found.');
     });
 
     it('should not fetch records (invalid period)', async () => {
-      const response = await api.get(`/players/username/psikoi/records`).query({ period: 'decade' });
+      const response = await api.get(`/players/psikoi/records`).query({ period: 'decade' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'period'.");
     });
 
     it('should not fetch records (invalid metric)', async () => {
-      const response = await api.get(`/players/username/psikoi/records`).query({ metric: 'sailing' });
+      const response = await api.get(`/players/psikoi/records`).query({ metric: 'sailing' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
     });
 
     it('should fetch records (no filters)', async () => {
-      const response = await api.get(`/players/username/psikoi/records`);
+      const response = await api.get(`/players/psikoi/records`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(10);
@@ -197,7 +197,7 @@ describe('Records API', () => {
 
     it('should fetch records (undefined filters, ignored)', async () => {
       const response = await api
-        .get(`/players/username/sethmare/records`)
+        .get(`/players/sethmare/records`)
         .query({ metric: undefined, period: undefined }); // The API should ignore these params
 
       expect(response.status).toBe(200);
@@ -209,7 +209,7 @@ describe('Records API', () => {
 
     it('should fetch records (with filters)', async () => {
       const response = await api
-        .get(`/players/username/sethmare/records`)
+        .get(`/players/sethmare/records`)
         .query({ metric: Metric.ZULRAH, period: 'week' });
 
       expect(response.status).toBe(200);
@@ -286,7 +286,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars as ironman
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'Jakesterwars' });
+      const firstTrackResponse = await api.post(`/players/Jakesterwars`);
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.type).toBe('ironman');
@@ -307,7 +307,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars again
-      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'Jakesterwars' });
+      const secondtrackResponse = await api.post(`/players/Jakesterwars`);
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
@@ -452,7 +452,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars as ironman
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'USBC' });
+      const firstTrackResponse = await api.post(`/players/USBC`);
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.type).toBe('hardcore');
@@ -473,7 +473,7 @@ describe('Records API', () => {
       });
 
       // Track Jakesterwars again
-      const secondtrackResponse = await api.post(`/players/track`).send({ username: 'usbc' });
+      const secondtrackResponse = await api.post(`/players/usbc`);
       expect(secondtrackResponse.status).toBe(200);
 
       // Wait for the deltas to update, followed by the records
@@ -532,7 +532,7 @@ describe('Records API', () => {
 
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
-        .put('/players/username/usbc/country')
+        .put('/players/usbc/country')
         .send({ country: 'SE', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);

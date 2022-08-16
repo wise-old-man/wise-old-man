@@ -89,7 +89,7 @@ describe('Names API', () => {
     });
 
     it('should submit (capitalization change)', async () => {
-      const trackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const trackResponse = await api.post(`/players/psikoi`);
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('psikoi');
@@ -108,7 +108,7 @@ describe('Names API', () => {
     });
 
     it('should submit (full name change)', async () => {
-      const trackResponse = await api.post(`/players/track`).send({ username: 'Hydrox6' });
+      const trackResponse = await api.post(`/players/Hydrox6`);
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('hydrox6');
@@ -126,12 +126,12 @@ describe('Names API', () => {
 
     it('should not submit (repeated approved submission)', async () => {
       // Track new player (zezima)
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'Zezima' });
+      const firstTrackResponse = await api.post(`/players/Zezima`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.username).toBe('zezima');
 
       // Track new player (sethmare)
-      const secondTrackResponse = await api.post(`/players/track`).send({ username: 'Sethmare' });
+      const secondTrackResponse = await api.post(`/players/Sethmare`);
       expect(secondTrackResponse.status).toBe(201);
       expect(secondTrackResponse.body.username).toBe('sethmare');
 
@@ -153,7 +153,7 @@ describe('Names API', () => {
       expect(approvalResponse.body.resolvedAt).not.toBe(null);
 
       // Track new player (zezima) (again)
-      const thirdTrackResponse = await api.post(`/players/track`).send({ username: 'Zezima' });
+      const thirdTrackResponse = await api.post(`/players/Zezima`);
       expect(thirdTrackResponse.status).toBe(201);
       expect(thirdTrackResponse.body.username).toBe('zezima');
 
@@ -282,27 +282,20 @@ describe('Names API', () => {
   });
 
   describe('4 - Listing Player Names', () => {
-    it('should not fetch list (invalid player id)', async () => {
-      const response = await api.get(`/players/ddd/names`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch("Parameter 'username' is undefined.");
-    });
-
     it('should not fetch list (player not found)', async () => {
-      const firstResponse = await api.get(`/players/username/Jakesterwars/names`);
+      const firstResponse = await api.get(`/players/Jakesterwars/names`);
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toMatch('Player not found.');
 
-      const secondResponse = await api.get(`/players/2000000/names`);
+      const secondResponse = await api.get(`/players/id/2000000/names`);
 
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toMatch('Player not found.');
     });
 
     it('should fetch list', async () => {
-      const response = await api.get(`/players/username/sethmare/names`);
+      const response = await api.get(`/players/sethmare/names`);
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
     });
@@ -318,7 +311,7 @@ describe('Names API', () => {
 
       expect(approvalResponse.status).toBe(200);
 
-      const secondFetchResponse = await api.get(`/players/username/Jakesterwars/names`);
+      const secondFetchResponse = await api.get(`/players/Jakesterwars/names`);
       expect(secondFetchResponse.status).toBe(200);
       expect(secondFetchResponse.body.length).toBe(2);
     });
@@ -431,7 +424,7 @@ describe('Names API', () => {
     });
 
     it('should approve (and transfer data)', async () => {
-      const trackResponse = await api.post(`/players/track`).send({ username: 'USBC' });
+      const trackResponse = await api.post(`/players/USBC`);
 
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.username).toBe('usbc');
@@ -463,7 +456,7 @@ describe('Names API', () => {
       expect(response.body.resolvedAt).not.toBe(null);
 
       // Check if records transfered correctly
-      const recordsResponse = await api.get(`/players/username/USBC/records`);
+      const recordsResponse = await api.get(`/players/USBC/records`);
 
       expect(recordsResponse.status).toBe(200);
       expect(recordsResponse.body.length).toBe(5);
@@ -499,13 +492,13 @@ describe('Names API', () => {
       });
 
       // Check if none of the pre-transition snapshots have been transfered
-      const snapshotsResponse = await api.get(`/players/username/USBC/snapshots`).query({ period: 'week' });
+      const snapshotsResponse = await api.get(`/players/USBC/snapshots`).query({ period: 'week' });
 
       expect(snapshotsResponse.status).toBe(200);
       expect(snapshotsResponse.body.filter(s => s.data.bosses.obor.kills > -1).length).toBe(0);
 
       // Check if none of the pre-transition memberships have been transfered
-      const groupsResponse = await api.get(`/players/username/USBC/groups`);
+      const groupsResponse = await api.get(`/players/USBC/groups`);
 
       expect(groupsResponse.status).toBe(200);
       expect(groupsResponse.body.length).toBe(1);
@@ -515,7 +508,7 @@ describe('Names API', () => {
       });
 
       // Check if none of the pre-transition participations have been transfered
-      const competitionsResponse = await api.get(`/players/username/USBC/competitions`);
+      const competitionsResponse = await api.get(`/players/USBC/competitions`);
 
       expect(competitionsResponse.status).toBe(200);
       expect(competitionsResponse.body.length).toBe(1);
@@ -524,7 +517,7 @@ describe('Names API', () => {
         metric: 'thieving'
       });
 
-      const detailsResponse = await api.get(`/players/username/USBC`);
+      const detailsResponse = await api.get(`/players/USBC`);
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.id).toBe(oldPlayerId);

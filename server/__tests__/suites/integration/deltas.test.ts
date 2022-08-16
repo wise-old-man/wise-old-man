@@ -57,7 +57,7 @@ describe('Deltas API', () => {
       // Fake the current date to be 3 days ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 86_400_000 * 3));
 
-      const firstTrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
 
@@ -88,7 +88,7 @@ describe('Deltas API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const secondTrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const secondTrackResponse = await api.post(`/players/psikoi`);
       expect(secondTrackResponse.status).toBe(200);
 
       // Wait for the deltas to update
@@ -125,7 +125,7 @@ describe('Deltas API', () => {
         [PlayerType.IRONMAN]: { statusCode: 404 }
       });
 
-      const thirdTrackResponse = await api.post(`/players/track`).send({ username: 'psikoi' });
+      const thirdTrackResponse = await api.post(`/players/psikoi`);
       expect(thirdTrackResponse.status).toBe(200);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
@@ -177,14 +177,14 @@ describe('Deltas API', () => {
     });
 
     it('should not fetch (invalid period)', async () => {
-      const response = await api.get(`/players/username/psikoi/gained`).query({ period: 'decade' });
+      const response = await api.get(`/players/psikoi/gained`).query({ period: 'decade' });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid period: decade.');
     });
 
     it('should not fetch (invalid period and dates)', async () => {
-      const response = await api.get(`/players/username/psikoi/gained`);
+      const response = await api.get(`/players/psikoi/gained`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid period and start/end dates.');
@@ -192,7 +192,7 @@ describe('Deltas API', () => {
 
     it('should fetch (common periods + map formatting)', async () => {
       const weekResponse = await api
-        .get(`/players/username/psikoi/gained`)
+        .get(`/players/psikoi/gained`)
         .query({ period: 'week', formatting: 'map' });
 
       expect(weekResponse.status).toBe(200);
@@ -204,7 +204,7 @@ describe('Deltas API', () => {
       expect(weekEHPGains.value.gained).toBe(weekSmithingGains.ehp.gained);
       expect(weekSmithingGains.experience).toMatchObject({ start: 6177978, end: 6227978, gained: 50_000 });
 
-      const monthResponse = await api.get(`/players/username/psikoi/gained`).query({ period: 'month' });
+      const monthResponse = await api.get(`/players/psikoi/gained`).query({ period: 'month' });
 
       expect(monthResponse.status).toBe(200);
 
@@ -218,7 +218,7 @@ describe('Deltas API', () => {
       expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 5 });
       expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
 
-      const dayResponse = await api.get(`/players/username/psikoi/gained`).query({ period: 'day' });
+      const dayResponse = await api.get(`/players/psikoi/gained`).query({ period: 'day' });
 
       expect(dayResponse.status).toBe(200);
 
@@ -229,7 +229,7 @@ describe('Deltas API', () => {
 
     it('should fetch (custom period + array formatting)', async () => {
       const response = await api
-        .get(`/players/username/psikoi/gained`)
+        .get(`/players/psikoi/gained`)
         .query({ period: '5m2w3d', formatting: 'array' });
 
       expect(response.status).toBe(200);
@@ -237,7 +237,7 @@ describe('Deltas API', () => {
     });
 
     it('should not fetch deltas between (min date greater than max date)', async () => {
-      const response = await api.get(`/players/username/psikoi/gained`).query({
+      const response = await api.get(`/players/psikoi/gained`).query({
         startDate: new Date('2021-12-14T04:15:36.000Z'),
         endDate: new Date('2015-12-14T04:15:36.000Z')
       });
@@ -247,7 +247,7 @@ describe('Deltas API', () => {
     });
 
     it('should fetch deltas between (array formatting)', async () => {
-      const response = await api.get(`/players/username/psikoi/gained`).query({
+      const response = await api.get(`/players/psikoi/gained`).query({
         startDate: new Date('2015-12-14T04:15:36.000Z'),
         endDate: new Date('2022-12-14T04:15:36.000Z'),
         formatting: 'array'
@@ -261,7 +261,7 @@ describe('Deltas API', () => {
 
   describe('2 - Fetch Group Deltas', () => {
     it('should not fetch (invalid period)', async () => {
-      const trackResponse = await api.post(`/players/track`).send({ username: 'hydrox6' });
+      const trackResponse = await api.post(`/players/hydrox6`);
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.type).toBe('hardcore');
 
@@ -467,7 +467,7 @@ describe('Deltas API', () => {
         [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
-      const trackResponse = await api.post(`/players/track`).send({ username: 'hydrox6' });
+      const trackResponse = await api.post(`/players/hydrox6`);
       expect(trackResponse.status).toBe(200);
 
       const response = await api.get(`/groups/${globalData.testGroupId}/monthly-top`);
@@ -561,7 +561,7 @@ describe('Deltas API', () => {
         [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
-      const trackResponse = await api.post(`/players/track`).send({ username: 'hydrox6' });
+      const trackResponse = await api.post(`/players/hydrox6`);
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.type).toBe('hardcore');
       expect(trackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(7_000_000);
@@ -601,7 +601,7 @@ describe('Deltas API', () => {
 
     it('should fetch leaderboards (with player country filter)', async () => {
       const updateCountryResponse = await api
-        .put('/players/username/psikoi/country')
+        .put('/players/psikoi/country')
         .send({ country: 'USA', adminPassword: env.ADMIN_PASSWORD });
 
       expect(updateCountryResponse.status).toBe(200);

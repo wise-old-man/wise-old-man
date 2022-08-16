@@ -1972,7 +1972,7 @@ describe('Competition API', () => {
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 900_000));
 
       // Track Lynx Titan once, this player won't be tracked again (only 1 snapshot during competition)
-      const trackResponse1 = await api.post('/players/track').send({ username: 'lynx titan' });
+      const trackResponse1 = await api.post('/players/lynx titan');
       expect(trackResponse1.status).toBe(200);
 
       // Change the mock hiscores data to return unranked (-1) zulrah kc
@@ -1988,7 +1988,7 @@ describe('Competition API', () => {
       });
 
       // Track USBC once at -1 zulrah kc, will be tracked again later at > 50
-      const trackResponse2 = await api.post('/players/track').send({ username: 'usbc' });
+      const trackResponse2 = await api.post('/players/usbc');
       expect(trackResponse2.status).toBe(200);
 
       // Change the mock hiscores data to return 500 zulrah kc
@@ -2004,7 +2004,7 @@ describe('Competition API', () => {
       });
 
       // Track Rorro once at 500 zulrah kc, will be tracked again later at > 500
-      const trackResponse3 = await api.post('/players/track').send({ username: 'rorro' });
+      const trackResponse3 = await api.post('/players/rorro');
       expect(trackResponse3.status).toBe(200);
 
       // Change the mock hiscores data to return 1000 zulrah kc
@@ -2020,7 +2020,7 @@ describe('Competition API', () => {
       });
 
       // Track Rorro once at 1000 zulrah kc, will be tracked again later at 1000 (no progress)
-      const trackResponse4 = await api.post('/players/track').send({ username: 'psikoi' });
+      const trackResponse4 = await api.post('/players/psikoi');
       expect(trackResponse4.status).toBe(200);
 
       // Reset the timers to the current (REAL) time
@@ -2042,7 +2042,7 @@ describe('Competition API', () => {
       });
 
       // Track USBC again at 60 kc (previously -1)
-      const trackResponse2b = await api.post('/players/track').send({ username: 'usbc' });
+      const trackResponse2b = await api.post('/players/usbc');
       expect(trackResponse2b.status).toBe(200);
 
       // Change the mock hiscores data to return 557 zulrah kc
@@ -2058,7 +2058,7 @@ describe('Competition API', () => {
       });
 
       // Track Rorro again at 557 kc (previously 500)
-      const trackResponse3b = await api.post('/players/track').send({ username: 'rorro' });
+      const trackResponse3b = await api.post('/players/rorro');
       expect(trackResponse3b.status).toBe(200);
 
       // Change the mock hiscores data to return 1000 zulrah kc
@@ -2074,7 +2074,7 @@ describe('Competition API', () => {
       });
 
       // Track Psikoi again at 1000 kc (previously 1000)
-      const trackResponse4b = await api.post('/players/track').send({ username: 'psikoi' });
+      const trackResponse4b = await api.post('/players/psikoi');
       expect(trackResponse4b.status).toBe(200);
 
       // Wait a bit to allow the players' participations to be synced
@@ -2388,40 +2388,40 @@ describe('Competition API', () => {
 
   describe('11 - List Player Competitions', () => {
     it('should not list player competitions (player not found)', async () => {
-      const usernameResponse = await api.get(`/players/username/raaandooom/competitions`);
+      const usernameResponse = await api.get(`/players/raaandooom/competitions`);
 
       expect(usernameResponse.status).toBe(404);
       expect(usernameResponse.body.message).toMatch('Player not found.');
 
-      const idResponse = await api.get(`/players/100000/competitions`);
+      const idResponse = await api.get(`/players/id/100000/competitions`);
 
       expect(idResponse.status).toBe(404);
       expect(idResponse.body.message).toMatch('Player not found.');
     });
 
     it('should not list player competitions (negative offset)', async () => {
-      const response = await api.get(`/players/username/psikoi/competitions`).query({ offset: -5 });
+      const response = await api.get(`/players/psikoi/competitions`).query({ offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should not list player competitions (negative limit)', async () => {
-      const response = await api.get(`/players/username/psikoi/competitions`).query({ limit: -5 });
+      const response = await api.get(`/players/psikoi/competitions`).query({ limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not list player competitions (limit > 50)', async () => {
-      const response = await api.get(`/players/username/psikoi/competitions`).query({ limit: 1000 });
+      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1000 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The maximum results limit is 50');
     });
 
     it('should list player competitions', async () => {
-      const response = await api.get(`/players/username/psikoi/competitions`);
+      const response = await api.get(`/players/psikoi/competitions`);
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(5);
@@ -2484,7 +2484,7 @@ describe('Competition API', () => {
     });
 
     it('should list player competitions (w/ limit & offset)', async () => {
-      const response = await api.get(`/players/username/psikoi/competitions`).query({ limit: 1, offset: 1 });
+      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1, offset: 1 });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(1);
