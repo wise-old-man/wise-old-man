@@ -120,7 +120,7 @@ async function resetVerificationCode(req: Request): Promise<ControllerResponse> 
   return { statusCode: 200, response: result };
 }
 
-// POST /competitions/:id/add-participants
+// POST /competitions/:id/participants
 async function addParticipants(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
@@ -139,7 +139,7 @@ async function addParticipants(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// POST /competitions/:id/remove-participants
+// DELETE /competitions/:id/participants
 async function removeParticipants(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
@@ -158,7 +158,7 @@ async function removeParticipants(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// POST /competitions/:id/add-teams
+// POST /competitions/:id/teams
 async function addTeams(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
@@ -177,7 +177,7 @@ async function addTeams(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// POST /competitions/:id/remove-teams
+// DELETE /competitions/:id/teams
 async function removeTeams(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
