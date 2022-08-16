@@ -534,7 +534,7 @@ describe('Snapshots API', () => {
 
       globalData.secondaryPlayerId = trackResponse.body.id;
 
-      const addToGroupResponse = await api.post(`/groups/${globalData.testGroupId}/add-members`).send({
+      const addToGroupResponse = await api.post(`/groups/${globalData.testGroupId}/members`).send({
         verificationCode: globalData.testGroupCode,
         members: [{ username: 'jakesterwars' }]
       });

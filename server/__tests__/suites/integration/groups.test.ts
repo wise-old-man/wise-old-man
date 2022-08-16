@@ -568,7 +568,7 @@ describe('Group API', () => {
 
   describe('4 - Add Members', () => {
     it('should not add members (group not found)', async () => {
-      const response = await api.post('/groups/1000/add-members').send({
+      const response = await api.post('/groups/1000/members').send({
         verificationCode: 'XYZ',
         members: [{ username: 'elvard', role: 'leader' }]
       });
@@ -579,7 +579,7 @@ describe('Group API', () => {
 
     it('should not add members (invalid verification code)', async () => {
       const response = await api
-        .post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`)
+        .post(`/groups/${globalData.testGroupNoLeaders.id}/members`)
         .send({ members: [] });
 
       expect(response.status).toBe(400);
@@ -587,7 +587,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (incorrect verification code)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: [{ username: 'elvard', role: 'leader' }]
       });
@@ -597,7 +597,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid members list)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: 123
       });
@@ -607,7 +607,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (empty members list)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: []
       });
@@ -617,7 +617,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member object shape)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['elvard@invalid']
       });
@@ -627,7 +627,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member name)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'elvard@invalid' }, { username: 'alright' }]
       });
@@ -639,7 +639,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (invalid member role)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'alexsuperfly', role: 'invalid' }]
       });
@@ -649,7 +649,7 @@ describe('Group API', () => {
     });
 
     it('should not add members (already members)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [{ username: 'zezima' }]
       });
@@ -662,7 +662,7 @@ describe('Group API', () => {
       const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/add-members`).send({
+      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: [
           { username: 'zezima' }, // should ignore this username, since it's already a member
@@ -903,7 +903,7 @@ describe('Group API', () => {
 
   describe('7 - Remove Members', () => {
     it('should not remove members (group not found)', async () => {
-      const response = await api.post(`/groups/123456789/remove-members`).send({
+      const response = await api.delete(`/groups/123456789/members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: ['sethmare']
       });
@@ -913,7 +913,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (invalid verification code)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         members: ['sethmare']
       });
 
@@ -922,7 +922,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (incorrect verification code)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: 'xxx-xxx-xxx',
         members: ['sethmare']
       });
@@ -932,7 +932,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (invalid members list)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: 123
       });
@@ -942,7 +942,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (empty members list)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: []
       });
@@ -952,7 +952,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (no valid players found)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['boom_']
       });
@@ -962,7 +962,7 @@ describe('Group API', () => {
     });
 
     it('should not remove members (not members)', async () => {
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['swampletics']
       });
@@ -975,7 +975,7 @@ describe('Group API', () => {
       const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.post(`/groups/${globalData.testGroupNoLeaders.id}/remove-members`).send({
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         members: ['SETHmare  ', 'ZEZIMA', '__BOOM'] // boom should get ignored
       });

@@ -2933,7 +2933,7 @@ describe('Competition API', () => {
 
       // Delete these two players from the group
       const removeMembersResponse = await api
-        .post(`/groups/${createGroupResponse.body.group.id}/remove-members`)
+        .delete(`/groups/${createGroupResponse.body.group.id}/members`)
         .send({
           members: ['psikoi', 'boom'],
           verificationCode: createGroupResponse.body.verificationCode
@@ -3026,15 +3026,13 @@ describe('Competition API', () => {
       expect(teamCompParticipantsA).toContain('alexsuperfly');
 
       // Add these two players to the group
-      const addMembersResponse = await api
-        .post(`/groups/${createGroupResponse.body.group.id}/add-members`)
-        .send({
-          members: [
-            { username: 'usbc', role: 'archer' },
-            { username: 'jakesterwars', role: 'ruby' }
-          ],
-          verificationCode: createGroupResponse.body.verificationCode
-        });
+      const addMembersResponse = await api.post(`/groups/${createGroupResponse.body.group.id}/members`).send({
+        members: [
+          { username: 'usbc', role: 'archer' },
+          { username: 'jakesterwars', role: 'ruby' }
+        ],
+        verificationCode: createGroupResponse.body.verificationCode
+      });
 
       expect(addMembersResponse.status).toBe(200);
       expect(addMembersResponse.body.count).toBe(2);
