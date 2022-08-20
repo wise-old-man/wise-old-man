@@ -22,10 +22,10 @@ interface ExtendedAchievement extends Achievement {
   measure: string;
 }
 
-interface ProgressAchievement extends ExtendedAchievement {
+interface AchievementProgress extends ExtendedAchievement {
   currentValue: number;
   absoluteProgress: number;
   relativeProgress: number;
 }
 
-export { ExtendedAchievement, ProgressAchievement, AchievementDefinition, AchievementTemplate };
+export { ExtendedAchievement, AchievementProgress, AchievementDefinition, AchievementTemplate };

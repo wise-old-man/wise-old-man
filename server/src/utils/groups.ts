@@ -11,7 +11,12 @@ const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
   GroupRole.OWNER
 ];
 
-const GroupRoleProps = mapValues(
+interface GroupRoleProperties {
+  name: string;
+  isPriveleged: boolean;
+}
+
+const GroupRoleProps: { [role in GroupRole]: GroupRoleProperties } = mapValues(
   {
     [GroupRole.ACHIEVER]: { name: 'Achiever' },
     [GroupRole.ADAMANT]: { name: 'Adamant' },
@@ -283,7 +288,10 @@ const GroupRoleProps = mapValues(
     [GroupRole.ZEALOT]: { name: 'Zealot' },
     [GroupRole.ZENYTE]: { name: 'Zenyte' }
   },
-  (props, key) => ({ ...props, key, isPriveleged: PRIVELEGED_GROUP_ROLES.includes(key as GroupRole) })
+  (props, key: GroupRole) => ({
+    ...props,
+    isPriveleged: PRIVELEGED_GROUP_ROLES.includes(key as GroupRole)
+  })
 );
 
 function findGroupRole(roleName: string): GroupRole | null {

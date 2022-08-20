@@ -22,131 +22,151 @@ enum MetricMeasure {
   VALUE = 'value'
 }
 
-const SkillProps = {
-  [Skill.OVERALL]: { name: 'Overall', isCombat: false, isMembers: false },
-  [Skill.ATTACK]: { name: 'Attack', isCombat: true, isMembers: false },
-  [Skill.DEFENCE]: { name: 'Defence', isCombat: true, isMembers: false },
-  [Skill.STRENGTH]: { name: 'Strength', isCombat: true, isMembers: false },
-  [Skill.HITPOINTS]: { name: 'Hitpoints', isCombat: true, isMembers: false },
-  [Skill.RANGED]: { name: 'Ranged', isCombat: true, isMembers: false },
-  [Skill.PRAYER]: { name: 'Prayer', isCombat: true, isMembers: false },
-  [Skill.MAGIC]: { name: 'Magic', isCombat: true, isMembers: false },
-  [Skill.COOKING]: { name: 'Cooking', isCombat: false, isMembers: false },
-  [Skill.WOODCUTTING]: { name: 'Woodcutting', isCombat: false, isMembers: false },
-  [Skill.FLETCHING]: { name: 'Fletching', isCombat: false, isMembers: true },
-  [Skill.FISHING]: { name: 'Fishing', isCombat: false, isMembers: false },
-  [Skill.FIREMAKING]: { name: 'Firemaking', isCombat: false, isMembers: false },
-  [Skill.CRAFTING]: { name: 'Crafting', isCombat: false, isMembers: false },
-  [Skill.SMITHING]: { name: 'Smithing', isCombat: false, isMembers: false },
-  [Skill.MINING]: { name: 'Mining', isCombat: false, isMembers: false },
-  [Skill.HERBLORE]: { name: 'Herblore', isCombat: false, isMembers: true },
-  [Skill.AGILITY]: { name: 'Agility', isCombat: false, isMembers: true },
-  [Skill.THIEVING]: { name: 'Thieving', isCombat: false, isMembers: true },
-  [Skill.SLAYER]: { name: 'Slayer', isCombat: false, isMembers: true },
-  [Skill.FARMING]: { name: 'Farming', isCombat: false, isMembers: true },
-  [Skill.RUNECRAFTING]: { name: 'Runecrafting', isCombat: false, isMembers: false },
-  [Skill.HUNTER]: { name: 'Hunter', isCombat: false, isMembers: true },
-  [Skill.CONSTRUCTION]: { name: 'Construction', isCombat: false, isMembers: false }
-};
+interface SkillProperties {
+  name: string;
+  isCombat: boolean;
+  isMembers: boolean;
+  type: MetricType;
+  measure: MetricMeasure;
+}
 
-const BossProps = {
-  [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire', minimumKc: 50, isMembers: true },
-  [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra', minimumKc: 50, isMembers: true },
-  [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests', minimumKc: 50, isMembers: true },
-  [Boss.BRYOPHYTA]: { name: 'Bryophyta', minimumKc: 5, isMembers: false },
-  [Boss.CALLISTO]: { name: 'Callisto', minimumKc: 50, isMembers: true },
-  [Boss.CERBERUS]: { name: 'Cerberus', minimumKc: 50, isMembers: true },
-  [Boss.CHAMBERS_OF_XERIC]: { name: 'Chambers Of Xeric', minimumKc: 50, isMembers: true },
-  [Boss.CHAMBERS_OF_XERIC_CM]: { name: 'Chambers Of Xeric (CM)', minimumKc: 5, isMembers: true },
-  [Boss.CHAOS_ELEMENTAL]: { name: 'Chaos Elemental', minimumKc: 50, isMembers: true },
-  [Boss.CHAOS_FANATIC]: { name: 'Chaos Fanatic', minimumKc: 50, isMembers: true },
-  [Boss.COMMANDER_ZILYANA]: { name: 'Commander Zilyana', minimumKc: 50, isMembers: true },
-  [Boss.CORPOREAL_BEAST]: { name: 'Corporeal Beast', minimumKc: 50, isMembers: true },
-  [Boss.CRAZY_ARCHAEOLOGIST]: { name: 'Crazy Archaeologist', minimumKc: 50, isMembers: true },
-  [Boss.DAGANNOTH_PRIME]: { name: 'Dagannoth Prime', minimumKc: 50, isMembers: true },
-  [Boss.DAGANNOTH_REX]: { name: 'Dagannoth Rex', minimumKc: 50, isMembers: true },
-  [Boss.DAGANNOTH_SUPREME]: { name: 'Dagannoth Supreme', minimumKc: 50, isMembers: true },
-  [Boss.DERANGED_ARCHAEOLOGIST]: { name: 'Deranged Archaeologist', minimumKc: 50, isMembers: true },
-  [Boss.GENERAL_GRAARDOR]: { name: 'General Graardor', minimumKc: 50, isMembers: true },
-  [Boss.GIANT_MOLE]: { name: 'Giant Mole', minimumKc: 50, isMembers: true },
-  [Boss.GROTESQUE_GUARDIANS]: { name: 'Grotesque Guardians', minimumKc: 50, isMembers: true },
-  [Boss.HESPORI]: { name: 'Hespori', minimumKc: 5, isMembers: true },
-  [Boss.KALPHITE_QUEEN]: { name: 'Kalphite Queen', minimumKc: 50, isMembers: true },
-  [Boss.KING_BLACK_DRAGON]: { name: 'King Black Dragon', minimumKc: 50, isMembers: true },
-  [Boss.KRAKEN]: { name: 'Kraken', minimumKc: 50, isMembers: true },
-  [Boss.KREEARRA]: { name: "Kree'Arra", minimumKc: 50, isMembers: true },
-  [Boss.KRIL_TSUTSAROTH]: { name: "K'ril Tsutsaroth", minimumKc: 50, isMembers: true },
-  [Boss.MIMIC]: { name: 'Mimic', minimumKc: 1, isMembers: true },
-  [Boss.NEX]: { name: 'Nex', minimumKc: 50, isMembers: true },
-  [Boss.NIGHTMARE]: { name: 'Nightmare', minimumKc: 50, isMembers: true },
-  [Boss.PHOSANIS_NIGHTMARE]: { name: "Phosani's Nightmare", minimumKc: 50, isMembers: true },
-  [Boss.OBOR]: { name: 'Obor', minimumKc: 5, isMembers: false },
-  [Boss.SARACHNIS]: { name: 'Sarachnis', minimumKc: 50, isMembers: true },
-  [Boss.SKOTIZO]: { name: 'Skotizo', minimumKc: 5, isMembers: true },
-  [Boss.SCORPIA]: { name: 'Scorpia', minimumKc: 50, isMembers: true },
-  [Boss.TEMPOROSS]: { name: 'Tempoross', minimumKc: 50, isMembers: true },
-  [Boss.THE_GAUNTLET]: { name: 'The Gauntlet', minimumKc: 50, isMembers: true },
-  [Boss.THE_CORRUPTED_GAUNTLET]: { name: 'The Corrupted Gauntlet', minimumKc: 5, isMembers: true },
-  [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood', minimumKc: 50, isMembers: true },
-  [Boss.THEATRE_OF_BLOOD_HARD_MODE]: { name: 'Theatre Of Blood (HM)', minimumKc: 50, isMembers: true },
-  [Boss.THERMONUCLEAR_SMOKE_DEVIL]: { name: 'Thermonuclear Smoke Devil', minimumKc: 50, isMembers: true },
-  [Boss.TZKAL_ZUK]: { name: 'TzKal-Zuk', minimumKc: 1, isMembers: true },
-  [Boss.TZTOK_JAD]: { name: 'TzTok-Jad', minimumKc: 5, isMembers: true },
-  [Boss.VENENATIS]: { name: 'Venenatis', minimumKc: 50, isMembers: true },
-  [Boss.VETION]: { name: "Vet'ion", minimumKc: 50, isMembers: true },
-  [Boss.VORKATH]: { name: 'Vorkath', minimumKc: 50, isMembers: true },
-  [Boss.WINTERTODT]: { name: 'Wintertodt', minimumKc: 50, isMembers: true },
-  [Boss.ZALCANO]: { name: 'Zalcano', minimumKc: 50, isMembers: true },
-  [Boss.ZULRAH]: { name: 'Zulrah', minimumKc: 50, isMembers: true }
-};
+interface BossProperties {
+  name: string;
+  minimumKc: number;
+  isMembers: boolean;
+  type: MetricType;
+  measure: MetricMeasure;
+}
 
-const ActivityProps = {
-  [Activity.LEAGUE_POINTS]: { name: 'League Points' },
-  [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)' },
-  [Activity.BOUNTY_HUNTER_ROGUE]: { name: 'Bounty Hunter (Rogue)' },
-  [Activity.CLUE_SCROLLS_ALL]: { name: 'Clue Scrolls (All)' },
-  [Activity.CLUE_SCROLLS_BEGINNER]: { name: 'Clue Scrolls (Beginner)' },
-  [Activity.CLUE_SCROLLS_EASY]: { name: 'Clue Scrolls (Easy)' },
-  [Activity.CLUE_SCROLLS_MEDIUM]: { name: 'Clue Scrolls (Medium)' },
-  [Activity.CLUE_SCROLLS_HARD]: { name: 'Clue Scrolls (Hard)' },
-  [Activity.CLUE_SCROLLS_ELITE]: { name: 'Clue Scrolls (Elite)' },
-  [Activity.CLUE_SCROLLS_MASTER]: { name: 'Clue Scrolls (Master)' },
-  [Activity.LAST_MAN_STANDING]: { name: 'Last Man Standing' },
-  [Activity.PVP_ARENA]: { name: 'PvP Arena' },
-  [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal' },
-  [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift' }
-};
+interface ActivityProperties {
+  name: string;
+  type: MetricType;
+  measure: MetricMeasure;
+}
 
-const VirtualProps = {
-  [Virtual.EHP]: { name: 'EHP' },
-  [Virtual.EHB]: { name: 'EHB' }
-};
+interface VirtualProperties {
+  name: string;
+  type: MetricType;
+  measure: MetricMeasure;
+}
+
+const SkillProps: { [skill in Skill]: SkillProperties } = mapValues(
+  {
+    [Skill.OVERALL]: { name: 'Overall', isCombat: false, isMembers: false },
+    [Skill.ATTACK]: { name: 'Attack', isCombat: true, isMembers: false },
+    [Skill.DEFENCE]: { name: 'Defence', isCombat: true, isMembers: false },
+    [Skill.STRENGTH]: { name: 'Strength', isCombat: true, isMembers: false },
+    [Skill.HITPOINTS]: { name: 'Hitpoints', isCombat: true, isMembers: false },
+    [Skill.RANGED]: { name: 'Ranged', isCombat: true, isMembers: false },
+    [Skill.PRAYER]: { name: 'Prayer', isCombat: true, isMembers: false },
+    [Skill.MAGIC]: { name: 'Magic', isCombat: true, isMembers: false },
+    [Skill.COOKING]: { name: 'Cooking', isCombat: false, isMembers: false },
+    [Skill.WOODCUTTING]: { name: 'Woodcutting', isCombat: false, isMembers: false },
+    [Skill.FLETCHING]: { name: 'Fletching', isCombat: false, isMembers: true },
+    [Skill.FISHING]: { name: 'Fishing', isCombat: false, isMembers: false },
+    [Skill.FIREMAKING]: { name: 'Firemaking', isCombat: false, isMembers: false },
+    [Skill.CRAFTING]: { name: 'Crafting', isCombat: false, isMembers: false },
+    [Skill.SMITHING]: { name: 'Smithing', isCombat: false, isMembers: false },
+    [Skill.MINING]: { name: 'Mining', isCombat: false, isMembers: false },
+    [Skill.HERBLORE]: { name: 'Herblore', isCombat: false, isMembers: true },
+    [Skill.AGILITY]: { name: 'Agility', isCombat: false, isMembers: true },
+    [Skill.THIEVING]: { name: 'Thieving', isCombat: false, isMembers: true },
+    [Skill.SLAYER]: { name: 'Slayer', isCombat: false, isMembers: true },
+    [Skill.FARMING]: { name: 'Farming', isCombat: false, isMembers: true },
+    [Skill.RUNECRAFTING]: { name: 'Runecrafting', isCombat: false, isMembers: false },
+    [Skill.HUNTER]: { name: 'Hunter', isCombat: false, isMembers: true },
+    [Skill.CONSTRUCTION]: { name: 'Construction', isCombat: false, isMembers: false }
+  },
+  props => ({ ...props, type: MetricType.SKILL, measure: MetricMeasure.EXPERIENCE })
+);
+
+const BossProps: { [boss in Boss]: BossProperties } = mapValues(
+  {
+    [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire', minimumKc: 50, isMembers: true },
+    [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra', minimumKc: 50, isMembers: true },
+    [Boss.BARROWS_CHESTS]: { name: 'Barrows Chests', minimumKc: 50, isMembers: true },
+    [Boss.BRYOPHYTA]: { name: 'Bryophyta', minimumKc: 5, isMembers: false },
+    [Boss.CALLISTO]: { name: 'Callisto', minimumKc: 50, isMembers: true },
+    [Boss.CERBERUS]: { name: 'Cerberus', minimumKc: 50, isMembers: true },
+    [Boss.CHAMBERS_OF_XERIC]: { name: 'Chambers Of Xeric', minimumKc: 50, isMembers: true },
+    [Boss.CHAMBERS_OF_XERIC_CM]: { name: 'Chambers Of Xeric (CM)', minimumKc: 5, isMembers: true },
+    [Boss.CHAOS_ELEMENTAL]: { name: 'Chaos Elemental', minimumKc: 50, isMembers: true },
+    [Boss.CHAOS_FANATIC]: { name: 'Chaos Fanatic', minimumKc: 50, isMembers: true },
+    [Boss.COMMANDER_ZILYANA]: { name: 'Commander Zilyana', minimumKc: 50, isMembers: true },
+    [Boss.CORPOREAL_BEAST]: { name: 'Corporeal Beast', minimumKc: 50, isMembers: true },
+    [Boss.CRAZY_ARCHAEOLOGIST]: { name: 'Crazy Archaeologist', minimumKc: 50, isMembers: true },
+    [Boss.DAGANNOTH_PRIME]: { name: 'Dagannoth Prime', minimumKc: 50, isMembers: true },
+    [Boss.DAGANNOTH_REX]: { name: 'Dagannoth Rex', minimumKc: 50, isMembers: true },
+    [Boss.DAGANNOTH_SUPREME]: { name: 'Dagannoth Supreme', minimumKc: 50, isMembers: true },
+    [Boss.DERANGED_ARCHAEOLOGIST]: { name: 'Deranged Archaeologist', minimumKc: 50, isMembers: true },
+    [Boss.GENERAL_GRAARDOR]: { name: 'General Graardor', minimumKc: 50, isMembers: true },
+    [Boss.GIANT_MOLE]: { name: 'Giant Mole', minimumKc: 50, isMembers: true },
+    [Boss.GROTESQUE_GUARDIANS]: { name: 'Grotesque Guardians', minimumKc: 50, isMembers: true },
+    [Boss.HESPORI]: { name: 'Hespori', minimumKc: 5, isMembers: true },
+    [Boss.KALPHITE_QUEEN]: { name: 'Kalphite Queen', minimumKc: 50, isMembers: true },
+    [Boss.KING_BLACK_DRAGON]: { name: 'King Black Dragon', minimumKc: 50, isMembers: true },
+    [Boss.KRAKEN]: { name: 'Kraken', minimumKc: 50, isMembers: true },
+    [Boss.KREEARRA]: { name: "Kree'Arra", minimumKc: 50, isMembers: true },
+    [Boss.KRIL_TSUTSAROTH]: { name: "K'ril Tsutsaroth", minimumKc: 50, isMembers: true },
+    [Boss.MIMIC]: { name: 'Mimic', minimumKc: 1, isMembers: true },
+    [Boss.NEX]: { name: 'Nex', minimumKc: 50, isMembers: true },
+    [Boss.NIGHTMARE]: { name: 'Nightmare', minimumKc: 50, isMembers: true },
+    [Boss.PHOSANIS_NIGHTMARE]: { name: "Phosani's Nightmare", minimumKc: 50, isMembers: true },
+    [Boss.OBOR]: { name: 'Obor', minimumKc: 5, isMembers: false },
+    [Boss.SARACHNIS]: { name: 'Sarachnis', minimumKc: 50, isMembers: true },
+    [Boss.SKOTIZO]: { name: 'Skotizo', minimumKc: 5, isMembers: true },
+    [Boss.SCORPIA]: { name: 'Scorpia', minimumKc: 50, isMembers: true },
+    [Boss.TEMPOROSS]: { name: 'Tempoross', minimumKc: 50, isMembers: true },
+    [Boss.THE_GAUNTLET]: { name: 'The Gauntlet', minimumKc: 50, isMembers: true },
+    [Boss.THE_CORRUPTED_GAUNTLET]: { name: 'The Corrupted Gauntlet', minimumKc: 5, isMembers: true },
+    [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood', minimumKc: 50, isMembers: true },
+    [Boss.THEATRE_OF_BLOOD_HARD_MODE]: { name: 'Theatre Of Blood (HM)', minimumKc: 50, isMembers: true },
+    [Boss.THERMONUCLEAR_SMOKE_DEVIL]: { name: 'Thermonuclear Smoke Devil', minimumKc: 50, isMembers: true },
+    [Boss.TZKAL_ZUK]: { name: 'TzKal-Zuk', minimumKc: 1, isMembers: true },
+    [Boss.TZTOK_JAD]: { name: 'TzTok-Jad', minimumKc: 5, isMembers: true },
+    [Boss.VENENATIS]: { name: 'Venenatis', minimumKc: 50, isMembers: true },
+    [Boss.VETION]: { name: "Vet'ion", minimumKc: 50, isMembers: true },
+    [Boss.VORKATH]: { name: 'Vorkath', minimumKc: 50, isMembers: true },
+    [Boss.WINTERTODT]: { name: 'Wintertodt', minimumKc: 50, isMembers: true },
+    [Boss.ZALCANO]: { name: 'Zalcano', minimumKc: 50, isMembers: true },
+    [Boss.ZULRAH]: { name: 'Zulrah', minimumKc: 50, isMembers: true }
+  },
+  props => ({ ...props, type: MetricType.BOSS, measure: MetricMeasure.KILLS })
+);
+
+const ActivityProps: { [activity in Activity]: ActivityProperties } = mapValues(
+  {
+    [Activity.LEAGUE_POINTS]: { name: 'League Points' },
+    [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)' },
+    [Activity.BOUNTY_HUNTER_ROGUE]: { name: 'Bounty Hunter (Rogue)' },
+    [Activity.CLUE_SCROLLS_ALL]: { name: 'Clue Scrolls (All)' },
+    [Activity.CLUE_SCROLLS_BEGINNER]: { name: 'Clue Scrolls (Beginner)' },
+    [Activity.CLUE_SCROLLS_EASY]: { name: 'Clue Scrolls (Easy)' },
+    [Activity.CLUE_SCROLLS_MEDIUM]: { name: 'Clue Scrolls (Medium)' },
+    [Activity.CLUE_SCROLLS_HARD]: { name: 'Clue Scrolls (Hard)' },
+    [Activity.CLUE_SCROLLS_ELITE]: { name: 'Clue Scrolls (Elite)' },
+    [Activity.CLUE_SCROLLS_MASTER]: { name: 'Clue Scrolls (Master)' },
+    [Activity.LAST_MAN_STANDING]: { name: 'Last Man Standing' },
+    [Activity.PVP_ARENA]: { name: 'PvP Arena' },
+    [Activity.SOUL_WARS_ZEAL]: { name: 'Soul Wars Zeal' },
+    [Activity.GUARDIANS_OF_THE_RIFT]: { name: 'Guardians of the Rift' }
+  },
+  props => ({ ...props, type: MetricType.ACTIVITY, measure: MetricMeasure.SCORE })
+);
+
+const VirtualProps: { [virtual in Virtual]: VirtualProperties } = mapValues(
+  {
+    [Virtual.EHP]: { name: 'EHP' },
+    [Virtual.EHB]: { name: 'EHB' }
+  },
+  props => ({ ...props, type: MetricType.VIRTUAL, measure: MetricMeasure.VALUE })
+);
 
 const MetricProps = {
-  ...mapValues(SkillProps, (props, key) => ({
-    ...props,
-    key,
-    type: MetricType.SKILL,
-    measure: MetricMeasure.EXPERIENCE
-  })),
-  ...mapValues(BossProps, (props, key) => ({
-    ...props,
-    key,
-    type: MetricType.BOSS,
-    measure: MetricMeasure.KILLS
-  })),
-  ...mapValues(ActivityProps, (props, key) => ({
-    ...props,
-    key,
-    type: MetricType.ACTIVITY,
-    measure: MetricMeasure.SCORE
-  })),
-  ...mapValues(VirtualProps, (props, key) => ({
-    ...props,
-    key,
-    type: MetricType.VIRTUAL,
-    measure: MetricMeasure.VALUE
-  }))
+  ...SkillProps,
+  ...BossProps,
+  ...ActivityProps,
+  ...VirtualProps
 };
 
 const METRICS = Object.values(Metric);

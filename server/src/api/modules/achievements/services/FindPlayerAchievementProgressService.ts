@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Metric, MetricMeasure, round } from '../../../../utils';
 import prisma, { Achievement, modifyAchievements } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import { ProgressAchievement, AchievementDefinition } from '../achievement.types';
+import { AchievementProgress, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
@@ -13,7 +13,7 @@ const inputSchema = z.object({
 
 type FindProgressParams = z.infer<typeof inputSchema>;
 
-async function findPlayerAchievementProgress(payload: FindProgressParams): Promise<ProgressAchievement[]> {
+async function findPlayerAchievementProgress(payload: FindProgressParams): Promise<AchievementProgress[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch all the player's achievements
