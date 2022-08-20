@@ -513,7 +513,8 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi/assert-type`);
 
       expect(response.status).toBe(200);
-      expect(response.body).toMatchObject({ username: 'psikoi', type: 'regular' });
+      expect(response.body.changed).toBe(false);
+      expect(response.body.player).toMatchObject({ username: 'psikoi', type: 'regular' });
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -528,7 +529,8 @@ describe('Player API', () => {
       const assertTypeResponse = await api.post(`/players/psikoi/assert-type`);
 
       expect(assertTypeResponse.status).toBe(200);
-      expect(assertTypeResponse.body).toMatchObject({ username: 'psikoi', type: 'ultimate' });
+      expect(assertTypeResponse.body.changed).toBe(true);
+      expect(assertTypeResponse.body.player).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
       const detailsResponse = await api.get('/players/PsiKOI');
 

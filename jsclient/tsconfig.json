@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "rootDir": "../../",
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es6", "dom", "es2019"],
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "target": "es2015",
+    "declarationDir": "dist",
+    "outDir": "dist"
+  }
+}
