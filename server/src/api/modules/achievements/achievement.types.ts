@@ -28,4 +28,4 @@ interface AchievementProgress extends ExtendedAchievement {
   relativeProgress: number;
 }
 
-export { ExtendedAchievement, AchievementProgress, AchievementDefinition, AchievementTemplate };
+export { Achievement, ExtendedAchievement, AchievementProgress, AchievementDefinition, AchievementTemplate };

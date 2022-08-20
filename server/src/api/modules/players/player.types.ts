@@ -7,3 +7,5 @@ export interface PlayerDetails extends Player {
   combatLevel: number;
   latestSnapshot: FormattedSnapshot;
 }
+
+export { Player };

@@ -38,31 +38,31 @@ function setHooksEnabled(enabled: boolean) {
   hooksEnabled = enabled;
 }
 
-function modifyAchievements(achievements: PrismaAchievement[]): ModifiedAchievement[] {
+function modifyAchievements(achievements: PrismaAchievement[]): Achievement[] {
   return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
 }
 
-function modifySnapshots(snapshots: PrismaSnapshot[]): ModifiedSnapshot[] {
+function modifySnapshots(snapshots: PrismaSnapshot[]): Snapshot[] {
   return snapshots.map(s => ({ ...s, overallExperience: parseBigInt(s.overallExperience) }));
 }
 
-function modifyDeltas(deltas: PrismaDelta[]): ModifiedDelta[] {
+function modifyDeltas(deltas: PrismaDelta[]): Delta[] {
   return deltas.map(d => ({ ...d, overall: parseBigInt(d.overall) }));
 }
 
-function modifyPlayers(players: PrismaPlayer[]): ModifiedPlayer[] {
+function modifyPlayers(players: PrismaPlayer[]): Player[] {
   return players.map(p => ({ ...p, exp: parseBigInt(p.exp) }));
 }
 
-function modifyPlayer(player: PrismaPlayer): ModifiedPlayer {
+function modifyPlayer(player: PrismaPlayer): Player {
   return player ? { ...player, exp: parseBigInt(player.exp) } : null;
 }
 
-function modifySnapshot(snapshot: PrismaSnapshot): ModifiedSnapshot {
+function modifySnapshot(snapshot: PrismaSnapshot): Snapshot {
   return snapshot ? { ...snapshot, overallExperience: parseBigInt(snapshot.overallExperience) } : null;
 }
 
-function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
+function modifyRecords(records: PrismaRecord[]): Record[] {
   return records.map(a => {
     // All records' values are stored as an Integer, but EHP/EHB records can have
     // float values, so they're multiplied by 10,000 when saving to the database.
@@ -74,23 +74,23 @@ function modifyRecords(records: PrismaRecord[]): ModifiedRecord[] {
   });
 }
 
-type ModifiedAchievement = Omit<PrismaAchievement, 'threshold'> & {
+type Achievement = Omit<PrismaAchievement, 'threshold'> & {
   threshold: number;
 };
 
-type ModifiedRecord = Omit<PrismaRecord, 'value'> & {
+type Record = Omit<PrismaRecord, 'value'> & {
   value: number;
 };
 
-type ModifiedDelta = Omit<PrismaDelta, 'overall'> & {
+type Delta = Omit<PrismaDelta, 'overall'> & {
   overall: number;
 };
 
-type ModifiedSnapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
+type Snapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
   overallExperience: number;
 };
 
-type ModifiedPlayer = Omit<PrismaPlayer, 'exp'> & {
+type Player = Omit<PrismaPlayer, 'exp'> & {
   exp: number;
 };
 
@@ -106,11 +106,11 @@ export {
   Membership,
   Competition,
   Participation,
-  ModifiedPlayer as Player,
-  ModifiedDelta as Delta,
-  ModifiedRecord as Record,
-  ModifiedSnapshot as Snapshot,
-  ModifiedAchievement as Achievement,
+  Player,
+  Delta,
+  Record,
+  Snapshot,
+  Achievement,
   // Enums
   Country,
   NameChangeStatus,

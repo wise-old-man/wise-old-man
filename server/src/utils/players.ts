@@ -1,6 +1,14 @@
 import { PlayerTypeEnum as PlayerType, PlayerBuildEnum as PlayerBuild } from '../prisma/enum-adapter';
 
-const PlayerTypeProps = {
+type PlayerTypePropsMap = {
+  [playerType in PlayerType]: { name: string };
+};
+
+type PlayerBuildPropsMap = {
+  [playerBuild in PlayerBuild]: { name: string };
+};
+
+const PlayerTypeProps: PlayerTypePropsMap = {
   [PlayerType.UNKNOWN]: { name: 'Unknown' },
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },
@@ -8,7 +16,7 @@ const PlayerTypeProps = {
   [PlayerType.ULTIMATE]: { name: 'Ultimate' }
 };
 
-const PlayerBuildProps = {
+const PlayerBuildProps: PlayerBuildPropsMap = {
   [PlayerBuild.MAIN]: { name: 'Main' },
   [PlayerBuild.F2P]: { name: 'F2P' },
   [PlayerBuild.LVL3]: { name: 'Level 3' },

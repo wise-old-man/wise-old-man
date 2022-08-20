@@ -5,7 +5,11 @@ export interface CountryDetails {
   name: string;
 }
 
-const CountryProps: { [c in Country]: CountryDetails } = {
+type CountryPropsMap = {
+  [c in Country]: CountryDetails;
+};
+
+const CountryProps: CountryPropsMap = {
   [Country.AD]: { code: 'AD', name: 'Andorra' },
   [Country.AE]: { code: 'AE', name: 'United Arab Emirates' },
   [Country.AF]: { code: 'AF', name: 'Afghanistan' },

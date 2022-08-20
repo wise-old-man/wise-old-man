@@ -1,0 +1,1 @@
+export { Record } from '../../../prisma';

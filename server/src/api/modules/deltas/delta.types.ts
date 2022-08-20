@@ -54,3 +54,5 @@ export interface PlayerDeltasMap {
     [virtual in Virtual]?: VirtualDelta;
   };
 }
+
+export { Delta } from '../../../prisma';

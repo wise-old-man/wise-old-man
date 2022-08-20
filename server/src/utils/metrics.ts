@@ -50,7 +50,23 @@ interface VirtualProperties {
   measure: MetricMeasure;
 }
 
-const SkillProps: { [skill in Skill]: SkillProperties } = mapValues(
+type SkillPropsMap = {
+  [skill in Skill]: SkillProperties;
+};
+
+type BossPropsMap = {
+  [boss in Boss]: BossProperties;
+};
+
+type ActivityPropsMap = {
+  [activity in Activity]: ActivityProperties;
+};
+
+type VirtualPropsMap = {
+  [virtual in Virtual]: VirtualProperties;
+};
+
+const SkillProps: SkillPropsMap = mapValues(
   {
     [Skill.OVERALL]: { name: 'Overall', isCombat: false, isMembers: false },
     [Skill.ATTACK]: { name: 'Attack', isCombat: true, isMembers: false },
@@ -80,7 +96,7 @@ const SkillProps: { [skill in Skill]: SkillProperties } = mapValues(
   props => ({ ...props, type: MetricType.SKILL, measure: MetricMeasure.EXPERIENCE })
 );
 
-const BossProps: { [boss in Boss]: BossProperties } = mapValues(
+const BossProps: BossPropsMap = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire', minimumKc: 50, isMembers: true },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra', minimumKc: 50, isMembers: true },
@@ -134,7 +150,7 @@ const BossProps: { [boss in Boss]: BossProperties } = mapValues(
   props => ({ ...props, type: MetricType.BOSS, measure: MetricMeasure.KILLS })
 );
 
-const ActivityProps: { [activity in Activity]: ActivityProperties } = mapValues(
+const ActivityProps: ActivityPropsMap = mapValues(
   {
     [Activity.LEAGUE_POINTS]: { name: 'League Points' },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)' },
@@ -154,7 +170,7 @@ const ActivityProps: { [activity in Activity]: ActivityProperties } = mapValues(
   props => ({ ...props, type: MetricType.ACTIVITY, measure: MetricMeasure.SCORE })
 );
 
-const VirtualProps: { [virtual in Virtual]: VirtualProperties } = mapValues(
+const VirtualProps: VirtualPropsMap = mapValues(
   {
     [Virtual.EHP]: { name: 'EHP' },
     [Virtual.EHB]: { name: 'EHB' }

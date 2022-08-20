@@ -1,5 +1,5 @@
 import { Skill, Boss, Activity, Virtual } from '../../../utils';
-import { PrismaTypes } from '../../../prisma';
+import { Snapshot, PrismaTypes } from '../../../prisma';
 
 export type SnapshotFragment = PrismaTypes.XOR<
   PrismaTypes.SnapshotCreateInput,
@@ -58,3 +58,5 @@ export interface FormattedSnapshot {
     };
   };
 }
+
+export { Snapshot };

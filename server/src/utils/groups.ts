@@ -11,12 +11,14 @@ const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
   GroupRole.OWNER
 ];
 
-interface GroupRoleProperties {
-  name: string;
-  isPriveleged: boolean;
-}
+type GroupRolePropsMap = {
+  [role in GroupRole]: {
+    name: string;
+    isPriveleged: boolean;
+  };
+};
 
-const GroupRoleProps: { [role in GroupRole]: GroupRoleProperties } = mapValues(
+const GroupRoleProps: GroupRolePropsMap = mapValues(
   {
     [GroupRole.ACHIEVER]: { name: 'Achiever' },
     [GroupRole.ADAMANT]: { name: 'Adamant' },

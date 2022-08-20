@@ -1,7 +1,14 @@
 import { PeriodEnum as Period } from '../prisma/enum-adapter';
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 
-const PeriodProps = {
+type PeriodPropsMap = {
+  [period in Period]: {
+    name: string;
+    milliseconds: number;
+  };
+};
+
+const PeriodProps: PeriodPropsMap = {
   [Period.FIVE_MIN]: { name: '5 Min', milliseconds: 300_000 },
   [Period.DAY]: { name: 'Day', milliseconds: 86_400_000 },
   [Period.WEEK]: { name: 'Week', milliseconds: 604_800_000 },

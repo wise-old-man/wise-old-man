@@ -71,3 +71,5 @@ export interface TempleGroupData {
   members: string[];
   leaders: string[];
 }
+
+export { Group, Membership };
