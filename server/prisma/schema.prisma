@@ -274,6 +274,7 @@ model Record {
 
   // Indices
   @@index([metric], map: "records_metric")
+  @@index([period], map: "records_period")
   @@index([playerId], map: "records_player_id")
   @@map("records")
 }
