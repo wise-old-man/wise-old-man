@@ -82,6 +82,8 @@ const metrics = {
     { key: 'theatre_of_blood', name: 'Theatre Of Blood' },
     { key: 'theatre_of_blood_hard_mode', name: 'Theatre Of Blood (HM)' },
     { key: 'thermonuclear_smoke_devil', name: 'Thermonuclear Smoke Devil' },
+    { key: 'tombs_of_amascut', name: 'Tombs of Amascut' },
+    { key: 'tombs_of_amascut_expert', name: 'Tombs of Amascut (Expert Mode)' },
     { key: 'tzkal_zuk', name: 'TzKal-Zuk' },
     { key: 'tztok_jad', name: 'TzTok-Jad' },
     { key: 'venenatis', name: 'Venenatis' },
