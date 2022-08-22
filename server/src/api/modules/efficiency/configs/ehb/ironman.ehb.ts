@@ -34,6 +34,8 @@ export default [
   { boss: 'the_corrupted_gauntlet', rate: 6.5 },
   { boss: 'theatre_of_blood', rate: 2.5 },
   { boss: 'thermonuclear_smoke_devil', rate: 80 },
+  { boss: 'tombs_of_amascut', rate: 0 },
+  { boss: 'tombs_of_amascut_expert', rate: 0 },
   { boss: 'tzkal_zuk', rate: 0.8 },
   { boss: 'tztok_jad', rate: 2 },
   { boss: 'venenatis', rate: 35 },
