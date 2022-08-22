@@ -470,6 +470,18 @@ export default class HiscoresValues extends Model<HiscoresValues> {
   thermonuclear_smoke_devilKills: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  tombs_of_amascutRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  tombs_of_amascutKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  tombs_of_amascut_expertRank: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
+  tombs_of_amascut_expertKills: number;
+
+  @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
   tzkal_zukRank: number;
 
   @Column({ type: DataType.INTEGER, defaultValue: -1, allowNull: false })
