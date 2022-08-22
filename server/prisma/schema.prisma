@@ -120,6 +120,8 @@ model Delta {
   theatre_of_blood                 Int       @default(0)
   theatre_of_blood_hard_mode       Int       @default(0)
   thermonuclear_smoke_devil        Int       @default(0)
+  tombs_of_amascut                 Int       @default(0)
+  tombs_of_amascut_expert          Int       @default(0)
   tzkal_zuk                        Int       @default(0)
   tztok_jad                        Int       @default(0)
   venenatis                        Int       @default(0)
@@ -428,6 +430,10 @@ model Snapshot {
   theatre_of_bloodKills                 Int       @default(-1)
   thermonuclear_smoke_devilRank         Int       @default(-1)
   thermonuclear_smoke_devilKills        Int       @default(-1)
+  tombs_of_amascutRank                  Int       @default(-1)
+  tombs_of_amascutKills                 Int       @default(-1)
+  tombs_of_amascut_expertRank           Int       @default(-1)
+  tombs_of_amascut_expertKills          Int       @default(-1)
   tzkal_zukRank                         Int       @default(-1)
   tzkal_zukKills                        Int       @default(-1)
   tztok_jadRank                         Int       @default(-1)
@@ -1120,6 +1126,8 @@ enum Metric {
   the_corrupted_gauntlet
   theatre_of_blood
   thermonuclear_smoke_devil
+  tombs_of_amascut
+  tombs_of_amascut_expert
   tzkal_zuk
   tztok_jad
   venenatis

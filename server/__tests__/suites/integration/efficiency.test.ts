@@ -9,9 +9,7 @@ import mainTestBossingMetas from '../../data/efficiency/configs/ehb/main-test.eh
 import ironmanTestSkillingMetas from '../../data/efficiency/configs/ehp/ironman-test.ehp';
 import ironmanTestBossingMetas from '../../data/efficiency/configs/ehb/ironman-test.ehb';
 import lvl3TestSkillingMetas from '../../data/efficiency/configs/ehp/lvl3-test.ehp';
-import lvl3TestBossingMetas from '../../data/efficiency/configs/ehb/lvl3-test.ehb';
 import f2pTestSkillingMetas from '../../data/efficiency/configs/ehp/f2p-test.ehp';
-import f2pTestBossingMetas from '../../data/efficiency/configs/ehb/f2p-test.ehb';
 import { resetDatabase, resetRedis } from '../../utils';
 
 const api = supertest(apiServer);
@@ -24,8 +22,8 @@ beforeAll(async done => {
   Object.assign(ALGORITHMS, {
     main: buildAlgorithmCache(mainTestSkillingMetas, mainTestBossingMetas),
     ironman: buildAlgorithmCache(ironmanTestSkillingMetas, ironmanTestBossingMetas),
-    f2p: buildAlgorithmCache(f2pTestSkillingMetas, f2pTestBossingMetas),
-    lvl3: buildAlgorithmCache(lvl3TestSkillingMetas, lvl3TestBossingMetas)
+    f2p: buildAlgorithmCache(f2pTestSkillingMetas),
+    lvl3: buildAlgorithmCache(lvl3TestSkillingMetas)
   });
 
   // Create 100 players, with staggered registration dates, and make sure some of them
