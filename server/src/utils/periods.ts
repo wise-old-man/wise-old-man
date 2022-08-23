@@ -1,4 +1,4 @@
-import { PeriodEnum as Period } from '../prisma/enum-adapter';
+import { Period } from '../prisma/enum-adapter';
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 
 type PeriodPropsMap = {

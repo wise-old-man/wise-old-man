@@ -1,4 +1,4 @@
-import { CompetitionTypeEnum as CompetitionType } from '../prisma/enum-adapter';
+import { CompetitionType } from '../prisma/enum-adapter';
 
 enum CompetitionStatus {
   UPCOMING = 'upcoming',

@@ -1,4 +1,4 @@
-import { Country } from '@prisma/client';
+import { Country } from '../prisma/enum-adapter';
 
 export interface CountryDetails {
   code: Country;

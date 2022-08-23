@@ -1,10 +1,13 @@
 import {
-  BossMetaConfig,
+  Player,
+  Metric,
+  Country,
+  PlayerType,
+  PlayerBuild,
   EfficiencyAlgorithmType,
-  SkillMetaConfig
-} from '../../../server/src/api/modules/efficiency/efficiency.types';
-import { Player } from '../../../server/src/prisma';
-import { Metric, PlayerBuild, PlayerType, Country } from '../../../server/src/utils';
+  SkillMetaConfig,
+  BossMetaConfig
+} from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest } from '../utils';
 
 export interface EfficiencyLeaderboardsFilter {

@@ -1,5 +1,5 @@
 import { mapValues } from 'lodash';
-import { GroupRoleEnum as GroupRole } from '../prisma/enum-adapter';
+import { GroupRole } from '../prisma/enum-adapter';
 
 const GROUP_ROLES = Object.values(GroupRole);
 

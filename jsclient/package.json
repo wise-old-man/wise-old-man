@@ -4,14 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./dist/ && tsc"
+    "build": "rm -rf ./dist && npx rollup -c"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.4",
     "rollup": "^2.78.0",
@@ -21,6 +19,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "dayjs": "^1.11.5"
+    "dayjs": "^1.11.5",
+    "lodash": "^4.17.21"
   }
 }

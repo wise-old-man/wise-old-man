@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { Record, PrismaTypes } from '../../../../prisma';
+import prisma, { Record, PrismaTypes, modifyRecords } from '../../../../prisma';
 import { Period, Metric } from '../../../../utils';
 import { prepareRecordValue } from '../record.utils';
 
@@ -23,12 +23,14 @@ type SyncPlayerRecordsParams = z.infer<typeof inputSchema>;
 async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void> {
   const params = inputSchema.parse(payload);
 
-  const currentRecords = await prisma.record.findMany({
-    where: {
-      playerId: params.id,
-      period: params.period
-    }
-  });
+  const currentRecords = await prisma.record
+    .findMany({
+      where: {
+        playerId: params.id,
+        period: params.period
+      }
+    })
+    .then(modifyRecords);
 
   const currentRecordMap: RecordMap = Object.fromEntries(currentRecords.map(r => [r.metric, r]));
 

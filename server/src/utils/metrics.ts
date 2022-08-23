@@ -1,12 +1,5 @@
 import { capitalize, mapValues } from 'lodash';
-
-import {
-  SkillEnum as Skill,
-  BossEnum as Boss,
-  ActivityEnum as Activity,
-  VirtualEnum as Virtual,
-  MetricEnum as Metric
-} from '../prisma/enum-adapter';
+import { Skill, Boss, Activity, Virtual, Metric } from '../prisma/enum-adapter';
 
 enum MetricType {
   SKILL = 'skill',

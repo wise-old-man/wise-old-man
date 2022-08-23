@@ -1,15 +1,19 @@
-import type {
+import {
   AchievementProgress,
-  ExtendedAchievement
-} from '../../../server/src/api/modules/achievements/achievement.types';
-import type { ParticipationWithCompetition } from '../../../server/src/api/modules/competitions/competition.types';
-import type { PlayerDeltasArray, PlayerDeltasMap } from '../../../server/src/api/modules/deltas/delta.types';
-import type { MembershipWithGroup } from '../../../server/src/api/modules/groups/group.types';
-import type { PlayerDetails } from '../../../server/src/api/modules/players/player.types';
-import { FormattedSnapshot } from '../../../server/src/api/modules/snapshots/snapshot.types';
-import type { NameChange, Player, Record } from '../../../server/src/prisma';
-import type { Metric, Period } from '../../../server/src/utils';
-
+  ExtendedAchievement,
+  FormattedSnapshot,
+  MembershipWithGroup,
+  Metric,
+  Record,
+  NameChange,
+  ParticipationWithCompetition,
+  Period,
+  Player,
+  PlayerDeltasArray,
+  PlayerDeltasMap,
+  PlayerDetails,
+  PlayerResolvable
+} from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
 
 export type TimeRangeFilter =
@@ -52,8 +56,6 @@ export type GetPlayerGainsResponse<T extends PlayerDeltasArray | PlayerDeltasMap
   endsAt: Date;
   data: T;
 };
-
-export type PlayerResolvable = string | { id?: number; username?: string };
 
 function getPlayerURL(player: PlayerResolvable) {
   if (typeof player === 'string') {

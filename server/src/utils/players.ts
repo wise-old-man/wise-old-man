@@ -1,4 +1,4 @@
-import { PlayerTypeEnum as PlayerType, PlayerBuildEnum as PlayerBuild } from '../prisma/enum-adapter';
+import { PlayerType, PlayerBuild } from '../prisma/enum-adapter';
 
 type PlayerTypePropsMap = {
   [playerType in PlayerType]: { name: string };
