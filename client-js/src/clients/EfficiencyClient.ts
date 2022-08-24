@@ -1,23 +1,10 @@
-import {
-  Player,
-  Metric,
-  Country,
-  PlayerType,
-  PlayerBuild,
-  EfficiencyAlgorithmType,
-  SkillMetaConfig,
-  BossMetaConfig
-} from '../../../server/src/utils';
+import type {
+  EfficiencyLeaderboardsFilter,
+  EfficiencyAlgorithmTypeUnion,
+  GetEfficiencyLeaderboardsResponse
+} from '../api-types';
+import { Metric, SkillMetaConfig, BossMetaConfig } from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest } from '../utils';
-
-export interface EfficiencyLeaderboardsFilter {
-  metric: typeof Metric.EHP | typeof Metric.EHB | 'ehp+ehb';
-  country?: Country;
-  playerType?: PlayerType;
-  playerBuild?: PlayerBuild;
-}
-
-export type GetEfficiencyLeaderboardsResponse = Player[];
 
 export default class EfficiencyClient {
   getEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter, pagination?: PaginationOptions) {
@@ -27,11 +14,11 @@ export default class EfficiencyClient {
     });
   }
 
-  getEHPRates(algorithmType: `${EfficiencyAlgorithmType}`) {
+  getEHPRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
     return sendGetRequest<SkillMetaConfig>('/efficiency/rates', { metric: Metric.EHP, type: algorithmType });
   }
 
-  getEHBRates(algorithmType: `${EfficiencyAlgorithmType}`) {
+  getEHBRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
     return sendGetRequest<BossMetaConfig[]>('/efficiency/rates', { metric: Metric.EHB, type: algorithmType });
   }
 }

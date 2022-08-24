@@ -1,9 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fs = require('fs');
+
 /**
  * This is an extremely hacky script that mashes up some of Prisma's type declarations with my own.
  * I can't simply bundle up all type declarations with rollup because the dts plugin doesn't support namespaces.
  */
-
-const fs = require('fs');
 
 const PRIVATE_MODEL_NAMES = ['Achievement', 'Record', 'Delta', 'Snapshot', 'Player'];
 

@@ -5,7 +5,7 @@ import config from './config';
 
 dayjs.extend(customParseFormaPlugin);
 
-function traverseTransform(input: any, transformation: (i: any) => any): any {
+function traverseTransform(input: unknown, transformation: (i: unknown) => unknown): unknown {
   if (Array.isArray(input)) {
     return input.map(item => traverseTransform(item, transformation));
   }
@@ -19,7 +19,7 @@ function traverseTransform(input: any, transformation: (i: any) => any): any {
   return transformation(input);
 }
 
-function isValidISODate(input: any) {
+function isValidISODate(input: unknown) {
   if (!input || typeof input !== 'string') return false;
 
   // DayJS has a bug with strict parsing with timezones https://github.com/iamkun/dayjs/issues/929
@@ -27,8 +27,8 @@ function isValidISODate(input: any) {
   return input.endsWith('Z') && dayjs(input.slice(0, -1), 'YYYY-MM-DDTHH:mm:ss.SSS', true).isValid();
 }
 
-function transformDates(input: any) {
-  return traverseTransform(input, val => (isValidISODate(val) ? new Date(val) : val));
+function transformDates(input: unknown) {
+  return traverseTransform(input, val => (isValidISODate(val) ? new Date(val as string) : val));
 }
 
 export type PaginationOptions = Partial<{
@@ -62,7 +62,7 @@ function handleError(requestURL: string, e: AxiosError) {
   }
 }
 
-export async function sendPostRequest<T>(path: string, body?: any) {
+export async function sendPostRequest<T>(path: string, body?: unknown) {
   const requestURL = `${config.apiBaseUrl}${path}`;
 
   return axios
@@ -74,7 +74,7 @@ export async function sendPostRequest<T>(path: string, body?: any) {
     });
 }
 
-export async function sendGetRequest<T>(path: string, params?: any) {
+export async function sendGetRequest<T>(path: string, params?: unknown) {
   const requestURL = `${config.apiBaseUrl}${path}`;
 
   return axios
@@ -88,16 +88,16 @@ export async function sendGetRequest<T>(path: string, params?: any) {
 
 interface APIErrorData {
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 class BadRequestError extends Error {
   name: string;
   resource: string;
   statusCode: number;
-  data?: any;
+  data?: unknown;
 
-  constructor(resource: string, message: string, data?: any) {
+  constructor(resource: string, message: string, data?: unknown) {
     super(message);
     this.name = 'BadRequestError';
     this.resource = resource;

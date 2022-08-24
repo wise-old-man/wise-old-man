@@ -1,73 +1,23 @@
-import {
-  AchievementProgress,
-  ExtendedAchievement,
-  FormattedSnapshot,
-  MembershipWithGroup,
-  Metric,
-  Record,
-  NameChange,
-  ParticipationWithCompetition,
-  Period,
-  Player,
-  PlayerDeltasArray,
-  PlayerDeltasMap,
-  PlayerDetails,
-  PlayerResolvable
-} from '../../../server/src/utils';
+import type {
+  TimeRangeFilter,
+  PlayerRecordsFilter,
+  SearchPlayersResponse,
+  UpdatePlayerResponse,
+  AssertPlayerTypeResponse,
+  ImportPlayerResponse,
+  GetPlayerDetailsResponse,
+  GetPlayerAchievementsResponse,
+  GetPlayerAchievementProgressResponse,
+  GetPlayerCompetitionsResponse,
+  GetPlayerGroupsResponse,
+  GetPlayerGainsResponse,
+  GetPlayerRecordsResponse,
+  GetPlayerSnapshotsResponse,
+  GetPlayerNamesResponse
+} from '../api-types';
+
+import { PlayerResolvable, PlayerDeltasMap, PlayerDeltasArray } from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
-
-export type TimeRangeFilter =
-  | {
-      period: Period | string;
-    }
-  | {
-      startDate: Date;
-      endDate: Date;
-    };
-
-export interface PlayerRecordsFilter {
-  period: Period | string;
-  metric: Metric;
-}
-
-export interface AssertPlayerTypeResponse {
-  player: Player;
-  changed: boolean;
-}
-
-export interface ImportPlayerResponse {
-  count: number;
-  message: string;
-}
-
-export type SearchPlayersResponse = Player[];
-export type UpdatePlayerResponse = PlayerDetails;
-export type GetPlayerDetailsResponse = PlayerDetails;
-export type GetPlayerAchievementsResponse = ExtendedAchievement[];
-export type GetPlayerAchievementProgressResponse = AchievementProgress[];
-export type GetPlayerCompetitionsResponse = ParticipationWithCompetition[];
-export type GetPlayerGroupsResponse = MembershipWithGroup[];
-export type GetPlayerRecordsResponse = Record[];
-export type GetPlayerNamesResponse = NameChange[];
-export type GetPlayerSnapshotsResponse = FormattedSnapshot[];
-
-export type GetPlayerGainsResponse<T extends PlayerDeltasArray | PlayerDeltasMap> = {
-  startsAt: Date;
-  endsAt: Date;
-  data: T;
-};
-
-function getPlayerURL(player: PlayerResolvable) {
-  if (typeof player === 'string') {
-    return `/players/${player}`;
-  }
-
-  if (player.id) {
-    return `/players/id/${player.id}`;
-  }
-
-  return `/players/${player.username}`;
-}
 
 export default class PlayersClient {
   searchPlayers(partialUsername: string, pagination?: PaginationOptions) {
@@ -133,4 +83,16 @@ export default class PlayersClient {
   getPlayerNames(player: PlayerResolvable) {
     return sendGetRequest<GetPlayerNamesResponse>(`${getPlayerURL(player)}/names`);
   }
+}
+
+function getPlayerURL(player: PlayerResolvable) {
+  if (typeof player === 'string') {
+    return `/players/${player}`;
+  }
+
+  if (player.id) {
+    return `/players/id/${player.id}`;
+  }
+
+  return `/players/${player.username}`;
 }

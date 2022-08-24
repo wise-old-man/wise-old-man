@@ -9,5 +9,6 @@
     "skipLibCheck": true,
     "target": "es2015",
     "outDir": "dist"
-  }
+  },
+  "exclude": ["node_modules", "dist"]
 }

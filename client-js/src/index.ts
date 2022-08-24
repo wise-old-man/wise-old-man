@@ -6,5 +6,6 @@ export * from './clients/PlayersClient';
 export * from './clients/RecordsClient';
 export * from './clients/DeltasClient';
 export * from './clients/EfficiencyClient';
+export * from './api-types';
 
 export { WOMClient };
