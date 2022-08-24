@@ -30,22 +30,20 @@ import mainBossingMetas from './configs/ehb/main.ehb';
 import mainSkillingMetas from './configs/ehp/main.ehp';
 import ironmanBossingMetas from './configs/ehb/ironman.ehb';
 import ironmanSkillingMetas from './configs/ehp/ironman.ehp';
-import lvl3BossingMetas from './configs/ehb/lvl3.ehb';
 import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
-import f2pBossingMetas from './configs/ehb/f2p.ehb';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 
 export const ALGORITHMS: AlgorithmCache = {
   [EfficiencyAlgorithmType.MAIN]: buildAlgorithmCache(mainSkillingMetas, mainBossingMetas),
   [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
-  [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas, lvl3BossingMetas),
-  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas, f2pBossingMetas)
+  [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas),
+  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas)
 };
 
 /**
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
-export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[]) {
+export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[] = []) {
   const maxedEHP = calculateMaxedEHP(skillMetas);
   const maximumEHP = calculateMaximumEHP(skillMetas);
 

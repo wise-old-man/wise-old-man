@@ -135,6 +135,8 @@ export const BossEnum = {
   THEATRE_OF_BLOOD: PrismaMetric.theatre_of_blood,
   THEATRE_OF_BLOOD_HARD_MODE: PrismaMetric.theatre_of_blood_hard_mode,
   THERMONUCLEAR_SMOKE_DEVIL: PrismaMetric.thermonuclear_smoke_devil,
+  TOMBS_OF_AMASCUT: PrismaMetric.tombs_of_amascut,
+  TOMBS_OF_AMASCUT_EXPERT: PrismaMetric.tombs_of_amascut_expert,
   TZKAL_ZUK: PrismaMetric.tzkal_zuk,
   TZTOK_JAD: PrismaMetric.tztok_jad,
   VENENATIS: PrismaMetric.venenatis,

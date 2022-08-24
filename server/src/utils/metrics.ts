@@ -90,6 +90,8 @@ const BossProps = {
   [Boss.THEATRE_OF_BLOOD]: { name: 'Theatre Of Blood', minimumKc: 50, isMembers: true },
   [Boss.THEATRE_OF_BLOOD_HARD_MODE]: { name: 'Theatre Of Blood (HM)', minimumKc: 50, isMembers: true },
   [Boss.THERMONUCLEAR_SMOKE_DEVIL]: { name: 'Thermonuclear Smoke Devil', minimumKc: 50, isMembers: true },
+  [Boss.TOMBS_OF_AMASCUT]: { name: 'Tombs of Amascut', minimumKc: 50, isMembers: true },
+  [Boss.TOMBS_OF_AMASCUT_EXPERT]: { name: 'Tombs of Amascut (Expert Mode)', minimumKc: 50, isMembers: true },
   [Boss.TZKAL_ZUK]: { name: 'TzKal-Zuk', minimumKc: 1, isMembers: true },
   [Boss.TZTOK_JAD]: { name: 'TzTok-Jad', minimumKc: 5, isMembers: true },
   [Boss.VENENATIS]: { name: 'Venenatis', minimumKc: 50, isMembers: true },
@@ -329,6 +331,19 @@ function parseMetricAbbreviation(abbreviation: string): string | null {
     case 'tob-hard-mode':
     case 'tob-hard':
       return Metric.THEATRE_OF_BLOOD_HARD_MODE;
+
+    case 'toa':
+    case 'tombs':
+    case 'amascut':
+      return Metric.TOMBS_OF_AMASCUT;
+
+    case 'toa-expert':
+    case 'toa-hm':
+    case 'tombs-expert':
+    case 'tombs-hm':
+    case 'amascut-expert':
+    case 'amascut-hm':
+      return Metric.TOMBS_OF_AMASCUT_EXPERT;
 
     case 'nm':
     case 'tnm':

@@ -342,6 +342,16 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Tombs of Amascut kills',
+    metric: Metric.TOMBS_OF_AMASCUT,
+    thresholds: [100, 500, 1000, 5000]
+  },
+  {
+    name: '{threshold} Tombs of Amascut (Expert Mode) kills',
+    metric: Metric.TOMBS_OF_AMASCUT_EXPERT,
+    thresholds: [100, 500, 1000, 5000]
+  },
+  {
     name: '{threshold} TzKal-Zuk kills',
     metric: Metric.TZKAL_ZUK,
     thresholds: [10, 50, 100, 200]

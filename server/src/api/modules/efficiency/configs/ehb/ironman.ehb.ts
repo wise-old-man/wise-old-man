@@ -35,7 +35,10 @@ export default [
   { boss: Boss.THE_GAUNTLET, rate: 10 },
   { boss: Boss.THE_CORRUPTED_GAUNTLET, rate: 6.5 },
   { boss: Boss.THEATRE_OF_BLOOD, rate: 2.5 },
+  { boss: Boss.THEATRE_OF_BLOOD_HARD_MODE, rate: 2.4 },
   { boss: Boss.THERMONUCLEAR_SMOKE_DEVIL, rate: 80 },
+  { boss: Boss.TOMBS_OF_AMASCUT, rate: 0 },
+  { boss: Boss.TOMBS_OF_AMASCUT_EXPERT, rate: 0 },
   { boss: Boss.TZKAL_ZUK, rate: 0.8 },
   { boss: Boss.TZTOK_JAD, rate: 2 },
   { boss: Boss.VENENATIS, rate: 35 },
@@ -43,7 +46,6 @@ export default [
   { boss: Boss.VORKATH, rate: 32 },
   { boss: Boss.ZULRAH, rate: 32 },
   { boss: Boss.NIGHTMARE, rate: 11 },
-  { boss: Boss.THEATRE_OF_BLOOD_HARD_MODE, rate: 2.4 },
   { boss: Boss.PHOSANIS_NIGHTMARE, rate: 6.5 },
   { boss: Boss.NEX, rate: 12 }
 ];
