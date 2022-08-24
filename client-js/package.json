@@ -1,16 +1,21 @@
 {
-  "name": "wiseoldman-js-client",
-  "version": "1.0.0",
+  "name": "@wise-old-man/utils",
+  "version": "2.0.0-beta.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "rm -rf ./dist && npx rollup -c"
+    "prepublish": "npm run build",
+    "prebuild": "cd ../server && npm run prisma:generate",
+    "build": "rm -rf ./dist && npx rollup -c && node prisma-transform.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.4",
     "rollup": "^2.78.0",
     "rollup-plugin-dts": "^4.2.2",
