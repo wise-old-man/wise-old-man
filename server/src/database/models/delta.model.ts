@@ -282,6 +282,12 @@ export default class Delta extends Model<Delta> {
   thermonuclear_smoke_devil: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  tombs_of_amascut: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
+  tombs_of_amascut_expert: number;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
   tzkal_zuk: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
