@@ -15,7 +15,9 @@ import {
   Player,
   PlayerBuild,
   PlayerType,
-  EfficiencyAlgorithmType
+  EfficiencyAlgorithmType,
+  NameChangeStatus,
+  NameChangeDetails
 } from '../../server/src/utils';
 
 export type TimeRangeFilter =
@@ -32,6 +34,21 @@ interface BasePlayerFilter {
   playerType?: PlayerType;
   playerBuild?: PlayerBuild;
 }
+
+/**
+ * Name Changes Client Types
+ */
+
+export type NameChangesFilter = {
+  username?: string;
+  status?: NameChangeStatus;
+};
+
+export type SearchNameChangesResponse = NameChange[];
+
+export type SubmitNameChangeResponse = NameChange;
+
+export type GetNameChangeDetailsResponse = NameChangeDetails;
 
 /**
  * Record Client Types
