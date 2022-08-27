@@ -27,9 +27,6 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
   // Get all definitions and sort them so that related definitions are clustered
   const definitions = clusterDefinitions(ALL_DEFINITIONS);
 
-  // TODO: remove this
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   return definitions.map((d, i) => {
     const prevDef = definitions[i - 1];
     const isFirstInCluster = i === 0 || prevDef.metric !== d.metric || prevDef.measure !== d.measure;
@@ -46,7 +43,7 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
       relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold)),
       createdAt: findDate(d, achievements) || null
     };
-  });
+  }) as AchievementProgress[];
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
