@@ -31,6 +31,10 @@ const parsedPrismaContent = prismaContent
   })
   .join('\n');
 
-const finalContent = `${parsedPrismaContent}\n${parsedBuildContent}`;
+let finalContent = `${parsedPrismaContent}\n${parsedBuildContent}`;
+
+PRIVATE_MODEL_NAMES.forEach(model => {
+  finalContent = finalContent.replaceAll(`${model}$1`, `Prisma_Base_${model}`);
+});
 
 fs.writeFileSync(BUILD_DECLARATION_FILE_PATH, finalContent);
