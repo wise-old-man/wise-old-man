@@ -1,9 +1,14 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { getCombatLevel, getTotalLevel, get200msCount } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import * as snapshotUtils from '../../snapshots/snapshot.utils';
+import {
+  get200msCount,
+  format,
+  average,
+  getCombatLevelFromSnapshot,
+  getTotalLevel
+} from '../../snapshots/snapshot.utils';
 import { GroupStatistics } from '../group.types';
 
 const inputSchema = z.object({
@@ -40,10 +45,10 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
     throw new BadRequestError("Couldn't find any stats for this group.");
   }
 
-  const maxedCombatCount = snapshots.filter(s => getCombatLevel(s) === 126).length;
+  const maxedCombatCount = snapshots.filter(s => getCombatLevelFromSnapshot(s) === 126).length;
   const maxedTotalCount = snapshots.filter(s => getTotalLevel(s) === 2277).length;
   const maxed200msCount = snapshots.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
-  const averageStats = snapshotUtils.format(snapshotUtils.average(snapshots));
+  const averageStats = format(average(snapshots));
 
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }

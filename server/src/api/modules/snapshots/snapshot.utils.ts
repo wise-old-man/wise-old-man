@@ -2,13 +2,17 @@ import {
   BOSSES,
   getMetricRankKey,
   getMetricValueKey,
-  getTotalLevel,
   Metric,
   METRICS,
   VIRTUALS,
   ACTIVITIES,
   getLevel,
-  SKILLS
+  SKILLS,
+  MEMBER_SKILLS,
+  F2P_BOSSES,
+  MAX_SKILL_EXP,
+  REAL_SKILLS,
+  getCombatLevel
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -190,4 +194,74 @@ function average(snapshots: Snapshot[]): Snapshot {
   return base;
 }
 
-export { format, average, hasChanged, hasExcessiveGains, hasNegativeGains, withinRange };
+function getCombatLevelFromSnapshot(snapshot: Snapshot) {
+  if (!snapshot) return 3;
+
+  return getCombatLevel(
+    getLevel(snapshot.attackExperience),
+    getLevel(snapshot.strengthExperience),
+    getLevel(snapshot.defenceExperience),
+    getLevel(snapshot.rangedExperience),
+    getLevel(snapshot.magicExperience),
+    getLevel(snapshot.hitpointsExperience),
+    getLevel(snapshot.prayerExperience)
+  );
+}
+
+function get200msCount(snapshot: any) {
+  return REAL_SKILLS.filter(s => snapshot[getMetricValueKey(s)] === MAX_SKILL_EXP).length;
+}
+
+function getMinimumExp(snapshot: Snapshot) {
+  return REAL_SKILLS.map(s => Math.max(0, snapshot[getMetricValueKey(s)] || 0)).sort((a, b) => a - b)[0];
+}
+
+function getCappedExp(snapshot: Snapshot, max: number) {
+  return REAL_SKILLS.map(s => Math.min(snapshot[getMetricValueKey(s)], max)).reduce((acc, cur) => acc + cur);
+}
+
+function getTotalLevel(snapshot: Snapshot) {
+  return REAL_SKILLS.map(s => getLevel(snapshot[getMetricValueKey(s)])).reduce((acc, cur) => acc + cur);
+}
+
+function isF2p(snapshot: Snapshot) {
+  const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getMetricValueKey(s)]) > 1);
+  const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getMetricValueKey(b)] > 0);
+
+  return !hasMemberStats && !hasBossKc;
+}
+
+function isLvl3(snapshot: Snapshot) {
+  return getCombatLevelFromSnapshot(snapshot) <= 3;
+}
+
+function is1Def(snapshot: Snapshot) {
+  return getLevel(snapshot.defenceExperience) === 1;
+}
+
+function is10HP(snapshot: Snapshot) {
+  return getCombatLevelFromSnapshot(snapshot) > 3 && getLevel(snapshot.hitpointsExperience) === 10;
+}
+
+function isZerker(snapshot: Snapshot) {
+  return getLevel(snapshot.defenceExperience) === 45;
+}
+
+export {
+  format,
+  average,
+  hasChanged,
+  hasExcessiveGains,
+  hasNegativeGains,
+  withinRange,
+  isF2p,
+  isZerker,
+  is10HP,
+  is1Def,
+  isLvl3,
+  getCappedExp,
+  get200msCount,
+  getMinimumExp,
+  getTotalLevel,
+  getCombatLevelFromSnapshot
+};

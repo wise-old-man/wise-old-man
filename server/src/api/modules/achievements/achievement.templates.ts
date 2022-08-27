@@ -1,5 +1,6 @@
 import { Snapshot } from '../../../prisma';
-import { Metric, getMinimumExp } from '../../../utils';
+import { Metric } from '../../../utils';
+import { getMinimumExp } from '../snapshots/snapshot.utils';
 import { AchievementTemplate } from './achievement.types';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [

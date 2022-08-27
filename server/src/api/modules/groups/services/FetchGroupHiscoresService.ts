@@ -6,13 +6,13 @@ import {
   getMetricValueKey,
   Metric,
   MetricMeasure,
-  getTotalLevel,
   getLevel
 } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { GroupHiscoresEntry } from '../group.types';
+import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 const inputSchema = z
   .object({

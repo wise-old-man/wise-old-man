@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { Metric, getTotalLevel } from '../../../../utils';
+import { Metric } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';
+import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
