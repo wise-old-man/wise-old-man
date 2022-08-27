@@ -45,7 +45,7 @@ interface VirtualHiscoresItem {
 }
 
 export interface GroupHiscoresEntry {
-  membership: MembershipWithPlayer;
+  player: Player;
   data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | VirtualHiscoresItem;
 }
 

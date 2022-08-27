@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PlayerType, PlayerBuild, Period, Metric, Country } from '../../../../utils';
-import prisma, { Record, PrismaTypes, modifyRecords } from '../../../../prisma';
+import prisma, { PrismaTypes, modifyRecords } from '../../../../prisma';
+import { RecordLeaderboardEntry } from '../record.types';
 
 const MAX_RESULTS = 20;
 
@@ -14,7 +15,9 @@ const inputSchema = z.object({
 
 type FindRecordLeaderboardsParams = z.infer<typeof inputSchema>;
 
-async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Promise<Record[]> {
+async function findRecordLeaderboards(
+  payload: FindRecordLeaderboardsParams
+): Promise<RecordLeaderboardEntry[]> {
   const params = inputSchema.parse(payload);
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
@@ -41,7 +44,7 @@ async function findRecordLeaderboards(payload: FindRecordLeaderboardsParams): Pr
     })
     .then(modifyRecords);
 
-  return records;
+  return records as RecordLeaderboardEntry[];
 }
 
 export { findRecordLeaderboards };

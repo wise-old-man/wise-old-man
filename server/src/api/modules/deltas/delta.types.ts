@@ -55,11 +55,10 @@ export interface PlayerDeltasMap {
   };
 }
 
-export interface GroupDelta {
+export interface DeltaLeaderboardEntry {
   player: Player;
+  playerId: number;
   startDate: Date;
   endDate: Date;
-  data: MeasuredDeltaProgress;
+  gained: number;
 }
-
-export { Delta } from '../../../prisma';

@@ -59,7 +59,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
   return memberships
     .filter(({ playerId }) => valueMap[playerId] && valueMap[playerId].rank > 0)
     .map(m => ({
-      membership: { ...m, player: modifyPlayer(m.player) },
+      player: modifyPlayer(m.player),
       data: valueMap[m.playerId]
     }))
     .sort((a, b) => b.data[measure] - a.data[measure]);

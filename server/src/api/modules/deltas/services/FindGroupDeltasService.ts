@@ -5,7 +5,7 @@ import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculateMetricDelta } from '../delta.utils';
-import { GroupDelta } from '../delta.types';
+import { DeltaLeaderboardEntry } from '../delta.types';
 
 const inputSchema = z
   .object({
@@ -27,7 +27,7 @@ const inputSchema = z
 
 type FindGroupDeltasParams = z.infer<typeof inputSchema>;
 
-async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<GroupDelta[]> {
+async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaLeaderboardEntry[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
@@ -67,13 +67,14 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<GroupDel
 
       return {
         player,
+        playerId: Number(playerId),
         startDate: startSnapshot.createdAt as Date,
         endDate: endSnapshot.createdAt as Date,
-        data: calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot)
+        gained: calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot).gained
       };
     })
     .filter(r => r !== null)
-    .sort((a, b) => b.data.gained - a.data.gained)
+    .sort((a, b) => b.gained - a.gained)
     .slice(params.offset, params.offset + params.limit);
 
   return results;

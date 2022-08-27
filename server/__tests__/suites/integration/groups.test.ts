@@ -1168,10 +1168,7 @@ describe('Group API', () => {
       expect(skillHiscoresResponse.body.length).toBe(3);
 
       expect(skillHiscoresResponse.body[0]).toMatchObject({
-        membership: {
-          groupId: globalData.testGroupOneLeader.id,
-          player: { username: 'alexsuperfly' }
-        },
+        player: { username: 'alexsuperfly' },
         data: {
           experience: 200_000_000,
           level: 99
@@ -1179,10 +1176,7 @@ describe('Group API', () => {
       });
 
       expect(skillHiscoresResponse.body[1]).toMatchObject({
-        membership: {
-          groupId: globalData.testGroupOneLeader.id,
-          player: { username: 'psikoi' }
-        },
+        player: { username: 'psikoi' },
         data: {
           experience: 19_288_604,
           level: 99
@@ -1190,10 +1184,7 @@ describe('Group API', () => {
       });
 
       expect(skillHiscoresResponse.body[2]).toMatchObject({
-        membership: {
-          groupId: globalData.testGroupOneLeader.id,
-          player: { username: 'zezima' }
-        },
+        player: { username: 'zezima' },
         data: {
           experience: 5_500_000,
           level: 90
@@ -1228,10 +1219,7 @@ describe('Group API', () => {
       expect(response.body.length).toBe(1);
 
       expect(response.body[0]).toMatchObject({
-        membership: {
-          groupId: globalData.testGroupOneLeader.id,
-          player: { username: 'zezima' }
-        },
+        player: { username: 'zezima' },
         data: {
           kills: 100
         }

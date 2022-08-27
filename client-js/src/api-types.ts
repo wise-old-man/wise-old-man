@@ -137,8 +137,6 @@ export interface RecordLeaderboardFilter extends BasePlayerFilter {
   period: Period | string;
 }
 
-export type GetRecordLeaderboardResponse = Array<Record & { player: Player }>;
-
 /**
  * Player Client Types
  */
@@ -177,10 +175,3 @@ export interface DeltaLeaderboardFilter extends BasePlayerFilter {
   metric: Metric;
   period: Period | string;
 }
-
-export type GetDeltaLeaderboardResponse = Array<{
-  startDate: Date;
-  endDate: Date;
-  gained: number;
-  player: Player;
-}>;

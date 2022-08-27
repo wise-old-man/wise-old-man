@@ -259,7 +259,7 @@ describe('Deltas API', () => {
     });
   });
 
-  describe('2 - Fetch Group Deltas', () => {
+  describe('3 - Fetch Group Deltas', () => {
     it('should not fetch (invalid period)', async () => {
       const trackResponse = await api.post(`/players/hydrox6`);
       expect(trackResponse.status).toBe(201);
@@ -317,12 +317,12 @@ describe('Deltas API', () => {
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
-        data: { start: 6_177_978, end: 6_227_978, gained: 50_000 }
+        gained: 50_000
       });
 
       expect(directResponse[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        data: { start: 6227978, end: 6227978, gained: 0 }
+        gained: 0
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
@@ -338,12 +338,12 @@ describe('Deltas API', () => {
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
-        data: { start: 6_177_978, end: 6227978, gained: 50_000 }
+        gained: 50_000
       });
 
       expect(directResponse[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        data: { start: 6227978, end: 6227978, gained: 0 }
+        gained: 0
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
@@ -380,12 +380,12 @@ describe('Deltas API', () => {
 
       expect(recentGains[0]).toMatchObject({
         player: { username: 'psikoi' },
-        data: { start: 6_177_978, end: 6227978, gained: 50_000 }
+        gained: 50_000
       });
 
       expect(recentGains[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        data: { start: 6227978, end: 6227978, gained: 0 }
+        gained: 0
       });
 
       expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
@@ -436,58 +436,8 @@ describe('Deltas API', () => {
 
       expect(result[0]).toMatchObject({
         player: { username: 'hydrox6' },
-        data: { start: 6227978, end: 6227978, gained: 0 }
+        gained: 0
       });
-    });
-  });
-
-  describe('3 - Fetch Group Monthly Top', () => {
-    it('should not fetch group monthly top (group not found)', async () => {
-      const response = await api.get('/groups/10000/monthly-top');
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Group not found.');
-    });
-
-    it('should fetch group monthly top', async () => {
-      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
-        { metric: Metric.OVERALL, value: 500_000_000 },
-        { metric: Metric.SMITHING, value: 7_000_000 },
-        { metric: Metric.LAST_MAN_STANDING, value: 450 },
-        { metric: Metric.NEX, value: 54 },
-        { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
-      ]);
-
-      // Setup mocks for HCIM for the second test player later on (hydrox6)
-      registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.ULTIMATE]: { statusCode: 404 }
-      });
-
-      const trackResponse = await api.post(`/players/hydrox6`);
-      expect(trackResponse.status).toBe(200);
-
-      const response = await api.get(`/groups/${globalData.testGroupId}/monthly-top`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject({
-        player: { username: 'hydrox6' },
-        data: { end: 500000000, gained: 199807885, start: 300192115 }
-      });
-    });
-
-    it('should fetch group monthly top (empty group)', async () => {
-      const emptyGroup = await prisma.group.create({
-        data: { name: 'Empty Group', verificationHash: '' }
-      });
-
-      const response = await api.get(`/groups/${emptyGroup.id}/monthly-top`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeNull();
     });
   });
 
