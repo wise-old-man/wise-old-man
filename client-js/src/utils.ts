@@ -74,6 +74,30 @@ export async function sendPostRequest<T>(path: string, body?: unknown) {
     });
 }
 
+export async function sendPutRequest<T>(path: string, body?: unknown) {
+  const requestURL = `${config.apiBaseUrl}${path}`;
+
+  return axios
+    .put(requestURL, body || {})
+    .then(response => transformDates(response.data) as T)
+    .catch(e => {
+      if (axios.isAxiosError(e)) handleError(requestURL, e);
+      throw e;
+    });
+}
+
+export async function sendDeleteRequest<T>(path: string, body?: unknown) {
+  const requestURL = `${config.apiBaseUrl}${path}`;
+
+  return axios
+    .delete(requestURL, { data: body })
+    .then(response => transformDates(response.data) as T)
+    .catch(e => {
+      if (axios.isAxiosError(e)) handleError(requestURL, e);
+      throw e;
+    });
+}
+
 export async function sendGetRequest<T>(path: string, params?: unknown) {
   const requestURL = `${config.apiBaseUrl}${path}`;
 

@@ -1,13 +1,13 @@
 import type {
   GetNameChangeDetailsResponse,
-  NameChangesFilter,
+  NameChangesSearchFilter,
   SearchNameChangesResponse,
   SubmitNameChangeResponse
 } from '../api-types';
 import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
 
 export default class NameChangesClient {
-  searchNameChanges(filter: NameChangesFilter, pagination?: PaginationOptions) {
+  searchNameChanges(filter: NameChangesSearchFilter, pagination?: PaginationOptions) {
     return sendGetRequest<SearchNameChangesResponse>('/names', { ...filter, ...pagination });
   }
 

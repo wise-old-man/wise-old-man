@@ -17,8 +17,20 @@ import {
   PlayerType,
   EfficiencyAlgorithmType,
   NameChangeStatus,
-  NameChangeDetails
+  NameChangeDetails,
+  CompetitionListItem,
+  CompetitionStatus,
+  CompetitionType,
+  CompetitionWithParticipations,
+  Team,
+  CompetitionDetails,
+  FetchTop5ProgressResult
 } from '../../server/src/utils';
+
+export type GenericCountMessageResponse = {
+  count: number;
+  message: string;
+};
 
 export type TimeRangeFilter =
   | {
@@ -36,10 +48,61 @@ interface BasePlayerFilter {
 }
 
 /**
+ * Competitions Client Types
+ */
+
+export interface CompetitionsFilter {
+  title?: string;
+  metric?: Metric;
+  type?: CompetitionType;
+  status?: CompetitionStatus;
+}
+
+export type CreateCompetitionPayload = {
+  title: string;
+  metric: Metric;
+  startsAt: Date;
+  endsAt: Date;
+  groupId?: number;
+  groupVerificationCode?: string;
+} & (
+  | {
+      participants: string[];
+    }
+  | {
+      teams: Team[];
+    }
+);
+
+export type EditCompetitionPayload = {
+  title?: string;
+  metric?: Metric;
+  startsAt?: Date;
+  endsAt?: Date;
+  participants?: string[];
+  teams?: Team[];
+};
+
+export type SearchCompetitionsResponse = CompetitionListItem[];
+
+export type GetCompetitionDetailsResponse = CompetitionDetails;
+
+export type GetCompetitionTopHistoryResponse = FetchTop5ProgressResult;
+
+export type CreateCompetitionResponse = {
+  competition: CompetitionWithParticipations;
+  verificationCode: string;
+};
+
+export type EditCompetitionResponse = CompetitionWithParticipations;
+
+export type DeleteCompetitionResponse = { message: string };
+
+/**
  * Name Changes Client Types
  */
 
-export type NameChangesFilter = {
+export type NameChangesSearchFilter = {
   username?: string;
   status?: NameChangeStatus;
 };
