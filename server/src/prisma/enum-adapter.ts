@@ -125,6 +125,8 @@ export const Boss = {
   THEATRE_OF_BLOOD: 'theatre_of_blood',
   THEATRE_OF_BLOOD_HARD_MODE: 'theatre_of_blood_hard_mode',
   THERMONUCLEAR_SMOKE_DEVIL: 'thermonuclear_smoke_devil',
+  TOMBS_OF_AMASCUT: 'tombs_of_amascut',
+  TOMBS_OF_AMASCUT_EXPERT: 'tombs_of_amascut_expert',
   TZKAL_ZUK: 'tzkal_zuk',
   TZTOK_JAD: 'tztok_jad',
   VENENATIS: 'venenatis',
