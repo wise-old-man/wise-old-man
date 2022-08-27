@@ -1,14 +1,7 @@
 import {
-  AchievementProgress,
-  ExtendedAchievement,
-  FormattedSnapshot,
-  MembershipWithGroup,
   Record,
-  NameChange,
-  ParticipationWithCompetition,
   PlayerDeltasArray,
   PlayerDeltasMap,
-  PlayerDetails,
   Country,
   Metric,
   Period,
@@ -17,20 +10,22 @@ import {
   PlayerType,
   EfficiencyAlgorithmType,
   NameChangeStatus,
-  NameChangeDetails,
-  CompetitionListItem,
   CompetitionStatus,
   CompetitionType,
   CompetitionWithParticipations,
   Team,
-  CompetitionDetails,
-  FetchTop5ProgressResult
+  GroupRole,
+  GroupWithMemberships
 } from '../../server/src/utils';
 
-export type GenericCountMessageResponse = {
+export interface GenericCountMessageResponse {
   count: number;
   message: string;
-};
+}
+
+export interface GenericMessageResponse {
+  message: string;
+}
 
 export type TimeRangeFilter =
   | {
@@ -48,10 +43,46 @@ interface BasePlayerFilter {
 }
 
 /**
+ * Groups Client Types
+ */
+
+export interface GroupMemberFragment {
+  username: string;
+  role?: GroupRole;
+}
+
+export interface CreateGroupPayload {
+  name: string;
+  clanChat?: string;
+  homeworld?: number;
+  description?: string;
+  members: Array<GroupMemberFragment>;
+}
+
+export type EditGroupPayload = Partial<CreateGroupPayload>;
+
+export interface CreateGroupResponse {
+  group: GroupWithMemberships;
+  verificationCode: string;
+}
+
+export interface ChangeMemberRolePayload {
+  username: string;
+  role: GroupRole;
+}
+
+export type GetGroupGainsFilter = { metric: Metric } & TimeRangeFilter;
+
+export interface GroupRecordsFilter {
+  metric: Metric;
+  period: Period;
+}
+
+/**
  * Competitions Client Types
  */
 
-export interface CompetitionsFilter {
+export interface CompetitionsSearchFilter {
   title?: string;
   metric?: Metric;
   type?: CompetitionType;
@@ -83,20 +114,10 @@ export type EditCompetitionPayload = {
   teams?: Team[];
 };
 
-export type SearchCompetitionsResponse = CompetitionListItem[];
-
-export type GetCompetitionDetailsResponse = CompetitionDetails;
-
-export type GetCompetitionTopHistoryResponse = FetchTop5ProgressResult;
-
 export type CreateCompetitionResponse = {
   competition: CompetitionWithParticipations;
   verificationCode: string;
 };
-
-export type EditCompetitionResponse = CompetitionWithParticipations;
-
-export type DeleteCompetitionResponse = { message: string };
 
 /**
  * Name Changes Client Types
@@ -106,12 +127,6 @@ export type NameChangesSearchFilter = {
   username?: string;
   status?: NameChangeStatus;
 };
-
-export type SearchNameChangesResponse = NameChange[];
-
-export type SubmitNameChangeResponse = NameChange;
-
-export type GetNameChangeDetailsResponse = NameChangeDetails;
 
 /**
  * Record Client Types
@@ -138,31 +153,6 @@ export interface AssertPlayerTypeResponse {
   changed: boolean;
 }
 
-export interface ImportPlayerResponse {
-  count: number;
-  message: string;
-}
-
-export type SearchPlayersResponse = Player[];
-
-export type UpdatePlayerResponse = PlayerDetails;
-
-export type GetPlayerDetailsResponse = PlayerDetails;
-
-export type GetPlayerAchievementsResponse = ExtendedAchievement[];
-
-export type GetPlayerAchievementProgressResponse = AchievementProgress[];
-
-export type GetPlayerCompetitionsResponse = ParticipationWithCompetition[];
-
-export type GetPlayerGroupsResponse = MembershipWithGroup[];
-
-export type GetPlayerRecordsResponse = Record[];
-
-export type GetPlayerNamesResponse = NameChange[];
-
-export type GetPlayerSnapshotsResponse = FormattedSnapshot[];
-
 export type GetPlayerGainsResponse<T extends PlayerDeltasArray | PlayerDeltasMap> = {
   startsAt: Date;
   endsAt: Date;
@@ -178,8 +168,6 @@ export type EfficiencyAlgorithmTypeUnion = `${EfficiencyAlgorithmType}`;
 export interface EfficiencyLeaderboardsFilter extends BasePlayerFilter {
   metric: typeof Metric.EHP | typeof Metric.EHB | 'ehp+ehb';
 }
-
-export type GetEfficiencyLeaderboardsResponse = Player[];
 
 /**
  * Delta Client Types

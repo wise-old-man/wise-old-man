@@ -38,7 +38,7 @@ export interface Team {
   participants: string[];
 }
 
-export type FetchTop5ProgressResult = Array<{
+export type Top5ProgressResult = Array<{
   player: Player;
   history: Array<{
     value: number;

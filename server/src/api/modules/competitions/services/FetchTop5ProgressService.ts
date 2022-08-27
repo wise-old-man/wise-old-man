@@ -3,7 +3,7 @@ import { Snapshot } from '../../../../prisma';
 import { getMetricValueKey, Metric } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import { FetchTop5ProgressResult } from '../competition.types';
+import { Top5ProgressResult } from '../competition.types';
 import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
 const inputSchema = z
@@ -15,9 +15,7 @@ const inputSchema = z
 
 type FetchTop5ProgressParams = z.infer<typeof inputSchema>;
 
-async function fetchCompetitionTop5Progress(
-  payload: FetchTop5ProgressParams
-): Promise<FetchTop5ProgressResult> {
+async function fetchCompetitionTop5Progress(payload: FetchTop5ProgressParams): Promise<Top5ProgressResult> {
   const params = inputSchema.parse(payload);
 
   const competitionDetails = await fetchCompetitionDetails(params);

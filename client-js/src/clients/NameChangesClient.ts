@@ -1,21 +1,17 @@
-import type {
-  GetNameChangeDetailsResponse,
-  NameChangesSearchFilter,
-  SearchNameChangesResponse,
-  SubmitNameChangeResponse
-} from '../api-types';
+import type { NameChangesSearchFilter } from '../api-types';
+import { NameChange, NameChangeDetails } from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
 
 export default class NameChangesClient {
   searchNameChanges(filter: NameChangesSearchFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<SearchNameChangesResponse>('/names', { ...filter, ...pagination });
+    return sendGetRequest<NameChange[]>('/names', { ...filter, ...pagination });
   }
 
   submitNameChange(oldName: string, newName: string) {
-    return sendPostRequest<SubmitNameChangeResponse>('/names', { oldName, newName });
+    return sendPostRequest<NameChange>('/names', { oldName, newName });
   }
 
   getNameChangeDetails(id: number) {
-    return sendGetRequest<GetNameChangeDetailsResponse>(`/names/${id}`);
+    return sendGetRequest<NameChangeDetails>(`/names/${id}`);
   }
 }

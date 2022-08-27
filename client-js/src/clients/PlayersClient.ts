@@ -1,34 +1,36 @@
 import type {
   TimeRangeFilter,
   PlayerRecordsFilter,
-  SearchPlayersResponse,
-  UpdatePlayerResponse,
   AssertPlayerTypeResponse,
-  ImportPlayerResponse,
-  GetPlayerDetailsResponse,
-  GetPlayerAchievementsResponse,
-  GetPlayerAchievementProgressResponse,
-  GetPlayerCompetitionsResponse,
-  GetPlayerGroupsResponse,
   GetPlayerGainsResponse,
-  GetPlayerRecordsResponse,
-  GetPlayerSnapshotsResponse,
-  GetPlayerNamesResponse
+  GenericCountMessageResponse
 } from '../api-types';
-
-import { PlayerResolvable, PlayerDeltasMap, PlayerDeltasArray } from '../../../server/src/utils';
+import {
+  PlayerResolvable,
+  PlayerDeltasMap,
+  PlayerDeltasArray,
+  Record,
+  Player,
+  PlayerDetails,
+  NameChange,
+  AchievementProgress,
+  ExtendedAchievement,
+  ParticipationWithCompetition,
+  FormattedSnapshot,
+  MembershipWithGroup
+} from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
 
 export default class PlayersClient {
   searchPlayers(partialUsername: string, pagination?: PaginationOptions) {
-    return sendGetRequest<SearchPlayersResponse>('/players/search', {
+    return sendGetRequest<Player[]>('/players/search', {
       username: partialUsername,
       ...pagination
     });
   }
 
   updatePlayer(player: PlayerResolvable) {
-    return sendPostRequest<UpdatePlayerResponse>(getPlayerURL(player));
+    return sendPostRequest<PlayerDetails>(getPlayerURL(player));
   }
 
   assertPlayerType(player: PlayerResolvable) {
@@ -36,29 +38,27 @@ export default class PlayersClient {
   }
 
   importPlayer(player: PlayerResolvable) {
-    return sendPostRequest<ImportPlayerResponse>(`${getPlayerURL(player)}/import-history`);
+    return sendPostRequest<GenericCountMessageResponse>(`${getPlayerURL(player)}/import-history`);
   }
 
   getPlayerDetails(player: PlayerResolvable) {
-    return sendGetRequest<GetPlayerDetailsResponse>(getPlayerURL(player));
+    return sendGetRequest<PlayerDetails>(getPlayerURL(player));
   }
 
   getPlayerAchievements(player: PlayerResolvable) {
-    return sendGetRequest<GetPlayerAchievementsResponse>(`${getPlayerURL(player)}/achievements`);
+    return sendGetRequest<ExtendedAchievement[]>(`${getPlayerURL(player)}/achievements`);
   }
 
   getPlayerAchievementProgress(player: PlayerResolvable) {
-    return sendGetRequest<GetPlayerAchievementProgressResponse>(
-      `${getPlayerURL(player)}/achievements/progress`
-    );
+    return sendGetRequest<AchievementProgress[]>(`${getPlayerURL(player)}/achievements/progress`);
   }
 
   getPlayerCompetitions(player: PlayerResolvable, pagination?: PaginationOptions) {
-    return sendGetRequest<GetPlayerCompetitionsResponse>(`${getPlayerURL(player)}/competitions`, pagination);
+    return sendGetRequest<ParticipationWithCompetition[]>(`${getPlayerURL(player)}/competitions`, pagination);
   }
 
   getPlayerGroups(player: PlayerResolvable, pagination?: PaginationOptions) {
-    return sendGetRequest<GetPlayerGroupsResponse>(`${getPlayerURL(player)}/groups`, pagination);
+    return sendGetRequest<MembershipWithGroup[]>(`${getPlayerURL(player)}/groups`, pagination);
   }
 
   getPlayerGains(player: PlayerResolvable, options: TimeRangeFilter) {
@@ -73,15 +73,15 @@ export default class PlayersClient {
   }
 
   getPlayerRecords(player: PlayerResolvable, options?: PlayerRecordsFilter) {
-    return sendGetRequest<GetPlayerRecordsResponse>(`${getPlayerURL(player)}/records`, options);
+    return sendGetRequest<Record[]>(`${getPlayerURL(player)}/records`, options);
   }
 
   getPlayerSnapshots(player: PlayerResolvable, options?: TimeRangeFilter) {
-    return sendGetRequest<GetPlayerSnapshotsResponse>(`${getPlayerURL(player)}/snapshots`, options);
+    return sendGetRequest<FormattedSnapshot[]>(`${getPlayerURL(player)}/snapshots`, options);
   }
 
   getPlayerNames(player: PlayerResolvable) {
-    return sendGetRequest<GetPlayerNamesResponse>(`${getPlayerURL(player)}/names`);
+    return sendGetRequest<NameChange[]>(`${getPlayerURL(player)}/names`);
   }
 }
 

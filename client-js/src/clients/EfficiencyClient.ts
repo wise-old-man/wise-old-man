@@ -1,14 +1,10 @@
-import type {
-  EfficiencyLeaderboardsFilter,
-  EfficiencyAlgorithmTypeUnion,
-  GetEfficiencyLeaderboardsResponse
-} from '../api-types';
-import { Metric, SkillMetaConfig, BossMetaConfig } from '../../../server/src/utils';
+import type { EfficiencyLeaderboardsFilter, EfficiencyAlgorithmTypeUnion } from '../api-types';
+import { Metric, SkillMetaConfig, BossMetaConfig, Player } from '../../../server/src/utils';
 import { PaginationOptions, sendGetRequest } from '../utils';
 
 export default class EfficiencyClient {
   getEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<GetEfficiencyLeaderboardsResponse>('/efficiency/leaderboard', {
+    return sendGetRequest<Player[]>('/efficiency/leaderboard', {
       ...filter,
       ...pagination
     });

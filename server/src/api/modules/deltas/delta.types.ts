@@ -1,4 +1,4 @@
-import { Activity, Boss, Skill, Virtual } from '../../../utils';
+import { Activity, Boss, Player, Skill, Virtual } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;
@@ -53,6 +53,13 @@ export interface PlayerDeltasMap {
   virtuals: {
     [virtual in Virtual]?: VirtualDelta;
   };
+}
+
+export interface GroupDelta {
+  player: Player;
+  startDate: Date;
+  endDate: Date;
+  data: MeasuredDeltaProgress;
 }
 
 export { Delta } from '../../../prisma';

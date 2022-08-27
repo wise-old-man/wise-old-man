@@ -691,7 +691,7 @@ describe('Group API', () => {
 
   describe('5 - Change Role', () => {
     it('should not change role (group not found)', async () => {
-      const response = await api.put(`/groups/123456789/change-role`).send({
+      const response = await api.put(`/groups/123456789/role`).send({
         verificationCode: 'xxx-xxx-xxx',
         username: 'elvard',
         role: 'ranger'
@@ -702,7 +702,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (invalid verification code)', async () => {
-      const response = await api.put(`/groups/123456789/change-role`).send({
+      const response = await api.put(`/groups/123456789/role`).send({
         username: 'elvard',
         role: 'ranger'
       });
@@ -712,7 +712,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (incorrect verification code)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: 'xxx-xxx-xxx',
         username: 'elvard',
         role: 'ranger'
@@ -723,7 +723,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (undefined username)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode
       });
 
@@ -733,7 +733,7 @@ describe('Group API', () => {
 
     it('should not change role (undefined role)', async () => {
       const response = await api
-        .put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`)
+        .put(`/groups/${globalData.testGroupNoLeaders.id}/role`)
         .send({ username: 'idk', verificationCode: globalData.testGroupNoLeaders.verificationCode });
 
       expect(response.status).toBe(400);
@@ -741,7 +741,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (empty role)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         username: 'idk',
         role: '',
         verificationCode: globalData.testGroupNoLeaders.verificationCode
@@ -752,7 +752,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (invalid role)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'zezima___',
         role: 'idk'
@@ -763,7 +763,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (not a member)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'usbc',
         role: 'beast'
@@ -774,7 +774,7 @@ describe('Group API', () => {
     });
 
     it('should not change role (already has role)', async () => {
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'sethmare',
         role: 'magician'
@@ -788,7 +788,7 @@ describe('Group API', () => {
       const before = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(before.status).toBe(200);
 
-      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/change-role`).send({
+      const response = await api.put(`/groups/${globalData.testGroupNoLeaders.id}/role`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
         username: 'sethmare',
         role: 'dragon'

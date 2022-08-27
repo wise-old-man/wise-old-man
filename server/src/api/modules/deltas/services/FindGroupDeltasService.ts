@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { Metric, parsePeriodExpression } from '../../../../utils';
-import prisma, { Snapshot, Player, modifyPlayer } from '../../../../prisma';
+import prisma, { Snapshot, modifyPlayer } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import { MeasuredDeltaProgress } from '../delta.types';
 import { calculateMetricDelta } from '../delta.utils';
+import { GroupDelta } from '../delta.types';
 
 const inputSchema = z
   .object({
@@ -27,14 +27,7 @@ const inputSchema = z
 
 type FindGroupDeltasParams = z.infer<typeof inputSchema>;
 
-type FindGroupDeltasResult = Array<{
-  player: Player;
-  startDate: Date;
-  endDate: Date;
-  data: MeasuredDeltaProgress;
-}>;
-
-async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<FindGroupDeltasResult> {
+async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<GroupDelta[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships

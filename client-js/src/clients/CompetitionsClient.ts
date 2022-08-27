@@ -1,15 +1,18 @@
-import { Metric, Team } from '../../../server/src/utils';
+import {
+  CompetitionDetails,
+  CompetitionListItem,
+  CompetitionWithParticipations,
+  Metric,
+  Team,
+  Top5ProgressResult
+} from '../../../server/src/utils';
 import type {
-  CompetitionsFilter,
-  SearchCompetitionsResponse,
+  CompetitionsSearchFilter,
   EditCompetitionPayload,
-  EditCompetitionResponse,
   CreateCompetitionPayload,
   CreateCompetitionResponse,
-  GetCompetitionDetailsResponse,
-  GetCompetitionTopHistoryResponse,
   GenericCountMessageResponse,
-  DeleteCompetitionResponse
+  GenericMessageResponse
 } from '../api-types';
 import {
   PaginationOptions,
@@ -20,16 +23,16 @@ import {
 } from '../utils';
 
 export default class CompetitionsClient {
-  searchCompetitions(filter: CompetitionsFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<SearchCompetitionsResponse>('/competitions', { ...filter, ...pagination });
+  searchCompetitions(filter: CompetitionsSearchFilter, pagination?: PaginationOptions) {
+    return sendGetRequest<CompetitionListItem[]>('/competitions', { ...filter, ...pagination });
   }
 
   getCompetitionDetails(id: number, previewMetric?: Metric) {
-    return sendGetRequest<GetCompetitionDetailsResponse>(`/competitions/${id}`, { metric: previewMetric });
+    return sendGetRequest<CompetitionDetails>(`/competitions/${id}`, { metric: previewMetric });
   }
 
   getCompetitionTopHistory(id: number, previewMetric?: Metric) {
-    return sendGetRequest<GetCompetitionTopHistoryResponse>(`/competitions/${id}/top-history`, {
+    return sendGetRequest<Top5ProgressResult>(`/competitions/${id}/top-history`, {
       metric: previewMetric
     });
   }
@@ -39,14 +42,14 @@ export default class CompetitionsClient {
   }
 
   editCompetition(id: number, payload: EditCompetitionPayload, verificationCode: string) {
-    return sendPutRequest<EditCompetitionResponse>(`/competitions/${id}`, {
+    return sendPutRequest<CompetitionWithParticipations>(`/competitions/${id}`, {
       ...payload,
       verificationCode
     });
   }
 
   deleteCompetition(id: number, verificationCode: string) {
-    return sendDeleteRequest<DeleteCompetitionResponse>(`/competitions/${id}`, { verificationCode });
+    return sendDeleteRequest<GenericMessageResponse>(`/competitions/${id}`, { verificationCode });
   }
 
   addParticipants(id: number, participants: string[], verificationCode: string) {

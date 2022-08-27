@@ -1,6 +1,5 @@
 import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
-import { Period, Metric } from '../../../utils';
 import * as adminGuard from '../../guards/admin.guard';
 import * as verificationGuard from '../../guards/verification.guard';
 import * as nameChangeServices from '../name-changes/name-change.services';
@@ -110,7 +109,7 @@ async function verifyGroup(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
-// PUT /groups/:id/change-role
+// PUT /groups/:id/role
 async function changeRole(req: Request): Promise<ControllerResponse> {
   const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
@@ -200,19 +199,6 @@ async function competitions(req: Request): Promise<ControllerResponse> {
   });
 
   return { statusCode: 200, response: results };
-}
-
-// GET /groups/:id/monthly-top
-async function monthlyTop(req: Request): Promise<ControllerResponse> {
-  // Get the member with the most monthly overall gains
-  const topPlayers = await deltaServices.findGroupDeltas({
-    id: getNumber(req.params.id),
-    limit: 1,
-    metric: Metric.OVERALL,
-    period: Period.MONTH
-  });
-
-  return { statusCode: 200, response: topPlayers[0] || null };
 }
 
 // GET /groups/:id/gained
@@ -314,7 +300,6 @@ export {
   changeRole,
   updateAll,
   details,
-  monthlyTop,
   gained,
   achievements,
   records,
