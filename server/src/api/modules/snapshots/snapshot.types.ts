@@ -1,10 +1,7 @@
 import { Skill, Boss, Activity, Virtual } from '../../../utils';
-import { PrismaTypes } from '../../../prisma';
+import { Snapshot } from '../../../prisma';
 
-export type SnapshotFragment = PrismaTypes.XOR<
-  PrismaTypes.SnapshotCreateInput,
-  PrismaTypes.SnapshotUncheckedCreateInput
-> & { playerId: number };
+export type SnapshotFragment = Omit<Snapshot, 'id'>;
 
 export enum SnapshotDataSource {
   HISCORES,
@@ -58,3 +55,5 @@ export interface FormattedSnapshot {
     };
   };
 }
+
+export { Snapshot };

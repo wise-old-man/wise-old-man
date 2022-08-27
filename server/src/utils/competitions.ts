@@ -1,4 +1,4 @@
-import { CompetitionTypeEnum as CompetitionType } from '../prisma/enum-adapter';
+import { CompetitionType } from '../prisma/enum-adapter';
 
 enum CompetitionStatus {
   UPCOMING = 'upcoming',
@@ -6,12 +6,20 @@ enum CompetitionStatus {
   FINISHED = 'finished'
 }
 
-const CompetitionTypeProps = {
+type CompetitionStatusPropsMap = {
+  [status in CompetitionStatus]: { name: string };
+};
+
+type CompetitionTypePropsMap = {
+  [type in CompetitionType]: { name: string };
+};
+
+const CompetitionTypeProps: CompetitionTypePropsMap = {
   [CompetitionType.CLASSIC]: { name: 'Classic' },
   [CompetitionType.TEAM]: { name: 'Team' }
 };
 
-const CompetitionStatusProps = {
+const CompetitionStatusProps: CompetitionStatusPropsMap = {
   [CompetitionStatus.UPCOMING]: { name: 'Upcoming' },
   [CompetitionStatus.ONGOING]: { name: 'Ongoing' },
   [CompetitionStatus.FINISHED]: { name: 'Finished' }

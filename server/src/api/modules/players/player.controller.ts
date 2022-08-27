@@ -44,12 +44,15 @@ async function assertType(req: Request): Promise<ControllerResponse> {
   });
 
   // (Forcefully) Assert the player's account type
-  const [, updatedPlayer] = await playerServices.assertPlayerType(player, true);
+  const [, updatedPlayer, changed] = await playerServices.assertPlayerType(player, true);
 
-  return { statusCode: 200, response: updatedPlayer };
+  return {
+    statusCode: 200,
+    response: { player: updatedPlayer, changed }
+  };
 }
 
-// POST /players/:username/import
+// POST /players/:username/import-history
 async function importPlayer(req: Request): Promise<ControllerResponse> {
   // Find the player using the username param
   const player = await playerUtils.resolvePlayer({

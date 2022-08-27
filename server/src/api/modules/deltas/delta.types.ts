@@ -1,4 +1,4 @@
-import { Activity, Boss, Skill, Virtual } from '../../../utils';
+import { Activity, Boss, Player, Skill, Virtual } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;
@@ -53,4 +53,12 @@ export interface PlayerDeltasMap {
   virtuals: {
     [virtual in Virtual]?: VirtualDelta;
   };
+}
+
+export interface DeltaLeaderboardEntry {
+  player: Player;
+  playerId: number;
+  startDate: Date;
+  endDate: Date;
+  gained: number;
 }

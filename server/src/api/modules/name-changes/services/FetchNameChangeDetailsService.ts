@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
-import { FormattedSnapshot } from '../../snapshots/snapshot.types';
+import { NameChangeDetails } from '../name-change.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -14,23 +14,7 @@ const inputSchema = z.object({
 
 type FetchetailsParams = z.infer<typeof inputSchema>;
 
-type FetcDetailsResult = {
-  nameChange: NameChange;
-  data?: {
-    isNewOnHiscores: boolean;
-    isOldOnHiscores: boolean;
-    isNewTracked: boolean;
-    hasNegativeGains: boolean;
-    timeDiff: number;
-    hoursDiff: number;
-    ehpDiff: number;
-    ehbDiff: number;
-    oldStats: FormattedSnapshot;
-    newStats: FormattedSnapshot;
-  };
-};
-
-async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<FetcDetailsResult> {
+async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameChangeDetails> {
   const params = inputSchema.parse(payload);
 
   const nameChange = await prisma.nameChange.findFirst({ where: { id: params.id } });

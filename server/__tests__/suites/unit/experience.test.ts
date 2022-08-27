@@ -1,22 +1,24 @@
 import { Snapshot } from '../../../src/prisma';
 import {
-  SKILLS,
-  getMetricValueKey,
-  getCombatLevelFromExp,
-  getLevel,
-  getExpForLevel,
-  SKILL_EXP_AT_99,
-  MAX_SKILL_EXP,
-  getCombatLevel,
   isF2p,
   isLvl3,
-  is1Def,
   is10HP,
+  is1Def,
   isZerker,
   get200msCount,
   getMinimumExp,
   getCappedExp,
-  getTotalLevel
+  getTotalLevel,
+  getCombatLevelFromSnapshot
+} from '../../../src/api/modules/snapshots/snapshot.utils';
+import {
+  SKILLS,
+  getMetricValueKey,
+  getLevel,
+  getExpForLevel,
+  SKILL_EXP_AT_99,
+  MAX_SKILL_EXP,
+  getCombatLevel
 } from '../../../src/utils';
 
 describe('Util - Experience', () => {
@@ -34,15 +36,15 @@ describe('Util - Experience', () => {
   });
 
   test('getCombatLevelFromExp', () => {
-    expect(getCombatLevelFromExp(1, 1, 1, 1, 1, 10, 1)).toBe(3);
-    expect(getCombatLevelFromExp(1, 1, 1, 1, 1, 10, 99)).toBe(15);
-    expect(getCombatLevelFromExp(99, 99, 99, 99, 99, 99, 99)).toBe(126);
-    expect(getCombatLevelFromExp(80, 87, 78, 80, 81, 85, 80)).toBe(105);
+    expect(getCombatLevel(1, 1, 1, 1, 1, 10, 1)).toBe(3);
+    expect(getCombatLevel(1, 1, 1, 1, 1, 10, 99)).toBe(15);
+    expect(getCombatLevel(99, 99, 99, 99, 99, 99, 99)).toBe(126);
+    expect(getCombatLevel(80, 87, 78, 80, 81, 85, 80)).toBe(105);
   });
 
   test('getCombatLevel', () => {
     expect(
-      getCombatLevel({
+      getCombatLevelFromSnapshot({
         hitpointsExperience: 1154,
         attackExperience: 0,
         strengthExperience: 0,
@@ -54,7 +56,7 @@ describe('Util - Experience', () => {
     ).toBe(3);
 
     expect(
-      getCombatLevel({
+      getCombatLevelFromSnapshot({
         hitpointsExperience: 1154,
         attackExperience: 0,
         strengthExperience: 0,
@@ -66,7 +68,7 @@ describe('Util - Experience', () => {
     ).toBe(15);
 
     expect(
-      getCombatLevel({
+      getCombatLevelFromSnapshot({
         hitpointsExperience: SKILL_EXP_AT_99,
         attackExperience: SKILL_EXP_AT_99,
         strengthExperience: SKILL_EXP_AT_99,

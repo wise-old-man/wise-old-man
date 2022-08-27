@@ -6,13 +6,13 @@ import {
   getMetricValueKey,
   Metric,
   MetricMeasure,
-  getTotalLevel,
   getLevel
 } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { GroupHiscoresEntry } from '../group.types';
+import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 const inputSchema = z
   .object({
@@ -59,7 +59,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
   return memberships
     .filter(({ playerId }) => valueMap[playerId] && valueMap[playerId].rank > 0)
     .map(m => ({
-      membership: { ...m, player: modifyPlayer(m.player) },
+      player: modifyPlayer(m.player),
       data: valueMap[m.playerId]
     }))
     .sort((a, b) => b.data[measure] - a.data[measure]);

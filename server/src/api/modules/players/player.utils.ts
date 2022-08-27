@@ -1,18 +1,9 @@
 import { isTesting } from '../../../env';
-import {
-  Period,
-  PeriodProps,
-  isF2p,
-  is10HP,
-  isZerker,
-  isLvl3,
-  is1Def,
-  PlayerBuild,
-  PlayerType
-} from '../../../utils';
+import { Period, PeriodProps, PlayerBuild, PlayerType } from '../../../utils';
 import { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
+import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../snapshots/snapshot.utils';
 import { findPlayer } from './services/FindPlayerService';
 import { PlayerResolvable } from './player.types';
 

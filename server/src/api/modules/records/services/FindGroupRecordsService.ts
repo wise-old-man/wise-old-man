@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { Period, Metric } from '../../../../utils';
-import prisma, { Record, modifyRecords } from '../../../../prisma';
+import prisma, { modifyRecords } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
+import { RecordLeaderboardEntry } from '../record.types';
 
 const inputSchema = z
   .object({
@@ -14,7 +15,7 @@ const inputSchema = z
 
 type FindGroupRecordsParams = z.infer<typeof inputSchema>;
 
-async function findGroupRecords(payload: FindGroupRecordsParams): Promise<Record[]> {
+async function findGroupRecords(payload: FindGroupRecordsParams): Promise<RecordLeaderboardEntry[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
@@ -48,7 +49,7 @@ async function findGroupRecords(payload: FindGroupRecordsParams): Promise<Record
     })
     .then(modifyRecords);
 
-  return records;
+  return records as RecordLeaderboardEntry[];
 }
 
 export { findGroupRecords };

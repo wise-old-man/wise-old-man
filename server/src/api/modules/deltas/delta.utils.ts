@@ -1,6 +1,5 @@
 import { Snapshot, Player } from '../../../prisma';
 import {
-  getTotalLevel,
   getLevel,
   SKILLS,
   BOSSES,
@@ -29,6 +28,7 @@ import {
   VirtualDelta
 } from './delta.types';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
+import { getTotalLevel } from '../snapshots/snapshot.utils';
 
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 

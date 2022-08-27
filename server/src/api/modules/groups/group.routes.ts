@@ -13,15 +13,14 @@ api.delete('/:id', setupController(controller.remove));
 
 api.put('/:id/reset-code', setupController(controller.resetGroupCode));
 api.put('/:id/verify', setupController(controller.verifyGroup));
-api.put('/:id/change-role', setupController(controller.changeRole));
 api.post('/:id/update-all', setupController(controller.updateAll));
 
+api.put('/:id/role', setupController(controller.changeRole));
 api.post('/:id/members', setupController(controller.addMembers));
 api.delete('/:id/members', setupController(controller.removeMembers));
 
 api.get('/:id/members', setupController(controller.listMembers));
 api.get('/:id/competitions', setupController(controller.competitions));
-api.get('/:id/monthly-top', setupController(controller.monthlyTop));
 api.get('/:id/gained', setupController(controller.gained));
 api.get('/:id/achievements', setupController(controller.achievements));
 api.get('/:id/records', setupController(controller.records));

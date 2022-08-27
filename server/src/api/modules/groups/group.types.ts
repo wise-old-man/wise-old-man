@@ -45,7 +45,7 @@ interface VirtualHiscoresItem {
 }
 
 export interface GroupHiscoresEntry {
-  membership: MembershipWithPlayer;
+  player: Player;
   data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | VirtualHiscoresItem;
 }
 
@@ -71,3 +71,5 @@ export interface TempleGroupData {
   members: string[];
   leaders: string[];
 }
+
+export { Group, Membership };

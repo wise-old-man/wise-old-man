@@ -1,5 +1,4 @@
 import { Snapshot, Player } from '../../../../prisma';
-import { getCombatLevel } from '../../../../utils';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
@@ -10,7 +9,7 @@ async function fetchPlayerDetails(player: Player, lastSnapshot?: Snapshot): Prom
   const stats = lastSnapshot || (await snapshotServices.findPlayerSnapshot({ id: player.id }));
 
   const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player);
-  const combatLevel = getCombatLevel(stats);
+  const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(stats);
 
   return {
     ...player,

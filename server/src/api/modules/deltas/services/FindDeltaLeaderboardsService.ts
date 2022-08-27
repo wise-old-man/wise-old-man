@@ -1,6 +1,14 @@
 import { z } from 'zod';
-import { Period, PeriodProps, Metric, PlayerType, PlayerBuild, Country } from '../../../../utils';
-import prisma, { Player, PrismaTypes, modifyDeltas, Delta } from '../../../../prisma';
+import {
+  Period,
+  PeriodProps,
+  Metric,
+  PlayerType,
+  PlayerBuild,
+  Country,
+  DeltaLeaderboardEntry
+} from '../../../../utils';
+import prisma, { PrismaTypes, modifyDeltas, Delta } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
@@ -15,16 +23,7 @@ const inputSchema = z.object({
 
 type FindDeltaLeaderboardsParams = z.infer<typeof inputSchema>;
 
-type FindDeltaLeaderboardsResult = Array<{
-  startDate: Date;
-  endDate: Date;
-  gained: number;
-  player: Player;
-}>;
-
-async function findDeltaLeaderboards(
-  payload: FindDeltaLeaderboardsParams
-): Promise<FindDeltaLeaderboardsResult> {
+async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Promise<DeltaLeaderboardEntry[]> {
   const params = inputSchema.parse(payload);
 
   const playerQuery: PrismaTypes.PlayerWhereInput = {};
@@ -48,6 +47,7 @@ async function findDeltaLeaderboards(
       },
       select: {
         [params.metric]: true,
+        playerId: true,
         startedAt: true,
         endedAt: true,
         player: true
@@ -60,6 +60,7 @@ async function findDeltaLeaderboards(
   // Transform the database objects into the tighter result response objects
   const results = deltas.map((d: Delta | any) => ({
     player: d.player,
+    playerId: d.playerId,
     startDate: d.startedAt,
     endDate: d.endedAt,
     gained: Math.max(0, parseNum(params.metric, String(d[params.metric])))

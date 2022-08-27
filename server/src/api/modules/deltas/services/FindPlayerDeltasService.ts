@@ -26,7 +26,7 @@ const inputSchema = z
 
 type FindPlayerDeltasParams = z.infer<typeof inputSchema>;
 
-interface FindPlayerDeltasResult {
+export interface FindPlayerDeltasResult {
   startsAt: Date;
   endsAt: Date;
   data: PlayerDeltasArray | PlayerDeltasMap;

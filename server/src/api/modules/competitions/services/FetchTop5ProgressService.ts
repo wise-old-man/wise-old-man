@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { Snapshot, Player } from '../../../../prisma';
+import { Snapshot } from '../../../../prisma';
 import { getMetricValueKey, Metric } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import { Top5ProgressResult } from '../competition.types';
+import { fetchCompetitionDetails } from './FetchCompetitionDetailsService';
 
 const inputSchema = z
   .object({
@@ -14,17 +15,7 @@ const inputSchema = z
 
 type FetchTop5ProgressParams = z.infer<typeof inputSchema>;
 
-type FetchTop5ProgressResult = {
-  player: Player;
-  history: {
-    value: number;
-    date: Date;
-  }[];
-}[];
-
-async function fetchCompetitionTop5Progress(
-  payload: FetchTop5ProgressParams
-): Promise<FetchTop5ProgressResult> {
+async function fetchCompetitionTop5Progress(payload: FetchTop5ProgressParams): Promise<Top5ProgressResult> {
   const params = inputSchema.parse(payload);
 
   const competitionDetails = await fetchCompetitionDetails(params);

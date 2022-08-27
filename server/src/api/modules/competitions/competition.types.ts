@@ -37,3 +37,11 @@ export interface Team {
   name: string;
   participants: string[];
 }
+
+export type Top5ProgressResult = Array<{
+  player: Player;
+  history: Array<{
+    value: number;
+    date: Date;
+  }>;
+}>;

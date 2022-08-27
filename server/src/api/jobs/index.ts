@@ -4,7 +4,28 @@ import logger from '../services/external/logger.service';
 import redisService from '../services/external/redis.service';
 // import crons from './config/crons';
 import redisConfig from './config/redis';
-import jobs from './instances';
+
+import AssertPlayerType from './instances/AssertPlayerType';
+import InvalidateDeltas from './instances/InvalidateDeltas';
+import RefreshCompetitionRankings from './instances/RefreshCompetitionRankings';
+import RefreshGroupRankings from './instances/RefreshGroupRankings';
+import RefreshNameChanges from './instances/RefreshNameChanges';
+import ReviewNameChange from './instances/ReviewNameChange';
+import ReviewPlayerType from './instances/ReviewPlayerType';
+import ScheduleCompetitionEvents from './instances/ScheduleCompetitionEvents';
+import UpdatePlayer from './instances/UpdatePlayer';
+
+const instances = [
+  UpdatePlayer,
+  RefreshGroupRankings,
+  RefreshCompetitionRankings,
+  AssertPlayerType,
+  ReviewNameChange,
+  RefreshNameChanges,
+  ReviewPlayerType,
+  ScheduleCompetitionEvents,
+  InvalidateDeltas
+];
 
 export interface Job {
   name: string;
@@ -29,7 +50,7 @@ class JobHandler {
   private queues: JobQueue[];
 
   constructor() {
-    this.queues = jobs.map((job: Job) => ({
+    this.queues = instances.map((job: Job) => ({
       bull: new Queue(job.name, {
         redis: redisConfig,
         limiter: job.rateLimiter,
