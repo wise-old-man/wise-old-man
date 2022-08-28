@@ -9,7 +9,7 @@ import * as deltaServices from '../deltas/delta.services';
 import * as playerUtils from './player.utils';
 import * as playerServices from './player.services';
 
-async function onPlayerTypeChanged(player: Player, previousType: string) {
+async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
     await metrics.measureReaction('DiscordHardcoreDied', () => discordService.dispatchHardcoreDied(player));
@@ -32,34 +32,30 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   jobs.add('AssertPlayerType', { id: player.id });
 }
 
-async function onPlayerUpdated(snapshot: Snapshot) {
+async function onPlayerUpdated(player: Player, snapshot: Snapshot, hasChanged: boolean) {
   // Update this player's competition participations (gains)
   await metrics.measureReaction('SyncParticipations', () =>
     competitionServices.syncParticipations({ playerId: snapshot.playerId, latestSnapshotId: snapshot.id })
   );
 
   // Only sync achievements if the player gained any exp/kc this update
-  // if (snapshot.isChange) {
-  // Check for new achievements
-  await metrics.measureReaction('SyncAchievements', () =>
-    achievementServices.syncPlayerAchievements({ id: snapshot.playerId })
-  );
-  // }
+  if (hasChanged) {
+    // Check for new achievements
+    await metrics.measureReaction('SyncAchievements', () =>
+      achievementServices.syncPlayerAchievements({ id: snapshot.playerId })
+    );
+  }
 
-  const [player] = await playerServices.findPlayer({ id: snapshot.playerId });
+  // Update this player's deltas (gains)
+  await metrics.measureReaction('SyncDeltas', () => deltaServices.syncPlayerDeltas(player, snapshot));
 
-  if (player) {
-    // Update this player's deltas (gains)
-    await metrics.measureReaction('SyncDeltas', () => deltaServices.syncPlayerDeltas(player, snapshot));
+  // Attempt to import this player's history from CML
+  await metrics.measureReaction('ImportCML', () => playerServices.importPlayerHistory(player));
 
-    // Attempt to import this player's history from CML
-    await metrics.measureReaction('ImportCML', () => playerServices.importPlayerHistory(player));
-
-    // If this player is an inactive iron player, their type should be reviewed
-    // This allows us to catch de-iron players early, and adjust their type accordingly
-    if (await playerUtils.shouldReviewType(player)) {
-      jobs.add('ReviewPlayerType', { id: player.id });
-    }
+  // If this player is an inactive iron player, their type should be reviewed
+  // This allows us to catch de-iron players early, and adjust their type accordingly
+  if (await playerUtils.shouldReviewType(player)) {
+    jobs.add('ReviewPlayerType', { id: player.id });
   }
 }
 

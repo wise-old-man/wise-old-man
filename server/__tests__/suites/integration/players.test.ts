@@ -15,6 +15,7 @@ import {
 } from '../../utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
+import { EVENT_COLLECTOR } from '../../../src/api/events';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -47,9 +48,12 @@ beforeAll(async done => {
   done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
+});
+
+afterEach(() => {
+  EVENT_COLLECTOR.splice(0, EVENT_COLLECTOR.length);
 });
 
 describe('Player API', () => {
@@ -61,6 +65,8 @@ describe('Player API', () => {
       expect(response.body.message).toMatch(
         'Validation error: Username cannot contain any special characters'
       );
+
+      expect(EVENT_COLLECTOR.length).toBe(0);
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -68,6 +74,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
+
+      expect(EVENT_COLLECTOR.length).toBe(0);
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -80,6 +88,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
+
+      expect(EVENT_COLLECTOR.length).toBe(0);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -101,6 +111,16 @@ describe('Player API', () => {
         lastImportedAt: null
       });
 
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'psikoi' },
+          snapshot: { playerId: response.body.id }
+        }
+      });
+
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // updated under a second ago
       expect(new Date(response.body.registeredAt).getTime()).toBeGreaterThan(Date.now() - 1000); // registered under a second ago
       expect(new Date(response.body.lastChangedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // changed under a second ago
@@ -109,6 +129,19 @@ describe('Player API', () => {
 
       expect(response.body.ehp).toBe(response.body.latestSnapshot.data.virtuals.ehp.value);
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.virtuals.ehb.value);
+
+      // Track again, stats shouldn't have changed
+      await api.post(`/players/ PSIKOI_ `);
+
+      expect(EVENT_COLLECTOR.length).toBe(2);
+      expect(EVENT_COLLECTOR[1]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: false,
+          player: { username: 'psikoi' },
+          snapshot: { playerId: response.body.id }
+        }
+      });
 
       globalData.testPlayerId = response.body.id;
     });
@@ -127,6 +160,16 @@ describe('Player API', () => {
 
       expect(responseDef1.status).toBe(201);
       expect(responseDef1.body.build).toBe('def1');
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'def1' },
+          snapshot: { playerId: responseDef1.body.id, defenceExperience: 0 }
+        }
+      });
     });
 
     it('should track player (zerker)', async () => {
@@ -143,6 +186,16 @@ describe('Player API', () => {
 
       expect(responseZerker.status).toBe(201);
       expect(responseZerker.body.build).toBe('zerker');
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'zerker' },
+          snapshot: { playerId: responseZerker.body.id, defenceExperience: 61_512 }
+        }
+      });
     });
 
     it('should track player (10hp)', async () => {
@@ -159,6 +212,16 @@ describe('Player API', () => {
 
       expect(response10HP.status).toBe(201);
       expect(response10HP.body.build).toBe('hp10');
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'hp10' },
+          snapshot: { playerId: response10HP.body.id, hitpointsExperience: 1154 }
+        }
+      });
     });
 
     it('should track player (lvl3)', async () => {
@@ -181,6 +244,16 @@ describe('Player API', () => {
 
       expect(responseLvl3.status).toBe(201);
       expect(responseLvl3.body.build).toBe('lvl3');
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'lvl3' },
+          snapshot: { playerId: responseLvl3.body.id, hitpointsExperience: 1154, prayerExperience: 0 }
+        }
+      });
     });
 
     it('should track player (f2p)', async () => {
@@ -207,6 +280,16 @@ describe('Player API', () => {
 
       expect(responseF2P.status).toBe(201);
       expect(responseF2P.body.build).toBe('f2p');
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'f2p' },
+          snapshot: { playerId: responseF2P.body.id, bryophytaKills: 10, agilityExperience: 0 }
+        }
+      });
     });
 
     it('should track player (ironman)', async () => {
@@ -230,6 +313,16 @@ describe('Player API', () => {
       });
 
       expect(response.body.latestSnapshot).not.toBeNull();
+
+      expect(EVENT_COLLECTOR.length).toBe(1);
+      expect(EVENT_COLLECTOR[0]).toMatchObject({
+        type: 'PLAYER_UPDATED',
+        payload: {
+          hasChanged: true,
+          player: { username: 'hydrox6', type: 'ironman' },
+          snapshot: { playerId: response.body.id }
+        }
+      });
 
       // Revert the hiscores mocking back to "regular" player type
       registerHiscoresMock(axiosMock, {
@@ -343,7 +436,7 @@ describe('Player API', () => {
       });
 
       expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.length).toBe(221); // 219 imported, 2 tracked (during this test session)
+      expect(snapshotsResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
       expect(snapshotsResponse.body.filter(s => s.importedAt !== null).length).toBe(219);
       expect(
         snapshotsResponse.body.filter(

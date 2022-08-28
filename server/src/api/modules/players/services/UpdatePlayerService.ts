@@ -11,6 +11,7 @@ import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { PlayerDetails } from '../player.types';
+import eventDispatcher, { EventType } from '../../../events';
 
 const inputSchema = z.object({
   username: z.string()
@@ -20,6 +21,7 @@ type UpdatePlayerParams = z.infer<typeof inputSchema>;
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 
 async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerResult> {
+  let hasChanged = false;
   const { username } = inputSchema.parse(payload);
 
   // Find a player with the given username or create a new one if needed
@@ -54,7 +56,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     // The player has gained exp/kc/scores since the last update
     if (snapshotUtils.hasChanged(previousStats, currentStats)) {
       updatedPlayerFields.lastChangedAt = new Date();
-      // TODO:   currentStats.isChange = true;
+      hasChanged = true;
     }
 
     // Refresh the player's build
@@ -89,6 +91,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     // Create (and save) a new snapshot
     const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
+
+    eventDispatcher.dispatch({
+      type: EventType.PLAYER_UPDATED,
+      payload: { player: updatedPlayer, snapshot: newSnapshot, hasChanged }
+    });
 
     const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
 
