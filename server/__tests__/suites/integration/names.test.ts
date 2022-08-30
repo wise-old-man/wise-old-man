@@ -7,6 +7,7 @@ import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../../utils';
+import { EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -19,6 +20,10 @@ const globalData = {
   secondNameChangeId: -1,
   testGroupId: -1
 };
+
+beforeEach(() => {
+  EVENT_REGISTRY.splice(0, EVENT_REGISTRY.length);
+});
 
 beforeAll(async done => {
   await resetDatabase();
@@ -373,6 +378,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+
+      expect(EVENT_REGISTRY.length).toBe(0);
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -380,6 +387,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
+
+      expect(EVENT_REGISTRY.length).toBe(0);
     });
 
     it('should not approve (invalid id)', async () => {
@@ -387,6 +396,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
+
+      expect(EVENT_REGISTRY.length).toBe(0);
     });
 
     it('should not approve (id not found)', async () => {
@@ -396,6 +407,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
+
+      expect(EVENT_REGISTRY.length).toBe(0);
     });
 
     it('should not approve (not pending)', async () => {
@@ -405,6 +418,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
+
+      expect(EVENT_REGISTRY.length).toBe(0);
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -421,6 +436,15 @@ describe('Names API', () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
+
+      expect(EVENT_REGISTRY.length).toBe(1);
+      expect(EVENT_REGISTRY[0]).toMatchObject({
+        type: 'PLAYER_NAME_CHANGED',
+        payload: {
+          player: { displayName: 'Jakesterwars' },
+          previousName: 'jakesterwars'
+        }
+      });
     });
 
     it('should approve (and transfer data)', async () => {
@@ -454,6 +478,15 @@ describe('Names API', () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
+
+      expect(EVENT_REGISTRY.length).toBe(2);
+      expect(EVENT_REGISTRY[1]).toMatchObject({
+        type: 'PLAYER_NAME_CHANGED',
+        payload: {
+          player: { displayName: 'USBC' },
+          previousName: 'psikoi'
+        }
+      });
 
       // Check if records transfered correctly
       const recordsResponse = await api.get(`/players/USBC/records`);

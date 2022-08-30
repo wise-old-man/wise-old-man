@@ -16,8 +16,8 @@ import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
 import * as playerUtils from '../../players/player.utils';
-import { onPlayerNameChanged } from '../../players/player.events';
 import { prepareRecordValue } from '../../records/record.utils';
+import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -134,9 +134,15 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
     prisma.player.update({ where: { id: oldPlayer.id }, data: playerUpdateFields })
   ]);
 
-  // TODO: this can be improved with that hook buffer needed for isChange, isPotentialRecord, etc
-  // Explicitly call this event, unlike most others that are handled via prisma hooks
-  onPlayerNameChanged(results[results.length - 1], oldPlayer.displayName);
+  if (!results || results.length === 0) return;
+
+  eventDispatcher.dispatch({
+    type: EventType.PLAYER_NAME_CHANGED,
+    payload: {
+      player: results[results.length - 1],
+      previousName: oldPlayer.displayName
+    }
+  });
 }
 
 function transferRecords(

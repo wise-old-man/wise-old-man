@@ -11,7 +11,7 @@ import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { PlayerDetails } from '../player.types';
-import eventDispatcher, { EventType } from '../../../events';
+import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 const inputSchema = z.object({
   username: z.string()

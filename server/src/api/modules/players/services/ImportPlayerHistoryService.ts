@@ -6,6 +6,7 @@ import * as playerUtils from '../player.utils';
 import * as cmlService from '../../../services/external/cml.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { SnapshotDataSource, SnapshotFragment } from '../../snapshots/snapshot.types';
+import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 
@@ -47,6 +48,11 @@ async function importPlayerHistory(payload: ImportPlayerHistoryParams): Promise<
   await prisma.player.update({
     data: { lastImportedAt: new Date() },
     where: { id: params.id }
+  });
+
+  eventDispatcher.dispatch({
+    type: EventType.PLAYER_HISTORY_IMPORTED,
+    payload: { playerId: params.id }
   });
 
   return { count: importedCount };

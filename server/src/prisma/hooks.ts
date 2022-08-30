@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
 import { onNameChangeCreated } from '../api/modules/name-changes/name-change.events';
-import { onPlayerImported } from '../api/modules/players/player.events';
 import { onDeltaUpdated } from '../api/modules/deltas/delta.events';
 import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
 import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
@@ -68,13 +67,6 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     }
 
     onCompetitionCreated(result);
-    return;
-  }
-
-  if (params.model === 'Snapshot') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onPlayerImported(params.args.data[0].playerId);
-    }
     return;
   }
 
