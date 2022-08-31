@@ -41,7 +41,9 @@ interface GlobalRecordsFilter extends PlayerRecordsFilter {
 async function syncRecords(delta: Delta): Promise<void> {
   const { playerId, period } = delta;
 
-  const records = await Record.findAll({ where: { playerId, period } });
+  const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
+
+  const records = await Record.findAll({ where: { playerId, period: fixedPeriod } });
   const recordMap: { [metric: string]: Record } = Object.fromEntries(records.map(r => [r.metric, r]));
 
   const toCreate = [];
