@@ -46,6 +46,10 @@ function modifySnapshots(snapshots: PrismaSnapshot[]): Snapshot[] {
   return snapshots.map(s => ({ ...s, overallExperience: parseBigInt(s.overallExperience) }));
 }
 
+function modifyDelta(delta: PrismaDelta): Delta {
+  return delta ? { ...delta, overall: parseBigInt(delta.overall) } : null;
+}
+
 function modifyDeltas(deltas: PrismaDelta[]): Delta[] {
   return deltas.map(d => ({ ...d, overall: parseBigInt(d.overall) }));
 }
@@ -98,6 +102,7 @@ export {
   Prisma as PrismaTypes,
   PrismaPromise,
   // Original Models
+  PrismaDelta,
   PrismaPlayer,
   PrismaSnapshot,
   // Models
@@ -116,6 +121,7 @@ export {
   NameChangeStatus,
   // Utils
   setHooksEnabled,
+  modifyDelta,
   modifyDeltas,
   modifyPlayer,
   modifyPlayers,

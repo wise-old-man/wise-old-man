@@ -21,7 +21,6 @@ type UpdatePlayerParams = z.infer<typeof inputSchema>;
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 
 async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerResult> {
-  let hasChanged = false;
   const { username } = inputSchema.parse(payload);
 
   // Find a player with the given username or create a new one if needed
@@ -47,13 +46,15 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     // Fetch the new player stats from the hiscores API
     const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
 
-    // There has been a radical change in this player's stats, mark it as flagged
+    // There has been a significant change in this player's stats, mark it as flagged
     if (!snapshotUtils.withinRange(previousStats, currentStats)) {
       await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
     // The player has gained exp/kc/scores since the last update
+    let hasChanged = false;
+
     if (snapshotUtils.hasChanged(previousStats, currentStats)) {
       updatedPlayerFields.lastChangedAt = new Date();
       hasChanged = true;

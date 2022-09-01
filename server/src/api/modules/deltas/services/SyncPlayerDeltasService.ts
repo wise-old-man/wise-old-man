@@ -1,7 +1,17 @@
-import { Period, PeriodProps, PERIODS, SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils';
-import prisma, { Player, Snapshot } from '../../../../prisma';
+import {
+  Period,
+  PeriodProps,
+  PERIODS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  VIRTUALS,
+  METRICS
+} from '../../../../utils';
+import prisma, { modifyDelta, Player, PrismaDelta, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePlayerDeltas } from '../delta.utils';
+import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Build the update/create promise for a given period
@@ -33,7 +43,16 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       where: { playerId: player.id, period }
     });
 
-    // TODO: Missing potential record checks and flagging
+    // if any metric has improved since the last delta sync, it is a potential record
+    // and we should also check for new records in this period
+    let hasImprovements = false;
+
+    METRICS.forEach(metric => {
+      if (currentDelta && newDelta[metric] > currentDelta[metric]) {
+        hasImprovements = true;
+      }
+    });
+
     // TODO: after fixing the unique values for deltas, turn this into an upsert, get rid of currentDelta
 
     if (currentDelta) {
@@ -41,6 +60,14 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     } else {
       await prisma.delta.create({ data: newDelta });
     }
+
+    eventDispatcher.dispatch({
+      type: EventType.DELTA_UPDATED,
+      payload: {
+        delta: modifyDelta(newDelta as PrismaDelta),
+        isPotentialRecord: !currentDelta || hasImprovements
+      }
+    });
   }
 
   // Execute all update promises, sequentially

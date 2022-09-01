@@ -379,7 +379,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
 
-      expect(EVENT_REGISTRY.length).toBe(0);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -388,7 +388,7 @@ describe('Names API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
 
-      expect(EVENT_REGISTRY.length).toBe(0);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
     });
 
     it('should not approve (invalid id)', async () => {
@@ -397,7 +397,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
 
-      expect(EVENT_REGISTRY.length).toBe(0);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
     });
 
     it('should not approve (id not found)', async () => {
@@ -408,7 +408,7 @@ describe('Names API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
 
-      expect(EVENT_REGISTRY.length).toBe(0);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
     });
 
     it('should not approve (not pending)', async () => {
@@ -419,7 +419,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
 
-      expect(EVENT_REGISTRY.length).toBe(0);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -437,8 +437,8 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(EVENT_REGISTRY.length).toBe(1);
-      expect(EVENT_REGISTRY[0]).toMatchObject({
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(1);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0]).toMatchObject({
         type: 'PLAYER_NAME_CHANGED',
         payload: {
           player: { displayName: 'Jakesterwars' },
@@ -479,8 +479,10 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(EVENT_REGISTRY.length).toBe(2);
-      expect(EVENT_REGISTRY[1]).toMatchObject({
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(1);
+
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0]).toMatchObject({
         type: 'PLAYER_NAME_CHANGED',
         payload: {
           player: { displayName: 'USBC' },

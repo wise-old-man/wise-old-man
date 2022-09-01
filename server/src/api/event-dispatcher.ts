@@ -1,5 +1,6 @@
-import { Player, Snapshot } from '../prisma';
+import { Delta, Player, Snapshot } from '../prisma';
 import { PlayerType } from '../utils';
+import { onDeltaUpdated } from './modules/deltas/delta.events';
 import {
   onPlayerImported,
   onPlayerNameChanged,
@@ -16,17 +17,23 @@ type ActionMap<M extends { [index: string]: unknown }> = {
 type Event = ActionMap<EventPayloadMap>[keyof ActionMap<EventPayloadMap>];
 
 export enum EventType {
-  PLAYER_HISTORY_IMPORTED = 'PLAYER_HISTORY_IMPORTED',
+  // Player Events
+  PLAYER_UPDATED = 'PLAYER_UPDATED',
   PLAYER_TYPE_CHANGED = 'PLAYER_TYPE_CHANGED',
   PLAYER_NAME_CHANGED = 'PLAYER_NAME_CHANGED',
-  PLAYER_UPDATED = 'PLAYER_UPDATED'
+  PLAYER_HISTORY_IMPORTED = 'PLAYER_HISTORY_IMPORTED',
+  // Delta Events
+  DELTA_UPDATED = 'DELTA_UPDATED'
 }
 
 type EventPayloadMap = {
-  [EventType.PLAYER_UPDATED]: { player: Player; snapshot: Snapshot; hasChanged: boolean };
-  [EventType.PLAYER_TYPE_CHANGED]: { player: Player; previousType: PlayerType };
-  [EventType.PLAYER_NAME_CHANGED]: { player: Player; previousName: string };
+  // Player Events
   [EventType.PLAYER_HISTORY_IMPORTED]: { playerId: number };
+  [EventType.PLAYER_NAME_CHANGED]: { player: Player; previousName: string };
+  [EventType.PLAYER_TYPE_CHANGED]: { player: Player; previousType: PlayerType };
+  [EventType.PLAYER_UPDATED]: { player: Player; snapshot: Snapshot; hasChanged: boolean };
+  // Delta Events
+  [EventType.DELTA_UPDATED]: { delta: Delta; isPotentialRecord: boolean };
 };
 
 function dispatch(event: Event) {
@@ -46,6 +53,10 @@ function dispatch(event: Event) {
 
   if (event.type === EventType.PLAYER_HISTORY_IMPORTED) {
     return onPlayerImported(event.payload.playerId);
+  }
+
+  if (event.type === EventType.DELTA_UPDATED) {
+    return onDeltaUpdated(event.payload.delta, event.payload.isPotentialRecord);
   }
 }
 

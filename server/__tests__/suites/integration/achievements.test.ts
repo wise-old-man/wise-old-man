@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
-import { PlayerType } from '../../../src/utils';
+import { Metric, PlayerType } from '../../../src/utils';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
 import {
   registerCMLMock,
@@ -11,7 +11,9 @@ import {
   resetDatabase,
   resetRedis,
   sleep,
-  readFile
+  readFile,
+  modifyRawHiscoresData,
+  clearDispatchedEvents
 } from '../../utils';
 
 const api = supertest(apiServer);
@@ -29,6 +31,10 @@ const globalData = {
   expectedAchievements: [],
   testPlayerId: -1
 };
+
+beforeEach(() => {
+  clearDispatchedEvents();
+});
 
 beforeAll(async done => {
   await resetDatabase();
@@ -77,6 +83,15 @@ describe('Achievements API', () => {
     });
 
     test('Track Player (first time), no achievements', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       // Track player (first time)
       const trackResponse = await api.post(`/players/Psikoi`);
 
@@ -94,6 +109,18 @@ describe('Achievements API', () => {
     });
 
     test('Track Player (second time), all achievements (unknown dates)', async () => {
+      // Force some gains (+1 GOTR) so that achievements sync is triggered
+      // Note: this should be reviewed in the future, as it would make sense to still
+      // sync and back date achievements on the first ever player update
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       // Track player (second time)
       const trackResponse = await api.post(`/players/Psikoi`);
 
@@ -216,11 +243,32 @@ describe('Achievements API', () => {
       expect(failedFetchResponse.status).toBe(404);
       expect(failedFetchResponse.body.message).toBe('Group not found.');
 
+      let modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataB, [
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       // Track player
       const firstTrackResponse = await api.post(`/players/Lynx Titan`);
 
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.username).toBe('lynx titan');
+
+      // Force some gains (+1 GOTR) so that achievements sync is triggered
+      // Note: this should be reviewed in the future, as it would make sense to still
+      // sync and back date achievements on the first ever player update
+      modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataB, [
+        { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
 
       // Track player (again)
       const secondTrackResponse = await api.post(`/players/Lynx Titan`);
