@@ -1,13 +1,9 @@
-import { Delta, Player, Snapshot } from '../prisma';
-import { NameChange, PlayerType } from '../utils';
-import { onDeltaUpdated } from './modules/deltas/delta.events';
-import { onNameChangeSubmitted } from './modules/name-changes/name-change.events';
-import {
-  onPlayerImported,
-  onPlayerNameChanged,
-  onPlayerTypeChanged,
-  onPlayerUpdated
-} from './modules/players/player.events';
+import { Delta, Player, Snapshot, Achievement, NameChange } from '../prisma';
+import { PlayerType } from '../utils';
+import * as deltaEvents from './modules/deltas/delta.events';
+import * as playerEvents from './modules/players/player.events';
+import * as nameChangeEvents from './modules/name-changes/name-change.events';
+import * as achievementEvents from './modules/achievements/achievement.events';
 
 export const EVENT_REGISTRY: Event[] = [];
 
@@ -26,7 +22,9 @@ export enum EventType {
   // Delta Events
   DELTA_UPDATED = 'DELTA_UPDATED',
   // Name Change Events
-  NAME_CHANGE_SUBMITTED = 'NAME_CHANGE_SUBMITTED'
+  NAME_CHANGE_SUBMITTED = 'NAME_CHANGE_SUBMITTED',
+  // Achievement Events
+  ACHIEVEMENTS_CREATED = 'ACHIEVEMENTS_CREATED'
 }
 
 type EventPayloadMap = {
@@ -39,24 +37,28 @@ type EventPayloadMap = {
   [EventType.DELTA_UPDATED]: { delta: Delta; isPotentialRecord: boolean };
   // Name Change Events
   [EventType.NAME_CHANGE_SUBMITTED]: { nameChange: NameChange };
+  // Achievement Events
+  [EventType.ACHIEVEMENTS_CREATED]: { achievements: Achievement[] };
 };
 
-function dispatch(event: Event) {
-  EVENT_REGISTRY.push(event);
+function dispatch(evt: Event) {
+  EVENT_REGISTRY.push(evt);
 
-  switch (event.type) {
+  switch (evt.type) {
     case EventType.PLAYER_TYPE_CHANGED:
-      return onPlayerTypeChanged(event.payload.player, event.payload.previousType);
+      return playerEvents.onPlayerTypeChanged(evt.payload.player, evt.payload.previousType);
     case EventType.PLAYER_NAME_CHANGED:
-      return onPlayerNameChanged(event.payload.player, event.payload.previousName);
+      return playerEvents.onPlayerNameChanged(evt.payload.player, evt.payload.previousName);
     case EventType.PLAYER_UPDATED:
-      return onPlayerUpdated(event.payload.player, event.payload.snapshot, event.payload.hasChanged);
+      return playerEvents.onPlayerUpdated(evt.payload.player, evt.payload.snapshot, evt.payload.hasChanged);
     case EventType.PLAYER_HISTORY_IMPORTED:
-      return onPlayerImported(event.payload.playerId);
+      return playerEvents.onPlayerImported(evt.payload.playerId);
     case EventType.DELTA_UPDATED:
-      return onDeltaUpdated(event.payload.delta, event.payload.isPotentialRecord);
+      return deltaEvents.onDeltaUpdated(evt.payload.delta, evt.payload.isPotentialRecord);
     case EventType.NAME_CHANGE_SUBMITTED:
-      return onNameChangeSubmitted(event.payload.nameChange);
+      return nameChangeEvents.onNameChangeSubmitted(evt.payload.nameChange);
+    case EventType.ACHIEVEMENTS_CREATED:
+      return achievementEvents.onAchievementsCreated(evt.payload.achievements);
   }
 }
 

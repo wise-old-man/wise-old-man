@@ -5,6 +5,7 @@ import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import { Metric, PlayerType } from '../../../src/utils';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
+import { EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -13,7 +14,8 @@ import {
   sleep,
   readFile,
   modifyRawHiscoresData,
-  clearDispatchedEvents
+  clearDispatchedEvents,
+  hasDispatchedEvent
 } from '../../utils';
 
 const api = supertest(apiServer);
@@ -99,6 +101,11 @@ describe('Achievements API', () => {
       expect(trackResponse.body.username).toBe('psikoi');
       expect(trackResponse.body.type).toBe('regular');
 
+      // Wait a bit for the onPlayerUpdated hook to fire
+      await sleep(500);
+
+      expect(hasDispatchedEvent('ACHIEVEMENTS_CREATED')).toBe(false);
+
       // Check their achievements
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
 
@@ -129,6 +136,13 @@ describe('Achievements API', () => {
 
       // Wait a bit for the onPlayerUpdated hook to fire
       await sleep(500);
+
+      expect(hasDispatchedEvent('ACHIEVEMENTS_CREATED')).toBe(true);
+
+      expect(
+        EVENT_REGISTRY.filter(e => e.type === 'ACHIEVEMENTS_CREATED' && e.payload.achievements.length === 37)
+          .length
+      ).toBe(1);
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);

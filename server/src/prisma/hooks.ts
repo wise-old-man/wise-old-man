@@ -1,13 +1,18 @@
 import { Prisma } from '@prisma/client';
-import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
 import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
 import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
 import * as playerUtils from '../api/modules/players/player.utils';
+import eventDispatcher, { EventType } from '../api/event-dispatcher';
 import { modifyAchievements } from '.';
 
 export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
+  // Need to dispatch this event on this hook because some bulk creates depend
+  // on "skipDuplicates" which can't be predicted at the service level very easily.
   if (params.model === 'Achievement' && params.action === 'createMany') {
-    onAchievementsCreated(modifyAchievements(params.args.data));
+    eventDispatcher.dispatch({
+      type: EventType.ACHIEVEMENTS_CREATED,
+      payload: { achievements: modifyAchievements(params.args.data) }
+    });
     return;
   }
 
