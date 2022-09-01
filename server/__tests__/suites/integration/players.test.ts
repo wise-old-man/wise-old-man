@@ -11,7 +11,9 @@ import {
   readFile,
   modifyRawHiscoresData,
   sleep,
-  resetRedis
+  resetRedis,
+  hasDispatchedEvent,
+  clearDispatchedEvents
 } from '../../utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
@@ -30,7 +32,7 @@ const globalData = {
 };
 
 beforeEach(() => {
-  EVENT_REGISTRY.splice(0, EVENT_REGISTRY.length);
+  clearDispatchedEvents();
 });
 
 beforeAll(async done => {
@@ -66,7 +68,7 @@ describe('Player API', () => {
         'Validation error: Username cannot contain any special characters'
       );
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(false);
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -75,7 +77,7 @@ describe('Player API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(false);
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -89,7 +91,7 @@ describe('Player API', () => {
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(false);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -111,14 +113,11 @@ describe('Player API', () => {
         lastImportedAt: null
       });
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'psikoi' },
-          snapshot: { playerId: response.body.id }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'psikoi' },
+        snapshot: { playerId: response.body.id }
       });
 
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // updated under a second ago
@@ -134,13 +133,10 @@ describe('Player API', () => {
       await api.post(`/players/ PSIKOI_ `);
 
       expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(2);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[1]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: false,
-          player: { username: 'psikoi' },
-          snapshot: { playerId: response.body.id }
-        }
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[1].payload).toMatchObject({
+        hasChanged: false,
+        player: { username: 'psikoi' },
+        snapshot: { playerId: response.body.id }
       });
 
       globalData.testPlayerId = response.body.id;
@@ -161,14 +157,11 @@ describe('Player API', () => {
       expect(responseDef1.status).toBe(201);
       expect(responseDef1.body.build).toBe('def1');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'def1' },
-          snapshot: { playerId: responseDef1.body.id, defenceExperience: 0 }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'def1' },
+        snapshot: { playerId: responseDef1.body.id, defenceExperience: 0 }
       });
     });
 
@@ -187,14 +180,11 @@ describe('Player API', () => {
       expect(responseZerker.status).toBe(201);
       expect(responseZerker.body.build).toBe('zerker');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'zerker' },
-          snapshot: { playerId: responseZerker.body.id, defenceExperience: 61_512 }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'zerker' },
+        snapshot: { playerId: responseZerker.body.id, defenceExperience: 61_512 }
       });
     });
 
@@ -213,14 +203,11 @@ describe('Player API', () => {
       expect(response10HP.status).toBe(201);
       expect(response10HP.body.build).toBe('hp10');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'hp10' },
-          snapshot: { playerId: response10HP.body.id, hitpointsExperience: 1154 }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'hp10' },
+        snapshot: { playerId: response10HP.body.id, hitpointsExperience: 1154 }
       });
     });
 
@@ -245,14 +232,11 @@ describe('Player API', () => {
       expect(responseLvl3.status).toBe(201);
       expect(responseLvl3.body.build).toBe('lvl3');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'lvl3' },
-          snapshot: { playerId: responseLvl3.body.id, hitpointsExperience: 1154, prayerExperience: 0 }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'lvl3' },
+        snapshot: { playerId: responseLvl3.body.id, hitpointsExperience: 1154, prayerExperience: 0 }
       });
     });
 
@@ -281,14 +265,11 @@ describe('Player API', () => {
       expect(responseF2P.status).toBe(201);
       expect(responseF2P.body.build).toBe('f2p');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'f2p' },
-          snapshot: { playerId: responseF2P.body.id, bryophytaKills: 10, agilityExperience: 0 }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'f2p' },
+        snapshot: { playerId: responseF2P.body.id, bryophytaKills: 10, agilityExperience: 0 }
       });
     });
 
@@ -314,14 +295,11 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0]).toMatchObject({
-        type: 'PLAYER_UPDATED',
-        payload: {
-          hasChanged: true,
-          player: { username: 'hydrox6', type: 'ironman' },
-          snapshot: { playerId: response.body.id }
-        }
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED')[0].payload).toMatchObject({
+        hasChanged: true,
+        player: { username: 'hydrox6', type: 'ironman' },
+        snapshot: { playerId: response.body.id }
       });
 
       // Revert the hiscores mocking back to "regular" player type
@@ -401,7 +379,7 @@ describe('Player API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_HISTORY_IMPORTED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_HISTORY_IMPORTED')).toBe(false);
     });
 
     it('should not import player (CML failed)', async () => {
@@ -413,7 +391,7 @@ describe('Player API', () => {
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load history from CML.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_HISTORY_IMPORTED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_HISTORY_IMPORTED')).toBe(false);
     });
 
     it('should import player', async () => {
@@ -430,10 +408,7 @@ describe('Player API', () => {
         message: 'Sucessfully imported 219 snapshots from CML.'
       });
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_HISTORY_IMPORTED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_HISTORY_IMPORTED')[0]).toMatchObject({
-        type: 'PLAYER_HISTORY_IMPORTED'
-      });
+      expect(hasDispatchedEvent('PLAYER_HISTORY_IMPORTED')).toBe(true);
 
       const detailsResponse = await api.get(`/players/psikoi`);
       expect(detailsResponse.status).toBe(200);
@@ -465,7 +440,7 @@ describe('Player API', () => {
       expect(importResponse.status).toBe(429);
       expect(importResponse.body.message).toMatch('Imported too soon, please wait');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_HISTORY_IMPORTED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_HISTORY_IMPORTED')).toBe(false);
 
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
@@ -565,7 +540,7 @@ describe('Player API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_TYPE_CHANGED')).toBe(false);
     });
 
     it('should not assert player type (player is flagged)', async () => {
@@ -593,7 +568,7 @@ describe('Player API', () => {
       expect(assertTypeResponse.status).toBe(400);
       expect(assertTypeResponse.body.message).toMatch('Type Assertion Not Allowed: Player is Flagged.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_TYPE_CHANGED')).toBe(false);
     });
 
     it('should assert player type (regular)', async () => {
@@ -625,7 +600,7 @@ describe('Player API', () => {
       expect(response.body.player).toMatchObject({ username: 'psikoi', type: 'regular' });
 
       // No type changes happened = no type change events were dispatched
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_TYPE_CHANGED')).toBe(false);
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -643,19 +618,17 @@ describe('Player API', () => {
       expect(assertTypeResponse.body.changed).toBe(true);
       expect(assertTypeResponse.body.player).toMatchObject({ username: 'psikoi', type: 'ultimate' });
 
+      expect(hasDispatchedEvent('PLAYER_TYPE_CHANGED')).toBe(true);
+
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED')[0].payload).toMatchObject({
+        player: { username: 'psikoi', type: 'ultimate' },
+        previousType: 'regular'
+      });
+
       const detailsResponse = await api.get('/players/PsiKOI');
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.type).toBe('ultimate');
-
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_TYPE_CHANGED')[0]).toMatchObject({
-        type: 'PLAYER_TYPE_CHANGED',
-        payload: {
-          player: { username: 'psikoi', type: 'ultimate' },
-          previousType: 'regular'
-        }
-      });
     });
   });
 

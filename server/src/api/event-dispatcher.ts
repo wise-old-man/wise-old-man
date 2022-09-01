@@ -1,6 +1,7 @@
 import { Delta, Player, Snapshot } from '../prisma';
-import { PlayerType } from '../utils';
+import { NameChange, PlayerType } from '../utils';
 import { onDeltaUpdated } from './modules/deltas/delta.events';
+import { onNameChangeSubmitted } from './modules/name-changes/name-change.events';
 import {
   onPlayerImported,
   onPlayerNameChanged,
@@ -23,7 +24,9 @@ export enum EventType {
   PLAYER_NAME_CHANGED = 'PLAYER_NAME_CHANGED',
   PLAYER_HISTORY_IMPORTED = 'PLAYER_HISTORY_IMPORTED',
   // Delta Events
-  DELTA_UPDATED = 'DELTA_UPDATED'
+  DELTA_UPDATED = 'DELTA_UPDATED',
+  // Name Change Events
+  NAME_CHANGE_SUBMITTED = 'NAME_CHANGE_SUBMITTED'
 }
 
 type EventPayloadMap = {
@@ -34,29 +37,26 @@ type EventPayloadMap = {
   [EventType.PLAYER_UPDATED]: { player: Player; snapshot: Snapshot; hasChanged: boolean };
   // Delta Events
   [EventType.DELTA_UPDATED]: { delta: Delta; isPotentialRecord: boolean };
+  // Name Change Events
+  [EventType.NAME_CHANGE_SUBMITTED]: { nameChange: NameChange };
 };
 
 function dispatch(event: Event) {
   EVENT_REGISTRY.push(event);
 
-  if (event.type === EventType.PLAYER_TYPE_CHANGED) {
-    return onPlayerTypeChanged(event.payload.player, event.payload.previousType);
-  }
-
-  if (event.type === EventType.PLAYER_NAME_CHANGED) {
-    return onPlayerNameChanged(event.payload.player, event.payload.previousName);
-  }
-
-  if (event.type === EventType.PLAYER_UPDATED) {
-    return onPlayerUpdated(event.payload.player, event.payload.snapshot, event.payload.hasChanged);
-  }
-
-  if (event.type === EventType.PLAYER_HISTORY_IMPORTED) {
-    return onPlayerImported(event.payload.playerId);
-  }
-
-  if (event.type === EventType.DELTA_UPDATED) {
-    return onDeltaUpdated(event.payload.delta, event.payload.isPotentialRecord);
+  switch (event.type) {
+    case EventType.PLAYER_TYPE_CHANGED:
+      return onPlayerTypeChanged(event.payload.player, event.payload.previousType);
+    case EventType.PLAYER_NAME_CHANGED:
+      return onPlayerNameChanged(event.payload.player, event.payload.previousName);
+    case EventType.PLAYER_UPDATED:
+      return onPlayerUpdated(event.payload.player, event.payload.snapshot, event.payload.hasChanged);
+    case EventType.PLAYER_HISTORY_IMPORTED:
+      return onPlayerImported(event.payload.playerId);
+    case EventType.DELTA_UPDATED:
+      return onDeltaUpdated(event.payload.delta, event.payload.isPotentialRecord);
+    case EventType.NAME_CHANGE_SUBMITTED:
+      return onNameChangeSubmitted(event.payload.nameChange);
   }
 }
 

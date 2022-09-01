@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
-import { onNameChangeCreated } from '../api/modules/name-changes/name-change.events';
 import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
 import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
 import * as playerUtils from '../api/modules/players/player.utils';
@@ -9,11 +8,6 @@ import { modifyAchievements } from '.';
 export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
   if (params.model === 'Achievement' && params.action === 'createMany') {
     onAchievementsCreated(modifyAchievements(params.args.data));
-    return;
-  }
-
-  if (params.model === 'NameChange' && params.action === 'create') {
-    onNameChangeCreated(result);
     return;
   }
 

@@ -69,7 +69,7 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-function hasDispatchedEvent(eventType: EventType) {
+function hasDispatchedEvent(eventType: keyof typeof EventType) {
   return !!EVENT_REGISTRY.find(e => e.type === eventType);
 }
 

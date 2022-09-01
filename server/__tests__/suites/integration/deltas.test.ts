@@ -17,7 +17,7 @@ import {
 } from '../../utils';
 import prisma from '../../../src/prisma';
 import * as services from '../../../src/api/modules/deltas/delta.services';
-import { EventType, EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
+import { EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -76,7 +76,7 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(500);
 
-      expect(hasDispatchedEvent(EventType.DELTA_UPDATED)).toBe(false);
+      expect(hasDispatchedEvent('DELTA_UPDATED')).toBe(false);
 
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -104,11 +104,11 @@ describe('Deltas API', () => {
       await sleep(500);
 
       // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
-      expect(EVENT_REGISTRY.filter(e => e.type === EventType.DELTA_UPDATED).length).toBe(3);
+      expect(EVENT_REGISTRY.filter(e => e.type === 'DELTA_UPDATED').length).toBe(3);
 
       // On a player's first update, all their deltas are potential records
       expect(
-        EVENT_REGISTRY.filter(e => e.type === EventType.DELTA_UPDATED && e.payload.isPotentialRecord).length
+        EVENT_REGISTRY.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
       ).toBe(3);
 
       clearDispatchedEvents();
@@ -153,7 +153,7 @@ describe('Deltas API', () => {
       // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
       // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
       expect(
-        EVENT_REGISTRY.filter(e => e.type === EventType.DELTA_UPDATED && e.payload.isPotentialRecord).length
+        EVENT_REGISTRY.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
       ).toBe(5);
 
       clearDispatchedEvents();
@@ -173,7 +173,7 @@ describe('Deltas API', () => {
       expect(fourthTrackResponse.status).toBe(200);
 
       expect(
-        EVENT_REGISTRY.filter(e => e.type === EventType.DELTA_UPDATED && e.payload.isPotentialRecord).length
+        EVENT_REGISTRY.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
       ).toBe(0);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)

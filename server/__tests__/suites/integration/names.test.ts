@@ -6,7 +6,15 @@ import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../../utils';
+import {
+  registerCMLMock,
+  registerHiscoresMock,
+  resetDatabase,
+  resetRedis,
+  readFile,
+  clearDispatchedEvents,
+  hasDispatchedEvent
+} from '../../utils';
 import { EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
 
 const api = supertest(apiServer);
@@ -22,7 +30,7 @@ const globalData = {
 };
 
 beforeEach(() => {
-  EVENT_REGISTRY.splice(0, EVENT_REGISTRY.length);
+  clearDispatchedEvents();
 });
 
 beforeAll(async done => {
@@ -55,6 +63,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'oldName' is undefined.");
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (missing newName)', async () => {
@@ -62,6 +72,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'newName' is undefined.");
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (invalid oldName)', async () => {
@@ -69,6 +81,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid old name.');
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (invalid newName)', async () => {
@@ -76,6 +90,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid new name.');
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (equal names)', async () => {
@@ -84,6 +100,8 @@ describe('Names API', () => {
       // Note: We allow changes in capitalization, so this condition only fails for equal names (same capitalization)
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Old name and new name cannot be the same.');
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it("should not submit (player doesn't exist)", async () => {
@@ -91,6 +109,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Player 'psikoi' is not tracked yet.");
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should submit (capitalization change)', async () => {
@@ -108,6 +128,12 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('psikoi');
       expect(submitResponse.body.newName).toBe('Psikoi');
       expect(submitResponse.body.resolvedAt).toBe(null);
+
+      expect(
+        EVENT_REGISTRY.filter(
+          e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
+        ).length
+      ).toBe(1);
 
       globalData.firstNameChangeId = submitResponse.body.id;
     });
@@ -127,6 +153,12 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('Hydrox6');
       expect(submitResponse.body.newName).toBe('alexsuperfly');
       expect(submitResponse.body.resolvedAt).toBe(null);
+
+      expect(
+        EVENT_REGISTRY.filter(
+          e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
+        ).length
+      ).toBe(1);
     });
 
     it('should not submit (repeated approved submission)', async () => {
@@ -145,6 +177,14 @@ describe('Names API', () => {
       expect(submitResponse.status).toBe(201);
 
       globalData.secondNameChangeId = submitResponse.body.id;
+
+      expect(
+        EVENT_REGISTRY.filter(
+          e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
+        ).length
+      ).toBe(1);
+
+      clearDispatchedEvents();
 
       // Approve this name change
       const approvalResponse = await api
@@ -167,6 +207,8 @@ describe('Names API', () => {
 
       expect(secondSubmitResponse.status).toBe(400);
       expect(secondSubmitResponse.body.message).toMatch('Cannot submit a duplicate (approved) name change');
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (repeated pending submission)', async () => {
@@ -174,6 +216,8 @@ describe('Names API', () => {
 
       expect(submitResponse.status).toBe(400);
       expect(submitResponse.body.message).toMatch("There's already a similar pending name change.");
+
+      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
     });
   });
 
@@ -379,7 +423,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -388,7 +432,7 @@ describe('Names API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (invalid id)', async () => {
@@ -397,7 +441,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (id not found)', async () => {
@@ -408,7 +452,7 @@ describe('Names API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (not pending)', async () => {
@@ -419,7 +463,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(0);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -437,13 +481,11 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0]).toMatchObject({
-        type: 'PLAYER_NAME_CHANGED',
-        payload: {
-          player: { displayName: 'Jakesterwars' },
-          previousName: 'jakesterwars'
-        }
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(true);
+
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
+        player: { displayName: 'Jakesterwars' },
+        previousName: 'jakesterwars'
       });
     });
 
@@ -479,15 +521,12 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_UPDATED').length).toBe(1);
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED').length).toBe(1);
+      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
+      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(true);
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0]).toMatchObject({
-        type: 'PLAYER_NAME_CHANGED',
-        payload: {
-          player: { displayName: 'USBC' },
-          previousName: 'psikoi'
-        }
+      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
+        player: { displayName: 'USBC' },
+        previousName: 'psikoi'
       });
 
       // Check if records transfered correctly
