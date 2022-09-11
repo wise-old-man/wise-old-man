@@ -1,40 +1,59 @@
 import { Prisma } from '@prisma/client';
-import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
 import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
 import * as playerUtils from '../api/modules/players/player.utils';
 import eventDispatcher, { EventType } from '../api/event-dispatcher';
 import { modifyAchievements } from '.';
 
+// Some events need to be dispatched on this hook because (some) bulk creates depend
+// on "skipDuplicates" which can't be easily predicted at the service level.
 export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
-  // Need to dispatch this event on this hook because some bulk creates depend
-  // on "skipDuplicates" which can't be predicted at the service level very easily.
   if (params.model === 'Achievement' && params.action === 'createMany') {
-    eventDispatcher.dispatch({
-      type: EventType.ACHIEVEMENTS_CREATED,
-      payload: { achievements: modifyAchievements(params.args.data) }
-    });
-    return;
-  }
+    const achievements = params.args.data;
 
-  if (params.model === 'Membership') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onMembersJoined(
-        params.args.data[0].groupId,
-        params.args.data.map(d => d.playerId)
-      );
-    } else if (params.action === 'deleteMany' && params.args?.where) {
-      onMembersLeft(params.args.where.groupId, params.args.where.playerId.in);
+    if (achievements?.length > 0) {
+      eventDispatcher.dispatch({
+        type: EventType.ACHIEVEMENTS_CREATED,
+        payload: { achievements: modifyAchievements(achievements) }
+      });
     }
 
     return;
   }
 
+  if (params.model === 'Membership') {
+    if (params.action === 'createMany') {
+      const newMemberships = params.args.data;
+
+      if (newMemberships?.length > 0) {
+        eventDispatcher.dispatch({
+          type: EventType.GROUP_MEMBERS_JOINED,
+          payload: { memberships: newMemberships }
+        });
+      }
+      return;
+    }
+
+    if (params.action === 'deleteMany' && params.args?.where) {
+      const removedPlayerIds = params.args.where.playerId.in;
+
+      if (removedPlayerIds?.length > 0 && result?.count > 0) {
+        eventDispatcher.dispatch({
+          type: EventType.GROUP_MEMBERS_LEFT,
+          payload: { groupId: params.args.where.groupId, playerIds: removedPlayerIds }
+        });
+      }
+      return;
+    }
+  }
+
   if (params.model === 'Group' && params.action === 'create') {
-    if (result?.memberships?.length > 0) {
-      onMembersJoined(
-        result.id,
-        result.memberships.map(d => d.playerId)
-      );
+    const newMemberships = result?.memberships;
+
+    if (newMemberships?.length > 0) {
+      eventDispatcher.dispatch({
+        type: EventType.GROUP_MEMBERS_JOINED,
+        payload: { memberships: newMemberships }
+      });
     }
 
     return;

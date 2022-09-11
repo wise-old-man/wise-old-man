@@ -1,16 +1,13 @@
-import { PlayerType } from '../../../utils';
-import * as discordService from '../../services/external/discord.service';
-import logger from '../../services/external/logger.service';
+import { Membership, PlayerType } from '../../../utils';
 import metrics from '../../services/external/metrics.service';
+import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 import jobs from '../../jobs';
 
-async function onMembersJoined(groupId: number, playerIds: number[]) {
-  // Temporary logging
-  playerIds.forEach(id => {
-    logger.info(`${id} joined ${groupId}`, {});
-  });
+async function onMembersJoined(memberships: Membership[]) {
+  const groupId = memberships[0].groupId;
+  const playerIds = memberships.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
   await metrics.measureReaction('AddToGroupCompetitions', () =>
@@ -36,11 +33,6 @@ async function onMembersJoined(groupId: number, playerIds: number[]) {
 }
 
 async function onMembersLeft(groupId: number, playerIds: number[]) {
-  // Temporary logging
-  playerIds.forEach(id => {
-    logger.info(`${id} left ${groupId}`, {});
-  });
-
   // Remove these players from ongoing/upcoming group competitions
   await metrics.measureReaction('RemoveFromGroupCompetitions', () =>
     competitionServices.removeFromGroupCompetitions({ groupId, playerIds })

@@ -141,8 +141,7 @@ describe('Achievements API', () => {
 
       expect(
         EVENT_REGISTRY.filter(e => e.type === 'ACHIEVEMENTS_CREATED' && e.payload.achievements.length === 37)
-          .length
-      ).toBe(1);
+      ).toBeTruthy();
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);

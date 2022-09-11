@@ -132,8 +132,8 @@ describe('Names API', () => {
       expect(
         EVENT_REGISTRY.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
-        ).length
-      ).toBe(1);
+        )
+      ).toBeTruthy();
 
       globalData.firstNameChangeId = submitResponse.body.id;
     });
@@ -157,8 +157,8 @@ describe('Names API', () => {
       expect(
         EVENT_REGISTRY.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
-        ).length
-      ).toBe(1);
+        )
+      ).toBeTruthy();
     });
 
     it('should not submit (repeated approved submission)', async () => {
@@ -181,8 +181,8 @@ describe('Names API', () => {
       expect(
         EVENT_REGISTRY.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
-        ).length
-      ).toBe(1);
+        )
+      ).toBeTruthy();
 
       clearDispatchedEvents();
 
