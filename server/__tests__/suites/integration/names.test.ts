@@ -3,9 +3,10 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType } from '../../../src/utils';
 import env from '../../../src/env';
+import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
-import prisma, { setHooksEnabled } from '../../../src/prisma';
+import eventDispatcher from '../../../src/api/event-dispatcher';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -15,10 +16,11 @@ import {
   clearDispatchedEvents,
   hasDispatchedEvent
 } from '../../utils';
-import { EVENT_REGISTRY } from '../../../src/api/event-dispatcher';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const MOCK_EVENT_COLLECTOR = [];
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -30,7 +32,7 @@ const globalData = {
 };
 
 beforeEach(() => {
-  clearDispatchedEvents();
+  clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
 });
 
 beforeAll(async done => {
@@ -46,6 +48,10 @@ beforeAll(async done => {
   registerHiscoresMock(axiosMock, {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
+  });
+
+  eventDispatcher.registerEventHook(e => {
+    MOCK_EVENT_COLLECTOR.push(e);
   });
 
   done();
@@ -64,7 +70,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'oldName' is undefined.");
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (missing newName)', async () => {
@@ -73,7 +79,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'newName' is undefined.");
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (invalid oldName)', async () => {
@@ -82,7 +88,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid old name.');
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (invalid newName)', async () => {
@@ -91,7 +97,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid new name.');
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (equal names)', async () => {
@@ -101,7 +107,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Old name and new name cannot be the same.');
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it("should not submit (player doesn't exist)", async () => {
@@ -110,7 +116,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Player 'psikoi' is not tracked yet.");
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should submit (capitalization change)', async () => {
@@ -130,7 +136,7 @@ describe('Names API', () => {
       expect(submitResponse.body.resolvedAt).toBe(null);
 
       expect(
-        EVENT_REGISTRY.filter(
+        MOCK_EVENT_COLLECTOR.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
         )
       ).toBeTruthy();
@@ -155,7 +161,7 @@ describe('Names API', () => {
       expect(submitResponse.body.resolvedAt).toBe(null);
 
       expect(
-        EVENT_REGISTRY.filter(
+        MOCK_EVENT_COLLECTOR.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
         )
       ).toBeTruthy();
@@ -179,12 +185,12 @@ describe('Names API', () => {
       globalData.secondNameChangeId = submitResponse.body.id;
 
       expect(
-        EVENT_REGISTRY.filter(
+        MOCK_EVENT_COLLECTOR.filter(
           e => e.type === 'NAME_CHANGE_SUBMITTED' && e.payload.nameChange.id === submitResponse.body.id
         )
       ).toBeTruthy();
 
-      clearDispatchedEvents();
+      clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
 
       // Approve this name change
       const approvalResponse = await api
@@ -208,7 +214,7 @@ describe('Names API', () => {
       expect(secondSubmitResponse.status).toBe(400);
       expect(secondSubmitResponse.body.message).toMatch('Cannot submit a duplicate (approved) name change');
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
 
     it('should not submit (repeated pending submission)', async () => {
@@ -217,7 +223,7 @@ describe('Names API', () => {
       expect(submitResponse.status).toBe(400);
       expect(submitResponse.body.message).toMatch("There's already a similar pending name change.");
 
-      expect(hasDispatchedEvent('NAME_CHANGE_SUBMITTED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'NAME_CHANGE_SUBMITTED')).toBe(false);
     });
   });
 
@@ -423,7 +429,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -432,7 +438,7 @@ describe('Names API', () => {
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (invalid id)', async () => {
@@ -441,7 +447,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (id not found)', async () => {
@@ -452,7 +458,7 @@ describe('Names API', () => {
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should not approve (not pending)', async () => {
@@ -463,7 +469,7 @@ describe('Names API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(false);
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -481,9 +487,9 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(true);
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
         player: { displayName: 'Jakesterwars' },
         previousName: 'jakesterwars'
       });
@@ -521,10 +527,10 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
-      expect(hasDispatchedEvent('PLAYER_UPDATED')).toBe(true);
-      expect(hasDispatchedEvent('PLAYER_NAME_CHANGED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_UPDATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'PLAYER_NAME_CHANGED')).toBe(true);
 
-      expect(EVENT_REGISTRY.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'PLAYER_NAME_CHANGED')[0].payload).toMatchObject({
         player: { displayName: 'USBC' },
         previousName: 'psikoi'
       });

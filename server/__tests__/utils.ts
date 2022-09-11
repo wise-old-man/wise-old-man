@@ -4,7 +4,7 @@ import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
 import { PlayerType, METRICS, Metric } from '../src/utils';
-import { EventType, EVENT_REGISTRY } from '../src/api/event-dispatcher';
+import { Event, EventType } from '../src/api/event-dispatcher';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {
@@ -69,12 +69,12 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
     .join('\n');
 }
 
-function hasDispatchedEvent(eventType: keyof typeof EventType) {
-  return !!EVENT_REGISTRY.find(e => e.type === eventType);
+function hasDispatchedEvent(events: Event[], eventType: keyof typeof EventType) {
+  return !!events.find(e => e.type === eventType);
 }
 
-function clearDispatchedEvents() {
-  EVENT_REGISTRY.splice(0, EVENT_REGISTRY.length);
+function clearDispatchedEvents(events: Event[]) {
+  events.splice(0, events.length);
 }
 
 export {

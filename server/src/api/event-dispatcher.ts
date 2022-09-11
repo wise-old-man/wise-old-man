@@ -6,13 +6,14 @@ import * as playerEvents from './modules/players/player.events';
 import * as nameChangeEvents from './modules/name-changes/name-change.events';
 import * as achievementEvents from './modules/achievements/achievement.events';
 
-export const EVENT_REGISTRY: Event[] = [];
+type EventHook = (event: Event) => void;
+const EVENT_HOOK_REGISTRY: EventHook[] = [];
 
 type ActionMap<M extends { [index: string]: unknown }> = {
   [Key in keyof M]: M[Key] extends undefined ? { type: Key } : { type: Key; payload: M[Key] };
 };
 
-type Event = ActionMap<EventPayloadMap>[keyof ActionMap<EventPayloadMap>];
+export type Event = ActionMap<EventPayloadMap>[keyof ActionMap<EventPayloadMap>];
 
 export enum EventType {
   // Player Events
@@ -48,35 +49,36 @@ type EventPayloadMap = {
   [EventType.GROUP_MEMBERS_LEFT]: { groupId: number; playerIds: number[] };
 };
 
-function dispatch(evt: Event) {
-  EVENT_REGISTRY.push(evt);
+function registerEventHook(hook: EventHook) {
+  EVENT_HOOK_REGISTRY.push(hook);
+}
 
-  try {
-    switch (evt.type) {
-      case EventType.PLAYER_TYPE_CHANGED:
-        return playerEvents.onPlayerTypeChanged(evt.payload.player, evt.payload.previousType);
-      case EventType.PLAYER_NAME_CHANGED:
-        return playerEvents.onPlayerNameChanged(evt.payload.player, evt.payload.previousName);
-      case EventType.PLAYER_UPDATED:
-        return playerEvents.onPlayerUpdated(evt.payload.player, evt.payload.snapshot, evt.payload.hasChanged);
-      case EventType.PLAYER_HISTORY_IMPORTED:
-        return playerEvents.onPlayerImported(evt.payload.playerId);
-      case EventType.DELTA_UPDATED:
-        return deltaEvents.onDeltaUpdated(evt.payload.delta, evt.payload.isPotentialRecord);
-      case EventType.NAME_CHANGE_SUBMITTED:
-        return nameChangeEvents.onNameChangeSubmitted(evt.payload.nameChange);
-      case EventType.ACHIEVEMENTS_CREATED:
-        return achievementEvents.onAchievementsCreated(evt.payload.achievements);
-      case EventType.GROUP_MEMBERS_JOINED:
-        return groupEvents.onMembersJoined(evt.payload.memberships);
-      case EventType.GROUP_MEMBERS_LEFT:
-        return groupEvents.onMembersLeft(evt.payload.groupId, evt.payload.playerIds);
-    }
-  } catch (error) {
-    console.log('Event Dispatcher error:', error);
+function dispatch(evt: Event) {
+  EVENT_HOOK_REGISTRY.forEach(hook => hook(evt));
+
+  switch (evt.type) {
+    case EventType.PLAYER_TYPE_CHANGED:
+      return playerEvents.onPlayerTypeChanged(evt.payload.player, evt.payload.previousType);
+    case EventType.PLAYER_NAME_CHANGED:
+      return playerEvents.onPlayerNameChanged(evt.payload.player, evt.payload.previousName);
+    case EventType.PLAYER_UPDATED:
+      return playerEvents.onPlayerUpdated(evt.payload.player, evt.payload.snapshot, evt.payload.hasChanged);
+    case EventType.PLAYER_HISTORY_IMPORTED:
+      return playerEvents.onPlayerImported(evt.payload.playerId);
+    case EventType.DELTA_UPDATED:
+      return deltaEvents.onDeltaUpdated(evt.payload.delta, evt.payload.isPotentialRecord);
+    case EventType.NAME_CHANGE_SUBMITTED:
+      return nameChangeEvents.onNameChangeSubmitted(evt.payload.nameChange);
+    case EventType.ACHIEVEMENTS_CREATED:
+      return achievementEvents.onAchievementsCreated(evt.payload.achievements);
+    case EventType.GROUP_MEMBERS_JOINED:
+      return groupEvents.onMembersJoined(evt.payload.memberships);
+    case EventType.GROUP_MEMBERS_LEFT:
+      return groupEvents.onMembersLeft(evt.payload.groupId, evt.payload.playerIds);
   }
 }
 
 export default {
-  dispatch
+  dispatch,
+  registerEventHook
 };
