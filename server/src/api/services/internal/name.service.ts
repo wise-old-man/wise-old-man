@@ -1,6 +1,6 @@
 import { omit } from 'lodash';
 import { Op, Transaction, WhereOptions } from 'sequelize';
-import { Metrics, SKILLS, getLevel } from '@wise-old-man/utils';
+import { Metrics, SKILLS, getLevel, Period } from '@wise-old-man/utils';
 import { sequelize } from '../../../database';
 import { Membership, NameChange, Participation, Player, Record, Snapshot } from '../../../database/models';
 import { NameChangeStatus, Pagination } from '../../../types';
@@ -506,7 +506,10 @@ async function transferRecords(filter: WhereOptions, targetId: number, transacti
   // Update all "outdated records"
   await Promise.all(
     outdated.map(async ({ record, newValue }) => {
-      await record.update({ value: newValue }, { transaction });
+      const period = record.period as string;
+      const fixedPeriod = period && period === '5min' ? Period.FIVE_MIN : period;
+
+      await record.update({ value: newValue, period: fixedPeriod }, { transaction });
     })
   );
 }
