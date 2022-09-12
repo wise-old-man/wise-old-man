@@ -1,5 +1,4 @@
 import { Prisma } from '@prisma/client';
-import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
 import * as playerUtils from '../api/modules/players/player.utils';
 import eventDispatcher, { EventType } from '../api/event-dispatcher';
 import { modifyAchievements } from '.';
@@ -60,25 +59,30 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
   }
 
   if (params.model === 'Participation') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onParticipantsJoined(
-        params.args.data[0].competitionId,
-        params.args.data.map(d => d.playerId)
-      );
+    if (params.action === 'createMany') {
+      const newParticipations = params.args.data;
+
+      if (newParticipations?.length > 0) {
+        eventDispatcher.dispatch({
+          type: EventType.COMPETITION_PARTICIPANTS_JOINED,
+          payload: { participations: newParticipations }
+        });
+      }
     }
 
     return;
   }
 
   if (params.model === 'Competition' && params.action === 'create') {
-    if (result?.participations?.length > 0) {
-      onParticipantsJoined(
-        result.id,
-        result.participations.map(d => d.playerId)
-      );
+    const newParticipations = result?.participations;
+
+    if (newParticipations?.length > 0) {
+      eventDispatcher.dispatch({
+        type: EventType.COMPETITION_PARTICIPANTS_JOINED,
+        payload: { participations: newParticipations }
+      });
     }
 
-    onCompetitionCreated(result);
     return;
   }
 

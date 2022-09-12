@@ -5,6 +5,7 @@ import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import { PlayerType } from '../../../src/utils';
+import eventDispatcher from '../../../src/api/event-dispatcher';
 import {
   resetDatabase,
   resetRedis,
@@ -12,8 +13,12 @@ import {
   registerHiscoresMock,
   readFile,
   modifyRawHiscoresData,
-  sleep
+  sleep,
+  clearDispatchedEvents,
+  hasDispatchedEvent
 } from '../../utils';
+
+const MOCK_EVENT_COLLECTOR = [];
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -34,6 +39,10 @@ const globalData = {
   testCompetitionWithGroup: EMPTY_DATA
 };
 
+beforeEach(() => {
+  clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
+});
+
 beforeAll(async done => {
   await resetDatabase();
   await resetRedis();
@@ -47,6 +56,10 @@ beforeAll(async done => {
   registerHiscoresMock(axiosMock, {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
+  });
+
+  eventDispatcher.registerEventHook(e => {
+    MOCK_EVENT_COLLECTOR.push(e);
   });
 
   done();
@@ -74,6 +87,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'title' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (empty title)', async () => {
@@ -81,6 +97,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Competition title must have at least one character.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (undefined metric)', async () => {
@@ -88,6 +107,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (undefined start date)', async () => {
@@ -95,6 +117,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'startsAt' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid start date)', async () => {
@@ -104,6 +129,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'startsAt' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (undefined end date)', async () => {
@@ -113,6 +141,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'endsAt' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid end date)', async () => {
@@ -122,6 +153,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'endsAt' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (end date before start date)', async () => {
@@ -133,6 +167,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Start date must be before the end date.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (past dates)', async () => {
@@ -144,6 +181,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid dates: All start and end dates must be in the future.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid metric)', async () => {
@@ -151,6 +191,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'metric'.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (title too long)', async () => {
@@ -161,6 +204,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Competition title cannot be longer than 50 characters.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid participants list)', async () => {
@@ -171,6 +217,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid player name)', async () => {
@@ -182,6 +231,9 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
       expect(response.body.data).toContain('areallylongusername');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (included participants and teams)', async () => {
@@ -195,6 +247,9 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Cannot include both "participants" and "teams", they are mutually exclusive.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid teams list type)', async () => {
@@ -205,6 +260,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'teams' is not a valid array.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid team shape)', async () => {
@@ -217,6 +275,9 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid team players list)', async () => {
@@ -229,6 +290,9 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (undefined team players list)', async () => {
@@ -241,6 +305,9 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (empty team players list)', async () => {
@@ -251,6 +318,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All teams must have a valid non-empty participants array.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (undefined team name)', async () => {
@@ -263,6 +333,9 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (empty team name)', async () => {
@@ -273,6 +346,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names must have at least one character.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (team name too long)', async () => {
@@ -283,6 +359,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names cannot be longer than 30 characters.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (duplicated team name)', async () => {
@@ -296,6 +375,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated team names: [warriors]');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (duplicated team players)', async () => {
@@ -309,6 +391,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated usernames: [zezima]');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (group not found)', async () => {
@@ -320,6 +405,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (invalid group verification code)', async () => {
@@ -330,6 +418,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid group verification code.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (incorrect group verification code)', async () => {
@@ -353,6 +444,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect group verification code.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not create (included participants and groupId)', async () => {
@@ -365,6 +459,9 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Cannot include both "participants" and "groupId"');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(false);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should create (no participants)', async () => {
@@ -387,6 +484,13 @@ describe('Competition API', () => {
       expect(response.body.competition.groupId).toBeNull();
       expect(response.body.competition.group).not.toBeDefined();
       expect(response.body.competition.verificationHash).not.toBeDefined();
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'Wise Old Man', metric: 'smithing' }
+      });
 
       globalData.testCompetitionStarting = {
         id: response.body.competition.id,
@@ -422,6 +526,19 @@ describe('Competition API', () => {
       expect(response.body.competition.groupId).toBeNull();
       expect(response.body.competition.group).not.toBeDefined();
       expect(response.body.competition.verificationHash).not.toBeDefined();
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'BOTW Zulrah #3', metric: 'zulrah' }
+      });
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 4
+        )
+      ).toBeTruthy();
 
       // Create this competition here, as it'll be used in future tests
       // as a team-type competition mirror for the one above
@@ -484,6 +601,19 @@ describe('Competition API', () => {
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('zezima');
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('rorro');
       expect(response.body.competition.participations.map(p => p.player.username)).toContain('usbc');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'SOTW Thieving 💰 #5', metric: 'thieving' }
+      });
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 4
+        )
+      ).toBeTruthy();
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
@@ -553,6 +683,19 @@ describe('Competition API', () => {
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
 
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'Soul Wars Competition', metric: 'soul_wars_zeal' }
+      });
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 4
+        )
+      ).toBeTruthy();
+
       globalData.testCompetitionEnding = {
         id: response.body.competition.id,
         verificationCode: response.body.verificationCode
@@ -593,6 +736,19 @@ describe('Competition API', () => {
 
       // Reset the timers to the current (REAL) time
       jest.useRealTimers();
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'OVERALL Competition', metric: 'overall' }
+      });
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 2
+        )
+      ).toBeTruthy();
 
       globalData.testCompetitionEnded = {
         id: response.body.competition.id,
@@ -637,6 +793,19 @@ describe('Competition API', () => {
         id: globalData.testGroup.id
       });
 
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_CREATED')).toBe(true);
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'COMPETITION_CREATED')[0].payload).toMatchObject({
+        competition: { title: 'Fishing Competition', metric: 'fishing' }
+      });
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 4
+        )
+      ).toBeTruthy();
+
       globalData.testCompetitionWithGroup = {
         id: response.body.competition.id,
         verificationCode: response.body.verificationCode
@@ -656,6 +825,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Competition not found.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (empty title)', async () => {
@@ -666,6 +837,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Competition title must have at least one character.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (title too long)', async () => {
@@ -676,6 +849,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Competition title cannot be longer than 50 characters.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (nothing to update)', async () => {
@@ -685,6 +860,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Nothing to update.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid metric)', async () => {
@@ -695,6 +872,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'metric'.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (end date before start date)', async () => {
@@ -706,6 +885,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Start date must be before the end date.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (past dates)', async () => {
@@ -717,6 +898,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Invalid dates: All start and end dates must be in the future.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid participants list)', async () => {
@@ -727,6 +910,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'participants' is not a valid array.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid player name)', async () => {
@@ -738,6 +923,8 @@ describe('Competition API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
       expect(response.body.data).toContain('areallylongusername');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid teams list type)', async () => {
@@ -748,6 +935,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'teams' is not a valid array.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid team shape)', async () => {
@@ -760,6 +949,8 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (invalid team players list)', async () => {
@@ -772,6 +963,8 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (undefined team players list)', async () => {
@@ -784,6 +977,8 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (empty team players list)', async () => {
@@ -794,6 +989,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All teams must have a valid non-empty participants array.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (undefined team name)', async () => {
@@ -806,6 +1003,8 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch(
         'Invalid teams list. Must be an array of { name: string; participants: string[]; }.'
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (empty team name)', async () => {
@@ -816,6 +1015,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names must have at least one character.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (team name too long)', async () => {
@@ -826,6 +1027,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Team names cannot be longer than 30 characters.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (duplicated team name)', async () => {
@@ -839,6 +1042,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated team names: [warriors]');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (duplicated team players)', async () => {
@@ -852,6 +1057,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated usernames: [zezima]');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (undefined verification code)', async () => {
@@ -861,6 +1068,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit (incorrect verification code)', async () => {
@@ -871,6 +1080,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit start date (already started)', async () => {
@@ -881,6 +1092,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The competition has started, the start date cannot be changed.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit metric (already started)', async () => {
@@ -891,6 +1104,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('The competition has started, the metric cannot be changed.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit teams (cannot change to classic competition)', async () => {
@@ -901,6 +1116,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("The competition type cannot be changed to 'classic'.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not edit teams (cannot change to team competition)', async () => {
@@ -911,6 +1128,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("The competition type cannot be changed to 'team'.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should edit (own fields)', async () => {
@@ -930,6 +1149,8 @@ describe('Competition API', () => {
       expect(response.body.groupId).toBe(null);
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should edit participants', async () => {
@@ -966,6 +1187,14 @@ describe('Competition API', () => {
       expect(new Date(detailsResponse.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(detailsBeforeResponse.body.updatedAt).getTime()
       );
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 4
+        )
+      ).toBeTruthy();
     });
 
     it('should edit teams', async () => {
@@ -1000,6 +1229,14 @@ describe('Competition API', () => {
       expect(response.body.groupId).toBe(null);
       expect(response.body.group).not.toBeDefined();
       expect(response.body.verificationHash).not.toBeDefined();
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 10
+        )
+      ).toBeTruthy();
 
       const usernameTeamMap: { [username: string]: string } = {};
 
@@ -1073,6 +1310,14 @@ describe('Competition API', () => {
       expect(response.body.participations.length).toBe(8);
       expect(response.body.participations.map(p => p.player.username)).not.toContain('zezima'); // player got removed
       expect(response.body.title).toBe('SoulWars Competition');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 8
+        )
+      ).toBeTruthy();
     });
   });
 
@@ -1315,6 +1560,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (competition not found)', async () => {
@@ -1325,6 +1572,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Competition not found.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (incorrect verification code)', async () => {
@@ -1337,6 +1586,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (undefined participant list)', async () => {
@@ -1348,6 +1599,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'participants' is undefined.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (invalid participant list)', async () => {
@@ -1360,6 +1613,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'participants' is not a valid array.");
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (empty participant list)', async () => {
@@ -1372,6 +1627,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Empty participants list.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (invalid participant username)', async () => {
@@ -1384,6 +1641,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 2 invalid usernames:');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (repeated participant username)', async () => {
@@ -1396,6 +1655,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found repeated usernames: [zezima, rorro]');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (already participants)', async () => {
@@ -1408,6 +1669,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All players given are already competing.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should not add participants (team competition)', async () => {
@@ -1420,6 +1683,8 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Cannot add participants to a team competition.');
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(false);
     });
 
     it('should add participants', async () => {
@@ -1437,6 +1702,14 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBe(2);
+
+      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'COMPETITION_PARTICIPANTS_JOINED')).toBe(true);
+
+      expect(
+        MOCK_EVENT_COLLECTOR.filter(
+          e => e.type === 'COMPETITION_PARTICIPANTS_JOINED' && e.payload.participations.length === 2
+        )
+      ).toBeTruthy();
 
       const after = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
       expect(after.status).toBe(200);

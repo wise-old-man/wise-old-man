@@ -1,4 +1,4 @@
-import { Competition } from '../../../prisma';
+import { Competition, Participation } from '../../../prisma';
 import { PlayerType } from '../../../utils';
 import jobs from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
@@ -7,7 +7,9 @@ import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 import { EventPeriodDelay } from '../../services/external/discord.service';
 
-async function onParticipantsJoined(_: number, playerIds: number[]) {
+async function onParticipantsJoined(participations: Participation[]) {
+  const playerIds = participations.map(p => p.playerId);
+
   // Fetch all the newly added participants
   const players = await playerServices.findPlayers({ ids: playerIds });
 

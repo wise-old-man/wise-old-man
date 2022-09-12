@@ -1,10 +1,11 @@
-import { Delta, Player, Snapshot, Achievement, NameChange } from '../prisma';
+import { Delta, Player, Snapshot, Achievement, NameChange, Competition, Participation } from '../prisma';
 import { Membership, PlayerType } from '../utils';
 import * as groupEvents from './modules/groups/group.events';
 import * as deltaEvents from './modules/deltas/delta.events';
 import * as playerEvents from './modules/players/player.events';
 import * as nameChangeEvents from './modules/name-changes/name-change.events';
 import * as achievementEvents from './modules/achievements/achievement.events';
+import * as competitionEvents from './modules/competitions/competition.events';
 
 type EventHook = (event: Event) => void;
 const EVENT_HOOK_REGISTRY: EventHook[] = [];
@@ -29,7 +30,10 @@ export enum EventType {
   ACHIEVEMENTS_CREATED = 'ACHIEVEMENTS_CREATED',
   // Group Events
   GROUP_MEMBERS_JOINED = 'GROUP_MEMBERS_JOINED',
-  GROUP_MEMBERS_LEFT = 'GROUP_MEMBERS_LEFT'
+  GROUP_MEMBERS_LEFT = 'GROUP_MEMBERS_LEFT',
+  // Competition Events
+  COMPETITION_CREATED = 'COMPETITION_CREATED',
+  COMPETITION_PARTICIPANTS_JOINED = 'COMPETITION_PARTICIPANTS_JOINED'
 }
 
 type EventPayloadMap = {
@@ -47,6 +51,9 @@ type EventPayloadMap = {
   // Group Events
   [EventType.GROUP_MEMBERS_JOINED]: { memberships: Membership[] };
   [EventType.GROUP_MEMBERS_LEFT]: { groupId: number; playerIds: number[] };
+  // Competition Events
+  [EventType.COMPETITION_CREATED]: { competition: Competition };
+  [EventType.COMPETITION_PARTICIPANTS_JOINED]: { participations: Participation[] };
 };
 
 function registerEventHook(hook: EventHook) {
@@ -75,6 +82,10 @@ function dispatch(evt: Event) {
       return groupEvents.onMembersJoined(evt.payload.memberships);
     case EventType.GROUP_MEMBERS_LEFT:
       return groupEvents.onMembersLeft(evt.payload.groupId, evt.payload.playerIds);
+    case EventType.COMPETITION_CREATED:
+      return competitionEvents.onCompetitionCreated(evt.payload.competition);
+    case EventType.COMPETITION_PARTICIPANTS_JOINED:
+      return competitionEvents.onParticipantsJoined(evt.payload.participations);
   }
 }
 
