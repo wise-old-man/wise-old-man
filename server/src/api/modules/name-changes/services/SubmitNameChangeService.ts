@@ -3,6 +3,7 @@ import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import * as playerUtils from '../../../modules/players/player.utils';
 import * as playerServices from '../../../modules/players/player.services';
+import * as nameChangeEvents from '../name-change.events';
 
 const inputSchema = z
   .object({
@@ -71,6 +72,8 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
       newName: playerUtils.sanitize(params.newName)
     }
   });
+
+  nameChangeEvents.onNameChangeSubmitted(newNameChange);
 
   return newNameChange;
 }

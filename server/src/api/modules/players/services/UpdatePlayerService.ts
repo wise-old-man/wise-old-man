@@ -7,6 +7,7 @@ import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
+import * as playerEvents from '../player.events';
 import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
@@ -45,16 +46,18 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     // Fetch the new player stats from the hiscores API
     const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
 
-    // There has been a radical change in this player's stats, mark it as flagged
+    // There has been a significant change in this player's stats, mark it as flagged
     if (!snapshotUtils.withinRange(previousStats, currentStats)) {
       await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 
     // The player has gained exp/kc/scores since the last update
+    let hasChanged = false;
+
     if (snapshotUtils.hasChanged(previousStats, currentStats)) {
       updatedPlayerFields.lastChangedAt = new Date();
-      // TODO:   currentStats.isChange = true;
+      hasChanged = true;
     }
 
     // Refresh the player's build
@@ -89,6 +92,8 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     // Create (and save) a new snapshot
     const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
+
+    playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
 
     const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
 

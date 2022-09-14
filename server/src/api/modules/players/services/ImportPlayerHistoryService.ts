@@ -5,6 +5,7 @@ import { RateLimitError } from '../../../errors';
 import * as playerUtils from '../player.utils';
 import * as cmlService from '../../../services/external/cml.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import * as playerEvents from '../player.events';
 import { SnapshotDataSource, SnapshotFragment } from '../../snapshots/snapshot.types';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
@@ -48,6 +49,8 @@ async function importPlayerHistory(payload: ImportPlayerHistoryParams): Promise<
     data: { lastImportedAt: new Date() },
     where: { id: params.id }
   });
+
+  playerEvents.onPlayerImported(params.id);
 
   return { count: importedCount };
 }

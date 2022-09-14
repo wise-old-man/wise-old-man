@@ -5,6 +5,7 @@ import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import { PlayerType } from '../../../src/utils';
+import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import {
   resetDatabase,
   resetRedis,
@@ -17,6 +18,9 @@ import {
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
+const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 
 const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
@@ -50,7 +54,11 @@ const globalData = {
   }
 };
 
-beforeAll(async done => {
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -67,13 +75,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.pHiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Group API', () => {
@@ -83,6 +88,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'name' is undefined.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (empty name)', async () => {
@@ -90,6 +97,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Group name must have at least one character.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (name too long)', async () => {
@@ -99,6 +108,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Group name cannot be longer than 30 characters.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid clanChat)', async () => {
@@ -110,6 +121,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid 'clanChat'");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (clanChat too long)', async () => {
@@ -121,6 +134,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid 'clanChat'");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (description too long)', async () => {
@@ -132,6 +147,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Description cannot be longer than 100 characters.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member object shape)', async () => {
@@ -144,6 +161,8 @@ describe('Group API', () => {
       expect(response.body.message).toMatch(
         'Invalid members list. Must be an array of { username: string; role?: string; }.'
       );
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member role)', async () => {
@@ -158,6 +177,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'role'.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid member name)', async () => {
@@ -169,6 +190,8 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.data).toEqual(['reallyreallylongusername']);
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not create (invalid homeworld type)', async () => {
@@ -182,6 +205,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'homeworld' is not a valid number.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should create (no members)', async () => {
@@ -204,6 +229,8 @@ describe('Group API', () => {
       expect(response.body.group.memberships.length).toBe(0);
       expect(response.body.group.verificationHash).not.toBeDefined();
       expect(response.body.verificationCode).toBeDefined();
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
       globalData.testGroupNoMembers = {
         id: response.body.group.id,
@@ -241,6 +268,8 @@ describe('Group API', () => {
       expect(response.body.group.verificationHash).not.toBeDefined();
       expect(response.body.verificationCode).toBeDefined();
 
+      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 5 }));
+
       globalData.testGroupNoLeaders = {
         id: response.body.group.id,
         name: response.body.group.name,
@@ -269,6 +298,8 @@ describe('Group API', () => {
       expect(response.body.group.memberships.filter(m => m.role === 'member').length).toBe(1);
       expect(response.body.group.memberships.filter(m => m.role === 'artisan').length).toBe(1);
 
+      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 4 }));
+
       globalData.testGroupOneLeader = {
         id: response.body.group.id,
         name: response.body.group.name,
@@ -281,6 +312,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('is already taken');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should create and correctly handle duplicate usernames', async () => {
@@ -317,6 +350,8 @@ describe('Group API', () => {
         player: { username: 'test player' },
         role: 'ruby'
       });
+
+      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
     });
   });
 
@@ -326,6 +361,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (incorrect verification code)', async () => {
@@ -335,6 +373,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (empty params)', async () => {
@@ -344,6 +385,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Nothing to update.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (group not found)', async () => {
@@ -351,6 +395,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (name already taken)', async () => {
@@ -363,6 +410,9 @@ describe('Group API', () => {
       expect(response.body.message).toMatch(
         `Group name '${globalData.testGroupNoLeaders.name}' is already taken.`
       );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member object shape)', async () => {
@@ -375,6 +425,9 @@ describe('Group API', () => {
       expect(response.body.message).toMatch(
         'Invalid members list. Must be an array of { username: string; role?: string; }.'
       );
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member role)', async () => {
@@ -395,6 +448,9 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not edit (invalid member name)', async () => {
@@ -410,6 +466,9 @@ describe('Group API', () => {
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Found 1 invalid usernames');
       expect(response.body.data).toEqual(['Some really long username']);
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit members list', async () => {
@@ -436,6 +495,14 @@ describe('Group API', () => {
       expect(response.body.memberships.filter(m => m.role === 'firemaker').length).toBe(1);
       expect(response.body.memberships.filter(m => m.role === 'member').length).toBe(1);
       expect(response.body.memberships.filter(m => m.role === 'leader').length).toBe(1);
+
+      // 2 players removed
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(
+        globalData.testGroupOneLeader.id,
+        expect.objectContaining({ length: 2 })
+      );
+      // 3 new players added
+      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
     });
 
     it('should edit name', async () => {
@@ -448,6 +515,9 @@ describe('Group API', () => {
       expect(response.body.name).toBe('New name!');
       expect(response.body.memberCount).toBe(5); // shouldn't change
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit clanchat, homeworld & description', async () => {
@@ -466,6 +536,9 @@ describe('Group API', () => {
         memberCount: 5 // shouldn't change
       });
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -575,6 +648,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Group not found.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid verification code)', async () => {
@@ -584,6 +659,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'verificationCode' is required.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (incorrect verification code)', async () => {
@@ -594,6 +671,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid members list)', async () => {
@@ -604,6 +683,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'members' is not a valid array.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (empty members list)', async () => {
@@ -614,6 +695,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Empty members list.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member object shape)', async () => {
@@ -624,6 +707,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid members list.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member name)', async () => {
@@ -636,6 +721,8 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('Found 1 invalid usernames:');
       expect(response.body.data.length).toBe(1);
       expect(response.body.data).toContain('elvard@invalid');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (invalid member role)', async () => {
@@ -646,6 +733,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Invalid enum value for 'role'.");
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should not add members (already members)', async () => {
@@ -656,6 +745,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All players given are already members.');
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
     });
 
     it('should add members', async () => {
@@ -677,6 +768,8 @@ describe('Group API', () => {
         count: 3,
         message: 'Successfully added 3 members.'
       });
+
+      expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
@@ -910,6 +1003,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (invalid verification code)', async () => {
@@ -919,6 +1014,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (incorrect verification code)', async () => {
@@ -929,6 +1026,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect verification code.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (invalid members list)', async () => {
@@ -939,6 +1038,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'members' is not a valid array.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (empty members list)', async () => {
@@ -949,6 +1050,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Empty members list.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (no valid players found)', async () => {
@@ -959,6 +1062,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('No valid tracked players were given.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should not remove members (not members)', async () => {
@@ -969,6 +1074,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('None of the players given were members of that group.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
     it('should remove members', async () => {
@@ -985,6 +1092,11 @@ describe('Group API', () => {
         count: 2,
         message: 'Successfully removed 2 members.'
       });
+
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(
+        globalData.testGroupNoLeaders.id,
+        expect.objectContaining({ length: 2 })
+      );
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);

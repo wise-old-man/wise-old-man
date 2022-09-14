@@ -1,7 +1,17 @@
-import { Period, PeriodProps, PERIODS, SKILLS, BOSSES, ACTIVITIES, VIRTUALS } from '../../../../utils';
-import prisma, { Player, Snapshot } from '../../../../prisma';
+import {
+  Period,
+  PeriodProps,
+  PERIODS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  VIRTUALS,
+  METRICS
+} from '../../../../utils';
+import prisma, { modifyDelta, Player, PrismaDelta, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import { calculatePlayerDeltas } from '../delta.utils';
+import * as deltaUtils from '../delta.utils';
+import * as deltaEvents from '../delta.events';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Build the update/create promise for a given period
@@ -15,7 +25,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // The player only has one snapshot in this period, can't calculate diffs
     if (!latestSnapshot || !startSnapshot || latestSnapshot.id === startSnapshot.id) return;
 
-    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
+    const periodDiffs = deltaUtils.calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
 
     const newDelta = {
       period,
@@ -33,7 +43,16 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       where: { playerId: player.id, period }
     });
 
-    // TODO: Missing potential record checks and flagging
+    // if any metric has improved since the last delta sync, it is a potential record
+    // and we should also check for new records in this period
+    let hasImprovements = false;
+
+    METRICS.forEach(metric => {
+      if (currentDelta && newDelta[metric] > currentDelta[metric]) {
+        hasImprovements = true;
+      }
+    });
+
     // TODO: after fixing the unique values for deltas, turn this into an upsert, get rid of currentDelta
 
     if (currentDelta) {
@@ -41,6 +60,8 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     } else {
       await prisma.delta.create({ data: newDelta });
     }
+
+    deltaEvents.onDeltaUpdated(modifyDelta(newDelta as PrismaDelta), !currentDelta || hasImprovements);
   }
 
   // Execute all update promises, sequentially

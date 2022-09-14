@@ -3,7 +3,7 @@ import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
-import { onPlayerTypeChanged } from '../player.events';
+import * as playerEvents from '../player.events';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
@@ -22,9 +22,7 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
       })
       .then(modifyPlayer);
 
-    // TODO: this can be improved with that hook buffer needed for isChange, isPotentialRecord, etc
-    // Explicitly call this event, unlike most others that are handled via prisma hooks
-    onPlayerTypeChanged(updatedPlayer, player.type);
+    playerEvents.onPlayerTypeChanged(updatedPlayer, player.type);
 
     return [confirmedType, updatedPlayer, true];
   }

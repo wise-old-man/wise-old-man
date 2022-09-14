@@ -14,6 +14,7 @@ import {
   resetRedis
 } from '../../utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
+import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 
 const api = supertest(apiServer);
@@ -22,13 +23,21 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
+const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
+const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
+const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
+
 const globalData = {
   testPlayerId: -1,
   cmlRawData: '',
   hiscoresRawData: ''
 };
 
-beforeAll(async done => {
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -43,13 +52,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Player API', () => {
@@ -61,6 +67,8 @@ describe('Player API', () => {
       expect(response.body.message).toMatch(
         'Validation error: Username cannot contain any special characters'
       );
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should not track player (lengthy username)', async () => {
@@ -68,6 +76,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Validation error: Username must be between');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
     });
 
     it('should not track player (hiscores failed)', async () => {
@@ -80,6 +90,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
@@ -101,6 +113,16 @@ describe('Player API', () => {
         lastImportedAt: null
       });
 
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'psikoi'
+        }),
+        expect.objectContaining({
+          playerId: response.body.id
+        }),
+        true
+      );
+
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // updated under a second ago
       expect(new Date(response.body.registeredAt).getTime()).toBeGreaterThan(Date.now() - 1000); // registered under a second ago
       expect(new Date(response.body.lastChangedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // changed under a second ago
@@ -109,6 +131,21 @@ describe('Player API', () => {
 
       expect(response.body.ehp).toBe(response.body.latestSnapshot.data.virtuals.ehp.value);
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.virtuals.ehb.value);
+
+      // Track again, stats shouldn't have changed
+      await api.post(`/players/ PSIKOI_ `);
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledTimes(2);
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'psikoi'
+        }),
+        expect.objectContaining({
+          playerId: response.body.id
+        }),
+        false
+      );
 
       globalData.testPlayerId = response.body.id;
     });
@@ -127,6 +164,17 @@ describe('Player API', () => {
 
       expect(responseDef1.status).toBe(201);
       expect(responseDef1.body.build).toBe('def1');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'def1'
+        }),
+        expect.objectContaining({
+          playerId: responseDef1.body.id,
+          defenceExperience: 0
+        }),
+        true
+      );
     });
 
     it('should track player (zerker)', async () => {
@@ -143,6 +191,17 @@ describe('Player API', () => {
 
       expect(responseZerker.status).toBe(201);
       expect(responseZerker.body.build).toBe('zerker');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'zerker'
+        }),
+        expect.objectContaining({
+          playerId: responseZerker.body.id,
+          defenceExperience: 61_512
+        }),
+        true
+      );
     });
 
     it('should track player (10hp)', async () => {
@@ -159,6 +218,17 @@ describe('Player API', () => {
 
       expect(response10HP.status).toBe(201);
       expect(response10HP.body.build).toBe('hp10');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'hp10'
+        }),
+        expect.objectContaining({
+          playerId: response10HP.body.id,
+          hitpointsExperience: 1154
+        }),
+        true
+      );
     });
 
     it('should track player (lvl3)', async () => {
@@ -181,6 +251,18 @@ describe('Player API', () => {
 
       expect(responseLvl3.status).toBe(201);
       expect(responseLvl3.body.build).toBe('lvl3');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'lvl3'
+        }),
+        expect.objectContaining({
+          playerId: responseLvl3.body.id,
+          hitpointsExperience: 1154,
+          prayerExperience: 0
+        }),
+        true
+      );
     });
 
     it('should track player (f2p)', async () => {
@@ -207,6 +289,18 @@ describe('Player API', () => {
 
       expect(responseF2P.status).toBe(201);
       expect(responseF2P.body.build).toBe('f2p');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'f2p'
+        }),
+        expect.objectContaining({
+          playerId: responseF2P.body.id,
+          bryophytaKills: 10,
+          agilityExperience: 0
+        }),
+        true
+      );
     });
 
     it('should track player (ironman)', async () => {
@@ -230,6 +324,17 @@ describe('Player API', () => {
       });
 
       expect(response.body.latestSnapshot).not.toBeNull();
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'hydrox6',
+          type: 'ironman'
+        }),
+        expect.objectContaining({
+          playerId: response.body.id
+        }),
+        true
+      );
 
       // Revert the hiscores mocking back to "regular" player type
       registerHiscoresMock(axiosMock, {
@@ -307,6 +412,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
+
+      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
     });
 
     it('should not import player (CML failed)', async () => {
@@ -317,6 +424,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load history from CML.');
+
+      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
     });
 
     it('should import player', async () => {
@@ -333,6 +442,8 @@ describe('Player API', () => {
         message: 'Sucessfully imported 219 snapshots from CML.'
       });
 
+      expect(onPlayerImportedEvent).toHaveBeenCalled();
+
       const detailsResponse = await api.get(`/players/psikoi`);
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.lastImportedAt).not.toBeNull();
@@ -343,7 +454,7 @@ describe('Player API', () => {
       });
 
       expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.length).toBe(221); // 219 imported, 2 tracked (during this test session)
+      expect(snapshotsResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
       expect(snapshotsResponse.body.filter(s => s.importedAt !== null).length).toBe(219);
       expect(
         snapshotsResponse.body.filter(
@@ -362,6 +473,8 @@ describe('Player API', () => {
       const importResponse = await api.post(`/players/psikoi/import-history`);
       expect(importResponse.status).toBe(429);
       expect(importResponse.body.message).toMatch('Imported too soon, please wait');
+
+      expect(onPlayerImportedEvent).not.toHaveBeenCalled();
 
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
@@ -460,6 +573,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
+
+      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not assert player type (player is flagged)', async () => {
@@ -486,6 +601,8 @@ describe('Player API', () => {
 
       expect(assertTypeResponse.status).toBe(400);
       expect(assertTypeResponse.body.message).toMatch('Type Assertion Not Allowed: Player is Flagged.');
+
+      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular)', async () => {
@@ -515,6 +632,10 @@ describe('Player API', () => {
       expect(response.status).toBe(200);
       expect(response.body.changed).toBe(false);
       expect(response.body.player).toMatchObject({ username: 'psikoi', type: 'regular' });
+
+      // No type changes happened = no type change events were dispatched
+
+      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should assert player type (regular -> ultimate)', async () => {
@@ -531,6 +652,14 @@ describe('Player API', () => {
       expect(assertTypeResponse.status).toBe(200);
       expect(assertTypeResponse.body.changed).toBe(true);
       expect(assertTypeResponse.body.player).toMatchObject({ username: 'psikoi', type: 'ultimate' });
+
+      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'psikoi',
+          type: 'ultimate'
+        }),
+        'regular'
+      );
 
       const detailsResponse = await api.get('/players/PsiKOI');
 

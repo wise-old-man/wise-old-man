@@ -3,7 +3,7 @@ import { NameChange } from '../../../prisma';
 import metrics from '../../services/external/metrics.service';
 import * as nameChangeServices from './name-change.services';
 
-async function onNameChangeCreated(nameChange: NameChange) {
+async function onNameChangeSubmitted(nameChange: NameChange) {
   if (isTesting()) return;
 
   // Delay this action randomly to prevent proccessing too many
@@ -15,4 +15,4 @@ async function onNameChangeCreated(nameChange: NameChange) {
   }, Math.random() * 120_000);
 }
 
-export { onNameChangeCreated };
+export { onNameChangeSubmitted };

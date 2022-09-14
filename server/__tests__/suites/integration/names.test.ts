@@ -3,13 +3,18 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType } from '../../../src/utils';
 import env from '../../../src/env';
+import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
-import prisma, { setHooksEnabled } from '../../../src/prisma';
+import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
+import * as playerEvents from '../../../src/api/modules/players/player.events';
 import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../../utils';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
+const onNameChangeSubmittedEvent = jest.spyOn(nameChangeEvents, 'onNameChangeSubmitted');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -20,7 +25,11 @@ const globalData = {
   testGroupId: -1
 };
 
-beforeAll(async done => {
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -34,13 +43,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Names API', () => {
@@ -50,6 +56,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'oldName' is undefined.");
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should not submit (missing newName)', async () => {
@@ -57,6 +65,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'newName' is undefined.");
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should not submit (invalid oldName)', async () => {
@@ -64,6 +74,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid old name.');
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should not submit (invalid newName)', async () => {
@@ -71,6 +83,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Invalid new name.');
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should not submit (equal names)', async () => {
@@ -79,6 +93,8 @@ describe('Names API', () => {
       // Note: We allow changes in capitalization, so this condition only fails for equal names (same capitalization)
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('Old name and new name cannot be the same.');
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it("should not submit (player doesn't exist)", async () => {
@@ -86,6 +102,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Player 'psikoi' is not tracked yet.");
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should submit (capitalization change)', async () => {
@@ -103,6 +121,12 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('psikoi');
       expect(submitResponse.body.newName).toBe('Psikoi');
       expect(submitResponse.body.resolvedAt).toBe(null);
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
 
       globalData.firstNameChangeId = submitResponse.body.id;
     });
@@ -122,6 +146,12 @@ describe('Names API', () => {
       expect(submitResponse.body.oldName).toBe('Hydrox6');
       expect(submitResponse.body.newName).toBe('alexsuperfly');
       expect(submitResponse.body.resolvedAt).toBe(null);
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
     });
 
     it('should not submit (repeated approved submission)', async () => {
@@ -140,6 +170,14 @@ describe('Names API', () => {
       expect(submitResponse.status).toBe(201);
 
       globalData.secondNameChangeId = submitResponse.body.id;
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
+
+      jest.resetAllMocks();
 
       // Approve this name change
       const approvalResponse = await api
@@ -162,6 +200,8 @@ describe('Names API', () => {
 
       expect(secondSubmitResponse.status).toBe(400);
       expect(secondSubmitResponse.body.message).toMatch('Cannot submit a duplicate (approved) name change');
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
 
     it('should not submit (repeated pending submission)', async () => {
@@ -169,6 +209,8 @@ describe('Names API', () => {
 
       expect(submitResponse.status).toBe(400);
       expect(submitResponse.body.message).toMatch("There's already a similar pending name change.");
+
+      expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -373,6 +415,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+
+      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (incorrect admin password)', async () => {
@@ -380,6 +424,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
+
+      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (invalid id)', async () => {
@@ -387,6 +433,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'id' is not a valid number.");
+
+      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (id not found)', async () => {
@@ -396,6 +444,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Name change id was not found.');
+
+      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not approve (not pending)', async () => {
@@ -405,6 +455,8 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Name change status must be PENDING');
+
+      expect(onPlayerNameChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should approve (capitalization change, no transfers)', async () => {
@@ -421,6 +473,13 @@ describe('Names API', () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'Jakesterwars'
+        }),
+        'jakesterwars'
+      );
     });
 
     it('should approve (and transfer data)', async () => {
@@ -454,6 +513,13 @@ describe('Names API', () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'USBC'
+        }),
+        'psikoi'
+      );
 
       // Check if records transfered correctly
       const recordsResponse = await api.get(`/players/USBC/records`);

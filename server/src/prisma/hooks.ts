@@ -1,82 +1,72 @@
 import { Prisma } from '@prisma/client';
-import { onAchievementsCreated } from '../api/modules/achievements/achievement.events';
-import { onNameChangeCreated } from '../api/modules/name-changes/name-change.events';
-import { onPlayerImported, onPlayerUpdated } from '../api/modules/players/player.events';
-import { onDeltaUpdated } from '../api/modules/deltas/delta.events';
-import { onMembersJoined, onMembersLeft } from '../api/modules/groups/group.events';
-import { onCompetitionCreated, onParticipantsJoined } from '../api/modules/competitions/competition.events';
+import * as groupEvents from '../api/modules/groups/group.events';
 import * as playerUtils from '../api/modules/players/player.utils';
-import { modifyAchievements, modifyDeltas, modifySnapshot } from '.';
+import * as competitionEvents from '../api/modules/competitions/competition.events';
+import * as achievementEvents from '../api/modules/achievements/achievement.events';
+import { modifyAchievements } from '.';
 
+// Some events need to be dispatched on this hook because (some) bulk creates depend
+// on "skipDuplicates" which can't be easily predicted at the service level.
 export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
   if (params.model === 'Achievement' && params.action === 'createMany') {
-    onAchievementsCreated(modifyAchievements(params.args.data));
-    return;
-  }
+    const achievements = params.args.data;
 
-  if (params.model === 'NameChange' && params.action === 'create') {
-    onNameChangeCreated(result);
-    return;
-  }
-
-  if (params.model === 'Delta' && (params.action === 'create' || params.action === 'update')) {
-    onDeltaUpdated(modifyDeltas([result])[0]);
-    return;
-  }
-
-  if (params.model === 'Membership') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onMembersJoined(
-        params.args.data[0].groupId,
-        params.args.data.map(d => d.playerId)
-      );
-    } else if (params.action === 'deleteMany' && params.args?.where) {
-      onMembersLeft(params.args.where.groupId, params.args.where.playerId.in);
+    if (achievements?.length > 0) {
+      achievementEvents.onAchievementsCreated(modifyAchievements(achievements));
     }
 
     return;
   }
 
+  if (params.model === 'Membership') {
+    if (params.action === 'createMany') {
+      const newMemberships = params.args.data;
+
+      if (newMemberships?.length > 0) {
+        groupEvents.onMembersJoined(newMemberships);
+      }
+      return;
+    }
+
+    if (params.action === 'deleteMany' && params.args?.where) {
+      const removedPlayerIds = params.args.where.playerId.in;
+
+      if (removedPlayerIds?.length > 0 && result?.count > 0) {
+        groupEvents.onMembersLeft(params.args.where.groupId, removedPlayerIds);
+      }
+      return;
+    }
+  }
+
   if (params.model === 'Group' && params.action === 'create') {
-    if (result?.memberships?.length > 0) {
-      onMembersJoined(
-        result.id,
-        result.memberships.map(d => d.playerId)
-      );
+    const newMemberships = result?.memberships;
+
+    if (newMemberships?.length > 0) {
+      groupEvents.onMembersJoined(newMemberships);
     }
 
     return;
   }
 
   if (params.model === 'Participation') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onParticipantsJoined(
-        params.args.data[0].competitionId,
-        params.args.data.map(d => d.playerId)
-      );
+    if (params.action === 'createMany') {
+      const newParticipations = params.args.data;
+
+      if (newParticipations?.length > 0) {
+        competitionEvents.onParticipantsJoined(newParticipations);
+      }
     }
 
     return;
   }
 
   if (params.model === 'Competition' && params.action === 'create') {
-    if (result?.participations?.length > 0) {
-      onParticipantsJoined(
-        result.id,
-        result.participations.map(d => d.playerId)
-      );
+    const newParticipations = result?.participations;
+
+    if (newParticipations?.length > 0) {
+      competitionEvents.onParticipantsJoined(newParticipations);
     }
 
-    onCompetitionCreated(result);
-    return;
-  }
-
-  if (params.model === 'Snapshot') {
-    if (params.action === 'createMany' && params.args?.data?.length > 0) {
-      onPlayerImported(params.args.data[0].playerId);
-    } else if (params.action === 'create') {
-      onPlayerUpdated(modifySnapshot(result));
-    }
     return;
   }
 

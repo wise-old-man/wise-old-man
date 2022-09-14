@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { omit } from 'lodash';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 import * as cryptService from '../../../services/external/crypt.service';
 import { CompetitionWithParticipations, Team } from '../competition.types';
+import * as competitionEvents from '../competition.events';
 import {
   sanitizeTitle,
   sanitizeTeams,
@@ -12,7 +14,6 @@ import {
   validateInvalidParticipants,
   validateParticipantDuplicates
 } from '../competition.utils';
-import { omit } from 'lodash';
 
 const INVALID_TYPE_ERROR =
   'Invalid teams list. Must be an array of { name: string; participants: string[]; }.';
@@ -158,6 +159,8 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
       }
     }
   });
+
+  competitionEvents.onCompetitionCreated(createdCompetition);
 
   return {
     competition: {

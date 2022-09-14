@@ -15,9 +15,12 @@ import {
 } from '../../utils';
 import prisma from '../../../src/prisma';
 import * as services from '../../../src/api/modules/deltas/delta.services';
+import * as deltaEvents from '../../../src/api/modules/deltas/delta.events';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const onDeltaUpdatedEvent = jest.spyOn(deltaEvents, 'onDeltaUpdated');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -28,7 +31,11 @@ const globalData = {
   secondaryTestPlayerId: -1
 };
 
-beforeAll(async done => {
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -42,13 +49,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Deltas API', () => {
@@ -68,6 +72,8 @@ describe('Deltas API', () => {
 
       // Wait for the deltas to update
       await sleep(500);
+
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -93,6 +99,15 @@ describe('Deltas API', () => {
 
       // Wait for the deltas to update
       await sleep(500);
+
+      // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
+      // On a player's first update, all their deltas are potential records
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
+
+      jest.resetAllMocks();
 
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -128,16 +143,19 @@ describe('Deltas API', () => {
       const thirdTrackResponse = await api.post(`/players/psikoi`);
       expect(thirdTrackResponse.status).toBe(200);
 
-      // Setup mocks for HCIM for the second test player later on (hydrox6)
-      registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
-        [PlayerType.ULTIMATE]: { statusCode: 404 }
-      });
-
       // Wait for the deltas to update
       await sleep(500);
+
+      // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
+      // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'five_min' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'day' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
+
+      jest.resetAllMocks();
 
       const dayDeltas = await prisma.delta.findFirst({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
@@ -149,6 +167,19 @@ describe('Deltas API', () => {
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
       expect(dayDeltas.ehb).toBeLessThan(monthDeltas.ehb); // gained less boss kc, expect ehb gains to be lesser
       expect(parseInt(dayDeltas.overall.toString())).toBe(0); // overall went from -1 to 300m, show 0 gains
+
+      const fourthTrackResponse = await api.post(`/players/psikoi`);
+      expect(fourthTrackResponse.status).toBe(200);
+
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+
+      // Setup mocks for HCIM for the second test player later on (hydrox6)
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
     });
   });
 
