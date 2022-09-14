@@ -3,10 +3,10 @@ import { omit } from 'lodash';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
-import eventDispatcher, { EventType } from '../../../event-dispatcher';
 import * as playerServices from '../../players/player.services';
 import * as cryptService from '../../../services/external/crypt.service';
 import { CompetitionWithParticipations, Team } from '../competition.types';
+import * as competitionEvents from '../competition.events';
 import {
   sanitizeTitle,
   sanitizeTeams,
@@ -160,10 +160,7 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
     }
   });
 
-  eventDispatcher.dispatch({
-    type: EventType.COMPETITION_CREATED,
-    payload: { competition: createdCompetition }
-  });
+  competitionEvents.onCompetitionCreated(createdCompetition);
 
   return {
     competition: {

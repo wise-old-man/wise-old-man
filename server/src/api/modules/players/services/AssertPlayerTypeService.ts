@@ -3,7 +3,7 @@ import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
-import eventDispatcher, { EventType } from '../../../event-dispatcher';
+import * as playerEvents from '../player.events';
 
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
@@ -22,10 +22,7 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
       })
       .then(modifyPlayer);
 
-    eventDispatcher.dispatch({
-      type: EventType.PLAYER_TYPE_CHANGED,
-      payload: { player: updatedPlayer, previousType: player.type }
-    });
+    playerEvents.onPlayerTypeChanged(updatedPlayer, player.type);
 
     return [confirmedType, updatedPlayer, true];
   }

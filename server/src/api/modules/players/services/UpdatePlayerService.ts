@@ -7,11 +7,11 @@ import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
+import * as playerEvents from '../player.events';
 import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { PlayerDetails } from '../player.types';
-import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 const inputSchema = z.object({
   username: z.string()
@@ -93,10 +93,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     // Create (and save) a new snapshot
     const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
 
-    eventDispatcher.dispatch({
-      type: EventType.PLAYER_UPDATED,
-      payload: { player: updatedPlayer, snapshot: newSnapshot, hasChanged }
-    });
+    playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
 
     const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
 

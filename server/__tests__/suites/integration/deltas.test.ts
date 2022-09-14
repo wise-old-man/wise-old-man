@@ -11,18 +11,16 @@ import {
   resetRedis,
   sleep,
   readFile,
-  modifyRawHiscoresData,
-  clearDispatchedEvents,
-  hasDispatchedEvent
+  modifyRawHiscoresData
 } from '../../utils';
 import prisma from '../../../src/prisma';
 import * as services from '../../../src/api/modules/deltas/delta.services';
-import eventDispatcher from '../../../src/api/event-dispatcher';
-
-const MOCK_EVENT_COLLECTOR = [];
+import * as deltaEvents from '../../../src/api/modules/deltas/delta.events';
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const onDeltaUpdatedEvent = jest.spyOn(deltaEvents, 'onDeltaUpdated');
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
@@ -34,10 +32,10 @@ const globalData = {
 };
 
 beforeEach(() => {
-  clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
+  jest.resetAllMocks();
 });
 
-beforeAll(async done => {
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -51,17 +49,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  eventDispatcher.registerEventHook(e => {
-    MOCK_EVENT_COLLECTOR.push(e);
-  });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Deltas API', () => {
@@ -82,7 +73,7 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(500);
 
-      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'DELTA_UPDATED')).toBe(false);
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       const firstDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -110,14 +101,13 @@ describe('Deltas API', () => {
       await sleep(500);
 
       // Only week, month and year deltas were updated, since the previous update was 3 days ago (> day & five_min)
-      expect(MOCK_EVENT_COLLECTOR.filter(e => e.type === 'DELTA_UPDATED').length).toBe(3);
-
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(3);
       // On a player's first update, all their deltas are potential records
-      expect(
-        MOCK_EVENT_COLLECTOR.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
-      ).toBe(3);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
 
-      clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
+      jest.resetAllMocks();
 
       const secondDeltas = await prisma.delta.findMany({
         where: { playerId: firstTrackResponse.body.id }
@@ -156,13 +146,16 @@ describe('Deltas API', () => {
       // Wait for the deltas to update
       await sleep(500);
 
-      // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
       // All (5) new deltas are an improvement over the previous, so they should be considered for record checks
-      expect(
-        MOCK_EVENT_COLLECTOR.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
-      ).toBe(5);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledTimes(5);
+      // The player has now been updated within seconds of the last update, so their day and five_min deltas should update
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'five_min' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'day' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'week' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'month' }), true);
+      expect(onDeltaUpdatedEvent).toHaveBeenCalledWith(expect.objectContaining({ period: 'year' }), true);
 
-      clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
+      jest.resetAllMocks();
 
       const dayDeltas = await prisma.delta.findFirst({
         where: { playerId: firstTrackResponse.body.id, period: 'day' }
@@ -178,9 +171,7 @@ describe('Deltas API', () => {
       const fourthTrackResponse = await api.post(`/players/psikoi`);
       expect(fourthTrackResponse.status).toBe(200);
 
-      expect(
-        MOCK_EVENT_COLLECTOR.filter(e => e.type === 'DELTA_UPDATED' && e.payload.isPotentialRecord).length
-      ).toBe(0);
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
       registerHiscoresMock(axiosMock, {

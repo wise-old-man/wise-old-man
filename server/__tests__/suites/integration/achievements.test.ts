@@ -4,8 +4,8 @@ import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
 import apiServer from '../../../src/api';
 import { Metric, PlayerType } from '../../../src/utils';
+import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
-import eventDispatcher from '../../../src/api/event-dispatcher';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -13,15 +13,13 @@ import {
   resetRedis,
   sleep,
   readFile,
-  modifyRawHiscoresData,
-  clearDispatchedEvents,
-  hasDispatchedEvent
+  modifyRawHiscoresData
 } from '../../utils';
-
-const MOCK_EVENT_COLLECTOR = [];
 
 const api = supertest(apiServer);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+
+const onAchievementsCreatedEvent = jest.spyOn(achievementEvents, 'onAchievementsCreated');
 
 const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const ACHIEVEMENTS_FILE_PATH = `${__dirname}/../../data/achievements/psikoi_achievements.json`;
@@ -37,10 +35,10 @@ const globalData = {
 };
 
 beforeEach(() => {
-  clearDispatchedEvents(MOCK_EVENT_COLLECTOR);
+  jest.resetAllMocks();
 });
 
-beforeAll(async done => {
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -57,17 +55,10 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataA },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  eventDispatcher.registerEventHook(e => {
-    MOCK_EVENT_COLLECTOR.push(e);
-  });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(() => {
   axiosMock.reset();
-  done();
 });
 
 describe('Achievements API', () => {
@@ -110,7 +101,7 @@ describe('Achievements API', () => {
       // Wait a bit for the onPlayerUpdated hook to fire
       await sleep(500);
 
-      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'ACHIEVEMENTS_CREATED')).toBe(false);
+      expect(onAchievementsCreatedEvent).not.toHaveBeenCalled();
 
       // Check their achievements
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
@@ -143,13 +134,11 @@ describe('Achievements API', () => {
       // Wait a bit for the onPlayerUpdated hook to fire
       await sleep(500);
 
-      expect(hasDispatchedEvent(MOCK_EVENT_COLLECTOR, 'ACHIEVEMENTS_CREATED')).toBe(true);
-
-      expect(
-        MOCK_EVENT_COLLECTOR.filter(
-          e => e.type === 'ACHIEVEMENTS_CREATED' && e.payload.achievements.length === 37
-        )
-      ).toBeTruthy();
+      expect(onAchievementsCreatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          length: 37
+        })
+      );
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);

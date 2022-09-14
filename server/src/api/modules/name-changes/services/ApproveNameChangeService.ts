@@ -15,9 +15,9 @@ import prisma, {
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
+import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
-import eventDispatcher, { EventType } from '../../../event-dispatcher';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -136,13 +136,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
 
   if (!results || results.length === 0) return;
 
-  eventDispatcher.dispatch({
-    type: EventType.PLAYER_NAME_CHANGED,
-    payload: {
-      player: results[results.length - 1],
-      previousName: oldPlayer.displayName
-    }
-  });
+  playerEvents.onPlayerNameChanged(results[results.length - 1], oldPlayer.displayName);
 }
 
 function transferRecords(

@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
+import * as groupEvents from '../api/modules/groups/group.events';
 import * as playerUtils from '../api/modules/players/player.utils';
-import eventDispatcher, { EventType } from '../api/event-dispatcher';
+import * as competitionEvents from '../api/modules/competitions/competition.events';
+import * as achievementEvents from '../api/modules/achievements/achievement.events';
 import { modifyAchievements } from '.';
 
 // Some events need to be dispatched on this hook because (some) bulk creates depend
@@ -10,10 +12,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     const achievements = params.args.data;
 
     if (achievements?.length > 0) {
-      eventDispatcher.dispatch({
-        type: EventType.ACHIEVEMENTS_CREATED,
-        payload: { achievements: modifyAchievements(achievements) }
-      });
+      achievementEvents.onAchievementsCreated(modifyAchievements(achievements));
     }
 
     return;
@@ -24,10 +23,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
       const newMemberships = params.args.data;
 
       if (newMemberships?.length > 0) {
-        eventDispatcher.dispatch({
-          type: EventType.GROUP_MEMBERS_JOINED,
-          payload: { memberships: newMemberships }
-        });
+        groupEvents.onMembersJoined(newMemberships);
       }
       return;
     }
@@ -36,10 +32,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
       const removedPlayerIds = params.args.where.playerId.in;
 
       if (removedPlayerIds?.length > 0 && result?.count > 0) {
-        eventDispatcher.dispatch({
-          type: EventType.GROUP_MEMBERS_LEFT,
-          payload: { groupId: params.args.where.groupId, playerIds: removedPlayerIds }
-        });
+        groupEvents.onMembersLeft(params.args.where.groupId, removedPlayerIds);
       }
       return;
     }
@@ -49,10 +42,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     const newMemberships = result?.memberships;
 
     if (newMemberships?.length > 0) {
-      eventDispatcher.dispatch({
-        type: EventType.GROUP_MEMBERS_JOINED,
-        payload: { memberships: newMemberships }
-      });
+      groupEvents.onMembersJoined(newMemberships);
     }
 
     return;
@@ -63,10 +53,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
       const newParticipations = params.args.data;
 
       if (newParticipations?.length > 0) {
-        eventDispatcher.dispatch({
-          type: EventType.COMPETITION_PARTICIPANTS_JOINED,
-          payload: { participations: newParticipations }
-        });
+        competitionEvents.onParticipantsJoined(newParticipations);
       }
     }
 
@@ -77,10 +64,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     const newParticipations = result?.participations;
 
     if (newParticipations?.length > 0) {
-      eventDispatcher.dispatch({
-        type: EventType.COMPETITION_PARTICIPANTS_JOINED,
-        payload: { participations: newParticipations }
-      });
+      competitionEvents.onParticipantsJoined(newParticipations);
     }
 
     return;

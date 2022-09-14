@@ -10,8 +10,8 @@ import {
 } from '../../../../utils';
 import prisma, { modifyDelta, Player, PrismaDelta, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import { calculatePlayerDeltas } from '../delta.utils';
-import eventDispatcher, { EventType } from '../../../event-dispatcher';
+import * as deltaUtils from '../delta.utils';
+import * as deltaEvents from '../delta.events';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Build the update/create promise for a given period
@@ -25,7 +25,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // The player only has one snapshot in this period, can't calculate diffs
     if (!latestSnapshot || !startSnapshot || latestSnapshot.id === startSnapshot.id) return;
 
-    const periodDiffs = calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
+    const periodDiffs = deltaUtils.calculatePlayerDeltas(startSnapshot, latestSnapshot, player);
 
     const newDelta = {
       period,
@@ -61,13 +61,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       await prisma.delta.create({ data: newDelta });
     }
 
-    eventDispatcher.dispatch({
-      type: EventType.DELTA_UPDATED,
-      payload: {
-        delta: modifyDelta(newDelta as PrismaDelta),
-        isPotentialRecord: !currentDelta || hasImprovements
-      }
-    });
+    deltaEvents.onDeltaUpdated(modifyDelta(newDelta as PrismaDelta), !currentDelta || hasImprovements);
   }
 
   // Execute all update promises, sequentially
