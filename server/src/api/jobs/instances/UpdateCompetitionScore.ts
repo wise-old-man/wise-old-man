@@ -1,32 +1,33 @@
-import { isActivity, isBoss, isSkill, Metrics } from '@wise-old-man/utils';
+import { isSkill, isBoss, isActivity, Metrics } from '@wise-old-man/utils';
+import { RateLimiter } from 'bull';
 import { Competition } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import { Job } from '../index';
 
-class RefreshCompetitionRankings implements Job {
+class UpdateCompetitionScore implements Job {
   name: string;
+  rateLimiter: RateLimiter;
 
   constructor() {
-    this.name = 'RefreshCompetitionRankings';
+    this.name = 'UpdateCompetitionScore';
+    this.rateLimiter = { max: 1, duration: 20_000 };
   }
 
-  async handle(): Promise<void> {
+  async handle(data: any): Promise<void> {
+    if (!data.competitionId) return;
+
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const allCompetitions = await Competition.findAll();
+      const competition = await Competition.findOne({ where: { id: data.competitionId } });
 
-      await Promise.all(
-        allCompetitions.map(async competition => {
-          const currentScore = competition.score;
-          const newScore = await calculateScore(competition);
+      const currentScore = competition.score;
+      const newScore = await calculateScore(competition);
 
-          if (newScore !== currentScore) {
-            await competition.update({ score: newScore });
-          }
-        })
-      );
+      if (newScore !== currentScore) {
+        await competition.update({ score: newScore });
+      }
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
@@ -134,4 +135,4 @@ async function calculateScore(competition: Competition): Promise<number> {
   return score;
 }
 
-export default new RefreshCompetitionRankings();
+export default new UpdateCompetitionScore();
