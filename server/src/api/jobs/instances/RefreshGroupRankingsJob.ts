@@ -1,42 +1,32 @@
-import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import prisma, { Group } from '../../../prisma';
-import metricsService from '../../services/external/metrics.service';
+import prisma from '../../../prisma';
+import { Group, PRIVELEGED_GROUP_ROLES, GroupRole } from '../../../utils';
 import * as groupServices from '../../modules/groups/group.services';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { Job } from '../index';
+import { JobType, JobDefinition } from '../job.types';
 
-class RefreshGroupRankings implements Job {
-  name: string;
+class RefreshGroupRankingsJob implements JobDefinition<{}> {
+  type: JobType;
 
   constructor() {
-    this.name = 'RefreshGroupRankings';
+    this.type = JobType.REFRESH_GROUP_RANKINGS;
   }
 
-  async handle(): Promise<void> {
-    const endTimer = metricsService.trackJobStarted();
+  async execute() {
+    const allGroups = await prisma.group.findMany();
 
-    try {
-      const allGroups = await prisma.group.findMany();
+    await Promise.all(
+      allGroups.map(async group => {
+        const currentScore = group.score;
+        const newScore = await calculateScore(group);
 
-      await Promise.all(
-        allGroups.map(async group => {
-          const currentScore = group.score;
-          const newScore = await calculateScore(group);
-
-          if (newScore !== currentScore) {
-            await prisma.group.update({
-              where: { id: group.id },
-              data: { score: newScore }
-            });
-          }
-        })
-      );
-
-      metricsService.trackJobEnded(endTimer, this.name, 1);
-    } catch (error) {
-      metricsService.trackJobEnded(endTimer, this.name, 0);
-      throw error;
-    }
+        if (newScore !== currentScore) {
+          await prisma.group.update({
+            where: { id: group.id },
+            data: { score: newScore }
+          });
+        }
+      })
+    );
   }
 }
 
@@ -45,12 +35,13 @@ async function calculateScore(group: Group): Promise<number> {
 
   const now = new Date();
   const members = await groupServices.fetchGroupMembers({ id: group.id });
-  const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
-  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {
     return score;
   }
+
+  const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
+  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   // If has atleast one leader
   if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role as GroupRole)).length >= 1) {
@@ -60,21 +51,21 @@ async function calculateScore(group: Group): Promise<number> {
   // If has atleast 10 players
   if (members.length >= 10) {
     score += 20;
-  }
 
-  // If has atleast 50 players
-  if (members.length >= 50) {
-    score += 40;
+    // If has atleast 50 players
+    if (members.length >= 50) {
+      score += 40;
+    }
   }
 
   // If average member overall exp > 30m
   if (averageOverallExp >= 30_000_000) {
     score += 30;
-  }
 
-  // If average member overall exp > 100m
-  if (averageOverallExp >= 100_000_000) {
-    score += 60;
+    // If average member overall exp > 100m
+    if (averageOverallExp >= 100_000_000) {
+      score += 60;
+    }
   }
 
   // If has a clan chat
@@ -110,4 +101,4 @@ async function calculateScore(group: Group): Promise<number> {
   return score;
 }
 
-export default new RefreshGroupRankings();
+export default new RefreshGroupRankingsJob();

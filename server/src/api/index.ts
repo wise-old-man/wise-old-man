@@ -5,9 +5,10 @@ import express, { Express } from 'express';
 import rateLimit from 'express-rate-limit';
 import userAgent from 'express-useragent';
 import env, { isTesting } from '../env';
-import jobs from './jobs';
+import { jobManager } from './jobs';
 import router from './routing';
 import metricsService from './services/external/metrics.service';
+import redisService from './services/external/redis.service';
 
 const RATE_LIMIT_MINUTES = 5;
 const RATE_LIMIT_REQUESTS = 150;
@@ -18,6 +19,8 @@ class API {
   constructor() {
     this.express = express();
 
+    jobManager.init();
+
     if (!isTesting()) {
       this.setupServices();
     }
@@ -26,7 +29,12 @@ class API {
     this.setupRouting();
   }
 
-  setupMiddlewares() {
+  async shutdown() {
+    redisService.shutdown();
+    await jobManager.shutdown();
+  }
+
+  private setupMiddlewares() {
     this.express.use(Sentry.Handlers.requestHandler());
     this.express.use(Sentry.Handlers.tracingHandler());
 
@@ -71,13 +79,11 @@ class API {
     });
   }
 
-  setupRouting() {
+  private setupRouting() {
     this.express.use('/', router);
   }
 
-  setupServices() {
-    jobs.init();
-
+  private setupServices() {
     Sentry.init({
       dsn: env.SENTRY_DSN,
       tracesSampleRate: 0.01,
@@ -89,4 +95,4 @@ class API {
   }
 }
 
-export default new API().express;
+export default new API();

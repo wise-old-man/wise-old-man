@@ -1,9 +1,9 @@
 import { Membership, PlayerType } from '../../../utils';
+import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
 import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
-import jobs from '../../jobs';
 
 async function onMembersJoined(memberships: Membership[]) {
   const groupId = memberships[0].groupId;
@@ -28,7 +28,7 @@ async function onMembersJoined(memberships: Membership[]) {
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
     if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobs.add('UpdatePlayer', { username, source: 'Group:OnMembersJoined' });
+    jobManager.add({ type: JobType.UPDATE_PLAYER, payload: { username } });
   });
 }
 

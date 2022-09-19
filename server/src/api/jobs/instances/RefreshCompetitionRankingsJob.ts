@@ -1,42 +1,32 @@
 import prisma, { Competition } from '../../../prisma';
-import { isActivity, isBoss, isSkill, Metric } from '../../../utils';
-import metricsService from '../../services/external/metrics.service';
+import { Metric, isSkill, isBoss, isActivity } from '../../../utils';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { Job } from '../index';
+import { JobType, JobDefinition } from '../job.types';
 
-class RefreshCompetitionRankings implements Job {
-  name: string;
+class RefreshCompetitionRankingsJob implements JobDefinition<{}> {
+  type: JobType;
 
   constructor() {
-    this.name = 'RefreshCompetitionRankings';
+    this.type = JobType.REFRESH_COMPETITION_RANKINGS;
   }
 
-  async handle(): Promise<void> {
-    const endTimer = metricsService.trackJobStarted();
+  async execute() {
+    const allCompetitions = await prisma.competition.findMany();
 
-    try {
-      const allCompetitions = await prisma.competition.findMany();
+    await Promise.all(
+      allCompetitions.map(async competition => {
+        const currentScore = competition.score;
+        const newScore = await calculateScore(competition);
 
-      await Promise.all(
-        allCompetitions.map(async competition => {
-          const currentScore = competition.score;
-          const newScore = await calculateScore(competition);
-
-          if (newScore !== currentScore) {
-            // Update this competition's score
-            await prisma.competition.update({
-              where: { id: competition.id },
-              data: { score: newScore }
-            });
-          }
-        })
-      );
-
-      metricsService.trackJobEnded(endTimer, this.name, 1);
-    } catch (error) {
-      metricsService.trackJobEnded(endTimer, this.name, 0);
-      throw error;
-    }
+        if (newScore !== currentScore) {
+          // Update this competition's score
+          await prisma.competition.update({
+            where: { id: competition.id },
+            data: { score: newScore }
+          });
+        }
+      })
+    );
   }
 }
 
@@ -65,12 +55,7 @@ async function calculateScore(competition: Competition): Promise<number> {
   // If is upcoming
   if (competition.startsAt > now) {
     const daysLeft = (competition.startsAt.getTime() - now.getTime()) / 1000 / 3600 / 24;
-
-    if (daysLeft > 7) {
-      score += 60;
-    } else {
-      score += 80;
-    }
+    score += daysLeft > 7 ? 60 : 80;
   }
 
   // If is group competition
@@ -86,22 +71,22 @@ async function calculateScore(competition: Competition): Promise<number> {
   // If has atleast 10 active participants
   if (activeParticipants.length >= 10) {
     score += 60;
-  }
 
-  // If has atleast 50 active participants
-  if (activeParticipants.length >= 50) {
-    score += 80;
+    // If has atleast 50 active participants
+    if (activeParticipants.length >= 50) {
+      score += 80;
+    }
   }
 
   if (isSkill(competition.metric)) {
     // If the average active participant has gained > 10k exp
     if (averageGained > 10_000) {
       score += 30;
-    }
 
-    // If the average active participant has gained > 100k exp
-    if (averageGained > 100_000) {
-      score += 50;
+      // If the average active participant has gained > 100k exp
+      if (averageGained > 100_000) {
+        score += 50;
+      }
     }
   }
 
@@ -109,11 +94,11 @@ async function calculateScore(competition: Competition): Promise<number> {
     // If the average active participant has gained > 5 kc
     if (averageGained > 5) {
       score += 30;
-    }
 
-    // If the average active participant has gained > 30 kc
-    if (averageGained > 20) {
-      score += 50;
+      // If the average active participant has gained > 30 kc
+      if (averageGained > 20) {
+        score += 50;
+      }
     }
   }
 
@@ -121,11 +106,11 @@ async function calculateScore(competition: Competition): Promise<number> {
     // If the average active participant has gained > 5 score
     if (averageGained > 5) {
       score += 30;
-    }
 
-    // If the average active participant has gained > 50 score
-    if (averageGained > 20) {
-      score += 50;
+      // If the average active participant has gained > 50 score
+      if (averageGained > 20) {
+        score += 50;
+      }
     }
   }
 
@@ -142,4 +127,4 @@ async function calculateScore(competition: Competition): Promise<number> {
   return score;
 }
 
-export default new RefreshCompetitionRankings();
+export default new RefreshCompetitionRankingsJob();

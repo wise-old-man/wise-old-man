@@ -1,20 +1,23 @@
 import supertest from 'supertest';
-import api from '../../../src/api';
+import apiServer from '../../../src/api';
+import { sleep } from '../../utils';
 
-const request = supertest(api);
+const api = supertest(apiServer.express);
+
+afterAll(async () => {
+  jest.useRealTimers();
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
+});
 
 describe('General tests', () => {
-  test('API is alive', async done => {
-    const response = await request.get('/');
+  test('API is alive', async () => {
+    const response = await api.get('/');
     expect(response.status).toBe(200);
-
-    done();
   });
 
-  test('Invalid route redirects to 404', async done => {
-    const response = await request.get('/invalid');
+  test('Invalid route redirects to 404', async () => {
+    const response = await api.get('/invalid');
     expect(response.status).toBe(404);
-
-    done();
   });
 });

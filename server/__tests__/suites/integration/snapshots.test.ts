@@ -6,10 +6,17 @@ import * as playerServices from '../../../src/api/modules/players/player.service
 import * as services from '../../../src/api/modules/snapshots/snapshot.services';
 import * as utils from '../../../src/api/modules/snapshots/snapshot.utils';
 import apiServer from '../../../src/api';
-import { resetDatabase, resetRedis, readFile, registerHiscoresMock, registerCMLMock } from '../../utils';
+import {
+  resetDatabase,
+  resetRedis,
+  readFile,
+  registerHiscoresMock,
+  registerCMLMock,
+  sleep
+} from '../../utils';
 import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const HISCORES_FILE_PATH_P = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
@@ -30,7 +37,7 @@ const globalData = {
   snapshots: []
 };
 
-beforeAll(async done => {
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -51,13 +58,13 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawDataP },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(() => {
-  // Reset the timers to the current (REAL) time
+afterAll(async () => {
   jest.useRealTimers();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Snapshots API', () => {

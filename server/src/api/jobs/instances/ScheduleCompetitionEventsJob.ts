@@ -1,13 +1,7 @@
 import prisma from '../../../prisma';
 import { EventPeriodDelay } from '../../services/external/discord.service';
-import {
-  onCompetitionEnded,
-  onCompetitionEnding,
-  onCompetitionStarted,
-  onCompetitionStarting
-} from '../../modules/competitions/competition.events';
-import metricsService from '../../services/external/metrics.service';
-import { Job } from '../index';
+import * as competitionEvents from '../../modules/competitions/competition.events';
+import { JobType, JobDefinition } from '../job.types';
 
 // Since the cronjob runs at every minute (at 00 seconds) and most competitions start at 00 seconds
 // it is prudent to add a safety gap so that we search dates from X:55 to X+1:55 instead of always at 00
@@ -22,36 +16,27 @@ const START_TIME_INTERVALS = [360, 5, 0];
 // 12h, 30min, now
 const END_TIME_INTERVALS = [720, 30, 0];
 
-class ScheduleCompetitionEvents implements Job {
-  name: string;
+class ScheduleCompetitionEventsJob implements JobDefinition<{}> {
+  type: JobType;
 
   constructor() {
-    this.name = 'ScheduleCompetitionEvents';
+    this.type = JobType.SCHEDULE_COMPETITION_EVENTS;
   }
 
-  async handle(): Promise<void> {
-    const endTimer = metricsService.trackJobStarted();
+  async execute() {
+    // Schedule "starting" and "started" events for each interval
+    await Promise.all(
+      START_TIME_INTERVALS.map(async t => {
+        await scheduleStarting(t * 60 * 1000);
+      })
+    );
 
-    try {
-      // Schedule "starting" and "started" events for each interval
-      await Promise.all(
-        START_TIME_INTERVALS.map(async t => {
-          await scheduleStarting(t * 60 * 1000);
-        })
-      );
-
-      // Schedule "ending" and "ended" events for each interval
-      await Promise.all(
-        END_TIME_INTERVALS.map(async t => {
-          await scheduleEnding(t * 60 * 1000);
-        })
-      );
-
-      metricsService.trackJobEnded(endTimer, this.name, 1);
-    } catch (error) {
-      metricsService.trackJobEnded(endTimer, this.name, 0);
-      throw error;
-    }
+    // Schedule "ending" and "ended" events for each interval
+    await Promise.all(
+      END_TIME_INTERVALS.map(async t => {
+        await scheduleEnding(t * 60 * 1000);
+      })
+    );
   }
 }
 
@@ -74,9 +59,9 @@ async function scheduleStarting(delayMs: number): Promise<void> {
     setTimeout(() => {
       // If competition is starting in < 1min, schedule the "started" event instead
       if (delayMs === 0) {
-        onCompetitionStarted(c);
+        competitionEvents.onCompetitionStarted(c);
       } else {
-        onCompetitionStarting(c, getEventPeriodDelay(delayMs));
+        competitionEvents.onCompetitionStarting(c, getEventPeriodDelay(delayMs));
       }
     }, eventDelay);
   });
@@ -101,9 +86,9 @@ async function scheduleEnding(delayMs: number): Promise<void> {
     setTimeout(() => {
       // If competition is ending in < 1min, schedule the "ended" event instead
       if (delayMs === 0) {
-        onCompetitionEnded(c);
+        competitionEvents.onCompetitionEnded(c);
       } else {
-        onCompetitionEnding(c, getEventPeriodDelay(delayMs));
+        competitionEvents.onCompetitionEnding(c, getEventPeriodDelay(delayMs));
       }
     }, eventDelay);
   });
@@ -114,4 +99,4 @@ function getEventPeriodDelay(delayMs: number): EventPeriodDelay {
   return minutes < 60 ? { minutes } : { hours: minutes / 60 };
 }
 
-export default new ScheduleCompetitionEvents();
+export default new ScheduleCompetitionEventsJob();

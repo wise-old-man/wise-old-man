@@ -15,7 +15,7 @@ import {
   sleep
 } from '../../utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
@@ -26,7 +26,7 @@ const globalData = {
   testRegularGroupId: -1
 };
 
-beforeAll(async done => {
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -40,13 +40,14 @@ beforeAll(async done => {
     [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
     [PlayerType.IRONMAN]: { statusCode: 404 }
   });
-
-  done();
 });
 
-afterAll(async done => {
+afterAll(async () => {
+  jest.useRealTimers();
   axiosMock.reset();
-  done();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Records API', () => {

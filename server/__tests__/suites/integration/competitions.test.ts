@@ -16,7 +16,7 @@ import {
   sleep
 } from '../../utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onCompetitionCreatedEvent = jest.spyOn(competitionEvents, 'onCompetitionCreated');
@@ -58,8 +58,12 @@ beforeAll(async () => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
+  jest.useRealTimers();
   axiosMock.reset();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Competition API', () => {

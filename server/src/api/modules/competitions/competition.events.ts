@@ -1,6 +1,6 @@
 import { Competition, Participation } from '../../../prisma';
 import { PlayerType } from '../../../utils';
-import jobs from '../../jobs';
+import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as playerServices from '../players/player.services';
@@ -19,7 +19,11 @@ async function onParticipantsJoined(participations: Participation[]) {
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
     if (type !== PlayerType.UNKNOWN || Date.now() - registeredAt.getTime() > 60_000) return;
-    jobs.add('UpdatePlayer', { username, source: 'Competition:OnParticipantsJoined' });
+
+    jobManager.add({
+      type: JobType.UPDATE_PLAYER,
+      payload: { username }
+    });
   });
 }
 
