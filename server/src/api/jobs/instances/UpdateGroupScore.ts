@@ -1,33 +1,34 @@
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '@wise-old-man/utils';
+import { RateLimiter } from 'bull';
 import { Group } from '../../../database/models';
 import metricsService from '../../services/external/metrics.service';
 import * as competitionService from '../../services/internal/competition.service';
 import * as groupService from '../../services/internal/group.service';
 import { Job } from '../index';
 
-class RefreshGroupRankings implements Job {
+class UpdateGroupScore implements Job {
   name: string;
+  rateLimiter: RateLimiter;
 
   constructor() {
-    this.name = 'RefreshGroupRankings';
+    this.name = 'UpdateGroupScore';
+    this.rateLimiter = { max: 1, duration: 20_000 };
   }
 
-  async handle(): Promise<void> {
+  async handle(data: any): Promise<void> {
+    if (!data.groupId) return;
+
     const endTimer = metricsService.trackJobStarted();
 
     try {
-      const allGroups = await Group.findAll();
+      const group = await Group.findOne({ where: { id: data.groupId } });
 
-      await Promise.all(
-        allGroups.map(async group => {
-          const currentScore = group.score;
-          const newScore = await calculateScore(group);
+      const currentScore = group.score;
+      const newScore = await calculateScore(group);
 
-          if (newScore !== currentScore) {
-            await group.update({ score: newScore });
-          }
-        })
-      );
+      if (newScore !== currentScore) {
+        await group.update({ score: newScore });
+      }
 
       metricsService.trackJobEnded(endTimer, this.name, 1);
     } catch (error) {
@@ -42,13 +43,14 @@ async function calculateScore(group: Group): Promise<number> {
 
   const now = new Date();
   const members = await groupService.getMembersList(group);
-  const pagination = { limit: 100, offset: 0 };
-  const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
-  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   if (!members || members.length === 0) {
     return score;
   }
+
+  const pagination = { limit: 100, offset: 0 };
+  const competitions = await competitionService.getGroupCompetitions(group.id, pagination);
+  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   // If has atleast one leader
   if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role as GroupRole)).length >= 1) {
@@ -108,4 +110,4 @@ async function calculateScore(group: Group): Promise<number> {
   return score;
 }
 
-export default new RefreshGroupRankings();
+export default new UpdateGroupScore();

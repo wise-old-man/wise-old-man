@@ -1,21 +1,25 @@
 import AssertPlayerType from './AssertPlayerType';
 import InvalidateDeltas from './InvalidateDeltas';
-import RefreshCompetitionRankings from './RefreshCompetitionRankings';
-import RefreshGroupRankings from './RefreshGroupRankings';
+import ScheduleCompetitionScoreUpdates from './ScheduleCompetitionScoreUpdates';
+import ScheduleGroupScoreUpdates from './ScheduleGroupScoreUpdates';
 import RefreshNameChanges from './RefreshNameChanges';
 import ReviewNameChange from './ReviewNameChange';
 import ReviewPlayerType from './ReviewPlayerType';
 import ScheduleCompetitionEvents from './ScheduleCompetitionEvents';
 import UpdatePlayer from './UpdatePlayer';
+import UpdateGroupScore from './UpdateGroupScore';
+import UpdateCompetitionScore from './UpdateCompetitionScore';
 
 export default [
   UpdatePlayer,
-  RefreshGroupRankings,
-  RefreshCompetitionRankings,
+  ScheduleGroupScoreUpdates,
+  ScheduleCompetitionScoreUpdates,
   AssertPlayerType,
   ReviewNameChange,
   RefreshNameChanges,
   ReviewPlayerType,
   ScheduleCompetitionEvents,
-  InvalidateDeltas
+  InvalidateDeltas,
+  UpdateGroupScore,
+  UpdateCompetitionScore
 ];
