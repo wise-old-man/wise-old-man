@@ -7,21 +7,25 @@ import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.type
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidateDeltasJob from './instances/InvalidateDeltasJob';
 import RefreshNameChangesJob from './instances/RefreshNameChangesJob';
-import RefreshGroupRankingsJob from './instances/RefreshGroupRankingsJob';
-import RefreshCompetitionRankingsJob from './instances/RefreshCompetitionRankingsJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
+import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
+import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJob';
+import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
+import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
 
 const JOBS: JobDefinition<unknown>[] = [
-  UpdatePlayerJob,
   AssertPlayerTypeJob,
   InvalidateDeltasJob,
   RefreshNameChangesJob,
-  RefreshGroupRankingsJob,
-  RefreshCompetitionRankingsJob,
+  ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
-  ReviewNameChangeJob
+  ScheduleCompetitionScoreUpdatesJob,
+  ScheduleGroupScoreUpdatesJob,
+  UpdateCompetitionScoreJob,
+  UpdateGroupScoreJob,
+  UpdatePlayerJob
 ];
 
 const CRON_JOBS = [
@@ -30,20 +34,20 @@ const CRON_JOBS = [
     interval: '0 */6 * * *' // every 6 hours
   },
   {
+    type: JobType.REFRESH_NAME_CHANGES,
+    interval: '0 */8 * * *' // every 8 hours
+  },
+  {
     type: JobType.SCHEDULE_COMPETITION_EVENTS,
     interval: '* * * * *' // every 1 min
   },
   {
-    type: JobType.REFRESH_GROUP_RANKINGS,
+    type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
+    interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
     interval: '0 */12 * * *' // every 12 hours
-  },
-  {
-    type: JobType.REFRESH_COMPETITION_RANKINGS,
-    interval: '0 */6 * * *' // every 6 hours
-  },
-  {
-    type: JobType.REFRESH_NAME_CHANGES,
-    interval: '0 */8 * * *' // every 8 hours
   }
 ];
 

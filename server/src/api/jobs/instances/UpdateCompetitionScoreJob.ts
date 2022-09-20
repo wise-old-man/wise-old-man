@@ -1,32 +1,35 @@
 import prisma, { Competition } from '../../../prisma';
 import { Metric, isSkill, isBoss, isActivity } from '../../../utils';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { JobType, JobDefinition } from '../job.types';
+import { JobType, JobDefinition, JobOptions } from '../job.types';
 
-class RefreshCompetitionRankingsJob implements JobDefinition<{}> {
+export interface UpdateCompetitionScorePayload {
+  competitionId: number;
+}
+
+class UpdateCompetitionScoreJob implements JobDefinition<UpdateCompetitionScorePayload> {
   type: JobType;
+  options: JobOptions;
 
   constructor() {
-    this.type = JobType.REFRESH_COMPETITION_RANKINGS;
+    this.type = JobType.UPDATE_COMPETITION_SCORE;
+    this.options = { rateLimiter: { max: 1, duration: 20_000 } };
   }
 
-  async execute() {
-    const allCompetitions = await prisma.competition.findMany();
+  async execute(data: UpdateCompetitionScorePayload) {
+    const competition = await prisma.competition.findFirst({
+      where: { id: data.competitionId }
+    });
 
-    await Promise.all(
-      allCompetitions.map(async competition => {
-        const currentScore = competition.score;
-        const newScore = await calculateScore(competition);
+    const currentScore = competition.score;
+    const newScore = await calculateScore(competition);
 
-        if (newScore !== currentScore) {
-          // Update this competition's score
-          await prisma.competition.update({
-            where: { id: competition.id },
-            data: { score: newScore }
-          });
-        }
-      })
-    );
+    if (newScore !== currentScore) {
+      await prisma.competition.update({
+        where: { id: competition.id },
+        data: { score: newScore }
+      });
+    }
   }
 }
 
@@ -127,4 +130,4 @@ async function calculateScore(competition: Competition): Promise<number> {
   return score;
 }
 
-export default new RefreshCompetitionRankingsJob();
+export default new UpdateCompetitionScoreJob();

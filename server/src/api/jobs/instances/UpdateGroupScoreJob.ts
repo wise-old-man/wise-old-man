@@ -1,32 +1,36 @@
-import prisma from '../../../prisma';
-import { Group, PRIVELEGED_GROUP_ROLES, GroupRole } from '../../../utils';
+import prisma, { Group } from '../../../prisma';
+import { PRIVELEGED_GROUP_ROLES, GroupRole } from '../../../utils';
 import * as groupServices from '../../modules/groups/group.services';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { JobType, JobDefinition } from '../job.types';
+import { JobType, JobDefinition, JobOptions } from '../job.types';
 
-class RefreshGroupRankingsJob implements JobDefinition<{}> {
+export interface UpdateGroupScorePayload {
+  groupId: number;
+}
+
+class UpdateGroupScoreJob implements JobDefinition<UpdateGroupScorePayload> {
   type: JobType;
+  options: JobOptions;
 
   constructor() {
-    this.type = JobType.REFRESH_GROUP_RANKINGS;
+    this.type = JobType.UPDATE_GROUP_SCORE;
+    this.options = { rateLimiter: { max: 1, duration: 20_000 } };
   }
 
-  async execute() {
-    const allGroups = await prisma.group.findMany();
+  async execute(data: UpdateGroupScorePayload) {
+    const group = await prisma.group.findFirst({
+      where: { id: data.groupId }
+    });
 
-    await Promise.all(
-      allGroups.map(async group => {
-        const currentScore = group.score;
-        const newScore = await calculateScore(group);
+    const currentScore = group.score;
+    const newScore = await calculateScore(group);
 
-        if (newScore !== currentScore) {
-          await prisma.group.update({
-            where: { id: group.id },
-            data: { score: newScore }
-          });
-        }
-      })
-    );
+    if (newScore !== currentScore) {
+      await prisma.group.update({
+        where: { id: group.id },
+        data: { score: newScore }
+      });
+    }
   }
 }
 
@@ -101,4 +105,4 @@ async function calculateScore(group: Group): Promise<number> {
   return score;
 }
 
-export default new RefreshGroupRankingsJob();
+export default new UpdateGroupScoreJob();
