@@ -5,11 +5,12 @@ import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
-import InvalidateDeltasJob from './instances/InvalidateDeltasJob';
+import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import RefreshNameChangesJob from './instances/RefreshNameChangesJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
 import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
+import ScheduleDeltaInvalidationsJob from './instances/ScheduleDeltaInvalidationsJob';
 import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJob';
 import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
@@ -17,11 +18,12 @@ import UpdatePlayerJob from './instances/UpdatePlayerJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
-  InvalidateDeltasJob,
+  InvalidatePeriodDeltasJob,
   RefreshNameChangesJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
+  ScheduleDeltaInvalidationsJob,
   ScheduleGroupScoreUpdatesJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
@@ -29,10 +31,6 @@ const JOBS: JobDefinition<unknown>[] = [
 ];
 
 const CRON_JOBS = [
-  {
-    type: JobType.INVALIDATE_DELTAS,
-    interval: '0 */6 * * *' // every 6 hours
-  },
   {
     type: JobType.REFRESH_NAME_CHANGES,
     interval: '0 */8 * * *' // every 8 hours
@@ -42,12 +40,16 @@ const CRON_JOBS = [
     interval: '* * * * *' // every 1 min
   },
   {
-    type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
-    interval: '0 8 * * *' // everyday at 8AM
-  },
-  {
     type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
     interval: '0 */12 * * *' // every 12 hours
+  },
+  {
+    type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
+    interval: '0 */6 * * *' // every 6 hours
+  },
+  {
+    type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
+    interval: '0 8 * * *' // everyday at 8AM
   }
 ];
 
