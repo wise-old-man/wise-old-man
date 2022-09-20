@@ -6,7 +6,7 @@ import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
-import RefreshNameChangesJob from './instances/RefreshNameChangesJob';
+import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
 import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
@@ -19,22 +19,18 @@ import UpdatePlayerJob from './instances/UpdatePlayerJob';
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   InvalidatePeriodDeltasJob,
-  RefreshNameChangesJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
   ScheduleGroupScoreUpdatesJob,
+  ScheduleNameChangeReviewsJob,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
   UpdatePlayerJob
 ];
 
 const CRON_JOBS = [
-  {
-    type: JobType.REFRESH_NAME_CHANGES,
-    interval: '0 */8 * * *' // every 8 hours
-  },
   {
     type: JobType.SCHEDULE_COMPETITION_EVENTS,
     interval: '* * * * *' // every 1 min
@@ -49,6 +45,10 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
+    interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
     interval: '0 8 * * *' // everyday at 8AM
   }
 ];
