@@ -1,5 +1,5 @@
 import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
-import { getThreadIndex, isDevelopment, isTesting } from '../../env';
+import { isTesting } from '../../env';
 import redisConfig from '../../config/redis.config';
 import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
@@ -158,9 +158,11 @@ class JobManager {
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() === 0 || isDevelopment()) {
-      this.initCrons();
-    }
+
+    // TODO: Disabling cron jobs below, they should run on API v1 until I migrate them here
+    // if (getThreadIndex() === 0 || isDevelopment()) {
+    //   this.initCrons();
+    // }
   }
 
   async shutdown() {
