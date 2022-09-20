@@ -1,6 +1,6 @@
 import { Snapshot, Player } from '../../../prisma';
 import { PlayerType } from '../../../utils';
-import jobs from '../../jobs';
+import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
 import * as achievementServices from '../achievements/achievement.services';
@@ -28,8 +28,15 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   );
 
   // Setup jobs to assert the player's account type and auto-update them
-  jobs.add('UpdatePlayer', { username: player.username, source: 'Player:OnPlayerNameChanged' });
-  jobs.add('AssertPlayerType', { id: player.id });
+  jobManager.add({
+    type: JobType.UPDATE_PLAYER,
+    payload: { username: player.username }
+  });
+
+  jobManager.add({
+    type: JobType.ASSERT_PLAYER_TYPE,
+    payload: { playerId: player.id }
+  });
 }
 
 async function onPlayerUpdated(player: Player, snapshot: Snapshot, hasChanged: boolean) {
@@ -55,7 +62,10 @@ async function onPlayerUpdated(player: Player, snapshot: Snapshot, hasChanged: b
   // If this player is an inactive iron player, their type should be reviewed
   // This allows us to catch de-iron players early, and adjust their type accordingly
   if (await playerUtils.shouldReviewType(player)) {
-    jobs.add('ReviewPlayerType', { id: player.id });
+    jobManager.add({
+      type: JobType.REVIEW_PLAYER_TYPE,
+      payload: { playerId: player.id }
+    });
   }
 }
 

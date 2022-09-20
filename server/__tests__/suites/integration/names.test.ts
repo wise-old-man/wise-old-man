@@ -8,9 +8,16 @@ import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
-import { registerCMLMock, registerHiscoresMock, resetDatabase, resetRedis, readFile } from '../../utils';
+import {
+  registerCMLMock,
+  registerHiscoresMock,
+  resetDatabase,
+  resetRedis,
+  readFile,
+  sleep
+} from '../../utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
@@ -45,8 +52,12 @@ beforeAll(async () => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
+  jest.useRealTimers();
   axiosMock.reset();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Names API', () => {

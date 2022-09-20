@@ -10,11 +10,11 @@ import ironmanTestSkillingMetas from '../../data/efficiency/configs/ehp/ironman-
 import ironmanTestBossingMetas from '../../data/efficiency/configs/ehb/ironman-test.ehb';
 import lvl3TestSkillingMetas from '../../data/efficiency/configs/ehp/lvl3-test.ehp';
 import f2pTestSkillingMetas from '../../data/efficiency/configs/ehp/f2p-test.ehp';
-import { resetDatabase, resetRedis } from '../../utils';
+import { resetDatabase, resetRedis, sleep } from '../../utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 
-beforeAll(async done => {
+beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
@@ -73,8 +73,13 @@ beforeAll(async done => {
       country: 'PT'
     }
   });
+});
 
-  done();
+afterAll(async () => {
+  jest.useRealTimers();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Efficiency API', () => {

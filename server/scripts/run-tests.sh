@@ -6,6 +6,5 @@ export CORE_DATABASE=wise-old-man-test
 prisma migrate reset --force
 
 # Run jest on all unit and integration tests tests
-export NODE_ENV=test
-export TZ=UTC
-jest __tests__/suites --detectOpenHandles --verbose --force-exit
+export NODE_ENV=test TZ=UTC
+jest __tests__/suites --detectOpenHandles --verbose --forceExit

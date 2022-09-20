@@ -1,8 +1,8 @@
-import IORedis, { ValueType } from 'ioredis';
-import redisConfig from '../../jobs/config/redis';
+import IORedis from 'ioredis';
+import redisConfig from '../../../config/redis.config';
 
 class RedisService {
-  redisClient: IORedis.Redis;
+  redisClient: IORedis;
 
   constructor() {
     this.redisClient = new IORedis(redisConfig);
@@ -12,8 +12,8 @@ class RedisService {
     return await this.redisClient.get(`${baseKey}:${paramKey}`);
   }
 
-  async setValue(baseKey: string, paramKey: string, value: ValueType, expiresInMs?: number) {
-    return await this.redisClient.set(`${baseKey}:${paramKey}`, value, 'px', expiresInMs);
+  async setValue(baseKey: string, paramKey: string, value: string | number, expiresInMs?: number) {
+    return await this.redisClient.set(`${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
   }
 
   async deleteKey(key: string) {
@@ -22,6 +22,10 @@ class RedisService {
 
   async flushAll() {
     await this.redisClient.flushall();
+  }
+
+  shutdown() {
+    this.redisClient.disconnect();
   }
 }
 

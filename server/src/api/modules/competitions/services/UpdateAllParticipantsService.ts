@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
+import { jobManager, JobType } from '../../../jobs';
 import { NotFoundError, BadRequestError } from '../../../errors';
-import jobs from '../../../jobs';
 
 // The first and last 6h of a competition are considered a priority period
 const PRIORITY_PERIOD = 6;
@@ -58,9 +58,9 @@ async function updateAllParticipants(
 
   // Execute the update action for every participant
   outdatedPlayers.forEach(({ username }) => {
-    jobs.add('UpdatePlayer', {
-      username,
-      source: params.forcedUpdate ? 'Competition:OnCompetitionStarted' : 'Competition:UpdateAll'
+    jobManager.add({
+      type: JobType.UPDATE_PLAYER,
+      payload: { username }
     });
   });
 

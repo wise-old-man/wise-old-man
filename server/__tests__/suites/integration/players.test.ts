@@ -17,7 +17,7 @@ import * as playerServices from '../../../src/api/modules/players/player.service
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
@@ -54,8 +54,12 @@ beforeAll(async () => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
+  jest.useRealTimers();
   axiosMock.reset();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Player API', () => {

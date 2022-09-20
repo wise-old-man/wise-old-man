@@ -1,10 +1,11 @@
 import { Details as UserAgentDetails } from 'express-useragent';
 import prometheus, { Histogram, Registry } from 'prom-client';
 import { getThreadIndex } from '../../../env';
+import { JobType } from '../../jobs';
 
 type HttpParams = 'method' | 'route' | 'status' | 'userAgent';
 type ReactionParams = 'reactionName' | 'status';
-type JobParams = 'jobName' | 'status' | 'source';
+type JobParams = 'jobName' | 'status';
 
 class MetricsService {
   private registry: Registry;
@@ -49,7 +50,7 @@ class MetricsService {
     this.jobHistogram = new prometheus.Histogram({
       name: 'job_duration_seconds',
       help: 'Duration of jobs in microseconds',
-      labelNames: ['jobName', 'status', 'source'],
+      labelNames: ['jobName', 'status'],
       buckets: [0.1, 0.5, 1, 5, 10, 30, 60]
     });
 
@@ -71,22 +72,20 @@ class MetricsService {
     return this.httpHistogram.startTimer();
   }
 
-  trackHttpRequestEnded(
-    endTimerFn: any,
-    route: string,
-    status: number,
-    method: string,
-    userAgent: string
-  ) {
+  trackHttpRequestEnded(endTimerFn: any, route: string, status: number, method: string, userAgent: string) {
     endTimerFn({ route, status, method, userAgent });
   }
 
-  trackJobStarted() {
-    return this.jobHistogram.startTimer();
-  }
+  async trackJob(jobType: JobType, handler: () => Promise<void>) {
+    const endTimer = this.jobHistogram.startTimer();
 
-  trackJobEnded(endTimerFn: any, jobName: string, status: number, source = '') {
-    endTimerFn({ jobName, status, source });
+    try {
+      await handler();
+      endTimer({ jobName: jobType.toString(), status: 1 });
+    } catch (error) {
+      endTimer({ jobName: jobType.toString(), status: 0 });
+      throw error;
+    }
   }
 
   async getMetrics() {

@@ -16,7 +16,7 @@ import {
   modifyRawHiscoresData
 } from '../../utils';
 
-const api = supertest(apiServer);
+const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onAchievementsCreatedEvent = jest.spyOn(achievementEvents, 'onAchievementsCreated');
@@ -57,8 +57,12 @@ beforeAll(async () => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
+  jest.useRealTimers();
   axiosMock.reset();
+
+  // Sleep for 1s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(1000));
 });
 
 describe('Achievements API', () => {

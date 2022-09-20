@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma, { Player } from '../../../../prisma';
 import { Period, PeriodProps } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
-import jobs from '../../../jobs';
+import { jobManager, JobType } from '../../../jobs';
 
 const inputSchema = z.object({
   groupId: z.number().positive()
@@ -29,7 +29,7 @@ async function updateAllMembers(payload: UpdateAllMembersParams): Promise<number
 
   // Execute the update action for every member
   outdatedPlayers.forEach(({ username }) => {
-    jobs.add('UpdatePlayer', { username, source: 'Group:UpdateAll' });
+    jobManager.add({ type: JobType.UPDATE_PLAYER, payload: { username } });
   });
 
   return outdatedPlayers.length;
