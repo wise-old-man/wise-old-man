@@ -1,7 +1,7 @@
 import prisma, { Competition } from '../../../prisma';
 import { Metric, isSkill, isBoss, isActivity } from '../../../utils';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { JobType, JobDefinition, JobOptions } from '../job.types';
+import { JobType, JobDefinition } from '../job.types';
 
 export interface UpdateCompetitionScorePayload {
   competitionId: number;
@@ -9,11 +9,9 @@ export interface UpdateCompetitionScorePayload {
 
 class UpdateCompetitionScoreJob implements JobDefinition<UpdateCompetitionScorePayload> {
   type: JobType;
-  options: JobOptions;
 
   constructor() {
     this.type = JobType.UPDATE_COMPETITION_SCORE;
-    this.options = { rateLimiter: { max: 1, duration: 20_000 } };
   }
 
   async execute(data: UpdateCompetitionScorePayload) {

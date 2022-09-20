@@ -2,7 +2,7 @@ import prisma, { Group } from '../../../prisma';
 import { PRIVELEGED_GROUP_ROLES, GroupRole } from '../../../utils';
 import * as groupServices from '../../modules/groups/group.services';
 import * as competitionServices from '../../modules/competitions/competition.services';
-import { JobType, JobDefinition, JobOptions } from '../job.types';
+import { JobType, JobDefinition } from '../job.types';
 
 export interface UpdateGroupScorePayload {
   groupId: number;
@@ -10,11 +10,9 @@ export interface UpdateGroupScorePayload {
 
 class UpdateGroupScoreJob implements JobDefinition<UpdateGroupScorePayload> {
   type: JobType;
-  options: JobOptions;
 
   constructor() {
     this.type = JobType.UPDATE_GROUP_SCORE;
-    this.options = { rateLimiter: { max: 1, duration: 20_000 } };
   }
 
   async execute(data: UpdateGroupScorePayload) {
