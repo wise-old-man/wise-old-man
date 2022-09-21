@@ -2,7 +2,9 @@ import { ZodError } from 'zod';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import { getThreadIndex } from '../env';
-import { NotFoundError } from './errors';
+import { BadRequestError, NotFoundError } from './errors';
+import logger from './util/logging';
+import { metricAbbreviation } from './util/middlewares';
 import competitionRoutes from './modules/competitions/competition.routes';
 import deltaRoutes from './modules/deltas/delta.routes';
 import efficiencyRoutes from './modules/efficiency/efficiency.routes';
@@ -10,9 +12,8 @@ import groupRoutes from './modules/groups/group.routes';
 import nameRoutes from './modules/name-changes/name-change.routes';
 import playerRoutes from './modules/players/player.routes';
 import recordRoutes from './modules/records/record.routes';
-import logger from './services/external/logger.service';
 import metricsService from './services/external/metrics.service';
-import { metricAbbreviation } from './util/middlewares';
+
 class RoutingHandler {
   router: express.Router;
 
@@ -24,6 +25,11 @@ class RoutingHandler {
   }
 
   setupMiddlewares() {
+    this.router.use((_, res, next) => {
+      res.locals.requestStartTime = Date.now();
+      next();
+    });
+
     // Handle metric abbreviations (tob -> theatre_of_blood)
     this.router.use(metricAbbreviation);
   }
@@ -56,22 +62,33 @@ class RoutingHandler {
       next(new NotFoundError('Endpoint was not found'));
     });
 
-    // Handle errors
+    // Handle zod errors
     this.router.use((error, req, res, next) => {
-      const { query, params, body, originalUrl } = req;
-      const { statusCode, message, data } = error;
-
-      logger.error(`Failed endpoint (${originalUrl})`, {
-        data: { query, params, body },
-        error
-      });
-
       if (error instanceof ZodError) {
-        res.status(400).json({ message: error.issues[0].message });
+        next(new BadRequestError(error.issues[0].message));
         return;
       }
 
-      res.status(statusCode || 500).json({ message, data });
+      next(error);
+    });
+
+    // Handle errors
+    this.router.use((error, req, res, next) => {
+      const { method, query, params, body, originalUrl } = req;
+
+      const message = error.message || 'Unknown server error.';
+      const statusCode = error.statusCode || 500;
+
+      const requestDuration = Date.now() - res.locals.requestStartTime;
+
+      logger.error(`${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${message})`, {
+        error: error.data,
+        query,
+        params,
+        body
+      });
+
+      res.status(statusCode).json({ message, data: error.data });
     });
   }
 }

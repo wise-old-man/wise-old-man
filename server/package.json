@@ -1,6 +1,6 @@
 {
   "name": "wise-old-man-server",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "",
   "author": "Psikoi",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "bullmq": "^1.90.2",
+    "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Metric } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import logger from '../../../util/logging';
 import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
@@ -20,6 +21,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
     details = await nameChangeServices.fetchNameChangeDetails({ id: params.id });
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
+      logger.debug(`Denying ${params.id}: Old stats not found`);
       await nameChangeServices.denyNameChange({ id: params.id });
       return;
     }
@@ -44,12 +46,14 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
+    logger.debug(`Denying ${params.id}: New name is not on the hiscores`);
     await nameChangeServices.denyNameChange({ id: params.id });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
   if (hasNegativeGains) {
+    logger.debug(`Denying ${params.id}: Negative gains`);
     await nameChangeServices.denyNameChange({ id: params.id });
     return;
   }
@@ -57,20 +61,27 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   const baseMaxHours = 504;
   const extraHours = (oldStats.data.skills[Metric.OVERALL].experience / 2_000_000) * 168;
 
+  const allowedTotalLevel = 700 / bundleModifier;
+  const allowedEfficiencyDiff = hoursDiff * bundleModifier;
+  const allowedHourDiff = (baseMaxHours + extraHours) * bundleModifier;
+
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
-  if (hoursDiff > (baseMaxHours + extraHours) * bundleModifier) {
+  if (hoursDiff > allowedHourDiff) {
+    logger.debug(`Ignoring ${params.id}: Transition period too long`, { allowedHourDiff, hoursDiff });
     return;
   }
 
   // If has gained too much exp/kills
-  if (ehpDiff + ehbDiff > hoursDiff * bundleModifier) {
+  if (ehpDiff + ehbDiff > allowedEfficiencyDiff) {
+    logger.debug(`Ignoring ${params.id}: Excessive gains`, { allowedEfficiencyDiff });
     return;
   }
 
   const totalLevel = getTotalLevel(oldStats);
 
   // If is high level enough (high level swaps are harder to fake)
-  if (totalLevel < 700 / bundleModifier) {
+  if (totalLevel < allowedTotalLevel) {
+    logger.debug(`Ignoring ${params.id}: Total level too low (${totalLevel} <  ${allowedTotalLevel})`);
     return;
   }
 

@@ -18,8 +18,6 @@ class ScheduleGroupScoreUpdatesJob implements JobDefinition<{}> {
     // Distribute these evenly throughout the day, with a variable cooldown between each
     const cooldown = Math.floor(PeriodProps[Period.DAY].milliseconds / allGroups.length);
 
-    console.log(cooldown, allGroups);
-
     allGroups.forEach((group, i) => {
       jobManager.add(
         { type: JobType.UPDATE_GROUP_SCORE, payload: { groupId: group.id } },

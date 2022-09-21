@@ -1,6 +1,7 @@
 import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
 import { isTesting } from '../../env';
 import redisConfig from '../../config/redis.config';
+import logger from '../util/logging';
 import metricsService from '../services/external/metrics.service';
 import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
@@ -89,6 +90,8 @@ class JobManager {
     const priority = (options && options.priority) || JobPriority.MEDIUM;
     const payload = 'payload' in job ? job.payload : {};
 
+    logger.info(`Added job: ${job.type}`, job.payload, true);
+
     matchingQueue.add(job.type, payload, { ...options, priority });
   }
 
@@ -107,7 +110,14 @@ class JobManager {
     this.workers = JOBS.map(job => {
       const worker = new Worker(
         job.type,
-        bullJob => metricsService.trackJob(job.type, () => job.execute(bullJob.data)),
+        async bullJob => {
+          await metricsService.trackJob(job.type, async () => {
+            const attemptTag = bullJob.opts.attempts > 0 ? `(#${bullJob.attemptsMade})` : '';
+            logger.info(`Executing job: ${job.type} ${attemptTag}`, bullJob.data, true);
+
+            await job.execute(bullJob.data);
+          });
+        },
         {
           limiter: job.options?.rateLimiter,
           connection: redisConfig,
@@ -117,10 +127,12 @@ class JobManager {
 
       worker.on('failed', (bullJob, error) => {
         if (job.onFailure) job.onFailure(bullJob.data, error);
+        logger.error(`Failed job: ${job.type}`, bullJob.data, true);
       });
 
       worker.on('completed', bullJob => {
         if (job.onSuccess) job.onSuccess(bullJob.data);
+        logger.info(`Completed job: ${job.type}`, bullJob.data, true);
       });
 
       return worker;

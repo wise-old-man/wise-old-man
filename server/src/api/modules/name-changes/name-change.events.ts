@@ -9,9 +9,7 @@ async function onNameChangeSubmitted(nameChange: NameChange) {
   // Delay this action randomly to prevent proccessing too many
   // simultaneous name changes after a bulk submission
   setTimeout(async () => {
-    await metrics.measureReaction('AutoNameReview', () =>
-      nameChangeServices.autoReviewNameChange({ id: nameChange.id })
-    );
+    await metrics.trackEffect(nameChangeServices.autoReviewNameChange, { id: nameChange.id });
   }, Math.random() * 120_000);
 }
 

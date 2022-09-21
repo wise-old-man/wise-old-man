@@ -1,10 +1,11 @@
 import env, { getThreadIndex } from './env';
+import logger from './api/util/logging';
 import api from './api';
 
 const port = env.API_PORT || 5001;
 
 const server = api.express.listen(port, () => {
-  console.log(`v2: Server running on port ${port}. Thread Index: ${getThreadIndex()}`);
+  logger.info(`v2: Server running on port ${port}. Thread Index: ${getThreadIndex()}`);
 });
 
 process.on('SIGTERM', () => {

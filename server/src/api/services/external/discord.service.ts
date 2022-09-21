@@ -1,6 +1,7 @@
 import axios from 'axios';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
+import logger from '../../util/logging';
 import { CompetitionDetails } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
 
@@ -19,8 +20,8 @@ function dispatch(type: string, payload: any) {
   const api_token = env.DISCORD_BOT_API_TOKEN;
   const body = { type, api_token, data: payload };
 
-  axios.post(url, body).catch(() => {
-    console.log('Error sending discord event.');
+  axios.post(url, body).catch(e => {
+    logger.error('Error sending discord event.', e);
   });
 }
 
