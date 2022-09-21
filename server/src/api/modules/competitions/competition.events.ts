@@ -29,21 +29,18 @@ async function onParticipantsJoined(participations: Participation[]) {
 
 async function onCompetitionCreated(competition: Competition) {
   // Dispatch a competition created event to our discord bot API.
-  await metrics.measureReaction('DiscordCompetitionCreated', () =>
-    discordService.dispatchCompetitionCreated(competition)
-  );
+  await metrics.trackEffect(discordService.dispatchCompetitionCreated, competition);
 }
 
 async function onCompetitionStarted(competition: Competition) {
   // Update all players when the competition starts
-  await metrics.measureReaction('UpdateAllCompetitionStart', async () => {
-    await competitionServices.updateAllParticipants({ competitionId: competition.id, forcedUpdate: true });
+  await metrics.trackEffect(competitionServices.updateAllParticipants, {
+    competitionId: competition.id,
+    forcedUpdate: true
   });
 
   // Dispatch a competition started event to our discord bot API.
-  await metrics.measureReaction('DiscordCompetitionStarted', () =>
-    discordService.dispatchCompetitionStarted(competition)
-  );
+  await metrics.trackEffect(discordService.dispatchCompetitionStarted, competition);
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -51,23 +48,17 @@ async function onCompetitionEnded(competition: Competition) {
   if (!competitionDetails) return;
 
   // Dispatch a competition ended event to our discord bot API.
-  await metrics.measureReaction('DiscordCompetitionEnded', () =>
-    discordService.dispatchCompetitionEnded(competitionDetails)
-  );
+  await metrics.trackEffect(discordService.dispatchCompetitionEnded, competitionDetails);
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition starting event to our discord bot API.
-  await metrics.measureReaction('DiscordCompetitionStarting', () =>
-    discordService.dispatchCompetitionStarting(competition, period)
-  );
+  await metrics.trackEffect(discordService.dispatchCompetitionStarting, competition, period);
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
   // Dispatch a competition ending event to our discord bot API.
-  await metrics.measureReaction('DiscordCompetitionEnding', () =>
-    discordService.dispatchCompetitionEnding(competition, period)
-  );
+  await metrics.trackEffect(discordService.dispatchCompetitionEnding, competition, period);
 }
 
 export {

@@ -10,9 +10,7 @@ async function onMembersJoined(memberships: Membership[]) {
   const playerIds = memberships.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
-  await metrics.measureReaction('AddToGroupCompetitions', () =>
-    competitionServices.addToGroupCompetitions({ groupId, playerIds })
-  );
+  await metrics.trackEffect(competitionServices.addToGroupCompetitions, { groupId, playerIds });
 
   // Fetch all the newly added members
   const players = await playerServices.findPlayers({ ids: playerIds });
@@ -21,9 +19,7 @@ async function onMembersJoined(memberships: Membership[]) {
   if (!players || players.length === 0) return;
 
   // Dispatch this event to the discord service
-  await metrics.measureReaction('DiscordMembersJoined', () =>
-    discordService.dispatchMembersJoined(groupId, players)
-  );
+  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, players);
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
@@ -34,14 +30,10 @@ async function onMembersJoined(memberships: Membership[]) {
 
 async function onMembersLeft(groupId: number, playerIds: number[]) {
   // Remove these players from ongoing/upcoming group competitions
-  await metrics.measureReaction('RemoveFromGroupCompetitions', () =>
-    competitionServices.removeFromGroupCompetitions({ groupId, playerIds })
-  );
+  await metrics.trackEffect(competitionServices.removeFromGroupCompetitions, { groupId, playerIds });
 
   // Dispatch this event to the discord service
-  await metrics.measureReaction('DiscordMembersLeft', () =>
-    discordService.dispatchMembersLeft(groupId, playerIds)
-  );
+  await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);
 }
 
 export { onMembersJoined, onMembersLeft };

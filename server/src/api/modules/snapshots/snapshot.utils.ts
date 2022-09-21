@@ -16,6 +16,7 @@ import {
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
+import logger from '../../util/logging';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
 import { BossValue, FormattedSnapshot, SkillValue } from './snapshot.types';
@@ -110,7 +111,13 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   const negativeGains = hasNegativeGains(before, after);
   const excessiveGains = hasExcessiveGains(before, after);
 
-  return !negativeGains && !excessiveGains;
+  const withinRange = !negativeGains && !excessiveGains;
+
+  if (!withinRange) {
+    logger.debug(`Flagged: id:${before.playerId} not within range`, { negativeGains, excessiveGains }, true);
+  }
+
+  return withinRange;
 }
 
 /**
