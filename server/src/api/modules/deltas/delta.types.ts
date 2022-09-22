@@ -1,4 +1,4 @@
-import { Activity, Boss, Player, Skill, Virtual } from '../../../utils';
+import { Activity, Boss, Player, Skill, ComputedMetric } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;
@@ -27,8 +27,8 @@ export interface ActivityDelta {
   score: MeasuredDeltaProgress;
 }
 
-export interface VirtualDelta {
-  metric: Virtual;
+export interface ComputedMetricDelta {
+  metric: ComputedMetric;
   rank: MeasuredDeltaProgress;
   value: MeasuredDeltaProgress;
 }
@@ -37,7 +37,7 @@ export interface PlayerDeltasArray {
   skills: Array<SkillDelta>;
   bosses: Array<BossDelta>;
   activities: Array<ActivityDelta>;
-  virtuals: Array<VirtualDelta>;
+  computed: Array<ComputedMetricDelta>;
 }
 
 export interface PlayerDeltasMap {
@@ -50,8 +50,8 @@ export interface PlayerDeltasMap {
   activities: {
     [activity in Activity]?: ActivityDelta;
   };
-  virtuals: {
-    [virtual in Virtual]?: VirtualDelta;
+  computed: {
+    [computedMetric in ComputedMetric]?: ComputedMetricDelta;
   };
 }
 

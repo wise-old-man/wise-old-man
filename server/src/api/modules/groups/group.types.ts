@@ -39,14 +39,14 @@ interface ActivityHiscoresItem {
   score: number;
 }
 
-interface VirtualHiscoresItem {
+interface ComputedMetricHiscoresItem {
   rank: number;
   value: number;
 }
 
 export interface GroupHiscoresEntry {
   player: Player;
-  data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | VirtualHiscoresItem;
+  data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | ComputedMetricHiscoresItem;
 }
 
 export interface GroupStatistics {

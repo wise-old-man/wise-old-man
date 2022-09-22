@@ -4,14 +4,14 @@ import {
   SKILLS,
   BOSSES,
   ACTIVITIES,
-  VIRTUALS,
+  COMPUTED_METRICS,
   Metric,
   Skill,
   Boss,
   Activity,
-  Virtual,
+  ComputedMetric,
   isSkill,
-  isVirtualMetric,
+  isComputedMetric,
   getMinimumBossKc,
   getMetricRankKey,
   getMetricValueKey,
@@ -25,7 +25,7 @@ import {
   PlayerDeltasArray,
   PlayerDeltasMap,
   SkillDelta,
-  VirtualDelta
+  ComputedMetricDelta
 } from './delta.types';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
 import { getTotalLevel } from '../snapshots/snapshot.utils';
@@ -33,7 +33,7 @@ import { getTotalLevel } from '../snapshots/snapshot.utils';
 const EMPTY_PROGRESS = Object.freeze({ start: 0, end: 0, gained: 0 });
 
 export function parseNum(metric: Metric, val: string) {
-  return isVirtualMetric(metric) ? parseFloat(val) : parseInt(val);
+  return isComputedMetric(metric) ? parseFloat(val) : parseInt(val);
 }
 
 export function flattenPlayerDeltas(deltas: PlayerDeltasMap): PlayerDeltasArray {
@@ -41,7 +41,7 @@ export function flattenPlayerDeltas(deltas: PlayerDeltasMap): PlayerDeltasArray 
     skills: Object.values(deltas.skills),
     bosses: Object.values(deltas.bosses),
     activities: Object.values(deltas.activities),
-    virtuals: Object.values(deltas.virtuals)
+    computed: Object.values(deltas.computed)
   };
 }
 
@@ -242,16 +242,16 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  function calculateVirtualDelta(virtual: Virtual): VirtualDelta {
+  function calculateComputedMetricDelta(computedMetric: ComputedMetric): ComputedMetricDelta {
     const valueDiff =
-      virtual === Virtual.EHP
+      computedMetric === Metric.EHP
         ? calculateEHPDiff(startSnapshot, endSnapshot, player)
         : calculateEHBDiff(startSnapshot, endSnapshot, player);
 
     return {
-      metric: virtual,
+      metric: computedMetric,
       value: valueDiff,
-      rank: calculateRankDiff(virtual, startSnapshot, endSnapshot)
+      rank: calculateRankDiff(computedMetric, startSnapshot, endSnapshot)
     };
   }
 
@@ -259,11 +259,11 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     skills: Object.fromEntries(SKILLS.map(s => [s, calculateSkillDelta(s)])),
     bosses: Object.fromEntries(BOSSES.map(b => [b, calculateBossDelta(b)])),
     activities: Object.fromEntries(ACTIVITIES.map(a => [a, calculateActivityDelta(a)])),
-    virtuals: Object.fromEntries(VIRTUALS.map(v => [v, calculateVirtualDelta(v)]))
+    computed: Object.fromEntries(COMPUTED_METRICS.map(v => [v, calculateComputedMetricDelta(v)]))
   };
 
   // Special Handling for Overall EHP
-  deltas.skills.overall.ehp = deltas.virtuals.ehp.value;
+  deltas.skills.overall.ehp = deltas.computed.ehp.value;
 
   return deltas;
 }
@@ -288,8 +288,8 @@ export function emptyPlayerDelta(): PlayerDeltasArray {
       rank: EMPTY_PROGRESS,
       score: EMPTY_PROGRESS
     })),
-    virtuals: VIRTUALS.map(virtual => ({
-      metric: virtual,
+    computed: COMPUTED_METRICS.map(computedMetric => ({
+      metric: computedMetric,
       rank: EMPTY_PROGRESS,
       value: EMPTY_PROGRESS
     }))

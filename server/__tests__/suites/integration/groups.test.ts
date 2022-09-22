@@ -1317,14 +1317,14 @@ describe('Group API', () => {
       expect(activityHiscoresResponse.body[0].data.score).toBeDefined();
       expect(activityHiscoresResponse.body[0].data.rank).toBeDefined();
 
-      const virtualHiscoresResponse = await api
+      const computedMetricsHiscoresResponse = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'ehp' });
 
-      expect(virtualHiscoresResponse.status).toBe(200);
-      expect(virtualHiscoresResponse.body.length).toBe(3);
-      expect(virtualHiscoresResponse.body[0].data.value).toBeDefined();
-      expect(virtualHiscoresResponse.body[0].data.rank).toBeDefined();
+      expect(computedMetricsHiscoresResponse.status).toBe(200);
+      expect(computedMetricsHiscoresResponse.body.length).toBe(3);
+      expect(computedMetricsHiscoresResponse.body[0].data.value).toBeDefined();
+      expect(computedMetricsHiscoresResponse.body[0].data.rank).toBeDefined();
     });
 
     it('should view hiscores (w/ limit & offset)', async () => {

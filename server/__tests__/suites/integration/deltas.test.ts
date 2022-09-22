@@ -233,7 +233,7 @@ describe('Deltas API', () => {
       expect(weekResponse.status).toBe(200);
 
       const weekSmithingGains = weekResponse.body.data.skills.smithing;
-      const weekEHPGains = weekResponse.body.data.virtuals.ehp;
+      const weekEHPGains = weekResponse.body.data.computed.ehp;
 
       expect(weekSmithingGains.ehp.gained).toBeGreaterThan(0.1);
       expect(weekEHPGains.value.gained).toBe(weekSmithingGains.ehp.gained);
@@ -245,7 +245,7 @@ describe('Deltas API', () => {
 
       const monthNexGains = monthResponse.body.data.bosses.nex;
       const monthZukGains = monthResponse.body.data.bosses.tzkal_zuk;
-      const monthEhbGains = monthResponse.body.data.virtuals.ehb;
+      const monthEhbGains = monthResponse.body.data.computed.ehb;
       const monthLmsGains = monthResponse.body.data.activities.last_man_standing;
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);

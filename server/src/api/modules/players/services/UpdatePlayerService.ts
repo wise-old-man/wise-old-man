@@ -64,23 +64,23 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     updatedPlayerFields.build = getBuild(currentStats);
     updatedPlayerFields.flagged = false;
 
-    const virtuals = await efficiencyServices.computePlayerVirtuals({
+    const computedMetrics = await efficiencyServices.computePlayerMetrics({
       player,
       snapshot: currentStats
     });
 
-    // Set the player's global virtual data
+    // Set the player's global computed data
     updatedPlayerFields.exp = currentStats.overallExperience;
-    updatedPlayerFields.ehp = virtuals.ehpValue;
-    updatedPlayerFields.ehb = virtuals.ehbValue;
-    updatedPlayerFields.ttm = virtuals.ttm;
-    updatedPlayerFields.tt200m = virtuals.tt200m;
+    updatedPlayerFields.ehp = computedMetrics.ehpValue;
+    updatedPlayerFields.ehb = computedMetrics.ehbValue;
+    updatedPlayerFields.ttm = computedMetrics.ttm;
+    updatedPlayerFields.tt200m = computedMetrics.tt200m;
 
-    // Add the virtual data to the snapshot
-    currentStats.ehpValue = virtuals.ehpValue;
-    currentStats.ehpRank = virtuals.ehpRank;
-    currentStats.ehbValue = virtuals.ehbValue;
-    currentStats.ehbRank = virtuals.ehbRank;
+    // Add the computed metrics to the snapshot
+    currentStats.ehpValue = computedMetrics.ehpValue;
+    currentStats.ehpRank = computedMetrics.ehpRank;
+    currentStats.ehbValue = computedMetrics.ehbValue;
+    currentStats.ehbRank = computedMetrics.ehbRank;
 
     // update player with all this new data
     const updatedPlayer = await prisma.player

@@ -1,11 +1,11 @@
 import { capitalize, mapValues } from 'lodash';
-import { Skill, Boss, Activity, Virtual, Metric } from '../prisma/enum-adapter';
+import { Skill, Boss, Activity, ComputedMetric, Metric } from '../prisma/enum-adapter';
 
 enum MetricType {
   SKILL = 'skill',
   BOSS = 'boss',
   ACTIVITY = 'activity',
-  VIRTUAL = 'virtual'
+  COMPUTED = 'computed'
 }
 
 enum MetricMeasure {
@@ -37,7 +37,7 @@ interface ActivityProperties {
   measure: MetricMeasure;
 }
 
-interface VirtualProperties {
+interface ComputedMetricProperties {
   name: string;
   type: MetricType;
   measure: MetricMeasure;
@@ -55,8 +55,8 @@ type ActivityPropsMap = {
   [activity in Activity]: ActivityProperties;
 };
 
-type VirtualPropsMap = {
-  [virtual in Virtual]: VirtualProperties;
+type ComputedMetricPropsMap = {
+  [computedMetric in ComputedMetric]: ComputedMetricProperties;
 };
 
 const SkillProps: SkillPropsMap = mapValues(
@@ -169,26 +169,26 @@ const ActivityProps: ActivityPropsMap = mapValues(
   props => ({ ...props, type: MetricType.ACTIVITY, measure: MetricMeasure.SCORE })
 );
 
-const VirtualProps: VirtualPropsMap = mapValues(
+const ComputedMetricProps: ComputedMetricPropsMap = mapValues(
   {
-    [Virtual.EHP]: { name: 'EHP' },
-    [Virtual.EHB]: { name: 'EHB' }
+    [ComputedMetric.EHP]: { name: 'EHP' },
+    [ComputedMetric.EHB]: { name: 'EHB' }
   },
-  props => ({ ...props, type: MetricType.VIRTUAL, measure: MetricMeasure.VALUE })
+  props => ({ ...props, type: MetricType.COMPUTED, measure: MetricMeasure.VALUE })
 );
 
 const MetricProps = {
   ...SkillProps,
   ...BossProps,
   ...ActivityProps,
-  ...VirtualProps
+  ...ComputedMetricProps
 };
 
 const METRICS = Object.values(Metric);
 const SKILLS = Object.values(Skill);
 const BOSSES = Object.values(Boss);
 const ACTIVITIES = Object.values(Activity);
-const VIRTUALS = Object.values(Virtual);
+const COMPUTED_METRICS = Object.values(ComputedMetric);
 
 const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
 const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);
@@ -215,8 +215,8 @@ function isBoss(metric: Metric) {
   return metric in BossProps;
 }
 
-function isVirtualMetric(metric: Metric) {
-  return metric in VirtualProps;
+function isComputedMetric(metric: Metric) {
+  return metric in ComputedMetricProps;
 }
 
 function getMetricRankKey(metric: Metric) {
@@ -239,7 +239,7 @@ function getMinimumBossKc(metric: Metric) {
   return isBoss(metric) ? MetricProps[metric as Boss].minimumKc : 0;
 }
 
-function getParentVirtualMetric(metric: Metric) {
+function getParentEfficiencyMetric(metric: Metric) {
   if (isBoss(metric)) return Metric.EHB;
   if (isSkill(metric)) return Metric.EHP;
   return null;
@@ -562,7 +562,7 @@ export {
   Skill,
   Boss,
   Activity,
-  Virtual,
+  ComputedMetric,
   MetricType,
   MetricMeasure,
   // Maps
@@ -571,7 +571,7 @@ export {
   SKILLS,
   ACTIVITIES,
   BOSSES,
-  VIRTUALS,
+  COMPUTED_METRICS,
   METRICS,
   F2P_BOSSES,
   REAL_SKILLS,
@@ -585,9 +585,9 @@ export {
   getMetricMeasure,
   getMetricName,
   getMinimumBossKc,
-  getParentVirtualMetric,
+  getParentEfficiencyMetric,
   isSkill,
   isActivity,
   isBoss,
-  isVirtualMetric
+  isComputedMetric
 };

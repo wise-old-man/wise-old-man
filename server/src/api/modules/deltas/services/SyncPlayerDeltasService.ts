@@ -5,7 +5,7 @@ import {
   SKILLS,
   BOSSES,
   ACTIVITIES,
-  VIRTUALS,
+  COMPUTED_METRICS,
   METRICS
 } from '../../../../utils';
 import prisma, { modifyDelta, Player, PrismaDelta, Snapshot } from '../../../../prisma';
@@ -34,8 +34,8 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       endedAt: latestSnapshot.createdAt,
       ...Object.fromEntries(SKILLS.map(s => [s, periodDiffs.skills[s].experience.gained])),
       ...Object.fromEntries(BOSSES.map(b => [b, periodDiffs.bosses[b].kills.gained])),
-      ...Object.fromEntries(VIRTUALS.map(v => [v, periodDiffs.virtuals[v].value.gained])),
-      ...Object.fromEntries(ACTIVITIES.map(a => [a, periodDiffs.activities[a].score.gained]))
+      ...Object.fromEntries(ACTIVITIES.map(a => [a, periodDiffs.activities[a].score.gained])),
+      ...Object.fromEntries(COMPUTED_METRICS.map(c => [c, periodDiffs.computed[c].value.gained]))
     };
 
     // Find the existing cached delta for this period
