@@ -1,5 +1,5 @@
 import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
-import { isTesting } from '../../env';
+import { getThreadIndex, isDevelopment, isTesting } from '../../env';
 import redisConfig from '../../config/redis.config';
 import logger from '../util/logging';
 import metricsService from '../services/external/metrics.service';
@@ -7,8 +7,9 @@ import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
-import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
+import RefreshApiKeysJob from './instances/RefreshApiKeysJobs';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
+import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
 import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
 import ScheduleDeltaInvalidationsJob from './instances/ScheduleDeltaInvalidationsJob';
@@ -20,6 +21,7 @@ import UpdatePlayerJob from './instances/UpdatePlayerJob';
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   InvalidatePeriodDeltasJob,
+  RefreshApiKeysJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
@@ -32,26 +34,30 @@ const JOBS: JobDefinition<unknown>[] = [
 ];
 
 const CRON_JOBS = [
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_EVENTS,
+  //   interval: '* * * * *' // every 1 min
+  // },
   {
-    type: JobType.SCHEDULE_COMPETITION_EVENTS,
+    type: JobType.REFRESH_API_KEYS,
     interval: '* * * * *' // every 1 min
-  },
-  {
-    type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
-    interval: '0 */12 * * *' // every 12 hours
-  },
-  {
-    type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
-    interval: '0 */6 * * *' // every 6 hours
-  },
-  {
-    type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
-    interval: '0 8 * * *' // everyday at 8AM
-  },
-  {
-    type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
-    interval: '0 8 * * *' // everyday at 8AM
   }
+  // {
+  //   type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
+  //   interval: '0 */12 * * *' // every 12 hours
+  // },
+  // {
+  //   type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
+  //   interval: '0 */6 * * *' // every 6 hours
+  // },
+  // {
+  //   type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
+  //   interval: '0 8 * * *' // everyday at 8AM
+  // },
+  // {
+  //   type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
+  //   interval: '0 8 * * *' // everyday at 8AM
+  // }
 ];
 
 class JobManager {
@@ -127,12 +133,11 @@ class JobManager {
 
       worker.on('failed', (bullJob, error) => {
         if (job.onFailure) job.onFailure(bullJob.data, error);
-        logger.error(`Failed job: ${job.type}`, bullJob.data, true);
+        logger.error(`Failed job: ${job.type}`, { ...bullJob.data, error }, true);
       });
 
       worker.on('completed', bullJob => {
         if (job.onSuccess) job.onSuccess(bullJob.data);
-        logger.info(`Completed job: ${job.type}`, bullJob.data, true);
       });
 
       return worker;
@@ -170,11 +175,9 @@ class JobManager {
 
     // If running through pm2 (production), only run cronjobs on the first CPU core.
     // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-
-    // TODO: Disabling cron jobs below, they should run on API v1 until I migrate them here
-    // if (getThreadIndex() === 0 || isDevelopment()) {
-    //   this.initCrons();
-    // }
+    if (getThreadIndex() === 0 || isDevelopment()) {
+      this.initCrons();
+    }
   }
 
   async shutdown() {
