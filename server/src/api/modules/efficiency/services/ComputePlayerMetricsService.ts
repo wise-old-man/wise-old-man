@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Snapshot } from '../../../../prisma';
-import { Virtual, PlayerType, PlayerBuild } from '../../../../utils';
+import { PlayerType, PlayerBuild, Metric } from '../../../../utils';
 import * as efficiencyUtils from '../efficiency.utils';
 import * as efficiencyServices from '../efficiency.services';
 
@@ -12,9 +12,9 @@ const inputSchema = z.object({
   })
 });
 
-type ComputePlayerVirtualsParams = z.infer<typeof inputSchema> & { snapshot: Snapshot };
+type ComputePlayerMetricsParams = z.infer<typeof inputSchema> & { snapshot: Snapshot };
 
-interface ComputePlayerVirtualsResult {
+interface ComputePlayerMetricsResult {
   ttm: number;
   tt200m: number;
   ehpValue: number;
@@ -23,7 +23,7 @@ interface ComputePlayerVirtualsResult {
   ehbRank: number;
 }
 
-async function computePlayerVirtuals(payload: ComputePlayerVirtualsParams) {
+async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const { player, snapshot } = { ...inputSchema.parse(payload), snapshot: payload.snapshot };
 
   const killcountMap = efficiencyUtils.getKillcountMap(snapshot);
@@ -36,17 +36,17 @@ async function computePlayerVirtuals(payload: ComputePlayerVirtualsParams) {
 
   const ehpRank = await efficiencyServices.computeEfficiencyRank({
     player,
-    metric: Virtual.EHP,
+    metric: Metric.EHP,
     value: ehpValue
   });
 
   const ehbRank = await efficiencyServices.computeEfficiencyRank({
     player,
-    metric: Virtual.EHB,
+    metric: Metric.EHB,
     value: ehpValue
   });
 
-  const result: ComputePlayerVirtualsResult = {
+  const result: ComputePlayerMetricsResult = {
     ttm: algorithm.calculateTTM(experienceMap),
     tt200m: algorithm.calculateTT200m(experienceMap),
     ehpValue,
@@ -58,4 +58,4 @@ async function computePlayerVirtuals(payload: ComputePlayerVirtualsParams) {
   return result;
 }
 
-export { computePlayerVirtuals };
+export { computePlayerMetrics };

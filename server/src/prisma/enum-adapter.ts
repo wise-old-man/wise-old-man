@@ -137,7 +137,7 @@ export const Boss = {
   ZULRAH: 'zulrah'
 } as const;
 
-export const Virtual = {
+export const ComputedMetric = {
   EHP: 'ehp',
   EHB: 'ehb'
 } as const;
@@ -146,13 +146,13 @@ export const Metric = {
   ...Skill,
   ...Activity,
   ...Boss,
-  ...Virtual
+  ...ComputedMetric
 } as const;
 
 export type Skill = typeof Skill[keyof typeof Skill];
 export type Activity = typeof Activity[keyof typeof Activity];
 export type Boss = typeof Boss[keyof typeof Boss];
-export type Virtual = typeof Virtual[keyof typeof Virtual];
+export type ComputedMetric = typeof ComputedMetric[keyof typeof ComputedMetric];
 export type Metric = typeof Metric[keyof typeof Metric];
 
 export const NameChangeStatus = {

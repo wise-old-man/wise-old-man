@@ -6,7 +6,7 @@ import {
   BOSSES,
   Skill,
   Boss,
-  Virtual,
+  ComputedMetric,
   Metric,
   getMetricValueKey,
   PlayerType,
@@ -86,7 +86,7 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   };
 }
 
-export function getRates(metric: Virtual, type: EfficiencyAlgorithmType) {
+export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) {
   // Wrong algorithm type
   if (!Object.values(EfficiencyAlgorithmType).includes(type)) return null;
 

@@ -4,7 +4,7 @@ import {
   getMetricValueKey,
   Metric,
   METRICS,
-  VIRTUALS,
+  COMPUTED_METRICS,
   ACTIVITIES,
   getLevel,
   SKILLS,
@@ -81,8 +81,8 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
           ];
         })
       ),
-      virtuals: Object.fromEntries(
-        VIRTUALS.map(v => {
+      computed: Object.fromEntries(
+        COMPUTED_METRICS.map(v => {
           return [
             v,
             {

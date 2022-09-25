@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Virtual, PlayerType } from '../../../../utils';
+import { ComputedMetric, PlayerType } from '../../../../utils';
 import prisma from '../../../../prisma';
 
 const inputSchema = z.object({
@@ -7,7 +7,7 @@ const inputSchema = z.object({
     id: z.number().int().positive(),
     type: z.nativeEnum(PlayerType)
   }),
-  metric: z.nativeEnum(Virtual),
+  metric: z.nativeEnum(ComputedMetric),
   value: z.number().gte(0)
 });
 

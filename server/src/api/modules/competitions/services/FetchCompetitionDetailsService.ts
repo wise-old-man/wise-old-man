@@ -1,7 +1,7 @@
 import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot } from '../../../../prisma';
-import { getMetricValueKey, isVirtualMetric, Metric } from '../../../../utils';
+import { getMetricValueKey, isComputedMetric, Metric } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
@@ -39,9 +39,9 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
 
   const competitionMetric = params.metric || competition.metric;
   const metricKey = getMetricValueKey(competitionMetric);
-  const isVirtual = isVirtualMetric(competitionMetric);
+  const isComputed = isComputedMetric(competitionMetric);
 
-  const requiredSnapshotFields = isVirtual ? true : { select: { [metricKey]: true } };
+  const requiredSnapshotFields = isComputed ? true : { select: { [metricKey]: true } };
 
   const participations = await prisma.participation.findMany({
     where: { competitionId: params.id },

@@ -14,7 +14,7 @@ import {
   Prisma,
   Country
 } from '@prisma/client';
-import { isVirtualMetric } from '../utils';
+import { isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';
@@ -71,8 +71,8 @@ function modifyRecords(records: PrismaRecord[]): Record[] {
     // All records' values are stored as an Integer, but EHP/EHB records can have
     // float values, so they're multiplied by 10,000 when saving to the database.
     // Inversely, we need to divide any EHP/EHB records by 10,000 when fetching from the database.
-    const isVirtual = isVirtualMetric(a.metric);
-    const convertedValue = isVirtual ? parseBigInt(a.value) / 10_000 : parseBigInt(a.value);
+    const isComputed = isComputedMetric(a.metric);
+    const convertedValue = isComputed ? parseBigInt(a.value) / 10_000 : parseBigInt(a.value);
 
     return { ...a, value: convertedValue };
   });

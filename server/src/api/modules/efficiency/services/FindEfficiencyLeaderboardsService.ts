@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import prisma, { modifyPlayers, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric, Virtual, Country } from '../../../../utils';
+import { PlayerType, PlayerBuild, Metric, Country } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
 
 const inputSchema = z
   .object({
-    metric: z.enum([Virtual.EHP, Virtual.EHB, COMBINED_METRIC]),
+    metric: z.enum([Metric.EHP, Metric.EHB, COMBINED_METRIC]),
     country: z.nativeEnum(Country).optional(),
     playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
     playerBuild: z.nativeEnum(PlayerBuild).optional()

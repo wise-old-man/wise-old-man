@@ -359,7 +359,7 @@ describe('Records API', () => {
       });
     });
 
-    it('should fetch records (and correctly parse virtual metrics)', async () => {
+    it('should fetch records (and correctly parse computed metrics)', async () => {
       const response = await api
         .get(`/groups/${globalData.testRegularGroupId}/records`)
         .query({ metric: 'ehp', period: 'day' });
@@ -554,7 +554,7 @@ describe('Records API', () => {
       });
     });
 
-    it('should fetch leaderboards (and correctly parse virtual metrics)', async () => {
+    it('should fetch leaderboards (and correctly parse computed metrics)', async () => {
       const response = await api.get(`/records/leaderboard`).query({ period: 'month', metric: 'ehp' });
 
       expect(response.status).toBe(200);

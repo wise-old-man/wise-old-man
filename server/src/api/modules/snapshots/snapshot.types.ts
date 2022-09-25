@@ -1,4 +1,4 @@
-import { Skill, Boss, Activity, Virtual } from '../../../utils';
+import { Skill, Boss, Activity, ComputedMetric } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 
 export type SnapshotFragment = Omit<Snapshot, 'id'>;
@@ -29,8 +29,8 @@ export interface ActivityValue {
   score: number;
 }
 
-export interface VirtualValue {
-  metric: Virtual;
+export interface ComputedMetricValue {
+  metric: ComputedMetric;
   rank: number;
   value: number;
 }
@@ -50,8 +50,8 @@ export interface FormattedSnapshot {
     activities: {
       [activity in Activity]?: ActivityValue;
     };
-    virtuals: {
-      [virtual in Virtual]?: VirtualValue;
+    computed: {
+      [computed in ComputedMetric]?: ComputedMetric;
     };
   };
 }

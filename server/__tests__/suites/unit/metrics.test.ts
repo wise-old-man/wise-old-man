@@ -6,13 +6,13 @@ import {
   isSkill,
   isBoss,
   isActivity,
-  isVirtualMetric,
+  isComputedMetric,
   getMetricRankKey,
   getMetricValueKey,
   getMetricMeasure,
   getMetricName,
   getMinimumBossKc,
-  getParentVirtualMetric,
+  getParentEfficiencyMetric,
   parseMetricAbbreviation,
   MetricMeasure
 } from '../../../src/utils';
@@ -53,12 +53,12 @@ describe('Util - Metrics', () => {
     expect(isActivity(findMetric('Soul Wars Zeal') as Metric)).toBe(true);
   });
 
-  test('isVirtualMetric', () => {
-    expect(isVirtualMetric('Other' as Metric)).toBe(false);
-    expect(isVirtualMetric(Metric.WOODCUTTING)).toBe(false);
-    expect(isVirtualMetric(Metric.LAST_MAN_STANDING)).toBe(false);
-    expect(isVirtualMetric(Metric.EHP)).toBe(true);
-    expect(isVirtualMetric(findMetric('EHB') as Metric)).toBe(true);
+  test('isComputedMetric', () => {
+    expect(isComputedMetric('Other' as Metric)).toBe(false);
+    expect(isComputedMetric(Metric.WOODCUTTING)).toBe(false);
+    expect(isComputedMetric(Metric.LAST_MAN_STANDING)).toBe(false);
+    expect(isComputedMetric(Metric.EHP)).toBe(true);
+    expect(isComputedMetric(findMetric('EHB') as Metric)).toBe(true);
   });
 
   test('getMetricRankKey', () => {
@@ -96,11 +96,11 @@ describe('Util - Metrics', () => {
     expect(getMinimumBossKc(Metric.TZKAL_ZUK)).toBe(1);
   });
 
-  test('getParentVirtualMetric', () => {
-    expect(getParentVirtualMetric(Metric.EHP)).toBe(null);
-    expect(getParentVirtualMetric(Metric.ZALCANO)).toBe(Metric.EHB);
-    expect(getParentVirtualMetric(Metric.WOODCUTTING)).toBe(Metric.EHP);
-    expect(getParentVirtualMetric(Metric.SOUL_WARS_ZEAL)).toBe(null);
+  test('getParentEfficiencyMetric', () => {
+    expect(getParentEfficiencyMetric(Metric.EHP)).toBe(null);
+    expect(getParentEfficiencyMetric(Metric.ZALCANO)).toBe(Metric.EHB);
+    expect(getParentEfficiencyMetric(Metric.WOODCUTTING)).toBe(Metric.EHP);
+    expect(getParentEfficiencyMetric(Metric.SOUL_WARS_ZEAL)).toBe(null);
   });
 
   test('parseMetricAbbreviation', () => {

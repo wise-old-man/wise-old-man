@@ -133,8 +133,8 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
-      expect(response.body.ehp).toBe(response.body.latestSnapshot.data.virtuals.ehp.value);
-      expect(response.body.ehb).toBe(response.body.latestSnapshot.data.virtuals.ehb.value);
+      expect(response.body.ehp).toBe(response.body.latestSnapshot.data.computed.ehp.value);
+      expect(response.body.ehb).toBe(response.body.latestSnapshot.data.computed.ehb.value);
 
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
