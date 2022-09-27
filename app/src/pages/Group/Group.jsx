@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { PERIODS } from '@wise-old-man/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -28,7 +29,6 @@ import { GroupInfo } from './components';
 import { GroupContext } from './context';
 import './Group.scss';
 
-const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 const TABS = [
   'Members',
   'Competitions',
@@ -66,7 +66,7 @@ function Group() {
 
   const handleExport = () => {
     const filename = `${group.name} Members.csv`;
-    const namesOnly = group.members.map(member => ({ name: member.displayName }));
+    const namesOnly = group.members.map(member => ({ name: member.player.displayName }));
     saveCsv(namesOnly, { filename });
   };
 

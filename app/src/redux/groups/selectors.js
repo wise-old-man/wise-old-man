@@ -44,8 +44,8 @@ function formatGroup(group) {
   const { members } = group;
 
   if (members && members.length > 0) {
-    const totalExperience = members.map(m => m.exp).reduce((acc, cur) => acc + cur, 0);
-    const totalEHP = members.map(m => m.ehp).reduce((acc, cur) => acc + cur, 0);
+    const totalExperience = members.map(m => m.player.exp).reduce((acc, cur) => acc + cur, 0);
+    const totalEHP = members.map(m => m.player.ehp).reduce((acc, cur) => acc + cur, 0);
 
     return { ...group, members, totalExperience, totalEHP };
   }

@@ -1,5 +1,3 @@
-import { ROLES } from 'config';
-
 export function standardize(username) {
   return sanitize(username).toLowerCase();
 }
@@ -28,7 +26,8 @@ export function getPlayerTooltip(type, flagged) {
 
 export function getRoleTypeIcon(role) {
   if (role === 'member') return '/img/runescape/roles/Minion.png';
-  return ROLES.find(r => r.value === role).icon;
+
+  return `/img/runescape/roles/${role.replace(/_/g, ' ')}.png`;
 }
 
 export function getPlayerBuild(build) {

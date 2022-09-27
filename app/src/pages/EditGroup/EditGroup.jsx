@@ -11,8 +11,6 @@ import ImportPlayersModal from 'modals/ImportPlayersModal';
 import RemovePlayersModal from 'modals/RemovePlayersModal';
 import './EditGroup.scss';
 
-const mapMember = ({ username, displayName, role }) => ({ username, displayName, role });
-
 function EditGroup() {
   const { id } = useParams();
   const router = useHistory();
@@ -43,15 +41,23 @@ function EditGroup() {
       setDescription(group.description || '');
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld || '');
-      setMembers(group.members.map(mapMember));
+
+      if (group.members)
+        setMembers(
+          group.members.map(({ role, player }) => ({
+            username: player.username,
+            displayName: player.displayName,
+            role
+          }))
+        );
     }
   };
 
   const findRemovedMembers = () => {
-    if (group) {
+    if (group && group.members) {
       const removedMembers = group.members
-        .filter(m => !members.find(c => standardize(m.username) === standardize(c.username)))
-        .map(m => m.displayName);
+        .filter(m => !members.find(c => standardize(m.player.username) === standardize(c.username)))
+        .map(m => m.player.displayName);
 
       setRemovedPlayers(removedMembers);
     }
@@ -78,6 +84,8 @@ function EditGroup() {
   };
 
   const handleAddMember = username => {
+    if (!username || username.length === 0) return;
+
     setMembers(currentMembers => {
       // If username is already member
       if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {

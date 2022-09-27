@@ -36,7 +36,7 @@ function List({ period }) {
 }
 
 function getLabel(period) {
-  if (period === '5min') return '5 Min';
+  if (period === 'five_min') return '5 Min';
   return capitalize(period);
 }
 

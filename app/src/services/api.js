@@ -9,21 +9,21 @@ const API = axios.create({
 });
 
 const endpoints = {
-  // Efficiency endpoints
+  // Efficiency endpoints ✅
   fetchRates: '/efficiency/rates/',
   fetchLeaderboards: '/efficiency/leaderboard/',
 
-  // Name endpoints
+  // Name endpoints ✅
   fetchNameChanges: '/names/',
   submitNameChange: '/names/',
 
-  // Record endpoints
+  // Record endpoints ✅
   fetchRecordLeaderboards: '/records/leaderboard/',
 
-  // Deltas endpoints
+  // Deltas endpoints ✅
   fetchDeltasLeaderboards: '/deltas/leaderboard/',
 
-  // Group endpoints
+  // Group endpoints // ✅
   createGroup: '/groups/',
   deleteGroup: '/groups/:id',
   editGroup: '/groups/:id',
@@ -34,7 +34,7 @@ const endpoints = {
   fetchGroupMembers: '/groups/:id/members/',
   fetchGroupHiscores: '/groups/:id/hiscores/',
   fetchGroupStatistics: '/groups/:id/statistics/',
-  fetchGroupMonthlyTop: '/groups/:id/monthly-top/',
+  fetchGroupMonthlyTop: '/groups/:id/gained/',
   fetchGroupAchievements: '/groups/:id/achievements/',
   fetchGroupNameChanges: '/groups/:id/name-changes/',
   fetchGroupCompetitions: '/groups/:id/competitions/',

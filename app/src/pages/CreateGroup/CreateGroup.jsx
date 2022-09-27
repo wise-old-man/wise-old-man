@@ -47,6 +47,8 @@ function CreateGroup() {
   };
 
   const handleAddMember = username => {
+    if (!username || username.length === 0) return;
+
     setMembers(currentMembers => {
       if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
         return currentMembers;
@@ -125,9 +127,9 @@ function CreateGroup() {
       groupActions.create(name, description, clanChat, homeworld, members)
     );
 
-    if (payload && payload.data) {
+    if (payload && payload.data && !payload.error) {
       setVerificationCode(payload.data.verificationCode);
-      setCreatedId(payload.data.id);
+      setCreatedId(payload.data.group.id);
     }
   };
 

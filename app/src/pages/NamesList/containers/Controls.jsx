@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { NameChangeStatus } from '@wise-old-man/utils';
 import { TextInput, Selector } from 'components';
 import { NamesListContext } from '../context';
 
 const STATUS_OPTIONS = [
   { label: 'Any status', value: null },
-  { label: 'Pending', value: 0 },
-  { label: 'Denied', value: 1 },
-  { label: 'Approved', value: 2 }
+  { label: 'Pending', value: NameChangeStatus.PENDING },
+  { label: 'Denied', value: NameChangeStatus.DENIED },
+  { label: 'Approved', value: NameChangeStatus.APPROVED }
 ];
 
 function Controls({ onSearchInputChanged }) {

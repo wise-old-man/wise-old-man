@@ -119,7 +119,7 @@ const slice = createSlice({
       const { data } = action.payload;
 
       state.isCreating = false;
-      state.groups = replaceDetails(state.groups, data);
+      state.groups = replaceDetails(state.groups, data.group);
     },
     onCreateError(state, action) {
       const { error, data } = action.payload;
