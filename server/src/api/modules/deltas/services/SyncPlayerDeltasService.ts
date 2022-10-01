@@ -8,12 +8,16 @@ import {
   COMPUTED_METRICS,
   METRICS
 } from '../../../../utils';
-import prisma, { modifyDelta, Player, PrismaDelta, Snapshot } from '../../../../prisma';
+import prisma, { Delta, modifyDelta, modifyDeltas, Player, PrismaDelta, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as deltaUtils from '../delta.utils';
 import * as deltaEvents from '../delta.events';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
+  // Fetch all deltas for this player, and cache them into a <period, delta> map
+  const playerDeltas = await prisma.delta.findMany({ where: { playerId: player.id } }).then(modifyDeltas);
+  const playerDeltasMap: Map<Period, Delta> = new Map(playerDeltas.map(d => [d.period, d]));
+
   // Build the update/create promise for a given period
   async function buildUpdatePromise(period: Period) {
     // Find the first snapshot within the period
@@ -39,9 +43,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     };
 
     // Find the existing cached delta for this period
-    const currentDelta = await prisma.delta.findFirst({
-      where: { playerId: player.id, period }
-    });
+    const currentDelta = playerDeltasMap.get(period);
 
     // if any metric has improved since the last delta sync, it is a potential record
     // and we should also check for new records in this period
