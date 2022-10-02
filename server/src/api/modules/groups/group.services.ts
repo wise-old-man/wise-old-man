@@ -5,7 +5,6 @@ export * from './services/DeleteGroupService';
 export * from './services/EditGroupService';
 export * from './services/FetchGroupDetailsService';
 export * from './services/FetchGroupHiscoresService';
-export * from './services/FetchGroupMembersService';
 export * from './services/FetchGroupStatisticsService';
 export * from './services/FindPlayerMembershipsService';
 export * from './services/MigrateGroupService';

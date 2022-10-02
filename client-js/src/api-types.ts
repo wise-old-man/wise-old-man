@@ -14,7 +14,7 @@ import {
   CompetitionWithParticipations,
   Team,
   GroupRole,
-  GroupWithMemberships
+  GroupDetails
 } from '../../server/src/utils';
 
 export interface GenericCountMessageResponse {
@@ -61,7 +61,7 @@ export interface CreateGroupPayload {
 export type EditGroupPayload = Partial<CreateGroupPayload>;
 
 export interface CreateGroupResponse {
-  group: GroupWithMemberships;
+  group: GroupDetails;
   verificationCode: string;
 }
 

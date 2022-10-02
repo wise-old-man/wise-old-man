@@ -181,15 +181,6 @@ async function removeMembers(req: Request): Promise<ControllerResponse> {
   };
 }
 
-// GET /groups/:id/members
-async function listMembers(req: Request): Promise<ControllerResponse> {
-  const result = await groupServices.fetchGroupMembers({
-    id: getNumber(req.params.id)
-  });
-
-  return { statusCode: 200, response: result };
-}
-
 // GET /groups/:id/competitions
 async function competitions(req: Request): Promise<ControllerResponse> {
   const results = await competitionServices.findGroupCompetitions({
@@ -307,7 +298,6 @@ export {
   nameChanges,
   statistics,
   competitions,
-  listMembers,
   addMembers,
   removeMembers,
   migrateTemple,

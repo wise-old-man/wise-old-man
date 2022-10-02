@@ -2,7 +2,7 @@ import {
   CompetitionListItem,
   ExtendedAchievement,
   GroupListItem,
-  GroupWithMemberships,
+  GroupDetails,
   MembershipWithPlayer,
   Metric,
   GroupHiscoresEntry,
@@ -40,19 +40,11 @@ export default class GroupsClient {
   }
 
   /**
-   * Fetches a group's details.
+   * Fetches a group's details, including a list of membership objects.
    * @returns A group details object.
    */
   getGroupDetails(id: number) {
-    return sendGetRequest<GroupListItem>(`/groups/${id}`);
-  }
-
-  /**
-   * Fetches a group's entire members list.
-   * @returns A list of memberships, with players included.
-   */
-  getGroupMembers(id: number) {
-    return sendGetRequest<MembershipWithPlayer[]>(`/groups/${id}/members`);
+    return sendGetRequest<GroupDetails>(`/groups/${id}`);
   }
 
   /**
@@ -68,7 +60,7 @@ export default class GroupsClient {
    * @returns The updated group.
    */
   editGroup(id: number, payload: EditGroupPayload, verificationCode: string) {
-    return sendPutRequest<GroupWithMemberships>(`/groups/${id}`, {
+    return sendPutRequest<GroupDetails>(`/groups/${id}`, {
       ...payload,
       verificationCode
     });

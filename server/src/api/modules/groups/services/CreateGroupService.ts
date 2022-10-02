@@ -3,7 +3,7 @@ import prisma, { modifyPlayer } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import * as cryptService from '../../../services/external/crypt.service';
 import { BadRequestError, ServerError } from '../../../errors';
-import { GroupWithMemberships } from '../group.types';
+import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
@@ -44,7 +44,7 @@ const inputSchema = z
   });
 
 type CreateGroupParams = z.infer<typeof inputSchema>;
-type CreateGroupResult = { group: GroupWithMemberships; verificationCode: string };
+type CreateGroupResult = { group: GroupDetails; verificationCode: string };
 
 async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResult> {
   const params = inputSchema.parse(payload);

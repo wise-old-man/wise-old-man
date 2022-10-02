@@ -1,8 +1,9 @@
 import { omit } from 'lodash';
 import { z } from 'zod';
-import prisma from '../../../../prisma';
+import prisma, { modifyPlayer } from '../../../../prisma';
+import { PRIVELEGED_GROUP_ROLES } from '../../../..//utils';
 import { NotFoundError } from '../../../errors';
-import { GroupListItem } from '../group.types';
+import { GroupDetails } from '../group.types';
 
 const inputSchema = z.object({
   id: z.number().positive()
@@ -10,16 +11,14 @@ const inputSchema = z.object({
 
 type FetchGroupDetailsParams = z.infer<typeof inputSchema>;
 
-async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<GroupListItem> {
+async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<GroupDetails> {
   const params = inputSchema.parse(payload);
 
   const group = await prisma.group.findFirst({
     where: { id: params.id },
     include: {
-      _count: {
-        select: {
-          memberships: true
-        }
+      memberships: {
+        include: { player: true }
       }
     }
   });
@@ -28,9 +27,15 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
     throw new NotFoundError('Group not found.');
   }
 
+  const priorities = PRIVELEGED_GROUP_ROLES.reverse();
+
   return {
-    ...omit(group, ['_count', 'verificationHash']),
-    memberCount: group._count.memberships
+    ...omit(group, ['verificationHash']),
+    memberCount: group.memberships.length,
+    // Sort the members list by role
+    memberships: group.memberships
+      .map(m => ({ ...m, player: modifyPlayer(m.player) }))
+      .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role))
   };
 }
 

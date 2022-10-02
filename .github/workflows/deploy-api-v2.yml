@@ -41,5 +41,6 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker-compose pull api-v2:${{steps.package-version.outputs.current-version}}
+            docker image rm wiseoldman/api-v2
+            docker-compose pull api-v2
             docker-compose up -d --no-deps --build api-v2

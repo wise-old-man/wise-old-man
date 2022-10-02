@@ -5,7 +5,9 @@ import api from './api';
 const port = env.API_PORT || 5001;
 
 const server = api.express.listen(port, () => {
-  logger.info(`v2: Server running on port ${port}. Thread Index: ${getThreadIndex()}`);
+  logger.info(
+    `v${env.npm_package_version}: Server running on port ${port}. Thread Index: ${getThreadIndex()}`
+  );
 });
 
 process.on('SIGTERM', () => {
