@@ -33,10 +33,10 @@ function TeamsTable({
     columns: [
       {
         key: 'rank',
-        width: 70,
+        width: 70
       },
       {
-        key: 'name',
+        key: 'name'
       },
       {
         key: 'playersCount',
@@ -65,7 +65,7 @@ function TeamsTable({
           if (!participants || participants.length === 0) return 'None';
           if (participants[0].progress.gained === 0) return 'None';
 
-          return participants[0].displayName;
+          return participants[0].player.displayName;
         }
       },
       {

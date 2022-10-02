@@ -27,9 +27,10 @@ function TeamPlayersTable({
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
+        get: row => row.player.displayName,
         transform: (value, row) => (
-          <Link to={getPlayerRedirectURL(row, competition, metric)}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
+          <Link to={getPlayerRedirectURL(row.player, competition, metric)}>
+            <PlayerTag name={value} {...row.player} />
           </Link>
         )
       },

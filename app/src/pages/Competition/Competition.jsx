@@ -40,10 +40,12 @@ function Competition() {
   const [showSelectMetricModal, setShowSelectMetricModal] = useState(false);
 
   const competition = useSelector(competitionSelectors.getCompetition(id));
+  const competitionTopHistory = useSelector(competitionSelectors.getCompetitionTopHistory(id));
+
   const competitionType = competition ? competition.type : 'classic';
 
   const tabs = getTabs(competitionType);
-  const chartData = getCompetitionChartData(competition, metric);
+  const chartData = getCompetitionChartData(competitionTopHistory, metric);
   const selectedTabIndex = getSelectedTabIndex(competitionType, section);
   const showDeleteModal = section === 'delete' && !!competition;
 
@@ -177,6 +179,8 @@ const fetchDetails = (id, metric, router, dispatch) => {
   dispatch(competitionActions.fetchDetails(id, metric))
     .then(action => {
       if (!action.payload.data) throw new Error();
+
+      dispatch(competitionActions.fetchCompetitionTop5History(id, metric));
     })
     .catch(() => router.push('/404'));
 };

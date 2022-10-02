@@ -71,25 +71,21 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   };
 };
 
-export const getCompetitionChartData = (competition, previewMetric) => {
-  if (!competition) return [];
+export const getCompetitionChartData = (topHistory, metric) => {
+  if (!topHistory || topHistory.length === 0) return [];
 
   const datasets = [];
 
-  if (!competition.participants || competition.participants.length === 0) {
-    return datasets;
-  }
-
-  const topParticipants = competition.participants.filter(p => p.history && p.history.length > 0);
-
-  topParticipants.forEach((participant, i) => {
+  topHistory.forEach((participant, i) => {
     // Convert all the history data into chart points
-    const points = participant.history.map(h => ({
-      x: h.date,
-      y: isBoss(previewMetric || competition.metric)
-        ? Math.max(h.value, getMinimumBossKc(previewMetric || competition.metric) - 1)
-        : h.value
-    }));
+
+    const points = [...participant.history]
+      .reverse()
+      .sort()
+      .map(h => ({
+        x: h.date,
+        y: isBoss(metric) ? Math.max(h.value, getMinimumBossKc(metric) - 1) : h.value
+      }));
 
     // Convert the exp values to exp delta values
     const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));
@@ -100,7 +96,7 @@ export const getCompetitionChartData = (competition, previewMetric) => {
     datasets.push({
       borderColor: CHART_COLORS[i],
       pointBorderWidth: 1,
-      label: participant.displayName,
+      label: participant.player.displayName,
       data: filteredPoints,
       fill: false
     });

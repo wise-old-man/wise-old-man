@@ -34,6 +34,8 @@ function CreateCompetition() {
   const onFetch = useCallback(handleGroupFetch, []);
 
   async function handleGroupFetch() {
+    if (!groupId) return;
+
     const { payload } = await dispatch(groupActions.fetchDetails(groupId));
 
     if (payload && payload.data) {
@@ -64,7 +66,7 @@ function CreateCompetition() {
   }
 
   function handleRedirect() {
-    router.push(`/competitions/${result.id}`);
+    router.push(`/competitions/${result.competition.id}`);
   }
 
   function previousStep() {
@@ -107,14 +109,14 @@ function CreateCompetition() {
             />
           </div>
         </div>
-        {result && !result.groupId && (
+        {result && !result.competition.groupId && (
           <VerificationModal
             entity="competition"
             verificationCode={result.verificationCode}
             onConfirm={handleRedirect}
           />
         )}
-        {result && result.groupId && (
+        {result && result.competition.groupId && (
           <CustomConfirmationModal
             title="Verification code"
             message="To edit this competition in the future, please use your group verification code on submission."

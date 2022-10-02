@@ -38,9 +38,9 @@ function EditCompetition() {
   // Populate all the editable fields
   const populate = () => {
     if (competition) {
-      const { title, metric, type, startsAt, endsAt, groupId, participants, teams } = competition;
+      const { title, metric, type, startsAt, endsAt, groupId, participations, teams } = competition;
 
-      const formatParticipant = p => p.displayName;
+      const formatParticipant = p => p.player.displayName;
       const formatTeam = t => ({ ...t, participants: t.participants.map(formatParticipant) });
 
       setData(d => ({
@@ -51,15 +51,15 @@ function EditCompetition() {
         endDate: endsAt,
         groupCompetition: !!groupId,
         type,
-        participants: type === 'classic' ? participants.map(formatParticipant) : [],
+        participants: type === 'classic' ? participations.map(formatParticipant) : [],
         teams: type === 'team' ? teams.map(formatTeam) : []
       }));
     }
   };
 
   async function handleSubmit(skipRemovedCheck = false) {
-    const removedParticipants = competition.participants
-      .map(m => m.displayName)
+    const removedParticipants = competition.participations
+      .map(m => m.player.displayName)
       .filter(m => !data.participants.find(c => standardize(m) === standardize(c)));
 
     if (

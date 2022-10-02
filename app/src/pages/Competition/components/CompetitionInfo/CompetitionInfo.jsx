@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { InfoPanel } from 'components';
-import { formatDate, formatDateUTC, capitalize, getType, getMetricName } from 'utils';
+import { formatDate, formatDateUTC, capitalize, getType, getMetricName, durationBetween } from 'utils';
 
 function CompetitionInfo({ competition }) {
   const data = useMemo(() => formatData(competition), [competition]);
@@ -11,7 +11,7 @@ function CompetitionInfo({ competition }) {
 }
 
 function formatData(competition) {
-  const { id, metric, status, participants, duration, startsAt, endsAt, group } = competition;
+  const { id, metric, status, participations, startsAt, endsAt, group } = competition;
 
   const statusClass = classNames({
     '-positive': status === 'ongoing',
@@ -39,11 +39,11 @@ function formatData(competition) {
     },
     {
       key: 'Participants',
-      value: participants ? participants.length : 'Unknown'
+      value: participations ? participations.length : 'Unknown'
     },
     {
       key: 'Duration',
-      value: capitalize(duration)
+      value: durationBetween(startsAt, endsAt, 3)
     },
     {
       key: status === 'upcoming' ? 'Starts at (local time)' : 'Started at (local time)',

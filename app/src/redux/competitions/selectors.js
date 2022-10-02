@@ -4,6 +4,7 @@ import { SKILLS } from 'config';
 import { durationBetween, getLevel } from 'utils';
 
 const rootSelector = state => state.competitions;
+const topHistorySelector = state => state.competitions.topHistory;
 const competitionsSelector = state => state.competitions.competitions;
 const playerCompetitionsSelector = state => state.competitions.playerCompetitions;
 const groupCompetitionsSelector = state => state.competitions.groupCompetitions;
@@ -34,6 +35,10 @@ export const getCompetitions = createSelector(competitionsSelector, map => {
 
 export function getCompetition(competitionId) {
   return state => getCompetitionsMap(state)[competitionId];
+}
+
+export function getCompetitionTopHistory(competitionId) {
+  return state => topHistorySelector(state)[competitionId];
 }
 
 export function getPlayerCompetitions(username) {
@@ -87,19 +92,19 @@ function formatCompetition(competition) {
     return null;
   }
 
-  const { startsAt, endsAt, participants, metric } = competition;
+  const { startsAt, endsAt, participations, metric } = competition;
 
   const calcLevels = SKILLS.filter(s => s !== 'overall').includes(metric);
 
-  const formattedParticipants = participants
-    ? participants.map((p, i) => formatParticipant(p, i, calcLevels))
+  const formattedParticipants = participations
+    ? participations.map((p, i) => formatParticipant(p, i, calcLevels))
     : [];
 
-  const formattedTeams = participants ? formatTeams(formattedParticipants) : [];
+  const formattedTeams = participations ? formatTeams(formattedParticipants) : [];
 
   const formattedCompetition = {
     ...competition,
-    participants: formattedParticipants,
+    participations: formattedParticipants,
     teams: formattedTeams
   };
 

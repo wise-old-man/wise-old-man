@@ -31,7 +31,6 @@ const endpoints = {
   fetchGroupDetails: '/groups/:id',
   fetchGroupDeltas: '/groups/:id/gained/',
   fetchGroupRecords: '/groups/:id/records/',
-  fetchGroupMembers: '/groups/:id/members/',
   fetchGroupHiscores: '/groups/:id/hiscores/',
   fetchGroupStatistics: '/groups/:id/statistics/',
   fetchGroupMonthlyTop: '/groups/:id/gained/',
@@ -42,12 +41,13 @@ const endpoints = {
   migrateFromTemple: '/groups/migrate/temple/:id',
   migrateFromCML: '/groups/migrate/cml/:id',
 
-  // Competition endpoints
+  // Competition endpoints // ✅
   createCompetition: '/competitions/',
   deleteCompetition: '/competitions/:id',
   editCompetition: '/competitions/:id',
   fetchCompetitions: '/competitions/',
   fetchCompetitionDetails: '/competitions/:id',
+  fetchCompetitionTopHistory: '/competitions/:id/top-history',
   updateAllParticipants: '/competitions/:id/update-all',
 
   // Player endpoints

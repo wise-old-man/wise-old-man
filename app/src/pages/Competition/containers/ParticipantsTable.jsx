@@ -19,7 +19,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
   }
 
   const tableConfig = {
-    uniqueKeySelector: row => row.username,
+    uniqueKeySelector: row => row.player.username,
     columns: [
       {
         key: 'rank',
@@ -29,9 +29,10 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
-        transform: (value, row) => (
-          <Link to={getPlayerRedirectURL(row, competition, metric)}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
+        get: row => row.player.displayName,
+        transform: (val, row) => (
+          <Link to={getPlayerRedirectURL(row.player, competition, metric)}>
+            <PlayerTag name={val} {...row.player} />
           </Link>
         )
       },
@@ -39,7 +40,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'start',
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
-          const lastUpdated = row.updatedAt;
+          const lastUpdated = row.player.updatedAt;
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
 
@@ -82,7 +83,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'end',
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
-          const lastUpdated = row.updatedAt;
+          const lastUpdated = row.player.updatedAt;
           const minKc = getMinimumBossKc(metric);
           const metricName = getMetricName(metric);
 
@@ -132,25 +133,26 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: value => {
+        get: row => row.player.updatedAt,
+        className: val => {
           // If competition has started and this player hasn't updated since, show red text
-          if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {
+          if (competition.startsAt < Date.now() && (!val || val < competition.startsAt)) {
             return '-negative';
           }
 
           return '';
         },
-        transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
+        transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 1, true)} ago`
       },
       {
         key: 'update',
         label: '',
         isSortable: false,
-        transform: (value, row) =>
+        transform: (_, row) =>
           competition.status !== 'finished' && (
             <TableUpdateButton
-              username={row.username}
-              isUpdating={updatingUsernames.includes(row.username)}
+              username={row.player.username}
+              isUpdating={updatingUsernames.includes(row.player.username)}
               onUpdate={onUpdateClicked}
             />
           )
@@ -178,7 +180,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
 
   return (
     <Table
-      rows={competition.participants}
+      rows={competition.participations}
       columns={tableConfig.columns}
       uniqueKeySelector={tableConfig.uniqueKeySelector}
       onExportClicked={onExportParticipantsClicked}

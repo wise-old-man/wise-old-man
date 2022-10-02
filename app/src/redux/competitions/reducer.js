@@ -8,7 +8,9 @@ const initialState = {
   isEditing: false,
   isFetchingList: false,
   isFetchingDetails: false,
+  isFetchingTopHistory: false,
   competitions: {},
+  topHistory: {},
   playerCompetitions: {},
   groupCompetitions: {},
   error: { message: null, data: null }
@@ -49,6 +51,21 @@ const slice = createSlice({
     },
     onFetchDetailsError(state, action) {
       state.isFetchingDetails = false;
+      state.error = { message: action.payload.error };
+    },
+    onFetchTop5HistoryRequest(state) {
+      state.isFetchingTopHistory = true;
+      state.error = initialState.error;
+    },
+    onFetchTop5HistorySuccess(state, action) {
+      const { data, competitionId } = action.payload;
+
+      state.isFetchingTopHistory = false;
+      state.error = initialState.error;
+      state.topHistory = { ...state.topHistory, [competitionId]: data };
+    },
+    onFetchTop5HistoryError(state, action) {
+      state.isFetchingTopHistory = false;
       state.error = { message: action.payload.error };
     },
     onFetchPlayerCompetitionsRequest(state) {
