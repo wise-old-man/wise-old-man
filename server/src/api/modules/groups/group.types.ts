@@ -23,30 +23,34 @@ export interface MemberInput {
   role: string | GroupRole;
 }
 
-interface SkillHiscoresItem {
+export interface GroupHiscoresSkillItem {
   rank: number;
   level: number;
   experience: number;
 }
 
-interface BossHiscoresItem {
+export interface GroupHiscoresBossItem {
   rank: number;
   kills: number;
 }
 
-interface ActivityHiscoresItem {
+export interface GroupHiscoresActivityItem {
   rank: number;
   score: number;
 }
 
-interface ComputedMetricHiscoresItem {
+export interface GroupHiscoresComputedMetricItem {
   rank: number;
   value: number;
 }
 
 export interface GroupHiscoresEntry {
   player: Player;
-  data: SkillHiscoresItem | BossHiscoresItem | ActivityHiscoresItem | ComputedMetricHiscoresItem;
+  data:
+    | GroupHiscoresSkillItem
+    | GroupHiscoresBossItem
+    | GroupHiscoresActivityItem
+    | GroupHiscoresComputedMetricItem;
 }
 
 export interface GroupStatistics {
