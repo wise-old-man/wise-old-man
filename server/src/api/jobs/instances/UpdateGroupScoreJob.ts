@@ -1,5 +1,5 @@
 import prisma, { Group } from '../../../prisma';
-import { PRIVELEGED_GROUP_ROLES, GroupRole } from '../../../utils';
+import { PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import * as groupServices from '../../modules/groups/group.services';
 import * as competitionServices from '../../modules/competitions/competition.services';
 import { JobType, JobDefinition } from '../job.types';
@@ -46,7 +46,7 @@ async function calculateScore(group: Group): Promise<number> {
   const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
 
   // If has atleast one leader
-  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role as GroupRole)).length >= 1) {
+  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
     score += 30;
   }
 

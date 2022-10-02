@@ -28,6 +28,14 @@ const PlayerBuildProps: PlayerBuildPropsMap = {
 const PLAYER_TYPES = Object.values(PlayerType);
 const PLAYER_BUILDS = Object.values(PlayerBuild);
 
+function isPlayerType(typeString: string): typeString is PlayerType {
+  return typeString in PlayerTypeProps;
+}
+
+function isPlayerBuild(buildString: string): buildString is PlayerBuild {
+  return buildString in PlayerBuildProps;
+}
+
 function findPlayerType(typeName: string): PlayerType | null {
   for (const [key, value] of Object.entries(PlayerTypeProps)) {
     if (value.name.toUpperCase() === typeName.toUpperCase()) return key as PlayerType;
@@ -54,6 +62,8 @@ export {
   PLAYER_TYPES,
   PLAYER_BUILDS,
   // Functions
+  isPlayerType,
+  isPlayerBuild,
   findPlayerType,
   findPlayerBuild
 };

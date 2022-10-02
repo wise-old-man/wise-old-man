@@ -268,6 +268,10 @@ const COMMON_ALIASES = [
   { commonIdentifier: 'USA', trueIdentifier: 'US' }
 ];
 
+function isCountry(countryCodeString: string): countryCodeString is Country {
+  return countryCodeString in CountryProps;
+}
+
 function findCountry(countryIdentifier: string): CountryDetails | undefined {
   return findCountryByCode(countryIdentifier) || findCountryByName(countryIdentifier);
 }
@@ -285,4 +289,15 @@ function replaceCommonAliases(countryCode: string) {
   return COMMON_ALIASES.find(ca => ca.commonIdentifier === countryCode)?.trueIdentifier || countryCode;
 }
 
-export { COUNTRY_CODES, CountryProps, Country, findCountry, findCountryByCode, findCountryByName };
+export {
+  // Enums
+  CountryProps,
+  Country,
+  // Lists
+  COUNTRY_CODES,
+  // Functions
+  isCountry,
+  findCountry,
+  findCountryByCode,
+  findCountryByName
+};
