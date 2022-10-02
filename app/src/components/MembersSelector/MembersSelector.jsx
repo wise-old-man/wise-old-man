@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { GroupRoleProps } from '@wise-old-man/utils';
 import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
+import { getRoleTypeIcon } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
 import AutoSuggestInput from '../AutoSuggestInput';
 import Selector from '../Selector';
@@ -33,7 +35,6 @@ function getTableConfig(
         isSortable: false,
         width: 200,
         transform: (val, row) => {
-          const role = roles.find(r => r.value === val);
           const isEdited = editedRoleMembers.find(e => e === row.username);
 
           if (isEdited) {
@@ -49,8 +50,8 @@ function getTableConfig(
 
           return (
             <div className="role">
-              <img src={role.icon} alt="" />
-              <span>{role.label}</span>
+              <img src={getRoleTypeIcon(val)} alt="" />
+              <span>{GroupRoleProps[val].name}</span>
               <button type="button" onClick={() => setEditedRoleMembers(e => [...e, row.username])}>
                 (Change)
               </button>

@@ -8,7 +8,6 @@ const playerGroupsSelector = state => state.groups.playerGroups;
 export const getError = createSelector(rootSelector, root => root.error);
 export const isFetchingList = createSelector(rootSelector, root => root.isFetchingList);
 export const isFetchingDetails = createSelector(rootSelector, root => root.isFetchingDetails);
-export const isFetchingMembers = createSelector(rootSelector, root => root.isFetchingMembers);
 export const isFetchingMonthlyTop = createSelector(rootSelector, root => root.isFetchingMonthlyTop);
 export const isFetchingStatistics = createSelector(rootSelector, root => root.isFetchingStatistics);
 export const isCreating = createSelector(rootSelector, root => root.isCreating);
@@ -41,13 +40,13 @@ function formatGroup(group) {
     return null;
   }
 
-  const { members } = group;
+  const { memberships } = group;
 
-  if (members && members.length > 0) {
-    const totalExperience = members.map(m => m.player.exp).reduce((acc, cur) => acc + cur, 0);
-    const totalEHP = members.map(m => m.player.ehp).reduce((acc, cur) => acc + cur, 0);
+  if (memberships && memberships.length > 0) {
+    const totalExperience = memberships.map(m => m.player.exp).reduce((acc, cur) => acc + cur, 0);
+    const totalEHP = memberships.map(m => m.player.ehp).reduce((acc, cur) => acc + cur, 0);
 
-    return { ...group, members, totalExperience, totalEHP };
+    return { ...group, totalExperience, totalEHP };
   }
 
   return group;

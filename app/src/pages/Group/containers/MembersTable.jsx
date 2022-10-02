@@ -62,19 +62,14 @@ function MembersTable() {
   const { id } = context;
 
   const group = useSelector(groupSelectors.getGroup(id));
-  const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
 
-  if (!group || !group.members) {
-    return null;
-  }
-
-  if (isLoadingMembers) {
+  if (!group || !group.memberships) {
     return <TablePlaceholder size={10} />;
   }
 
   return (
     <Table
-      rows={group.members}
+      rows={group.memberships}
       columns={TABLE_CONFIG.columns}
       uniqueKeySelector={TABLE_CONFIG.uniqueKeySelector}
     />

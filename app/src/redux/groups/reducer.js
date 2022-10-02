@@ -8,7 +8,6 @@ const initialState = {
   isDeleting: false,
   isFetchingList: false,
   isFetchingDetails: false,
-  isFetchingMembers: false,
   isFetchingMonthlyTop: false,
   isFetchingStatistics: false,
   isFetchingPlayerGroups: false,
@@ -65,21 +64,6 @@ const slice = createSlice({
     },
     onFetchDetailsError(state, action) {
       state.isFetchingDetails = false;
-      state.error = { message: action.payload.error };
-    },
-    onFetchMembersRequest(state) {
-      state.isFetchingMembers = true;
-      state.error = initialState.error;
-    },
-    onFetchMembersSuccess(state, action) {
-      const { groupId, data } = action.payload;
-
-      state.isFetchingMembers = false;
-      state.error = initialState.error;
-      state.groups[groupId] = { ...state.groups[groupId], members: data };
-    },
-    onFetchMembersError(state, action) {
-      state.isFetchingMembers = false;
       state.error = { message: action.payload.error };
     },
     onFetchMonthlyTopRequest(state) {

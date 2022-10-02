@@ -32,7 +32,6 @@ function EditGroup() {
 
   const fetchDetails = () => {
     dispatch(groupActions.fetchDetails(id));
-    dispatch(groupActions.fetchMembers(id));
   };
 
   const populate = () => {
@@ -42,20 +41,21 @@ function EditGroup() {
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld || '');
 
-      if (group.members)
+      if (group.memberships) {
         setMembers(
-          group.members.map(({ role, player }) => ({
+          group.memberships.map(({ role, player }) => ({
             username: player.username,
             displayName: player.displayName,
             role
           }))
         );
+      }
     }
   };
 
   const findRemovedMembers = () => {
-    if (group && group.members) {
-      const removedMembers = group.members
+    if (group && group.memberships) {
+      const removedMembers = group.memberships
         .filter(m => !members.find(c => standardize(m.player.username) === standardize(c.username)))
         .map(m => m.player.displayName);
 

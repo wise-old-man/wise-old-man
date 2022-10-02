@@ -80,19 +80,6 @@ const fetchDetails = id => async dispatch => {
   }
 };
 
-const fetchMembers = id => async dispatch => {
-  dispatch(reducers.onFetchMembersRequest());
-
-  try {
-    const url = endpoints.fetchGroupMembers.replace(':id', id);
-    const { data } = await api.get(url);
-
-    return dispatch(reducers.onFetchMembersSuccess({ groupId: id, data }));
-  } catch (e) {
-    return dispatch(reducers.onFetchMembersError(e.message.toString()));
-  }
-};
-
 const fetchMonthlyTop = id => async dispatch => {
   dispatch(reducers.onFetchMonthlyTopRequest());
 
@@ -187,7 +174,6 @@ export {
   updateAll,
   fetchList,
   fetchDetails,
-  fetchMembers,
   fetchStatistics,
   fetchMonthlyTop,
   fetchPlayerGroups,

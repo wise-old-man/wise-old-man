@@ -75,15 +75,14 @@ function Group() {
   };
 
   const fetchGroupDetails = useCallback(() => {
-    if (!group) {
+    if (!group || !group.memberships) {
       dispatch(groupActions.fetchDetails(id)).then(action => {
         // Group not found, redirect to 404
         if (!action.payload.data) router.push(`/404`);
+
+        dispatch(groupActions.fetchMonthlyTop(id));
+        dispatch(competitionActions.fetchGroupCompetitions(id));
       });
-    } else if (!group.members) {
-      dispatch(groupActions.fetchMembers(id));
-      dispatch(groupActions.fetchMonthlyTop(id));
-      dispatch(competitionActions.fetchGroupCompetitions(id));
     }
   }, [dispatch, router, id, group]);
 
