@@ -19,7 +19,6 @@ api.put('/:id/role', setupController(controller.changeRole));
 api.post('/:id/members', setupController(controller.addMembers));
 api.delete('/:id/members', setupController(controller.removeMembers));
 
-api.get('/:id/members', setupController(controller.listMembers));
 api.get('/:id/competitions', setupController(controller.competitions));
 api.get('/:id/gained', setupController(controller.gained));
 api.get('/:id/achievements', setupController(controller.achievements));

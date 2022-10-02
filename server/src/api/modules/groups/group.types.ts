@@ -6,7 +6,7 @@ export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
 }
 
-export interface GroupWithMemberships extends GroupListItem {
+export interface GroupDetails extends GroupListItem {
   memberships: MembershipWithPlayer[];
 }
 

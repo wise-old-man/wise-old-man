@@ -10,7 +10,7 @@ import prisma, {
 } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
-import { GroupWithMemberships } from '../group.types';
+import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
@@ -53,7 +53,7 @@ const inputSchema = z
 
 type EditGroupParams = z.infer<typeof inputSchema>;
 
-async function editGroup(payload: EditGroupParams): Promise<GroupWithMemberships> {
+async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
   const params = inputSchema.parse(payload);
   const updatedGroupFields: PrismaTypes.GroupUpdateInput = {};
 

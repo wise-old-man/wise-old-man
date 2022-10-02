@@ -2,7 +2,7 @@ import {
   CompetitionListItem,
   ExtendedAchievement,
   GroupListItem,
-  GroupWithMemberships,
+  GroupDetails,
   MembershipWithPlayer,
   Metric,
   GroupHiscoresEntry,
@@ -68,7 +68,7 @@ export default class GroupsClient {
    * @returns The updated group.
    */
   editGroup(id: number, payload: EditGroupPayload, verificationCode: string) {
-    return sendPutRequest<GroupWithMemberships>(`/groups/${id}`, {
+    return sendPutRequest<GroupDetails>(`/groups/${id}`, {
       ...payload,
       verificationCode
     });

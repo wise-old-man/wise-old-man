@@ -1,8 +1,8 @@
-import prisma, { Group } from '../../../prisma';
-import { PRIVELEGED_GROUP_ROLES } from '../../../utils';
-import * as groupServices from '../../modules/groups/group.services';
+import prisma from '../../../prisma';
+import { GroupDetails, PRIVELEGED_GROUP_ROLES } from '../../../utils';
 import * as competitionServices from '../../modules/competitions/competition.services';
 import { JobType, JobDefinition } from '../job.types';
+import * as groupServices from '../../modules/groups/group.services';
 
 export interface UpdateGroupScorePayload {
   groupId: number;
@@ -16,46 +16,44 @@ class UpdateGroupScoreJob implements JobDefinition<UpdateGroupScorePayload> {
   }
 
   async execute(data: UpdateGroupScorePayload) {
-    const group = await prisma.group.findFirst({
-      where: { id: data.groupId }
-    });
+    const groupDetails = await groupServices.fetchGroupDetails({ id: data.groupId });
 
-    const currentScore = group.score;
-    const newScore = await calculateScore(group);
+    const currentScore = groupDetails.score;
+    const newScore = await calculateScore(groupDetails);
 
     if (newScore !== currentScore) {
       await prisma.group.update({
-        where: { id: group.id },
+        where: { id: data.groupId },
         data: { score: newScore }
       });
     }
   }
 }
 
-async function calculateScore(group: Group): Promise<number> {
+async function calculateScore(group: GroupDetails): Promise<number> {
   let score = 0;
 
   const now = new Date();
-  const members = await groupServices.fetchGroupMembers({ id: group.id });
+  const { memberships } = group;
 
-  if (!members || members.length === 0) {
+  if (!memberships || memberships.length === 0) {
     return score;
   }
 
   const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
-  const averageOverallExp = members.reduce((acc: any, cur: any) => acc + cur, 0) / members.length;
+  const averageOverallExp = memberships.reduce((acc: any, cur: any) => acc + cur, 0) / memberships.length;
 
   // If has atleast one leader
-  if (members.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
+  if (memberships.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {
     score += 30;
   }
 
   // If has atleast 10 players
-  if (members.length >= 10) {
+  if (memberships.length >= 10) {
     score += 20;
 
     // If has atleast 50 players
-    if (members.length >= 50) {
+    if (memberships.length >= 50) {
       score += 40;
     }
   }

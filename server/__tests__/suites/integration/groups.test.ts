@@ -1162,6 +1162,22 @@ describe('Group API', () => {
       expect(response.body.message).toMatch('Group not found.');
     });
 
+    it('should view details (empty group)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}`);
+
+      expect(response.status).toBe(200);
+
+      expect(response.body).toMatchObject({
+        name: 'Some Group',
+        description: 'Test123',
+        clanChat: 'Test',
+        homeworld: 492,
+        memberCount: 0
+      });
+
+      expect(response.body.memberships.length).toBe(0);
+    });
+
     it('should view details', async () => {
       const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}`);
 
@@ -1175,39 +1191,38 @@ describe('Group API', () => {
         homeworld: 302,
         memberCount: 5
       });
+
+      expect(response.body.memberships.length).toBe(5);
+
+      // "leader" is a priviledged role, should be ranked first
+      expect(response.body.memberships[0]).toMatchObject({
+        role: 'leader',
+        player: { username: 'alexsuperfly' }
+      });
+
+      expect(response.body.memberships[1]).toMatchObject({
+        role: 'achiever',
+        player: { username: 'psikoi' }
+      });
+
+      expect(response.body.memberships[2]).toMatchObject({
+        role: 'artisan',
+        player: { username: 'swampletics' }
+      });
+
+      expect(response.body.memberships[3]).toMatchObject({
+        role: 'firemaker',
+        player: { username: 'zezima' }
+      });
+
+      expect(response.body.memberships[4]).toMatchObject({
+        role: 'member',
+        player: { username: 'rorro' }
+      });
     });
   });
 
-  describe('10 - List Members', () => {
-    it('should not list members (group not found)', async () => {
-      const response = await api.get('/groups/9999/members');
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Group not found.');
-    });
-
-    it('should list members (empty group)', async () => {
-      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/members`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(0);
-    });
-
-    it('should list members', async () => {
-      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/members`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(5);
-
-      expect(response.body[0]).toMatchObject({ role: 'leader', player: { username: 'alexsuperfly' } });
-      expect(response.body[1]).toMatchObject({ role: 'achiever', player: { username: 'psikoi' } });
-      expect(response.body[2]).toMatchObject({ role: 'artisan', player: { username: 'swampletics' } });
-      expect(response.body[3]).toMatchObject({ role: 'firemaker', player: { username: 'zezima' } });
-      expect(response.body[4]).toMatchObject({ role: 'member', player: { username: 'rorro' } });
-    });
-  });
-
-  describe('11 - View Hiscores', () => {
+  describe('10 - View Hiscores', () => {
     it('should not view hiscores (undefined metric)', async () => {
       const response = await api.get(`/groups/100000/hiscores`);
 
@@ -1371,7 +1386,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('12 - View Statistics', () => {
+  describe('11 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
       const response = await api.get(`/groups/100000/statistics`);
 
@@ -1415,7 +1430,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('13 - Update All', () => {
+  describe('12 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
@@ -1470,7 +1485,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('14 - Reset Verification Code', () => {
+  describe('13 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
@@ -1524,7 +1539,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('15 - Verify', () => {
+  describe('14 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/verify`);
 
@@ -1564,7 +1579,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('16 - Migrate from Temple', () => {
+  describe('15 - Migrate from Temple', () => {
     it('should not migrate from temple (404 error)', async () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 404);
@@ -1596,7 +1611,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('17 - Migrate from CML', () => {
+  describe('16 - Migrate from CML', () => {
     it('should not migrate from cml (404 error)', async () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 404);
