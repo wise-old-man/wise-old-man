@@ -1,6 +1,6 @@
 import {
-  findCompetitionType,
-  findCompetitionStatus,
+  isCompetitionStatus,
+  isCompetitionType,
   CompetitionType,
   CompetitionStatus,
   CompetitionTypeProps,
@@ -18,15 +18,16 @@ describe('Util - Competitions', () => {
     expect(Object.keys(CompetitionStatus).length).toBe(Object.keys(CompetitionStatusProps).length);
   });
 
-  test('findCompetitionType', () => {
-    expect(findCompetitionType('Classic')).toBe(CompetitionType.CLASSIC);
-    expect(findCompetitionType('Team')).toBe(CompetitionType.TEAM);
-    expect(findCompetitionType('Other')).toBe(null);
+  test('isCompetitionType', () => {
+    expect(isCompetitionType('classic')).toBe(true);
+    expect(isCompetitionType('team')).toBe(true);
+    expect(isCompetitionType('other')).toBe(false);
   });
 
   test('findCompetitionStatus', () => {
-    expect(findCompetitionStatus('Upcoming')).toBe(CompetitionStatus.UPCOMING);
-    expect(findCompetitionStatus('Ongoing')).toBe(CompetitionStatus.ONGOING);
-    expect(findCompetitionStatus('Other')).toBe(null);
+    expect(isCompetitionStatus('upcoming')).toBe(true);
+    expect(isCompetitionStatus('ongoing')).toBe(true);
+    expect(isCompetitionStatus('finished')).toBe(true);
+    expect(isCompetitionStatus('other')).toBe(false);
   });
 });

@@ -1,4 +1,5 @@
 import { Period } from '../prisma/enum-adapter';
+
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 
 type PeriodPropsMap = {
@@ -26,10 +27,14 @@ function findPeriod(periodName: string): Period | null {
   return null;
 }
 
+function isPeriod(periodString: string): periodString is Period {
+  return periodString in PeriodProps;
+}
+
 function parsePeriodExpression(periodExpression: string) {
   const fixed = periodExpression.toLowerCase();
 
-  if (PERIODS.includes(fixed as Period)) {
+  if (isPeriod(fixed)) {
     return {
       expression: fixed,
       durationMs: PeriodProps[fixed as Period].milliseconds
@@ -60,4 +65,14 @@ function parsePeriodExpression(periodExpression: string) {
   };
 }
 
-export { Period, PeriodProps, PERIODS, findPeriod, parsePeriodExpression };
+export {
+  // Enums
+  Period,
+  PeriodProps,
+  // Lists
+  PERIODS,
+  // Functions
+  isPeriod,
+  findPeriod,
+  parsePeriodExpression
+};

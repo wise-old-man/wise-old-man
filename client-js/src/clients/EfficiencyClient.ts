@@ -4,7 +4,7 @@ import { PaginationOptions, sendGetRequest } from '../utils';
 
 export default class EfficiencyClient {
   /**
-   * Fetches the current efficiency leaderboard for a specific virtual metric, playerType, playerBuild and country.
+   * Fetches the current efficiency leaderboard for a specific efficiency metric, playerType, playerBuild and country.
    * @returns A list of players.
    */
   getEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter, pagination?: PaginationOptions) {

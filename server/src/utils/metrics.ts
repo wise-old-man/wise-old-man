@@ -203,19 +203,23 @@ function findMetric(metricName: string): Metric | null {
   return null;
 }
 
-function isSkill(metric: Metric) {
+function isMetric(metricString: string): metricString is Metric {
+  return metricString in MetricProps;
+}
+
+function isSkill(metric: Metric | string): metric is Skill {
   return metric in SkillProps;
 }
 
-function isActivity(metric: Metric) {
+function isActivity(metric: Metric | string): metric is Activity {
   return metric in ActivityProps;
 }
 
-function isBoss(metric: Metric) {
+function isBoss(metric: Metric | string): metric is Boss {
   return metric in BossProps;
 }
 
-function isComputedMetric(metric: Metric) {
+function isComputedMetric(metric: Metric | string): metric is ComputedMetric {
   return metric in ComputedMetricProps;
 }
 
@@ -586,6 +590,7 @@ export {
   getMetricName,
   getMinimumBossKc,
   getParentEfficiencyMetric,
+  isMetric,
   isSkill,
   isActivity,
   isBoss,

@@ -28,20 +28,12 @@ const CompetitionStatusProps: CompetitionStatusPropsMap = {
 const COMPETITION_TYPES = Object.values(CompetitionType);
 const COMPETITION_STATUSES = Object.values(CompetitionStatus);
 
-function findCompetitionType(typeName: string): CompetitionType | null {
-  for (const [key, value] of Object.entries(CompetitionTypeProps)) {
-    if (value.name === typeName) return key as CompetitionType;
-  }
-
-  return null;
+function isCompetitionType(typeString: string): typeString is CompetitionType {
+  return typeString in CompetitionTypeProps;
 }
 
-function findCompetitionStatus(statusName: string): CompetitionStatus | null {
-  for (const [key, value] of Object.entries(CompetitionStatusProps)) {
-    if (value.name === statusName) return key as CompetitionStatus;
-  }
-
-  return null;
+function isCompetitionStatus(statusString: string): statusString is CompetitionStatus {
+  return statusString in CompetitionStatusProps;
 }
 
 export {
@@ -54,6 +46,6 @@ export {
   COMPETITION_TYPES,
   COMPETITION_STATUSES,
   // Functions
-  findCompetitionType,
-  findCompetitionStatus
+  isCompetitionType,
+  isCompetitionStatus
 };

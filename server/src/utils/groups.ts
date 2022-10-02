@@ -292,7 +292,7 @@ const GroupRoleProps: GroupRolePropsMap = mapValues(
   },
   (props, key: GroupRole) => ({
     ...props,
-    isPriveleged: PRIVELEGED_GROUP_ROLES.includes(key as GroupRole)
+    isPriveleged: PRIVELEGED_GROUP_ROLES.includes(key)
   })
 );
 
@@ -306,4 +306,18 @@ function findGroupRole(roleName: string): GroupRole | null {
   return null;
 }
 
-export { GroupRole, GroupRoleProps, GROUP_ROLES, PRIVELEGED_GROUP_ROLES, findGroupRole };
+function isGroupRole(roleString: string): roleString is GroupRole {
+  return roleString in GroupRoleProps;
+}
+
+export {
+  // Enums
+  GroupRole,
+  GroupRoleProps,
+  // Lists
+  GROUP_ROLES,
+  PRIVELEGED_GROUP_ROLES,
+  // Functions
+  isGroupRole,
+  findGroupRole
+};
