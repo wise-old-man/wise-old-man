@@ -66,7 +66,7 @@ function Player() {
   };
 
   const handleAssertType = () => {
-    dispatch(playerActions.assertType(player.username, player.type));
+    dispatch(playerActions.assertType(player.username));
   };
 
   const handleRedirect = path => {

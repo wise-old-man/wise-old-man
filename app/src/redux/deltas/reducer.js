@@ -51,7 +51,7 @@ const slice = createSlice({
     },
     onFetchPlayerDeltasSuccess(state, action) {
       const { username, data } = action.payload;
-      const customPeriod = 'startsAt' in data;
+      const customPeriod = !('week' in data);
 
       state.error = null;
       state.isFetchingPlayerDeltas = false;

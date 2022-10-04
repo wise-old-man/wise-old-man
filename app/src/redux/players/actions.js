@@ -32,8 +32,7 @@ const trackPlayer = username => async dispatch => {
   dispatch(reducers.onTrackRequest({ username }));
 
   try {
-    const body = { username };
-    const { data } = await api.post(endpoints.trackPlayer, body);
+    const { data } = await api.post(endpoints.trackPlayer.replace(':username', username));
 
     // Side effect: Update this player's competitions participations
     dispatch(competitionReducers.onParticipantUpdated({ username }));
@@ -44,16 +43,19 @@ const trackPlayer = username => async dispatch => {
   }
 };
 
-const assertType = (username, currentType) => async dispatch => {
+const assertType = username => async dispatch => {
   dispatch(reducers.onAssertTypeRequest());
 
   try {
-    const body = { username };
-    const { data } = await api.post(endpoints.assertPlayerType, body);
+    const { data } = await api.post(endpoints.assertPlayerType.replace(':username', username));
 
-    const changed = currentType !== data.type;
-
-    return dispatch(reducers.onAssertTypeSuccess({ username, playerType: data.type, changed }));
+    return dispatch(
+      reducers.onAssertTypeSuccess({
+        username,
+        playerType: data.player.type,
+        changed: data.changed
+      })
+    );
   } catch (e) {
     return dispatch(reducers.onAssertTypeError(e.response.data.message));
   }

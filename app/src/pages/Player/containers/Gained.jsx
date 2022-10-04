@@ -1,5 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { PERIODS, Period, PeriodProps } from '@wise-old-man/utils';
 import PropTypes from 'prop-types';
 import { some } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,14 +13,10 @@ import CustomPeriodSelectionModal from 'modals/CustomPeriodSelectionModal';
 import { PlayerDeltasInfo, PlayerDeltasTable } from '../components';
 import { PlayerContext } from '../context';
 
-const DEFAULT_PERIOD = 'week';
+const DEFAULT_PERIOD = Period.WEEK;
 
 const PERIOD_OPTIONS = [
-  { label: '5 Min', value: '5min' },
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' },
+  ...PERIODS.map(period => ({ label: PeriodProps[period].name, value: period })),
   { label: 'Custom Period', value: 'custom' }
 ];
 

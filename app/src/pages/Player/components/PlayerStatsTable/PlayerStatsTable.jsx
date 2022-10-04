@@ -6,11 +6,11 @@ import { SKILLS, BOSSES, ACTIVITIES } from 'config';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
-    .map(s => getLevel(snapshot[s].experience, showVirtualLevels))
+    .map(s => getLevel(snapshot.data.skills[s].experience, showVirtualLevels))
     .reduce((acc, cur) => acc + cur);
 
   const rows = SKILLS.map(skill => {
-    const { experience, rank, ehp } = snapshot[skill];
+    const { experience, rank, ehp } = snapshot.data.skills[skill];
     const level = skill === 'overall' ? totalLevel : getLevel(experience, showVirtualLevels);
 
     return {
@@ -27,8 +27,8 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
     metric: 'ehp',
     level: '',
     experience: '',
-    ehp: round(snapshot.ehp.value, 2),
-    rank: snapshot.ehp.rank
+    ehp: round(snapshot.data.computed.ehp.value, 2),
+    rank: snapshot.data.computed.ehp.rank
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -50,13 +50,10 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       key: 'experience',
       transform: val => {
         return val === -1 ? (
-          <TextLabel
-            value="---"
-            popupValue="Unranked"
-          />
+          <TextLabel value="---" popupValue="Unranked" />
         ) : (
           <NumberLabel value={val} />
-        )
+        );
       }
     },
     {
@@ -66,18 +63,15 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       key: 'rank',
       transform: val => {
         return val === -1 ? (
-          <TextLabel
-            value="---"
-            popupValue="Unranked"
-          />
+          <TextLabel value="---" popupValue="Unranked" />
         ) : (
           <NumberLabel value={val} />
-        )
+        );
       }
     },
     {
       key: 'ehp',
-      label: 'EHP',
+      label: 'EHP'
     }
   ];
 
@@ -86,7 +80,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
 
 function renderBossesTable(snapshot) {
   const rows = BOSSES.map(boss => {
-    const { kills, rank, ehb } = snapshot[boss];
+    const { kills, rank, ehb } = snapshot.data.bosses[boss];
     return { metric: boss, kills, rank, ehb: round(ehb, 2) };
   });
 
@@ -94,8 +88,8 @@ function renderBossesTable(snapshot) {
   rows.push({
     metric: 'ehb',
     kills: '',
-    rank: snapshot.ehb.rank,
-    ehb: round(snapshot.ehb.value, 2)
+    rank: snapshot.data.computed.ehb.rank,
+    ehb: round(snapshot.data.computed.ehb.value, 2)
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -141,7 +135,7 @@ function renderBossesTable(snapshot) {
     },
     {
       key: 'EHB',
-      get: row => row.ehb,
+      get: row => row.ehb
     }
   ];
 
@@ -150,7 +144,7 @@ function renderBossesTable(snapshot) {
 
 function renderActivitiesTable(snapshot) {
   const rows = ACTIVITIES.map(activity => {
-    const { score, rank } = snapshot[activity];
+    const { score, rank } = snapshot.data.activities[activity];
     return { metric: activity, score, rank };
   });
 
@@ -173,26 +167,20 @@ function renderActivitiesTable(snapshot) {
       key: 'score',
       transform: val => {
         return val === -1 ? (
-          <TextLabel
-            value="---"
-            popupValue="Unranked"
-          />
+          <TextLabel value="---" popupValue="Unranked" />
         ) : (
           <NumberLabel value={val} />
-        )
+        );
       }
     },
     {
       key: 'rank',
       transform: val => {
         return val === -1 ? (
-          <TextLabel
-            value="---"
-            popupValue="Unranked"
-          />
+          <TextLabel value="---" popupValue="Unranked" />
         ) : (
           <NumberLabel value={val} />
-        )
+        );
       }
     }
   ];

@@ -1,6 +1,7 @@
 import { uniqBy } from 'lodash';
+import { isSkill, isBoss, isActivity } from '@wise-old-man/utils';
 import { capitalize } from 'utils/strings';
-import { getMinimumBossKc, isBoss } from 'utils/metrics';
+import { getMinimumBossKc } from 'utils/metrics';
 import { CHART_COLORS } from 'config/visuals';
 
 export function distribute(snapshots, limit) {
@@ -41,8 +42,15 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
     return { distribution: { enabled: false, before: 0, after: 0 }, datasets: [] };
   }
 
+  let array = 'computed';
+  if (isSkill(metric)) array = 'skills';
+  if (isBoss(metric)) array = 'bosses';
+  if (isActivity(metric)) array = 'activities';
+
   // Ignore -1 values
-  const validSnapshots = snapshots.filter(s => s[metric][measure] > 0);
+  const validSnapshots = snapshots.filter(s => {
+    return s.data[array][metric][measure] > 0;
+  });
 
   const enableReduction = reducedMode && validSnapshots.length > 30;
 
@@ -50,7 +58,7 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   // to make the charts cleaner by not displaying snapshots that are too near eachother
   const data = distribute(validSnapshots, enableReduction ? 30 : 100000).map(s => ({
     x: s.createdAt,
-    y: s[metric][measure]
+    y: s.data[array][metric][measure]
   }));
 
   return {

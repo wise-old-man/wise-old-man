@@ -51,18 +51,18 @@ const endpoints = {
   updateAllParticipants: '/competitions/:id/update-all',
 
   // Player endpoints
-  trackPlayer: '/players/track/',
-  searchPlayers: '/players/search/',
-  assertPlayerType: '/players/assert-type/',
-  assertPlayerName: '/players/assert-name/',
-  fetchPlayerDetails: '/players/username/:username/',
-  fetchPlayerGroups: '/players/username/:username/groups/',
-  fetchPlayerAchievements: '/players/username/:username/achievements/progress',
-  fetchPlayerCompetitions: '/players/username/:username/competitions/',
-  fetchPlayerSnapshots: '/players/username/:username/snapshots/',
-  fetchPlayerRecords: '/players/username/:username/records/',
-  fetchPlayerDeltas: '/players/username/:username/gained/',
-  fetchPlayerNames: '/players/username/:username/names/'
+  searchPlayers: '/players/search/', // ✅
+  trackPlayer: '/players/:username/', // ✅
+  assertPlayerType: '/players/:username/assert-type/', // ✅
+  assertPlayerName: '/players/assert-name/', // ✅
+  fetchPlayerDetails: '/players/:username', // ✅
+  fetchPlayerGroups: '/players/:username/groups/', // ✅
+  fetchPlayerAchievements: '/players/:username/achievements/progress', // ✅
+  fetchPlayerCompetitions: '/players/:username/competitions/', // ✅
+  fetchPlayerSnapshots: '/players/:username/snapshots/',
+  fetchPlayerRecords: '/players/:username/records/', // ✅
+  fetchPlayerDeltas: '/players/:username/gained/',
+  fetchPlayerNames: '/players/:username/names/' // ✅
 };
 
 export { endpoints };

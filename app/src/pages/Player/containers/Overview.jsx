@@ -113,7 +113,7 @@ function Overview() {
 
 function ClosestSkills({ player }) {
   const expAt99 = getExperienceAt(99);
-  const expLeftTo99 = skill => expAt99 - player.latestSnapshot[skill].experience;
+  const expLeftTo99 = skill => expAt99 - player.latestSnapshot.data.skills[skill].experience;
 
   const diffs = SKILLS.filter(s => s !== 'overall')
     .map(s => ({ skill: s, expLeft: Math.max(0, expLeftTo99(s)) }))
@@ -167,24 +167,26 @@ function RecentAchievements({ player, achievements }) {
 function Competitions({ player, competitions }) {
   if (competitions.length === 0) return null;
 
+  const now = Date.now();
+
   const ongoing = competitions
-    .filter(c => c.status === 'ongoing')
+    .filter(c => c.competition.startsAt < now && c.competition.endsAt > now)
     .slice(0, 3)
     .map(c => ({
-      id: c.id,
-      title: c.title,
-      icon: getMetricIcon(c.metric),
-      subtitle: `Ends in ${durationBetween(new Date(), c.endsAt, 2, true)}`
+      id: c.competition.id,
+      title: c.competition.title,
+      icon: getMetricIcon(c.competition.metric),
+      subtitle: `Ends in ${durationBetween(new Date(), c.competition.endsAt, 2, true)}`
     }));
 
   const upcoming = competitions
-    .filter(c => c.status === 'upcoming')
+    .filter(c => c.competition.startsAt > now)
     .slice(0, 3)
     .map(c => ({
-      id: c.id,
-      title: c.title,
-      icon: getMetricIcon(c.metric),
-      subtitle: `Starts in ${durationBetween(new Date(), c.startsAt, 2, true)}`
+      id: c.competition.id,
+      title: c.competition.title,
+      icon: getMetricIcon(c.competition.metric),
+      subtitle: `Starts in ${durationBetween(new Date(), c.competition.startsAt, 2, true)}`
     }));
 
   return (

@@ -27,9 +27,9 @@ function getHighlights(player) {
     return [];
   }
 
-  const expRank = player.latestSnapshot.overall.rank;
-  const ehpRank = player.latestSnapshot.ehp.rank;
-  const ehbRank = player.latestSnapshot.ehb.rank;
+  const expRank = player.latestSnapshot.data.skills.overall.rank;
+  const ehpRank = player.latestSnapshot.data.computed.ehp.rank;
+  const ehbRank = player.latestSnapshot.data.computed.ehb.rank;
 
   return [
     {
