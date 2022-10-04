@@ -1,14 +1,13 @@
 import { DeltaLeaderboardEntry } from '../../../server/src/utils';
 import type { DeltaLeaderboardFilter } from '../api-types';
+import BaseAPIClient from './BaseAPIClient';
 
-import { sendGetRequest } from '../utils';
-
-export default class DeltasClient {
+export default class DeltasClient extends BaseAPIClient {
   /**
    * Fetches the current top leaderboard for a specific metric, period, playerType, playerBuild and country.
    * @returns A list of deltas, with their respective players, values and dates included.
    */
   getDeltaLeaderboard(filter: DeltaLeaderboardFilter) {
-    return sendGetRequest<DeltaLeaderboardEntry[]>('/deltas/leaderboard', filter);
+    return this.getRequest<DeltaLeaderboardEntry[]>('/deltas/leaderboard', filter);
   }
 }

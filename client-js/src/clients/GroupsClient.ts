@@ -11,13 +11,6 @@ import {
   RecordLeaderboardEntry,
   DeltaLeaderboardEntry
 } from '../../../server/src/utils';
-import {
-  PaginationOptions,
-  sendDeleteRequest,
-  sendGetRequest,
-  sendPostRequest,
-  sendPutRequest
-} from '../utils';
 import type {
   CreateGroupPayload,
   GenericCountMessageResponse,
@@ -29,14 +22,16 @@ import type {
   GroupMemberFragment,
   GroupRecordsFilter
 } from '../api-types';
+import { PaginationOptions } from '../utils';
+import BaseAPIClient from './BaseAPIClient';
 
-export default class GroupsClient {
+export default class GroupsClient extends BaseAPIClient {
   /**
    * Searches for groups that match a partial name.
    * @returns A list of groups.
    */
   searchGroups(name: string, pagination?: PaginationOptions) {
-    return sendGetRequest<GroupListItem[]>('/groups', { name, ...pagination });
+    return this.getRequest<GroupListItem[]>('/groups', { name, ...pagination });
   }
 
   /**
@@ -44,7 +39,7 @@ export default class GroupsClient {
    * @returns A group details object.
    */
   getGroupDetails(id: number) {
-    return sendGetRequest<GroupDetails>(`/groups/${id}`);
+    return this.getRequest<GroupDetails>(`/groups/${id}`);
   }
 
   /**
@@ -52,7 +47,7 @@ export default class GroupsClient {
    * @returns The newly created group, and the verification code that authorizes future changes to it.
    */
   createGroup(payload: CreateGroupPayload) {
-    return sendPostRequest<CreateGroupResponse>('/groups', payload);
+    return this.postRequest<CreateGroupResponse>('/groups', payload);
   }
 
   /**
@@ -60,7 +55,7 @@ export default class GroupsClient {
    * @returns The updated group.
    */
   editGroup(id: number, payload: EditGroupPayload, verificationCode: string) {
-    return sendPutRequest<GroupDetails>(`/groups/${id}`, {
+    return this.putRequest<GroupDetails>(`/groups/${id}`, {
       ...payload,
       verificationCode
     });
@@ -71,7 +66,7 @@ export default class GroupsClient {
    * @returns A confirmation message.
    */
   deleteGroup(id: number, verificationCode: string) {
-    return sendDeleteRequest<GenericMessageResponse>(`/groups/${id}`, { verificationCode });
+    return this.deleteRequest<GenericMessageResponse>(`/groups/${id}`, { verificationCode });
   }
 
   /**
@@ -79,7 +74,7 @@ export default class GroupsClient {
    * @returns The number of members added and a confirmation message.
    */
   addMembers(id: number, members: GroupMemberFragment[], verificationCode: string) {
-    return sendPostRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
+    return this.postRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
       verificationCode,
       members
     });
@@ -90,7 +85,7 @@ export default class GroupsClient {
    * @returns The number of members removed and a confirmation message.
    */
   removeMembers(id: number, usernames: string[], verificationCode: string) {
-    return sendDeleteRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
+    return this.deleteRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
       verificationCode,
       members: usernames
     });
@@ -101,7 +96,7 @@ export default class GroupsClient {
    * @returns The updated membership, with player included.
    */
   changeRole(id: number, payload: ChangeMemberRolePayload, verificationCode: string) {
-    return sendPutRequest<MembershipWithPlayer>(`/groups/${id}/role`, {
+    return this.putRequest<MembershipWithPlayer>(`/groups/${id}/role`, {
       ...payload,
       verificationCode
     });
@@ -112,7 +107,7 @@ export default class GroupsClient {
    * @returns The number of players to be updated and a confirmation message.
    */
   updateAll(id: number, verificationCode: string) {
-    return sendPostRequest<GenericCountMessageResponse>(`/groups/${id}/update-all`, {
+    return this.postRequest<GenericCountMessageResponse>(`/groups/${id}/update-all`, {
       verificationCode
     });
   }
@@ -122,11 +117,11 @@ export default class GroupsClient {
    * @returns A list of competitions.
    */
   getGroupCompetitions(id: number, pagination?: PaginationOptions) {
-    return sendGetRequest<CompetitionListItem[]>(`/groups/${id}/competitions`, { ...pagination });
+    return this.getRequest<CompetitionListItem[]>(`/groups/${id}/competitions`, { ...pagination });
   }
 
   getGroupGains(id: number, filter: GetGroupGainsFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<DeltaLeaderboardEntry[]>(`/groups/${id}/gained`, { ...pagination, ...filter });
+    return this.getRequest<DeltaLeaderboardEntry[]>(`/groups/${id}/gained`, { ...pagination, ...filter });
   }
 
   /**
@@ -134,7 +129,7 @@ export default class GroupsClient {
    * @returns A list of achievements.
    */
   getGroupAchievements(id: number, pagination?: PaginationOptions) {
-    return sendGetRequest<ExtendedAchievement[]>(`/groups/${id}/achievements`, { ...pagination });
+    return this.getRequest<ExtendedAchievement[]>(`/groups/${id}/achievements`, { ...pagination });
   }
 
   /**
@@ -142,7 +137,7 @@ export default class GroupsClient {
    * @returns A list of records, including their respective players.
    */
   getGroupRecords(id: number, filter: GroupRecordsFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, { ...pagination, ...filter });
+    return this.getRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, { ...pagination, ...filter });
   }
 
   /**
@@ -150,7 +145,7 @@ export default class GroupsClient {
    * @returns A list of hiscores entries (value, rank), including their respective players.
    */
   getGroupHiscores(id: number, metric: Metric, pagination?: PaginationOptions) {
-    return sendGetRequest<GroupHiscoresEntry[]>(`/groups/${id}/hiscores`, { ...pagination, metric });
+    return this.getRequest<GroupHiscoresEntry[]>(`/groups/${id}/hiscores`, { ...pagination, metric });
   }
 
   /**
@@ -158,7 +153,7 @@ export default class GroupsClient {
    * @returns A list of name change (approved) requests.
    */
   getGroupNameChanges(id: number, pagination?: PaginationOptions) {
-    return sendGetRequest<NameChange[]>(`/groups/${id}/name-changes`, { ...pagination });
+    return this.getRequest<NameChange[]>(`/groups/${id}/name-changes`, { ...pagination });
   }
 
   /**
@@ -166,6 +161,6 @@ export default class GroupsClient {
    * @returns An object with a few statistic values and an average stats snapshot.
    */
   getGroupStatistics(id: number) {
-    return sendGetRequest<GroupStatistics>(`/groups/${id}/statistics`);
+    return this.getRequest<GroupStatistics>(`/groups/${id}/statistics`);
   }
 }

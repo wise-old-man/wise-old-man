@@ -1,14 +1,15 @@
 import type { EfficiencyLeaderboardsFilter, EfficiencyAlgorithmTypeUnion } from '../api-types';
 import { Metric, SkillMetaConfig, BossMetaConfig, Player } from '../../../server/src/utils';
-import { PaginationOptions, sendGetRequest } from '../utils';
+import { PaginationOptions } from '../utils';
+import BaseAPIClient from './BaseAPIClient';
 
-export default class EfficiencyClient {
+export default class EfficiencyClient extends BaseAPIClient {
   /**
    * Fetches the current efficiency leaderboard for a specific efficiency metric, playerType, playerBuild and country.
    * @returns A list of players.
    */
   getEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter, pagination?: PaginationOptions) {
-    return sendGetRequest<Player[]>('/efficiency/leaderboard', { ...filter, ...pagination });
+    return this.getRequest<Player[]>('/efficiency/leaderboard', { ...filter, ...pagination });
   }
 
   /**
@@ -16,7 +17,7 @@ export default class EfficiencyClient {
    * @returns A list of skilling methods and their bonus exp ratios.
    */
   getEHPRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
-    return sendGetRequest<SkillMetaConfig>('/efficiency/rates', { metric: Metric.EHP, type: algorithmType });
+    return this.getRequest<SkillMetaConfig>('/efficiency/rates', { metric: Metric.EHP, type: algorithmType });
   }
 
   /**
@@ -24,6 +25,9 @@ export default class EfficiencyClient {
    * @returns A list of bosses and their respective "per-hour" kill rates.
    */
   getEHBRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
-    return sendGetRequest<BossMetaConfig[]>('/efficiency/rates', { metric: Metric.EHB, type: algorithmType });
+    return this.getRequest<BossMetaConfig[]>('/efficiency/rates', {
+      metric: Metric.EHB,
+      type: algorithmType
+    });
   }
 }

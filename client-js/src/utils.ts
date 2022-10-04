@@ -1,9 +1,18 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import customParseFormaPlugin from 'dayjs/plugin/customParseFormat';
-import config from './config';
+import customParseFormatPlugin from 'dayjs/plugin/customParseFormat';
 
-dayjs.extend(customParseFormaPlugin);
+dayjs.extend(customParseFormatPlugin);
+
+export interface PaginationOptions {
+  limit?: number;
+  offset?: number;
+}
+
+interface APIErrorData {
+  message: string;
+  data?: unknown;
+}
 
 function traverseTransform(input: unknown, transformation: (i: unknown) => unknown): unknown {
   if (Array.isArray(input)) {
@@ -27,16 +36,11 @@ function isValidISODate(input: unknown) {
   return input.endsWith('Z') && dayjs(input.slice(0, -1), 'YYYY-MM-DDTHH:mm:ss.SSS', true).isValid();
 }
 
-function transformDates(input: unknown) {
+export function transformDates(input: unknown) {
   return traverseTransform(input, val => (isValidISODate(val) ? new Date(val as string) : val));
 }
 
-export type PaginationOptions = Partial<{
-  limit: number;
-  offset: number;
-}>;
-
-function handleError(requestURL: string, e: AxiosError) {
+export function handleError(requestURL: string, e: AxiosError) {
   if (!e.response?.data) return;
 
   const data = e.response.data as APIErrorData;
@@ -60,59 +64,6 @@ function handleError(requestURL: string, e: AxiosError) {
   if (e.response.status === 500) {
     throw new InternalServerError(requestURL, data.message);
   }
-}
-
-export async function sendPostRequest<T>(path: string, body?: unknown) {
-  const requestURL = `${config.apiBaseUrl}${path}`;
-
-  return axios
-    .post(requestURL, body || {})
-    .then(response => transformDates(response.data) as T)
-    .catch(e => {
-      if (axios.isAxiosError(e)) handleError(requestURL, e);
-      throw e;
-    });
-}
-
-export async function sendPutRequest<T>(path: string, body?: unknown) {
-  const requestURL = `${config.apiBaseUrl}${path}`;
-
-  return axios
-    .put(requestURL, body || {})
-    .then(response => transformDates(response.data) as T)
-    .catch(e => {
-      if (axios.isAxiosError(e)) handleError(requestURL, e);
-      throw e;
-    });
-}
-
-export async function sendDeleteRequest<T>(path: string, body?: unknown) {
-  const requestURL = `${config.apiBaseUrl}${path}`;
-
-  return axios
-    .delete(requestURL, { data: body })
-    .then(response => transformDates(response.data) as T)
-    .catch(e => {
-      if (axios.isAxiosError(e)) handleError(requestURL, e);
-      throw e;
-    });
-}
-
-export async function sendGetRequest<T>(path: string, params?: unknown) {
-  const requestURL = `${config.apiBaseUrl}${path}`;
-
-  return axios
-    .get(requestURL, { params })
-    .then(response => transformDates(response.data) as T)
-    .catch(e => {
-      if (axios.isAxiosError(e)) handleError(requestURL, e);
-      throw e;
-    });
-}
-
-interface APIErrorData {
-  message: string;
-  data?: unknown;
 }
 
 class BadRequestError extends Error {

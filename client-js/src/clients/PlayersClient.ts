@@ -19,15 +19,16 @@ import {
   FormattedSnapshot,
   MembershipWithGroup
 } from '../../../server/src/utils';
-import { PaginationOptions, sendGetRequest, sendPostRequest } from '../utils';
+import { PaginationOptions } from '../utils';
+import BaseAPIClient from './BaseAPIClient';
 
-export default class PlayersClient {
+export default class PlayersClient extends BaseAPIClient {
   /**
    * Searches players by partial username.
    * @returns A list of players.
    */
   searchPlayers(partialUsername: string, pagination?: PaginationOptions) {
-    return sendGetRequest<Player[]>('/players/search', { username: partialUsername, ...pagination });
+    return this.getRequest<Player[]>('/players/search', { username: partialUsername, ...pagination });
   }
 
   /**
@@ -35,7 +36,7 @@ export default class PlayersClient {
    * @returns The player's new details, including the latest snapshot.
    */
   updatePlayer(player: PlayerResolvable) {
-    return sendPostRequest<PlayerDetails>(getPlayerURL(player));
+    return this.postRequest<PlayerDetails>(getPlayerURL(player));
   }
 
   /**
@@ -43,7 +44,7 @@ export default class PlayersClient {
    * @returns The updated player, and an indication of whether the type was changed.
    */
   assertPlayerType(player: PlayerResolvable) {
-    return sendPostRequest<AssertPlayerTypeResponse>(`${getPlayerURL(player)}/assert-type`);
+    return this.postRequest<AssertPlayerTypeResponse>(`${getPlayerURL(player)}/assert-type`);
   }
 
   /**
@@ -51,7 +52,7 @@ export default class PlayersClient {
    * @returns The number of snapshots that were imported.
    */
   importPlayer(player: PlayerResolvable) {
-    return sendPostRequest<GenericCountMessageResponse>(`${getPlayerURL(player)}/import-history`);
+    return this.postRequest<GenericCountMessageResponse>(`${getPlayerURL(player)}/import-history`);
   }
 
   /**
@@ -59,7 +60,7 @@ export default class PlayersClient {
    * @returns The player's details, including the latest snapshot.
    */
   getPlayerDetails(player: PlayerResolvable) {
-    return sendGetRequest<PlayerDetails>(getPlayerURL(player));
+    return this.getRequest<PlayerDetails>(getPlayerURL(player));
   }
 
   /**
@@ -67,7 +68,7 @@ export default class PlayersClient {
    * @returns A list of achievements.
    */
   getPlayerAchievements(player: PlayerResolvable) {
-    return sendGetRequest<ExtendedAchievement[]>(`${getPlayerURL(player)}/achievements`);
+    return this.getRequest<ExtendedAchievement[]>(`${getPlayerURL(player)}/achievements`);
   }
 
   /**
@@ -75,7 +76,7 @@ export default class PlayersClient {
    * @returns A list of achievements (completed or otherwise), with their respective relative/absolute progress percentage.
    */
   getPlayerAchievementProgress(player: PlayerResolvable) {
-    return sendGetRequest<AchievementProgress[]>(`${getPlayerURL(player)}/achievements/progress`);
+    return this.getRequest<AchievementProgress[]>(`${getPlayerURL(player)}/achievements/progress`);
   }
 
   /**
@@ -83,7 +84,10 @@ export default class PlayersClient {
    * @returns A list of participations, with the respective competition included.
    */
   getPlayerCompetitions(player: PlayerResolvable, pagination?: PaginationOptions) {
-    return sendGetRequest<ParticipationWithCompetition[]>(`${getPlayerURL(player)}/competitions`, pagination);
+    return this.getRequest<ParticipationWithCompetition[]>(
+      `${getPlayerURL(player)}/competitions`,
+      pagination
+    );
   }
 
   /**
@@ -91,7 +95,7 @@ export default class PlayersClient {
    * @returns A list of memberships, with the respective group included.
    */
   getPlayerGroups(player: PlayerResolvable, pagination?: PaginationOptions) {
-    return sendGetRequest<MembershipWithGroup[]>(`${getPlayerURL(player)}/groups`, pagination);
+    return this.getRequest<MembershipWithGroup[]>(`${getPlayerURL(player)}/groups`, pagination);
   }
 
   /**
@@ -99,7 +103,10 @@ export default class PlayersClient {
    * @returns A map of each metric's gained data.
    */
   getPlayerGains(player: PlayerResolvable, options: TimeRangeFilter) {
-    return sendGetRequest<GetPlayerGainsResponse<PlayerDeltasMap>>(`${getPlayerURL(player)}/gained`, options);
+    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasMap>>(
+      `${getPlayerURL(player)}/gained`,
+      options
+    );
   }
 
   /**
@@ -107,7 +114,7 @@ export default class PlayersClient {
    * @returns An array of each metric's gained data.
    */
   getPlayerGainsAsArray(player: PlayerResolvable, options: TimeRangeFilter) {
-    return sendGetRequest<GetPlayerGainsResponse<PlayerDeltasArray>>(`${getPlayerURL(player)}/gained`, {
+    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasArray>>(`${getPlayerURL(player)}/gained`, {
       ...options,
       formatting: 'array'
     });
@@ -118,7 +125,7 @@ export default class PlayersClient {
    * @returns A list of records.
    */
   getPlayerRecords(player: PlayerResolvable, options?: PlayerRecordsFilter) {
-    return sendGetRequest<Record[]>(`${getPlayerURL(player)}/records`, options);
+    return this.getRequest<Record[]>(`${getPlayerURL(player)}/records`, options);
   }
 
   /**
@@ -126,7 +133,7 @@ export default class PlayersClient {
    * @returns A list of snapshots.
    */
   getPlayerSnapshots(player: PlayerResolvable, options?: TimeRangeFilter) {
-    return sendGetRequest<FormattedSnapshot[]>(`${getPlayerURL(player)}/snapshots`, options);
+    return this.getRequest<FormattedSnapshot[]>(`${getPlayerURL(player)}/snapshots`, options);
   }
 
   /**
@@ -134,7 +141,7 @@ export default class PlayersClient {
    * @returns A list of name changes.
    */
   getPlayerNames(player: PlayerResolvable) {
-    return sendGetRequest<NameChange[]>(`${getPlayerURL(player)}/names`);
+    return this.getRequest<NameChange[]>(`${getPlayerURL(player)}/names`);
   }
 }
 
