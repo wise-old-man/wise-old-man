@@ -46,7 +46,7 @@ async function fetchCompetitionTop5Progress(payload: FetchTop5ProgressParams): P
 
     const history = snapshots
       .map(s => ({ value: s[metricKey], date: s.createdAt }))
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
 
     return { player, history };
   });
