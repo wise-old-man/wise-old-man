@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { omit } from 'lodash';
 import prisma, {
   Group,
   Membership,
@@ -14,7 +15,6 @@ import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
-import { omit } from 'lodash';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -81,7 +81,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
       where: { name: { equals: name, mode: 'insensitive' } }
     });
 
-    if (duplicateGroup) {
+    if (duplicateGroup && duplicateGroup.id !== params.id) {
       throw new BadRequestError(`Group name '${name}' is already taken. (ID: ${duplicateGroup.id})`);
     }
 

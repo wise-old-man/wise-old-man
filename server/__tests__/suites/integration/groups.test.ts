@@ -83,8 +83,8 @@ afterAll(async () => {
   axiosMock.reset();
 
   // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Group API', () => {
   describe('1 - Create', () => {
@@ -523,6 +523,8 @@ describe('Group API', () => {
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+
+      globalData.testGroupOneLeader.name = response.body.name;
     });
 
     it('should edit clanchat, homeworld & description', async () => {
@@ -541,6 +543,19 @@ describe('Group API', () => {
         memberCount: 5 // shouldn't change
       });
       expect(new Date(response.body.updatedAt).getTime()).toBeGreaterThan(Date.now() - 1000);
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should edit name (capitalization)', async () => {
+      const response = await api.put(`/groups/${globalData.testGroupOneLeader.id}`).send({
+        name: ` ${globalData.testGroupOneLeader.name.toUpperCase()}__`,
+        verificationCode: globalData.testGroupOneLeader.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.name).toBe(globalData.testGroupOneLeader.name.toUpperCase());
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
