@@ -9,6 +9,8 @@ import NameChangesClient from './clients/NameChangesClient';
 import CompetitionsClient from './clients/CompetitionsClient';
 
 interface WOMClientOptions {
+  apiKey?: string;
+  userAgent?: string;
   baseAPIUrl?: string;
 }
 
@@ -23,7 +25,11 @@ export default class WOMClient {
 
   constructor(options?: WOMClientOptions) {
     const axiosInstance = axios.create({
-      baseURL: options?.baseAPIUrl || config.baseAPIUrl
+      baseURL: options?.baseAPIUrl || config.baseAPIUrl,
+      headers: {
+        'x-api-key': options?.apiKey || null,
+        'x-user-agent': options?.userAgent || config.defaultUserAgent
+      }
     });
 
     this.deltas = new DeltasClient(axiosInstance);
