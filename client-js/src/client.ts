@@ -1,3 +1,5 @@
+import axios from 'axios';
+import config from './config';
 import DeltasClient from './clients/DeltasClient';
 import GroupsClient from './clients/GroupsClient';
 import PlayersClient from './clients/PlayersClient';
@@ -5,6 +7,12 @@ import RecordsClient from './clients/RecordsClient';
 import EfficiencyClient from './clients/EfficiencyClient';
 import NameChangesClient from './clients/NameChangesClient';
 import CompetitionsClient from './clients/CompetitionsClient';
+
+interface WOMClientOptions {
+  apiKey?: string;
+  userAgent?: string;
+  baseAPIUrl?: string;
+}
 
 export default class WOMClient {
   public deltas: DeltasClient;
@@ -15,13 +23,21 @@ export default class WOMClient {
   public nameChanges: NameChangesClient;
   public competitions: CompetitionsClient;
 
-  constructor() {
-    this.deltas = new DeltasClient();
-    this.groups = new GroupsClient();
-    this.players = new PlayersClient();
-    this.records = new RecordsClient();
-    this.efficiency = new EfficiencyClient();
-    this.nameChanges = new NameChangesClient();
-    this.competitions = new CompetitionsClient();
+  constructor(options?: WOMClientOptions) {
+    const axiosInstance = axios.create({
+      baseURL: options?.baseAPIUrl || config.baseAPIUrl,
+      headers: {
+        'x-api-key': options?.apiKey || null,
+        'x-user-agent': options?.userAgent || config.defaultUserAgent
+      }
+    });
+
+    this.deltas = new DeltasClient(axiosInstance);
+    this.groups = new GroupsClient(axiosInstance);
+    this.players = new PlayersClient(axiosInstance);
+    this.records = new RecordsClient(axiosInstance);
+    this.efficiency = new EfficiencyClient(axiosInstance);
+    this.nameChanges = new NameChangesClient(axiosInstance);
+    this.competitions = new CompetitionsClient(axiosInstance);
   }
 }

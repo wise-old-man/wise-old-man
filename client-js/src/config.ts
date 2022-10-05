@@ -1,4 +1,4 @@
 export default {
-  // apiBaseUrl: 'http://localhost:5001'
-  apiBaseUrl: 'https://api.wiseoldman.net/v2'
+  defaultUserAgent: `WiseOldMan JS Client v${process.env.npm_package_version}`,
+  baseAPIUrl: 'https://api.wiseoldman.net/v2'
 };
