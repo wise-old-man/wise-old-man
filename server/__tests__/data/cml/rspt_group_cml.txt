@@ -11,76 +11,6 @@
 .playertooltip { color:black; font-size:125% }
 </style>
 			<title>Statistics - OSRS XP Tracker - Crystal Math Labs</title>
-					<script type='text/javascript' src='assets/scripts/ads.js'></script>
-		<script type='text/javascript' src='assets/scripts/cookies.js'></script>
-		<script type='text/javascript' src='assets/scripts/jquery-1.12.4.js'></script>
-		<script type='text/javascript' src='assets/scripts/custom.js'></script>
-		<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
-		<script type='text/javascript' src='assets/scripts/url_parser.js'></script>
-		<script type='text/javascript'>
-
-
-	function capitalize(string) {
-	return string.replace(/^./, capitalize.call.bind("".toUpperCase));
-	}
-
-	function is_a_skill(identifier)
-	{
-	var SKILLS = ['overall','attack','defence','strength','hitpoints','ranged','prayer','magic','cooking','woodcutting','fletching','fishing','firemaking','crafting','smithing','mining','herblore','agility','thieving','slayer','farming','runecrafting','hunter','construction'];
-	var len = SKILLS.length;
-	for(var i = 0; i < len; i++) { if(SKILLS[i]==identifier) { return true; } } return false; } function create_filter() { skill=document.getElementById('filter_skill').value; operator=document.getElementById('filter_operator').value; lvl=document.getElementById('filter_level').value; if(isNaN(lvl) || lvl=='' ) return; add_filter_expression(skill, operator, lvl); } function filter_to_text(skill, operator, lvl) { if(!is_a_skill(skill)) { return capitalize(skill) + " " + (operator==':' ? '=' : operator) + " " + lvl; } if(operator==':' ) { text=lvl + " " + capitalize(skill); if(lvl> 126) { // XP
-		text += ' XP';
-		}
-		} else {
-		text = capitalize(skill);
-		if(lvl > 126) { // XP
-		text += ' XP';
-		} else {
-		text += ' lvl';
-		}
-		text += " " + operator + " " + lvl;
-		}
-		return text;
-		}
-
-		function add_filter_expression(skill, operator, lvl) {
-		add_filter(skill + operator + lvl, filter_to_text(skill, operator, lvl));
-		}
-
-		function add_filter(filter, text) {
-		query = url_to_dict();
-
-		if("filter" in query) {
-		var arr = query["filter"].split(',');
-		arr.push(filter);
-		arr.sort();
-		query["filter"] = arr.join(',');
-		} else {
-		query["filter"] = filter;
-		}
-
-		url = "virtualhiscores.php?" + dict_to_url(query);
-
-		document.getElementById('extrafilters').innerHTML += "<li><a href='" + url + "'>" + text + "</a></li>";
-		}
-	
-</script>
-			<!-- Global site tag (gtag.js) - Google Analytics -->
-			<script async src="https://www.googletagmanager.com/gtag/js?id=UA-130335881-1"></script>
-			<script>
-				window.dataLayer = window.dataLayer || [];
-
-				function gtag() {
-					dataLayer.push(arguments);
-				}
-				gtag('js', new Date());
-
-				gtag('config', 'UA-130335881-1');
-			</script>
-
-
-
-
 		</head>
 
 		<body>
@@ -124,24 +54,6 @@
 							<!--<input type="hidden" name="cookiethis" value="true">-->
 							<input type="submit" value="Track">
 						</form>
-						<script>
-							// get player name from cookie
-							player = "Username";
-							var cookie = get_cookie("player");
-							if (cookie) {
-								player = cookie.replace(/\+/g, " ");
-							}
-							player = player.ucwords()
-
-							var player_name = document.getElementById("player_name");
-							player_name.value = player;
-							player_name.onfocus = function() {
-								if (this.value == player) this.value = '';
-							}
-							player_name.onkeyup = function() {
-								set_cookie('player', this.value, 31);
-							}
-						</script>
 					</li>
 					<li><a href="changenamepending.php">Change Name</a></li>
 						<li><a href="donate.php">Donate</a></li>
@@ -150,16 +62,6 @@
 			</div>
 			<div id="contentwrap">
 				<!-- if page == index.php etc statement -->
-				<script>
-					var captureOutboundLink = function(url) {
-						ga('send', 'event', 'outbound', 'click', url, {
-							'transport': 'beacon',
-							'hitCallback': function() {
-								document.location = url;
-							}
-						});
-					}
-				</script>
 
 				<!--				<div style="text-align: center; padding-top: 25px; margin-right: 20px;"> -->
 				<!--					<a href="https://bit.ly/CrystalMath" onclick="captureOutboundLink('https://bit.ly/CrystalMath'); return false;" target="_blank"> -->
@@ -289,37 +191,6 @@
 			<input type="text" size="2" maxlength="9" id="filter_level" name="filter_level" onchange="create_filter()" />
 		</li>
 		<li id='default_filter_li'><a id='default_filter_a' onclick></a></li>
-		<script>
-			function display_df_li() {
-				var li = document.getElementById('default_filter_li');
-				var a = document.getElementById('default_filter_a');
-				var filterval = 'onhiscores';
-				var cookie = get_cookie('filter');
-				if (filterval == cookie) {
-					li.setAttribute('class', 'highlightedli');
-					if (filterval == 'onhiscores') {
-						a.innerHTML = 'Default';
-					} else {
-						a.innerHTML = 'Remove as default';
-					}
-
-					a.onclick = function() {
-						set_cookie('filter', 'onhiscores', 31);
-						display_df_li();
-					}
-					//document.write("<li class='highlightedli'><a href='cookies.php?action=setfilter&filter=onhiscores'>Remove as default</a></li>");
-				} else {
-					li.removeAttribute('class');
-					a.innerHTML = 'Set as default';
-					a.onclick = function() {
-						set_cookie('filter', filterval, 31);
-						display_df_li();
-					}
-					//document.write("<li><a href='cookies.php?action=setfilter&filter=" + filterval + "'>Set as default</a></li>");
-				}
-			}
-			display_df_li();
-		</script>
 	</ul><h3>Player Group</h3>
 <ul><li><a href='virtualhiscores.php?page=statistics'>None</a></li><li><a href='groups.php'>Select</a></li><li class='highlightedli'><span style='color:white'>Include RSPT MEMBERLIST</span></li></ul><h3>Saved Lists</h3>
 <ul><li><a href='savedlists.php'>Select</a></li><li><a href='savelist.php?page=statistics&amp;group=19740'>Save</a></li></ul>			</div>
@@ -340,24 +211,9 @@
 			</div>
 
 			<div id='footerad'>
-				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-				<!-- footertrackergui -->
-				<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-5699001022866588" data-ad-slot="5418087333"></ins>
-				<script>
 					(adsbygoogle = window.adsbygoogle || []).push({});
 				</script>
 			</div>
-
-			<script>
-				if (window.canRunAds === undefined) {
-					var helpurl = 'https://help.getadblock.com/support/solutions/articles/6000055743-how-do-i-tell-adblock-not-to-run-';
-					var helpheading = 'Always show ads on some sites';
-					document.write("<br/><div style='text-align:center'>");
-					document.write("It seems that you are using an ad blocker. ");
-					document.write("We would appreciate it if you would help support CML by <a href='" + helpurl + "'>whitelisting us in your ad blocker settings</a>. ");
-					document.write("</div>");
-				}
-			</script>
 			</div>
 		</body>
 

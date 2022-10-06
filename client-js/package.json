@@ -1,6 +1,6 @@
 {
   "name": "@wise-old-man/utils",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.6",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "prebuild": "cd ../server && npm run prisma:generate",
-    "build": "rm -rf ./dist && npx rollup -c && node prisma-transform.js"
+    "build": "rm -rf ./dist && npx rollup -c && node prisma-transform.js && tsc dist/index.d.ts"
   },
   "keywords": [],
   "author": "",

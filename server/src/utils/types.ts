@@ -1,3 +1,10 @@
+// This is an exact copy of the native Typescript type "Record"
+// But since that word is already used for WOM Player Records,
+// the client-js bundle gets confused, so this renames it to MapOf
+export type MapOf<K extends keyof any, T> = {
+  [P in K]: T;
+};
+
 export * from '../api/modules/achievements/achievement.types';
 export * from '../api/modules/competitions/competition.types';
 export * from '../api/modules/deltas/delta.types';

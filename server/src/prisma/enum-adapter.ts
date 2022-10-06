@@ -82,7 +82,7 @@ export const Activity = {
   PVP_ARENA: 'pvp_arena',
   SOUL_WARS_ZEAL: 'soul_wars_zeal',
   GUARDIANS_OF_THE_RIFT: 'guardians_of_the_rift'
-};
+} as const;
 
 export const Boss = {
   ABYSSAL_SIRE: 'abyssal_sire',

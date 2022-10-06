@@ -1,4 +1,5 @@
 import { CompetitionType } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
 enum CompetitionStatus {
   UPCOMING = 'upcoming',
@@ -6,20 +7,12 @@ enum CompetitionStatus {
   FINISHED = 'finished'
 }
 
-type CompetitionStatusPropsMap = {
-  [status in CompetitionStatus]: { name: string };
-};
-
-type CompetitionTypePropsMap = {
-  [type in CompetitionType]: { name: string };
-};
-
-const CompetitionTypeProps: CompetitionTypePropsMap = {
+const CompetitionTypeProps: MapOf<CompetitionType, { name: string }> = {
   [CompetitionType.CLASSIC]: { name: 'Classic' },
   [CompetitionType.TEAM]: { name: 'Team' }
 };
 
-const CompetitionStatusProps: CompetitionStatusPropsMap = {
+const CompetitionStatusProps: MapOf<CompetitionStatus, { name: string }> = {
   [CompetitionStatus.UPCOMING]: { name: 'Upcoming' },
   [CompetitionStatus.ONGOING]: { name: 'Ongoing' },
   [CompetitionStatus.FINISHED]: { name: 'Finished' }

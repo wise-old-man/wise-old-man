@@ -1,16 +1,9 @@
-import { Skill, Boss } from '../../../utils';
+import { Skill, Boss, MapOf } from '../../../utils';
 
-export type ExperienceMap = {
-  [skill in Skill]?: number;
-};
+export type ExperienceMap = MapOf<Skill, number>;
+export type KillcountMap = MapOf<Boss, number>;
 
-export type KillcountMap = {
-  [boss in Boss]?: number;
-};
-
-export type EfficiencyMap = {
-  [m in Skill | Boss]?: number;
-};
+export type EfficiencyMap = ExperienceMap & KillcountMap;
 
 export enum BonusType {
   START,
@@ -62,6 +55,4 @@ export interface EfficiencyAlgorithm {
   calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }
 
-export type AlgorithmCache = {
-  [a in EfficiencyAlgorithmType]: EfficiencyAlgorithm;
-};
+export type AlgorithmCache = MapOf<EfficiencyAlgorithmType, EfficiencyAlgorithm>;

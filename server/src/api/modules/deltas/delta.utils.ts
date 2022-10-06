@@ -255,12 +255,12 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
     };
   }
 
-  const deltas: PlayerDeltasMap = {
+  const deltas = {
     skills: Object.fromEntries(SKILLS.map(s => [s, calculateSkillDelta(s)])),
     bosses: Object.fromEntries(BOSSES.map(b => [b, calculateBossDelta(b)])),
     activities: Object.fromEntries(ACTIVITIES.map(a => [a, calculateActivityDelta(a)])),
     computed: Object.fromEntries(COMPUTED_METRICS.map(v => [v, calculateComputedMetricDelta(v)]))
-  };
+  } as PlayerDeltasMap;
 
   // Special Handling for Overall EHP
   deltas.skills.overall.ehp = deltas.computed.ehp.value;
