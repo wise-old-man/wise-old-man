@@ -1,6 +1,13 @@
 import supertest from 'supertest';
 import prisma from '../../../src/prisma';
-import { Boss, SKILLS, MAX_SKILL_EXP, SKILL_EXP_AT_99 } from '../../../src/utils';
+import {
+  Boss,
+  SKILLS,
+  MAX_SKILL_EXP,
+  SKILL_EXP_AT_99,
+  ExperienceMap,
+  KillcountMap
+} from '../../../src/utils';
 import apiServer from '../../../src/api';
 import { ALGORITHMS, buildAlgorithmCache } from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
@@ -101,7 +108,7 @@ describe('Efficiency API', () => {
 
   describe('2 - Player EHP calcs', () => {
     test('Maximum EHP calcs (main)', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
       expect(ALGORITHMS.main.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.main.maximumEHP, 4);
       expect(ALGORITHMS.main.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
@@ -118,7 +125,7 @@ describe('Efficiency API', () => {
     });
 
     test('Maximum EHP calcs (f2p)', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
       expect(ALGORITHMS.f2p.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.f2p.maximumEHP, 4);
       expect(ALGORITHMS.f2p.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
@@ -140,7 +147,7 @@ describe('Efficiency API', () => {
     });
 
     test('Maxed EHP calcs', () => {
-      const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
+      const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
 
       expect(ALGORITHMS.main.calculateEHP(maxedStats)).toBeCloseTo(ALGORITHMS.main.maxedEHP, 4);
       expect(ALGORITHMS.main.calculateTTM(maxedStats)).toBeCloseTo(0, 4);
@@ -156,7 +163,7 @@ describe('Efficiency API', () => {
     });
 
     test('Skill EHP calcs', () => {
-      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP]));
+      const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
       expect(
         ALGORITHMS.main.calculateSkillEHP('woodcutting', { ...maximumStats, woodcutting: 0 })
@@ -223,7 +230,7 @@ describe('Efficiency API', () => {
         tzkal_zuk: 100, // 0.8 per hour, 125 EHB
         wintertodt: 100, // no rate, 0 EHB
         zulrah: 100 // 35 per hour, 2.85714 EHB
-      };
+      } as KillcountMap;
 
       expect(ALGORITHMS.main.calculateEHB(killcountMap)).toBeCloseTo(139.82981, 4);
 
@@ -244,7 +251,7 @@ describe('Efficiency API', () => {
         tzkal_zuk: 100, // 0.8 per hour, 125 EHB
         wintertodt: 100, // no rate, 0 EHB
         zulrah: 100 // 32 per hour, 3.125 EHB
-      };
+      } as KillcountMap;
 
       expect(ALGORITHMS.ironman.calculateEHB(killcountMap)).toBeCloseTo(159.25034, 4);
 

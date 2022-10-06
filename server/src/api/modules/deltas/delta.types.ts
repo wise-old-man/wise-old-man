@@ -41,18 +41,10 @@ export interface PlayerDeltasArray {
 }
 
 export interface PlayerDeltasMap {
-  skills: {
-    [skill in Skill]?: SkillDelta;
-  };
-  bosses: {
-    [boss in Boss]?: BossDelta;
-  };
-  activities: {
-    [activity in Activity]?: ActivityDelta;
-  };
-  computed: {
-    [computedMetric in ComputedMetric]?: ComputedMetricDelta;
-  };
+  skills: Record<Skill, SkillDelta>;
+  bosses: Record<Boss, BossDelta>;
+  activities: Record<Activity, ActivityDelta>;
+  computed: Record<ComputedMetric, ComputedMetricDelta>;
 }
 
 export interface DeltaLeaderboardEntry {

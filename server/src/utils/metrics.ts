@@ -43,23 +43,7 @@ interface ComputedMetricProperties {
   measure: MetricMeasure;
 }
 
-type SkillPropsMap = {
-  [skill in Skill]: SkillProperties;
-};
-
-type BossPropsMap = {
-  [boss in Boss]: BossProperties;
-};
-
-type ActivityPropsMap = {
-  [activity in Activity]: ActivityProperties;
-};
-
-type ComputedMetricPropsMap = {
-  [computedMetric in ComputedMetric]: ComputedMetricProperties;
-};
-
-const SkillProps: SkillPropsMap = mapValues(
+const SkillProps: Record<Skill, SkillProperties> = mapValues(
   {
     [Skill.OVERALL]: { name: 'Overall', isCombat: false, isMembers: false },
     [Skill.ATTACK]: { name: 'Attack', isCombat: true, isMembers: false },
@@ -89,7 +73,7 @@ const SkillProps: SkillPropsMap = mapValues(
   props => ({ ...props, type: MetricType.SKILL, measure: MetricMeasure.EXPERIENCE })
 );
 
-const BossProps: BossPropsMap = mapValues(
+const BossProps: Record<Boss, BossProperties> = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire', minimumKc: 50, isMembers: true },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra', minimumKc: 50, isMembers: true },
@@ -149,7 +133,7 @@ const BossProps: BossPropsMap = mapValues(
   props => ({ ...props, type: MetricType.BOSS, measure: MetricMeasure.KILLS })
 );
 
-const ActivityProps: ActivityPropsMap = mapValues(
+const ActivityProps: Record<Activity, ActivityProperties> = mapValues(
   {
     [Activity.LEAGUE_POINTS]: { name: 'League Points' },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)' },
@@ -169,7 +153,7 @@ const ActivityProps: ActivityPropsMap = mapValues(
   props => ({ ...props, type: MetricType.ACTIVITY, measure: MetricMeasure.SCORE })
 );
 
-const ComputedMetricProps: ComputedMetricPropsMap = mapValues(
+const ComputedMetricProps: Record<ComputedMetric, ComputedMetricProperties> = mapValues(
   {
     [ComputedMetric.EHP]: { name: 'EHP' },
     [ComputedMetric.EHB]: { name: 'EHB' }
@@ -182,13 +166,13 @@ const MetricProps = {
   ...BossProps,
   ...ActivityProps,
   ...ComputedMetricProps
-};
+} as const;
 
-const METRICS = Object.values(Metric);
-const SKILLS = Object.values(Skill);
-const BOSSES = Object.values(Boss);
-const ACTIVITIES = Object.values(Activity);
-const COMPUTED_METRICS = Object.values(ComputedMetric);
+const METRICS = Object.values(Metric) as Metric[];
+const SKILLS = Object.values(Skill) as Skill[];
+const BOSSES = Object.values(Boss) as Boss[];
+const ACTIVITIES = Object.values(Activity) as Activity[];
+const COMPUTED_METRICS = Object.values(ComputedMetric) as ComputedMetric[];
 
 const REAL_SKILLS = SKILLS.filter(s => s !== Skill.OVERALL);
 const F2P_BOSSES = BOSSES.filter(b => !MetricProps[b].isMembers);

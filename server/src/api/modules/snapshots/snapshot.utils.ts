@@ -12,14 +12,24 @@ import {
   F2P_BOSSES,
   MAX_SKILL_EXP,
   REAL_SKILLS,
-  getCombatLevel
+  getCombatLevel,
+  Skill,
+  Boss,
+  Activity,
+  ComputedMetric
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
 import logger from '../../util/logging';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
-import { BossValue, FormattedSnapshot, SkillValue } from './snapshot.types';
+import {
+  ActivityValue,
+  BossValue,
+  ComputedMetricValue,
+  FormattedSnapshot,
+  SkillValue
+} from './snapshot.types';
 
 function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
   if (!snapshot) return null;
@@ -53,7 +63,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
 
           return [s, value];
         })
-      ),
+      ) as Record<Skill, SkillValue>,
       bosses: Object.fromEntries(
         BOSSES.map(b => {
           const value: BossValue = {
@@ -68,7 +78,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
 
           return [b, value];
         })
-      ),
+      ) as Record<Boss, BossValue>,
       activities: Object.fromEntries(
         ACTIVITIES.map(a => {
           return [
@@ -80,7 +90,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             }
           ];
         })
-      ),
+      ) as Record<Activity, ActivityValue>,
       computed: Object.fromEntries(
         COMPUTED_METRICS.map(v => {
           return [
@@ -92,7 +102,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             }
           ];
         })
-      )
+      ) as Record<ComputedMetric, ComputedMetricValue>
     }
   };
 }

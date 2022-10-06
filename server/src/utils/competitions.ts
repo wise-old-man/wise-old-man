@@ -6,20 +6,12 @@ enum CompetitionStatus {
   FINISHED = 'finished'
 }
 
-type CompetitionStatusPropsMap = {
-  [status in CompetitionStatus]: { name: string };
-};
-
-type CompetitionTypePropsMap = {
-  [type in CompetitionType]: { name: string };
-};
-
-const CompetitionTypeProps: CompetitionTypePropsMap = {
+const CompetitionTypeProps: Record<CompetitionType, { name: string }> = {
   [CompetitionType.CLASSIC]: { name: 'Classic' },
   [CompetitionType.TEAM]: { name: 'Team' }
 };
 
-const CompetitionStatusProps: CompetitionStatusPropsMap = {
+const CompetitionStatusProps: Record<CompetitionStatus, { name: string }> = {
   [CompetitionStatus.UPCOMING]: { name: 'Upcoming' },
   [CompetitionStatus.ONGOING]: { name: 'Ongoing' },
   [CompetitionStatus.FINISHED]: { name: 'Finished' }

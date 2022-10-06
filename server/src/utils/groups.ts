@@ -11,12 +11,7 @@ const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
   GroupRole.OWNER
 ];
 
-type GroupRolePropsMap = {
-  [role in GroupRole]: {
-    name: string;
-    isPriveleged: boolean;
-  };
-};
+type GroupRolePropsMap = Record<GroupRole, { name: string; isPriveleged: boolean }>;
 
 const GroupRoleProps: GroupRolePropsMap = mapValues(
   {

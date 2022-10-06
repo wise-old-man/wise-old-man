@@ -41,18 +41,10 @@ export interface FormattedSnapshot {
   createdAt: Date;
   importedAt: Date | null;
   data: {
-    skills: {
-      [skill in Skill]?: SkillValue;
-    };
-    bosses: {
-      [boss in Boss]?: BossValue;
-    };
-    activities: {
-      [activity in Activity]?: ActivityValue;
-    };
-    computed: {
-      [computed in ComputedMetric]?: ComputedMetric;
-    };
+    skills: Record<Skill, SkillValue>;
+    bosses: Record<Boss, BossValue>;
+    activities: Record<Activity, ActivityValue>;
+    computed: Record<ComputedMetric, ComputedMetricValue>;
   };
 }
 

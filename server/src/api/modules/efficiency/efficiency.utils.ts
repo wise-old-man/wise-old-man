@@ -136,14 +136,14 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[]) {
 }
 
 function calculateMaximumEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
+  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
 
   return calculateTT200m(zeroStats, metas);
 }
 
 function calculateMaxedEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0]));
-  const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99]));
+  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
+  const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
 
   return calculateTT200m(zeroStats, metas) - calculateTT200m(maxedStats, metas);
 }
@@ -215,11 +215,11 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
 }
 
 function getKillcountMap(snapshot: Snapshot): KillcountMap {
-  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]]));
+  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]])) as KillcountMap;
 }
 
 function getExperienceMap(snapshot: Snapshot): ExperienceMap {
-  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]]));
+  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]])) as ExperienceMap;
 }
 
 function getPlayerEHB(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {
@@ -235,12 +235,12 @@ function getPlayerEHP(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'
 function getPlayerEfficiencyMap(snapshot: Snapshot, player: Pick<Player, 'type' | 'build'>): EfficiencyMap {
   const algorithm = getAlgorithm(player);
 
-  const experienceMap = getExperienceMap(snapshot);
-  const killcountMap = getKillcountMap(snapshot);
+  const expMap = getExperienceMap(snapshot);
+  const kcMap = getKillcountMap(snapshot);
 
   return {
-    ...Object.fromEntries(SKILLS.map(s => [s, algorithm.calculateSkillEHP(s, experienceMap)])),
-    ...Object.fromEntries(BOSSES.map(b => [b, algorithm.calculateBossEHB(b, killcountMap)]))
+    ...(Object.fromEntries(SKILLS.map(s => [s, algorithm.calculateSkillEHP(s, expMap)])) as ExperienceMap),
+    ...(Object.fromEntries(BOSSES.map(b => [b, algorithm.calculateBossEHB(b, kcMap)])) as KillcountMap)
   };
 }
 
