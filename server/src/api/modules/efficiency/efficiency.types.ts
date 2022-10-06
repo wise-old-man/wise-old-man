@@ -1,7 +1,7 @@
-import { Skill, Boss } from '../../../utils';
+import { Skill, Boss, MapOf } from '../../../utils';
 
-export type ExperienceMap = Record<Skill, number>;
-export type KillcountMap = Record<Boss, number>;
+export type ExperienceMap = MapOf<Skill, number>;
+export type KillcountMap = MapOf<Boss, number>;
 
 export type EfficiencyMap = ExperienceMap & KillcountMap;
 
@@ -55,4 +55,4 @@ export interface EfficiencyAlgorithm {
   calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }
 
-export type AlgorithmCache = Record<EfficiencyAlgorithmType, EfficiencyAlgorithm>;
+export type AlgorithmCache = MapOf<EfficiencyAlgorithmType, EfficiencyAlgorithm>;

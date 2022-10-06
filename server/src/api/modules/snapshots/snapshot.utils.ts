@@ -16,7 +16,8 @@ import {
   Skill,
   Boss,
   Activity,
-  ComputedMetric
+  ComputedMetric,
+  MapOf
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -63,7 +64,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
 
           return [s, value];
         })
-      ) as Record<Skill, SkillValue>,
+      ) as MapOf<Skill, SkillValue>,
       bosses: Object.fromEntries(
         BOSSES.map(b => {
           const value: BossValue = {
@@ -78,7 +79,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
 
           return [b, value];
         })
-      ) as Record<Boss, BossValue>,
+      ) as MapOf<Boss, BossValue>,
       activities: Object.fromEntries(
         ACTIVITIES.map(a => {
           return [
@@ -90,7 +91,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             }
           ];
         })
-      ) as Record<Activity, ActivityValue>,
+      ) as MapOf<Activity, ActivityValue>,
       computed: Object.fromEntries(
         COMPUTED_METRICS.map(v => {
           return [
@@ -102,7 +103,7 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             }
           ];
         })
-      ) as Record<ComputedMetric, ComputedMetricValue>
+      ) as MapOf<ComputedMetric, ComputedMetricValue>
     }
   };
 }

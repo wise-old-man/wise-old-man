@@ -1,8 +1,9 @@
 import { Period } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
 const CUSTOM_PERIOD_REGEX = /(\d+y)?(\d+m)?(\d+w)?(\d+d)?(\d+h)?/;
 
-type PeriodPropsMap = Record<Period, { name: string; milliseconds: number }>;
+type PeriodPropsMap = MapOf<Period, { name: string; milliseconds: number }>;
 
 const PeriodProps: PeriodPropsMap = {
   [Period.FIVE_MIN]: { name: '5 Min', milliseconds: 300_000 },

@@ -1,5 +1,6 @@
 import { mapValues } from 'lodash';
 import { GroupRole } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
 const GROUP_ROLES = Object.values(GroupRole);
 
@@ -11,7 +12,7 @@ const PRIVELEGED_GROUP_ROLES: GroupRole[] = [
   GroupRole.OWNER
 ];
 
-type GroupRolePropsMap = Record<GroupRole, { name: string; isPriveleged: boolean }>;
+type GroupRolePropsMap = MapOf<GroupRole, { name: string; isPriveleged: boolean }>;
 
 const GroupRoleProps: GroupRolePropsMap = mapValues(
   {

@@ -1,11 +1,12 @@
 import { Country } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
 export interface CountryDetails {
   code: Country;
   name: string;
 }
 
-const CountryProps: Record<Country, CountryDetails> = {
+const CountryProps: MapOf<Country, CountryDetails> = {
   [Country.AD]: { code: 'AD', name: 'Andorra' },
   [Country.AE]: { code: 'AE', name: 'United Arab Emirates' },
   [Country.AF]: { code: 'AF', name: 'Afghanistan' },

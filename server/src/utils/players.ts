@@ -1,6 +1,7 @@
 import { PlayerType, PlayerBuild } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
-const PlayerTypeProps: Record<PlayerType, { name: string }> = {
+const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
   [PlayerType.UNKNOWN]: { name: 'Unknown' },
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },
@@ -8,7 +9,7 @@ const PlayerTypeProps: Record<PlayerType, { name: string }> = {
   [PlayerType.ULTIMATE]: { name: 'Ultimate' }
 };
 
-const PlayerBuildProps: Record<PlayerBuild, { name: string }> = {
+const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {
   [PlayerBuild.MAIN]: { name: 'Main' },
   [PlayerBuild.F2P]: { name: 'F2P' },
   [PlayerBuild.LVL3]: { name: 'Level 3' },

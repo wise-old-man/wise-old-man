@@ -1,5 +1,6 @@
 import { capitalize, mapValues } from 'lodash';
 import { Skill, Boss, Activity, ComputedMetric, Metric } from '../prisma/enum-adapter';
+import { MapOf } from './types';
 
 enum MetricType {
   SKILL = 'skill',
@@ -43,7 +44,7 @@ interface ComputedMetricProperties {
   measure: MetricMeasure;
 }
 
-const SkillProps: Record<Skill, SkillProperties> = mapValues(
+const SkillProps: MapOf<Skill, SkillProperties> = mapValues(
   {
     [Skill.OVERALL]: { name: 'Overall', isCombat: false, isMembers: false },
     [Skill.ATTACK]: { name: 'Attack', isCombat: true, isMembers: false },
@@ -73,7 +74,7 @@ const SkillProps: Record<Skill, SkillProperties> = mapValues(
   props => ({ ...props, type: MetricType.SKILL, measure: MetricMeasure.EXPERIENCE })
 );
 
-const BossProps: Record<Boss, BossProperties> = mapValues(
+const BossProps: MapOf<Boss, BossProperties> = mapValues(
   {
     [Boss.ABYSSAL_SIRE]: { name: 'Abyssal Sire', minimumKc: 50, isMembers: true },
     [Boss.ALCHEMICAL_HYDRA]: { name: 'Alchemical Hydra', minimumKc: 50, isMembers: true },
@@ -133,7 +134,7 @@ const BossProps: Record<Boss, BossProperties> = mapValues(
   props => ({ ...props, type: MetricType.BOSS, measure: MetricMeasure.KILLS })
 );
 
-const ActivityProps: Record<Activity, ActivityProperties> = mapValues(
+const ActivityProps: MapOf<Activity, ActivityProperties> = mapValues(
   {
     [Activity.LEAGUE_POINTS]: { name: 'League Points' },
     [Activity.BOUNTY_HUNTER_HUNTER]: { name: 'Bounty Hunter (Hunter)' },
@@ -153,7 +154,7 @@ const ActivityProps: Record<Activity, ActivityProperties> = mapValues(
   props => ({ ...props, type: MetricType.ACTIVITY, measure: MetricMeasure.SCORE })
 );
 
-const ComputedMetricProps: Record<ComputedMetric, ComputedMetricProperties> = mapValues(
+const ComputedMetricProps: MapOf<ComputedMetric, ComputedMetricProperties> = mapValues(
   {
     [ComputedMetric.EHP]: { name: 'EHP' },
     [ComputedMetric.EHB]: { name: 'EHB' }

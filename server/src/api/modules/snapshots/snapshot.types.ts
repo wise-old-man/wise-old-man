@@ -1,4 +1,4 @@
-import { Skill, Boss, Activity, ComputedMetric } from '../../../utils';
+import { Skill, Boss, Activity, ComputedMetric, MapOf } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 
 export type SnapshotFragment = Omit<Snapshot, 'id'>;
@@ -41,10 +41,10 @@ export interface FormattedSnapshot {
   createdAt: Date;
   importedAt: Date | null;
   data: {
-    skills: Record<Skill, SkillValue>;
-    bosses: Record<Boss, BossValue>;
-    activities: Record<Activity, ActivityValue>;
-    computed: Record<ComputedMetric, ComputedMetricValue>;
+    skills: MapOf<Skill, SkillValue>;
+    bosses: MapOf<Boss, BossValue>;
+    activities: MapOf<Activity, ActivityValue>;
+    computed: MapOf<ComputedMetric, ComputedMetricValue>;
   };
 }
 

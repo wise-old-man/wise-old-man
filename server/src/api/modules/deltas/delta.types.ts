@@ -1,4 +1,4 @@
-import { Activity, Boss, Player, Skill, ComputedMetric } from '../../../utils';
+import { Activity, Boss, Player, Skill, ComputedMetric, MapOf } from '../../../utils';
 
 export interface MeasuredDeltaProgress {
   start: number;
@@ -41,10 +41,10 @@ export interface PlayerDeltasArray {
 }
 
 export interface PlayerDeltasMap {
-  skills: Record<Skill, SkillDelta>;
-  bosses: Record<Boss, BossDelta>;
-  activities: Record<Activity, ActivityDelta>;
-  computed: Record<ComputedMetric, ComputedMetricDelta>;
+  skills: MapOf<Skill, SkillDelta>;
+  bosses: MapOf<Boss, BossDelta>;
+  activities: MapOf<Activity, ActivityDelta>;
+  computed: MapOf<ComputedMetric, ComputedMetricDelta>;
 }
 
 export interface DeltaLeaderboardEntry {
