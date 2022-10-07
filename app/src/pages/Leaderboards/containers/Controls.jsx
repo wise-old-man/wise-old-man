@@ -1,10 +1,17 @@
 import React, { useContext } from 'react';
+import {
+  PLAYER_TYPES,
+  PLAYER_BUILDS,
+  PlayerBuildProps,
+  COMPUTED_METRICS,
+  PlayerType
+} from '@wise-old-man/utils';
 import { Selector } from 'components';
-import { PLAYER_TYPES, PLAYER_BUILDS, VIRTUALS, COUNTRIES } from 'config';
-import { capitalize, getPlayerTypeIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
+import { COUNTRIES } from 'config';
+import { capitalize, getPlayerTypeIcon, getMetricIcon, getMetricName } from 'utils';
 import { LeaderboardContext } from '../context';
 
-const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.map(type => ({
+const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.filter(type => type !== PlayerType.UNKNOWN).map(type => ({
   label: capitalize(type),
   icon: getPlayerTypeIcon(type),
   value: type
@@ -13,12 +20,12 @@ const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.map(type => ({
 const PLAYER_BUILDS_OPTIONS = [
   { label: 'All player builds', value: null },
   ...PLAYER_BUILDS.map(type => ({
-    label: getPlayerBuild(type),
+    label: PlayerBuildProps[type].name,
     value: type
   }))
 ];
 
-const METRIC_OPTIONS = [...VIRTUALS, 'ehp+ehb'].map(metric => ({
+const METRIC_OPTIONS = [...COMPUTED_METRICS, 'ehp+ehb'].map(metric => ({
   label: getMetricName(metric),
   icon: getMetricIcon(metric, true),
   value: metric

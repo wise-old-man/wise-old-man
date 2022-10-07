@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { PLAYER_TYPES, PLAYER_BUILDS, METRICS, PlayerBuildProps } from '@wise-old-man/utils';
+import { PLAYER_TYPES, PLAYER_BUILDS, METRICS, PlayerBuildProps, PlayerType } from '@wise-old-man/utils';
 import { Selector } from 'components';
 import { COUNTRIES } from 'config';
 import { capitalize, getPlayerTypeIcon, getMetricIcon, getMetricName } from 'utils';
@@ -7,7 +7,7 @@ import { TopContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = [
   { label: 'All player types', value: null },
-  ...PLAYER_TYPES.map(type => ({
+  ...PLAYER_TYPES.filter(type => type !== PlayerType.UNKNOWN).map(type => ({
     label: capitalize(type),
     icon: getPlayerTypeIcon(type),
     value: type

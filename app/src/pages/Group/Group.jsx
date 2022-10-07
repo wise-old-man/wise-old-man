@@ -66,7 +66,7 @@ function Group() {
 
   const handleExport = () => {
     const filename = `${group.name} Members.csv`;
-    const namesOnly = group.members.map(member => ({ name: member.player.displayName }));
+    const namesOnly = group.memberships.map(membership => ({ name: membership.player.displayName }));
     saveCsv(namesOnly, { filename });
   };
 

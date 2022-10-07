@@ -32,10 +32,10 @@ const TABLE_CONFIG = {
       key: 'exp',
       label: 'Exp.',
       transform: (_, row) => {
-        return row.player.ehp === -1 ? (
+        return row.player.exp === -1 ? (
           <TextLabel value="---" popupValue="Unranked" />
         ) : (
-          <NumberLabel value={row.player.ehp} />
+          <NumberLabel value={row.player.exp} />
         );
       }
     },

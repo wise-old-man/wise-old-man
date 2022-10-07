@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useCallback } from 'react';
-import { METRICS, SKILLS, BOSSES, ACTIVITIES, isVirtualMetric } from '@wise-old-man/utils';
+import { METRICS, SKILLS, BOSSES, ACTIVITIES, isComputedMetric } from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { isSkill, isActivity, isBoss } from 'utils';
 import { Selector, Loading } from 'components';
@@ -60,7 +60,7 @@ function Records() {
         </div>
       </div>
       {/* Sort to make sure EHP and EHB always show up first */}
-      {METRICS.sort(a => (isVirtualMetric(a) ? -5 : 0)).map(metric => {
+      {METRICS.sort(a => (isComputedMetric(a) ? -5 : 0)).map(metric => {
         const metricRecords = typeRecords.filter(r => r.metric === metric);
         return (
           metricRecords &&
