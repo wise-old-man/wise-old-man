@@ -1,26 +1,35 @@
-function formatNumber(num: number, withLetters = false) {
+function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
   if (num === undefined || num === null) return -1;
 
   // If number is float
   if (num % 1 !== 0) {
-    return (Math.round(num * 100) / 100).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    return (Math.round(num * 100) / 100).toLocaleString();
   }
 
   if ((num < 10000 && num > -10000) || !withLetters) {
-    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    return num.toLocaleString();
   }
 
   // < 10 million
   if (num < 10_000_000 && num > -10_000_000) {
-    return `${Math.floor(num / 1000)}k`;
+    // If has no decimals, return as whole number instead (10.00k => 10k)
+    if ((num / 1000) % 1 === 0) return `${num / 1000}k`;
+
+    return `${(num / 1000).toFixed(decimalPrecision)}k`;
   }
 
   // < 1 billion
   if (num < 1_000_000_000 && num > -1_000_000_000) {
-    return `${Math.round((num / 1000000 + Number.EPSILON) * 100) / 100}m`;
+    // If has no decimals, return as whole number instead (10.00m => 10m)
+    if ((num / 1_000_000) % 1 === 0) return `${num / 1_000_000}m`;
+
+    return `${(num / 1_000_000).toFixed(decimalPrecision)}m`;
   }
 
-  return `${Math.round((num / 1000000000 + Number.EPSILON) * 100) / 100}b`;
+  // If has no decimals, return as whole number instead (10.00b => 10b)
+  if ((num / 1_000_000_000) % 1 === 0) return `${num / 1_000_000_000}b`;
+
+  return `${(num / 1_000_000_000).toFixed(decimalPrecision)}b`;
 }
 
 function padNumber(value: number): string {

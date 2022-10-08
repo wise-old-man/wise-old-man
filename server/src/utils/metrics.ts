@@ -188,8 +188,8 @@ function findMetric(metricName: string): Metric | null {
   return null;
 }
 
-function isMetric(metricString: string): metricString is Metric {
-  return metricString in MetricProps;
+function isMetric(metric: Metric | string): metric is Metric {
+  return metric in MetricProps;
 }
 
 function isSkill(metric: Metric | string): metric is Skill {
@@ -234,12 +234,18 @@ function getParentEfficiencyMetric(metric: Metric) {
   return null;
 }
 
-function parseMetricAbbreviation(abbreviation: string): string | null {
+function parseMetricAbbreviation(abbreviation: string): Metric | null {
   if (!abbreviation || abbreviation.length === 0) {
     return null;
   }
 
-  switch (abbreviation.toLowerCase()) {
+  const fixedAbbreviation = abbreviation.toLowerCase();
+
+  if (isMetric(fixedAbbreviation)) {
+    return fixedAbbreviation;
+  }
+
+  switch (fixedAbbreviation) {
     // Bosses
     case 'sire':
       return Metric.ABYSSAL_SIRE;
@@ -541,7 +547,7 @@ function parseMetricAbbreviation(abbreviation: string): string | null {
       return Metric.CONSTRUCTION;
 
     default:
-      return abbreviation;
+      return null;
   }
 }
 
