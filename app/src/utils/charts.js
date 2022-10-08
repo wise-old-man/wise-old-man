@@ -1,7 +1,6 @@
 import { uniqBy } from 'lodash';
-import { isSkill, isBoss, isActivity } from '@wise-old-man/utils';
+import { isSkill, isBoss, isActivity, MetricProps } from '@wise-old-man/utils';
 import { capitalize } from 'utils/strings';
-import { getMinimumBossKc } from 'utils/metrics';
 import { CHART_COLORS } from 'config/visuals';
 
 export function distribute(snapshots, limit) {
@@ -92,7 +91,7 @@ export const getCompetitionChartData = (topHistory, metric) => {
       .sort()
       .map(h => ({
         x: h.date,
-        y: isBoss(metric) ? Math.max(h.value, getMinimumBossKc(metric) - 1) : h.value
+        y: isBoss(metric) ? Math.max(h.value, MetricProps[metric].minimumKc - 1) : h.value
       }));
 
     // Convert the exp values to exp delta values

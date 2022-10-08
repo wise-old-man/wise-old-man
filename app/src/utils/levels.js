@@ -1,4 +1,4 @@
-import { MAX_LEVEL, MAX_VIRTUAL_LEVEL, SKILLS } from 'config';
+import { MAX_LEVEL, MAX_VIRTUAL_LEVEL, SKILLS } from '@wise-old-man/utils';
 
 export function getLevel(experience, virtual = false) {
   // Unranked

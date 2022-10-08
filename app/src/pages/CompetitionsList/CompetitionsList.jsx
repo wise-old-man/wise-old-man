@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import { METRICS } from '@wise-old-man/utils';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
-import { COMPETITION_STATUSES, COMPETITION_TYPES, ALL_METRICS } from 'config';
+import { COMPETITION_STATUSES, COMPETITION_TYPES } from 'config';
 import { useUrlContext, useLazyLoading } from 'hooks';
 import { PageTitle, TextButton } from 'components';
 import URL from 'utils/url';
@@ -80,7 +81,7 @@ function encodeContext({ metric, status, type }) {
 function decodeURL(_, query) {
   const isValidType = query.type && COMPETITION_TYPES.includes(query.type);
   const isValidStatus = query.status && COMPETITION_STATUSES.includes(query.status);
-  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric);
+  const isValidMetric = query.metric && METRICS.includes(query.metric);
 
   return {
     type: isValidType ? query.type : null,

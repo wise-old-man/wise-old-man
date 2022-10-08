@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
+import { durationBetween } from 'utils';
 import URL from 'utils/url';
-import { SKILLS } from 'config';
+import { SKILLS, isBoss, isSkill, isActivity, MetricProps } from '@wise-old-man/utils';
 import { Table, PlayerTag, NumberLabel } from 'components';
 
 function TeamPlayersTable({
@@ -39,8 +39,7 @@ function TeamPlayersTable({
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const props = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -59,17 +58,19 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < props.minimumKc)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr
+                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumKc} kc.`}
+              >
+                <span>{`< ${props.minimumKc}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${props.name}.`}>
                 <span>--</span>
               </abbr>
             );
@@ -82,8 +83,7 @@ function TeamPlayersTable({
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const props = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -102,17 +102,19 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < props.minimumKc)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr
+                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumKc} kc.`}
+              >
+                <span>{`< ${props.minimumKc}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${props.name}.`}>
                 <span>--</span>
               </abbr>
             );

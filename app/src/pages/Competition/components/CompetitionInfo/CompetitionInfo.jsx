@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Link } from 'react-router-dom';
 import { InfoPanel } from 'components';
-import { formatDate, formatDateUTC, capitalize, getType, getMetricName, durationBetween } from 'utils';
+import { MetricProps } from '@wise-old-man/utils';
+import { formatDate, formatDateUTC, capitalize, durationBetween } from 'utils';
 
 function CompetitionInfo({ competition }) {
   const data = useMemo(() => formatData(competition), [competition]);
@@ -25,8 +26,8 @@ function formatData(competition) {
       value: id
     },
     {
-      key: capitalize(getType(metric)),
-      value: getMetricName(metric)
+      key: capitalize(MetricProps[metric].type),
+      value: MetricProps[metric].name
     },
     {
       key: 'Status',

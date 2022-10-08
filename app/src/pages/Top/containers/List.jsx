@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { isSkill, isBoss } from '@wise-old-man/utils';
 import { useSelector } from 'react-redux';
 import { deltasSelectors } from 'redux/deltas';
 import { TablePlaceholder, Table, NumberLabel, PlayerTag } from 'components';
-import { capitalize, isSkill, isBoss } from 'utils';
+import { capitalize } from 'utils';
 import URL from 'utils/url';
 import { TopContext } from '../context';
 

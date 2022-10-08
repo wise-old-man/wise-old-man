@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { mapValues } from 'lodash';
-import { ALL_METRICS } from 'config';
+import { METRICS } from '@wise-old-man/utils';
 
 const rootSelector = state => state.achievements;
 const playerAchievementsSelector = state => state.achievements.playerAchievements;
@@ -61,7 +61,7 @@ export function getPlayerAchievementsGrouped(username) {
       group.achievements.push(a);
     });
 
-    return groups.sort((a, b) => ALL_METRICS.indexOf(a.metric) - ALL_METRICS.indexOf(b.metric));
+    return groups.sort((a, b) => METRICS.indexOf(a.metric) - METRICS.indexOf(b.metric));
   };
 }
 

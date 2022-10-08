@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { METRICS } from '@wise-old-man/utils';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { Loading, Tabs, LineChart } from 'components';
-import { ALL_METRICS } from 'config';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { playerActions } from 'redux/players';
 import { useUrlContext } from 'hooks';
@@ -203,7 +203,7 @@ function getSelectedTabIndex(competitionType, section) {
 function encodeContext({ id, section, metric }) {
   const nextURL = new URL(`/competitions/${id}/${section}`);
 
-  if (metric && ALL_METRICS.includes(metric)) {
+  if (metric && METRICS.includes(metric)) {
     nextURL.appendSearchParam('metric', metric);
   }
 
@@ -221,7 +221,7 @@ function decodeURL(params, query) {
     context.section = 'teams';
   }
 
-  if (query.metric && ALL_METRICS.includes(query.metric)) {
+  if (query.metric && METRICS.includes(query.metric)) {
     context.metric = query.metric;
   }
 

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Tabs, Selector } from 'components';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { SKILLS, BOSSES, ACTIVITIES } from '@wise-old-man/utils';
 import { PlayerContext } from '../context';
 
 const PERIOD_OPTIONS = [

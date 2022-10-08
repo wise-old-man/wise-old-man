@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getMetricName } from 'utils';
+import { MetricProps } from '@wise-old-man/utils';
 import './PreviewMetricWarning.scss';
 
 function PreviewMetricWarning({ trueMetric, previewMetric }) {
   return (
     <div className="metric-preview-warning">
       <span>Previewing gains for</span>
-      <b>{getMetricName(previewMetric)}</b>
+      <b>{MetricProps[previewMetric].name}</b>
       <span>. This competition&apos;s true metric is</span>
-      <b>{`${getMetricName(trueMetric)}.`}</b>
+      <b>{`${MetricProps[trueMetric].name}.`}</b>
     </div>
   );
 }

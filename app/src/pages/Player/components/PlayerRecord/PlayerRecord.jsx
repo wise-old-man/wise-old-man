@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { PERIODS, PeriodProps } from '@wise-old-man/utils';
+import { PERIODS, PeriodProps, MetricProps } from '@wise-old-man/utils';
 import { Table, NumberLabel } from 'components';
-import { getMetricIcon, formatDate, getMetricName } from 'utils';
+import { getMetricIcon, formatDate } from 'utils';
 import './PlayerRecord.scss';
 
 const TABLE_CONFIG = {
@@ -38,7 +38,7 @@ function PlayerRecord({ metricRecords, metric }) {
     <div className="player-record">
       <div className="player-record__header">
         <img src={getMetricIcon(metric)} alt="" />
-        <b className="player-record__title">{getMetricName(metric)}</b>
+        <b className="player-record__title">{MetricProps[metric].name}</b>
       </div>
       <div className="player-record__body">
         <Table

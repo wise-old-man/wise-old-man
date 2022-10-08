@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Period, PERIODS, METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '@wise-old-man/utils';
+import { Period, PERIODS, METRICS, PLAYER_BUILDS, PLAYER_TYPES, MetricProps } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
-import { getMetricName } from 'utils';
 import { COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { recordActions } from 'redux/records';
@@ -30,7 +29,7 @@ function Records() {
     <RecordsContext.Provider value={{ context, updateContext }}>
       <div className="records__container container">
         <Helmet>
-          <title>{`${getMetricName(metric)} records`}</title>
+          <title>{`${MetricProps[metric].name} records`}</title>
         </Helmet>
         <div className="records__header row">
           <div className="col">

@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { SKILLS } from 'config';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
+import { SKILLS, isBoss, isSkill, isActivity, MetricProps } from '@wise-old-man/utils';
+import { durationBetween } from 'utils';
 import URL from 'utils/url';
 import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
@@ -41,8 +41,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
           const lastUpdated = row.player.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const { minimumKc, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -61,17 +60,17 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < minimumKc)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc.`}>
+                <span>{`< ${minimumKc}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${name}.`}>
                 <span>--</span>
               </abbr>
             );
@@ -84,8 +83,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
           const lastUpdated = row.player.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const { minimumKc, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -104,17 +102,17 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < minimumKc)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc.`}>
+                <span>{`< ${minimumKc}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${name}.`}>
                 <span>--</span>
               </abbr>
             );

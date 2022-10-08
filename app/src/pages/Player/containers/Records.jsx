@@ -1,7 +1,15 @@
 import React, { useContext, useEffect, useCallback } from 'react';
-import { METRICS, SKILLS, BOSSES, ACTIVITIES, isComputedMetric } from '@wise-old-man/utils';
+import {
+  METRICS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  isComputedMetric,
+  isSkill,
+  isActivity,
+  isBoss
+} from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
-import { isSkill, isActivity, isBoss } from 'utils';
 import { Selector, Loading } from 'components';
 import { recordSelectors, recordActions } from 'redux/records';
 import { PlayerRecord } from '../components';

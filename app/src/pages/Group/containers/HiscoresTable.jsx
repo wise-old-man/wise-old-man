@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { METRICS, MetricProps } from '@wise-old-man/utils';
+import { METRICS, MetricProps, isSkill } from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
-import { isSkill, durationBetween, getMeasure, getMetricIcon } from 'utils';
+import { durationBetween, getMetricIcon } from 'utils';
 import { hiscoresSelectors, hiscoresActions } from 'redux/hiscores';
 import { useLazyLoading } from 'hooks';
 import { GroupContext } from '../context';
@@ -88,8 +88,8 @@ function getTableConfig(metric) {
         )
       },
       {
-        key: getMeasure(metric),
-        transform: (_, row) => <NumberLabel value={row.data[getMeasure(metric)]} />
+        key: MetricProps[metric].measure,
+        transform: (_, row) => <NumberLabel value={row.data[MetricProps[metric].measure]} />
       },
       {
         key: 'updatedAt',

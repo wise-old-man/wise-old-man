@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { METRICS, SKILLS, BOSSES, ACTIVITIES } from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -11,7 +12,6 @@ import {
   formatNumber,
   getPlayerBuild
 } from 'utils';
-import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { InfoPanel, CardList, Selector } from 'components';
 import { playerSelectors } from 'redux/players';
 import { competitionSelectors, competitionActions } from 'redux/competitions';
@@ -234,7 +234,7 @@ function Info({ player }) {
 }
 
 function getAchievementIcon(metric) {
-  if (ALL_METRICS.includes(metric)) {
+  if (METRICS.includes(metric)) {
     return getMetricIcon(metric);
   }
 

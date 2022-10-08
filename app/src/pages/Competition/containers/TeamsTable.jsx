@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { isSkill } from '@wise-old-man/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isSkill } from 'utils';
 import { Table, NumberLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
 import { playerSelectors } from 'redux/players';

@@ -1,9 +1,9 @@
 import React, { useEffect, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
 import { groupSelectors, groupActions } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
-import { getMetricIcon, getLevel, getMetricName } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { getMetricIcon, getLevel } from 'utils';
 import { GroupContext } from '../context';
 
 function Statistics() {
@@ -93,7 +93,7 @@ function renderTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },

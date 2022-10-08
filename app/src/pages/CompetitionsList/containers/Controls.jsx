@@ -1,8 +1,9 @@
 import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
+import { METRICS, MetricProps } from '@wise-old-man/utils';
 import { TextInput, Selector } from 'components';
-import { COMPETITION_STATUSES, COMPETITION_TYPES, ALL_METRICS } from 'config';
-import { capitalize, getMetricIcon, getMetricName } from 'utils';
+import { COMPETITION_STATUSES, COMPETITION_TYPES } from 'config';
+import { capitalize, getMetricIcon } from 'utils';
 import { CompetitionsListContext } from '../context';
 
 const DEFAULT_METRICS_OPTION = { label: 'Any metric', value: null };
@@ -76,8 +77,8 @@ function getStatusOptions() {
 function getMetricOptions() {
   return [
     DEFAULT_METRICS_OPTION,
-    ...ALL_METRICS.map(metric => ({
-      label: getMetricName(metric),
+    ...METRICS.map(metric => ({
+      label: MetricProps[metric].name,
       icon: getMetricIcon(metric, true),
       value: metric
     }))

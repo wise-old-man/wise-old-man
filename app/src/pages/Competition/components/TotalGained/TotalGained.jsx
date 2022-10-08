@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { formatNumber, getMetricIcon, getMetricName } from 'utils';
+import { MetricProps } from '@wise-old-man/utils';
+import { formatNumber, getMetricIcon } from 'utils';
 import './TotalGained.scss';
 
 function TotalGained({ metric, totalGained }) {
-  const label = `${getMetricName(metric)}`;
+  const label = MetricProps[metric].name;
   const icon = getMetricIcon(metric);
 
   const backgroundImage = {

@@ -1,11 +1,11 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { METRICS, isBoss, isSkill } from '@wise-old-man/utils';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
-import { ALL_METRICS } from 'config';
-import { standardizeUsername, isBoss, isSkill, isValidDate } from 'utils';
+import { standardizeUsername, isValidDate } from 'utils';
 import { playerActions, playerSelectors } from 'redux/players';
 import { snapshotActions } from 'redux/snapshots';
 import { achievementActions } from 'redux/achievements';
@@ -189,7 +189,7 @@ function decodeURL(params, query) {
 
   const isValidSection = params.section && sections.includes(params.section.toLowerCase());
   const isValidMetricType = params.metricType && metricTypes.includes(params.metricType.toLowerCase());
-  const isValidMetric = queryMetric && ALL_METRICS.includes(queryMetric.toLowerCase());
+  const isValidMetric = queryMetric && METRICS.includes(queryMetric.toLowerCase());
   const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
 
   const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);

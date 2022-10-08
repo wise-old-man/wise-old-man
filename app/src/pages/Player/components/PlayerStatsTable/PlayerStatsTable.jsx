@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
 import { Table, TablePlaceholder, NumberLabel, TextLabel } from 'components';
-import { getMetricIcon, getLevel, getMetricName, getMinimumBossKc, round } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { getMetricIcon, getLevel, round } from 'utils';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
@@ -42,7 +42,7 @@ function renderSkillsTable(snapshot, showVirtualLevels) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
@@ -103,20 +103,19 @@ function renderBossesTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
     {
       key: 'kills',
       transform: (val, row) => {
-        const minKc = getMinimumBossKc(row.metric);
-        const metricName = getMetricName(row.metric);
+        const { name, minimumKc } = MetricProps[row.metric];
 
         return val === -1 ? (
           <TextLabel
-            value={`< ${minKc}`}
-            popupValue={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc`}
+            value={`< ${minimumKc}`}
+            popupValue={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc`}
           />
         ) : (
           <NumberLabel value={val} />
@@ -159,7 +158,7 @@ function renderActivitiesTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },

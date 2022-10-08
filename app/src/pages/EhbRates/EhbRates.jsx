@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { MetricProps } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { ratesActions, ratesSelectors } from 'redux/rates';
 import { PageTitle, Selector, Table } from 'components';
-import { formatNumber, getMetricIcon, getMetricName } from 'utils';
+import { formatNumber, getMetricIcon } from 'utils';
 import './EhbRates.scss';
 
 const RATES_TABLE_CONFIG = {
@@ -15,7 +16,7 @@ const RATES_TABLE_CONFIG = {
       transform: value => (
         <>
           <img src={getMetricIcon(value, true)} style={{ marginRight: 7 }} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </>
       )
     },

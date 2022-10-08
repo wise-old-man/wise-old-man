@@ -1,11 +1,18 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { PERIODS, Period, PeriodProps } from '@wise-old-man/utils';
+import {
+  PERIODS,
+  Period,
+  PeriodProps,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  MetricProps
+} from '@wise-old-man/utils';
 import PropTypes from 'prop-types';
 import { some } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
-import { getMeasure, formatDate, getDeltasChartData } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { formatDate, getDeltasChartData } from 'utils';
 import { LineChart, Selector, TablePlaceholder } from 'components';
 import { snapshotSelectors, snapshotActions } from 'redux/snapshots';
 import { deltasSelectors, deltasActions } from 'redux/deltas';
@@ -34,7 +41,7 @@ function Gained() {
   const [isReducedChart, setReducedChart] = useState(true);
 
   const metric = getSelectedMetric(context.metric, metricType);
-  const measure = getMeasure(metric);
+  const measure = MetricProps[metric].measure;
   const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 

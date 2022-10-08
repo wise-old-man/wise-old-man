@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Table, NumberLabel } from 'components';
-import { getLevel, getMetricIcon, getMetricName, round } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
+import { getLevel, getMetricIcon, round } from 'utils';
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
   const { data } = deltas[period];
@@ -71,7 +71,7 @@ function getSkillsTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
@@ -134,7 +134,7 @@ function getBossesTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
@@ -173,7 +173,7 @@ function getActivitiesTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },

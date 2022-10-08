@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { PERIODS } from '@wise-old-man/utils';
+import { PERIODS, METRICS } from '@wise-old-man/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import saveCsv from 'save-csv';
-import { ALL_METRICS } from 'config';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { isValidDate } from 'utils';
@@ -187,7 +186,7 @@ function encodeContext({ id, section, metric, period, startDate, endDate }) {
 function decodeURL(params, query) {
   const { id, section } = params;
   const validSections = ['delete', ...TABS.map(t => t.toLowerCase())];
-  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
+  const isValidMetric = query.metric && METRICS.includes(query.metric.toLowerCase());
   const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
   const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);
   const isValidEndDate = query.endDate && !isValidPeriod && isValidDate(query.endDate);

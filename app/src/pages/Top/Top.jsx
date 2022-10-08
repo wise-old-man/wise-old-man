@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import { Period, PERIODS, METRICS, PLAYER_BUILDS, PLAYER_TYPES } from '@wise-old-man/utils';
+import { Period, PERIODS, METRICS, PLAYER_BUILDS, PLAYER_TYPES, MetricProps } from '@wise-old-man/utils';
 import { useUrlContext } from 'hooks';
-import { getMetricName } from 'utils';
 import { COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { deltasActions } from 'redux/deltas';
@@ -30,7 +29,7 @@ function Top() {
     <TopContext.Provider value={{ context, updateContext }}>
       <div className="top__container container">
         <Helmet>
-          <title>{`${getMetricName(metric)} current top`}</title>
+          <title>{`${MetricProps[metric].name} current top`}</title>
         </Helmet>
         <div className="top__header row">
           <div className="col">

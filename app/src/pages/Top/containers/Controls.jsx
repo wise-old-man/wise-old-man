@@ -1,8 +1,15 @@
 import React, { useContext } from 'react';
-import { PLAYER_TYPES, PLAYER_BUILDS, METRICS, PlayerBuildProps, PlayerType } from '@wise-old-man/utils';
+import {
+  PLAYER_TYPES,
+  PLAYER_BUILDS,
+  METRICS,
+  PlayerBuildProps,
+  PlayerType,
+  MetricProps
+} from '@wise-old-man/utils';
 import { Selector } from 'components';
 import { COUNTRIES } from 'config';
-import { capitalize, getPlayerTypeIcon, getMetricIcon, getMetricName } from 'utils';
+import { capitalize, getPlayerTypeIcon, getMetricIcon } from 'utils';
 import { TopContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = [
@@ -23,7 +30,7 @@ const PLAYER_BUILDS_OPTIONS = [
 ];
 
 const METRIC_OPTIONS = METRICS.map(metric => ({
-  label: getMetricName(metric),
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));

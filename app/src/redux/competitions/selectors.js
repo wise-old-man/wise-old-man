@@ -1,6 +1,6 @@
 import { mapValues, uniq } from 'lodash';
 import { createSelector } from 'reselect';
-import { SKILLS } from 'config';
+import { SKILLS } from '@wise-old-man/utils';
 import { durationBetween, getLevel } from 'utils';
 
 const rootSelector = state => state.competitions;
