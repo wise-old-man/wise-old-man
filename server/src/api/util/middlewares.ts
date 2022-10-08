@@ -10,7 +10,7 @@ function metricAbbreviation(req, res, next) {
     const metric = req.body.metric.toLowerCase();
 
     if (!isMetric(metric)) {
-      req.body.metric = parseMetricAbbreviation(metric);
+      req.body.metric = parseMetricAbbreviation(metric) || metric;
     }
   }
 
@@ -19,7 +19,7 @@ function metricAbbreviation(req, res, next) {
     const metric = req.query.metric.toLowerCase();
 
     if (!isMetric(metric)) {
-      req.query.metric = parseMetricAbbreviation(metric);
+      req.query.metric = parseMetricAbbreviation(metric) || metric;
     }
   }
 
