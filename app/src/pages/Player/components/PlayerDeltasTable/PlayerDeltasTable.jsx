@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Table, NumberLabel } from 'components';
-import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
-import { getLevel, getMetricIcon, round } from 'utils';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
+import { getMetricIcon, round } from 'utils';
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
   const { data } = deltas[period];

@@ -1,9 +1,16 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import { Period, PERIODS, METRICS, PLAYER_BUILDS, PLAYER_TYPES, MetricProps } from '@wise-old-man/utils';
+import {
+  Period,
+  PERIODS,
+  METRICS,
+  PLAYER_BUILDS,
+  PLAYER_TYPES,
+  MetricProps,
+  COUNTRY_CODES
+} from '@wise-old-man/utils';
 import { useUrlContext } from 'hooks';
-import { COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { deltasActions } from 'redux/deltas';
 import URL from 'utils/url';
@@ -76,7 +83,7 @@ function encodeContext({ metric, type, build, country }) {
     nextURL.appendSearchParam('build', build.toLowerCase());
   }
 
-  if (country && COUNTRIES.map(c => c.code).includes(country)) {
+  if (country && COUNTRY_CODES.includes(country)) {
     nextURL.appendSearchParam('country', country);
   }
 
@@ -90,7 +97,7 @@ function decodeURL(params, query) {
   const isValidMetric = metric && METRICS.includes(metric.toLowerCase());
   const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
   const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
-  const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
+  const isValidCountry = country && COUNTRY_CODES.includes(country.toUpperCase());
 
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'overall',

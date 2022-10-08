@@ -3,13 +3,14 @@ import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { GroupRoleProps } from '@wise-old-man/utils';
+import { getRoleTypeIcon } from 'utils';
 import { groupActions, groupSelectors } from 'redux/groups';
 import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
 import MigratePlayersModal from 'modals/MigratePlayersModal';
 import EmptyConfirmationModal from 'modals/EmptyConfirmationModal';
 import VerificationModal from 'modals/VerificationModal';
-import { ROLES } from 'config';
 import './CreateGroup.scss';
 
 function CreateGroup() {
@@ -223,7 +224,13 @@ function CreateGroup() {
 
           <MembersSelector
             members={members}
-            roles={ROLES}
+            roles={Object.entries(GroupRoleProps).map(([groupRole, props]) => {
+              return {
+                label: props.name,
+                value: groupRole,
+                icon: getRoleTypeIcon(groupRole)
+              };
+            })}
             invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}

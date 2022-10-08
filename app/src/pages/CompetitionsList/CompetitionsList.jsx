@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { METRICS } from '@wise-old-man/utils';
+import { METRICS, COMPETITION_STATUSES, COMPETITION_TYPES } from '@wise-old-man/utils';
 import { competitionActions, competitionSelectors } from 'redux/competitions';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet';
-import { COMPETITION_STATUSES, COMPETITION_TYPES } from 'config';
 import { useUrlContext, useLazyLoading } from 'hooks';
 import { PageTitle, TextButton } from 'components';
 import URL from 'utils/url';

@@ -1,8 +1,7 @@
 import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { METRICS, MetricProps } from '@wise-old-man/utils';
+import { METRICS, MetricProps, COMPETITION_STATUSES, COMPETITION_TYPES } from '@wise-old-man/utils';
 import { TextInput, Selector } from 'components';
-import { COMPETITION_STATUSES, COMPETITION_TYPES } from 'config';
 import { capitalize, getMetricIcon } from 'utils';
 import { CompetitionsListContext } from '../context';
 

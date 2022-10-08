@@ -5,10 +5,10 @@ import {
   PlayerBuildProps,
   COMPUTED_METRICS,
   PlayerType,
-  MetricProps
+  MetricProps,
+  CountryProps
 } from '@wise-old-man/utils';
 import { Selector } from 'components';
-import { COUNTRIES } from 'config';
 import { capitalize, getPlayerTypeIcon, getMetricIcon } from 'utils';
 import { LeaderboardContext } from '../context';
 
@@ -34,10 +34,10 @@ const METRIC_OPTIONS = [...COMPUTED_METRICS, 'ehp+ehb'].map(metric => ({
 
 const COUNTRY_OPTIONS = [
   { label: 'All countries', value: null },
-  ...COUNTRIES.map(c => ({
-    label: c.name,
-    icon: `/img/flags/${c.code}.svg`,
-    value: c.code
+  ...Object.entries(CountryProps).map(([code, details]) => ({
+    label: details.name,
+    icon: `/img/flags/${code}.svg`,
+    value: code
   }))
 ];
 

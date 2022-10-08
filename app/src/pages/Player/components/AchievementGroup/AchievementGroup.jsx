@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { MetricProps } from '@wise-old-man/utils';
-import { getMetricIcon, formatDate, formatNumber, getLevel } from 'utils';
+import { MetricProps, getLevel } from '@wise-old-man/utils';
+import { getMetricIcon, formatDate, formatNumber } from 'utils';
 import './AchievementGroup.scss';
 
 function AchievementGroup({ group, metricType }) {

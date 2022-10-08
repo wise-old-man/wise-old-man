@@ -1,9 +1,9 @@
 import React, { useEffect, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
 import { groupSelectors, groupActions } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
-import { getMetricIcon, getLevel } from 'utils';
+import { getMetricIcon } from 'utils';
 import { GroupContext } from '../context';
 
 function Statistics() {

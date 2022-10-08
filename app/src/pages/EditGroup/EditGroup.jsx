@@ -2,10 +2,10 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { GroupRoleProps } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
-import { standardize } from 'utils';
-import { ROLES } from 'config';
+import { standardize, getRoleTypeIcon } from 'utils';
 import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
 import RemovePlayersModal from 'modals/RemovePlayersModal';
@@ -247,7 +247,13 @@ function EditGroup() {
 
           <MembersSelector
             members={members}
-            roles={ROLES}
+            roles={Object.entries(GroupRoleProps).map(([groupRole, props]) => {
+              return {
+                label: props.name,
+                value: groupRole,
+                icon: getRoleTypeIcon(groupRole)
+              };
+            })}
             invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}

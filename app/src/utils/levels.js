@@ -1,25 +1,4 @@
-import { MAX_LEVEL, MAX_VIRTUAL_LEVEL, SKILLS } from '@wise-old-man/utils';
-
-export function getLevel(experience, virtual = false) {
-  // Unranked
-  if (experience === -1) {
-    return 0;
-  }
-
-  const maxlevel = virtual ? MAX_VIRTUAL_LEVEL : MAX_LEVEL;
-
-  let accumulated = 0;
-
-  for (let level = 1; level < maxlevel; level++) {
-    const required = getXpDifferenceTo(level + 1);
-    if (experience >= accumulated && experience < accumulated + required) {
-      return level;
-    }
-    accumulated += required;
-  }
-
-  return maxlevel;
-}
+import { SKILLS, getLevel } from '@wise-old-man/utils';
 
 export function getExperienceAt(level) {
   let accumulated = 0;

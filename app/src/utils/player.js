@@ -30,23 +30,6 @@ export function getRoleTypeIcon(role) {
   return `/img/runescape/roles/${role.replace(/_/g, ' ')}.png`;
 }
 
-export function getPlayerBuild(build) {
-  switch (build) {
-    case '1def':
-      return '1 Def Pure';
-    case 'lvl3':
-      return 'Level 3';
-    case 'f2p':
-      return 'F2P';
-    case '10hp':
-      return '10 Hitpoints Pure';
-    case 'zerker':
-      return 'Zerker';
-    default:
-      return 'Main';
-  }
-}
-
 export function getOfficialHiscoresUrl(player) {
   const username = encodeURI(player.username);
   let suffix;

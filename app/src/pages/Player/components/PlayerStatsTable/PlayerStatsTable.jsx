@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { SKILLS, BOSSES, ACTIVITIES, MetricProps } from '@wise-old-man/utils';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
 import { Table, TablePlaceholder, NumberLabel, TextLabel } from 'components';
-import { getMetricIcon, getLevel, round } from 'utils';
+import { getMetricIcon, round } from 'utils';
 
 function renderSkillsTable(snapshot, showVirtualLevels) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')

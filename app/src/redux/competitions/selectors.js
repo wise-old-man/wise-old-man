@@ -1,7 +1,7 @@
 import { mapValues, uniq } from 'lodash';
 import { createSelector } from 'reselect';
-import { SKILLS } from '@wise-old-man/utils';
-import { durationBetween, getLevel } from 'utils';
+import { SKILLS, getLevel } from '@wise-old-man/utils';
+import { durationBetween } from 'utils';
 
 const rootSelector = state => state.competitions;
 const topHistorySelector = state => state.competitions.topHistory;
