@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ApiKey {
+  id          String  @id @default(cuid())
+  active      Boolean @default(true)
+  developer   String
+  application String
+
+  @@map("apiKeys")
+}
+
 model Achievement {
   playerId  Int
   name      String   @db.VarChar(255)

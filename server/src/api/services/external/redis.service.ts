@@ -13,7 +13,11 @@ class RedisService {
   }
 
   async setValue(baseKey: string, paramKey: string, value: string | number, expiresInMs?: number) {
-    return await this.redisClient.set(`${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
+    if (expiresInMs === undefined) {
+      return this.redisClient.set(`${baseKey}:${paramKey}`, value);
+    }
+
+    return this.redisClient.set(`${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
   }
 
   async deleteKey(key: string) {
