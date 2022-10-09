@@ -24,12 +24,17 @@ export default class WOMClient {
   public competitions: CompetitionsClient;
 
   constructor(options?: WOMClientOptions) {
+    const headers = {
+      'x-user-agent': options?.userAgent || config.defaultUserAgent
+    };
+
+    if (options?.apiKey) {
+      headers['x-api-key'] = options.apiKey;
+    }
+
     const axiosInstance = axios.create({
       baseURL: options?.baseAPIUrl || config.baseAPIUrl,
-      headers: {
-        'x-api-key': options?.apiKey || null,
-        'x-user-agent': options?.userAgent || config.defaultUserAgent
-      }
+      headers
     });
 
     this.deltas = new DeltasClient(axiosInstance);
