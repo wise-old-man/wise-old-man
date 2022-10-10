@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
+import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
@@ -48,7 +49,12 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     // There has been a significant change in this player's stats, mark it as flagged
     if (!snapshotUtils.withinRange(previousStats, currentStats)) {
-      await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
+      if (!player.flagged) {
+        await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
+      }
+
+      logger.moderation(`[Player:${username}] Flagged`);
+
       throw new ServerError('Failed to update: Unregistered name change.');
     }
 

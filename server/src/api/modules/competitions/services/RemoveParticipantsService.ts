@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
+import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 
@@ -54,6 +55,8 @@ async function removeParticipants(payload: RemoveParticipantsParams): Promise<{ 
     where: { id: params.id },
     data: { updatedAt: new Date() }
   });
+
+  logger.moderation(`[Competition:${params.id}] (${playersToRemove.map(p => p.id)}) left`);
 
   return { count };
 }

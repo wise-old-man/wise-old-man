@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
+import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
@@ -76,6 +77,8 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
   } catch (error) {
     throw new ServerError('Failed to add members.');
   }
+
+  logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
 
   return { count };
 }

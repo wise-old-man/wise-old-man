@@ -12,6 +12,7 @@ import prisma, {
   PrismaPromise,
   modifySnapshots
 } from '../../../../prisma';
+import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
@@ -62,6 +63,8 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
   // Update the player ID caches
   await playerUtils.setCachedPlayerId(nameChange.oldName, null);
   await playerUtils.setCachedPlayerId(nameChange.newName, nameChange.playerId);
+
+  logger.moderation(`[NameChange:${nameChange.id}] Approved`);
 
   return updatedNameChange;
 }

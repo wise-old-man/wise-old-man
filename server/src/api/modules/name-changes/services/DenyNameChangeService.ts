@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError, NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -30,6 +31,8 @@ async function denyNameChange(payload: DenyNameChangeParams): Promise<NameChange
       resolvedAt: new Date()
     }
   });
+
+  logger.moderation(`[NameChange:${nameChange.id}] Denied`);
 
   return updatedNameChange;
 }

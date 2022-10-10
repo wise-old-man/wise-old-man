@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma, { Group } from '../../../../prisma';
 import { ServerError } from '../../../errors';
+import logger from '../../../util/logging';
 
 const inputSchema = z.object({
   id: z.number().positive()
@@ -15,6 +16,8 @@ async function deleteGroup(payload: DeleteGroupParams): Promise<Group> {
     const deletedGroup = await prisma.group.delete({
       where: { id: params.id }
     });
+
+    logger.moderation(`[Group:${params.id}] Deleted`);
 
     return deletedGroup;
   } catch (error) {
