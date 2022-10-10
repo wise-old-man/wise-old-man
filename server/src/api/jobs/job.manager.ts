@@ -34,30 +34,30 @@ const JOBS: JobDefinition<unknown>[] = [
 ];
 
 const CRON_JOBS = [
-  // {
-  //   type: JobType.SCHEDULE_COMPETITION_EVENTS,
-  //   interval: '* * * * *' // every 1 min
-  // },
+  {
+    type: JobType.SCHEDULE_COMPETITION_EVENTS,
+    interval: '* * * * *' // every 1 min
+  },
   {
     type: JobType.REFRESH_API_KEYS,
     interval: '* * * * *' // every 1 min
+  },
+  {
+    type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
+    interval: '0 */6 * * *' // every 6 hours
+  },
+  {
+    type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
+    interval: '0 */12 * * *' // every 12 hours
+  },
+  {
+    type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
+    interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
+    interval: '0 8 * * *' // everyday at 8AM
   }
-  // {
-  //   type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
-  //   interval: '0 */12 * * *' // every 12 hours
-  // },
-  // {
-  //   type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
-  //   interval: '0 */6 * * *' // every 6 hours
-  // },
-  // {
-  //   type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // },
-  // {
-  //   type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
-  //   interval: '0 8 * * *' // everyday at 8AM
-  // }
 ];
 
 class JobManager {
