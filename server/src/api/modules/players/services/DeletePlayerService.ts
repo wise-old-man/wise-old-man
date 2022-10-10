@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
 import { setCachedPlayerId, standardize } from '../player.utils';
 
 const inputSchema = z
@@ -26,6 +27,8 @@ async function deletePlayer(payload: DeletePlayerParams): Promise<Player> {
 
     // Clear this player's ID cache
     await setCachedPlayerId(deletedPlayer.username, null);
+
+    logger.moderation(`[Player:${deletedPlayer.username}] Deleted`);
 
     return deletedPlayer;
   } catch (error) {

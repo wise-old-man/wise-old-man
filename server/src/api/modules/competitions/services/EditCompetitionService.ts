@@ -9,6 +9,7 @@ import prisma, {
   modifyPlayer,
   Group
 } from '../../../../prisma';
+import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
@@ -159,6 +160,8 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
   if (params.metric) updatedCompetitionFields.metric = params.metric;
 
   const updatedCompetition = await executeUpdate(params, participations, updatedCompetitionFields);
+
+  logger.moderation(`[Competition:${params.id}] Edited`);
 
   if (!updatedCompetition) {
     throw new ServerError('Failed to edit competition. (EditCompetitionService)');

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
+import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { sanitizeTitle } from '../competition.utils';
 
@@ -41,6 +42,8 @@ async function removeTeams(payload: RemoveTeamsParams): Promise<{ count: number 
   if (!count) {
     throw new BadRequestError('No players were removed from the competition.');
   }
+
+  logger.moderation(`[Competition:${params.id}] (${params.teamNames}) removed`);
 
   await prisma.competition.update({
     where: { id: params.id },

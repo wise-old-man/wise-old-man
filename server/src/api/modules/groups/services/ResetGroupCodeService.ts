@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../services/external/crypt.service';
 import { NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
 
 const inputSchema = z.object({
   id: z.number().positive()
@@ -19,6 +20,8 @@ async function resetGroupCode(payload: ResetGroupCodeParams): Promise<{ newCode:
       where: { id: params.id },
       data: { verificationHash: hash }
     });
+
+    logger.moderation(`[Group:${params.id}] Code reset`);
 
     return { newCode: code };
   } catch (error) {

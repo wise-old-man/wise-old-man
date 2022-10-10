@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { Country, findCountry } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
+import logger from '../../../util/logging';
 import { standardize } from '../player.utils';
 
 const ERROR_MESSAGE = "Parameter 'country' is undefined.";
@@ -39,10 +40,12 @@ async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<
   try {
     const updatedPlayer = await prisma.player
       .update({
-        data: { country: countryCode as Country },
+        data: { country: countryCode },
         where: { id: params.id, username: standardize(params.username) }
       })
       .then(modifyPlayer);
+
+    logger.moderation(`[Player:${updatedPlayer.username}] Country updated to ${countryCode}`);
 
     return updatedPlayer;
   } catch (error) {

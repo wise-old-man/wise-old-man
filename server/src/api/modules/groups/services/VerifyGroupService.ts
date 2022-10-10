@@ -2,6 +2,7 @@ import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
+import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
 
 const inputSchema = z.object({
@@ -25,6 +26,8 @@ async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> 
         }
       }
     });
+
+    logger.moderation(`[Group:${params.id}] Verified`);
 
     return {
       ...omit(updatedGroup, ['_count', 'verificationHash']),

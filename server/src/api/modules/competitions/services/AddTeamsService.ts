@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { CompetitionType } from '../../../../utils';
+import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import { Team } from '../competition.types';
 import {
@@ -101,6 +102,8 @@ async function addTeams(payload: AddTeamsParams): Promise<{ count: number }> {
     where: { id: params.id },
     data: { updatedAt: new Date() }
   });
+
+  logger.moderation(`[Competition:${params.id}] (${newParticipations.map(p => p.playerId)}) joined`);
 
   return { count };
 }

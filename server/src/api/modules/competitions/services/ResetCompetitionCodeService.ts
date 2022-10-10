@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import * as cryptService from '../../../services/external/crypt.service';
+import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError } from '../../../errors';
 
 const inputSchema = z.object({
@@ -29,6 +30,8 @@ async function resetCompetitionCode(payload: ResetCompetitionCodeParams): Promis
   const [code, hash] = await cryptService.generateVerification();
 
   await prisma.competition.update({ where: { id: params.id }, data: { verificationHash: hash } });
+
+  logger.moderation(`[Competition:${params.id}] Code reset`);
 
   return { newCode: code };
 }

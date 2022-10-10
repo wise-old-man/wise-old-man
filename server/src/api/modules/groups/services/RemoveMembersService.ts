@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { ServerError, BadRequestError } from '../../../errors';
+import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
 
 const inputSchema = z.object({
@@ -42,6 +43,8 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
   } catch (error) {
     throw new ServerError('Failed to remove members.');
   }
+
+  logger.moderation(`[Group:${params.id}] (${playersToRemove.map(p => p.id)}) removed`);
 
   return { count };
 }

@@ -6,6 +6,7 @@ class Logger {
   private errorLogger: WinstonLogger;
   private debugLogger: WinstonLogger;
   private infoLogger: WinstonLogger;
+  private moderationLogger: WinstonLogger;
 
   constructor() {
     this.errorLogger = createLogger({
@@ -24,6 +25,12 @@ class Logger {
       level: 'info',
       format: format.combine(format.timestamp(), format.json()),
       transports: [new transports.File({ filename: 'logs/info.log', level: 'info' })]
+    });
+
+    this.moderationLogger = createLogger({
+      level: 'info',
+      format: format.combine(format.timestamp(), format.json()),
+      transports: [new transports.File({ filename: 'logs/moderation.log', level: 'info' })]
     });
   }
 
@@ -45,6 +52,13 @@ class Logger {
     if (isTesting()) return;
 
     this.infoLogger.info(message, data);
+    prettyPrint('info', message, printData && data);
+  }
+
+  moderation(message: string, data?: unknown, printData?: boolean) {
+    // if (isTesting()) return;
+
+    this.moderationLogger.info(message, data);
     prettyPrint('info', message, printData && data);
   }
 }

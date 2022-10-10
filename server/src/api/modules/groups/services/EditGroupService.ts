@@ -10,6 +10,7 @@ import prisma, {
   Player
 } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
@@ -105,6 +106,8 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
   if (!updatedGroup) {
     throw new ServerError('Failed to edit group. (EditGroupService)');
   }
+
+  logger.moderation(`[Group:${params.id}] Edited`);
 
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
