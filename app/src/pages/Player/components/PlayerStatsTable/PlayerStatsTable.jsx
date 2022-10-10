@@ -110,12 +110,12 @@ function renderBossesTable(snapshot) {
     {
       key: 'kills',
       transform: (val, row) => {
-        const { name, minimumKc } = MetricProps[row.metric];
+        const { name, minimumValue } = MetricProps[row.metric];
 
         return val === -1 ? (
           <TextLabel
-            value={`< ${minimumKc}`}
-            popupValue={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc`}
+            value={`< ${minimumValue}`}
+            popupValue={`The Hiscores only start tracking ${name} kills after ${minimumValue} kc`}
           />
         ) : (
           <NumberLabel value={val} />

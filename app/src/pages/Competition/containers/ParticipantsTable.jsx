@@ -41,7 +41,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
           const lastUpdated = row.player.updatedAt;
-          const { minimumKc, name } = MetricProps[metric];
+          const { minimumValue, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -60,10 +60,10 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minimumKc)
+          if (isBoss(metric) && val < minimumValue)
             return (
-              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc.`}>
-                <span>{`< ${minimumKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumValue} kc.`}>
+                <span>{`< ${minimumValue}`}</span>
               </abbr>
             );
 
@@ -83,7 +83,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
           const lastUpdated = row.player.updatedAt;
-          const { minimumKc, name } = MetricProps[metric];
+          const { minimumValue, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -102,10 +102,10 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minimumKc)
+          if (isBoss(metric) && val < minimumValue)
             return (
-              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumKc} kc.`}>
-                <span>{`< ${minimumKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumValue} kc.`}>
+                <span>{`< ${minimumValue}`}</span>
               </abbr>
             );
 

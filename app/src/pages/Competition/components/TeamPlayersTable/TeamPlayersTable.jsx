@@ -58,12 +58,12 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < props.minimumKc)
+          if (isBoss(metric) && val < props.minimumValue)
             return (
               <abbr
-                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumKc} kc.`}
+                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumValue} kc.`}
               >
-                <span>{`< ${props.minimumKc}`}</span>
+                <span>{`< ${props.minimumValue}`}</span>
               </abbr>
             );
 
@@ -102,12 +102,12 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < props.minimumKc)
+          if (isBoss(metric) && val < props.minimumValue)
             return (
               <abbr
-                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumKc} kc.`}
+                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumValue} kc.`}
               >
-                <span>{`< ${props.minimumKc}`}</span>
+                <span>{`< ${props.minimumValue}`}</span>
               </abbr>
             );
 

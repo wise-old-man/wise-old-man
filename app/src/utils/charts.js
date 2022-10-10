@@ -91,7 +91,7 @@ export const getCompetitionChartData = (topHistory, metric) => {
       .sort()
       .map(h => ({
         x: h.date,
-        y: isBoss(metric) ? Math.max(h.value, MetricProps[metric].minimumKc - 1) : h.value
+        y: isBoss(metric) ? Math.max(h.value, MetricProps[metric].minimumValue - 1) : h.value
       }));
 
     // Convert the exp values to exp delta values
