@@ -12,7 +12,7 @@ import {
   ComputedMetric,
   isSkill,
   isComputedMetric,
-  getMinimumBossKc,
+  getMinimumValue,
   getMetricRankKey,
   getMetricValueKey,
   round
@@ -91,7 +91,7 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * - Output: { start: -1, end:  5566255, gained: 0 }
  */
 function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot: Snapshot) {
-  const minimumValue = getMinimumBossKc(metric);
+  const minimumValue = getMinimumValue(metric);
   const valueKey = getMetricValueKey(metric);
 
   const startValue = parseNum(

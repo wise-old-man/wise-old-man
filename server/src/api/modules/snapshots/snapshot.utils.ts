@@ -157,25 +157,21 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
   if (!after) return false;
 
   // EHP and EHB can fluctuate without the player's envolvement
-  const keysToIgnore = ['ehpValue', 'ehbValue'];
+  const metricsToIgnore = [Metric.EHP, Metric.EHB];
+  const isValidKey = (key: string) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
-  const isValidKey = key => !keysToIgnore.includes(key);
-  const keys = METRICS.map(m => getMetricValueKey(m));
-
-  return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
+  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
 }
 
 /**
  * Checks whether two snapshots have negative gains in between.
  */
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
-  // Last man standing scores, ehp and ehb can fluctuate overtime
-  const keysToIgnore = ['last_man_standingScore', 'ehpValue', 'ehbValue'];
+  // LMS scores, PVP ARENA scores, EHP and EHB can fluctuate overtime
+  const metricsToIgnore = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
+  const isValidKey = (key: string) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
-  const isValidKey = key => !keysToIgnore.includes(key);
-  const keys = METRICS.map(m => getMetricValueKey(m));
-
-  return keys.some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
+  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
 }
 
 function average(snapshots: Snapshot[]): Snapshot {

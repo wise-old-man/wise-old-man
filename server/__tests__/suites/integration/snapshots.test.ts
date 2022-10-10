@@ -273,6 +273,14 @@ describe('Snapshots API', () => {
       expect(utils.hasNegativeGains(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
       // Positive changes between these
       expect(utils.hasNegativeGains(globalData.snapshots[10], globalData.snapshots[0])).toBe(false);
+      // Negative last_man_standing gains
+      const negativeLmsStart = { ...globalData.snapshots[0], last_man_standingScore: 1000 };
+      const negativeLmsEnd = { ...globalData.snapshots[0], last_man_standingScore: 700 };
+      expect(utils.hasNegativeGains(negativeLmsStart, negativeLmsEnd)).toBe(false); // LMS score can decrease, so it shouldn't count as negative gains
+      // Negative pvp_arena gains
+      const negativePvpArenaStart = { ...globalData.snapshots[0], pvp_arenaScore: 1000 };
+      const negativePvpArenaEnd = { ...globalData.snapshots[0], pvp_arenaScore: 700 };
+      expect(utils.hasNegativeGains(negativePvpArenaStart, negativePvpArenaEnd)).toBe(false); // PVP Arena score can decrease, so it shouldn't count as negative gains
       // Negative firemaking gains
       const negativeFiremaking = { ...globalData.snapshots[0], firemakingExperience: 1 };
       expect(utils.hasNegativeGains(globalData.snapshots[10], negativeFiremaking)).toBe(true);

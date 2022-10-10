@@ -136,7 +136,8 @@ describe('Deltas API', () => {
         { metric: Metric.LAST_MAN_STANDING, value: 450 },
         { metric: Metric.NEX, value: 54 },
         { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
+        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
+        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -167,7 +168,8 @@ describe('Deltas API', () => {
 
       expect(dayDeltas.nex).toBe(1);
       expect(dayDeltas.tzkal_zuk).toBe(1);
-      expect(dayDeltas.soul_wars_zeal).toBe(7); // soul wars went from -1 (unranked) to 7, make sure it's 7 gained, not 8
+      expect(dayDeltas.bounty_hunter_hunter).toBe(5);
+      expect(dayDeltas.soul_wars_zeal).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
       expect(dayDeltas.ehb).toBeLessThan(monthDeltas.ehb); // gained less boss kc, expect ehb gains to be lesser
       expect(parseInt(dayDeltas.overall.toString())).toBe(0); // overall went from -1 to 300m, show 0 gains
@@ -535,7 +537,8 @@ describe('Deltas API', () => {
         { metric: Metric.LAST_MAN_STANDING, value: 450 },
         { metric: Metric.NEX, value: 54 },
         { metric: Metric.TZKAL_ZUK, value: 1 },
-        { metric: Metric.SOUL_WARS_ZEAL, value: 7 }
+        { metric: Metric.SOUL_WARS_ZEAL, value: 203 },
+        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 5 }
       ]);
 
       // Setup mocks for HCIM for the second test player later on (hydrox6)
