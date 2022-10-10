@@ -56,7 +56,7 @@ class Logger {
   }
 
   moderation(message: string, data?: unknown, printData?: boolean) {
-    // if (isTesting()) return;
+    if (isTesting()) return;
 
     this.moderationLogger.info(message, data);
     prettyPrint('info', message, printData && data);
