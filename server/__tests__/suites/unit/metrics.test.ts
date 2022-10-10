@@ -11,7 +11,7 @@ import {
   getMetricValueKey,
   getMetricMeasure,
   getMetricName,
-  getMinimumBossKc,
+  getMinimumValue,
   getParentEfficiencyMetric,
   parseMetricAbbreviation,
   MetricMeasure
@@ -89,11 +89,14 @@ describe('Util - Metrics', () => {
     expect(getMetricName(Metric.SOUL_WARS_ZEAL)).toBe('Soul Wars Zeal');
   });
 
-  test('getMinimumBossKc', () => {
-    expect(getMinimumBossKc(Metric.ATTACK)).toBe(0);
-    expect(getMinimumBossKc(Metric.ZALCANO)).toBe(50);
-    expect(getMinimumBossKc(Metric.TZTOK_JAD)).toBe(5);
-    expect(getMinimumBossKc(Metric.TZKAL_ZUK)).toBe(1);
+  test('getMinimumValue', () => {
+    expect(getMinimumValue(Metric.ATTACK)).toBe(1);
+    expect(getMinimumValue(Metric.ZALCANO)).toBe(50);
+    expect(getMinimumValue(Metric.TZTOK_JAD)).toBe(5);
+    expect(getMinimumValue(Metric.TZKAL_ZUK)).toBe(1);
+    expect(getMinimumValue(Metric.CLUE_SCROLLS_ALL)).toBe(1);
+    expect(getMinimumValue(Metric.SOUL_WARS_ZEAL)).toBe(200);
+    expect(getMinimumValue(Metric.LAST_MAN_STANDING)).toBe(500);
   });
 
   test('getParentEfficiencyMetric', () => {
