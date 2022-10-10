@@ -1,8 +1,7 @@
 import Queue, { JobOptions, RateLimiter } from 'bull';
-import { getThreadIndex, isTesting } from '../../env';
+import { isTesting } from '../../env';
 import logger from '../services/external/logger.service';
 import redisService from '../services/external/redis.service';
-import crons from './config/crons';
 import redisConfig from './config/redis';
 import jobs from './instances';
 
@@ -89,24 +88,6 @@ class JobHandler {
         });
       });
     });
-
-    // If running through pm2 (production), only run cronjobs on the first CPU core.
-    // Otherwise, on a 4 core server, every cronjob would run 4x as often.
-    if (getThreadIndex() === 0) {
-      // Remove any active cron jobs
-      this.queues.forEach(async ({ bull }) => {
-        const activeQueues = await bull.getRepeatableJobs();
-        activeQueues.forEach(async job => bull.removeRepeatable({ cron: job.cron, jobId: job.id }));
-      });
-
-      // Start all cron jobs (with a 10 second delay, to wait for old jobs to be removed)
-      // TODO: this can be improved to await for the removal above, instead of the hacky 10sec wait
-      setTimeout(() => {
-        crons.forEach(({ jobName, cronConfig }) =>
-          this.add(jobName, null, { repeat: { cron: cronConfig }, priority: JobPriority.LOW })
-        );
-      }, 10000);
-    }
   }
 }
 
