@@ -9,6 +9,7 @@ import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import RefreshApiKeysJob from './instances/RefreshApiKeysJobs';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
+import ReviewPlayerTypeJob from './instances/ReviewPlayerTypeJob';
 import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
 import ScheduleCompetitionScoreUpdatesJob from './instances/ScheduleCompetitionScoreUpdatesJob';
@@ -23,6 +24,7 @@ const JOBS: JobDefinition<unknown>[] = [
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,
   ReviewNameChangeJob,
+  ReviewPlayerTypeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
