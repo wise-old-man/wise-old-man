@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const BASE_URL = process.env.REACT_APP_BASE_API_URL || 'https://api.wiseoldman.net';
+export const BASE_URL = process.env.REACT_APP_BASE_API_URL || 'https://api.wiseoldman.net/v2';
 
 const API = axios.create({
   baseURL: BASE_URL,
