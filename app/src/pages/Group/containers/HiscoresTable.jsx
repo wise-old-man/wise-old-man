@@ -1,16 +1,16 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { METRICS, MetricProps, isSkill } from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
-import { isSkill, durationBetween, getMeasure, getMetricName, getMetricIcon } from 'utils';
+import { durationBetween, getMetricIcon } from 'utils';
 import { hiscoresSelectors, hiscoresActions } from 'redux/hiscores';
 import { useLazyLoading } from 'hooks';
-import { ALL_METRICS } from 'config';
 import { GroupContext } from '../context';
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
@@ -76,7 +76,7 @@ function getTableConfig(metric) {
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
-        transform: (value, row) => (
+        transform: (_, row) => (
           <Link to={`/players/${row.player.username}`}>
             <PlayerTag
               name={row.player.displayName}
@@ -88,8 +88,8 @@ function getTableConfig(metric) {
         )
       },
       {
-        key: getMeasure(metric),
-        transform: val => <NumberLabel value={val} />
+        key: MetricProps[metric].measure,
+        transform: (_, row) => <NumberLabel value={row.data[MetricProps[metric].measure]} />
       },
       {
         key: 'updatedAt',
@@ -101,7 +101,8 @@ function getTableConfig(metric) {
 
   if (isSkill(metric)) {
     TABLE_CONFIG.columns.splice(3, 0, {
-      key: 'level'
+      key: 'level',
+      transform: (_, row) => <NumberLabel value={row.data.level} />
     });
   }
 

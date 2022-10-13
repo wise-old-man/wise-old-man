@@ -1,5 +1,20 @@
 import env from '../../../env';
-import { ProxiesConfig, Proxy } from '../../../types';
+
+interface ProxiesConfig {
+  port: number;
+  username: string;
+  password: string;
+  hosts: string[];
+}
+
+interface Proxy {
+  port: number;
+  host: string;
+  auth: {
+    username: string;
+    password: string;
+  };
+}
 
 class ProxiesHandler {
   private cursor: number;

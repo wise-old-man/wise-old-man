@@ -1,0 +1,35 @@
+version: "3"
+services:
+  redis:
+    container_name: redis
+    image: redis
+    env_file:
+      - ./.env
+    expose:
+      - "${REDIS_PORT}"
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}" 
+  db:
+    container_name: db
+    image: postgres:14
+    env_file:
+      - ./.env
+    expose:
+      - "${POSTGRES_PORT}"
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}" 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file:
+      - ./.env
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - db
+    logging:
+      driver: none
+volumes:
+  pgdata:

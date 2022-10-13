@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { getMetricIcon, getMetricName, formatDate, formatNumber, getLevel } from 'utils';
+import { MetricProps, getLevel } from '@wise-old-man/utils';
+import { getMetricIcon, formatDate, formatNumber } from 'utils';
 import './AchievementGroup.scss';
 
 function AchievementGroup({ group, metricType }) {
@@ -108,7 +109,7 @@ function getGroupTitle(group) {
     return group.measure === 'levels' ? 'Base Stats' : 'Overall Exp.';
   }
 
-  return group.achievements.length > 1 ? getMetricName(group.metric) : group.achievements[0].name;
+  return group.achievements.length > 1 ? MetricProps[group.metric].name : group.achievements[0].name;
 }
 
 AchievementGroup.propTypes = {

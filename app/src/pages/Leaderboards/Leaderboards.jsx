@@ -1,10 +1,10 @@
 import React, { useEffect, useCallback } from 'react';
+import { PLAYER_BUILDS, PLAYER_TYPES, COUNTRY_CODES } from '@wise-old-man/utils';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { useUrlContext, useLazyLoading } from 'hooks';
 import { Loading, PageTitle } from 'components';
 import { leaderboardsActions, leaderboardsSelectors } from 'redux/leaderboards';
-import { PLAYER_BUILDS, PLAYER_TYPES, COUNTRIES } from 'config';
 import URL from 'utils/url';
 import { List, Controls } from './containers';
 import { LeaderboardContext } from './context';
@@ -90,7 +90,7 @@ function encodeContext({ metric, type, build, country }) {
     nextURL.appendSearchParam('build', build.toLowerCase());
   }
 
-  if (country && COUNTRIES.map(c => c.code).includes(country)) {
+  if (country && COUNTRY_CODES.includes(country)) {
     nextURL.appendSearchParam('country', country);
   }
 
@@ -104,7 +104,7 @@ function decodeURL(params, query) {
   const isValidMetric = metric && VALID_METRICS.includes(metric.toLowerCase());
   const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
   const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
-  const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
+  const isValidCountry = country && COUNTRY_CODES.includes(country.toUpperCase());
 
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'ehp',

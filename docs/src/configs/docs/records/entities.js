@@ -134,8 +134,6 @@ export default [
       'theatre_of_blood',
       'theatre_of_blood_hard_mode',
       'thermonuclear_smoke_devil',
-      'tombs_of_amascut',
-      'tombs_of_amascut_expert',
       'tzkal_zuk',
       'tztok_jad',
       'venenatis',

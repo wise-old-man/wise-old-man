@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { PERIODS, PeriodProps, MetricProps } from '@wise-old-man/utils';
 import { Table, NumberLabel } from 'components';
-import { capitalize, getMetricIcon, formatDate, getMetricName } from 'utils';
+import { getMetricIcon, formatDate } from 'utils';
 import './PlayerRecord.scss';
 
 const TABLE_CONFIG = {
@@ -10,7 +11,7 @@ const TABLE_CONFIG = {
     {
       key: 'period',
       className: () => '-primary',
-      transform: value => capitalize(value)
+      transform: value => PeriodProps[value].name
     },
     {
       key: 'value',
@@ -29,17 +30,15 @@ function PlayerRecord({ metricRecords, metric }) {
     return null;
   }
 
-  const PERIOD_ORDER = ['5min', 'day', 'week', 'month', 'year'];
-
   const filteredRecords = metricRecords.sort(
-    (a, b) => PERIOD_ORDER.indexOf(a.period) - PERIOD_ORDER.indexOf(b.period)
+    (a, b) => PERIODS.indexOf(a.period) - PERIODS.indexOf(b.period)
   );
 
   return (
     <div className="player-record">
       <div className="player-record__header">
         <img src={getMetricIcon(metric)} alt="" />
-        <b className="player-record__title">{getMetricName(metric)}</b>
+        <b className="player-record__title">{MetricProps[metric].name}</b>
       </div>
       <div className="player-record__body">
         <Table

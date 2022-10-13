@@ -1,5 +1,3 @@
-import { ROLES } from 'config';
-
 export function standardize(username) {
   return sanitize(username).toLowerCase();
 }
@@ -28,24 +26,8 @@ export function getPlayerTooltip(type, flagged) {
 
 export function getRoleTypeIcon(role) {
   if (role === 'member') return '/img/runescape/roles/Minion.png';
-  return ROLES.find(r => r.value === role).icon;
-}
 
-export function getPlayerBuild(build) {
-  switch (build) {
-    case '1def':
-      return '1 Def Pure';
-    case 'lvl3':
-      return 'Level 3';
-    case 'f2p':
-      return 'F2P';
-    case '10hp':
-      return '10 Hitpoints Pure';
-    case 'zerker':
-      return 'Zerker';
-    default:
-      return 'Main';
-  }
+  return `/img/runescape/roles/${role.replace(/_/g, ' ')}.png`;
 }
 
 export function getOfficialHiscoresUrl(player) {

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { NameChangeStatus } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { debounce } from 'lodash';
 import { nameActions, nameSelectors } from 'redux/names';
 import { Table, TablePlaceholder, TextButton, PageTitle } from 'components';
-import { durationBetween } from 'utils';
+import { capitalize, durationBetween } from 'utils';
 import URL from 'utils/url';
 import { useLazyLoading, useUrlContext } from 'hooks';
 import { NamesListContext } from './context';
@@ -36,7 +37,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'status',
-      transform: statusTransform,
+      transform: capitalize,
       className: statusClassName
     }
   ]
@@ -113,22 +114,11 @@ function NamesList() {
   );
 }
 
-function statusTransform(status) {
-  switch (status) {
-    case 1:
-      return 'Denied';
-    case 2:
-      return 'Approved';
-    default:
-      return 'Pending';
-  }
-}
-
 function statusClassName(status) {
   switch (status) {
-    case 1:
+    case 'denied':
       return '-negative';
-    case 2:
+    case 'approved':
       return '-positive';
     default:
       return '';
@@ -146,10 +136,7 @@ function encodeContext({ status }) {
 }
 
 function decodeURL(_, query) {
-  const statusInt = parseInt(query.status, 10);
-  const isValidStatus = query.status && statusInt >= 0 && statusInt <= 2;
-
-  return { status: isValidStatus ? parseInt(query.status, 10) : null };
+  return { status: Object.values(NameChangeStatus).includes(query.status) ? query.status : null };
 }
 
 export default NamesList;

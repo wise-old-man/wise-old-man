@@ -1,12 +1,20 @@
 import React, { useContext } from 'react';
+import {
+  PLAYER_BUILDS,
+  PLAYER_TYPES,
+  METRICS,
+  PlayerBuildProps,
+  PlayerType,
+  MetricProps,
+  CountryProps
+} from '@wise-old-man/utils';
 import { Selector } from 'components';
-import { PLAYER_TYPES, PLAYER_BUILDS, ALL_METRICS, COUNTRIES } from 'config';
-import { capitalize, getPlayerTypeIcon, getPlayerBuild, getMetricIcon, getMetricName } from 'utils';
+import { capitalize, getPlayerTypeIcon, getMetricIcon } from 'utils';
 import { RecordsContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = [
   { label: 'All player types', value: null },
-  ...PLAYER_TYPES.map(type => ({
+  ...PLAYER_TYPES.filter(type => type !== PlayerType.UNKNOWN).map(type => ({
     label: capitalize(type),
     icon: getPlayerTypeIcon(type),
     value: type
@@ -16,23 +24,23 @@ const PLAYER_TYPES_OPTIONS = [
 const PLAYER_BUILDS_OPTIONS = [
   { label: 'All player builds', value: null },
   ...PLAYER_BUILDS.map(type => ({
-    label: getPlayerBuild(type),
+    label: PlayerBuildProps[type].name,
     value: type
   }))
 ];
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
 
 const COUNTRY_OPTIONS = [
   { label: 'All countries', value: null },
-  ...COUNTRIES.map(c => ({
-    label: c.name,
-    icon: `/img/flags/${c.code}.svg`,
-    value: c.code
+  ...Object.entries(CountryProps).map(([code, details]) => ({
+    label: details.name,
+    icon: `/img/flags/${code}.svg`,
+    value: code
   }))
 ];
 

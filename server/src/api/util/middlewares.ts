@@ -1,4 +1,4 @@
-import { METRICS, parseMetricAbbreviation } from '@wise-old-man/utils';
+import { isMetric, parseMetricAbbreviation } from '../../utils';
 
 function metricAbbreviation(req, res, next) {
   if (!req) {
@@ -9,8 +9,8 @@ function metricAbbreviation(req, res, next) {
   if (req.body && req.body.metric) {
     const metric = req.body.metric.toLowerCase();
 
-    if (!METRICS.includes(metric)) {
-      req.body.metric = parseMetricAbbreviation(metric);
+    if (!isMetric(metric)) {
+      req.body.metric = parseMetricAbbreviation(metric) || metric;
     }
   }
 
@@ -18,8 +18,8 @@ function metricAbbreviation(req, res, next) {
   if (req.query && req.query.metric) {
     const metric = req.query.metric.toLowerCase();
 
-    if (!METRICS.includes(metric)) {
-      req.query.metric = parseMetricAbbreviation(metric);
+    if (!isMetric(metric)) {
+      req.query.metric = parseMetricAbbreviation(metric) || metric;
     }
   }
 

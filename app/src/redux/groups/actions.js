@@ -1,3 +1,4 @@
+import { Metric, Period } from '@wise-old-man/utils';
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
@@ -5,7 +6,13 @@ const create = (name, description, clanChat, homeworld, members) => async dispat
   dispatch(reducers.onCreateRequest());
 
   try {
-    const body = { name, description, clanChat, homeworld, members };
+    const body = {
+      name,
+      description,
+      clanChat,
+      homeworld: homeworld ? parseInt(homeworld) : undefined,
+      members
+    };
     const { data } = await api.post(endpoints.createGroup, body);
 
     return dispatch(reducers.onCreateSuccess({ data }));
@@ -15,29 +22,22 @@ const create = (name, description, clanChat, homeworld, members) => async dispat
   }
 };
 
-const edit = (
-  id,
-  name,
-  description,
-  clanChat,
-  homeworld,
-  members,
-  verificationCode
-) => async dispatch => {
-  dispatch(reducers.onEditRequest());
+const edit =
+  (id, name, description, clanChat, homeworld, members, verificationCode) => async dispatch => {
+    dispatch(reducers.onEditRequest());
 
-  try {
-    const body = { name, description, clanChat, homeworld, members, verificationCode };
-    const url = endpoints.editGroup.replace(':id', id);
+    try {
+      const body = { name, description, clanChat, homeworld, members, verificationCode };
+      const url = endpoints.editGroup.replace(':id', id);
 
-    const { data } = await api.put(url, body);
+      const { data } = await api.put(url, body);
 
-    return dispatch(reducers.onEditSuccess({ data }));
-  } catch (e) {
-    const { message, data } = e.response.data;
-    return dispatch(reducers.onEditError({ error: message, data }));
-  }
-};
+      return dispatch(reducers.onEditSuccess({ data }));
+    } catch (e) {
+      const { message, data } = e.response.data;
+      return dispatch(reducers.onEditError({ error: message, data }));
+    }
+  };
 
 const remove = (id, verificationCode) => async dispatch => {
   dispatch(reducers.onDeleteRequest());
@@ -80,27 +80,20 @@ const fetchDetails = id => async dispatch => {
   }
 };
 
-const fetchMembers = id => async dispatch => {
-  dispatch(reducers.onFetchMembersRequest());
-
-  try {
-    const url = endpoints.fetchGroupMembers.replace(':id', id);
-    const { data } = await api.get(url);
-
-    return dispatch(reducers.onFetchMembersSuccess({ groupId: id, data }));
-  } catch (e) {
-    return dispatch(reducers.onFetchMembersError(e.message.toString()));
-  }
-};
-
 const fetchMonthlyTop = id => async dispatch => {
   dispatch(reducers.onFetchMonthlyTopRequest());
 
   try {
     const url = endpoints.fetchGroupMonthlyTop.replace(':id', id);
-    const { data } = await api.get(url);
+    const { data } = await api.get(url, {
+      params: {
+        period: Period.MONTH,
+        metric: Metric.OVERALL,
+        limit: 1
+      }
+    });
 
-    return dispatch(reducers.onFetchMonthlyTopSuccess({ groupId: id, data }));
+    return dispatch(reducers.onFetchMonthlyTopSuccess({ groupId: id, data: data ? data[0] : null }));
   } catch (e) {
     return dispatch(reducers.onFetchMonthlyTopError(e.message.toString()));
   }
@@ -181,7 +174,6 @@ export {
   updateAll,
   fetchList,
   fetchDetails,
-  fetchMembers,
   fetchStatistics,
   fetchMonthlyTop,
   fetchPlayerGroups,

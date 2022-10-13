@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:16.16.0
 
 WORKDIR /wise-old-man/server
 
@@ -7,8 +7,8 @@ RUN npm install -s
 RUN npm install pm2 -g
 
 COPY . .
-COPY wait-for-it.sh .
 
+RUN npx prisma generate
 RUN npm run build
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "prod"]

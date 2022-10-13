@@ -1,17 +1,22 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
+import {
+  Period,
+  PERIODS,
+  METRICS,
+  PLAYER_BUILDS,
+  PLAYER_TYPES,
+  MetricProps,
+  COUNTRY_CODES
+} from '@wise-old-man/utils';
 import { useUrlContext } from 'hooks';
-import { getMetricName } from 'utils';
-import { ALL_METRICS, PLAYER_BUILDS, PLAYER_TYPES, COUNTRIES } from 'config';
 import { PageTitle } from 'components';
 import { deltasActions } from 'redux/deltas';
 import URL from 'utils/url';
 import { Controls, List } from './containers';
 import { TopContext } from './context';
 import './Top.scss';
-
-const PERIODS = ['day', 'week', 'month', '5min', 'year'];
 
 function Top() {
   const dispatch = useDispatch();
@@ -31,7 +36,7 @@ function Top() {
     <TopContext.Provider value={{ context, updateContext }}>
       <div className="top__container container">
         <Helmet>
-          <title>{`${getMetricName(metric)} current top`}</title>
+          <title>{`${MetricProps[metric].name} current top`}</title>
         </Helmet>
         <div className="top__header row">
           <div className="col">
@@ -42,11 +47,21 @@ function Top() {
           <Controls />
         </div>
         <div className="top__list row">
-          {PERIODS.map(period => (
-            <div key={period} className="col-lg-4 col-md-6">
-              <List period={period} />
-            </div>
-          ))}
+          <div className="col-lg-4 col-md-6">
+            <List period={Period.DAY} />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <List period={Period.WEEK} />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <List period={Period.MONTH} />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <List period={Period.FIVE_MIN} />
+          </div>
+          <div className="col-lg-4 col-md-6">
+            <List period={Period.YEAR} />
+          </div>
         </div>
       </div>
     </TopContext.Provider>
@@ -56,7 +71,7 @@ function Top() {
 function encodeContext({ metric, type, build, country }) {
   const nextURL = new URL(`/top`);
 
-  if (metric && metric !== 'overall' && ALL_METRICS.includes(metric)) {
+  if (metric && metric !== 'overall' && METRICS.includes(metric)) {
     nextURL.appendToPath(`/${metric}`);
   }
 
@@ -68,7 +83,7 @@ function encodeContext({ metric, type, build, country }) {
     nextURL.appendSearchParam('build', build.toLowerCase());
   }
 
-  if (country && COUNTRIES.map(c => c.code).includes(country)) {
+  if (country && COUNTRY_CODES.includes(country)) {
     nextURL.appendSearchParam('country', country);
   }
 
@@ -79,10 +94,10 @@ function decodeURL(params, query) {
   const { metric } = params;
   const { type, build, country } = query;
 
-  const isValidMetric = metric && ALL_METRICS.includes(metric.toLowerCase());
+  const isValidMetric = metric && METRICS.includes(metric.toLowerCase());
   const isValidType = type && PLAYER_TYPES.includes(type.toLowerCase());
   const isValidBuild = build && PLAYER_BUILDS.includes(build.toLowerCase());
-  const isValidCountry = country && COUNTRIES.map(c => c.code).includes(country.toUpperCase());
+  const isValidCountry = country && COUNTRY_CODES.includes(country.toUpperCase());
 
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'overall',

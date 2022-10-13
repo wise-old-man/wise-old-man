@@ -1,10 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "../build",
-    "noEmit": true,
-    "rootDir": "../"
+    "strict": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "types": ["jest", "node"]
   },
-  "exclude": ["node_modules"]
+  "exclude": ["../dist", "../node_modules"]
 }

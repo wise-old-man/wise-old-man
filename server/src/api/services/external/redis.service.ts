@@ -1,23 +1,35 @@
-import IORedis, { ValueType } from 'ioredis';
-import redisConfig from '../../jobs/config/redis';
+import IORedis from 'ioredis';
+import redisConfig from '../../../config/redis.config';
 
 class RedisService {
-  redisClient: IORedis.Redis;
+  redisClient: IORedis;
 
   constructor() {
     this.redisClient = new IORedis(redisConfig);
   }
 
-  getValue(baseKey: string, paramKey: string) {
-    return this.redisClient.get(`${baseKey}:${paramKey}`);
+  async getValue(baseKey: string, paramKey: string) {
+    return await this.redisClient.get(`${baseKey}:${paramKey}`);
   }
 
-  setValue(baseKey: string, paramKey: string, value: ValueType, expiresInMs?: number) {
-    return this.redisClient.set(`${baseKey}:${paramKey}`, value, 'px', expiresInMs);
+  async setValue(baseKey: string, paramKey: string, value: string | number, expiresInMs?: number) {
+    if (expiresInMs === undefined) {
+      return this.redisClient.set(`${baseKey}:${paramKey}`, value);
+    }
+
+    return this.redisClient.set(`${baseKey}:${paramKey}`, value, 'PX', expiresInMs);
   }
 
-  deleteKey(key: string) {
-    this.redisClient.del(key);
+  async deleteKey(key: string) {
+    await this.redisClient.del(key);
+  }
+
+  async flushAll() {
+    await this.redisClient.flushall();
+  }
+
+  shutdown() {
+    this.redisClient.disconnect();
   }
 }
 

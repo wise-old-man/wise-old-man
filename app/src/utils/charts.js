@@ -1,6 +1,6 @@
 import { uniqBy } from 'lodash';
+import { isSkill, isBoss, isActivity, MetricProps } from '@wise-old-man/utils';
 import { capitalize } from 'utils/strings';
-import { getMinimumBossKc, isBoss } from 'utils/metrics';
 import { CHART_COLORS } from 'config/visuals';
 
 export function distribute(snapshots, limit) {
@@ -41,8 +41,15 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
     return { distribution: { enabled: false, before: 0, after: 0 }, datasets: [] };
   }
 
+  let array = 'computed';
+  if (isSkill(metric)) array = 'skills';
+  if (isBoss(metric)) array = 'bosses';
+  if (isActivity(metric)) array = 'activities';
+
   // Ignore -1 values
-  const validSnapshots = snapshots.filter(s => s[metric][measure] > 0);
+  const validSnapshots = snapshots.filter(s => {
+    return s.data[array][metric][measure] > 0;
+  });
 
   const enableReduction = reducedMode && validSnapshots.length > 30;
 
@@ -50,7 +57,7 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   // to make the charts cleaner by not displaying snapshots that are too near eachother
   const data = distribute(validSnapshots, enableReduction ? 30 : 100000).map(s => ({
     x: s.createdAt,
-    y: s[metric][measure]
+    y: s.data[array][metric][measure]
   }));
 
   return {
@@ -71,25 +78,21 @@ export const getDeltasChartData = (snapshots, metric, measure, reducedMode) => {
   };
 };
 
-export const getCompetitionChartData = (competition, previewMetric) => {
-  if (!competition) return [];
+export const getCompetitionChartData = (topHistory, metric) => {
+  if (!topHistory || topHistory.length === 0) return [];
 
   const datasets = [];
 
-  if (!competition.participants || competition.participants.length === 0) {
-    return datasets;
-  }
-
-  const topParticipants = competition.participants.filter(p => p.history && p.history.length > 0);
-
-  topParticipants.forEach((participant, i) => {
+  topHistory.forEach((participant, i) => {
     // Convert all the history data into chart points
-    const points = participant.history.map(h => ({
-      x: h.date,
-      y: isBoss(previewMetric || competition.metric)
-        ? Math.max(h.value, getMinimumBossKc(previewMetric || competition.metric) - 1)
-        : h.value
-    }));
+
+    const points = [...participant.history]
+      .reverse()
+      .sort()
+      .map(h => ({
+        x: h.date,
+        y: isBoss(metric) ? Math.max(h.value, MetricProps[metric].minimumValue - 1) : h.value
+      }));
 
     // Convert the exp values to exp delta values
     const diffPoints = points.map(p => ({ x: p.x, y: p.y - points[0].y }));
@@ -100,7 +103,7 @@ export const getCompetitionChartData = (competition, previewMetric) => {
     datasets.push({
       borderColor: CHART_COLORS[i],
       pointBorderWidth: 1,
-      label: participant.displayName,
+      label: participant.player.displayName,
       data: filteredPoints,
       fill: false
     });

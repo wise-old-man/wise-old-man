@@ -1,9 +1,9 @@
 import React, { useEffect, useCallback, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
 import { groupSelectors, groupActions } from 'redux/groups';
 import { Table, TablePlaceholder, NumberLabel } from 'components';
-import { getMetricIcon, getLevel, getMetricName } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { getMetricIcon } from 'utils';
 import { GroupContext } from '../context';
 
 function Statistics() {
@@ -64,21 +64,21 @@ function getValue(row) {
 
 function renderTable(snapshot) {
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
-    .map(s => getLevel(snapshot[s].experience))
+    .map(s => getLevel(snapshot.data.skills[s].experience))
     .reduce((acc, cur) => acc + cur);
 
   const rows = [
     ...SKILLS.map(skill => {
-      const { experience, rank } = snapshot[skill];
+      const { experience, rank } = snapshot.data.skills[skill];
       const level = skill === 'overall' ? totalLevel : getLevel(experience);
       return { metric: skill, level, experience, rank, ehp: 0 };
     }),
     ...BOSSES.map(boss => {
-      const { kills, rank } = snapshot[boss];
+      const { kills, rank } = snapshot.data.bosses[boss];
       return { metric: boss, kills, rank, ehp: 0 };
     }),
     ...ACTIVITIES.map(activity => {
-      const { score, rank } = snapshot[activity];
+      const { score, rank } = snapshot.data.activities[activity];
       return { metric: activity, score, rank, ehp: 0 };
     })
   ];
@@ -93,7 +93,7 @@ function renderTable(snapshot) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },

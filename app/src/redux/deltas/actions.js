@@ -1,3 +1,4 @@
+import { PERIODS } from '@wise-old-man/utils';
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
@@ -19,15 +20,36 @@ const fetchPlayerDeltas =
   async dispatch => {
     dispatch(reducers.onFetchPlayerDeltasRequest());
 
-    try {
-      const url = endpoints.fetchPlayerDeltas.replace(':username', username);
-      const params = { startDate, endDate, debugAppUpdated: true };
+    if (!startDate && !endDate) {
+      try {
+        const result = await Promise.all(
+          PERIODS.map(async period => {
+            const url = endpoints.fetchPlayerDeltas.replace(':username', username);
+            const params = { period };
 
-      const { data } = await api.get(url, { params });
+            const { data } = await api.get(url, { params });
 
-      dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data }));
-    } catch (e) {
-      dispatch(reducers.onFetchPlayerDeltasError(e.message.toString()));
+            return { period, data };
+          })
+        );
+
+        const mappedResponse = Object.fromEntries(result.map(r => [r.period, r.data]));
+
+        dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data: mappedResponse }));
+      } catch (e) {
+        dispatch(reducers.onFetchPlayerDeltasError(e.message.toString()));
+      }
+    } else {
+      try {
+        const url = endpoints.fetchPlayerDeltas.replace(':username', username);
+        const params = { startDate, endDate };
+
+        const { data } = await api.get(url, { params });
+
+        dispatch(reducers.onFetchPlayerDeltasSuccess({ username, data }));
+      } catch (e) {
+        dispatch(reducers.onFetchPlayerDeltasError(e.message.toString()));
+      }
     }
   };
 

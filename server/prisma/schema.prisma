@@ -1,0 +1,1157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ApiKey {
+  id          String  @id @default(cuid())
+  active      Boolean @default(true)
+  developer   String
+  application String
+
+  @@map("apiKeys")
+}
+
+model Achievement {
+  playerId  Int
+  name      String   @db.VarChar(255)
+  metric    Metric
+  threshold BigInt
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@id([playerId, name])
+  @@unique([playerId, name], map: "achievements_player_id_type")
+  @@index([playerId], map: "achievements_player_id")
+  @@map("achievements")
+}
+
+model Competition {
+  id               Int             @id @unique(map: "competitions_id") @default(autoincrement())
+  title            String          @db.VarChar(50)
+  metric           Metric
+  type             CompetitionType @default(classic)
+  startsAt         DateTime        @db.Timestamptz(6)
+  endsAt           DateTime        @db.Timestamptz(6)
+  groupId          Int?
+  score            Int             @default(0)
+  verificationHash String          @db.VarChar(255)
+  createdAt        DateTime?       @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime?       @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  group          Group?          @relation(fields: [groupId], references: [id], onUpdate: NoAction)
+  participations Participation[]
+
+  // Indices
+  @@index([endsAt], map: "competitions_ends_at")
+  @@index([metric], map: "competitions_metric")
+  @@index([startsAt], map: "competitions_starts_at")
+  @@index([title], map: "competitions_title")
+  @@map("competitions")
+}
+
+model Delta {
+  id                               Int       @id @unique(map: "deltas_id") @default(autoincrement())
+  playerId                         Int
+  period                           Period    @default(day)
+  startedAt                        DateTime  @db.Timestamptz(6)
+  endedAt                          DateTime  @db.Timestamptz(6)
+  updatedAt                        DateTime? @updatedAt @db.Timestamptz(6)
+  overall                          BigInt    @default(0)
+  attack                           Int       @default(0)
+  defence                          Int       @default(0)
+  strength                         Int       @default(0)
+  hitpoints                        Int       @default(0)
+  ranged                           Int       @default(0)
+  prayer                           Int       @default(0)
+  magic                            Int       @default(0)
+  cooking                          Int       @default(0)
+  woodcutting                      Int       @default(0)
+  fletching                        Int       @default(0)
+  fishing                          Int       @default(0)
+  firemaking                       Int       @default(0)
+  crafting                         Int       @default(0)
+  smithing                         Int       @default(0)
+  mining                           Int       @default(0)
+  herblore                         Int       @default(0)
+  agility                          Int       @default(0)
+  thieving                         Int       @default(0)
+  slayer                           Int       @default(0)
+  farming                          Int       @default(0)
+  runecrafting                     Int       @default(0)
+  hunter                           Int       @default(0)
+  construction                     Int       @default(0)
+  abyssal_sire                     Int       @default(0)
+  alchemical_hydra                 Int       @default(0)
+  barrows_chests                   Int       @default(0)
+  bryophyta                        Int       @default(0)
+  callisto                         Int       @default(0)
+  cerberus                         Int       @default(0)
+  chambers_of_xeric                Int       @default(0)
+  chambers_of_xeric_challenge_mode Int       @default(0)
+  chaos_elemental                  Int       @default(0)
+  chaos_fanatic                    Int       @default(0)
+  commander_zilyana                Int       @default(0)
+  corporeal_beast                  Int       @default(0)
+  crazy_archaeologist              Int       @default(0)
+  dagannoth_prime                  Int       @default(0)
+  dagannoth_rex                    Int       @default(0)
+  dagannoth_supreme                Int       @default(0)
+  deranged_archaeologist           Int       @default(0)
+  general_graardor                 Int       @default(0)
+  giant_mole                       Int       @default(0)
+  grotesque_guardians              Int       @default(0)
+  hespori                          Int       @default(0)
+  kalphite_queen                   Int       @default(0)
+  king_black_dragon                Int       @default(0)
+  kraken                           Int       @default(0)
+  kreearra                         Int       @default(0)
+  kril_tsutsaroth                  Int       @default(0)
+  mimic                            Int       @default(0)
+  nex                              Int       @default(0)
+  nightmare                        Int       @default(0)
+  phosanis_nightmare               Int       @default(0)
+  obor                             Int       @default(0)
+  sarachnis                        Int       @default(0)
+  scorpia                          Int       @default(0)
+  skotizo                          Int       @default(0)
+  tempoross                        Int       @default(0)
+  the_gauntlet                     Int       @default(0)
+  the_corrupted_gauntlet           Int       @default(0)
+  theatre_of_blood                 Int       @default(0)
+  theatre_of_blood_hard_mode       Int       @default(0)
+  thermonuclear_smoke_devil        Int       @default(0)
+  tombs_of_amascut                 Int       @default(0)
+  tombs_of_amascut_expert          Int       @default(0)
+  tzkal_zuk                        Int       @default(0)
+  tztok_jad                        Int       @default(0)
+  venenatis                        Int       @default(0)
+  vetion                           Int       @default(0)
+  vorkath                          Int       @default(0)
+  wintertodt                       Int       @default(0)
+  zalcano                          Int       @default(0)
+  zulrah                           Int       @default(0)
+  league_points                    Int       @default(0)
+  bounty_hunter_hunter             Int       @default(0)
+  bounty_hunter_rogue              Int       @default(0)
+  clue_scrolls_all                 Int       @default(0)
+  clue_scrolls_beginner            Int       @default(0)
+  clue_scrolls_easy                Int       @default(0)
+  clue_scrolls_medium              Int       @default(0)
+  clue_scrolls_hard                Int       @default(0)
+  clue_scrolls_elite               Int       @default(0)
+  clue_scrolls_master              Int       @default(0)
+  last_man_standing                Int       @default(0)
+  pvp_arena                        Int       @default(0)
+  soul_wars_zeal                   Int       @default(0)
+  guardians_of_the_rift            Int       @default(0)
+  ehp                              Float     @default(0)
+  ehb                              Float     @default(0)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([period], map: "deltas_period")
+  @@index([playerId], map: "deltas_playerId")
+  @@map("deltas")
+}
+
+model Group {
+  id               Int      @id @unique(map: "groups_id") @default(autoincrement())
+  name             String   @unique(map: "groups_name") @db.VarChar(30)
+  clanChat         String?  @db.VarChar(12)
+  description      String?  @db.VarChar(100)
+  homeworld        Int?
+  verified         Boolean  @default(false)
+  score            Int      @default(0)
+  verificationHash String   @db.VarChar(255)
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  competitions Competition[]
+  memberships  Membership[]
+
+  @@map("groups")
+}
+
+model Membership {
+  playerId  Int
+  groupId   Int
+  role      GroupRole @default(member)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@id([playerId, groupId])
+  @@unique([playerId, groupId], map: "memberships_player_id_group_id")
+  @@map("memberships")
+}
+
+model NameChange {
+  id         Int              @id @unique(map: "name_changes_id") @default(autoincrement())
+  playerId   Int
+  oldName    String           @db.VarChar(20)
+  newName    String           @db.VarChar(20)
+  status     NameChangeStatus @default(pending)
+  resolvedAt DateTime?        @db.Timestamptz(6)
+  updatedAt  DateTime         @updatedAt @db.Timestamptz(6)
+  createdAt  DateTime         @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([playerId], map: "name_changes_player_id")
+  @@map("nameChanges")
+}
+
+model Participation {
+  playerId        Int
+  competitionId   Int
+  startSnapshotId Int?
+  endSnapshotId   Int?
+  teamName        String?  @db.VarChar(30)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [startSnapshotId], references: [id], onUpdate: NoAction)
+  endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [endSnapshotId], references: [id], onUpdate: NoAction)
+
+  // Indices
+  @@id([playerId, competitionId])
+  @@unique([playerId, competitionId], map: "participations_player_id_competition_id")
+  @@map("participations")
+}
+
+model Player {
+  id             Int         @id @unique(map: "players_id") @default(autoincrement())
+  username       String      @unique(map: "players_username") @db.VarChar(12)
+  displayName    String      @db.VarChar(12)
+  type           PlayerType  @default(unknown)
+  build          PlayerBuild @default(main)
+  country        Country?
+  flagged        Boolean     @default(false)
+  exp            BigInt      @default(0)
+  ehp            Float       @default(0)
+  ehb            Float       @default(0)
+  ttm            Float       @default(0)
+  tt200m         Float       @default(0)
+  registeredAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime?   @updatedAt @db.Timestamptz(6)
+  lastChangedAt  DateTime?   @db.Timestamptz(6)
+  lastImportedAt DateTime?   @db.Timestamptz(6)
+
+  // Relations
+  achievements   Achievement[]
+  deltas         Delta[]
+  memberships    Membership[]
+  nameChanges    NameChange[]
+  participations Participation[]
+  records        Record[]
+  snapshots      Snapshot[]
+
+  // Indices
+  @@index([type], map: "players_type")
+  @@map("players")
+}
+
+model Record {
+  id        Int      @id @unique(map: "records_id") @default(autoincrement())
+  playerId  Int
+  period    Period
+  metric    Metric
+  value     BigInt   @default(0)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Indices
+  @@index([metric], map: "records_metric")
+  @@index([period], map: "records_period")
+  @@index([playerId], map: "records_player_id")
+  @@map("records")
+}
+
+model Snapshot {
+  id                                    Int       @id @unique(map: "snapshots_id") @default(autoincrement())
+  playerId                              Int
+  importedAt                            DateTime? @db.Timestamptz(6)
+  createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
+  overallRank                           Int       @default(-1)
+  overallExperience                     BigInt    @default(-1)
+  attackRank                            Int       @default(-1)
+  attackExperience                      Int       @default(-1)
+  defenceRank                           Int       @default(-1)
+  defenceExperience                     Int       @default(-1)
+  strengthRank                          Int       @default(-1)
+  strengthExperience                    Int       @default(-1)
+  hitpointsRank                         Int       @default(-1)
+  hitpointsExperience                   Int       @default(-1)
+  rangedRank                            Int       @default(-1)
+  rangedExperience                      Int       @default(-1)
+  prayerRank                            Int       @default(-1)
+  prayerExperience                      Int       @default(-1)
+  magicRank                             Int       @default(-1)
+  magicExperience                       Int       @default(-1)
+  cookingRank                           Int       @default(-1)
+  cookingExperience                     Int       @default(-1)
+  woodcuttingRank                       Int       @default(-1)
+  woodcuttingExperience                 Int       @default(-1)
+  fletchingRank                         Int       @default(-1)
+  fletchingExperience                   Int       @default(-1)
+  fishingRank                           Int       @default(-1)
+  fishingExperience                     Int       @default(-1)
+  firemakingRank                        Int       @default(-1)
+  firemakingExperience                  Int       @default(-1)
+  craftingRank                          Int       @default(-1)
+  craftingExperience                    Int       @default(-1)
+  smithingRank                          Int       @default(-1)
+  smithingExperience                    Int       @default(-1)
+  miningRank                            Int       @default(-1)
+  miningExperience                      Int       @default(-1)
+  herbloreRank                          Int       @default(-1)
+  herbloreExperience                    Int       @default(-1)
+  agilityRank                           Int       @default(-1)
+  agilityExperience                     Int       @default(-1)
+  thievingRank                          Int       @default(-1)
+  thievingExperience                    Int       @default(-1)
+  slayerRank                            Int       @default(-1)
+  slayerExperience                      Int       @default(-1)
+  farmingRank                           Int       @default(-1)
+  farmingExperience                     Int       @default(-1)
+  runecraftingRank                      Int       @default(-1)
+  runecraftingExperience                Int       @default(-1)
+  hunterRank                            Int       @default(-1)
+  hunterExperience                      Int       @default(-1)
+  constructionRank                      Int       @default(-1)
+  constructionExperience                Int       @default(-1)
+  league_pointsRank                     Int       @default(-1)
+  league_pointsScore                    Int       @default(-1)
+  bounty_hunter_hunterRank              Int       @default(-1)
+  bounty_hunter_hunterScore             Int       @default(-1)
+  bounty_hunter_rogueScore              Int       @default(-1)
+  clue_scrolls_allRank                  Int       @default(-1)
+  bounty_hunter_rogueRank               Int       @default(-1)
+  clue_scrolls_allScore                 Int       @default(-1)
+  clue_scrolls_beginnerRank             Int       @default(-1)
+  clue_scrolls_easyRank                 Int       @default(-1)
+  clue_scrolls_beginnerScore            Int       @default(-1)
+  clue_scrolls_easyScore                Int       @default(-1)
+  clue_scrolls_mediumRank               Int       @default(-1)
+  clue_scrolls_mediumScore              Int       @default(-1)
+  clue_scrolls_hardRank                 Int       @default(-1)
+  clue_scrolls_hardScore                Int       @default(-1)
+  clue_scrolls_eliteRank                Int       @default(-1)
+  clue_scrolls_eliteScore               Int       @default(-1)
+  clue_scrolls_masterRank               Int       @default(-1)
+  clue_scrolls_masterScore              Int       @default(-1)
+  last_man_standingRank                 Int       @default(-1)
+  last_man_standingScore                Int       @default(-1)
+  pvp_arenaRank                         Int       @default(-1)
+  pvp_arenaScore                        Int       @default(-1)
+  abyssal_sireRank                      Int       @default(-1)
+  abyssal_sireKills                     Int       @default(-1)
+  alchemical_hydraRank                  Int       @default(-1)
+  alchemical_hydraKills                 Int       @default(-1)
+  barrows_chestsRank                    Int       @default(-1)
+  barrows_chestsKills                   Int       @default(-1)
+  bryophytaKills                        Int       @default(-1)
+  bryophytaRank                         Int       @default(-1)
+  cerberusKills                         Int       @default(-1)
+  chambers_of_xericRank                 Int       @default(-1)
+  cerberusRank                          Int       @default(-1)
+  callistoRank                          Int       @default(-1)
+  callistoKills                         Int       @default(-1)
+  chambers_of_xericKills                Int       @default(-1)
+  chambers_of_xeric_challenge_modeRank  Int       @default(-1)
+  chambers_of_xeric_challenge_modeKills Int       @default(-1)
+  chaos_elementalKills                  Int       @default(-1)
+  chaos_fanaticKills                    Int       @default(-1)
+  chaos_fanaticRank                     Int       @default(-1)
+  commander_zilyanaRank                 Int       @default(-1)
+  chaos_elementalRank                   Int       @default(-1)
+  commander_zilyanaKills                Int       @default(-1)
+  corporeal_beastRank                   Int       @default(-1)
+  corporeal_beastKills                  Int       @default(-1)
+  crazy_archaeologistRank               Int       @default(-1)
+  crazy_archaeologistKills              Int       @default(-1)
+  dagannoth_primeRank                   Int       @default(-1)
+  dagannoth_primeKills                  Int       @default(-1)
+  dagannoth_rexRank                     Int       @default(-1)
+  dagannoth_rexKills                    Int       @default(-1)
+  dagannoth_supremeRank                 Int       @default(-1)
+  dagannoth_supremeKills                Int       @default(-1)
+  deranged_archaeologistRank            Int       @default(-1)
+  deranged_archaeologistKills           Int       @default(-1)
+  general_graardorRank                  Int       @default(-1)
+  general_graardorKills                 Int       @default(-1)
+  giant_moleRank                        Int       @default(-1)
+  giant_moleKills                       Int       @default(-1)
+  grotesque_guardiansRank               Int       @default(-1)
+  grotesque_guardiansKills              Int       @default(-1)
+  hesporiRank                           Int       @default(-1)
+  kalphite_queenKills                   Int       @default(-1)
+  hesporiKills                          Int       @default(-1)
+  kalphite_queenRank                    Int       @default(-1)
+  king_black_dragonRank                 Int       @default(-1)
+  king_black_dragonKills                Int       @default(-1)
+  krakenRank                            Int       @default(-1)
+  krakenKills                           Int       @default(-1)
+  kreearraRank                          Int       @default(-1)
+  kreearraKills                         Int       @default(-1)
+  kril_tsutsarothRank                   Int       @default(-1)
+  kril_tsutsarothKills                  Int       @default(-1)
+  mimicRank                             Int       @default(-1)
+  mimicKills                            Int       @default(-1)
+  nightmareRank                         Int       @default(-1)
+  nightmareKills                        Int       @default(-1)
+  oborRank                              Int       @default(-1)
+  oborKills                             Int       @default(-1)
+  sarachnisRank                         Int       @default(-1)
+  sarachnisKills                        Int       @default(-1)
+  scorpiaRank                           Int       @default(-1)
+  scorpiaKills                          Int       @default(-1)
+  skotizoRank                           Int       @default(-1)
+  skotizoKills                          Int       @default(-1)
+  the_gauntletRank                      Int       @default(-1)
+  the_gauntletKills                     Int       @default(-1)
+  the_corrupted_gauntletKills           Int       @default(-1)
+  the_corrupted_gauntletRank            Int       @default(-1)
+  theatre_of_bloodRank                  Int       @default(-1)
+  theatre_of_bloodKills                 Int       @default(-1)
+  thermonuclear_smoke_devilRank         Int       @default(-1)
+  thermonuclear_smoke_devilKills        Int       @default(-1)
+  tombs_of_amascutRank                  Int       @default(-1)
+  tombs_of_amascutKills                 Int       @default(-1)
+  tombs_of_amascut_expertRank           Int       @default(-1)
+  tombs_of_amascut_expertKills          Int       @default(-1)
+  tzkal_zukRank                         Int       @default(-1)
+  tzkal_zukKills                        Int       @default(-1)
+  tztok_jadRank                         Int       @default(-1)
+  tztok_jadKills                        Int       @default(-1)
+  venenatisRank                         Int       @default(-1)
+  venenatisKills                        Int       @default(-1)
+  vetionRank                            Int       @default(-1)
+  vetionKills                           Int       @default(-1)
+  vorkathRank                           Int       @default(-1)
+  vorkathKills                          Int       @default(-1)
+  wintertodtRank                        Int       @default(-1)
+  zalcanoRank                           Int       @default(-1)
+  wintertodtKills                       Int       @default(-1)
+  zalcanoKills                          Int       @default(-1)
+  zulrahRank                            Int       @default(-1)
+  zulrahKills                           Int       @default(-1)
+  ehpValue                              Float     @default(-1)
+  ehbValue                              Float     @default(-1)
+  ehbRank                               Int       @default(-1)
+  ehpRank                               Int       @default(-1)
+  soul_wars_zealScore                   Int       @default(-1)
+  soul_wars_zealRank                    Int       @default(-1)
+  temporossKills                        Int       @default(-1)
+  temporossRank                         Int       @default(-1)
+  theatre_of_blood_hard_modeKills       Int       @default(-1)
+  theatre_of_blood_hard_modeRank        Int       @default(-1)
+  phosanis_nightmareKills               Int       @default(-1)
+  phosanis_nightmareRank                Int       @default(-1)
+  nexKills                              Int       @default(-1)
+  nexRank                               Int       @default(-1)
+  guardians_of_the_riftScore            Int       @default(-1)
+  guardians_of_the_riftRank             Int       @default(-1)
+
+  // Relations
+  player                     Player          @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  participationStartPointers Participation[] @relation("participations_endSnapshotIdTosnapshots")
+  participationEndPointers   Participation[] @relation("participations_startSnapshotIdTosnapshots")
+
+  // Indices
+  @@index([createdAt], map: "snapshots_created_at")
+  @@index([playerId], map: "snapshots_player_id")
+  @@map("snapshots")
+}
+
+enum NameChangeStatus {
+  pending
+  denied
+  approved
+
+  @@map("name_change_status")
+}
+
+enum PlayerType {
+  unknown
+  regular
+  ironman
+  hardcore
+  ultimate
+
+  @@map("player_type")
+}
+
+enum PlayerBuild {
+  main
+  f2p
+  lvl3
+  zerker
+  def1
+  hp10
+
+  @@map("player_build")
+}
+
+enum Country {
+  AD
+  AE
+  AF
+  AG
+  AI
+  AL
+  AM
+  AO
+  AQ
+  AR
+  AS
+  AT
+  AU
+  AW
+  AX
+  AZ
+  BA
+  BB
+  BD
+  BE
+  BF
+  BG
+  BH
+  BI
+  BJ
+  BL
+  BM
+  BN
+  BO
+  BQ
+  BR
+  BS
+  BT
+  BV
+  BW
+  BY
+  BZ
+  CA
+  CC
+  CD
+  CF
+  CG
+  CH
+  CI
+  CK
+  CL
+  CM
+  CN
+  CO
+  CR
+  CU
+  CV
+  CW
+  CX
+  CY
+  CZ
+  DE
+  DJ
+  DK
+  DM
+  DO
+  DZ
+  EC
+  EE
+  EG
+  EH
+  ER
+  ES
+  ET
+  FI
+  FJ
+  FK
+  FM
+  FO
+  FR
+  GA
+  GB
+  GD
+  GE
+  GF
+  GG
+  GH
+  GI
+  GL
+  GM
+  GN
+  GP
+  GQ
+  GR
+  GS
+  GT
+  GU
+  GW
+  GY
+  HK
+  HM
+  HN
+  HR
+  HT
+  HU
+  ID
+  IE
+  IL
+  IM
+  IN
+  IO
+  IQ
+  IR
+  IS
+  IT
+  JE
+  JM
+  JO
+  JP
+  KE
+  KG
+  KH
+  KI
+  KM
+  KN
+  KP
+  KR
+  KW
+  KY
+  KZ
+  LA
+  LB
+  LC
+  LI
+  LK
+  LR
+  LS
+  LT
+  LU
+  LV
+  LY
+  MA
+  MC
+  MD
+  ME
+  MF
+  MG
+  MH
+  MK
+  ML
+  MM
+  MN
+  MO
+  MP
+  MQ
+  MR
+  MS
+  MT
+  MU
+  MV
+  MW
+  MX
+  MY
+  MZ
+  NA
+  NC
+  NE
+  NF
+  NG
+  NI
+  NL
+  NO
+  NP
+  NR
+  NU
+  NZ
+  OM
+  PA
+  PE
+  PF
+  PG
+  PH
+  PK
+  PL
+  PM
+  PN
+  PR
+  PS
+  PT
+  PW
+  PY
+  QA
+  RE
+  RO
+  RS
+  RU
+  RW
+  SA
+  SB
+  SC
+  SD
+  SE
+  SG
+  SH
+  SI
+  SJ
+  SK
+  SL
+  SM
+  SN
+  SO
+  SR
+  SS
+  ST
+  SV
+  SX
+  SY
+  SZ
+  TC
+  TD
+  TF
+  TG
+  TH
+  TJ
+  TK
+  TL
+  TM
+  TN
+  TO
+  TR
+  TT
+  TV
+  TW
+  TZ
+  UA
+  UG
+  UM
+  US
+  UY
+  UZ
+  VA
+  VC
+  VE
+  VG
+  VI
+  VN
+  VU
+  WF
+  WS
+  YE
+  YT
+  ZA
+  ZM
+  ZW
+
+  @@map("country")
+}
+
+enum CompetitionType {
+  classic
+  team
+
+  @@map("competition_type")
+}
+
+enum GroupRole {
+  achiever
+  adamant
+  adept
+  administrator
+  admiral
+  adventurer
+  air
+  anchor
+  apothecary
+  archer
+  armadylean
+  artillery
+  artisan
+  asgarnian
+  assassin
+  assistant
+  astral
+  athlete
+  attacker
+  bandit
+  bandosian
+  barbarian
+  battlemage
+  beast
+  berserker
+  blisterwood
+  blood
+  blue
+  bob
+  body
+  brassican
+  brawler
+  brigadier
+  brigand
+  bronze
+  bruiser
+  bulwark
+  burglar
+  burnt
+  cadet
+  captain
+  carry
+  champion
+  chaos
+  cleric
+  collector
+  colonel
+  commander
+  competitor
+  completionist
+  constructor
+  cook
+  coordinator
+  corporal
+  cosmic
+  councillor
+  crafter
+  crew
+  crusader
+  cutpurse
+  death
+  defender
+  defiler
+  deputy_owner
+  destroyer
+  diamond
+  diseased
+  doctor
+  dogsbody
+  dragon
+  dragonstone
+  druid
+  duellist
+  earth
+  elite
+  emerald
+  enforcer
+  epic
+  executive
+  expert
+  explorer
+  farmer
+  feeder
+  fighter
+  fire
+  firemaker
+  firestarter
+  fisher
+  fletcher
+  forager
+  fremennik
+  gamer
+  gatherer
+  general
+  gnome_child
+  gnome_elder
+  goblin
+  gold
+  goon
+  green
+  grey
+  guardian
+  guthixian
+  harpoon
+  healer
+  hellcat
+  helper
+  herbologist
+  hero
+  holy
+  hoarder
+  hunter
+  ignitor
+  illusionist
+  imp
+  infantry
+  inquisitor
+  iron
+  jade
+  justiciar
+  kandarin
+  karamjan
+  kharidian
+  kitten
+  knight
+  labourer
+  law
+  leader
+  learner
+  legacy
+  legend
+  legionnaire
+  lieutenant
+  looter
+  lumberjack
+  magic
+  magician
+  major
+  maple
+  marshal
+  master
+  maxed
+  mediator
+  medic
+  mentor
+  member
+  merchant
+  mind
+  miner
+  minion
+  misthalinian
+  mithril
+  moderator
+  monarch
+  morytanian
+  mystic
+  myth
+  natural
+  nature
+  necromancer
+  ninja
+  noble
+  novice
+  nurse
+  oak
+  officer
+  onyx
+  opal
+  oracle
+  orange
+  owner
+  page
+  paladin
+  pawn
+  pilgrim
+  pine
+  pink
+  prefect
+  priest
+  private
+  prodigy
+  proselyte
+  prospector
+  protector
+  pure
+  purple
+  pyromancer
+  quester
+  racer
+  raider
+  ranger
+  record_chaser
+  recruit
+  recruiter
+  red_topaz
+  red
+  rogue
+  ruby
+  rune
+  runecrafter
+  sage
+  sapphire
+  saradominist
+  saviour
+  scavenger
+  scholar
+  scourge
+  scout
+  scribe
+  seer
+  senator
+  sentry
+  serenist
+  sergeant
+  shaman
+  sheriff
+  short_green_guy
+  skiller
+  skulled
+  slayer
+  smiter
+  smith
+  smuggler
+  sniper
+  soul
+  specialist
+  speed_runner
+  spellcaster
+  squire
+  staff
+  steel
+  strider
+  striker
+  summoner
+  superior
+  supervisor
+  teacher
+  templar
+  therapist
+  thief
+  tirannian
+  trialist
+  trickster
+  tzkal
+  tztok
+  unholy
+  vagrant
+  vanguard
+  walker
+  wanderer
+  warden
+  warlock
+  warrior
+  water
+  wild
+  willow
+  wily
+  wintumber
+  witch
+  wizard
+  worker
+  wrath
+  xerician
+  yellow
+  yew
+  zamorakian
+  zarosian
+  zealot
+  zenyte
+
+  @@map("group_role")
+}
+
+enum Period {
+  day
+  week
+  month
+  year
+  five_min
+
+  @@map("period")
+}
+
+enum Metric {
+  overall
+  attack
+  defence
+  strength
+  hitpoints
+  ranged
+  prayer
+  magic
+  cooking
+  woodcutting
+  fletching
+  fishing
+  firemaking
+  crafting
+  smithing
+  mining
+  herblore
+  agility
+  thieving
+  slayer
+  farming
+  runecrafting
+  hunter
+  construction
+  league_points
+  bounty_hunter_hunter
+  bounty_hunter_rogue
+  clue_scrolls_all
+  clue_scrolls_beginner
+  clue_scrolls_easy
+  clue_scrolls_medium
+  clue_scrolls_hard
+  clue_scrolls_elite
+  clue_scrolls_master
+  last_man_standing
+  pvp_arena
+  abyssal_sire
+  alchemical_hydra
+  barrows_chests
+  bryophyta
+  callisto
+  cerberus
+  chambers_of_xeric
+  chambers_of_xeric_challenge_mode
+  chaos_elemental
+  chaos_fanatic
+  commander_zilyana
+  corporeal_beast
+  crazy_archaeologist
+  dagannoth_prime
+  dagannoth_rex
+  dagannoth_supreme
+  deranged_archaeologist
+  general_graardor
+  giant_mole
+  grotesque_guardians
+  hespori
+  kalphite_queen
+  king_black_dragon
+  kraken
+  kreearra
+  kril_tsutsaroth
+  mimic
+  nex
+  nightmare
+  obor
+  sarachnis
+  scorpia
+  skotizo
+  the_gauntlet
+  the_corrupted_gauntlet
+  theatre_of_blood
+  thermonuclear_smoke_devil
+  tombs_of_amascut
+  tombs_of_amascut_expert
+  tzkal_zuk
+  tztok_jad
+  venenatis
+  vetion
+  vorkath
+  wintertodt
+  zalcano
+  zulrah
+  ehp
+  ehb
+  soul_wars_zeal
+  tempoross
+  theatre_of_blood_hard_mode
+  phosanis_nightmare
+  guardians_of_the_rift
+
+  @@map("metric")
+}

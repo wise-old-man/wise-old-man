@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { isSkill, isActivity, isBoss, getMetricIcon, formatDate } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { SKILLS, BOSSES, ACTIVITIES, isSkill, isActivity, isBoss } from '@wise-old-man/utils';
+import { getMetricIcon, formatDate } from 'utils';
 import { CardList, Selector, Loading } from 'components';
 import { achievementSelectors, achievementActions } from 'redux/achievements';
 import { AchievementGroup } from '../components';

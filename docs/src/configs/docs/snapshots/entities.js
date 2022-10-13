@@ -399,16 +399,6 @@ export default [
         description: 'Thermonuclear Smoke Devil rank and kills.'
       },
       {
-        field: 'tombs_of_amascut',
-        type: 'object',
-        description: 'Tombs of Amascut rank and kills.'
-      },
-      {
-        field: 'tombs_of_amascut_expert',
-        type: 'object',
-        description: 'Tombs of Amascut (Expert Mode) rank and kills.'
-      },
-      {
         field: 'tzkal_zuk',
         type: 'object',
         description: 'TzKal-Zuk rank and kills.'

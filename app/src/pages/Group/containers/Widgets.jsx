@@ -14,7 +14,6 @@ function Widgets() {
   const { context } = useContext(GroupContext);
   const { id } = context;
 
-  const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
   const isLoadingMonthlyTop = useSelector(groupSelectors.isFetchingMonthlyTop);
 
   const group = useSelector(groupSelectors.getGroup(id));
@@ -32,11 +31,11 @@ function Widgets() {
       </div>
       <div className="col-lg-3 col-md-6">
         <span className="widget-label">Total Experience</span>
-        <TotalExperienceWidget group={group} isLoading={isLoadingMembers} />
+        <TotalExperienceWidget group={group} isLoading={!group.memberships} />
       </div>
       <div className="col-lg-3 col-md-6">
         <span className="widget-label">Total EHP</span>
-        <TotalEHPWidget group={group} isLoading={isLoadingMembers} />
+        <TotalEHPWidget group={group} isLoading={!group.memberships} />
       </div>
     </>
   );

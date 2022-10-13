@@ -1,7 +1,15 @@
 import React, { useContext, useEffect, useCallback } from 'react';
+import {
+  METRICS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  isComputedMetric,
+  isSkill,
+  isActivity,
+  isBoss
+} from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
-import { isSkill, isActivity, isBoss } from 'utils';
-import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { Selector, Loading } from 'components';
 import { recordSelectors, recordActions } from 'redux/records';
 import { PlayerRecord } from '../components';
@@ -59,10 +67,8 @@ function Records() {
           />
         </div>
       </div>
-      {ALL_METRICS.sort(a => {
-        // Sort to make sure EHP and EHB always show up first
-        return a.startsWith('eh') ? -5 : 0;
-      }).map(metric => {
+      {/* Sort to make sure EHP and EHB always show up first */}
+      {METRICS.sort(a => (isComputedMetric(a) ? -5 : 0)).map(metric => {
         const metricRecords = typeRecords.filter(r => r.metric === metric);
         return (
           metricRecords &&

@@ -1,13 +1,13 @@
 import React, { useContext, useCallback } from 'react';
+import { METRICS, MetricProps } from '@wise-old-man/utils';
 import { TextInput, Selector, DateRangeSelector } from 'components';
-import { getMetricIcon, getMetricName } from 'utils';
-import { ALL_METRICS } from 'config';
+import { getMetricIcon } from 'utils';
 import { CreateCompetitionContext } from '../context';
 
 const MAXIMUM_TITLE_LENGTH = 50;
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
