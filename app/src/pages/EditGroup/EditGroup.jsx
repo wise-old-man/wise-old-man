@@ -2,16 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { uniq } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { GroupRoleProps } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { groupActions, groupSelectors } from 'redux/groups';
-import { standardize } from 'utils';
-import { ROLES } from 'config';
+import { standardize, getRoleTypeIcon } from 'utils';
 import { PageTitle, TextInput, TextButton, MembersSelector, Button } from 'components';
 import ImportPlayersModal from 'modals/ImportPlayersModal';
 import RemovePlayersModal from 'modals/RemovePlayersModal';
 import './EditGroup.scss';
-
-const mapMember = ({ username, displayName, role }) => ({ username, displayName, role });
 
 function EditGroup() {
   const { id } = useParams();
@@ -34,7 +32,6 @@ function EditGroup() {
 
   const fetchDetails = () => {
     dispatch(groupActions.fetchDetails(id));
-    dispatch(groupActions.fetchMembers(id));
   };
 
   const populate = () => {
@@ -43,15 +40,24 @@ function EditGroup() {
       setDescription(group.description || '');
       setClanChat(group.clanChat || '');
       setHomeworld(group.homeworld || '');
-      setMembers(group.members.map(mapMember));
+
+      if (group.memberships) {
+        setMembers(
+          group.memberships.map(({ role, player }) => ({
+            username: player.username,
+            displayName: player.displayName,
+            role
+          }))
+        );
+      }
     }
   };
 
   const findRemovedMembers = () => {
-    if (group) {
-      const removedMembers = group.members
-        .filter(m => !members.find(c => standardize(m.username) === standardize(c.username)))
-        .map(m => m.displayName);
+    if (group && group.memberships) {
+      const removedMembers = group.memberships
+        .filter(m => !members.find(c => standardize(m.player.username) === standardize(c.username)))
+        .map(m => m.player.displayName);
 
       setRemovedPlayers(removedMembers);
     }
@@ -78,6 +84,8 @@ function EditGroup() {
   };
 
   const handleAddMember = username => {
+    if (!username || username.length === 0) return;
+
     setMembers(currentMembers => {
       // If username is already member
       if (currentMembers.filter(m => m.username.toLowerCase() === username.toLowerCase()).length !== 0) {
@@ -239,7 +247,13 @@ function EditGroup() {
 
           <MembersSelector
             members={members}
-            roles={ROLES}
+            roles={Object.entries(GroupRoleProps).map(([groupRole, props]) => {
+              return {
+                label: props.name,
+                value: groupRole,
+                icon: getRoleTypeIcon(groupRole)
+              };
+            })}
             invalidUsernames={error.data}
             onMemberAdded={onMemberAdded}
             onMemberRemoved={onMemberRemoved}

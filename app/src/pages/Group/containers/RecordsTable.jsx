@@ -1,27 +1,21 @@
 import React, { useCallback, useContext, useEffect } from 'react';
+import { PERIODS, METRICS, PeriodProps, MetricProps } from '@wise-old-man/utils';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
-import { formatDate, getMetricName, getMetricIcon } from 'utils';
+import { formatDate, getMetricIcon } from 'utils';
 import { recordActions, recordSelectors } from 'redux/records';
 import { useLazyLoading } from 'hooks';
-import { ALL_METRICS } from 'config';
 import { GroupContext } from '../context';
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
 
-const PERIOD_OPTIONS = [
-  { label: '5 Min', value: '5min' },
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' }
-];
+const PERIOD_OPTIONS = [...PERIODS.map(period => ({ label: PeriodProps[period].name, value: period }))];
 
 function RecordsTable() {
   const dispatch = useDispatch();

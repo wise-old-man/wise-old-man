@@ -2,11 +2,9 @@ import React, { useContext, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Table, TablePlaceholder, StatusDot, Badge } from 'components';
-import { getMetricIcon } from 'utils';
+import { durationBetween, getMetricIcon } from 'utils';
 import { competitionSelectors, competitionActions } from 'redux/competitions';
 import { PlayerContext } from '../context';
-
-const STATUS_ORDER = ['ongoing', 'upcoming', 'finished'];
 
 const TABLE_CONFIG = {
   uniqueKey: row => row.id,
@@ -14,34 +12,58 @@ const TABLE_CONFIG = {
     {
       key: 'metric',
       width: 30,
+      get: row => row.competition.metric,
       transform: value => <img src={getMetricIcon(value)} alt="" />
     },
     {
       key: 'title',
+      get: row => row.competition.title,
       className: () => '-primary',
       transform: (val, row) => <Link to={`/competitions/${row.id}`}>{val}</Link>
     },
     {
       key: 'status',
-      transform: (value, row) => (
-        <div className="status-cell">
-          <StatusDot status={convertStatus(value)} />
-          <span>{row && row.countdown}</span>
-        </div>
-      )
+      transform: (_, row) => {
+        const now = new Date();
+        const { startsAt, endsAt } = row.competition;
+
+        let status = '';
+        let countdown = '';
+
+        if (startsAt > now) {
+          status = 'upcoming';
+          countdown = `Starts in ${durationBetween(now, startsAt, 2)}`;
+        } else if (endsAt < now) {
+          status = 'finished';
+          countdown = `Ended ${durationBetween(endsAt, now, 1)} ago`;
+        } else if (startsAt < now && endsAt > now) {
+          status = 'ongoing';
+          countdown = `Ends in ${durationBetween(now, endsAt, 2)}`;
+        }
+
+        return (
+          <div className="status-cell">
+            <StatusDot status={convertStatus(status)} />
+            <span>{countdown}</span>
+          </div>
+        );
+      }
     },
     {
       key: 'participantCount',
+      get: row => row.competition.participantCount,
       className: () => '-break-medium',
       transform: val => `${val} participants`
     },
     {
       key: 'duration',
+      get: row => durationBetween(row.competition.startsAt, row.competition.endsAt, 3),
       className: () => '-break-large',
       transform: val => `Duration: ${val}`
     },
     {
       key: 'type',
+      get: row => row.competition.type,
       transform: value => {
         return (
           value === 'team' && (
@@ -66,8 +88,6 @@ function Competitions() {
   const isLoading = useSelector(competitionSelectors.isFetchingList);
   const competitions = useSelector(competitionSelectors.getPlayerCompetitions(username));
 
-  const rows = sortCompetitions(competitions);
-
   const fetchCompetitions = useCallback(() => {
     // Fetch player competitions, if not loaded yet
     if (!competitions) {
@@ -84,25 +104,13 @@ function Competitions() {
       ) : (
         <Table
           uniqueKeySelector={TABLE_CONFIG.uniqueKey}
-          rows={rows}
+          rows={competitions}
           columns={TABLE_CONFIG.columns}
           listStyle
         />
       )}
     </div>
   );
-}
-
-function sortCompetitions(competitions) {
-  if (!competitions) return [];
-
-  return competitions.sort((a, b) => {
-    return (
-      STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) ||
-      a.startsAt.getTime() - b.startsAt.getTime() ||
-      a.endsAt.getTime() - b.endsAt.getTime()
-    );
-  });
 }
 
 function convertStatus(status) {

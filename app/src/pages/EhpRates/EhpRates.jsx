@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
+import { MetricProps } from '@wise-old-man/utils';
 import { Helmet } from 'react-helmet';
 import { ratesActions, ratesSelectors } from 'redux/rates';
 import { PageTitle, Selector, Table } from 'components';
-import { formatNumber, getMetricIcon, getMetricName } from 'utils';
+import { formatNumber, getMetricIcon } from 'utils';
 import './EhpRates.scss';
 
 const RATES_TABLE_CONFIG = {
@@ -50,7 +51,7 @@ const BONUSES_TABLE_CONFIG = {
       transform: val => (
         <>
           <img src={getMetricIcon(val, true)} style={{ marginRight: 7 }} alt="" />
-          <span>{getMetricName(val)}</span>
+          <span>{MetricProps[val].name}</span>
         </>
       )
     },
@@ -123,7 +124,7 @@ function Rates() {
           <div key={e.skill} className="ehp-rates__section">
             <div className="section__header">
               <img className="section__icon" src={getMetricIcon(e.skill)} alt="" />
-              <b className="section__title">{getMetricName(e.skill)}</b>
+              <b className="section__title">{MetricProps[e.skill].name}</b>
             </div>
             <div className="section__table-wrapper">
               <b>Rates</b>

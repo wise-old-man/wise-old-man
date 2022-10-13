@@ -1,30 +1,26 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { METRICS, MetricProps, PERIODS, PeriodProps } from '@wise-old-man/utils';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 import { Selector, Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
-import { getMinimumBossKc, getMetricName, isBoss, getMetricIcon, formatDate } from 'utils';
+import { durationBetween, getMetricIcon, formatDate } from 'utils';
 import { deltasActions, deltasSelectors } from 'redux/deltas';
 import { useLazyLoading } from 'hooks';
-import { ALL_METRICS } from 'config';
 import CustomPeriodSelectionModal from 'modals/CustomPeriodSelectionModal';
 import { GroupContext } from '../context';
 
 const DEFAULT_PERIOD = 'week';
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
 
 const PERIOD_OPTIONS = [
-  { label: '5 Min', value: '5min' },
-  { label: 'Day', value: 'day' },
-  { label: 'Week', value: 'week' },
-  { label: 'Month', value: 'month' },
-  { label: 'Year', value: 'year' },
+  ...PERIODS.map(period => ({ label: PeriodProps[period].name, value: period })),
   { label: 'Custom Period', value: 'custom' }
 ];
 
@@ -167,58 +163,13 @@ function getTableConfig(metric, period) {
         )
       },
       {
-        key: 'start',
-        transform: val => {
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
-
-          // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
-            return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
-              </abbr>
-            );
-
-          // If unranked or not updated
-          if (val === -1)
-            return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
-                <span>--</span>
-              </abbr>
-            );
-
-          return <NumberLabel value={val} />;
-        }
-      },
-      {
-        key: 'end',
-        transform: val => {
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
-
-          // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
-            return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
-              </abbr>
-            );
-
-          // If unranked or not updated
-          if (val === -1)
-            return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
-                <span>--</span>
-              </abbr>
-            );
-
-          return <NumberLabel value={val} />;
-        }
-      },
-      {
         key: 'gained',
         transform: val => <NumberLabel value={val} isColored isSigned />
+      },
+      {
+        key: 'updatedAt',
+        label: 'Last updated',
+        transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
       }
     ]
   };

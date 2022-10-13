@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { SKILLS } from 'config';
-import { durationBetween, getMinimumBossKc, getMetricName, isBoss, isSkill, isActivity } from 'utils';
+import { SKILLS, isBoss, isSkill, isActivity, MetricProps } from '@wise-old-man/utils';
+import { durationBetween } from 'utils';
 import URL from 'utils/url';
 import { Table, PlayerTag, NumberLabel, TablePlaceholder } from 'components';
 import { competitionSelectors } from 'redux/competitions';
@@ -19,7 +19,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
   }
 
   const tableConfig = {
-    uniqueKeySelector: row => row.username,
+    uniqueKeySelector: row => row.player.username,
     columns: [
       {
         key: 'rank',
@@ -29,9 +29,10 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
-        transform: (value, row) => (
-          <Link to={getPlayerRedirectURL(row, competition, metric)}>
-            <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
+        get: row => row.player.displayName,
+        transform: (val, row) => (
+          <Link to={getPlayerRedirectURL(row.player, competition, metric)}>
+            <PlayerTag name={val} {...row.player} />
           </Link>
         )
       },
@@ -39,9 +40,8 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'start',
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
-          const lastUpdated = row.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const lastUpdated = row.player.updatedAt;
+          const { minimumValue, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -60,17 +60,17 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < minimumValue)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumValue} kc.`}>
+                <span>{`< ${minimumValue}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${name}.`}>
                 <span>--</span>
               </abbr>
             );
@@ -82,9 +82,8 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
         key: 'end',
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
-          const lastUpdated = row.updatedAt;
-          const minKc = getMinimumBossKc(metric);
-          const metricName = getMetricName(metric);
+          const lastUpdated = row.player.updatedAt;
+          const { minimumValue, name } = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -103,17 +102,17 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < minKc)
+          if (isBoss(metric) && val < minimumValue)
             return (
-              <abbr title={`The Hiscores only start tracking ${metricName} kills after ${minKc} kc.`}>
-                <span>{`< ${minKc}`}</span>
+              <abbr title={`The Hiscores only start tracking ${name} kills after ${minimumValue} kc.`}>
+                <span>{`< ${minimumValue}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${metricName}.`}>
+              <abbr title={`This player is currently unranked in ${name}.`}>
                 <span>--</span>
               </abbr>
             );
@@ -132,25 +131,26 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
       {
         key: 'updatedAt',
         label: 'Last updated',
-        className: value => {
+        get: row => row.player.updatedAt,
+        className: val => {
           // If competition has started and this player hasn't updated since, show red text
-          if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {
+          if (competition.startsAt < Date.now() && (!val || val < competition.startsAt)) {
             return '-negative';
           }
 
           return '';
         },
-        transform: value => `${durationBetween(value, new Date(), 1, true)} ago`
+        transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 1, true)} ago`
       },
       {
         key: 'update',
         label: '',
         isSortable: false,
-        transform: (value, row) =>
+        transform: (_, row) =>
           competition.status !== 'finished' && (
             <TableUpdateButton
-              username={row.username}
-              isUpdating={updatingUsernames.includes(row.username)}
+              username={row.player.username}
+              isUpdating={updatingUsernames.includes(row.player.username)}
               onUpdate={onUpdateClicked}
             />
           )
@@ -178,7 +178,7 @@ function ParticipantsTable({ competition, metric, onUpdateClicked, onExportParti
 
   return (
     <Table
-      rows={competition.participants}
+      rows={competition.participations}
       columns={tableConfig.columns}
       uniqueKeySelector={tableConfig.uniqueKeySelector}
       onExportClicked={onExportParticipantsClicked}

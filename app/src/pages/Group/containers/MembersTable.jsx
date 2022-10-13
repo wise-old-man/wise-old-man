@@ -7,15 +7,20 @@ import { durationBetween } from 'utils';
 import { GroupContext } from '../context';
 
 const TABLE_CONFIG = {
-  uniqueKeySelector: row => row.username,
+  uniqueKeySelector: row => row.player.username,
   columns: [
     {
       key: 'displayName',
       label: 'Name',
       className: () => '-primary',
-      transform: (value, row) => (
-        <Link to={`/players/${row.username}`}>
-          <PlayerTag name={value} type={row.type} flagged={row.flagged} country={row.country} />
+      transform: (_, row) => (
+        <Link to={`/players/${row.player.username}`}>
+          <PlayerTag
+            name={row.player.displayName}
+            type={row.player.type}
+            flagged={row.player.flagged}
+            country={row.player.country}
+          />
         </Link>
       )
     },
@@ -26,28 +31,28 @@ const TABLE_CONFIG = {
     {
       key: 'exp',
       label: 'Exp.',
-      transform: val => {
-        return val === -1 ? (
+      transform: (_, row) => {
+        return row.player.exp === -1 ? (
           <TextLabel value="---" popupValue="Unranked" />
         ) : (
-          <NumberLabel value={val} />
+          <NumberLabel value={row.player.exp} />
         );
       }
     },
     {
       key: 'ehp',
       label: 'EHP',
-      transform: val => <NumberLabel value={Math.round(val)} />
+      transform: (_, row) => <NumberLabel value={Math.round(row.player.ehp)} />
     },
     {
       key: 'ehb',
       label: 'EHB',
-      transform: val => <NumberLabel value={Math.round(val)} />
+      transform: (_, row) => <NumberLabel value={Math.round(row.player.ehb)} />
     },
     {
       key: 'updatedAt',
       label: 'Last updated',
-      transform: value => `${durationBetween(value, new Date(), 2, true)} ago`
+      transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
     }
   ]
 };
@@ -57,19 +62,14 @@ function MembersTable() {
   const { id } = context;
 
   const group = useSelector(groupSelectors.getGroup(id));
-  const isLoadingMembers = useSelector(groupSelectors.isFetchingMembers);
 
-  if (!group || !group.members) {
-    return null;
-  }
-
-  if (isLoadingMembers) {
+  if (!group || !group.memberships) {
     return <TablePlaceholder size={10} />;
   }
 
   return (
     <Table
-      rows={group.members}
+      rows={group.memberships}
       columns={TABLE_CONFIG.columns}
       uniqueKeySelector={TABLE_CONFIG.uniqueKeySelector}
     />

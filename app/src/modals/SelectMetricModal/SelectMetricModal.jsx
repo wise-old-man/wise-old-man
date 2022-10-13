@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { METRICS, MetricProps } from '@wise-old-man/utils';
 import { Button, Selector } from 'components';
-import { getMetricIcon, getMetricName } from 'utils';
-import { ALL_METRICS } from 'config';
+import { getMetricIcon } from 'utils';
 import './SelectMetricModal.scss';
 
-const METRIC_OPTIONS = ALL_METRICS.map(metric => ({
-  label: getMetricName(metric),
+const METRIC_OPTIONS = METRICS.map(metric => ({
+  label: MetricProps[metric].name,
   icon: getMetricIcon(metric, true),
   value: metric
 }));
@@ -27,7 +27,7 @@ function SelectMetric({ defaultMetric, onCancel, onSubmit }) {
         </span>
         <Selector
           options={METRIC_OPTIONS}
-          selectedIndex={ALL_METRICS.indexOf(metric)}
+          selectedIndex={METRICS.indexOf(metric)}
           onSelect={o => setMetric(o.value)}
           search
         />

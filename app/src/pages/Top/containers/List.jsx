@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { isSkill, isBoss } from '@wise-old-man/utils';
 import { useSelector } from 'react-redux';
 import { deltasSelectors } from 'redux/deltas';
 import { TablePlaceholder, Table, NumberLabel, PlayerTag } from 'components';
-import { capitalize, isSkill, isBoss } from 'utils';
+import { capitalize } from 'utils';
 import URL from 'utils/url';
 import { TopContext } from '../context';
 
@@ -36,7 +37,7 @@ function List({ period }) {
 }
 
 function getLabel(period) {
-  if (period === '5min') return '5 Min';
+  if (period === 'five_min') return '5 Min';
   return capitalize(period);
 }
 

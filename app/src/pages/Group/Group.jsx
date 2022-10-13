@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { PERIODS, METRICS } from '@wise-old-man/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import saveCsv from 'save-csv';
-import { ALL_METRICS } from 'config';
 import { useUrlContext } from 'hooks';
 import { Loading, Tabs } from 'components';
 import { isValidDate } from 'utils';
@@ -28,7 +28,6 @@ import { GroupInfo } from './components';
 import { GroupContext } from './context';
 import './Group.scss';
 
-const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 const TABS = [
   'Members',
   'Competitions',
@@ -66,7 +65,7 @@ function Group() {
 
   const handleExport = () => {
     const filename = `${group.name} Members.csv`;
-    const namesOnly = group.members.map(member => ({ name: member.displayName }));
+    const namesOnly = group.memberships.map(membership => ({ name: membership.player.displayName }));
     saveCsv(namesOnly, { filename });
   };
 
@@ -75,15 +74,14 @@ function Group() {
   };
 
   const fetchGroupDetails = useCallback(() => {
-    if (!group) {
+    if (!group || !group.memberships) {
       dispatch(groupActions.fetchDetails(id)).then(action => {
         // Group not found, redirect to 404
         if (!action.payload.data) router.push(`/404`);
+
+        dispatch(groupActions.fetchMonthlyTop(id));
+        dispatch(competitionActions.fetchGroupCompetitions(id));
       });
-    } else if (!group.members) {
-      dispatch(groupActions.fetchMembers(id));
-      dispatch(groupActions.fetchMonthlyTop(id));
-      dispatch(competitionActions.fetchGroupCompetitions(id));
     }
   }, [dispatch, router, id, group]);
 
@@ -188,7 +186,7 @@ function encodeContext({ id, section, metric, period, startDate, endDate }) {
 function decodeURL(params, query) {
   const { id, section } = params;
   const validSections = ['delete', ...TABS.map(t => t.toLowerCase())];
-  const isValidMetric = query.metric && ALL_METRICS.includes(query.metric.toLowerCase());
+  const isValidMetric = query.metric && METRICS.includes(query.metric.toLowerCase());
   const isValidPeriod = query.period && PERIODS.includes(query.period.toLowerCase());
   const isValidStartDate = query.startDate && !isValidPeriod && isValidDate(query.startDate);
   const isValidEndDate = query.endDate && !isValidPeriod && isValidDate(query.endDate);

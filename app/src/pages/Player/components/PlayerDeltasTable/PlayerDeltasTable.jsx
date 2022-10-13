@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Table, NumberLabel } from 'components';
-import { getLevel, getMetricIcon, getMetricName, round } from 'utils';
-import { SKILLS, BOSSES, ACTIVITIES } from 'config';
+import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
+import { getMetricIcon, round } from 'utils';
 
 function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMetricSelected }) {
   const { data } = deltas[period];
@@ -33,13 +33,13 @@ function PlayerDeltasTable({ deltas, period, metricType, highlightedMetric, onMe
 
 function getSkillsTable(delta) {
   const totalLevelDiff = SKILLS.filter(skill => skill !== 'overall')
-    .map(s => getLevel(delta[s].experience.end) - getLevel(delta[s].experience.start))
+    .map(s => getLevel(delta.skills[s].experience.end) - getLevel(delta.skills[s].experience.start))
     .reduce((acc, cur) => acc + cur);
 
   const levelDiff = exps => getLevel(exps.end) - getLevel(exps.start);
 
   const rows = SKILLS.map(skill => {
-    const { experience, rank, ehp } = delta[skill];
+    const { experience, rank, ehp } = delta.skills[skill];
     const level = skill === 'overall' ? totalLevelDiff : levelDiff(experience);
 
     return {
@@ -56,8 +56,8 @@ function getSkillsTable(delta) {
     metric: 'ehp',
     level: '',
     experience: '',
-    rank: -delta.ehp.rank.gained,
-    ehp: delta.ehp.value.gained
+    rank: -delta.computed.ehp.rank.gained,
+    ehp: delta.computed.ehp.value.gained
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -71,7 +71,7 @@ function getSkillsTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
@@ -104,7 +104,7 @@ function getSkillsTable(delta) {
 
 function getBossesTable(delta) {
   const rows = BOSSES.map(boss => {
-    const { kills, rank, ehb } = delta[boss];
+    const { kills, rank, ehb } = delta.bosses[boss];
 
     return {
       metric: boss,
@@ -119,8 +119,8 @@ function getBossesTable(delta) {
     metric: 'ehb',
     level: '',
     kills: '',
-    rank: -delta.ehb.rank.gained,
-    ehb: delta.ehb.value.gained
+    rank: -delta.computed.ehb.rank.gained,
+    ehb: delta.computed.ehb.value.gained
   });
 
   const uniqueKeySelector = row => row.metric;
@@ -134,7 +134,7 @@ function getBossesTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },
@@ -158,7 +158,7 @@ function getBossesTable(delta) {
 
 function getActivitiesTable(delta) {
   const rows = ACTIVITIES.map(activity => {
-    const { score, rank } = delta[activity];
+    const { score, rank } = delta.activities[activity];
     return { metric: activity, score: score.gained, rank: -rank.gained };
   });
 
@@ -173,7 +173,7 @@ function getActivitiesTable(delta) {
       transform: value => (
         <div className="metric-tag">
           <img src={getMetricIcon(value, true)} alt="" />
-          <span>{getMetricName(value)}</span>
+          <span>{MetricProps[value].name}</span>
         </div>
       )
     },

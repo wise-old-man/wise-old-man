@@ -11,7 +11,7 @@ const TABLE_CONFIG = {
     {
       key: 'name',
       className: () => '-primary',
-      transform: (val, row) => <Link to={`/groups/${row.id}`}>{val}</Link>,
+      transform: (_, row) => <Link to={`/groups/${row.group.id}`}>{row.group.name}</Link>,
       width: 250
     },
     {
@@ -20,6 +20,7 @@ const TABLE_CONFIG = {
     },
     {
       key: 'memberCount',
+      get: row => row.group.memberCount,
       transform: val => `${val} members`,
       width: 130
     }

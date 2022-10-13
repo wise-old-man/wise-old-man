@@ -9,6 +9,10 @@ function Widgets({ competition, metric }) {
   const targetDate = status === 'upcoming' ? startsAt : endsAt;
   const countdownLabel = status === 'upcoming' ? 'Starting in' : 'Time Remaining';
 
+  const totalGained = competition.participations
+    ? competition.participations.map(p => p.progress.gained).reduce((a, c) => a + c, 0)
+    : 0;
+
   return (
     <>
       <div className="col-md-4">
@@ -17,11 +21,11 @@ function Widgets({ competition, metric }) {
       </div>
       <div className="col-md-4 col-sm-6">
         <span className="widget-label">Top Player</span>
-        <TopParticipant metric={metric} participants={competition.participants} />
+        <TopParticipant metric={metric} participations={competition.participations} />
       </div>
       <div className="col-md-4 col-sm-6">
         <span className="widget-label">Total Gained</span>
-        <TotalGained metric={metric} totalGained={competition.totalGained} />
+        <TotalGained metric={metric} totalGained={totalGained} />
       </div>
     </>
   );

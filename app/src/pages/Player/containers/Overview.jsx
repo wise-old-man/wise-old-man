@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { METRICS, SKILLS, BOSSES, ACTIVITIES, PlayerBuildProps } from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -8,10 +9,8 @@ import {
   getMetricIcon,
   durationBetween,
   getExperienceAt,
-  formatNumber,
-  getPlayerBuild
+  formatNumber
 } from 'utils';
-import { ALL_METRICS, SKILLS, BOSSES, ACTIVITIES } from 'config';
 import { InfoPanel, CardList, Selector } from 'components';
 import { playerSelectors } from 'redux/players';
 import { competitionSelectors, competitionActions } from 'redux/competitions';
@@ -113,7 +112,7 @@ function Overview() {
 
 function ClosestSkills({ player }) {
   const expAt99 = getExperienceAt(99);
-  const expLeftTo99 = skill => expAt99 - player.latestSnapshot[skill].experience;
+  const expLeftTo99 = skill => expAt99 - player.latestSnapshot.data.skills[skill].experience;
 
   const diffs = SKILLS.filter(s => s !== 'overall')
     .map(s => ({ skill: s, expLeft: Math.max(0, expLeftTo99(s)) }))
@@ -167,24 +166,26 @@ function RecentAchievements({ player, achievements }) {
 function Competitions({ player, competitions }) {
   if (competitions.length === 0) return null;
 
+  const now = Date.now();
+
   const ongoing = competitions
-    .filter(c => c.status === 'ongoing')
+    .filter(c => c.competition.startsAt < now && c.competition.endsAt > now)
     .slice(0, 3)
     .map(c => ({
-      id: c.id,
-      title: c.title,
-      icon: getMetricIcon(c.metric),
-      subtitle: `Ends in ${durationBetween(new Date(), c.endsAt, 2, true)}`
+      id: c.competition.id,
+      title: c.competition.title,
+      icon: getMetricIcon(c.competition.metric),
+      subtitle: `Ends in ${durationBetween(new Date(), c.competition.endsAt, 2, true)}`
     }));
 
   const upcoming = competitions
-    .filter(c => c.status === 'upcoming')
+    .filter(c => c.competition.startsAt > now)
     .slice(0, 3)
     .map(c => ({
-      id: c.id,
-      title: c.title,
-      icon: getMetricIcon(c.metric),
-      subtitle: `Starts in ${durationBetween(new Date(), c.startsAt, 2, true)}`
+      id: c.competition.id,
+      title: c.competition.title,
+      icon: getMetricIcon(c.competition.metric),
+      subtitle: `Starts in ${durationBetween(new Date(), c.competition.startsAt, 2, true)}`
     }));
 
   return (
@@ -222,7 +223,7 @@ function Info({ player }) {
   const data = [
     { key: 'Id', value: id },
     { key: 'Type', value: capitalize(type) },
-    { key: 'Build', value: getPlayerBuild(build) },
+    { key: 'Build', value: PlayerBuildProps[build].name },
     { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm') },
     { key: 'Last changed at', value: lastChangedDate },
     { key: 'Registered at', value: formatDate(registeredAt, 'DD MMM YYYY, HH:mm') }
@@ -232,7 +233,7 @@ function Info({ player }) {
 }
 
 function getAchievementIcon(metric) {
-  if (ALL_METRICS.includes(metric)) {
+  if (METRICS.includes(metric)) {
     return getMetricIcon(metric);
   }
 

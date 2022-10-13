@@ -1,62 +1,47 @@
 import api, { endpoints } from 'services/api';
 import { reducers } from './reducer';
 
-const create = (
-  title,
-  metric,
-  startsAt,
-  endsAt,
-  participants,
-  groupVerificationCode,
-  groupId,
-  teams
-) => async dispatch => {
-  dispatch(reducers.onCreateRequest());
+const create =
+  (title, metric, startsAt, endsAt, participants, groupVerificationCode, groupId, teams) =>
+  async dispatch => {
+    dispatch(reducers.onCreateRequest());
 
-  try {
-    const body = {
-      title,
-      metric,
-      startsAt,
-      endsAt,
-      participants,
-      teams,
-      groupVerificationCode,
-      groupId
-    };
-    const { data } = await api.post(endpoints.createCompetition, body);
+    try {
+      const body = {
+        title,
+        metric,
+        startsAt,
+        endsAt,
+        participants: participants || undefined,
+        teams: teams || undefined,
+        groupVerificationCode: groupVerificationCode || undefined,
+        groupId: groupId || undefined
+      };
+      const { data } = await api.post(endpoints.createCompetition, body);
 
-    return dispatch(reducers.onCreateSuccess({ data }));
-  } catch (e) {
-    const { message, data } = e.response.data;
-    return dispatch(reducers.onCreateError({ error: message, data }));
-  }
-};
+      return dispatch(reducers.onCreateSuccess({ data }));
+    } catch (e) {
+      const { message, data } = e.response.data;
+      return dispatch(reducers.onCreateError({ error: message, data }));
+    }
+  };
 
-const edit = (
-  id,
-  title,
-  metric,
-  startsAt,
-  endsAt,
-  participants,
-  teams,
-  verificationCode
-) => async dispatch => {
-  dispatch(reducers.onEditRequest());
+const edit =
+  (id, title, metric, startsAt, endsAt, participants, teams, verificationCode) => async dispatch => {
+    dispatch(reducers.onEditRequest());
 
-  try {
-    const body = { title, metric, startsAt, endsAt, participants, teams, verificationCode };
-    const url = endpoints.editCompetition.replace(':id', id);
+    try {
+      const body = { title, metric, startsAt, endsAt, participants, teams, verificationCode };
+      const url = endpoints.editCompetition.replace(':id', id);
 
-    const { data } = await api.put(url, body);
+      const { data } = await api.put(url, body);
 
-    return dispatch(reducers.onEditSuccess({ data }));
-  } catch (e) {
-    const { message, data } = e.response.data;
-    return dispatch(reducers.onEditError({ error: message, data }));
-  }
-};
+      return dispatch(reducers.onEditSuccess({ data }));
+    } catch (e) {
+      const { message, data } = e.response.data;
+      return dispatch(reducers.onEditError({ error: message, data }));
+    }
+  };
 
 const remove = (id, verificationCode) => async dispatch => {
   dispatch(reducers.onDeleteRequest());
@@ -96,6 +81,19 @@ const fetchDetails = (id, metric) => async dispatch => {
     return dispatch(reducers.onFetchDetailsSuccess({ data }));
   } catch (e) {
     return dispatch(reducers.onFetchDetailsError(e.message.toString()));
+  }
+};
+
+const fetchCompetitionTop5History = (id, metric) => async dispatch => {
+  dispatch(reducers.onFetchTop5HistoryRequest());
+
+  try {
+    const url = endpoints.fetchCompetitionTopHistory.replace(':id', id);
+    const { data } = await api.get(url, { params: { metric } });
+
+    return dispatch(reducers.onFetchTop5HistorySuccess({ data, competitionId: id }));
+  } catch (e) {
+    return dispatch(reducers.onFetchTop5HistoryError(e.message.toString()));
   }
 };
 
@@ -146,6 +144,7 @@ export {
   updateAll,
   fetchList,
   fetchDetails,
+  fetchCompetitionTop5History,
   fetchGroupCompetitions,
   fetchPlayerCompetitions
 };
