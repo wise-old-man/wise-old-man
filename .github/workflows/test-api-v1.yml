@@ -1,15 +1,15 @@
-name: Run Utils unit tests
+name: Run API integration tests
 
 on:
   pull_request:
     branches:
-      - master
+      - release/v1
     paths:
-      - "utils/**"
+      - "server/**"
 
 jobs:
   integration-test:
-    name: Unit Tests (Utils)
+    name: Integration Test (API)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,8 +22,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
-        run: cd utils && npm ci
-      - name: Run unit tests
-        run: cd utils && npm test
+        run: cd server && npm ci
+      - name: Run integration tests
+        run: cd server && npm test
         env:
           CI: true
+          DB_STORAGE: ./__tests__/database.sqlite

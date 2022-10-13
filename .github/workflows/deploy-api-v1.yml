@@ -3,7 +3,7 @@ name: Build API Image
 on:
   push:
     branches:
-      - master
+      - release/v1
     paths:
       - "server/**"
 
@@ -20,8 +20,8 @@ jobs:
       - name: Build and Push To Docker Hub
         run: |
           cd server
-          docker build . --file Dockerfile --tag wiseoldman/api:latest
-          docker push wiseoldman/api:latest
+          docker build . --file Dockerfile --tag wiseoldman/api-v1:latest
+          docker push wiseoldman/api-v1:latest
   deploy:
     runs-on: ubuntu-latest
     needs: [build-api]
@@ -35,6 +35,6 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd wise-old-man
-            docker image rm wiseoldman/api
-            docker-compose pull api
-            docker-compose up -d --no-deps --build api
+            docker image rm wiseoldman/api-v1
+            docker-compose pull api-v1
+            docker-compose up -d --no-deps --build api-v1

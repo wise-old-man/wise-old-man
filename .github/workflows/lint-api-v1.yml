@@ -3,9 +3,9 @@ name: Check API Code Quality
 on:
   pull_request:
     branches:
-      - master
+      - release/v1
     paths:
-      - 'server/**'
+      - "server/**"
 
 jobs:
   lint-server:
