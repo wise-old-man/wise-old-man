@@ -1138,6 +1138,10 @@ describe('Competition API', () => {
       expect(detailsBeforeResponse.body.participantCount).toBe(4);
 
       const response = await api.put(`/competitions/${globalData.testCompetitionStarted.id}`).send({
+        // should ignore these dates because they are the same as the current ones
+        // even though startsAt is in the past
+        startsAt: detailsBeforeResponse.body.startsAt,
+        endsAt: detailsBeforeResponse.body.endsAt,
         verificationCode: globalData.testCompetitionStarted.verificationCode,
         participants: ['psikoi', ' RORRO', '_usbc ', 'hydrox6']
       });
