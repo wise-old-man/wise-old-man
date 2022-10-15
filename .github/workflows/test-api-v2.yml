@@ -3,7 +3,7 @@ name: Run API (v2) Integration Tests
 on:
   pull_request:
     branches:
-      - release/v2
+      - master
     paths:
       - "server/**"
 
@@ -55,6 +55,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd server
+          export CORE_DATABASE=wise-old-man-test
           npx prisma migrate reset --force
           export NODE_ENV=test TZ=UTC
-          npx jest __tests__/suites --detectOpenHandles --verbose --force-exit
+          npx jest __tests__/suites --detectOpenHandles --verbose --forceExit

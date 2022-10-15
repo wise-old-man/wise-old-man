@@ -118,11 +118,15 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
     const startDate = params.startsAt || competition.startsAt;
     const endDate = params.endsAt || competition.endsAt;
 
+    const hasChangedDates =
+      startDate.getTime() !== competition.startsAt.getTime() ||
+      endDate.getTime() !== competition.endsAt.getTime();
+
     if (endDate.getTime() < startDate.getTime()) {
       throw new BadRequestError('Start date must be before the end date.');
     }
 
-    if (startDate.getTime() < Date.now() || endDate.getTime() < Date.now()) {
+    if (hasChangedDates && (startDate.getTime() < Date.now() || endDate.getTime() < Date.now())) {
       throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
     }
   }
