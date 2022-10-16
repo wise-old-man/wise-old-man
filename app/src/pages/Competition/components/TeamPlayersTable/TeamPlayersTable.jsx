@@ -133,6 +133,7 @@ function TeamPlayersTable({
       {
         key: 'updatedAt',
         label: 'Last updated',
+        get: row => row.player.updatedAt,
         className: value => {
           // If competition has started and this player hasn't updated since, show red text
           if (competition.startsAt < Date.now() && (!value || value < competition.startsAt)) {

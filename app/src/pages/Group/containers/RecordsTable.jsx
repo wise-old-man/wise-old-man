@@ -89,7 +89,8 @@ function getTableConfig(metric, period) {
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
-        transform: (value, row) => (
+        get: row => row.player.displayName,
+        transform: (_, row) => (
           <Link to={`/players/${row.player.username}`}>
             <PlayerTag
               name={row.player.displayName}
@@ -107,7 +108,8 @@ function getTableConfig(metric, period) {
       {
         key: 'updatedAt',
         label: 'Date',
-        transform: (value, row) => formatDate(row.updatedAt, 'DD MMM, YYYY')
+        get: row => row.player.updatedAt,
+        transform: val => formatDate(val, 'DD MMM, YYYY')
       }
     ]
   };
