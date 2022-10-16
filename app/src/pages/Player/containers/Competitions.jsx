@@ -19,7 +19,7 @@ const TABLE_CONFIG = {
       key: 'title',
       get: row => row.competition.title,
       className: () => '-primary',
-      transform: (val, row) => <Link to={`/competitions/${row.id}`}>{val}</Link>
+      transform: (val, row) => <Link to={`/competitions/${row.competition.id}`}>{val}</Link>
     },
     {
       key: 'status',
