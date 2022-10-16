@@ -151,6 +151,7 @@ function getTableConfig(metric, period) {
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
+        get: row => row.player.displayName,
         transform: (_, { player }) => (
           <Link to={`/players/${player.username}`}>
             <PlayerTag
@@ -169,7 +170,8 @@ function getTableConfig(metric, period) {
       {
         key: 'updatedAt',
         label: 'Last updated',
-        transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
+        get: row => row.player.updatedAt,
+        transform: val => `${durationBetween(val, new Date(), 2, true)} ago`
       }
     ]
   };

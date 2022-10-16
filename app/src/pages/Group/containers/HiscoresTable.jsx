@@ -76,6 +76,7 @@ function getTableConfig(metric) {
         key: 'displayName',
         label: 'Name',
         className: () => '-primary',
+        get: row => row.player.displayName,
         transform: (_, row) => (
           <Link to={`/players/${row.player.username}`}>
             <PlayerTag
@@ -89,12 +90,14 @@ function getTableConfig(metric) {
       },
       {
         key: MetricProps[metric].measure,
-        transform: (_, row) => <NumberLabel value={row.data[MetricProps[metric].measure]} />
+        get: row => row.data[MetricProps[metric].measure],
+        transform: val => <NumberLabel value={val} />
       },
       {
         key: 'updatedAt',
         label: 'Last updated',
-        transform: (value, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
+        get: row => row.player.updatedAt,
+        transform: val => `${durationBetween(val, new Date(), 2, true)} ago`
       }
     ]
   };
