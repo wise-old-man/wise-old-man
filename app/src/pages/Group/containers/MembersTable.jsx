@@ -13,6 +13,7 @@ const TABLE_CONFIG = {
       key: 'displayName',
       label: 'Name',
       className: () => '-primary',
+      get: row => row.player.displayName,
       transform: (_, row) => (
         <Link to={`/players/${row.player.username}`}>
           <PlayerTag
@@ -31,28 +32,32 @@ const TABLE_CONFIG = {
     {
       key: 'exp',
       label: 'Exp.',
-      transform: (_, row) => {
-        return row.player.exp === -1 ? (
+      get: row => row.player.exp,
+      transform: val => {
+        return val === -1 ? (
           <TextLabel value="---" popupValue="Unranked" />
         ) : (
-          <NumberLabel value={row.player.exp} />
+          <NumberLabel value={val} />
         );
       }
     },
     {
       key: 'ehp',
       label: 'EHP',
-      transform: (_, row) => <NumberLabel value={Math.round(row.player.ehp)} />
+      get: row => row.player.ehp,
+      transform: val => <NumberLabel value={Math.round(val)} />
     },
     {
       key: 'ehb',
       label: 'EHB',
-      transform: (_, row) => <NumberLabel value={Math.round(row.player.ehb)} />
+      get: row => row.player.ehb,
+      transform: val => <NumberLabel value={Math.round(val)} />
     },
     {
       key: 'updatedAt',
       label: 'Last updated',
-      transform: (_, row) => `${durationBetween(row.player.updatedAt, new Date(), 2, true)} ago`
+      get: row => row.player.updatedAt,
+      transform: val => `${durationBetween(val, new Date(), 2, true)} ago`
     }
   ]
 };
