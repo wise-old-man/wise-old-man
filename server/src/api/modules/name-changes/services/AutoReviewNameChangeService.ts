@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { Metric } from '../../../../utils';
+import { Metric, NameChangeDetails } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import logger from '../../../util/logging';
 import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';
-import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -15,7 +14,7 @@ type AutoReviewNameChangeParams = z.infer<typeof inputSchema>;
 async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promise<void> {
   const params = inputSchema.parse(payload);
 
-  let details;
+  let details: NameChangeDetails;
 
   try {
     details = await nameChangeServices.fetchNameChangeDetails({ id: params.id });
@@ -77,7 +76,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
     return;
   }
 
-  const totalLevel = getTotalLevel(oldStats);
+  const totalLevel = oldStats.data.skills.overall.level;
 
   // If is high level enough (high level swaps are harder to fake)
   if (totalLevel < allowedTotalLevel) {

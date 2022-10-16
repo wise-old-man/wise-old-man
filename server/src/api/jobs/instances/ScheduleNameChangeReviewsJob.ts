@@ -14,7 +14,7 @@ class ScheduleNameChangeReviewsJob implements JobDefinition<{}> {
     const pending = await prisma.nameChange.findMany({
       where: { status: NameChangeStatus.PENDING },
       orderBy: { createdAt: 'desc' },
-      take: 300
+      take: 500
     });
 
     // Distribute these evenly throughout the day, with a variable cooldown between each
