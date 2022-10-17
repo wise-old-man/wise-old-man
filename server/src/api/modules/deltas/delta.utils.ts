@@ -15,7 +15,8 @@ import {
   getMinimumValue,
   getMetricRankKey,
   getMetricValueKey,
-  round
+  round,
+  MapOf
 } from '../../../utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import {
@@ -268,30 +269,50 @@ export function calculatePlayerDeltas(startSnapshot: Snapshot, endSnapshot: Snap
   return deltas;
 }
 
-export function emptyPlayerDelta(): PlayerDeltasArray {
+export function emptyPlayerDelta(): PlayerDeltasMap {
   return {
-    skills: SKILLS.map(skill => ({
-      metric: skill,
-      ehp: EMPTY_PROGRESS,
-      rank: EMPTY_PROGRESS,
-      level: EMPTY_PROGRESS,
-      experience: EMPTY_PROGRESS
-    })),
-    bosses: BOSSES.map(boss => ({
-      metric: boss,
-      ehb: EMPTY_PROGRESS,
-      rank: EMPTY_PROGRESS,
-      kills: EMPTY_PROGRESS
-    })),
-    activities: ACTIVITIES.map(activity => ({
-      metric: activity,
-      rank: EMPTY_PROGRESS,
-      score: EMPTY_PROGRESS
-    })),
-    computed: COMPUTED_METRICS.map(computedMetric => ({
-      metric: computedMetric,
-      rank: EMPTY_PROGRESS,
-      value: EMPTY_PROGRESS
-    }))
+    skills: Object.fromEntries(
+      SKILLS.map(skill => [
+        skill,
+        {
+          metric: skill,
+          ehp: EMPTY_PROGRESS,
+          rank: EMPTY_PROGRESS,
+          level: EMPTY_PROGRESS,
+          experience: EMPTY_PROGRESS
+        }
+      ])
+    ) as MapOf<Skill, SkillDelta>,
+    bosses: Object.fromEntries(
+      BOSSES.map(boss => [
+        boss,
+        {
+          metric: boss,
+          ehb: EMPTY_PROGRESS,
+          rank: EMPTY_PROGRESS,
+          kills: EMPTY_PROGRESS
+        }
+      ])
+    ) as MapOf<Boss, BossDelta>,
+    activities: Object.fromEntries(
+      ACTIVITIES.map(activity => [
+        activity,
+        {
+          metric: activity,
+          rank: EMPTY_PROGRESS,
+          score: EMPTY_PROGRESS
+        }
+      ])
+    ) as MapOf<Activity, ActivityDelta>,
+    computed: Object.fromEntries(
+      COMPUTED_METRICS.map(computedMetric => [
+        computedMetric,
+        {
+          metric: computedMetric,
+          rank: EMPTY_PROGRESS,
+          value: EMPTY_PROGRESS
+        }
+      ])
+    ) as MapOf<ComputedMetric, ComputedMetricDelta>
   };
 }
