@@ -3,7 +3,8 @@ enum PlayerType {
   REGULAR = 'regular',
   IRONMAN = 'ironman',
   HARDCORE = 'hardcore',
-  ULTIMATE = 'ultimate'
+  ULTIMATE = 'ultimate',
+  FRESH_START = 'fresh_start'
 }
 
 enum PlayerBuild {
@@ -20,7 +21,8 @@ const PlayerTypeProps = {
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },
   [PlayerType.HARDCORE]: { name: 'Hardcore' },
-  [PlayerType.ULTIMATE]: { name: 'Ultimate' }
+  [PlayerType.ULTIMATE]: { name: 'Ultimate' },
+  [PlayerType.FRESH_START]: { name: 'Fresh Start' }
 };
 
 const PlayerBuildProps = {
