@@ -46,7 +46,11 @@ async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPl
 
   // Player was inactive during this period (no snapshots), return empty deltas
   if (!startSnapshot || !endSnapshot) {
-    return { startsAt: null, endsAt: null, data: emptyPlayerDelta() };
+    return {
+      startsAt: null,
+      endsAt: null,
+      data: params.formatting === 'array' ? flattenPlayerDeltas(emptyPlayerDelta()) : emptyPlayerDelta()
+    };
   }
 
   const data = calculatePlayerDeltas(startSnapshot, endSnapshot, player);
