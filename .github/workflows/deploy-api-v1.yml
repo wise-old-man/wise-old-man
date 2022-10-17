@@ -1,9 +1,9 @@
-name: Build API Image
+name: Build API Image (v1)
 
 on:
   push:
     branches:
-      - master
+      - release/v1
     paths:
       - "server/**"
 
