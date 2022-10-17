@@ -6,16 +6,17 @@ import {
   PlayerBuildProps,
   PlayerType,
   MetricProps,
+  PlayerTypeProps,
   CountryProps
 } from '@wise-old-man/utils';
 import { Selector } from 'components';
-import { capitalize, getPlayerTypeIcon, getMetricIcon } from 'utils';
+import { getPlayerTypeIcon, getMetricIcon } from 'utils';
 import { TopContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = [
   { label: 'All player types', value: null },
   ...PLAYER_TYPES.filter(type => type !== PlayerType.UNKNOWN).map(type => ({
-    label: capitalize(type),
+    label: PlayerTypeProps[type].name,
     icon: getPlayerTypeIcon(type),
     value: type
   }))
