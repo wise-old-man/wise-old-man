@@ -152,7 +152,9 @@ async function shouldReviewType(
   const { username, type, lastChangedAt } = player;
 
   // Type reviews should only be done on iron players
-  if (type === PlayerType.REGULAR || type === PlayerType.UNKNOWN) return false;
+  if (type === PlayerType.REGULAR || type === PlayerType.FRESH_START || type === PlayerType.UNKNOWN) {
+    return false;
+  }
 
   // After checking a player's type, we add their username to a cache that blocks
   // this action to be repeated again within the next week (as to not overload the server)
