@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { METRICS, isBoss, isSkill } from '@wise-old-man/utils';
+import { METRICS, isBoss, isSkill, PERIODS } from '@wise-old-man/utils';
 import { useHistory } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { useUrlContext } from 'hooks';
@@ -26,7 +26,6 @@ import {
 } from './containers';
 import './Player.scss';
 
-const PERIODS = ['5min', 'day', 'week', 'month', 'year'];
 const TABS = ['Overview', 'Gained', 'Competitions', 'Groups', 'Records', 'Achievements', 'Names'];
 
 function Player() {

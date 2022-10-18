@@ -5,14 +5,14 @@ const initialState = {
   isFetchingPlayerRecords: false,
   isFetchingGroupRecords: false,
   isFetchingLeaderboards: {
-    '5min': false,
+    five_min: false,
     day: false,
     week: false,
     month: false,
     year: false
   },
   leaderboards: {
-    '5min': null,
+    five_min: null,
     day: null,
     week: null,
     month: null,
