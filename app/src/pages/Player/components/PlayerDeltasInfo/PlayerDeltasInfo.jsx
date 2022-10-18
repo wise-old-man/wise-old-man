@@ -57,7 +57,7 @@ function PlayerDeltasInfo({ deltas, period }) {
 
 function getSeconds(period) {
   switch (period) {
-    case '5min':
+    case 'five_min':
       return 300;
     case 'day':
       return 3600 * 24;

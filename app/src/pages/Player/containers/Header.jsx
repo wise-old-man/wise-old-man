@@ -120,9 +120,9 @@ function getBuildBadge(build) {
       return { text: 'Level 3', hoverText: '' };
     case 'f2p':
       return { text: 'F2P', hoverText: '' };
-    case '1def':
+    case 'def1':
       return { text: '1 Def Pure', hoverText: '' };
-    case '10hp':
+    case 'hp10':
       return { text: '10 HP Pure', hoverText: '' };
     case 'zerker':
       return { text: 'Zerker', hoverText: '' };
