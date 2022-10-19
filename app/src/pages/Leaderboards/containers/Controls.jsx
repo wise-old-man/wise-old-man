@@ -6,14 +6,15 @@ import {
   COMPUTED_METRICS,
   PlayerType,
   MetricProps,
+  PlayerTypeProps,
   CountryProps
 } from '@wise-old-man/utils';
 import { Selector } from 'components';
-import { capitalize, getPlayerTypeIcon, getMetricIcon } from 'utils';
+import { getPlayerTypeIcon, getMetricIcon } from 'utils';
 import { LeaderboardContext } from '../context';
 
 const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.filter(type => type !== PlayerType.UNKNOWN).map(type => ({
-  label: capitalize(type),
+  label: PlayerTypeProps[type].name,
   icon: getPlayerTypeIcon(type),
   value: type
 }));
@@ -69,7 +70,7 @@ function Controls() {
 
   return (
     <>
-      <div className="col-lg-3 col-md-3">
+      <div className="col-lg-2 col-md-3">
         <Selector
           options={METRIC_OPTIONS}
           selectedIndex={metricIndex}
@@ -77,7 +78,7 @@ function Controls() {
           search
         />
       </div>
-      <div className="col-lg-2 col-md-5">
+      <div className="col-lg-3 col-md-5">
         <Selector
           options={PLAYER_TYPES_OPTIONS}
           selectedIndex={playerTypeIndex}

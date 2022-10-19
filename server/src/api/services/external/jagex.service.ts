@@ -4,10 +4,11 @@ import { BadRequestError, ServerError } from '../../errors';
 import proxiesService from './proxies.service';
 
 export const OSRS_HISCORES_URLS = {
-  regular: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
-  ironman: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-  hardcore: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-  ultimate: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
+  [PlayerType.REGULAR]: 'https://services.runescape.com/m=hiscore_oldschool/index_lite.ws',
+  [PlayerType.IRONMAN]: 'https://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
+  [PlayerType.HARDCORE]: 'https://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
+  [PlayerType.ULTIMATE]: 'https://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
+  [PlayerType.FRESH_START]: 'https://secure.runescape.com/m=hiscore_oldschool_fresh_start/index_lite.ws'
 };
 
 /**

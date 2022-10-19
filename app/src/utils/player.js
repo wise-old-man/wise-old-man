@@ -44,6 +44,9 @@ export function getOfficialHiscoresUrl(player) {
     case 'hardcore':
       suffix = '_hardcore_ironman';
       break;
+    case 'fresh_start':
+      suffix = '_fresh_start';
+      break;
     case 'regular':
     default:
       suffix = '';

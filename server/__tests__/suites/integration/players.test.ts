@@ -59,8 +59,8 @@ afterAll(async () => {
   axiosMock.reset();
 
   // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Player API', () => {
   describe('1. Tracking', () => {
@@ -669,6 +669,33 @@ describe('Player API', () => {
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.type).toBe('ultimate');
+    });
+
+    it('should detect player type (low level hardcore)', async () => {
+      // Low level ironman accounts don't show up on the regular hiscores, so we need to handle
+      // the scenario where it fails to fetch regular stats, but succeeds to fetch ironman stats
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404 },
+        [PlayerType.FRESH_START]: { statusCode: 404 },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/players/low_lvl_hcim`);
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.type).toBe('hardcore');
+    });
+
+    it('should detect player type (fresh start)', async () => {
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404 },
+        [PlayerType.FRESH_START]: { statusCode: 200, rawData: globalData.hiscoresRawData }
+      });
+
+      const trackResponse = await api.post(`/players/fsw_guy`);
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.type).toBe('fresh_start');
     });
   });
 

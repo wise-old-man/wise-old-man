@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { METRICS, SKILLS, BOSSES, ACTIVITIES, PlayerBuildProps } from '@wise-old-man/utils';
+import {
+  METRICS,
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  PlayerBuildProps,
+  PlayerTypeProps
+} from '@wise-old-man/utils';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -222,7 +229,7 @@ function Info({ player }) {
 
   const data = [
     { key: 'Id', value: id },
-    { key: 'Type', value: capitalize(type) },
+    { key: 'Type', value: PlayerTypeProps[type].name },
     { key: 'Build', value: PlayerBuildProps[build].name },
     { key: 'Last updated at', value: formatDate(updatedAt, 'DD MMM YYYY, HH:mm') },
     { key: 'Last changed at', value: lastChangedDate },
