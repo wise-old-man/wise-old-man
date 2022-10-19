@@ -149,11 +149,11 @@ function TeamPlayersTable({
         label: '',
         isSortable: false,
         width: 50,
-        transform: (value, row) =>
+        transform: (_, row) =>
           competition.status !== 'finished' && (
             <TableUpdateButton
-              username={row.username}
-              isUpdating={updatingUsernames.includes(row.username)}
+              username={row.player.username}
+              isUpdating={updatingUsernames.includes(row.player.username)}
               onUpdate={onUpdateClicked}
             />
           )
