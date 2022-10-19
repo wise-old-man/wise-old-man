@@ -26,15 +26,14 @@ model Achievement {
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  // Indices
+  // Constraints
   @@id([playerId, name])
-  @@unique([playerId, name], map: "achievements_player_id_type")
-  @@index([playerId], map: "achievements_player_id")
+  // Map
   @@map("achievements")
 }
 
 model Competition {
-  id               Int             @id @unique(map: "competitions_id") @default(autoincrement())
+  id               Int             @id @default(autoincrement())
   title            String          @db.VarChar(50)
   metric           Metric
   type             CompetitionType @default(classic)
@@ -52,14 +51,15 @@ model Competition {
 
   // Indices
   @@index([endsAt], map: "competitions_ends_at")
-  @@index([metric], map: "competitions_metric")
   @@index([startsAt], map: "competitions_starts_at")
-  @@index([title], map: "competitions_title")
+  @@index([metric], map: "competitions_metric")
+  @@index([groupId], map: "competitions_group_id")
+  // Map
   @@map("competitions")
 }
 
 model Delta {
-  id                               Int       @id @unique(map: "deltas_id") @default(autoincrement())
+  id                               Int       @id @default(autoincrement())
   playerId                         Int
   period                           Period    @default(day)
   startedAt                        DateTime  @db.Timestamptz(6)
@@ -162,12 +162,13 @@ model Delta {
   // Indices
   @@index([period], map: "deltas_period")
   @@index([playerId], map: "deltas_playerId")
+  // Map
   @@map("deltas")
 }
 
 model Group {
-  id               Int      @id @unique(map: "groups_id") @default(autoincrement())
-  name             String   @unique(map: "groups_name") @db.VarChar(30)
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(30)
   clanChat         String?  @db.VarChar(12)
   description      String?  @db.VarChar(100)
   homeworld        Int?
@@ -181,6 +182,9 @@ model Group {
   competitions Competition[]
   memberships  Membership[]
 
+  // Constaints
+  @@unique([name], map: "groups_name_key")
+  // Map
   @@map("groups")
 }
 
@@ -197,12 +201,12 @@ model Membership {
 
   // Indices
   @@id([playerId, groupId])
-  @@unique([playerId, groupId], map: "memberships_player_id_group_id")
+  // Map
   @@map("memberships")
 }
 
 model NameChange {
-  id         Int              @id @unique(map: "name_changes_id") @default(autoincrement())
+  id         Int              @id @default(autoincrement())
   playerId   Int
   oldName    String           @db.VarChar(20)
   newName    String           @db.VarChar(20)
@@ -216,6 +220,8 @@ model NameChange {
 
   // Indices
   @@index([playerId], map: "name_changes_player_id")
+  @@index([status], map: "name_changes_status")
+  // Map
   @@map("nameChanges")
 }
 
@@ -234,15 +240,15 @@ model Participation {
   startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [startSnapshotId], references: [id], onUpdate: NoAction)
   endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [endSnapshotId], references: [id], onUpdate: NoAction)
 
-  // Indices
+  // Constraints
   @@id([playerId, competitionId])
-  @@unique([playerId, competitionId], map: "participations_player_id_competition_id")
+  // Map
   @@map("participations")
 }
 
 model Player {
-  id             Int         @id @unique(map: "players_id") @default(autoincrement())
-  username       String      @unique(map: "players_username") @db.VarChar(12)
+  id             Int         @id @default(autoincrement())
+  username       String      @unique @db.VarChar(12)
   displayName    String      @db.VarChar(12)
   type           PlayerType  @default(unknown)
   build          PlayerBuild @default(main)
@@ -269,11 +275,14 @@ model Player {
 
   // Indices
   @@index([type], map: "players_type")
+  @@index([build], map: "players_build")
+  @@index([country], map: "players_country")
+  // Map
   @@map("players")
 }
 
 model Record {
-  id        Int      @id @unique(map: "records_id") @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   playerId  Int
   period    Period
   metric    Metric
@@ -284,14 +293,14 @@ model Record {
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   // Indices
-  @@index([metric], map: "records_metric")
-  @@index([period], map: "records_period")
   @@index([playerId], map: "records_player_id")
+  @@index([metric, period], map: "records_metric_period")
+  // Map
   @@map("records")
 }
 
 model Snapshot {
-  id                                    Int       @id @unique(map: "snapshots_id") @default(autoincrement())
+  id                                    Int       @id @default(autoincrement())
   playerId                              Int
   importedAt                            DateTime? @db.Timestamptz(6)
   createdAt                             DateTime  @default(now()) @db.Timestamptz(6)
@@ -482,8 +491,8 @@ model Snapshot {
   participationEndPointers   Participation[] @relation("participations_startSnapshotIdTosnapshots")
 
   // Indices
-  @@index([createdAt], map: "snapshots_created_at")
-  @@index([playerId], map: "snapshots_player_id")
+  @@index([playerId, createdAt(sort: Desc)], map: "snapshots_player_id_created_at")
+  // Map
   @@map("snapshots")
 }
 
