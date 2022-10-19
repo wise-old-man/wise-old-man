@@ -10,7 +10,8 @@ import prisma, {
   PrismaTypes,
   modifyRecords,
   PrismaPromise,
-  modifySnapshots
+  modifySnapshots,
+  setHooksEnabled
 } from '../../../../prisma';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
@@ -132,10 +133,16 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   playerUpdateFields.displayName = playerUtils.sanitize(newName);
   playerUpdateFields.flagged = false;
 
+  // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events,
+  // that wouldn't make sense because it's the same player, just under a different name, and about to be merged into one
+  setHooksEnabled(false);
+
   const results = await prisma.$transaction([
     ...promises,
     prisma.player.update({ where: { id: oldPlayer.id }, data: playerUpdateFields })
   ]);
+
+  setHooksEnabled(true);
 
   if (!results || results.length === 0) return;
 
