@@ -33,7 +33,6 @@ prisma.$use(async (params, next) => {
   return result;
 });
 
-// Used for testing purposes
 function setHooksEnabled(enabled: boolean) {
   hooksEnabled = enabled;
 }

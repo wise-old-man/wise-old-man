@@ -8,6 +8,7 @@ import apiServer from '../../../src/api';
 import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
+import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -20,6 +21,7 @@ import {
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
+const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
 const onPlayerNameChangedEvent = jest.spyOn(playerEvents, 'onPlayerNameChanged');
 const onNameChangeSubmittedEvent = jest.spyOn(nameChangeEvents, 'onNameChangeSubmitted');
 
@@ -57,8 +59,8 @@ afterAll(async () => {
   axiosMock.reset();
 
   // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Names API', () => {
   describe('1 - Submitting', () => {
@@ -517,6 +519,8 @@ describe('Names API', () => {
       // Create some (post transition) fake data to test data transferral
       await seedPostTransitionData(oldPlayerId, newPlayerId);
 
+      jest.resetAllMocks();
+
       const response = await api
         .post(`/names/${submitResponse.body.id}/approve`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
@@ -525,12 +529,16 @@ describe('Names API', () => {
       expect(response.body.status).toBe('approved');
       expect(response.body.resolvedAt).not.toBe(null);
 
+      await sleep(500);
+
       expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           displayName: 'USBC'
         }),
         'psikoi'
       );
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
 
       // Check if records transfered correctly
       const recordsResponse = await api.get(`/players/USBC/records`);
