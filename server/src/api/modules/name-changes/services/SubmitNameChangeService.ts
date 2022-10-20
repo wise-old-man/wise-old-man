@@ -32,26 +32,25 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
     throw new BadRequestError(`Player '${params.oldName}' is not tracked yet.`);
   }
 
-  // If these are the same name, just different capitalizations, skip these checks
-  if (stOldName !== stNewName) {
-    // Check if there's any pending name changes for these names
-    const pending = await prisma.nameChange.findFirst({
-      where: {
-        oldName: { contains: stOldName, mode: 'insensitive' },
-        newName: { contains: stNewName, mode: 'insensitive' },
-        status: NameChangeStatus.PENDING
-      }
-    });
-
-    if (pending) {
-      throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
+  // Check if there's any pending name changes for these names
+  const pending = await prisma.nameChange.findFirst({
+    where: {
+      oldName: { contains: stOldName, mode: 'insensitive' },
+      newName: { contains: stNewName, mode: 'insensitive' },
+      status: NameChangeStatus.PENDING
     }
+  });
 
+  if (pending) {
+    throw new BadRequestError(`There's already a similar pending name change. (Id: ${pending.id})`);
+  }
+
+  // To prevent people from submitting duplicate name change requests, which then
+  // will waste time and resources to process and deny, it's best to check if this
+  // exact same name change has been approved.
+  if (stOldName !== stNewName) {
     const [newPlayer] = await playerServices.findPlayer({ username: stNewName });
 
-    // To prevent people from submitting duplicate name change requests, which then
-    // will waste time and resources to process and deny, it's best to check if this
-    // exact same name change has been approved.
     if (newPlayer) {
       const lastChange = await prisma.nameChange.findFirst({
         where: { playerId: newPlayer.id, status: NameChangeStatus.APPROVED },
@@ -61,6 +60,15 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
       if (lastChange && playerUtils.standardize(lastChange.oldName) === stOldName) {
         throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
       }
+    }
+  } else {
+    const lastChange = await prisma.nameChange.findFirst({
+      where: { playerId: oldPlayer.id, status: NameChangeStatus.APPROVED },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (lastChange && playerUtils.standardize(lastChange.oldName) === stOldName) {
+      throw new BadRequestError(`Cannot submit a duplicate (approved) name change. (Id: ${lastChange.id})`);
     }
   }
 

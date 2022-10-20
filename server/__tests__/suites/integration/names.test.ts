@@ -167,7 +167,44 @@ describe('Names API', () => {
       );
     });
 
-    it('should not submit (repeated approved submission)', async () => {
+    it('should not submit (repeated approved submission, same name, different capitalization)', async () => {
+      const trackResponse = await api.post(`/players/Some guy`);
+
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.username).toBe('some guy');
+      expect(trackResponse.body.displayName).toBe('Some guy');
+
+      const submitResponse = await api.post(`/names`).send({ oldName: 'Some guy', newName: 'Some Guy' });
+      expect(submitResponse.status).toBe(201);
+      expect(submitResponse.body.oldName).toBe('Some guy');
+      expect(submitResponse.body.newName).toBe('Some Guy');
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
+
+      const approveResponse = await api
+        .post(`/names/${submitResponse.body.id}/approve`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(approveResponse.status).toBe(200);
+      expect(approveResponse.body.status).toBe('approved');
+      expect(approveResponse.body.resolvedAt).not.toBe(null);
+
+      expect(onPlayerNameChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          displayName: 'Some Guy'
+        }),
+        'Some guy'
+      );
+
+      const resubmitResponse = await api.post(`/names`).send({ oldName: 'Some guy', newName: 'Some Guy' });
+      expect(resubmitResponse.status).toBe(400);
+    });
+
+    it('should not submit (repeated approved submission, different names)', async () => {
       // Track new player (zezima)
       const firstTrackResponse = await api.post(`/players/Zezima`);
       expect(firstTrackResponse.status).toBe(201);
@@ -292,9 +329,9 @@ describe('Names API', () => {
       const response = await api.get(`/names`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
+      expect(response.body.length).toBe(4);
       expect(response.body.filter(n => n.status === 'pending').length).toBe(2);
-      expect(response.body.filter(n => n.status === 'approved').length).toBe(1);
+      expect(response.body.filter(n => n.status === 'approved').length).toBe(2);
       expect(response.body.filter(n => n.oldName === 'Zezima').length).toBe(1);
       expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(1);
     });
@@ -303,7 +340,7 @@ describe('Names API', () => {
       const response = await api.get(`/names`).query({ status: 'approved' });
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
+      expect(response.body.length).toBe(2);
       expect(response.body.filter(n => n.status !== 'approved').length).toBe(0);
     });
 
@@ -704,6 +741,15 @@ describe('Names API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch('All name change objects must have ');
+    });
+
+    it('should not bulk submit (equal names)', async () => {
+      const payload = [{ oldName: 'Psikoi', newName: 'Psikoi' }];
+
+      const response = await api.post('/names/bulk').send(payload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Old name and new name cannot be the same.');
     });
 
     it('should not bulk submit (no valid submissions)', async () => {
