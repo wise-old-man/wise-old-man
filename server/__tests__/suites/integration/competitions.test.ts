@@ -2515,7 +2515,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStarted.id}/csv`);
       expect(response.status).toBe(200);
 
-      const rows = response.body.split('\n');
+      const rows = response.text.split('\n');
 
       expect(rows.length).toBe(6);
 
@@ -2537,7 +2537,7 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
 
-      const rows = response.body.split('\n');
+      const rows = response.text.split('\n');
 
       expect(rows.length).toBe(6);
 
@@ -2556,7 +2556,7 @@ describe('Competition API', () => {
       const response = await api.get(`/competitions/${globalData.testCompetitionStartedTeam.id}/csv`);
       expect(response.status).toBe(200);
 
-      const rows = response.body.split('\n');
+      const rows = response.text.split('\n');
 
       expect(rows.length).toBe(5);
 
@@ -2577,7 +2577,7 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
 
-      const rows = response.body.split('\n');
+      const rows = response.text.split('\n');
 
       expect(rows.length).toBe(3);
 
@@ -2596,7 +2596,7 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(200);
 
-      const rows = response.body.split('\n');
+      const rows = response.text.split('\n');
 
       expect(rows.length).toBe(3);
 
