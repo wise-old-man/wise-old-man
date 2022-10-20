@@ -76,7 +76,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     });
 
     // Set the player's global computed data
-    updatedPlayerFields.exp = currentStats.overallExperience;
+    updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
     updatedPlayerFields.ehp = computedMetrics.ehpValue;
     updatedPlayerFields.ehb = computedMetrics.ehbValue;
     updatedPlayerFields.ttm = computedMetrics.ttm;
