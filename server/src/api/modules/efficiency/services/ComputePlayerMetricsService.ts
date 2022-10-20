@@ -31,8 +31,8 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
 
   const algorithm = efficiencyUtils.getAlgorithm({ type: player.type, build: player.build });
 
-  const ehpValue = algorithm.calculateEHP(experienceMap);
-  const ehbValue = algorithm.calculateEHB(killcountMap);
+  const ehpValue = Math.max(0, algorithm.calculateEHP(experienceMap));
+  const ehbValue = Math.max(0, algorithm.calculateEHB(killcountMap));
 
   const ehpRank = await efficiencyServices.computeEfficiencyRank({
     player,
