@@ -8,7 +8,7 @@ api.get('/', setupController(controller.search));
 api.post('/', setupController(controller.create));
 
 api.get('/:id', setupController(controller.details));
-api.get('/:id/csv', setupController(controller.detailsCSV));
+api.get('/:id/csv', setupController(controller.detailsCSV, { returnAsText: true }));
 api.get('/:id/top-history', setupController(controller.topHistory));
 
 api.put('/:id', setupController(controller.edit));
