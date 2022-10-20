@@ -6,7 +6,8 @@ const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
   [PlayerType.REGULAR]: { name: 'Regular' },
   [PlayerType.IRONMAN]: { name: 'Ironman' },
   [PlayerType.HARDCORE]: { name: 'Hardcore' },
-  [PlayerType.ULTIMATE]: { name: 'Ultimate' }
+  [PlayerType.ULTIMATE]: { name: 'Ultimate' },
+  [PlayerType.FRESH_START]: { name: 'Fresh Start' }
 };
 
 const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {

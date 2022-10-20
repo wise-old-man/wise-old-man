@@ -510,6 +510,7 @@ enum PlayerType {
   ironman
   hardcore
   ultimate
+  fresh_start
 
   @@map("player_type")
 }

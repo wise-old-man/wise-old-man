@@ -38,6 +38,25 @@ async function getType(player: Pick<Player, 'username' | 'type'>): Promise<Playe
 
   // This username is not on the hiscores
   if (!regularExp) {
+    // Fresh Start World hiscores are separate from the main game, so any players on it
+    // shouldn't be on the main hiscores (until they merge).
+    const freshStartExp = await getOverallExperience(player, PlayerType.FRESH_START);
+    if (freshStartExp) return PlayerType.FRESH_START;
+
+    // Low level ironman accounts show up on the ironman hiscores, but not yet on the main ones
+    // (due to minimum fixed rank requirement), so let's not keep them as unknown until they git gud, that's not nice
+    const ironmanExp = await getOverallExperience(player, PlayerType.IRONMAN);
+
+    if (ironmanExp) {
+      const hardcoreExp = await getOverallExperience(player, PlayerType.HARDCORE);
+      if (hardcoreExp && hardcoreExp >= ironmanExp) return PlayerType.HARDCORE;
+
+      const ultimateExp = await getOverallExperience(player, PlayerType.ULTIMATE);
+      if (ultimateExp && ultimateExp >= ironmanExp) return PlayerType.ULTIMATE;
+
+      return PlayerType.IRONMAN;
+    }
+
     throw new BadRequestError(`Failed to load hiscores for ${player.username}.`);
   }
 
