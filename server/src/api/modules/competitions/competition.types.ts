@@ -33,6 +33,11 @@ export interface ParticipationWithPlayerAndProgress extends ParticipationWithPla
   progress: MeasuredDeltaProgress;
 }
 
+export interface ParticipationWithCompetitionAndStandings extends ParticipationWithCompetition {
+  progress: MeasuredDeltaProgress;
+  rank: number;
+}
+
 export interface Team {
   name: string;
   participants: string[];
