@@ -10,6 +10,7 @@ export * from './services/FetchCompetitionDetailsService';
 export * from './services/FetchTop5ProgressService';
 export * from './services/FindGroupCompetitionsService';
 export * from './services/FindPlayerParticipationsService';
+export * from './services/FindPlayerParticipationsStandingsService';
 export * from './services/RemoveFromGroupCompetitionsService';
 export * from './services/RemoveParticipantsService';
 export * from './services/RemoveTeamsService';

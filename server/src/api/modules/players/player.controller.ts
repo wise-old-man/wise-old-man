@@ -142,6 +142,26 @@ async function competitions(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
+// GET /players/:username/competitions/standings
+// GET /players/id/:id/competitions/standings
+async function competitionStandings(req: Request): Promise<ControllerResponse> {
+  const playerId = await playerUtils.resolvePlayerId({
+    id: getNumber(req.params.id),
+    username: getString(req.params.username)
+  });
+
+  const results = await competitionServices.findPlayerParticipationsStandings({
+    playerId
+  });
+
+  if (playerId && results.length === 0) {
+    // Ensure this player ID exists (if not, it'll throw a 404 error)
+    await playerUtils.resolvePlayer({ id: playerId });
+  }
+
+  return { statusCode: 200, response: results };
+}
+
 // GET /players/:username/groups
 // GET /players/id/:id/groups
 async function groups(req: Request): Promise<ControllerResponse> {
@@ -290,6 +310,7 @@ export {
   achievements,
   achievementsProgress,
   competitions,
+  competitionStandings,
   groups,
   gained,
   records,

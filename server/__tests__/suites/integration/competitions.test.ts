@@ -63,8 +63,8 @@ afterAll(async () => {
   axiosMock.reset();
 
   // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Competition API', () => {
   describe('1 - Create', () => {
@@ -2728,7 +2728,115 @@ describe('Competition API', () => {
     });
   });
 
-  describe('12 - List Group Competitions', () => {
+  describe('12 - List Player Competition Standings', () => {
+    it('should not list player competition standings (player not found)', async () => {
+      const usernameResponse = await api.get(`/players/raaandooom/competitions/standings`);
+
+      expect(usernameResponse.status).toBe(404);
+      expect(usernameResponse.body.message).toMatch('Player not found.');
+
+      const idResponse = await api.get(`/players/id/100000/competitions/standings`);
+
+      expect(idResponse.status).toBe(404);
+      expect(idResponse.body.message).toMatch('Player not found.');
+    });
+
+    it('should list player competitions standings', async () => {
+      const response = await api.get(`/players/psikoi/competitions/standings`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(5);
+
+      // Hashes shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
+      // Snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
+      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
+
+      expect(response.body[0]).toMatchObject({
+        teamName: 'Contributors',
+        competitionId: globalData.testCompetitionEnding.id,
+        competition: {
+          id: globalData.testCompetitionEnding.id,
+          participantCount: 11
+        },
+        rank: 11,
+        progress: { end: -1, gained: 0, start: -1 }
+      });
+
+      expect(response.body[1]).toMatchObject({
+        teamName: 'Warriors',
+        competitionId: globalData.testCompetitionWithGroup.id,
+        competition: {
+          id: globalData.testCompetitionWithGroup.id,
+          participantCount: 4
+        },
+        rank: 2,
+        progress: { end: 6350129, gained: 0, start: 6350129 }
+      });
+
+      expect(response.body[2]).toMatchObject({
+        teamName: null,
+        competitionId: globalData.testCompetitionEnded.id,
+        competition: {
+          id: globalData.testCompetitionEnded.id,
+          groupId: globalData.testGroup.id,
+          group: {
+            id: globalData.testGroup.id,
+            memberCount: 2
+          },
+          participantCount: 2
+        },
+        rank: 1,
+        progress: { end: -1, gained: 0, start: -1 }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          participantCount: 4
+        },
+        rank: 3,
+        progress: { end: 1000, gained: 0, start: 1000 }
+      });
+
+      expect(response.body[4]).toMatchObject({
+        teamName: null,
+        competitionId: globalData.testCompetitionStarted.id,
+        competition: {
+          id: globalData.testCompetitionStarted.id,
+          participantCount: 5
+        },
+        rank: 4,
+        progress: { end: 1000, gained: 0, start: 1000 }
+      });
+    });
+
+    it('should list player competitions (w/ limit & offset)', async () => {
+      const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1, offset: 1 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      // Hashes and snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body[0].competition.verificationHash).not.toBeDefined();
+      expect(response.body[0].startSnapshotId).not.toBeDefined();
+      expect(response.body[0].endSnapshotId).not.toBeDefined();
+
+      expect(response.body[0]).toMatchObject({
+        teamName: 'Warriors',
+        competitionId: globalData.testCompetitionWithGroup.id,
+        competition: {
+          id: globalData.testCompetitionWithGroup.id,
+          participantCount: 4
+        }
+      });
+    });
+  });
+
+  describe('13 - List Group Competitions', () => {
     it('should not list group competitions (group not found)', async () => {
       const usernameResponse = await api.get(`/groups/1000000/competitions`);
 
@@ -2826,7 +2934,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('13 - Update All', () => {
+  describe('14 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/competitions/123456789/update-all`);
 
@@ -2987,7 +3095,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('14 - Reset Verification Code', () => {
+  describe('15 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/competitions/100000/reset-code`);
 
@@ -3054,7 +3162,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('15 - Delete', () => {
+  describe('16 - Delete', () => {
     it('should not delete (competition not found)', async () => {
       const response = await api.delete(`/competitions/123456789`).send({
         verificationCode: 'xxx-xxx-xxx'
@@ -3108,7 +3216,7 @@ describe('Competition API', () => {
     });
   });
 
-  describe('16 - Group Event Side Effects', () => {
+  describe('17 - Group Event Side Effects', () => {
     it('should remove from group competitions', async () => {
       const createGroupResponse = await api.post('/groups').send({
         name: 'Test 123',

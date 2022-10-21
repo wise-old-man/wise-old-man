@@ -37,41 +37,8 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
     throw new NotFoundError('Competition not found.');
   }
 
-  const competitionMetric = params.metric || competition.metric;
-  const metricKey = getMetricValueKey(competitionMetric);
-  const isComputed = isComputedMetric(competitionMetric);
-
-  const requiredSnapshotFields = isComputed ? true : { select: { [metricKey]: true } };
-
-  const participations = await prisma.participation.findMany({
-    where: { competitionId: params.id },
-    include: {
-      player: true,
-      startSnapshot: requiredSnapshotFields,
-      endSnapshot: requiredSnapshotFields
-    }
-  });
-
-  const participants = participations
-    .map(p => {
-      const { player, startSnapshot, endSnapshot } = p;
-      const modifiedPlayer = modifyPlayer(player);
-
-      const diff = deltaUtils.calculateMetricDelta(
-        modifiedPlayer,
-        competitionMetric,
-        modifySnapshot(startSnapshot),
-        modifySnapshot(endSnapshot)
-      );
-
-      return {
-        ...omit(p, ['startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot']),
-        player: modifiedPlayer,
-        progress: diff
-      };
-    })
-    .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
-
+  const participants = await calculateParticipantsStandings(params.id, params.metric || competition.metric)
+ 
   return {
     ...omit(competition, ['verificationHash']),
     group: competition.group
@@ -85,4 +52,42 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
   };
 }
 
-export { fetchCompetitionDetails };
+async function calculateParticipantsStandings(competitionId: number, metric: Metric){
+  const metricKey = getMetricValueKey(metric);
+  const isComputed = isComputedMetric(metric);
+
+  const requiredSnapshotFields = isComputed ? true : { select: { [metricKey]: true } };
+
+  const participations = await prisma.participation.findMany({
+    where: { competitionId },
+    include: {
+      player: true,
+      startSnapshot: requiredSnapshotFields,
+      endSnapshot: requiredSnapshotFields
+    }
+  });
+
+  return  participations
+    .map(p => {
+      const { player, startSnapshot, endSnapshot } = p;
+      const modifiedPlayer = modifyPlayer(player);
+
+      const diff = deltaUtils.calculateMetricDelta(
+        modifiedPlayer,
+        metric,
+        modifySnapshot(startSnapshot),
+        modifySnapshot(endSnapshot)
+      );
+
+      return {
+        ...omit(p, ['startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot']),
+        player: modifiedPlayer,
+        progress: diff
+      };
+    })
+    .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
+
+}
+
+
+export { fetchCompetitionDetails, calculateParticipantsStandings };
