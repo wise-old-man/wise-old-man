@@ -17,7 +17,8 @@ import {
   ExtendedAchievement,
   ParticipationWithCompetition,
   FormattedSnapshot,
-  MembershipWithGroup
+  MembershipWithGroup,
+  ParticipationWithCompetitionAndStandings
 } from '../../../server/src/utils';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -87,6 +88,16 @@ export default class PlayersClient extends BaseAPIClient {
     return this.getRequest<ParticipationWithCompetition[]>(
       `${getPlayerURL(player)}/competitions`,
       pagination
+    );
+  }
+
+  /**
+   * Fetches all of the player's competition participations' standings.
+   * @returns A list of participations, with the respective competition, rank and progress included.
+   */
+  getPlayerCompetitionStandings(player: PlayerResolvable) {
+    return this.getRequest<ParticipationWithCompetitionAndStandings[]>(
+      `${getPlayerURL(player)}/competitions/standings`
     );
   }
 
