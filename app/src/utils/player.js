@@ -1,3 +1,5 @@
+import { capitalize } from "./strings";
+
 export function standardize(username) {
   return sanitize(username).toLowerCase();
 }
@@ -27,7 +29,7 @@ export function getPlayerTooltip(type, flagged) {
 export function getRoleTypeIcon(role) {
   if (role === 'member') return '/img/runescape/roles/Minion.png';
 
-  return `/img/runescape/roles/${role.replace(/_/g, ' ')}.png`;
+  return `/img/runescape/roles/${capitalize(role.replace(/_/g, ' '))}.png`;
 }
 
 export function getOfficialHiscoresUrl(player) {
