@@ -13,7 +13,7 @@ export interface EventPeriodDelay {
 /**
  * Dispatch an event to our Discord Bot API.
  */
-function dispatch(type: string, payload: any) {
+function dispatch(type: string, payload: unknown) {
   if (isTesting()) return;
 
   const url = env.DISCORD_BOT_API_URL;

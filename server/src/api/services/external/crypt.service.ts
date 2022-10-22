@@ -26,7 +26,7 @@ async function generateVerification(): Promise<[string, string]> {
 
   // This hashed code is to be stored on the database
   // for later authentication (sorta)
-  const hashedCode: any = await new Promise((resolve, reject) => {
+  const hashedCode: string = await new Promise((resolve, reject) => {
     hash(code, saltRounds, (err, hash) => {
       if (err) reject(err);
       resolve(hash);

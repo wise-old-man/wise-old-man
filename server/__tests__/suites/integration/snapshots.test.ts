@@ -173,7 +173,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Lynx Titan)', async () => {
       const data = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0];
 
-      const snapshot: any = await services.buildSnapshot({
+      const snapshot = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -196,7 +196,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Psikoi)', async () => {
       const data = globalData.cmlRawDataP.split('\n').filter(r => r.length)[0];
 
-      const snapshot: any = await services.buildSnapshot({
+      const snapshot = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS

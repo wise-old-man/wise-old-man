@@ -51,7 +51,11 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
       playerIds: memberships.map(m => m.playerId),
       maxDate: new Date()
     },
-    { sortBy: valueKey as any, limit: params.limit, offset: params.offset }
+    {
+      sortBy: valueKey,
+      limit: params.limit,
+      offset: params.offset
+    }
   );
 
   const valueMap = mapSnapshots(latestSnapshots, params.metric, measure);

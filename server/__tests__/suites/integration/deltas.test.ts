@@ -327,7 +327,7 @@ describe('Deltas API', () => {
       await expect(
         services.findGroupDeltas({
           id: globalData.testGroupId,
-          metric: 'sailing' as any,
+          metric: 'sailing' as Metric,
           period: 'week'
         })
       ).rejects.toThrow("Invalid enum value for 'metric'");

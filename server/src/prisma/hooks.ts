@@ -7,6 +7,7 @@ import { modifyAchievements } from '.';
 
 // Some events need to be dispatched on this hook because (some) bulk creates depend
 // on "skipDuplicates" which can't be easily predicted at the service level.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
   if (params.model === 'Achievement' && params.action === 'createMany') {
     const achievements = params.args.data;
@@ -83,6 +84,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function updatePlayerIdCache(result: any) {
   if (!result || !result.id || !result.username) {
     return;

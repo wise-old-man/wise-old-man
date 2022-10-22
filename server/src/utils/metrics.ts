@@ -1,4 +1,4 @@
-import { capitalize, mapValues } from 'lodash';
+import { mapValues } from 'lodash';
 import { Skill, Boss, Activity, ComputedMetric, Metric } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
@@ -222,12 +222,31 @@ function isComputedMetric(metric: Metric | string): metric is ComputedMetric {
   return metric in ComputedMetricProps;
 }
 
-function getMetricRankKey(metric: Metric) {
+function getMetricRankKey<T extends Metric>(metric: T): `${T}Rank` {
   return `${metric}Rank`;
 }
 
-function getMetricValueKey(metric: Metric) {
-  return `${metric}${capitalize(MetricProps[metric].measure)}`;
+export type MetricValueKey =
+  | `${Skill}Experience`
+  | `${Boss}Kills`
+  | `${Activity}Score`
+  | `${ComputedMetric}Value`;
+
+// Maybe someday I'll be good enough with TS to restrict the return type to the input metric type
+function getMetricValueKey(metric: Metric): MetricValueKey {
+  if (isSkill(metric)) {
+    return `${metric}Experience`;
+  }
+
+  if (isBoss(metric)) {
+    return `${metric}Kills`;
+  }
+
+  if (isActivity(metric)) {
+    return `${metric}Score`;
+  }
+
+  return `${metric}Value`;
 }
 
 function getMetricMeasure(metric: Metric) {
