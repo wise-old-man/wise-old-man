@@ -152,7 +152,8 @@ async function competitionStandings(req: Request): Promise<ControllerResponse> {
   });
 
   const results = await competitionServices.findPlayerParticipationsStandings({
-    playerId
+    playerId,
+    status: getEnum(req.query.status)
   });
 
   if (playerId && results.length === 0) {
