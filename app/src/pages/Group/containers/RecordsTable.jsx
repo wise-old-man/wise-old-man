@@ -108,7 +108,7 @@ function getTableConfig(metric, period) {
       {
         key: 'updatedAt',
         label: 'Date',
-        get: row => row.player.updatedAt,
+        get: row => row.updatedAt,
         transform: val => formatDate(val, 'DD MMM, YYYY')
       }
     ]
