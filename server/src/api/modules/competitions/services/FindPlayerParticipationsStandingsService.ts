@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { CompetitionStatus } from '../../../../utils';
 import { findPlayerParticipations } from './FindPlayerParticipationsService';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
 import { calculateParticipantsStandings } from './FetchCompetitionDetailsService';
 
 const inputSchema = z.object({
-  playerId: z.number().int().positive()
+  playerId: z.number().int().positive(),
+  status: z.enum([CompetitionStatus.ONGOING, CompetitionStatus.FINISHED])
 });
 
 type FindPlayerParticipationsParams = z.infer<typeof inputSchema>;
@@ -14,7 +16,10 @@ async function findPlayerParticipationsStandings(
 ): Promise<ParticipationWithCompetitionAndStandings[]> {
   const params = inputSchema.parse(payload);
 
-  const participations = await findPlayerParticipations({ playerId: params.playerId });
+  const participations = await findPlayerParticipations({
+    playerId: params.playerId,
+    status: params.status
+  });
 
   const competitionsStandings = await Promise.all(
     participations.map(async p => {

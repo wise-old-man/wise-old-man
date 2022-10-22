@@ -1,12 +1,14 @@
 import { omit } from 'lodash';
 import { z } from 'zod';
-import prisma from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
+import { CompetitionStatus } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { ParticipationWithCompetition } from '../competition.types';
 
 const inputSchema = z
   .object({
-    playerId: z.number().int().positive()
+    playerId: z.number().int().positive(),
+    status: z.nativeEnum(CompetitionStatus).optional()
   })
   .merge(PAGINATION_SCHEMA);
 
@@ -17,8 +19,26 @@ async function findPlayerParticipations(
 ): Promise<ParticipationWithCompetition[]> {
   const params = inputSchema.parse(payload);
 
+  const competitionQuery: PrismaTypes.CompetitionWhereInput = {};
+
+  if (params.status) {
+    const now = new Date();
+
+    if (params.status === CompetitionStatus.FINISHED) {
+      competitionQuery.endsAt = { lt: now };
+    } else if (params.status === CompetitionStatus.UPCOMING) {
+      competitionQuery.startsAt = { gt: now };
+    } else if (params.status === CompetitionStatus.ONGOING) {
+      competitionQuery.startsAt = { lt: now };
+      competitionQuery.endsAt = { gt: now };
+    }
+  }
+
   const participations = await prisma.participation.findMany({
-    where: { playerId: params.playerId },
+    where: {
+      playerId: params.playerId,
+      competition: competitionQuery
+    },
     include: {
       competition: {
         include: {
