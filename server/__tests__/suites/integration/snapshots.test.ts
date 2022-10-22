@@ -63,9 +63,9 @@ beforeAll(async () => {
 afterAll(async () => {
   jest.useRealTimers();
 
-  // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  // Sleep for 5s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {
