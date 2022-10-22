@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getRoleTypeIcon, capitalize } from 'utils';
+import { GroupRoleProps } from '@wise-old-man/utils';
+import { getRoleTypeIcon } from 'utils';
 import './RoleTag.scss';
 
 function RoleTag({ role }) {
@@ -12,7 +13,7 @@ function RoleTag({ role }) {
         <abbr className="role-tag__img">
           <img src={icon} alt="" />
         </abbr>
-        <span className="role-tag__name">{capitalize(role)}</span>
+        <span className="role-tag__name">{GroupRoleProps[role].name}</span>
       </div>
     </div>
   );
