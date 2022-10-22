@@ -140,6 +140,14 @@ export interface RecordLeaderboardFilter extends BasePlayerFilter {
  * Player Client Types
  */
 
+export interface PlayerCompetitionsFilter {
+  status?: CompetitionStatus;
+}
+
+export interface PlayerCompetitionStandingsFilter {
+  status: Exclude<CompetitionStatus, CompetitionStatus.UPCOMING>;
+}
+
 export interface PlayerRecordsFilter {
   period: Period | string;
   metric: Metric;

@@ -3,7 +3,8 @@ import type {
   PlayerRecordsFilter,
   AssertPlayerTypeResponse,
   GetPlayerGainsResponse,
-  GenericCountMessageResponse
+  GenericCountMessageResponse,
+  PlayerCompetitionsFilter
 } from '../api-types';
 import {
   PlayerResolvable,
@@ -84,20 +85,25 @@ export default class PlayersClient extends BaseAPIClient {
    * Fetches all of the player's competition participations.
    * @returns A list of participations, with the respective competition included.
    */
-  getPlayerCompetitions(player: PlayerResolvable, pagination?: PaginationOptions) {
-    return this.getRequest<ParticipationWithCompetition[]>(
-      `${getPlayerURL(player)}/competitions`,
-      pagination
-    );
+  getPlayerCompetitions(
+    player: PlayerResolvable,
+    filter?: PlayerCompetitionsFilter,
+    pagination?: PaginationOptions
+  ) {
+    return this.getRequest<ParticipationWithCompetition[]>(`${getPlayerURL(player)}/competitions`, {
+      ...filter,
+      ...pagination
+    });
   }
 
   /**
    * Fetches all of the player's competition participations' standings.
    * @returns A list of participations, with the respective competition, rank and progress included.
    */
-  getPlayerCompetitionStandings(player: PlayerResolvable) {
+  getPlayerCompetitionStandings(player: PlayerResolvable, filter: PlayerCompetitionsFilter) {
     return this.getRequest<ParticipationWithCompetitionAndStandings[]>(
-      `${getPlayerURL(player)}/competitions/standings`
+      `${getPlayerURL(player)}/competitions/standings`,
+      filter
     );
   }
 
