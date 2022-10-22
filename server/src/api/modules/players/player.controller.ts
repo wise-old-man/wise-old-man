@@ -130,6 +130,7 @@ async function competitions(req: Request): Promise<ControllerResponse> {
 
   const results = await competitionServices.findPlayerParticipations({
     playerId,
+    status: getEnum(req.query.status),
     limit: getNumber(req.query.limit),
     offset: getNumber(req.query.offset)
   });

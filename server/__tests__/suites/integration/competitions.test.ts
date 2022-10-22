@@ -2706,6 +2706,89 @@ describe('Competition API', () => {
       });
     });
 
+    it('should list player competitions (w/ ongoing status filter)', async () => {
+      const response = await api.get(`/players/psikoi/competitions`).query({ status: 'ongoing' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(4);
+
+      // Hashes shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
+      // Snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
+      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
+
+      expect(response.body[0]).toMatchObject({
+        teamName: 'Contributors',
+        competitionId: globalData.testCompetitionEnding.id,
+        competition: {
+          id: globalData.testCompetitionEnding.id,
+          participantCount: 11
+        }
+      });
+
+      expect(response.body[1]).toMatchObject({
+        teamName: 'Warriors',
+        competitionId: globalData.testCompetitionWithGroup.id,
+        competition: {
+          id: globalData.testCompetitionWithGroup.id,
+          participantCount: 4
+        }
+      });
+
+      expect(response.body[2]).toMatchObject({
+        teamName: 'Team 1',
+        competitionId: globalData.testCompetitionStartedTeam.id,
+        competition: {
+          id: globalData.testCompetitionStartedTeam.id,
+          participantCount: 4
+        }
+      });
+
+      expect(response.body[3]).toMatchObject({
+        teamName: null,
+        competitionId: globalData.testCompetitionStarted.id,
+        competition: {
+          id: globalData.testCompetitionStarted.id,
+          participantCount: 5
+        }
+      });
+    });
+
+    it('should list player competitions (w/ finished status filter)', async () => {
+      const response = await api.get(`/players/psikoi/competitions`).query({ status: 'finished' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      // Hashes shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.competition.verificationHash).length).toBe(0);
+      // Snapshot IDs shouldn't be exposed to the API consumer
+      expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
+      expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
+
+      expect(response.body[0]).toMatchObject({
+        teamName: null,
+        competitionId: globalData.testCompetitionEnded.id,
+        competition: {
+          id: globalData.testCompetitionEnded.id,
+          groupId: globalData.testGroup.id,
+          group: {
+            id: globalData.testGroup.id,
+            memberCount: 2
+          },
+          participantCount: 2
+        }
+      });
+    });
+
+    it('should list player competitions (w/ upcoming status filter)', async () => {
+      const response = await api.get(`/players/psikoi/competitions`).query({ status: 'upcoming' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(0);
+    });
+
     it('should list player competitions (w/ limit & offset)', async () => {
       const response = await api.get(`/players/psikoi/competitions`).query({ limit: 1, offset: 1 });
 
