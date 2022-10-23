@@ -42,5 +42,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [check-version]
+    if: ${{needs.check-version.outputs.skip-publish}} != true
     steps:
-      - run: echo ${{needs.check-version.outputs.skip-publish}}
+      - run: echo ${{needs.check-version.outputs.skip-publish}} # delete later
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Install client-js dependencies & build JavaScript bundle
+        run: cd client-js && npm ci
+
+      - name: Publish package bundle to NPM
+        run: cd client-js && npm publish --dry-run
