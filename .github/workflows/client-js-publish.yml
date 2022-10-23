@@ -8,10 +8,10 @@ on:
       - "client-js/**"
 
 jobs:
-  publish:
+  check-version:
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    outputs:
+      skip-publish: ${{ steps.version-check.outputs.skip }}
     steps:
       - name: Checkout master branch
         uses: actions/checkout@v3
@@ -37,21 +37,57 @@ jobs:
         id: version-check
         if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
         run: |
-          echo "No package version change. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
-          echo "skip-publish=true" >> $GITHUB_OUTPUT
+          echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
+          echo "skip=true" >> $GITHUB_OUTPUT
+  publish:
+    needs: [check-version]
+    steps:
+      - run: echo ${{needs.check-version.outputs.skip-publish}}
 
-      - name: Setup Node.js
-        if: ${{steps.version-check.outputs.skip-publish}} != "true"
-        uses: actions/setup-node@v3
+  # publish:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+  #   steps:
+  #     - name: Checkout master branch
+  #       uses: actions/checkout@v3
+  #       with:
+  #         ref: master
 
-      - name: Install server dependencies
-        if: ${{steps.version-check.outputs.skip-publish}} != "true"
-        run: cd server && npm ci
+  #     - name: Get master npm version
+  #       id: master-package-version
+  #       uses: martinbeentjes/npm-get-version-action@main
+  #       with:
+  #         path: client-js
 
-      - name: Install client-js dependencies & build JavaScript bundle
-        if: ${{steps.version-check.outputs.skip-publish}} != "true"
-        run: cd client-js && npm ci
+  #     - name: Checkout current branch
+  #       uses: actions/checkout@v3
 
-      - name: Publish package bundle to NPM
-        if: ${{steps.version-check.outputs.skip-publish}} != "true"
-        run: cd client-js && npm publish --dry-run
+  #     - name: Get current npm version
+  #       id: current-package-version
+  #       uses: martinbeentjes/npm-get-version-action@main
+  #       with:
+  #         path: client-js
+
+  #     - name: Compare both versions
+  #       id: version-check
+  #       if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
+  #       run: |
+  #         echo "No package version change. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
+  #         echo "skip-publish=true" >> $GITHUB_OUTPUT
+
+  #     - name: Setup Node.js
+  #       if: ${{steps.version-check.outputs.skip-publish}} != "true"
+  #       uses: actions/setup-node@v3
+
+  #     - name: Install server dependencies
+  #       if: ${{steps.version-check.outputs.skip-publish}} != "true"
+  #       run: cd server && npm ci
+
+  #     - name: Install client-js dependencies & build JavaScript bundle
+  #       if: ${{steps.version-check.outputs.skip-publish}} != "true"
+  #       run: cd client-js && npm ci
+
+  #     - name: Publish package bundle to NPM
+  #       if: ${{steps.version-check.outputs.skip-publish}} != "true"
+  #       run: cd client-js && npm publish --dry-run
