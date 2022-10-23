@@ -32,9 +32,9 @@ jobs:
           path: client-js
 
       - name: Check if package version changed
-        if: '${{steps.master-package-version.outputs.current-version}}' != '${{steps.current-package-version.outputs.current-version}}'
+        if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
         run: |
-          echo "Warning: package.json version hasn't changed (${{steps.master-package-version.outputs.current-version}})  ${{steps.current-package-version.outputs.current-version}} - skipping NPM publish"
+          echo "Warning: package.json version hasn't changed (${{steps.master-package-version.outputs.current-version}}) - skipping NPM publish"
           exit 1
 
       - name: Setup Node.js
