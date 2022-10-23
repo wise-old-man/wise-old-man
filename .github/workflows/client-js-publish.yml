@@ -39,3 +39,7 @@ jobs:
         run: |
           echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
           echo "skip=true" >> $GITHUB_OUTPUT
+  publish:
+    needs: [check-version]
+    steps:
+      - run: echo ${{needs.check-version.outputs.skip-publish}}
