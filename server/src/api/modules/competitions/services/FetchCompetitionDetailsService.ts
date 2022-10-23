@@ -37,8 +37,8 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
     throw new NotFoundError('Competition not found.');
   }
 
-  const participants = await calculateParticipantsStandings(params.id, params.metric || competition.metric)
- 
+  const participants = await calculateParticipantsStandings(params.id, params.metric || competition.metric);
+
   return {
     ...omit(competition, ['verificationHash']),
     group: competition.group
@@ -52,7 +52,7 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
   };
 }
 
-async function calculateParticipantsStandings(competitionId: number, metric: Metric){
+async function calculateParticipantsStandings(competitionId: number, metric: Metric) {
   const metricKey = getMetricValueKey(metric);
   const isComputed = isComputedMetric(metric);
 
@@ -67,7 +67,7 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
     }
   });
 
-  return  participations
+  return participations
     .map(p => {
       const { player, startSnapshot, endSnapshot } = p;
       const modifiedPlayer = modifyPlayer(player);
@@ -86,8 +86,6 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
       };
     })
     .sort((a, b) => b.progress.gained - a.progress.gained || b.progress.start - a.progress.start);
-
 }
-
 
 export { fetchCompetitionDetails, calculateParticipantsStandings };

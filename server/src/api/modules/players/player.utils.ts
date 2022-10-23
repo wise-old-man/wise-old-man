@@ -167,12 +167,12 @@ async function shouldReviewType(
 }
 
 function getBuild(snapshot: Snapshot): PlayerBuild {
-  if (isF2p(snapshot as any)) return PlayerBuild.F2P;
-  if (isLvl3(snapshot as any)) return PlayerBuild.LVL3;
+  if (isF2p(snapshot)) return PlayerBuild.F2P;
+  if (isLvl3(snapshot)) return PlayerBuild.LVL3;
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot as any)) return PlayerBuild.HP10;
-  if (is1Def(snapshot as any)) return PlayerBuild.DEF1;
-  if (isZerker(snapshot as any)) return PlayerBuild.ZERKER;
+  if (is10HP(snapshot)) return PlayerBuild.HP10;
+  if (is1Def(snapshot)) return PlayerBuild.DEF1;
+  if (isZerker(snapshot)) return PlayerBuild.ZERKER;
 
   return PlayerBuild.MAIN;
 }

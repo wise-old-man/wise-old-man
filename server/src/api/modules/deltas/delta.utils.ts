@@ -95,12 +95,8 @@ function calculateValueDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot
   const minimumValue = getMinimumValue(metric);
   const valueKey = getMetricValueKey(metric);
 
-  const startValue = parseNum(
-    metric,
-    startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1
-  );
-
-  const endValue = parseNum(metric, endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1);
+  const startValue = startSnapshot && startSnapshot[valueKey] ? startSnapshot[valueKey] : -1;
+  const endValue = endSnapshot && endSnapshot[valueKey] ? endSnapshot[valueKey] : -1;
 
   let gainedValue = round(Math.max(0, endValue - Math.max(0, minimumValue - 1, startValue)), 5);
 
@@ -172,8 +168,8 @@ function calculateLevelDiff(
   valueDiff: MeasuredDeltaProgress
 ) {
   if (metric === Metric.OVERALL) {
-    const startTotalLevel = getTotalLevel(startSnapshot as any);
-    const endTotalLevel = getTotalLevel(endSnapshot as any);
+    const startTotalLevel = getTotalLevel(startSnapshot);
+    const endTotalLevel = getTotalLevel(endSnapshot);
 
     return {
       gained: Math.max(0, endTotalLevel - startTotalLevel),

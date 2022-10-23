@@ -2,7 +2,7 @@ import prisma from '../../../prisma';
 import redisService from '../../services/external/redis.service';
 import { JobType, JobDefinition } from '../job.types';
 
-class RefreshApiKeysJob implements JobDefinition<{}> {
+class RefreshApiKeysJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {

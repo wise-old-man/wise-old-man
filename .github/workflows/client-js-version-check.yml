@@ -1,0 +1,42 @@
+name: (Client JS) Check Package Version
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "client-js/src/**"
+
+jobs:
+  check-unchanged:
+    name: Check Unchanged Package Version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client-js
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: Get master npm version
+        id: master-package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: client-js
+
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+
+      - name: Get current npm version
+        id: current-package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: client-js
+
+      - name: Compare both versions
+        if: steps.master-package-version.outputs.current-version == steps.current-package-version.outputs.current-version
+        run: |
+          echo "Warning: Client JS code has changed, but package.json version is unchanged (${{steps.master-package-version.outputs.current-version}})"
+          exit 1

@@ -1,5 +1,8 @@
-# Setup the docker dependencies (Postgres, PGAdmin and Redis)
-docker-compose up --build -d
+# Only setup docker for local runs (not in CI)
+if [ $# -eq 0 ]; then
+    # Setup the docker dependencies (Postgres, PGAdmin and Redis)
+    docker-compose up --build -d
+fi
 
 # Reset the test database.
 export CORE_DATABASE=wise-old-man-test

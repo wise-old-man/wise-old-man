@@ -73,7 +73,13 @@ class MetricsService {
     return this.httpHistogram.startTimer();
   }
 
-  trackHttpRequestEnded(endTimerFn: any, route: string, status: number, method: string, userAgent: string) {
+  trackHttpRequestEnded(
+    endTimerFn: (labels?: Partial<Record<HttpParams, string | number>>) => number,
+    route: string,
+    status: number,
+    method: string,
+    userAgent: string
+  ) {
     endTimerFn({ route, status, method, userAgent });
   }
 

@@ -34,7 +34,7 @@ async function buildFromRS(playerId: number, rawCSV: string) {
     throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
-  const snapshotFields: any = {
+  const snapshotFields = {
     playerId,
     createdAt: new Date()
   };
@@ -62,7 +62,7 @@ async function buildFromRS(playerId: number, rawCSV: string) {
     snapshotFields[getMetricValueKey(s)] = parseInt(kills);
   });
 
-  return snapshotFields;
+  return snapshotFields as Snapshot;
 }
 
 async function buildFromCML(playerId: number, rawCSV: string) {
@@ -81,11 +81,10 @@ async function buildFromCML(playerId: number, rawCSV: string) {
     throw new ServerError('The CML API was updated. Please wait for a fix.');
   }
 
-  const snapshotFields: any = {
+  const snapshotFields = {
     playerId,
     importedAt: new Date(),
-    // CML stores timestamps in seconds, we need milliseconds
-    createdAt: new Date(parseInt(timestamp, 10) * 1000)
+    createdAt: new Date(parseInt(timestamp, 10) * 1000) // CML stores timestamps in seconds, we need milliseconds
   };
 
   // Populate the skills' values with experience and rank data
@@ -94,7 +93,7 @@ async function buildFromCML(playerId: number, rawCSV: string) {
     snapshotFields[getMetricValueKey(s)] = parseInt(exps[i]);
   });
 
-  return snapshotFields;
+  return snapshotFields as Snapshot;
 }
 
 export { buildSnapshot };

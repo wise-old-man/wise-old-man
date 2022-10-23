@@ -300,11 +300,15 @@ describe('Util - Experience', () => {
     ).toBe(21 * 99 + 50 + 90);
 
     expect(
-      getTotalLevel(Object.fromEntries(SKILLS.map(s => [getMetricValueKey(s), MAX_SKILL_EXP])) as any)
+      getTotalLevel(
+        Object.fromEntries(SKILLS.map(s => [getMetricValueKey(s), MAX_SKILL_EXP])) as unknown as Snapshot
+      )
     ).toBe(2277);
 
     expect(
-      getTotalLevel(Object.fromEntries(SKILLS.map(s => [getMetricValueKey(s), SKILL_EXP_AT_99])) as any)
+      getTotalLevel(
+        Object.fromEntries(SKILLS.map(s => [getMetricValueKey(s), SKILL_EXP_AT_99])) as unknown as Snapshot
+      )
     ).toBe(2277);
   });
 });

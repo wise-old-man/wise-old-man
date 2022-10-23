@@ -71,7 +71,7 @@ async function importCMLHistorySince(id: number, username: string, time: number)
   );
 
   // Ignore any CML snapshots past May 10th 2020 (when we introduced boss tracking)
-  const pastSnapshots = snapshots.filter((s: any) => s.createdAt < new Date('2020-05-10'));
+  const pastSnapshots = snapshots.filter(s => s.createdAt < new Date('2020-05-10'));
 
   // Save new snapshots to db, return the number of created rows
   const result = await saveAllSnapshots(pastSnapshots);

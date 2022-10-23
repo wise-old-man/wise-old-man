@@ -1,4 +1,4 @@
-name: Run API (v2) Integration Tests
+name: (API) Continuous Integration
 
 on:
   pull_request:
@@ -8,12 +8,12 @@ on:
       - "server/**"
 
 jobs:
-  integration-test:
-    name: Integration Test (API)
+  test:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.16.0]
+    defaults:
+      run:
+        working-directory: ./server
     services:
       postgres:
         image: postgres:14
@@ -42,20 +42,31 @@ jobs:
       ADMIN_PASSWORD: testpassword123
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
 
       - name: Install dependencies
-        run: cd server && npm ci
+        run: npm ci
 
       - name: Run Integration Tests
-        run: |
-          cd server
-          export CORE_DATABASE=wise-old-man-test
-          npx prisma migrate reset --force
-          export NODE_ENV=test TZ=UTC
-          npx jest __tests__/suites --detectOpenHandles --verbose --forceExit
+        run: npm run test -
+  type-check-client-js:
+    name: Type-check Client JS package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Install client-js dependencies
+        run: cd client-js && npm ci
+
+      - name: Build & Type Check
+        run: cd client-js && npm run build

@@ -12,7 +12,7 @@ const COOLDOWN = 3_600_000;
  * Invalidation jobs are scheduled 1 hour apart, for each supported Delta period.
  * Ex: At midnight invalidate FIVE_MIN deltas, at 1AM invalidate DAY deltas, etc.
  */
-class ScheduleDeltaInvalidations implements JobDefinition<{}> {
+class ScheduleDeltaInvalidations implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {

@@ -17,7 +17,8 @@ import {
   Boss,
   Activity,
   ComputedMetric,
-  MapOf
+  MapOf,
+  MetricValueKey
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -158,7 +159,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
 
   // EHP and EHB can fluctuate without the player's envolvement
   const metricsToIgnore = [Metric.EHP, Metric.EHB];
-  const isValidKey = (key: string) => !metricsToIgnore.map(getMetricValueKey).includes(key);
+  const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
   return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] > before[k]);
 }
@@ -169,7 +170,7 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
 function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
   // LMS scores, PVP ARENA scores, EHP and EHB can fluctuate overtime
   const metricsToIgnore = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
-  const isValidKey = (key: string) => !metricsToIgnore.map(getMetricValueKey).includes(key);
+  const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
   return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
 }
@@ -179,7 +180,7 @@ function average(snapshots: Snapshot[]): Snapshot {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
 
-  const base: any = {
+  const base = {
     id: -1,
     playerId: -1,
     createdAt: null,
@@ -190,13 +191,8 @@ function average(snapshots: Snapshot[]): Snapshot {
     const valueKey = getMetricValueKey(metric);
     const rankKey = getMetricRankKey(metric);
 
-    const valueSum = snapshots
-      .map((s: Snapshot) => s[valueKey])
-      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
-
-    const rankSum = snapshots
-      .map((s: Snapshot) => s[rankKey])
-      .reduce((acc: number, cur: any) => acc + parseInt(cur), 0);
+    const valueSum = snapshots.map(s => s[valueKey]).reduce((acc, cur) => acc + cur, 0);
+    const rankSum = snapshots.map(s => s[rankKey]).reduce((acc, cur) => acc + cur, 0);
 
     const valueAvg = Math.round(valueSum / snapshots.length);
     const rankAvg = Math.round(rankSum / snapshots.length);
@@ -205,7 +201,7 @@ function average(snapshots: Snapshot[]): Snapshot {
     base[rankKey] = rankAvg;
   });
 
-  return base;
+  return base as Snapshot;
 }
 
 function getCombatLevelFromSnapshot(snapshot: Snapshot) {
@@ -222,7 +218,7 @@ function getCombatLevelFromSnapshot(snapshot: Snapshot) {
   );
 }
 
-function get200msCount(snapshot: any) {
+function get200msCount(snapshot: Snapshot) {
   return REAL_SKILLS.filter(s => snapshot[getMetricValueKey(s)] === MAX_SKILL_EXP).length;
 }
 

@@ -11,7 +11,8 @@ import prisma, {
   modifyRecords,
   PrismaPromise,
   modifySnapshots,
-  setHooksEnabled
+  setHooksEnabled,
+  modifyPlayer
 } from '../../../../prisma';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
@@ -74,7 +75,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   const transitionDate = (await snapshotServices.findPlayerSnapshot({ id: oldPlayer.id })).createdAt;
   const playerUpdateFields: PrismaTypes.PlayerUpdateInput = {};
 
-  const promises: PrismaPromise<any>[] = [];
+  const promises: PrismaPromise<unknown>[] = [];
 
   if (newPlayer && oldPlayer.id !== newPlayer.id) {
     // Fetch all of older player's records, to compare to the new ones
@@ -137,23 +138,27 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   // that wouldn't make sense because it's the same player, just under a different name, and about to be merged into one
   setHooksEnabled(false);
 
-  const results = await prisma.$transaction([
-    ...promises,
-    prisma.player.update({ where: { id: oldPlayer.id }, data: playerUpdateFields })
-  ]);
+  const updatePlayerPromise = prisma.player.update({
+    where: { id: oldPlayer.id },
+    data: playerUpdateFields
+  });
+
+  const results = await prisma.$transaction([...promises, updatePlayerPromise]);
 
   setHooksEnabled(true);
 
   if (!results || results.length === 0) return;
 
-  playerEvents.onPlayerNameChanged(results[results.length - 1], oldPlayer.displayName);
+  const updatedPlayer = results[results.length - 1] as Awaited<typeof updatePlayerPromise>;
+
+  playerEvents.onPlayerNameChanged(modifyPlayer(updatedPlayer), oldPlayer.displayName);
 }
 
 function transferRecords(
   oldPlayerId: number,
   oldRecords: Record[],
   newRecords: Record[]
-): PrismaPromise<any>[] {
+): PrismaPromise<unknown>[] {
   const recordsToAdd: Record[] = [];
   const recordsToUpdate: { record: Record; newValue: number }[] = [];
 
@@ -170,7 +175,7 @@ function transferRecords(
     }
   });
 
-  const promises: PrismaPromise<any>[] = [];
+  const promises: PrismaPromise<unknown>[] = [];
 
   if (recordsToAdd.length > 0) {
     promises.push(

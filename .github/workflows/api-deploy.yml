@@ -1,4 +1,4 @@
-name: Deploy API (v2)
+name: (API) Continuous Deployment
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-api-image:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -29,8 +30,9 @@ jobs:
           docker build . -f Dockerfile -t wiseoldman/api-v2:latest -t wiseoldman/api-v2:${{steps.package-version.outputs.current-version}}
           docker push -a wiseoldman/api-v2
   deploy:
-    runs-on: ubuntu-latest
+    name: Pull & Restart Docker Container
     needs: [build-api-image]
+    runs-on: ubuntu-latest
     steps:
       - name: Restart docker
         uses: appleboy/ssh-action@master

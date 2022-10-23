@@ -63,9 +63,9 @@ beforeAll(async () => {
 afterAll(async () => {
   jest.useRealTimers();
 
-  // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  // Sleep for 5s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {
@@ -173,7 +173,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Lynx Titan)', async () => {
       const data = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0];
 
-      const snapshot: any = await services.buildSnapshot({
+      const snapshot = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS
@@ -196,7 +196,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Psikoi)', async () => {
       const data = globalData.cmlRawDataP.split('\n').filter(r => r.length)[0];
 
-      const snapshot: any = await services.buildSnapshot({
+      const snapshot = await services.buildSnapshot({
         playerId: 1,
         rawCSV: data,
         source: SnapshotDataSource.CRYSTAL_MATH_LABS

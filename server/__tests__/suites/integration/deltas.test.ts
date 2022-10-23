@@ -55,9 +55,9 @@ afterAll(async () => {
   jest.useRealTimers();
   axiosMock.reset();
 
-  // Sleep for 1s to allow the server to shut down gracefully
-  await apiServer.shutdown().then(() => sleep(1000));
-});
+  // Sleep for 5s to allow the server to shut down gracefully
+  await apiServer.shutdown().then(() => sleep(5000));
+}, 10_000);
 
 describe('Deltas API', () => {
   describe('1 - Syncing Player Deltas', () => {
@@ -327,7 +327,7 @@ describe('Deltas API', () => {
       await expect(
         services.findGroupDeltas({
           id: globalData.testGroupId,
-          metric: 'sailing' as any,
+          metric: 'sailing' as Metric,
           period: 'week'
         })
       ).rejects.toThrow("Invalid enum value for 'metric'");

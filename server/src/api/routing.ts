@@ -73,7 +73,7 @@ class RoutingHandler {
     });
 
     // Handle errors
-    this.router.use((error, req, res, next) => {
+    this.router.use((error, req, res, _) => {
       const { method, query, params, body, originalUrl } = req;
 
       const message = error.message || 'Unknown server error.';

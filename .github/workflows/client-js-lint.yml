@@ -1,0 +1,28 @@
+name: (Client JS) Check Code Quality
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "client-js/**"
+
+jobs:
+  lint:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run ESLint
+        run: npm run lint

@@ -22,8 +22,8 @@ class ProxiesHandler {
 
   constructor() {
     const hostList = env.PROXY_LIST;
-    const cpuCount: any = env.CPU_COUNT || '1';
-    const cpuIndex: any = env.pm_id || 0;
+    const cpuCount = env.CPU_COUNT ? parseInt(env.CPU_COUNT) : 1;
+    const cpuIndex = env.pm_id ? parseInt(env.pm_id) : 0;
 
     if (!hostList) {
       return;

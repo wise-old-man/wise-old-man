@@ -2,9 +2,9 @@ export class BadRequestError extends Error {
   message: string;
   name: string;
   statusCode: number;
-  data: any;
+  data: unknown;
 
-  constructor(message: string, data?: any) {
+  constructor(message: string, data?: unknown) {
     super(message);
     this.name = 'BadRequestError';
     this.statusCode = 400;

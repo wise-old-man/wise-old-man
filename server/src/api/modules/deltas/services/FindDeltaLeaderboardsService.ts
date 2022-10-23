@@ -8,7 +8,7 @@ import {
   Country,
   DeltaLeaderboardEntry
 } from '../../../../utils';
-import prisma, { PrismaTypes, modifyDeltas, Delta } from '../../../../prisma';
+import prisma, { PrismaTypes, modifyDeltas, Delta, PrismaPlayer, modifyPlayer } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
@@ -58,8 +58,8 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
     .then(modifyDeltas);
 
   // Transform the database objects into the tighter result response objects
-  const results = deltas.map((d: Delta | any) => ({
-    player: d.player,
+  const results = deltas.map((d: Delta & { player: PrismaPlayer }) => ({
+    player: modifyPlayer(d.player),
     playerId: d.playerId,
     startDate: d.startedAt,
     endDate: d.endedAt,

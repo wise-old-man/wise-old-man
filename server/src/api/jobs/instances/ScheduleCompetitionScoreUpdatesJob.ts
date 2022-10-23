@@ -3,7 +3,7 @@ import { Period, PeriodProps } from '../../..//utils';
 import { JobType, JobDefinition } from '../job.types';
 import { jobManager } from '..';
 
-class ScheduleCompetitionScoreUpdatesJob implements JobDefinition<{}> {
+class ScheduleCompetitionScoreUpdatesJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {

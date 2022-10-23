@@ -41,7 +41,7 @@ async function calculateScore(group: GroupDetails): Promise<number> {
   }
 
   const competitions = await competitionServices.findGroupCompetitions({ groupId: group.id });
-  const averageOverallExp = memberships.reduce((acc: any, cur: any) => acc + cur, 0) / memberships.length;
+  const averageOverallExp = memberships.reduce((acc, cur) => acc + cur.player.exp, 0) / memberships.length;
 
   // If has atleast one leader
   if (memberships.filter(m => PRIVELEGED_GROUP_ROLES.includes(m.role)).length >= 1) {

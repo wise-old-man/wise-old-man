@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { omit } from 'lodash';
 import prisma, {
-  Group,
   Membership,
   modifyPlayer,
   PrismaPlayer,
@@ -122,16 +121,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
   };
 }
 
-type UpdateExecutionResult = Group & {
-  memberships: (Membership & {
-    player: PrismaPlayer;
-  })[];
-};
-
-async function executeUpdate(
-  params: EditGroupParams,
-  updatedGroupFields: PrismaTypes.GroupUpdateInput
-): Promise<UpdateExecutionResult> {
+async function executeUpdate(params: EditGroupParams, updatedGroupFields: PrismaTypes.GroupUpdateInput) {
   // This action updates the group's fields and returns all the new data + memberships,
   // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
   const groupUpdatePromise = prisma.group.update({
@@ -185,7 +175,7 @@ async function executeUpdate(
       groupUpdatePromise
     ]);
 
-    return results[results.length - 1];
+    return results[results.length - 1] as Awaited<typeof groupUpdatePromise>;
   }
 
   return await groupUpdatePromise;
@@ -235,7 +225,7 @@ function updateExistingRoles(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: PrismaPlayer })[],
   memberInputs: EditGroupParams['members']
-): PrismaPromise<any>[] {
+): PrismaPromise<PrismaTypes.BatchPayload>[] {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = memberInputs.reverse();
 

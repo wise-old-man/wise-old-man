@@ -2,12 +2,10 @@ import { z } from 'zod';
 import { CompetitionType, Metric } from '../../../../utils';
 import prisma, {
   PrismaPlayer,
-  Competition,
   Participation,
   PrismaTypes,
   PrismaPromise,
-  modifyPlayer,
-  Group
+  modifyPlayer
 } from '../../../../prisma';
 import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
@@ -187,22 +185,11 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
   };
 }
 
-type UpdateExecutionResult = Competition & {
-  group: Group & {
-    _count: {
-      memberships: number;
-    };
-  };
-  participations: (Participation & {
-    player: PrismaPlayer;
-  })[];
-};
-
 async function executeUpdate(
   params: EditCompetitionParams,
   nextParticipations: PartialParticipation[],
   updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput
-): Promise<UpdateExecutionResult> {
+) {
   // This action updates the competition's fields and returns all the new data + participations,
   // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
   const competitionUpdatePromise = prisma.competition.update({
@@ -262,14 +249,14 @@ async function executeUpdate(
     competitionUpdatePromise
   ]);
 
-  return results[results.length - 1];
+  return results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
 }
 
 function updateExistingTeams(
   competitionId: number,
   currentParticipations: Participation[],
   keptParticipations: PartialParticipation[]
-): PrismaPromise<any>[] {
+): PrismaPromise<PrismaTypes.BatchPayload>[] {
   const currentTeamNameMap: { [teamName: string]: number[] } = {};
   const newTeamNameMap: { [teamName: string]: number[] } = {};
 

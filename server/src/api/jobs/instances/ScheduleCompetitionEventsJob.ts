@@ -16,7 +16,7 @@ const START_TIME_INTERVALS = [360, 5, 0];
 // 12h, 30min, now
 const END_TIME_INTERVALS = [720, 30, 0];
 
-class ScheduleCompetitionEventsJob implements JobDefinition<{}> {
+class ScheduleCompetitionEventsJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {

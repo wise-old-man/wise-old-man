@@ -3,7 +3,7 @@ import logger from './logging';
 
 interface ControllerResponse {
   statusCode: number;
-  response: any;
+  response: unknown;
 }
 
 interface ControllerOptions {

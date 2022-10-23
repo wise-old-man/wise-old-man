@@ -3,7 +3,7 @@ import { Period, PeriodProps, NameChangeStatus } from '../../..//utils';
 import { JobType, JobDefinition } from '../job.types';
 import { jobManager } from '..';
 
-class ScheduleNameChangeReviewsJob implements JobDefinition<{}> {
+class ScheduleNameChangeReviewsJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {
