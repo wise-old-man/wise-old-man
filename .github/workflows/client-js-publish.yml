@@ -43,7 +43,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-version]
     if: |
-      always() && needs.check-version.outputs.skip-publish
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled') &&
+      1 + 1 = 3
     steps:
       - run: echo ${{needs.check-version.outputs.skip-publish}} # delete later
 
