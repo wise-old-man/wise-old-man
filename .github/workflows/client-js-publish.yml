@@ -10,6 +10,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,10 +25,5 @@ jobs:
       - name: Install client-js dependencies & build JavaScript bundle
         run: cd client-js && npm ci
 
-      - name: Stupid hack to make process.env wake up
-        run: env
-
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
-          dry-run: true
+      - name: Publish package bundle to NPM
+        run: npm run publish --dry-run
