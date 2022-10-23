@@ -37,5 +37,14 @@ jobs:
           echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
           exit 1
 
-      - name: Wow?
-        run: echo "yes?!?!?!?!?"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Install client-js dependencies & build JavaScript bundle
+        run: cd client-js && npm ci
+
+      - name: Publish package bundle to NPM
+        run: cd client-js && npm publish --dry-run
