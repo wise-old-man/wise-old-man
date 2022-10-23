@@ -34,7 +34,7 @@ jobs:
       - name: Compare both versions
         id: version-check
         if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
-        uses: andymckay/cancel-action@0.2
+        uses: styfle/cancel-workflow-action@0.11.0
 
       - name: Wow?
         run: echo "yes?!?!?!?!?"
