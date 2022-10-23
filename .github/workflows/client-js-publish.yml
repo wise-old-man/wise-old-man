@@ -20,11 +20,8 @@ jobs:
       - name: Install server dependencies
         run: cd server && npm ci
 
-      - name: Install client-js dependencies
+      - name: Install client-js dependencies & build JavaScript bundle
         run: cd client-js && npm ci
-
-      - name: Build JavaScript Bundle
-        run: cd client-js && npm run build
 
       - uses: JS-DevTools/npm-publish@v1
         with:
