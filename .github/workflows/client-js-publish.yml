@@ -26,4 +26,4 @@ jobs:
         run: cd client-js && npm ci
 
       - name: Publish package bundle to NPM
-        run: npm run publish --dry-run
+        run: cd client-js npm run publish --dry-run
