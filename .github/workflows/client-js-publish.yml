@@ -31,8 +31,8 @@ jobs:
         with:
           path: client-js
 
-      - name: Compare both versions
-        if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
+      - name: Check if package version changed
+        if: ${{steps.master-package-version.outputs.current-version}} != ${{steps.current-package-version.outputs.current-version}}
         run: |
           echo "Warning: package.json version hasn't changed (${{steps.master-package-version.outputs.current-version}}) - skipping NPM publish"
           exit 1
