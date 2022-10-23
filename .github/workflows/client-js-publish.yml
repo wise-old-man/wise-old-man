@@ -32,8 +32,10 @@ jobs:
           path: client-js
 
       - name: Compare both versions
-        if: ${{steps.master-package-version.outputs.current-version}} != ${{steps.current-package-version.outputs.current-version}}
-        uses: styfle/cancel-workflow-action@0.11.0
+        if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
+        run: |
+          echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
+          exit 1
 
       - name: Wow?
         run: echo "yes?!?!?!?!?"
