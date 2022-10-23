@@ -4,7 +4,8 @@ import {
   getMetricValueKey,
   getLevel,
   SKILL_EXP_AT_99,
-  isMetric
+  isMetric,
+  REAL_SKILLS
 } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
@@ -21,6 +22,9 @@ function getAchievementMeasure(metric: Metric, threshold: number): string {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
+  if (name === 'Base {level} Stats') {
+    threshold = threshold / REAL_SKILLS.length;
+  }
   const newName = name
     .replace('{threshold}', formatThreshold(threshold))
     .replace('{level}', formatThreshold(threshold));

@@ -1,6 +1,6 @@
 import { Snapshot } from '../../../prisma';
-import { Metric } from '../../../utils';
-import { getMinimumExp } from '../snapshots/snapshot.utils';
+import { Metric, REAL_SKILLS } from '../../../utils';
+import { getCappedExp } from '../snapshots/snapshot.utils';
 import { AchievementTemplate } from './achievement.types';
 
 export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
@@ -11,9 +11,9 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: 'Base {level} Stats',
     metric: Metric.OVERALL,
     measure: 'levels',
-    thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431],
-    getCurrentValue: (snapshot: Snapshot) => {
-      return getMinimumExp(snapshot);
+    thresholds: [273_742, 737_627, 1_986_068, 5_346_332, 13_034_431].map(i => i * REAL_SKILLS.length),
+    getCurrentValue: (snapshot: Snapshot, threshold: number) => {
+      return getCappedExp(snapshot, threshold / REAL_SKILLS.length);
     }
   },
   // ------------------
