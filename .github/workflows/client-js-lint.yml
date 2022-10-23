@@ -1,4 +1,4 @@
-name: Check Code Quality (Client JS)
+name: (Client JS) Check Code Quality
 
 on:
   pull_request:

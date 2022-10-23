@@ -1,4 +1,4 @@
-name: Continuous Integration (API)
+name: (API) Continuous Integration
 
 on:
   pull_request:
@@ -8,50 +8,50 @@ on:
       - "server/**"
 
 jobs:
-  test:
-    name: Run Integration Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./server
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci-database
-      REDIS_PORT: 6379
-      ADMIN_PASSWORD: testpassword123
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  # test:
+  #   name: Run Integration Tests
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./server
+  #   services:
+  #     postgres:
+  #       image: postgres:14
+  #       env:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: postgres
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #       ports:
+  #         - 5432:5432
+  #     redis:
+  #       image: redis
+  #       options: >-
+  #         --health-cmd "redis-cli ping"
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #       ports:
+  #         - 6379:6379
+  #   env:
+  #     DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci-database
+  #     REDIS_PORT: 6379
+  #     ADMIN_PASSWORD: testpassword123
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run Integration Tests
-        run: npm run test -
+  #     - name: Run Integration Tests
+  #       run: npm run test -
   type-check-client-js:
     name: Type-check Client JS package
     runs-on: ubuntu-latest

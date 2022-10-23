@@ -1,4 +1,4 @@
-name: Check Code Quality (API)
+name: (API) Check Code Quality
 
 on:
   pull_request:
