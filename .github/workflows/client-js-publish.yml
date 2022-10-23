@@ -8,10 +8,8 @@ on:
       - "client-js/**"
 
 jobs:
-  check-version:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      skip-publish: ${{ steps.version-check.outputs.skip }}
     steps:
       - name: Checkout master branch
         uses: actions/checkout@v3
@@ -39,28 +37,6 @@ jobs:
         run: |
           echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
           echo "skip=true" >> $GITHUB_OUTPUT
-  publish:
-    runs-on: ubuntu-latest
-    needs: [check-version]
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      1 + 1 == 3
-    steps:
-      - run: echo ${{needs.check-version.outputs.skip-publish}} # delete later
 
-      - name: Checkout current branch
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-
-      - name: Install server dependencies
-        run: cd server && npm ci
-
-      - name: Install client-js dependencies & build JavaScript bundle
-        run: cd client-js && npm ci
-
-      - name: Publish package bundle to NPM
-        run: cd client-js && npm publish --dry-run
+      - name: Wow?
+        run: echo ${{steps.check-version.outputs.skip}} # delete later
