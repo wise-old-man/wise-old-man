@@ -34,19 +34,24 @@ jobs:
           path: client-js
 
       - name: Compare both versions
+        id: version-check
         if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
         run: |
           echo "No package version change. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
-          exit 0
+          echo "skip-publish=true" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
+        if: ${{steps.version-check.outputs.skip-publish}} != true
         uses: actions/setup-node@v3
 
       - name: Install server dependencies
+        if: ${{steps.version-check.outputs.skip-publish}} != true
         run: cd server && npm ci
 
       - name: Install client-js dependencies & build JavaScript bundle
+        if: ${{steps.version-check.outputs.skip-publish}} != true
         run: cd client-js && npm ci
 
       - name: Publish package bundle to NPM
+        if: ${{steps.version-check.outputs.skip-publish}} != true
         run: cd client-js && npm publish --dry-run
