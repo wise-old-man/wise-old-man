@@ -55,6 +55,7 @@ jobs:
   type-check-client-js:
     name: Type Check client-js package
     runs-on: ubuntu-latest
+    needs: [test]
     defaults:
       run:
         working-directory: ./client-js
