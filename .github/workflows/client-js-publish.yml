@@ -46,7 +46,7 @@ jobs:
 
       - name: Install server dependencies
         if: ${{steps.version-check.outputs.skip-publish}} != true
-        run: cd server && npm ci
+        run: cd server && npm ci && echo "result ${{steps.version-check.outputs.skip-publish}}"
 
       - name: Install client-js dependencies & build JavaScript bundle
         if: ${{steps.version-check.outputs.skip-publish}} != true
