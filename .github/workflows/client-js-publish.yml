@@ -1,7 +1,7 @@
 name: (Client JS) Publish to NPM
 
 on:
-  pull_request: # change to push after dry run is checked
+  push:
     branches:
       - master
     paths:
@@ -47,4 +47,4 @@ jobs:
         run: cd client-js && npm ci
 
       - name: Publish package bundle to NPM
-        run: cd client-js && npm publish --dry-run
+        run: cd client-js && npm publish
