@@ -1,0 +1,29 @@
+name: Run API (v2) Linting
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "server/**"
+
+jobs:
+  lint:
+    name: Run ESLint (Server)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        run: |
+          cd server
+          npm i
+
+      - name: Run ESLint
+        run: |
+          cd server
+          npm run lint
