@@ -1,4 +1,4 @@
-name: Continuous Deployment (v2)
+name: Continuous Deployment (API)
 
 on:
   push:

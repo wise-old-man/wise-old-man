@@ -1,11 +1,11 @@
-name: Check Code Quality (API)
+name: Check Code Quality (Client JS)
 
 on:
   pull_request:
     branches:
       - master
     paths:
-      - "server/**"
+      - "client-js/**"
 
 jobs:
   lint:
