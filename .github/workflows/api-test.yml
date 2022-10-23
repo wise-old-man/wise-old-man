@@ -53,7 +53,7 @@ jobs:
       - name: Run Integration Tests
         run: npm run test -
   type-check-client-js:
-    name: Type Check client-js package
+    name: Type-check Client JS package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
