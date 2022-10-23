@@ -1,4 +1,4 @@
-name: Run API (v2) Linting
+name: Check Code Quality
 
 on:
   pull_request:
@@ -9,8 +9,11 @@ on:
 
 jobs:
   lint:
-    name: Run ESLint (Server)
+    name: Run ESLint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,11 +22,7 @@ jobs:
         uses: actions/setup-node@v3
 
       - name: Install dependencies
-        run: |
-          cd server
-          npm i
+        run: npm i
 
       - name: Run ESLint
-        run: |
-          cd server
-          npm run lint
+        run: npm run lint

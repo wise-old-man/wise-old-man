@@ -1,4 +1,4 @@
-name: Run API (v2) Integration Tests
+name: Continuous Integration (v2)
 
 on:
   pull_request:
@@ -8,8 +8,8 @@ on:
       - "server/**"
 
 jobs:
-  integration-test:
-    name: Integration Test (API)
+  test:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,12 +42,10 @@ jobs:
       ADMIN_PASSWORD: testpassword123
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
 
       - name: Install dependencies
         run: cd server && npm ci
