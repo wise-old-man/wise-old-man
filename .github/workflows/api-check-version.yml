@@ -36,7 +36,7 @@ jobs:
           path: server
 
       - name: Compare both versions
-        if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
+        if: steps.master-package-version.outputs.current-version == steps.current-package-version.outputs.current-version
         run: |
           echo "Warning: API code has changed, but package.json version is unchanged (${{steps.master-package-version.outputs.current-version}})"
           exit 1
