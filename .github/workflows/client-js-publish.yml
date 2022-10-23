@@ -32,8 +32,7 @@ jobs:
           path: client-js
 
       - name: Compare both versions
-        id: version-check
-        if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
+        if: ${{steps.master-package-version.outputs.current-version}} != ${{steps.current-package-version.outputs.current-version}}
         uses: styfle/cancel-workflow-action@0.11.0
 
       - name: Wow?
