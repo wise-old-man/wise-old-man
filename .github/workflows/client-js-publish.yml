@@ -23,6 +23,9 @@ jobs:
       - name: Install client-js dependencies & build JavaScript bundle
         run: cd client-js && npm ci
 
+      - name: Stupid hack to make process.env wake up
+        run: env
+
       - uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
