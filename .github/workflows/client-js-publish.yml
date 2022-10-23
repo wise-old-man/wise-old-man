@@ -34,7 +34,7 @@ jobs:
       - name: Compare both versions
         if: ${{steps.master-package-version.outputs.current-version}} == ${{steps.current-package-version.outputs.current-version}}
         run: |
-          echo "Package.json version hasn't changed. Skipping NPM publish (${{steps.master-package-version.outputs.current-version}})"
+          echo "Warning: package.json version hasn't changed (${{steps.master-package-version.outputs.current-version}}) - skipping NPM publish"
           exit 1
 
       - name: Setup Node.js
