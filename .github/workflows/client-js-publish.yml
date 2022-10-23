@@ -1,0 +1,32 @@
+name: (Client JS) Publish to NPM
+
+on:
+  pull_request: # change to push after dry run is checked
+    branches:
+      - master
+    paths:
+      - "client-js/**"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Install client-js dependencies
+        run: cd client-js && npm ci
+
+      - name: Build JavaScript Bundle
+        run: cd client-js && npm run build
+
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          dry-run: true
