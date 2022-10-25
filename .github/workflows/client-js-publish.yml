@@ -11,31 +11,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout master branch
-        uses: actions/checkout@v3
-        with:
-          ref: master
-
-      - name: Get master npm version
-        id: master-package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: client-js
-
       - name: Checkout current branch
         uses: actions/checkout@v3
-
-      - name: Get current npm version
-        id: current-package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: client-js
-
-      - name: Check if package version changed
-        if: steps.master-package-version.outputs.current-version == steps.current-package-version.outputs.current-version
-        run: |
-          echo "Warning: package.json version hasn't changed (${{steps.master-package-version.outputs.current-version}}) - skipping NPM publish"
-          exit 1
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
