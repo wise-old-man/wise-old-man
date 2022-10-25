@@ -1,12 +1,7 @@
-body {
-  background: hsl(225, 8%, 21%);
-}
+:root {
 
-.navbar {
-  background: hsl(225, 15%, 15%);
-}
+  font-size: 0.9rem;
 
-[data-theme='dark'] {
   --ifm-color-primary: hsl(202, 82%, 60%);
   --ifm-color-primary-dark: hsl(202, 82%, 56%);
   --ifm-color-primary-darker: hsl(202, 82%, 53%);
@@ -16,3 +11,16 @@ body {
   --ifm-color-primary-lightest: hsl(202, 82%, 74%);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+html {
+  background: hsl(225, 8%, 21%);
+}
+
+.navbar {
+  background: hsl(225, 15%, 15%);
+}
+
+.container {
+  padding: 4rem;
+}
+
