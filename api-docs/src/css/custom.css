@@ -1,0 +1,18 @@
+body {
+  background: hsl(225, 8%, 21%);
+}
+
+.navbar {
+  background: hsl(225, 15%, 15%);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: hsl(202, 82%, 60%);
+  --ifm-color-primary-dark: hsl(202, 82%, 56%);
+  --ifm-color-primary-darker: hsl(202, 82%, 53%);
+  --ifm-color-primary-darkest: hsl(202, 82%, 47%);
+  --ifm-color-primary-light: hsl(202, 82%, 65%);
+  --ifm-color-primary-lighter: hsl(202, 82%, 67%);
+  --ifm-color-primary-lightest: hsl(202, 82%, 74%);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
