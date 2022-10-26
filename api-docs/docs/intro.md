@@ -21,7 +21,7 @@ https://github.com/wise-old-man/wise-old-man/issues
 
 :::info
 If you are interested in using our API for your apps, consider saying hi on our discord so we can assign you a `API Consumer` role which
-we use to ping users when something in the API changed.
+we use to ping users when something in the API has changed.
 
 Also consider requesting an **API Key** for your app, more on that [later on this page](/docs/intro#rate-limits--api-keys).
 :::
@@ -52,6 +52,8 @@ Example: <br />
 There is a maximum of 100 requests per 5 minutes, however, this can be increased (to 500) if you register for an **API key**.
 
 **API Keys** help us keep track of who is actually using our API, and what resources they need the most, and can be really helpful for us to know how to contact our API consumers.
+
+**If you want an API key, or just want to be notified of API changes, just send us a message on [our discord](https://wiseoldman.net/discord) and we'll help you.**
 
 Alternatively, you can add a user agent header to your requests, which would help us identify who you are, however, this does not increase API rate limits.
 

@@ -22,6 +22,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          breadcrumbs: false,
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/wise-old-man/wise-old-man/tree/master/api-docs/'
         },
