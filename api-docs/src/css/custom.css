@@ -1,5 +1,4 @@
 :root {
-
   font-size: 0.9rem;
 
   --ifm-color-primary: hsl(202, 82%, 60%);
@@ -24,3 +23,26 @@ html {
   padding: 4rem;
 }
 
+.tabs {
+  background: hsl(225, 8%, 12%);
+  border-radius: 4px;
+}
+
+.tabs__item {
+  padding: 8px 16px;
+  font-size: 0.9em;
+}
+
+.tabs__item:hover {
+  background: none;
+  color: gray;
+}
+
+.tabs__item[aria-selected='true']:hover {
+  background: none;
+  color: var(--ifm-color-primary);
+}
+
+table {
+  font-size: 0.9em;
+}

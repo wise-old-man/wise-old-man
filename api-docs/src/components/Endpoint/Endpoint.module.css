@@ -1,0 +1,37 @@
+.verb {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-weight: 400;
+  font-size: 0.9em;
+  margin-right: 8px;
+}
+
+.path {
+  font-family: monospace;
+}
+
+.post {
+  border: 1px solid #4ade80;
+  color: #4ade80;
+}
+
+.delete {
+  border: 1px solid #fb7185;
+  color: #fb7185;
+}
+
+.get {
+  border: 1px solid #ab95ed;
+  color: #ab95ed;
+}
+
+.put {
+  border: 1px solid #fb923c;
+  color: #fb923c;
+}
+
+.patch {
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+}
