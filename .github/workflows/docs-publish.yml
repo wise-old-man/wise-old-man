@@ -1,7 +1,7 @@
 name: (Docs) Publish API Documentation
 
 on:
-  pull_request: # change to push later
+  push:
     branches:
       - master
     paths:
