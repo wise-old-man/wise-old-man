@@ -12,7 +12,7 @@ const config = {
   favicon: 'img/favicon.ico',
   organizationName: 'wise-old-man',
   projectName: 'wise-old-man',
-  deploymentBranch: 'master',
+  deploymentBranch: 'deploymentBranch',
   trailingSlash: false,
   i18n: {
     defaultLocale: 'en',
