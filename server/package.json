@@ -7,7 +7,7 @@
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
     "prestart": "sequelize db:migrate",
-    "start": "pm2-runtime dist/server.js -i 4 --max-memory-restart 1500M",
+    "start": "pm2-runtime dist/server.js -i 4 --max-memory-restart 300M",
     "predev": "npm run build && sequelize db:migrate",
     "dev": "cross-env NODE_ENV=development ts-node-dev --poll --respawn --transpile-only --ignore-watch node_modules src/server.ts",
     "pretest": "cross-env npm run build && NODE_ENV=test sequelize db:migrate",
