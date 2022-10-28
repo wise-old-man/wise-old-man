@@ -5,8 +5,8 @@
 const config = {
   title: 'Wise Old Man',
   tagline: 'The Open Source Old School Runescape player progress tracker.',
-  url: 'https://wiseoldman.net/',
-  baseUrl: '/wise-old-man/',
+  url: 'https://docs.wiseoldman.net/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
