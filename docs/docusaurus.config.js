@@ -3,8 +3,9 @@
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Wise Old Man',
-  tagline: 'The Open Source Old School Runescape player progress tracker.',
+  title: 'Wise Old Man - API Documentation',
+  tagline:
+    'API Documentation for Wise Old Man - the Open Source Old School Runescape player progress tracker.',
   url: 'https://docs.wiseoldman.net/',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -24,10 +25,12 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           breadcrumbs: false,
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/wise-old-man/wise-old-man/tree/master/api-docs/'
+          editUrl: 'https://github.com/wise-old-man/wise-old-man/tree/master/docs/'
         },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css')
         }

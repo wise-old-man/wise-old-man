@@ -34,13 +34,13 @@ sidebar_position: 1
 
 ### `(Object)` Membership
 
-| Field     | Type                                                                  | Description                                                      |
-| :-------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------- |
-| playerId  | integer                                                               | The player's ID.                                                 |
-| groupId   | integer                                                               | The group's ID.                                                  |
-| role      | [GroupRole](/docs/groups-api/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
-| createdAt | date                                                                  | The date at which the player was added as a member to the group. |
-| updatedAt | date                                                                  | The date at which the membership was updated.                    |
+| Field     | Type                                                             | Description                                                      |
+| :-------- | :--------------------------------------------------------------- | :--------------------------------------------------------------- |
+| playerId  | integer                                                          | The player's ID.                                                 |
+| groupId   | integer                                                          | The group's ID.                                                  |
+| role      | [GroupRole](/groups-api/group-type-definitions#enum-group-role)? | The player's role (rank) in the group.                           |
+| createdAt | date                                                             | The date at which the player was added as a member to the group. |
+| updatedAt | date                                                             | The date at which the membership was updated.                    |
 
 <br />
 
@@ -48,11 +48,11 @@ sidebar_position: 1
 
 Returned in group-centric endpoints.
 
-> extends [Membership](/docs/groups-api/group-type-definitions#object-membership)
+> extends [Membership](/groups-api/group-type-definitions#object-membership)
 
-| Field  | Type                                                              | Description              |
-| :----- | :---------------------------------------------------------------- | :----------------------- |
-| player | [Player](/docs/players-api/player-type-definitions#object-player) | The membership's player. |
+| Field  | Type                                                         | Description              |
+| :----- | :----------------------------------------------------------- | :----------------------- |
+| player | [Player](/players-api/player-type-definitions#object-player) | The membership's player. |
 
 <br />
 
@@ -60,10 +60,10 @@ Returned in group-centric endpoints.
 
 Returned in player-centric endpoints.
 
-> extends [Membership](/docs/groups-api/group-type-definitions#object-membership)
+> extends [Membership](/groups-api/group-type-definitions#object-membership)
 
-| Field | Type                                                          | Description                          |
-| :---- | :------------------------------------------------------------ | :----------------------------------- |
-| group | [Group](/docs/groups-api/group-type-definitions#object-group) | The group the player is a member in. |
+| Field | Type                                                     | Description                          |
+| :---- | :------------------------------------------------------- | :----------------------------------- |
+| group | [Group](/groups-api/group-type-definitions#object-group) | The group the player is a member in. |
 
 <br />
