@@ -2860,6 +2860,7 @@ describe('Competition API', () => {
       // Snapshot IDs shouldn't be exposed to the API consumer
       expect(response.body.filter(p => !!p.startSnapshotId).length).toBe(0);
       expect(response.body.filter(p => !!p.endSnapshotId).length).toBe(0);
+      expect(response.body.filter(p => !!p.player).length).toBe(0);
 
       expect(response.body[0]).toMatchObject({
         teamName: 'Contributors',
