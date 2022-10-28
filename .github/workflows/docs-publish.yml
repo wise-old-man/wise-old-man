@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - "docs/**"
+      - ".github/workflows/docs-test.yml"
+      - ".github/workflows/docs-publish.yml"
 
 jobs:
   deploy:
