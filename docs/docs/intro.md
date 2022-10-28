@@ -24,7 +24,7 @@ https://github.com/wise-old-man/wise-old-man/issues
 If you are interested in using our API for your apps, consider saying hi on our discord so we can assign you a `API Consumer` role which
 we use to ping users when something in the API has changed.
 
-Also consider requesting an **API Key** for your app, more on that [later on this page](/docs/intro#rate-limits--api-keys).
+Also consider requesting an **API Key** for your app, more on that [later on this page](/#rate-limits--api-keys).
 :::
 
 <br />
