@@ -1,6 +1,6 @@
 {
-  "label": "Competitions API",
-  "position": 5,
+  "label": "Deltas API",
+  "position": 7,
   "link": {
     "type": "generated-index",
     "description": " "

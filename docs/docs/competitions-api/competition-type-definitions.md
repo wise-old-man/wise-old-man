@@ -1,5 +1,5 @@
 ---
-title: 'Competition Types & Entities'
+title: 'Competition Types & Entities 🚧'
 sidebar_position: 1
 ---
 

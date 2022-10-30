@@ -6,8 +6,7 @@ sidebar_position: 2
 import Endpoint from '@site/src/components/Endpoint/Endpoint';
 import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
 
-A Player represents a singular OSRS Account, by default, their type is set to `unknown` and then determined
-upon the first successful update.
+<br />
 
 ## Search Players
 
@@ -527,12 +526,19 @@ Fetches all of the player's competition participations. Returns an array of [Pla
 
 **Request Params**
 
-| Field    | Type                                                                                        | Required | Description                                           |
-| -------- | ------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
-| username | string                                                                                      | `true`   | The player's username.                                |
-| status   | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `false`  | The competition status filter.                        |
-| limit    | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset   | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                                                                        | Required | Description                                           |
+| ------ | ------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------- |
+| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `false`  | The competition status filter.                        |
+| limit  | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 <br />
 
@@ -546,13 +552,13 @@ curl -X GET https://api.wiseoldman.net/v2/players/zezima/competitions \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
 const participations = await client.players.getPlayerCompetitions(
   { username: 'zezima' },
-  { status: 'ongoing' }
+  { status: CompetitionStatus.ONGOING }
 );
 ```
 
@@ -642,10 +648,17 @@ Fetches all of the player's competition standings. Returns an array of [PlayerCo
 
 **Request Params**
 
-| Field    | Type                                                                                        | Required | Description                    |
-| -------- | ------------------------------------------------------------------------------------------- | -------- | ------------------------------ |
-| username | string                                                                                      | `true`   | The player's username.         |
-| status   | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `true`   | The competition status filter. |
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                                                                        | Required | Description                    |
+| ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------ |
+| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `true`   | The competition status filter. |
 
 <br />
 
@@ -659,13 +672,13 @@ curl -X GET https://api.wiseoldman.net/v2/players/zezima/competitions/standings?
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
 const standings = await client.players.getPlayerCompetitionStandings(
   { username: 'zezima' },
-  { status: 'ongoing' }
+  { status: CompetitionStatus.ONGOING }
 );
 ```
 
@@ -683,29 +696,12 @@ const standings = await client.players.getPlayerCompetitionStandings(
     "teamName": null,
     "createdAt": "2022-10-24T14:16:37.339Z",
     "updatedAt": "2022-10-28T09:53:31.638Z",
-    "player": {
-      "id": 36994,
-      "username": "chk",
-      "displayName": "Chk",
-      "type": "ironman",
-      "build": "main",
-      "country": "US",
-      "flagged": false,
-      "exp": 257425937,
-      "ehp": 1182.811949999999,
-      "ehb": 461.55478,
-      "ttm": 601.4954099999995,
-      "tt200m": 21269.99936,
-      "registeredAt": "2020-08-30T15:56:25.478Z",
-      "updatedAt": "2022-10-28T09:53:31.598Z",
-      "lastChangedAt": "2022-10-28T09:53:31.421Z",
-      "lastImportedAt": "2022-10-27T12:12:26.404Z"
-    },
     "progress": {
       "gained": 4332129,
       "start": 2097664,
       "end": 6429793
     },
+    "rank": 1,
     "competition": {
       "id": 16583,
       "title": "Skill of the Week #60: Thieving",
@@ -730,8 +726,7 @@ const standings = await client.players.getPlayerCompetitionStandings(
         "memberCount": 729
       },
       "participantCount": 729
-    },
-    "rank": 1
+    }
   }
 ]
 ```
@@ -747,11 +742,18 @@ Fetches all of the player's group memberships. Returns an array of [PlayerMember
 
 **Request Params**
 
-| Field    | Type    | Required | Description                                           |
-| -------- | ------- | -------- | ----------------------------------------------------- |
-| username | string  | `true`   | The player's username.                                |
-| limit    | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset   | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
 
 <br />
 
@@ -832,9 +834,16 @@ Fetches all of the player's for a specific period or time range. Returns a [Play
 
 **Request Params**
 
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Query Params**
+
 | Field     | Type                                           | Required | Description                              |
 | --------- | ---------------------------------------------- | -------- | ---------------------------------------- |
-| username  | string                                         | `true`   | The player's username.                   |
 | period    | [Period](/global-type-definitions#enum-period) | `false`  | The duration of the gains' time range.   |
 | startDate | date                                           | `false`  | The start date of the gains' time range. |
 | endDate   | date                                           | `false`  | The end date of the gains' time range.   |
@@ -855,11 +864,11 @@ curl -X GET https://api.wiseoldman.net/v2/players/zezima/gained?period=week \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+import { WOMClient, Period } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const gains = await client.players.getPlayerGains({ username: 'zezima' }, { period: 'week' });
+const gains = await client.players.getPlayerGains({ username: 'zezima' }, { period: Period.WEEK });
 ```
 
 </TabbedCodeBlock>
@@ -967,11 +976,18 @@ Fetches all of the player's records. Returns an array of [Record](/records-api/r
 
 **Request Params**
 
-| Field    | Type                                           | Required | Description               |
-| -------- | ---------------------------------------------- | -------- | ------------------------- |
-| username | string                                         | `true`   | The player's username.    |
-| period   | [Period](/global-type-definitions#enum-period) | `false`  | The record's time period. |
-| metric   | [Metric](/global-type-definitions#enum-metric) | `false`  | The record's metric.      |
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                           | Required | Description               |
+| ------ | ---------------------------------------------- | -------- | ------------------------- |
+| period | [Period](/global-type-definitions#enum-period) | `false`  | The record's time period. |
+| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | The record's metric.      |
 
 <br />
 
@@ -985,11 +1001,11 @@ curl -X GET https://api.wiseoldman.net/v2/players/zezima/records?metric=agility 
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+import { WOMClient, Metric } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const records = await client.players.getPlayerRecords({ username: 'zezima' }, { metric: 'agility' });
+const records = await client.players.getPlayerRecords({ username: 'zezima' }, { metric: Metric.AGILITY });
 ```
 
 </TabbedCodeBlock>
@@ -1046,9 +1062,16 @@ Fetches all of the player's past snapshots. Returns an array of [Snapshot](/play
 
 **Request Params**
 
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Request Params**
+
 | Field     | Type                                           | Required | Description                            |
 | --------- | ---------------------------------------------- | -------- | -------------------------------------- |
-| username  | string                                         | `true`   | The player's username.                 |
 | period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by. |
 | startDate | date                                           | `false`  | The minimum date for the snapshots.    |
 | endDate   | date                                           | `false`  | The maximum date for the snapshots.    |
@@ -1069,11 +1092,11 @@ curl -X GET https://api.wiseoldman.net/v2/players/zezima/snapshots?period=week \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+import { WOMClient, Period } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const snapshots = await client.players.getPlayerSnapshots({ username: 'zezima' }, { period: 'week' });
+const snapshots = await client.players.getPlayerSnapshots({ username: 'zezima' }, { period: Period.WEEK });
 ```
 
 </TabbedCodeBlock>
