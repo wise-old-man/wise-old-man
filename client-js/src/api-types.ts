@@ -130,7 +130,7 @@ export type NameChangesSearchFilter = {
 
 export interface RecordLeaderboardFilter extends BasePlayerFilter {
   metric: Metric;
-  period: Period | string;
+  period: Period;
 }
 
 /**

@@ -1,5 +1,5 @@
 ---
-title: 'Record Types & Entities 🚧'
+title: 'Record Types & Entities'
 sidebar_position: 1
 ---
 
