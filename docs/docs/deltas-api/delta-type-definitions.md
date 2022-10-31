@@ -1,5 +1,5 @@
 ---
-title: 'Delta Types & Entities 🚧'
+title: 'Delta Types & Entities'
 sidebar_position: 1
 ---
 
