@@ -1,6 +1,6 @@
 # How to contribute to the Wise Old Man API
 
-First off, you should start by checking the [API documentation](https://wiseoldman.net/docs), this should give you a pretty good idea of the entities and endpoints that are currently available.
+You should start by checking the [API documentation](https://docs.wiseoldman.net), this should give you a pretty good idea of the entities and endpoints that are currently available.
 
 <br />
 
@@ -18,8 +18,6 @@ I suggest reading the [Github's guide on forking projects.](https://guides.githu
 
 I also suggest using Visual Studio Code as your IDE, with the following extensions installed:
 
-- Docker
-- ES7 React/Redux/GraphQL/React-Native snippets
 - ESLint
 - Prettier - Code formatter
 
@@ -27,37 +25,41 @@ I also suggest using Visual Studio Code as your IDE, with the following extensio
 
 ## Installing Docker
 
-This project also uses Docker for production and development, so you will need to download and install it. **Don't worry if it's your first time using Docker, you won't have to deal with it too much.**
+This project uses Docker to install and manage its dependency services (Postgres, Redis, etc), therefor the rest of the guide will assume you're using it.
 
-[Docker Installation Guide](https://docs.docker.com/get-docker/)
+Here's the official [Docker Installation Guide](https://docs.docker.com/get-docker/)
+
+> **Note**
+> You can run these services yourself on your local machine, but just make sure you update the ports in the .env file to match the ports on your local machine.
+> You will also need to modify the run-dev.sh script to skip the docker commands
 
 <br />
 
 ## Installing Node.js
 
-The server is built with Node.js, a JavaScript backend framework.
+The server is built with Node.js, a JavaScript runtime built on Chrome's V8 Engine.
 
-You can download it here: https://nodejs.org/en/download/
+You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.4+
 
 <br />
 
 ## Installing dependencies
 
-Open the terminal on the root directory (I use the VSCode terminal) and do the following steps:
+Open the terminal and navigate to the project's root directory and do the following steps:
 
-Go into the server directory
+- Go into the server's directory
 
 ```
 cd server
 ```
 
-Install dependencies using npm
+- Install dependencies using npm
 
 ```
 npm i
 ```
 
-This should add a _package-lock.json_ file and a _node_modules_ directory inside the _server_ directory.
+This should add a _node_modules_ directory inside the _server_ directory.
 
 <br />
 
@@ -66,43 +68,34 @@ This should add a _package-lock.json_ file and a _node_modules_ directory inside
 Copy the example files to configure the development server, by running the following command on your terminal:
 
 ```
-cp .env.example .env && cp .env.test.example .env.test
+cp .env.example .env
 ```
 
-By default the example files contain the following snippets
+By default the example files contain the following example snippets
 
 ```
-#.env
+CORE_DATABASE=wise-old-man
 
-POSTGRES_PASSWORD=postgres
+DB_HOST=localhost
+
+POSTGRES_PORT=5432
 POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 
 REDIS_HOST=localhost
 REDIS_PORT=6379
 
 PGADMIN_DEFAULT_EMAIL=test@wiseoldman.net
 PGADMIN_DEFAULT_PASSWORD=postgres
+PGADMIN_PORT=54321
 
-DISCORD_BOT_API_TOKEN=ab1b4cc0-c264-11ea-b3de-0242ac130004
-DISCORD_BOT_API_URL=https://discord-bot.wiseoldman.net/event
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${POSTGRES_PORT}/${CORE_DATABASE}?schema=public
+
+ADMIN_PASSWORD=123abc
+
+DISCORD_BOT_API_TOKEN=
+DISCORD_BOT_API_URL=
 ```
-
-```
-#.env.test
-DB_STORAGE=./__tests__/database.sqlite
-```
-
-<br />
-
-## Creating database
-
-Follow the steps to create a server in the **Accessing the Database** section.
-
-Right click on the ` wise old man `  server.
-
-Select `Create` then `Database...`
-
-Name the Database  ` wise-old-man `  and hit save
 
 <br />
 
@@ -112,21 +105,21 @@ Name the Database  ` wise-old-man `  and hit save
 
 ## Running the Server
 
-After you have everything above setup, **make sure you have Docker running**.
+After you have everything above setup, **make sure you have Docker running on your machine (or your local services)**.
 
-Using the terminal (I use the VSCode terminal), start the development Docker containers.
+Using the terminal, navigate to the server directory again, and run the development script:
 
 ```
-docker-compose up --build
+npm run dev
 ```
 
-The server uses nodemon and should detect code changes and automatically restart.
+This command will start your dependencies, reset your development database and start a hot-reload development process using ts-node-dev (restart on code changes).
 
 #### API url
 
-If you're using the regular Docker installation, you should be able to access the api at
+If you're using the regular Docker installation, you should be able to access the API at
 
-http://localhost:5000/
+http://localhost:5001/
 
 If you're using Docker Toolbox instead, you can find out what the machine's ip is by typing:
 
@@ -134,13 +127,13 @@ If you're using Docker Toolbox instead, you can find out what the machine's ip i
 docker-machine ip
 ```
 
-and adding :5000 to it.
+and adding :5001 to it.
 
-The default URL should be http://192.168.99.100:5000
+The default URL should be http://192.168.99.100:5001
 
 #### Troubleshooting
 
-If you're on Windows and get error
+If you're on Windows and get the following error:
 
 ```
 /usr/bin/env: 'bash\r': No such file or directory
@@ -152,13 +145,13 @@ type
 git config core.autocrlf false
 ```
 
-and run docker-compose again.
+and run `npm run dev` again.
 
 <br />
 
 ## Accessing the database
 
-You can use pgadmin to manage your database, by visting the api url, and replacing the 5000 port with 54321.
+You can use pgadmin to manage your database, by visting the API url, and replacing the 5001 port with 54321.
 
 Example: http://localhost:54321 or http://192.168.99.100:54321
 
