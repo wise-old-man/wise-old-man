@@ -16,8 +16,6 @@ I suggest reading the [Github's guide on forking projects.](https://guides.githu
 
 I also suggest using Visual Studio Code as your IDE, with the following extensions installed:
 
-- Docker _(only necessary if you want to also develop the API)_
-- ES7 React/Redux/GraphQL/React-Native snippets
 - ESLint
 - Prettier - Code formatter
 
@@ -25,9 +23,9 @@ I also suggest using Visual Studio Code as your IDE, with the following extensio
 
 ## Installing Node.js
 
-The documentation is built with Next.js, which uses Node.js, a JavaScript backend framework.
+The docs depend on Node.js, a JavaScript runtime built on Chrome's V8 Engine.
 
-You can download it here: https://nodejs.org/en/download/
+You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.4+
 
 <br />
 
@@ -47,11 +45,11 @@ Install dependencies using npm
 npm i
 ```
 
-This should add a _package-lock.json_ file and a _node_modules_ directory inside the _docs_ directory.
+This should add a _node_modules_ directory inside the _docs_ directory.
 
 <br />
 
-## Running the docs development server
+## Running the docs development process
 
 If you have done every step above, you're ready to start developing.
 
@@ -69,4 +67,4 @@ npm run dev
 
 And there it is! You can now access the docs at:
 
-http://localhost:3000/docs
+http://localhost:3000
