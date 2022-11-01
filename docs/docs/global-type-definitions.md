@@ -1,5 +1,5 @@
 ---
-title: 'Global Types & Entities 🚧'
+title: 'Global Types & Entities'
 sidebar_position: 2
 ---
 
