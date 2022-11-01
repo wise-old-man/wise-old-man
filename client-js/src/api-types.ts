@@ -65,10 +65,7 @@ export interface CreateGroupResponse {
   verificationCode: string;
 }
 
-export interface ChangeMemberRolePayload {
-  username: string;
-  role: GroupRole;
-}
+export type ChangeMemberRolePayload = Required<GroupMemberFragment>;
 
 export type GetGroupGainsFilter = { metric: Metric } & TimeRangeFilter;
 
@@ -133,7 +130,7 @@ export type NameChangesSearchFilter = {
 
 export interface RecordLeaderboardFilter extends BasePlayerFilter {
   metric: Metric;
-  period: Period | string;
+  period: Period;
 }
 
 /**

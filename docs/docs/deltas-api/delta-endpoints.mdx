@@ -1,0 +1,119 @@
+---
+title: 'Delta Endpoints'
+sidebar_position: 2
+---
+
+import Endpoint from '@site/src/components/Endpoint/Endpoint';
+import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
+
+<br />
+
+## Related Endpoints
+
+- [Players - Get Player Gains](/players-api/player-endpoints#get-player-gains)
+- [Groups - Get Group Gains](/groups-api/group-endpoints#get-group-gains)
+
+<br />
+
+<br />
+
+## Get Global Delta Leaderboards
+
+<Endpoint verb="GET" path="/deltas/leaderboard" />
+<br />
+
+Fetches the current top deltas leaderboard for a specific metric and period. Returns an array of [DeltaLeaderboardEntry](/deltas-api/delta-type-definitions#object-delta-leaderboard-entry) objects.
+
+<br />
+
+**Query Params**
+
+| Field       | Type                                                                   | Required | Description                                  |
+| ----------- | ---------------------------------------------------------------------- | -------- | -------------------------------------------- |
+| period      | [Period](/global-type-definitions#enum-period)                         | `true`   | The delta's time period.                     |
+| metric      | [Metric](/global-type-definitions#enum-metric)                         | `true`   | The delta's metric.                          |
+| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
+| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
+| country     | [Country](/players-api/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/deltas/leaderboard?metric=agility&period=week&playerType=hardcore \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient, Metric, Period, PlayerType } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const deltasLeaderboard = await client.deltas.getDeltaLeaderboard({
+  period: Period.WEEK,
+  metric: Metric.AGILITY,
+  playerType: PlayerType.HARDCORE
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 642741,
+      "username": "hcim tempor",
+      "displayName": "hcim tempor",
+      "type": "hardcore",
+      "build": "lvl3",
+      "country": null,
+      "flagged": false,
+      "exp": 44230345,
+      "ehp": 272.8137900000002,
+      "ehb": 0,
+      "ttm": 1489.52058,
+      "tt200m": 22179.99752,
+      "registeredAt": "2022-06-02T18:25:56.505Z",
+      "updatedAt": "2022-10-31T10:29:01.606Z",
+      "lastChangedAt": "2022-10-31T10:29:01.320Z",
+      "lastImportedAt": "2022-10-31T10:29:01.605Z"
+    },
+    "playerId": 642741,
+    "startDate": "2022-10-24T21:18:03.001Z",
+    "endDate": "2022-10-31T10:29:01.320Z",
+    "gained": 5043464
+  },
+  {
+    "player": {
+      "id": 548486,
+      "username": "disco nex",
+      "displayName": "Disco Nex",
+      "type": "hardcore",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 234923515,
+      "ehp": 1127.887409999999,
+      "ehb": 146.66224,
+      "ttm": 646.6717099999987,
+      "tt200m": 21324.9239,
+      "registeredAt": "2022-02-12T13:34:12.453Z",
+      "updatedAt": "2022-10-31T11:54:38.124Z",
+      "lastChangedAt": "2022-10-31T11:54:37.977Z",
+      "lastImportedAt": "2022-10-31T00:48:27.431Z"
+    },
+    "playerId": 548486,
+    "startDate": "2022-10-24T14:37:14.528Z",
+    "endDate": "2022-10-31T11:54:37.976Z",
+    "gained": 3750334
+  }
+]
+```

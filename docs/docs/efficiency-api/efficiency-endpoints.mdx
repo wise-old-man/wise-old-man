@@ -1,0 +1,96 @@
+---
+title: 'Efficiency Endpoints'
+sidebar_position: 2
+---
+
+import Endpoint from '@site/src/components/Endpoint/Endpoint';
+import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
+
+<br />
+
+## Get Global Efficiency Leaderboards
+
+<Endpoint verb="GET" path="/efficiency/leaderboard" />
+<br />
+
+Fetches the current efficiency leaderboard for a specific efficiency metric. Returns an array of [Player](/players-api/player-type-definitions#object-player) objects.
+
+<br />
+
+**Query Params**
+
+| Field       | Type                                                                         | Required | Description                                  |
+| ----------- | ---------------------------------------------------------------------------- | -------- | -------------------------------------------- |
+| metric      | [ComputedMetric](/global-type-definitions#enum-computed-metric) or `ehp+ehb` | `true`   | The efficiency metric.                       |
+| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?         | `false`  | The player's account type to filter by.      |
+| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)?       | `false`  | The player's account build to filter by.     |
+| country     | [Country](/players-api/player-type-definitions#enum-country)?                | `false`  | The player's country of origin to filter by. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/efficiency/leaderboard?metric=ehp&playerType=hardcore \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient, Metric, PlayerType } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const efficiencyLeaderboards = await client.efficiency.getEfficiencyLeaderboards({
+  metric: Metric.EHP,
+  playerType: PlayerType.HARDCORE
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 86411,
+    "username": "5th hcim lul",
+    "displayName": "5th hcim LUL",
+    "type": "hardcore",
+    "build": "main",
+    "country": null,
+    "flagged": false,
+    "exp": 3519827606,
+    "ehp": 15015.16612,
+    "ehb": 791.61565,
+    "ttm": 0,
+    "tt200m": 7437.64519,
+    "registeredAt": "2020-11-15T01:08:42.302Z",
+    "updatedAt": "2022-10-30T02:05:17.586Z",
+    "lastChangedAt": "2022-10-30T02:05:15.022Z",
+    "lastImportedAt": "2022-10-30T02:05:17.585Z"
+  },
+  {
+    "id": 22030,
+    "username": "farmer mcgee",
+    "displayName": "Farmer McGee",
+    "type": "hardcore",
+    "build": "main",
+    "country": null,
+    "flagged": false,
+    "exp": 2586560221,
+    "ehp": 10269.00734,
+    "ehb": 903.33624,
+    "ttm": 0,
+    "tt200m": 12183.80397,
+    "registeredAt": "2020-07-09T17:12:43.557Z",
+    "updatedAt": "2022-10-19T15:08:05.515Z",
+    "lastChangedAt": "2022-10-19T15:08:05.140Z",
+    "lastImportedAt": "2022-10-11T23:57:38.283Z"
+  }
+]
+```

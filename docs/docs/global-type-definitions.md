@@ -13,7 +13,7 @@ sidebar_position: 2
 
 ### `(Enum)` Metric
 
-> Metric is a combination of [Skill](/global-type-definitions#enum-skill), [Activity](/global-type-definitions#enum-activity), [Boss](/global-type-definitions#enum-boss) and [ComputedMetric](/global-type-definitions#enum-computed-metric)
+> Metric is a combination of [Skill](/global-type-definitions#enum-skill), [Activity](/global-type-definitions#enum-activity), [Boss](/global-type-definitions#enum-boss) and [ComputedMetric](/global-type-definitions#enum-computed-metric), all of which are described below.
 
 <br />
 

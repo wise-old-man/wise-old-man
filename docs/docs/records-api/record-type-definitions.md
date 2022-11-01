@@ -17,3 +17,11 @@ sidebar_position: 1
 | metric    | [Metric](/global-type-definitions#enum-metric) | The record's metric.                     |
 | value     | long                                           | The record's value (gained value).       |
 | updatedAt | date                                           | The record's creation/modification date. |
+
+### `(Object)` Record Leaderboard Entry
+
+> extends [Record](/records-api/record-type-definitions#object-record)
+
+| Field  | Type                                                         | Description                 |
+| :----- | :----------------------------------------------------------- | :-------------------------- |
+| player | [Player](/players-api/player-type-definitions#object-player) | The record's parent player. |

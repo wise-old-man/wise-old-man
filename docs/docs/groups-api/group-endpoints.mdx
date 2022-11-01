@@ -1,0 +1,1636 @@
+---
+title: 'Group Endpoints'
+sidebar_position: 2
+---
+
+import Endpoint from '@site/src/components/Endpoint/Endpoint';
+import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
+
+## Related Endpoints
+
+- [Players - Get Player Group Memberships](/players-api/player-endpoints#get-player-group-memberships)
+
+<br />
+
+## Search Groups
+
+<Endpoint verb="GET" path="/groups" />
+<br />
+
+Searches for groups that match a partial name. Returns an array of [Group](/groups-api/group-type-definitions#object-group) objects.
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                                 |
+| ------ | ------- | -------- | ----------------------------------------------------------- |
+| name   | string  | `false`  | The partial name for the group you're trying to search for. |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)        |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination)       |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups?name=the&limit=2 \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const groups = await client.groups.searchGroups('the', { limit: 2 });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 3578,
+    "name": "Lead The Pack",
+    "clanChat": "LTP",
+    "description": "A 110+ PvM/Social clan",
+    "homeworld": 320,
+    "verified": true,
+    "score": 440,
+    "createdAt": "2022-10-12T17:32:05.593Z",
+    "updatedAt": "2022-10-26T08:02:52.979Z",
+    "memberCount": 507
+  },
+  {
+    "id": 730,
+    "name": "The Garage",
+    "clanChat": "Astray",
+    "description": "Clan: The Garage",
+    "homeworld": 482,
+    "verified": true,
+    "score": 390,
+    "createdAt": "2021-02-19T18:35:35.143Z",
+    "updatedAt": "2022-10-27T13:11:36.147Z",
+    "memberCount": 497
+  }
+]
+```
+
+---
+
+## Get Group Details
+
+<Endpoint verb="GET" path="/groups/:id" />
+<br />
+
+Searches for groups that match a partial name. Returns a [GroupDetails](/groups-api/group-type-definitions#object-group-details) object.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123 \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const group = await client.groups.getGroupDetails(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 3578,
+    "name": "Lead The Pack",
+    "clanChat": "LTP",
+    "description": "A 110+ PvM/Social clan",
+    "homeworld": 320,
+    "verified": true,
+    "score": 440,
+    "createdAt": "2022-10-12T17:32:05.593Z",
+    "updatedAt": "2022-10-26T08:02:52.979Z",
+    "memberCount": 507
+  },
+  {
+    "id": 730,
+    "name": "The Garage",
+    "clanChat": "Astray",
+    "description": "Clan: The Garage",
+    "homeworld": 482,
+    "verified": true,
+    "score": 390,
+    "createdAt": "2021-02-19T18:35:35.143Z",
+    "updatedAt": "2022-10-27T13:11:36.147Z",
+    "memberCount": 497
+  }
+]
+```
+
+---
+
+## Create Group
+
+<Endpoint verb="POST" path="/groups" />
+<br />
+
+Creates a new group. Returns the new [GroupDetails](/groups-api/group-type-definitions#object-group-details) object, and the secret verification code to manage it.
+
+<br />
+
+**Body Params**
+
+| Field       | Type                                                                                     | Required | Description               |
+| ----------- | ---------------------------------------------------------------------------------------- | -------- | ------------------------- |
+| name        | string                                                                                   | `true`   | The group's name.         |
+| clanChat    | string?                                                                                  | `false`  | The group's clanChat.     |
+| description | string?                                                                                  | `false`  | The group's description.  |
+| homeworld   | number?                                                                                  | `false`  | The group's homeworld.    |
+| members     | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] | `true`   | The group's members list. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/groups \
+ -H "Content-type: application/json" \
+ -d '{
+	"name": "The Guys",
+	"clanChat": "the guys",
+	"description": "A group of people.",
+	"homeworld": 302,
+	"members": [
+		{
+			"username": "Psikoi",
+			"role": "leader"
+		},
+		{
+			"username": "rro",
+			"role": "member"
+		},
+		{
+			"username": "usbc",
+			"role": "member"
+		}
+	]
+}'
+```
+
+```javascript
+import { WOMClient, GroupRole } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const newGroup = await client.groups.createGroup({
+  name: 'The Guys',
+  clanChat: 'the guys',
+  description: 'A group of people.',
+  homeworld: 302,
+  members: [
+    { username: 'Psikoi', role: GroupRole.LEADER },
+    { username: 'rro', role: GroupRole.MEMBER },
+    { username: 'usbc', role: GroupRole.MEMBER }
+  ]
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "group": {
+    "id": 2,
+    "name": "The Guys",
+    "clanChat": "the guys",
+    "description": "A group of people.",
+    "homeworld": 302,
+    "verified": false,
+    "score": 0,
+    "createdAt": "2022-10-28T18:08:40.825Z",
+    "updatedAt": "2022-10-28T18:08:40.825Z",
+    "memberships": [
+      {
+        "playerId": 4,
+        "groupId": 2,
+        "role": "leader",
+        "createdAt": "2022-10-28T18:08:40.825Z",
+        "updatedAt": "2022-10-28T18:08:40.825Z",
+        "player": {
+          "id": 4,
+          "username": "psikoi",
+          "displayName": "psikoi",
+          "type": "regular",
+          "build": "main",
+          "country": null,
+          "flagged": false,
+          "exp": 300517988,
+          "ehp": 741.6783699999996,
+          "ehb": 259.4992700000001,
+          "ttm": 355.1258500000004,
+          "tt200m": 12782.74185,
+          "registeredAt": "2022-10-20T11:48:37.873Z",
+          "updatedAt": "2022-10-20T11:48:39.723Z",
+          "lastChangedAt": "2022-10-20T11:48:39.680Z",
+          "lastImportedAt": null
+        }
+      },
+      {
+        "playerId": 498,
+        "groupId": 2,
+        "role": "member",
+        "createdAt": "2022-10-28T18:08:40.825Z",
+        "updatedAt": "2022-10-28T18:08:40.825Z",
+        "player": {
+          "id": 498,
+          "username": "rro",
+          "displayName": "rro",
+          "type": "unknown",
+          "build": "main",
+          "country": null,
+          "flagged": false,
+          "exp": 0,
+          "ehp": 0,
+          "ehb": 0,
+          "ttm": 0,
+          "tt200m": 0,
+          "registeredAt": "2022-10-28T18:08:40.816Z",
+          "updatedAt": "2022-10-28T18:08:40.816Z",
+          "lastChangedAt": null,
+          "lastImportedAt": null
+        }
+      },
+      {
+        "playerId": 499,
+        "groupId": 2,
+        "role": "member",
+        "createdAt": "2022-10-28T18:08:40.825Z",
+        "updatedAt": "2022-10-28T18:08:40.825Z",
+        "player": {
+          "id": 499,
+          "username": "usbc",
+          "displayName": "usbc",
+          "type": "unknown",
+          "build": "main",
+          "country": null,
+          "flagged": false,
+          "exp": 0,
+          "ehp": 0,
+          "ehb": 0,
+          "ttm": 0,
+          "tt200m": 0,
+          "registeredAt": "2022-10-28T18:08:40.816Z",
+          "updatedAt": "2022-10-28T18:08:40.816Z",
+          "lastChangedAt": null,
+          "lastImportedAt": null
+        }
+      }
+    ],
+    "memberCount": 3
+  },
+  "verificationCode": "882-729-299"
+}
+```
+
+---
+
+## Edit Group
+
+<Endpoint verb="PUT" path="/groups/:id" />
+<br />
+
+Edit an existing group. Returns the updated [GroupDetails](/groups-api/group-type-definitions#object-group-details) object.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type                                                                                       | Required | Description                    |
+| ---------------- | ------------------------------------------------------------------------------------------ | -------- | ------------------------------ |
+| name             | string?                                                                                    | `false`  | The group's name.              |
+| clanChat         | string?                                                                                    | `false`  | The group's clanChat.          |
+| description      | string?                                                                                    | `false`  | The group's description.       |
+| homeworld        | number?                                                                                    | `false`  | The group's homeworld.         |
+| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] ? | `false`  | The group's new members list.  |
+| verificationCode | string                                                                                     | `true`   | The group's verification code. |
+
+:::info
+Only the fields provided in the body params are updated.
+:::
+
+:::caution
+The members list provided will replace the existing one. To add members to an existing group, please check out [Add Members](/groups-api/group-endpoints#add-members)
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X PUT https://api.wiseoldman.net/v2/groups/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+	"name": "The Guys",
+	"clanChat": "the guys",
+	"description": "A group of people.",
+	"homeworld": 302,
+	"members": [
+		{
+			"username": "Psikoi",
+			"role": "leader"
+		},
+		{
+			"username": "rro",
+			"role": "member"
+		},
+		{
+			"username": "usbc",
+			"role": "member"
+		}
+	]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const updatedGroup = await client.groups.editGroup(
+  123,
+  {
+    name: 'The Guys',
+    clanChat: 'the guys',
+    description: 'A group of people.',
+    homeworld: 302,
+    members: [
+      { username: 'Psikoi', role: GroupRole.LEADER },
+      { username: 'rro', role: GroupRole.MEMBER },
+      { username: 'usbc', role: GroupRole.MEMBER }
+    ]
+  },
+  '759-236-892'
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "id": 2,
+  "name": "The Guys",
+  "clanChat": "the guys",
+  "description": "A group of people.",
+  "homeworld": 302,
+  "verified": false,
+  "score": 0,
+  "createdAt": "2022-10-28T18:08:40.825Z",
+  "updatedAt": "2022-10-28T18:08:40.825Z",
+  "memberships": [
+    {
+      "playerId": 4,
+      "groupId": 2,
+      "role": "leader",
+      "createdAt": "2022-10-28T18:08:40.825Z",
+      "updatedAt": "2022-10-28T18:08:40.825Z",
+      "player": {
+        "id": 4,
+        "username": "psikoi",
+        "displayName": "psikoi",
+        "type": "regular",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 300517988,
+        "ehp": 741.6783699999996,
+        "ehb": 259.4992700000001,
+        "ttm": 355.1258500000004,
+        "tt200m": 12782.74185,
+        "registeredAt": "2022-10-20T11:48:37.873Z",
+        "updatedAt": "2022-10-20T11:48:39.723Z",
+        "lastChangedAt": "2022-10-20T11:48:39.680Z",
+        "lastImportedAt": null
+      }
+    },
+    {
+      "playerId": 498,
+      "groupId": 2,
+      "role": "member",
+      "createdAt": "2022-10-28T18:08:40.825Z",
+      "updatedAt": "2022-10-28T18:08:40.825Z",
+      "player": {
+        "id": 498,
+        "username": "rro",
+        "displayName": "rro",
+        "type": "unknown",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 0,
+        "ehp": 0,
+        "ehb": 0,
+        "ttm": 0,
+        "tt200m": 0,
+        "registeredAt": "2022-10-28T18:08:40.816Z",
+        "updatedAt": "2022-10-28T18:08:40.816Z",
+        "lastChangedAt": null,
+        "lastImportedAt": null
+      }
+    },
+    {
+      "playerId": 499,
+      "groupId": 2,
+      "role": "member",
+      "createdAt": "2022-10-28T18:08:40.825Z",
+      "updatedAt": "2022-10-28T18:08:40.825Z",
+      "player": {
+        "id": 499,
+        "username": "usbc",
+        "displayName": "usbc",
+        "type": "unknown",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 0,
+        "ehp": 0,
+        "ehb": 0,
+        "ttm": 0,
+        "tt200m": 0,
+        "registeredAt": "2022-10-28T18:08:40.816Z",
+        "updatedAt": "2022-10-28T18:08:40.816Z",
+        "lastChangedAt": null,
+        "lastImportedAt": null
+      }
+    }
+  ],
+  "memberCount": 3
+}
+```
+
+---
+
+## Delete Group
+
+<Endpoint verb="DELETE" path="/groups/:id" />
+<br />
+
+Delete an existing group.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                    |
+| ---------------- | ------ | -------- | ------------------------------ |
+| verificationCode | string | `true`   | The group's verification code. |
+
+:::caution
+This action is irreversible. Once a group has been deleted, it cannot be easily restored.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/groups/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.groups.deleteGroup(123, '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "Successfully deleted group: The Guys"
+}
+```
+
+---
+
+## Add Members
+
+<Endpoint verb="POST" path="/groups/:id/members" />
+<br />
+
+Add members to an existing group.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type                                                                                     | Required | Description                      |
+| ---------------- | ---------------------------------------------------------------------------------------- | -------- | -------------------------------- |
+| verificationCode | string                                                                                   | `true`   | The group's verification code.   |
+| members          | [GroupMemberFragment](/groups-api/group-type-definitions#object-group-member-fragment)[] | `true`   | The members to add to the group. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/groups/123/members \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+	"members": [
+		{
+			"username": "Psikoi",
+			"role": "leader"
+		},
+		{
+			"username": "rro",
+			"role": "member"
+		},
+		{
+			"username": "usbc",
+			"role": "member"
+		}
+	]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.groups.addMembers(
+  123,
+  [
+    { username: 'Psikoi', role: GroupRole.LEADER },
+    { username: 'rro', role: GroupRole.MEMBER },
+    { username: 'usbc', role: GroupRole.MEMBER }
+  ],
+  '759-236-892'
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "Successfully added 3 members."
+}
+```
+
+---
+
+## Remove Members
+
+<Endpoint verb="DELETE" path="/groups/:id/members" />
+<br />
+
+Remove members from an existing group.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type     | Required | Description                                                |
+| ---------------- | -------- | -------- | ---------------------------------------------------------- |
+| verificationCode | string   | `true`   | The group's verification code.                             |
+| members          | string[] | `true`   | The **usernames** of the members to remove from the group. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/groups/123/members \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+	"members": ["Psikoi", "usbc"]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.groups.removeMembers(123, ['Psikoi', 'usbc'], '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "Successfully removed 3 members."
+}
+```
+
+---
+
+## Change Member Role
+
+<Endpoint verb="PUT" path="/groups/:id/role" />
+<br />
+
+Changes the role of an existing group member.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type                                                            | Required | Description                                         |
+| ---------------- | --------------------------------------------------------------- | -------- | --------------------------------------------------- |
+| verificationCode | string                                                          | `true`   | The group's verification code.                      |
+| username         | string                                                          | `true`   | The username of the member you're trying to modify. |
+| role             | [GroupRole](/groups-api/group-type-definitions#enum-group-role) | `true`   | The new role to be assigned to the member.          |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X PUT https://api.wiseoldman.net/v2/groups/123/role \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+	"username": "psikoi",
+	"role": "artisan"
+}'
+```
+
+```javascript
+import { WOMClient, GroupRole } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const updatedMembership = await client.groups.changeRole(
+  123,
+  { username: 'psikoi', role: GroupRole.ARTISAN },
+  '759-236-892'
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "playerId": 4,
+  "groupId": 3,
+  "role": "artisan",
+  "createdAt": "2022-10-30T15:35:45.273Z",
+  "updatedAt": "2022-10-30T15:36:07.855Z",
+  "player": {
+    "id": 4,
+    "username": "psikoi",
+    "displayName": "psikoi",
+    "type": "regular",
+    "build": "main",
+    "country": null,
+    "flagged": false,
+    "exp": 300517988,
+    "ehp": 741.6783699999996,
+    "ehb": 259.4992700000001,
+    "ttm": 355.1258500000004,
+    "tt200m": 12782.74185,
+    "registeredAt": "2022-10-20T11:48:37.873Z",
+    "updatedAt": "2022-10-20T11:48:39.723Z",
+    "lastChangedAt": "2022-10-20T11:48:39.680Z",
+    "lastImportedAt": null
+  }
+}
+```
+
+---
+
+## Update All (Outdated) Members
+
+<Endpoint verb="POST" path="/groups/:id/update-all" />
+<br />
+
+Attempts to update any outdated group members.
+
+:::info
+Group members are considered outdated when they haven't been updated in over 24h.
+:::
+
+:::caution
+This action adds every outdated member to an "update queue", and our servers try to update players in this queue one by one, with a delay in between each. For each player in the queue, we attempt to update it up to 3 times, with 30s in between each attempt.
+
+Please note that we are dependant on the OSRS hiscores functioning correctly, and therefor this endpoint does NOT guarantee the players will be updated, it only guarantees that it will at least try to update them, up to 3 times.
+:::
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                    |
+| ---------------- | ------ | -------- | ------------------------------ |
+| verificationCode | string | `true`   | The group's verification code. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/groups/123/update-all \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892"
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.groups.updateAll(123, '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "6 outdated (updated > 24h ago) players are being updated. This can take up to a few minutes."
+}
+```
+
+---
+
+## Get Group Competitions
+
+<Endpoint verb="GET" path="/groups/:id/competitions" />
+<br />
+
+Fetches all of the group's competitions. Returns an array of [Competition](/competitions-api/competition-type-definitions#object-competition) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/competitions?limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const competitions = await client.groups.getGroupCompetitions(123, { limit: 5 });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 16624,
+    "title": "DCC KOB KQ",
+    "metric": "kalphite_queen",
+    "type": "classic",
+    "startsAt": "2022-10-31T00:00:00.000Z",
+    "endsAt": "2022-11-07T00:00:00.000Z",
+    "groupId": 603,
+    "score": 398,
+    "createdAt": "2022-10-26T09:53:51.166Z",
+    "updatedAt": "2022-10-27T09:13:14.250Z",
+    "group": {
+      "id": 603,
+      "name": "DemocraCC",
+      "clanChat": "Democracc",
+      "description": "A social clan chat.",
+      "homeworld": 524,
+      "verified": true,
+      "score": 470,
+      "createdAt": "2021-01-16T17:52:13.417Z",
+      "updatedAt": "2022-10-27T04:43:44.694Z",
+      "memberCount": 131
+    },
+    "participantCount": 131
+  },
+  {
+    "id": 16406,
+    "title": "DCC KOS Smithing",
+    "metric": "smithing",
+    "type": "classic",
+    "startsAt": "2022-10-24T00:00:00.000Z",
+    "endsAt": "2022-10-31T00:00:00.000Z",
+    "groupId": 603,
+    "score": 558,
+    "createdAt": "2022-10-19T20:10:14.609Z",
+    "updatedAt": "2022-10-28T16:18:43.086Z",
+    "group": {
+      "id": 603,
+      "name": "DemocraCC",
+      "clanChat": "Democracc",
+      "description": "A social clan chat.",
+      "homeworld": 524,
+      "verified": true,
+      "score": 470,
+      "createdAt": "2021-01-16T17:52:13.417Z",
+      "updatedAt": "2022-10-27T04:43:44.694Z",
+      "memberCount": 131
+    },
+    "participantCount": 131
+  }
+]
+```
+
+---
+
+## Get Group Gains
+
+<Endpoint verb="GET" path="/groups/:id/gained" />
+<br />
+
+Fetches the top gains for a group's member list (filtered by metric and period/date range). Returns an array of [DeltaLeaderboardEntry](/deltas-api/delta-type-definitions#object-delta-leaderboard-entry) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field     | Type                                           | Required | Description                                           |
+| --------- | ---------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric    | [Metric](/global-type-definitions#enum-metric) | `true`   | The metric to filter the deltas by.                   |
+| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the deltas by.                   |
+| startDate | date                                           | `false`  | The minimum date for the deltas.                      |
+| endDate   | date                                           | `false`  | The maximum date for the deltas.                      |
+| limit     | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset    | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+:::info
+This endpoint accepts either `period` or `startDate` + `endDate`.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/gained?metric=agility&period=week&limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient, Period, Metric } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const gains = await client.groups.getGroupGains(
+  123,
+  { period: Period.WEEK, metric: Metric.AGILITY },
+  { limit: 5 }
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 678734,
+      "username": "liljarman",
+      "displayName": "liljarman",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 103737246,
+      "ehp": 257.5031099999997,
+      "ehb": 93.69514,
+      "ttm": 763.9293199999993,
+      "tt200m": 13266.91711,
+      "registeredAt": "2022-07-11T03:07:02.274Z",
+      "updatedAt": "2022-10-29T19:22:05.154Z",
+      "lastChangedAt": "2022-10-29T19:22:04.465Z",
+      "lastImportedAt": "2022-10-28T22:25:09.565Z"
+    },
+    "playerId": 678734,
+    "startDate": "2022-10-23T17:16:52.628Z",
+    "endDate": "2022-10-29T19:22:04.465Z",
+    "gained": 534503
+  },
+  {
+    "player": {
+      "id": 58265,
+      "username": "ardoneye",
+      "displayName": "Ardoneye",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 161554948,
+      "ehp": 525.8095599999997,
+      "ehb": 33.60389,
+      "ttm": 491.1343699999998,
+      "tt200m": 12998.61066,
+      "registeredAt": "2020-10-24T12:30:42.085Z",
+      "updatedAt": "2022-10-28T12:42:51.213Z",
+      "lastChangedAt": "2022-10-28T12:42:50.641Z",
+      "lastImportedAt": "2022-10-28T12:42:51.212Z"
+    },
+    "playerId": 58265,
+    "startDate": "2022-10-24T00:21:35.865Z",
+    "endDate": "2022-10-28T12:42:50.640Z",
+    "gained": 48233
+  }
+]
+```
+
+---
+
+## Get Group Achievements
+
+<Endpoint verb="GET" path="/groups/:id/achievements" />
+<br />
+
+Fetches the group's latest achievements. Returns an array of [Achievement](/players-api/player-type-definitions#object-achievement) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/achievements?limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const achievements = await client.groups.getGroupAchievements(123, { limit: 5 });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "playerId": 140426,
+    "name": "100 Tombs of Amascut (Expert Mode) kills",
+    "metric": "tombs_of_amascut_expert",
+    "threshold": 100,
+    "createdAt": "2022-10-28T12:44:13.076Z",
+    "measure": "kills",
+    "player": {
+      "id": 140426,
+      "username": "codevein",
+      "displayName": "CodeVein",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 294684704,
+      "ehp": 783.5312799999992,
+      "ehb": 148.83668,
+      "ttm": 238.6293700000006,
+      "tt200m": 12740.88894,
+      "registeredAt": "2021-01-17T22:01:07.847Z",
+      "updatedAt": "2022-10-29T05:36:52.899Z",
+      "lastChangedAt": "2022-10-29T05:36:52.451Z",
+      "lastImportedAt": "2022-10-28T12:44:13.988Z"
+    }
+  },
+  {
+    "playerId": 595734,
+    "name": "Base 70 Stats",
+    "metric": "overall",
+    "threshold": 737627,
+    "createdAt": "2022-10-28T12:42:24.215Z",
+    "measure": "levels",
+    "player": {
+      "id": 595734,
+      "username": "welshc0x",
+      "displayName": "Welshc0x",
+      "type": "ironman",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 72752950,
+      "ehp": 388.3448400000016,
+      "ehb": 67.85876,
+      "ttm": 1373.97956,
+      "tt200m": 22064.46647,
+      "registeredAt": "2022-04-15T08:37:36.524Z",
+      "updatedAt": "2022-10-28T12:42:24.344Z",
+      "lastChangedAt": "2022-10-28T12:42:24.215Z",
+      "lastImportedAt": "2022-10-24T00:25:04.100Z"
+    }
+  }
+]
+```
+
+---
+
+## Get Group Records
+
+<Endpoint verb="GET" path="/groups/:id/records" />
+<br />
+
+Fetches a group's record leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/records-api/record-type-definitions#object-record-leaderboard-entry) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                           | Required | Description                                           |
+| ------ | ---------------------------------------------- | -------- | ----------------------------------------------------- |
+| period | [Period](/global-type-definitions#enum-period) | `true`   | The record's time period.                             |
+| metric | [Metric](/global-type-definitions#enum-metric) | `true`   | The record's metric.                                  |
+| limit  | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/records?metric=agility&period=week&limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient, Period, Metric } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const records = await client.groups.getGroupRecords(
+  123,
+  { metric: Metric.AGILITY, period: Period.WEEK },
+  { limit: 5 }
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 12729638,
+    "playerId": 162151,
+    "period": "week",
+    "metric": "agility",
+    "value": 2586136,
+    "updatedAt": "2021-02-21T18:15:55.971Z",
+    "player": {
+      "id": 162151,
+      "username": "yess ken",
+      "displayName": "Yess Ken",
+      "type": "regular",
+      "build": "def1",
+      "country": null,
+      "flagged": false,
+      "exp": 44763012,
+      "ehp": 249.52655,
+      "ehb": 0,
+      "ttm": 1044.61109,
+      "tt200m": 14712.9245,
+      "registeredAt": "2021-02-08T17:45:51.254Z",
+      "updatedAt": "2021-03-04T16:00:44.550Z",
+      "lastChangedAt": "2021-03-04T10:52:27.722Z",
+      "lastImportedAt": null
+    }
+  },
+  {
+    "id": 5599046,
+    "playerId": 11411,
+    "period": "week",
+    "metric": "agility",
+    "value": 2510430,
+    "updatedAt": "2021-02-03T21:30:14.203Z",
+    "player": {
+      "id": 11411,
+      "username": "bysn",
+      "displayName": "Bysn",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 347331804,
+      "ehp": 1027.414000000001,
+      "ehb": 100.87453,
+      "ttm": 0,
+      "tt200m": 12497.00622,
+      "registeredAt": "2020-05-25T10:39:36.709Z",
+      "updatedAt": "2022-10-28T14:41:08.018Z",
+      "lastChangedAt": "2022-10-28T14:41:06.007Z",
+      "lastImportedAt": "2022-10-28T14:41:08.016Z"
+    }
+  }
+]
+```
+
+---
+
+## Get Group Hiscores
+
+<Endpoint verb="GET" path="/groups/:id/hiscores" />
+<br />
+
+Fetches a group's hiscores for a specific metric. Returns an array of [GroupHiscoresEntry](/groups-api/group-type-definitions#object-group-hiscores-entry) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                           | Required | Description                                           |
+| ------ | ---------------------------------------------- | -------- | ----------------------------------------------------- |
+| metric | [Metric](/global-type-definitions#enum-metric) | `true`   | The hiscores' metric.                                 |
+| limit  | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/hiscores?metric=agility&limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient, Metric } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const hiscores = await client.groups.getGroupHiscores(123, Metric.AGILITY, { limit: 5 });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 12729638,
+    "playerId": 162151,
+    "period": "week",
+    "metric": "agility",
+    "value": 2586136,
+    "updatedAt": "2021-02-21T18:15:55.971Z",
+    "player": {
+      "id": 162151,
+      "username": "yess ken",
+      "displayName": "Yess Ken",
+      "type": "regular",
+      "build": "def1",
+      "country": null,
+      "flagged": false,
+      "exp": 44763012,
+      "ehp": 249.52655,
+      "ehb": 0,
+      "ttm": 1044.61109,
+      "tt200m": 14712.9245,
+      "registeredAt": "2021-02-08T17:45:51.254Z",
+      "updatedAt": "2021-03-04T16:00:44.550Z",
+      "lastChangedAt": "2021-03-04T10:52:27.722Z",
+      "lastImportedAt": null
+    }
+  },
+  {
+    "id": 5599046,
+    "playerId": 11411,
+    "period": "week",
+    "metric": "agility",
+    "value": 2510430,
+    "updatedAt": "2021-02-03T21:30:14.203Z",
+    "player": {
+      "id": 11411,
+      "username": "bysn",
+      "displayName": "Bysn",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 347331804,
+      "ehp": 1027.414000000001,
+      "ehb": 100.87453,
+      "ttm": 0,
+      "tt200m": 12497.00622,
+      "registeredAt": "2020-05-25T10:39:36.709Z",
+      "updatedAt": "2022-10-28T14:41:08.018Z",
+      "lastChangedAt": "2022-10-28T14:41:06.007Z",
+      "lastImportedAt": "2022-10-28T14:41:08.016Z"
+    }
+  }
+]
+```
+
+---
+
+## Get Group Name Changes
+
+<Endpoint verb="GET" path="/groups/:id/name-changes" />
+<br />
+
+Fetches a group's latest name changes. Returns an array of [NameChange](/names-api/name-type-definitions#object-name-change) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/name-changes?limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const nameChanges = await client.groups.getGroupNameChanges(123, { limit: 5 });
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 105668,
+    "playerId": 11049,
+    "oldName": "Tired Cookie",
+    "newName": "Minty Meep",
+    "status": "approved",
+    "resolvedAt": "2022-08-20T20:31:14.548Z",
+    "updatedAt": "2022-08-20T20:31:14.548Z",
+    "createdAt": "2022-08-20T20:30:18.636Z",
+    "player": {
+      "id": 11049,
+      "username": "minty meep",
+      "displayName": "Minty Meep",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 107428372,
+      "ehp": 207.7656800000004,
+      "ehb": 103.9547,
+      "ttm": 801.9514299999992,
+      "tt200m": 13316.65454,
+      "registeredAt": "2020-05-23T18:58:10.774Z",
+      "updatedAt": "2022-10-30T13:52:15.177Z",
+      "lastChangedAt": "2022-09-04T14:47:36.327Z",
+      "lastImportedAt": "2022-01-23T22:24:27.792Z"
+    }
+  },
+  {
+    "id": 90886,
+    "playerId": 45693,
+    "oldName": "Reptarrrr",
+    "newName": "Cremzar",
+    "status": "approved",
+    "resolvedAt": "2022-07-05T00:25:48.412Z",
+    "updatedAt": "2022-07-05T00:25:48.412Z",
+    "createdAt": "2022-07-05T00:25:41.380Z",
+    "player": {
+      "id": 45693,
+      "username": "cremzar",
+      "displayName": "Cremzar",
+      "type": "regular",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 117813986,
+      "ehp": 311.34252,
+      "ehb": 229.87636,
+      "ttm": 709.26561,
+      "tt200m": 13213.0777,
+      "registeredAt": "2020-09-28T13:23:23.966Z",
+      "updatedAt": "2022-07-06T01:55:27.127Z",
+      "lastChangedAt": "2022-07-06T01:55:27.000Z",
+      "lastImportedAt": null
+    }
+  }
+]
+```
+
+---
+
+## Get Group Statistics
+
+<Endpoint verb="GET" path="/groups/:id/statistics" />
+<br />
+
+Fetches a group's general statistics. Returns a [GroupStatistics](/groups-api/group-type-definitions#object-group-statistics) object.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/statistics \
+ -H "Content-type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const statistics = await client.groups.getGroupStatistics(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "maxedCombatCount": 6,
+  "maxedTotalCount": 3,
+  "maxed200msCount": 1,
+  "averageStats": {
+    "id": -1,
+    "playerId": -1,
+    "createdAt": null,
+    "importedAt": null,
+    "data": {
+      "skills": {
+        "overall": {
+          "metric": "overall",
+          "experience": 84528862,
+          "rank": 505825,
+          "level": 1939
+        }
+        // ... etc for all skills
+      },
+      "bosses": {
+        "abyssal_sire": {
+          "metric": "abyssal_sire",
+          "kills": 58,
+          "rank": 5188
+        }
+        // ... etc for all bosses
+      },
+      "activities": {
+        "bounty_hunter_hunter": {
+          "metric": "bounty_hunter_hunter",
+          "score": 0,
+          "rank": 8371
+        }
+        // ... etc for all activities
+      },
+      "computed": {
+        "ehp": {
+          "metric": "ehp",
+          "value": 289,
+          "rank": 111876
+        }
+        // ... etc for all computed metrics
+      }
+    }
+  }
+}
+```

@@ -1,0 +1,121 @@
+---
+title: 'Record Endpoints'
+sidebar_position: 2
+---
+
+import Endpoint from '@site/src/components/Endpoint/Endpoint';
+import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
+
+<br />
+
+## Related Endpoints
+
+- [Players - Get Player Records](/players-api/player-endpoints#get-player-records)
+- [Groups - Get Group Records](/groups-api/group-endpoints#get-group-records)
+
+<br />
+
+## Get Global Record Leaderboards
+
+<Endpoint verb="GET" path="/records/leaderboard" />
+<br />
+
+Fetches the current records leaderboard for a specific metric and period. Returns an array of [RecordLeaderboardEntry](/records-api/record-type-definitions#object-record-leaderboard-entry) objects.
+
+<br />
+
+**Query Params**
+
+| Field       | Type                                                                   | Required | Description                                  |
+| ----------- | ---------------------------------------------------------------------- | -------- | -------------------------------------------- |
+| period      | [Period](/global-type-definitions#enum-period)                         | `true`   | The record's time period.                    |
+| metric      | [Metric](/global-type-definitions#enum-metric)                         | `true`   | The record's metric.                         |
+| playerType  | [PlayerType](/players-api/player-type-definitions#enum-player-type)?   | `false`  | The player's account type to filter by.      |
+| playerBuild | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)? | `false`  | The player's account build to filter by.     |
+| country     | [Country](/players-api/player-type-definitions#enum-country)?          | `false`  | The player's country of origin to filter by. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/records/leaderboard?metric=agility&period=week&playerType=hardcore \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient, Metric, Period, PlayerType } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const recordLeaderboard = await client.records.getRecordLeaderboard({
+  period: Period.WEEK,
+  metric: Metric.AGILITY,
+  playerType: PlayerType.HARDCORE
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 544337,
+    "playerId": 6125,
+    "period": "week",
+    "metric": "agility",
+    "value": 12260231,
+    "updatedAt": "2020-05-12T18:12:16.057Z",
+    "player": {
+      "id": 6125,
+      "username": "maiet",
+      "displayName": "Maiet",
+      "type": "hardcore",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 84931683,
+      "ehp": 556.42089,
+      "ehb": 4.42807,
+      "ttm": 1252.71697,
+      "tt200m": 22202.34046,
+      "registeredAt": "2020-05-07T15:12:57.549Z",
+      "updatedAt": "2020-12-17T17:24:41.831Z",
+      "lastChangedAt": "2020-12-17T17:24:40.549Z",
+      "lastImportedAt": "2020-12-17T17:24:41.830Z"
+    }
+  },
+  {
+    "id": 36895589,
+    "playerId": 672185,
+    "period": "week",
+    "metric": "agility",
+    "value": 7518730,
+    "updatedAt": "2022-07-27T23:59:50.075Z",
+    "player": {
+      "id": 672185,
+      "username": "99th hcim",
+      "displayName": "99th hcim",
+      "type": "hardcore",
+      "build": "def1",
+      "country": null,
+      "flagged": false,
+      "exp": 42931077,
+      "ehp": 293.81497,
+      "ehb": 0,
+      "ttm": 1468.43043,
+      "tt200m": 22158.99634,
+      "registeredAt": "2022-07-05T05:22:41.911Z",
+      "updatedAt": "2022-08-20T03:56:12.107Z",
+      "lastChangedAt": "2022-08-20T03:56:12.009Z",
+      "lastImportedAt": null
+    }
+  }
+]
+```

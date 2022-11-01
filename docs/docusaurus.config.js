@@ -57,7 +57,7 @@ const config = {
             type: 'doc',
             docId: 'intro',
             position: 'left',
-            label: 'API Docs'
+            label: 'API Docs (v2)'
           },
           {
             href: 'https://github.com/wise-old-man/wise-old-man',
@@ -72,7 +72,7 @@ const config = {
         ]
       },
       prism: {
-        darkTheme: require('prism-react-renderer/themes/dracula')
+        darkTheme: require('prism-react-renderer/themes/vsDark')
       }
     })
 };

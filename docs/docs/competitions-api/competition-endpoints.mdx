@@ -1,0 +1,1148 @@
+---
+title: 'Competition Endpoints'
+sidebar_position: 2
+---
+
+import Endpoint from '@site/src/components/Endpoint/Endpoint';
+import TabbedCodeBlock from '@site/src/components/TabbedCodeBlock/TabbedCodeBlock';
+
+<br />
+
+## Related Endpoints
+
+- [Players - Get Player Competition Participations](/players-api/player-endpoints#get-player-competition-participations)
+- [Players - Get Player Competition Standings](/players-api/player-endpoints#get-player-competition-standings)
+- [Groups - Get Group Competitions](/groups-api/group-endpoints#get-group-competitions)
+
+<br />
+
+## Search Competitions
+
+<Endpoint verb="GET" path="/competitions" />
+<br />
+
+Searches for competitions that match a title, type, metric and status filter. Returns an array of [Competition](/competitions-api/competition-type-definitions#object-competition) objects.
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                                                                        | Required | Description                                                        |
+| ------ | ------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------ |
+| title  | string                                                                                      | `false`  | The partial title for the competition you're trying to search for. |
+| type   | [CompetitionType](/competitions-api/competition-type-definitions#enum-competition-type)     | `false`  | The type to filter the competitions by.                            |
+| status | [CompetitionStatus](/competitions-api/competition-type-definitions#enum-competition-status) | `false`  | The status to filter the competitions by.                          |
+| metric | [Metric](/global-type-definitions#enum-metric)                                              | `false`  | The metric to filter the competitions by.                          |
+| limit  | integer                                                                                     | `false`  | The pagination limit. See [Pagination](/#pagination)               |
+| offset | integer                                                                                     | `false`  | The pagination offset. See [Pagination](/#pagination)              |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/competitions?title=the&status=ongoing&limit=2 \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const competitions = await client.competitions.searchCompetitions(
+  { title: 'the', status: CompetitionStatus.ONGOING },
+  { limit: 2 }
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "id": 16730,
+    "title": "Skill of The Week #18",
+    "metric": "hunter",
+    "type": "classic",
+    "startsAt": "2022-10-30T13:00:00.000Z",
+    "endsAt": "2022-11-06T13:00:00.000Z",
+    "groupId": 2125,
+    "score": 546,
+    "createdAt": "2022-10-30T11:59:20.981Z",
+    "updatedAt": "2022-10-30T21:20:20.276Z",
+    "group": {
+      "id": 2125,
+      "name": "World 514",
+      "clanChat": "World 514",
+      "description": "We need no description.",
+      "homeworld": 514,
+      "verified": true,
+      "score": 440,
+      "createdAt": "2021-11-08T16:51:58.884Z",
+      "updatedAt": "2022-10-26T10:30:46.343Z",
+      "memberCount": 243
+    },
+    "participantCount": 243
+  },
+  {
+    "id": 16607,
+    "title": "Smithing Skill of the Week",
+    "metric": "smithing",
+    "type": "classic",
+    "startsAt": "2022-10-26T04:00:00.000Z",
+    "endsAt": "2022-11-02T04:00:00.000Z",
+    "groupId": 1053,
+    "score": 522,
+    "createdAt": "2022-10-25T14:57:11.701Z",
+    "updatedAt": "2022-10-27T20:51:31.134Z",
+    "group": {
+      "id": 1053,
+      "name": "Mightiee",
+      "clanChat": "Mightiee",
+      "description": "Keep the vibes vibey & chill with the homies.",
+      "homeworld": 306,
+      "verified": true,
+      "score": 380,
+      "createdAt": "2021-04-27T17:50:15.723Z",
+      "updatedAt": "2022-10-29T15:04:08.204Z",
+      "memberCount": 497
+    },
+    "participantCount": 497
+  }
+]
+```
+
+---
+
+## Get Competition Details
+
+<Endpoint verb="GET" path="/competitions/:id" />
+<br />
+
+Fetches the competition's full details, including all the participants and their progress. Returns a [CompetitionDetails](/competitions-api/competition-type-definitions#object-competition-details) object.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                           | Required | Description                                                                                                                                                                                                                                        |
+| ------ | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fihsing` competition instead.) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/competitions/123 \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const competition = await client.competitions.getCompetitionDetails(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "id": 1234,
+  "title": "BOTW 1 (barrows)",
+  "metric": "barrows_chests",
+  "type": "classic",
+  "startsAt": "2021-01-25T05:00:00.000Z",
+  "endsAt": "2021-02-01T00:00:00.000Z",
+  "groupId": null,
+  "score": 0,
+  "createdAt": "2021-01-20T20:02:38.565Z",
+  "updatedAt": "2021-02-01T00:00:00.204Z",
+  "participantCount": 46,
+  "participations": [
+    {
+      "playerId": 127754,
+      "competitionId": 1234,
+      "teamName": null,
+      "createdAt": "2021-01-23T11:19:08.693Z",
+      "updatedAt": "2021-01-31T23:51:59.107Z",
+      "player": {
+        "id": 127754,
+        "username": "matiieu",
+        "displayName": "Matiieu",
+        "type": "ironman",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 131693581,
+        "ehp": 636.3791899999997,
+        "ehb": 147.17091,
+        "ttm": 1128.26096,
+        "tt200m": 21816.43212,
+        "registeredAt": "2021-01-04T03:32:34.771Z",
+        "updatedAt": "2022-10-31T07:02:47.126Z",
+        "lastChangedAt": "2021-09-06T05:04:08.102Z",
+        "lastImportedAt": null
+      },
+      "progress": {
+        "gained": 325,
+        "start": 485,
+        "end": 810
+      }
+    },
+    {
+      "playerId": 50166,
+      "competitionId": 1234,
+      "teamName": null,
+      "createdAt": "2021-01-21T06:41:41.623Z",
+      "updatedAt": "2021-01-31T23:52:29.802Z",
+      "player": {
+        "id": 50166,
+        "username": "bigfoot im",
+        "displayName": "BIGFOOT IM",
+        "type": "ironman",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 273787595,
+        "ehp": 1218.101500000001,
+        "ehb": 495.66578,
+        "ttm": 584.3492799999985,
+        "tt200m": 21234.70981,
+        "registeredAt": "2020-10-13T17:23:56.794Z",
+        "updatedAt": "2022-10-31T05:28:14.490Z",
+        "lastChangedAt": "2022-10-29T05:27:05.665Z",
+        "lastImportedAt": "2022-10-26T04:15:29.869Z"
+      },
+      "progress": {
+        "gained": 298,
+        "start": 552,
+        "end": 850
+      }
+    }
+  ]
+}
+```
+
+---
+
+## Get Top Participants' History
+
+<Endpoint verb="GET" path="/competitions/:id/top-history" />
+<br />
+
+Fetches all the values (exp, kc, etc) in chronological order within the bounds of the competition, for the top 5 participants. Returns an array of [Top5ProgressResult](/competitions-api/competition-type-definitions#object-top-5-progress-result) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type                                           | Required | Description                                                                                                                                                                                                                                        |
+| ------ | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| metric | [Metric](/global-type-definitions#enum-metric) | `false`  | An alternative metric to preview the competition's progress in. (Ex: If it's originally an `agility` competition, you can still use this param to preview what the competition would have looked like if it were a `fihsing` competition instead.) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/competitions/123/top-history \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const top5History = await client.competitions.getCompetitionTopHistory(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 127754,
+      "username": "matiieu",
+      "displayName": "Matiieu",
+      "type": "ironman",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 131693581,
+      "ehp": 636.3791899999997,
+      "ehb": 147.17091,
+      "ttm": 1128.26096,
+      "tt200m": 21816.43212,
+      "registeredAt": "2021-01-04T03:32:34.771Z",
+      "updatedAt": "2022-10-31T07:02:47.126Z",
+      "lastChangedAt": "2021-09-06T05:04:08.102Z",
+      "lastImportedAt": null
+    },
+    "history": [
+      {
+        "value": 810,
+        "date": "2021-01-31T23:51:59.079Z"
+      },
+      {
+        "value": 797,
+        "date": "2021-01-31T23:45:18.450Z"
+      },
+      {
+        "value": 525,
+        "date": "2021-01-25T14:36:57.616Z"
+      },
+      {
+        "value": 485,
+        "date": "2021-01-25T05:10:16.939Z"
+      }
+    ]
+  },
+  {
+    "player": {
+      "id": 50166,
+      "username": "bigfoot im",
+      "displayName": "BIGFOOT IM",
+      "type": "ironman",
+      "build": "main",
+      "country": null,
+      "flagged": false,
+      "exp": 273787595,
+      "ehp": 1218.101500000001,
+      "ehb": 495.66578,
+      "ttm": 584.3492799999985,
+      "tt200m": 21234.70981,
+      "registeredAt": "2020-10-13T17:23:56.794Z",
+      "updatedAt": "2022-10-31T05:28:14.490Z",
+      "lastChangedAt": "2022-10-29T05:27:05.665Z",
+      "lastImportedAt": "2022-10-26T04:15:29.869Z"
+    },
+    "history": [
+      {
+        "value": 850,
+        "date": "2021-01-31T23:52:29.770Z"
+      },
+      {
+        "value": 847,
+        "date": "2021-01-31T23:13:15.944Z"
+      },
+
+      {
+        "value": 552,
+        "date": "2021-01-25T05:10:09.834Z"
+      }
+    ]
+  }
+]
+```
+
+---
+
+## Create Competition
+
+<Endpoint verb="POST" path="/competitions" />
+<br />
+
+Creates a new competition. Returns the new [CompetitionWithParticipations](/competitions-api/competition-type-definitions#object-competition-with-participations) object, and the secret verification code to manage it.
+
+<br />
+
+**Body Params**
+
+| Field                 | Type                                                                  | Required | Description                                       |
+| --------------------- | --------------------------------------------------------------------- | -------- | ------------------------------------------------- |
+| title                 | string                                                                | `true`   | The competition's title.                          |
+| metric                | [Metric](/global-type-definitions#enum-metric)                        | `true`   | The competition's metric.                         |
+| startsAt              | date                                                                  | `true`   | The competition's start date.                     |
+| endsAt                | date                                                                  | `true`   | The competition's end date.                       |
+| groupId               | integer?                                                              | `false`  | The competition's host group ID.                  |
+| groupVerificationCode | string?                                                               | `false`  | The competition's host group's verification code. |
+| participants          | string[]?                                                             | `false`  | The usernames of all the starting participants.   |
+| teams                 | [Team](/competitions-api/competition-type-definitions#object-team)[]? | `false`  | The competition's starting teams.                 |
+
+:::info
+The parameters `groupId`, `participants` and `teams` are mutually exclusive.
+
+- If `groupid` is provided, this endpoint will create a classic competition with all members of that group as participants.
+- If `participants` is provided (and `groupId` isn't), this endpoint will create a classic competition with all those participants included.
+- If `teams` is provided, this endpoint will create a team competition with all those participants included. (Also accepts `groupId` as a way to link this competition to the group.)
+
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/competitions \
+ -H "Content-type: application/json" \
+ -d '{
+	"title": "Smithing SOTW",
+	"metric": "smithing",
+    "startsAt": "2022-12-19T10:00:00.000Z",
+    "endsAt": "2022-12-26T10:00:00.000Z",
+	"participants": ["psikoi", "usbc", "sethmare"]
+}'
+```
+
+```javascript
+import { WOMClient, Metric } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const newCompetition = await client.competitions.createCompetition({
+  title: 'Smithing SOTW',
+  metric: Metric.SMITHING,
+  startsAt: '2022-12-19T10:00:00.000Z',
+  endsAt: '2022-12-26T10:00:00.000Z',
+  participants: ['psikoi', 'usbc', 'sethmare']
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "competition": {
+    "id": 7,
+    "title": "Smithing SOTW",
+    "metric": "smithing",
+    "type": "classic",
+    "startsAt": "2022-12-19T10:00:00.000Z",
+    "endsAt": "2022-12-26T10:00:00.000Z",
+    "groupId": null,
+    "score": 0,
+    "createdAt": "2022-11-01T00:46:24.688Z",
+    "updatedAt": "2022-11-01T00:46:24.688Z",
+    "participations": [
+      {
+        "playerId": 4,
+        "competitionId": 7,
+        "teamName": null,
+        "createdAt": "2022-11-01T00:46:24.688Z",
+        "updatedAt": "2022-11-01T00:46:24.688Z",
+        "player": {
+          "id": 4,
+          "username": "psikoi",
+          "displayName": "psikoi",
+          "type": "regular",
+          "build": "main",
+          "country": null,
+          "flagged": false,
+          "exp": 300517988,
+          "ehp": 741.6783699999996,
+          "ehb": 259.4992700000001,
+          "ttm": 355.1258500000004,
+          "tt200m": 12782.74185,
+          "registeredAt": "2022-10-20T11:48:37.873Z",
+          "updatedAt": "2022-10-20T11:48:39.723Z",
+          "lastChangedAt": "2022-10-20T11:48:39.680Z",
+          "lastImportedAt": null
+        }
+      },
+      {
+        "playerId": 499,
+        "competitionId": 7,
+        "teamName": null,
+        "createdAt": "2022-11-01T00:46:24.688Z",
+        "updatedAt": "2022-11-01T00:46:24.688Z",
+        "player": {
+          "id": 499,
+          "username": "usbc",
+          "displayName": "usbc",
+          "type": "ultimate",
+          "build": "lvl3",
+          "country": null,
+          "flagged": false,
+          "exp": 131601975,
+          "ehp": 531.3233600000003,
+          "ehb": 0,
+          "ttm": 565.8498199999995,
+          "tt200m": 12993.09686,
+          "registeredAt": "2022-10-28T18:08:40.816Z",
+          "updatedAt": "2022-10-28T18:08:53.472Z",
+          "lastChangedAt": "2022-10-28T18:08:51.234Z",
+          "lastImportedAt": "2022-10-28T18:08:53.472Z"
+        }
+      },
+      {
+        "playerId": 500,
+        "competitionId": 7,
+        "teamName": null,
+        "createdAt": "2022-11-01T00:46:24.688Z",
+        "updatedAt": "2022-11-01T00:46:24.688Z",
+        "player": {
+          "id": 500,
+          "username": "sethmare",
+          "displayName": "sethmare",
+          "type": "unknown",
+          "build": "main",
+          "country": null,
+          "flagged": false,
+          "exp": 0,
+          "ehp": 0,
+          "ehb": 0,
+          "ttm": 0,
+          "tt200m": 0,
+          "registeredAt": "2022-11-01T00:46:24.600Z",
+          "updatedAt": "2022-11-01T00:46:24.600Z",
+          "lastChangedAt": null,
+          "lastImportedAt": null
+        }
+      }
+    ],
+    "participantCount": 3
+  },
+  "verificationCode": "251-676-488"
+}
+```
+
+---
+
+## Edit Competition
+
+<Endpoint verb="PUT" path="/competitions/:id" />
+<br />
+
+Edits an existing competition. Returns the updated [CompetitionWithParticipations](/competitions-api/competition-type-definitions#object-competition-with-participations) object.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type                                                                  | Required | Description                                                                                        |
+| ---------------- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| title            | string?                                                               | `false`  | The competition's title.                                                                           |
+| metric           | [Metric](/global-type-definitions#enum-metric)?                       | `false`  | The competition's metric.                                                                          |
+| startsAt         | date?                                                                 | `false`  | The competition's start date.                                                                      |
+| endsAt           | date?                                                                 | `false`  | The competition's end date.                                                                        |
+| participants     | string[]?                                                             | `false`  | The usernames of all the new participants.                                                         |
+| teams            | [Team](/competitions-api/competition-type-definitions#object-team)[]? | `false`  | The competition's new teams.                                                                       |
+| verificationCode | string                                                                | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+:::info
+Only the fields provided in the body params are updated.
+:::
+
+:::caution
+The participants/teams list provided will replace the existing one. To add participants to an existing competition, please check out [Add Participants](/competitions-api/competition-endpoints#add-participants), or to add participants to an existing competition, please check out [Add Teams](/competitions-api/competition-endpoints#add-teams).
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X PUT https://api.wiseoldman.net/v2/competitions/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"title": "🔨 Smithing SOTW",
+    "endsAt": "2022-12-30T10:00:00.000Z",
+	"participants": ["psikoi", "usbc", "sethmare", "boom"],
+    "verificationCode": "466-183-586"
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+const updatedCompetition = await client.competitions.editCompetition(
+  123,
+  {
+    title: '🔨 Smithing SOTW',
+    endsAt: '2022-12-30T10:00:00.000Z',
+    participants: ['psikoi', 'usbc', 'sethmare', 'boom']
+  },
+  '466-183-586'
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "id": 7,
+  "title": "🔨 Smithing SOTW",
+  "metric": "smithing",
+  "type": "classic",
+  "startsAt": "2022-12-19T10:00:00.000Z",
+  "endsAt": "2022-12-30T10:00:00.000Z",
+  "groupId": null,
+  "score": 0,
+  "createdAt": "2022-11-01T00:46:24.688Z",
+  "updatedAt": "2022-11-01T00:54:33.949Z",
+  "participations": [
+    {
+      "playerId": 4,
+      "competitionId": 7,
+      "teamName": null,
+      "createdAt": "2022-11-01T00:46:24.688Z",
+      "updatedAt": "2022-11-01T00:46:24.688Z",
+      "player": {
+        "id": 4,
+        "username": "psikoi",
+        "displayName": "psikoi",
+        "type": "regular",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 300517988,
+        "ehp": 741.6783699999996,
+        "ehb": 259.4992700000001,
+        "ttm": 355.1258500000004,
+        "tt200m": 12782.74185,
+        "registeredAt": "2022-10-20T11:48:37.873Z",
+        "updatedAt": "2022-10-20T11:48:39.723Z",
+        "lastChangedAt": "2022-10-20T11:48:39.680Z",
+        "lastImportedAt": null
+      }
+    },
+    {
+      "playerId": 499,
+      "competitionId": 7,
+      "teamName": null,
+      "createdAt": "2022-11-01T00:46:24.688Z",
+      "updatedAt": "2022-11-01T00:46:24.688Z",
+      "player": {
+        "id": 499,
+        "username": "usbc",
+        "displayName": "usbc",
+        "type": "ultimate",
+        "build": "lvl3",
+        "country": null,
+        "flagged": false,
+        "exp": 131601975,
+        "ehp": 531.3233600000003,
+        "ehb": 0,
+        "ttm": 565.8498199999995,
+        "tt200m": 12993.09686,
+        "registeredAt": "2022-10-28T18:08:40.816Z",
+        "updatedAt": "2022-10-28T18:08:53.472Z",
+        "lastChangedAt": "2022-10-28T18:08:51.234Z",
+        "lastImportedAt": "2022-10-28T18:08:53.472Z"
+      }
+    },
+    {
+      "playerId": 500,
+      "competitionId": 7,
+      "teamName": null,
+      "createdAt": "2022-11-01T00:46:24.688Z",
+      "updatedAt": "2022-11-01T00:46:24.688Z",
+      "player": {
+        "id": 500,
+        "username": "sethmare",
+        "displayName": "sethmare",
+        "type": "regular",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 160902392,
+        "ehp": 502.6322099999998,
+        "ehb": 173.86025,
+        "ttm": 511.1484299999993,
+        "tt200m": 13021.78801,
+        "registeredAt": "2022-11-01T00:46:24.600Z",
+        "updatedAt": "2022-11-01T00:46:27.957Z",
+        "lastChangedAt": "2022-11-01T00:46:26.391Z",
+        "lastImportedAt": "2022-11-01T00:46:27.957Z"
+      }
+    },
+    {
+      "playerId": 501,
+      "competitionId": 7,
+      "teamName": null,
+      "createdAt": "2022-11-01T00:54:33.962Z",
+      "updatedAt": "2022-11-01T00:54:33.962Z",
+      "player": {
+        "id": 501,
+        "username": "boom",
+        "displayName": "boom",
+        "type": "unknown",
+        "build": "main",
+        "country": null,
+        "flagged": false,
+        "exp": 0,
+        "ehp": 0,
+        "ehb": 0,
+        "ttm": 0,
+        "tt200m": 0,
+        "registeredAt": "2022-11-01T00:54:33.935Z",
+        "updatedAt": "2022-11-01T00:54:33.935Z",
+        "lastChangedAt": null,
+        "lastImportedAt": null
+      }
+    }
+  ],
+  "participantCount": 4
+}
+```
+
+---
+
+## Delete Competition
+
+<Endpoint verb="DELETE" path="/competitions/:id" />
+<br />
+
+Delete an existing competition.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                                                                                        |
+| ---------------- | ------ | -------- | -------------------------------------------------------------------------------------------------- |
+| verificationCode | string | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+:::caution
+This action is irreversible. Once a competition has been deleted, it cannot be easily restored.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/competitions/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.deleteCompetition(123, '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "Successfully deleted competition: 🔨 Smithing SOTW"
+}
+```
+
+---
+
+## Add Participants
+
+<Endpoint verb="POST" path="/competitions/:id/participants" />
+<br />
+
+Adds all (valid) given participants to a competition, ignoring duplicates.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                                                                                        |
+| ---------------- | ------ | -------- | -------------------------------------------------------------------------------------------------- |
+| participants     | string | `true`   | The usernames of the new participants.                                                             |
+| verificationCode | string | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/competitions/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+    "participants": ["rro", "alexsuperfly", "enriath"]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.addParticipants(123, ['rro', 'alexsuperfly', 'enriath'], '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "count": 3,
+  "message": "Successfully added 3 participants."
+}
+```
+
+---
+
+## Remove Participants
+
+<Endpoint verb="DELETE" path="/competitions/:id/participants" />
+<br />
+
+Remove all given usernames from a competition, ignoring usernames that aren't competing.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                                                                                        |
+| ---------------- | ------ | -------- | -------------------------------------------------------------------------------------------------- |
+| participants     | string | `true`   | The usernames of the participants to remove.                                                       |
+| verificationCode | string | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/competitions/123 \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+    "participants": ["rro", "psikoi"]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.removeParticipants(123, ['rro', 'psikoi'], '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "count": 2,
+  "message": "Successfully removed 2 participants."
+}
+```
+
+---
+
+## Add Teams
+
+<Endpoint verb="POST" path="/competitions/:id/teams" />
+<br />
+
+Adds all (valid) given teams to a team competition, ignoring duplicates.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type                                                                 | Required | Description                                                                                        |
+| ---------------- | -------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| teams            | [Team](/competitions-api/competition-type-definitions#object-team)[] | `true`   | The new teams to add.                                                                              |
+| verificationCode | string                                                               | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/competitions/123/teams \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+    "teams": [
+        {
+          "name": "Warriors",
+          "participants": ["rro", "psikoi", "boom"]
+        },
+        {
+          "name": "Soldiers",
+          "participants": ["boom", "jakesterwars", "sethmare"]
+        }
+    ]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.addTeams(
+  123,
+  [
+    {
+      name: 'Warriors',
+      participants: ['rro', 'psikoi', 'boom']
+    },
+    {
+      name: 'Soldiers',
+      participants: ['boom', 'jakesterwars', 'sethmare']
+    }
+  ],
+  '759-236-892'
+);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "count": 6,
+  "message": "Successfully added 6 participants."
+}
+```
+
+---
+
+## Remove Teams
+
+<Endpoint verb="DELETE" path="/competitions/:id/teams" />
+<br />
+
+Remove all given team names from a competition, ignoring team names that don't exist.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type     | Required | Description                                                                                        |
+| ---------------- | -------- | -------- | -------------------------------------------------------------------------------------------------- |
+| teamNames        | string[] | `true`   | The names of the teams to remove.                                                                  |
+| verificationCode | string   | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X DELETE https://api.wiseoldman.net/v2/competitions/123/teams \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892",
+    "teamNames": ["Warriors"]
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.removeTeams(123, ['Warriors'], '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "count": 3,
+  "message": "Successfully removed 3 participants."
+}
+```
+
+---
+
+## Update All (Outdated) Participants
+
+<Endpoint verb="POST" path="/competitions/:id/update-all" />
+<br />
+
+Attempts to update any outdated competition participants..
+
+:::info
+Competition participants are considered outdated when:
+
+- Competition is ending in < 6h or started < 6h ago **AND** player hasn't been updated in over 1h.
+
+  Or
+
+- Player hasn't been updated in over 24h
+
+:::
+
+:::caution
+This action adds every outdated participant to an "update queue", and our servers try to update players in this queue one by one, with a delay in between each. For each player in the queue, we attempt to update it up to 3 times, with 30s in between each attempt.
+
+Please note that we are dependant on the OSRS hiscores functioning correctly, and therefor this endpoint does NOT guarantee the players will be updated, it only guarantees that it will at least try to update them, up to 3 times.
+:::
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description           |
+| ----- | ------- | -------- | --------------------- |
+| id    | integer | `true`   | The competition's ID. |
+
+<br />
+
+**Body Params**
+
+| Field            | Type   | Required | Description                                                                                        |
+| ---------------- | ------ | -------- | -------------------------------------------------------------------------------------------------- |
+| verificationCode | string | `true`   | The competition's verification code (Or the host group's verification code, if linked to a group). |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X POST https://api.wiseoldman.net/v2/competitions/123/update-all \
+ -H "Content-type: application/json" \
+ -d '{
+	"verificationCode": "759-236-892"
+}'
+```
+
+```javascript
+import { WOMClient } from '@wise-old-man/utils';
+
+const client = new WOMClient();
+
+await client.competitions.updateAll(123, '759-236-892');
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "message": "6 outdated (updated > 24h ago) players are being updated. This can take up to a few minutes."
+}
+```

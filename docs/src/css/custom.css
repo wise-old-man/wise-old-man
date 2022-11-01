@@ -46,3 +46,7 @@ html {
 table {
   font-size: 0.9em;
 }
+
+.language-curl .token-line {
+  filter: brightness(255);
+}
