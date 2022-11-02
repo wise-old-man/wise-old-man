@@ -1,7 +1,12 @@
 {
   "name": "docs",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
+  "author": "Psikoi",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.14"
+  },
   "scripts": {
     "docusaurus": "docusaurus",
     "dev": "docusaurus start",
@@ -36,8 +41,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "engines": {
-    "node": ">=16.14"
   }
 }

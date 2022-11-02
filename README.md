@@ -6,8 +6,7 @@
 
 The Open Source Old School Runescape progress tracker.
 
-![API Tests](https://github.com/wise-old-man/wise-old-man/workflows/API%20Integration%20Testing/badge.svg) ![MIT license](https://img.shields.io/github/license/wise-old-man/wise-old-man) ![Core repo](https://img.shields.io/badge/wise%20old%20man-core-blue)
-
+![MIT license](https://img.shields.io/github/license/wise-old-man/wise-old-man) ![Core repo](https://img.shields.io/badge/wise%20old%20man-core-blue)
 
 The Wise Old Man is a web app (and API) that measures your Old School Runescape player progress. Built on top of the OSRS hiscores, it allows you to keep track of your gains, participate in group competitions, collect achievements and much more.
 
@@ -30,29 +29,34 @@ Although this is the core repository, some related repositories have been create
 
 ## 🛠️ API
 
-We also offer a REST API for developers and encourage you to create your own apps and integrations with it. You can read the API documentation at: [https://wiseoldman.net/docs](https://wiseoldman.net/docs)
+We also offer a REST API for developers and encourage you to create your own apps and integrations with it. You can read the API documentation at: [https://wiseoldman.net/docs](https://docs.wiseoldman.net)
 
 <br />
 
-## 📚  Project structure and stack
+## 📚 Project structure and stack
 
 The repository is currently divided into 3 components:
 
 - **Server**: (The backend & API)
-  - Node.js / TypeScript
-  - PostgreSQL: Main Database
-  - Sqlite: Tests Database
-  - Redis & Bull: Job processor
-  - Express: API framework
-  - Sequelize: ORM
+
+  - **Runtime:** Node.js
+  - **Language:** TypeScript
+  - **Database:** PostgresSQL
+  - **Caching:** Redis
+  - **Message Queue:** BullMQ
+  - **API Framework:** Express
+  - **ORM:** Prisma
+  - **Test Runner:** Jest
 
 - **App**: (The web app)
+
   - React.js
   - Redux: State management
   - Reselect: Selector memoization
 
 - **Docs**: (The API documentation)
-  - Next.js (A react framework)
+
+  - **Framework:** Docusaurus
 
 <br />
 
