@@ -39,7 +39,7 @@ Here's the official [Docker Installation Guide](https://docs.docker.com/get-dock
 
 The server is built with Node.js, a JavaScript runtime built on Chrome's V8 Engine.
 
-You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.4+
+You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.14+
 
 <br />
 

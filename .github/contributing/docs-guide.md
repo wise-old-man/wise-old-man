@@ -25,7 +25,7 @@ I also suggest using Visual Studio Code as your IDE, with the following extensio
 
 The docs depend on Node.js, a JavaScript runtime built on Chrome's V8 Engine.
 
-You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.4+
+You can download it here: https://nodejs.org/en/download/. The project currently supports version 16.14+
 
 <br />
 
