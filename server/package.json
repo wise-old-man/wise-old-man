@@ -5,6 +5,10 @@
   "author": "Psikoi",
   "license": "ISC",
   "main": "dist/src/server.js",
+  "engines": {
+    "npm": ">=8.3.1",
+    "node": ">=16.14.0"
+  },
   "scripts": {
     "build": "rm -rf ./dist/ && tsc",
     "lint": "eslint . --ext .ts",
