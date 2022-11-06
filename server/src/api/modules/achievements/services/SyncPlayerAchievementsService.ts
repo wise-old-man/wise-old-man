@@ -18,7 +18,22 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   // Fetch the player's latest 2 snapshots
   const latestSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id, limit: 2 });
 
-  if (!latestSnapshots || latestSnapshots.length < 2) {
+  // This shouldn't happen because this function is executed onPlayerUpdated, but oh well
+  if (!latestSnapshots || latestSnapshots.length === 0) {
+    return;
+  }
+
+  if (latestSnapshots.length === 1) {
+    // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
+    const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(latestSnapshots[0])).map(
+      ({ name, metric, threshold }) => {
+        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE };
+      }
+    );
+
+    // Add all missing achievements
+    await prisma.achievement.createMany({ data: missingAchievements, skipDuplicates: true });
+
     return;
   }
 

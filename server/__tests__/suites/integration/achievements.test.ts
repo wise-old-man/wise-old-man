@@ -85,7 +85,7 @@ describe('Achievements API', () => {
       expect(fourthResponse.body.message).toBe('Player not found.');
     });
 
-    test('Track Player (first time), no achievements', async () => {
+    test('Track Player (first time, all achievements (unknown dates)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
         { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
       ]);
@@ -105,18 +105,23 @@ describe('Achievements API', () => {
       // Wait a bit for the onPlayerUpdated hook to fire
       await sleep(500);
 
-      expect(onAchievementsCreatedEvent).not.toHaveBeenCalled();
+      expect(onAchievementsCreatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          length: 37
+        })
+      );
 
       // Check their achievements
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
-      expect(fetchResponse.body.length).toBe(0);
+      expect(fetchResponse.body.length).toBe(37);
+      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
 
       globalData.testPlayerId = trackResponse.body.id;
     });
 
-    test('Track Player (second time), all achievements (unknown dates)', async () => {
+    test('Track Player (second time, no new achievements)', async () => {
       // Force some gains (+1 GOTR) so that achievements sync is triggered
       // Note: this should be reviewed in the future, as it would make sense to still
       // sync and back date achievements on the first ever player update
@@ -138,18 +143,13 @@ describe('Achievements API', () => {
       // Wait a bit for the onPlayerUpdated hook to fire
       await sleep(500);
 
-      expect(onAchievementsCreatedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          length: 37
-        })
-      );
+      expect(onAchievementsCreatedEvent).not.toHaveBeenCalled();
 
       // Check their achievements (again)
       const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
-      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
     test('Check Achievements Match (unknown dates)', async () => {
