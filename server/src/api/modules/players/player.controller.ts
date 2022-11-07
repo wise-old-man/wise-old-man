@@ -240,7 +240,9 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
     id: playerId,
     period: getEnum(req.query.period),
     minDate: getDate(req.query.startDate),
-    maxDate: getDate(req.query.endDate)
+    maxDate: getDate(req.query.endDate),
+    offset: getNumber(req.query.offset),
+    limit: req.query.limit ? Math.min(50, getNumber(req.query.limit)) : 20
   });
 
   const formattedSnapshots = results.map(s => snapshotUtils.format(s));

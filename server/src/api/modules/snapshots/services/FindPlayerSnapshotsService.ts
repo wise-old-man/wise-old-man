@@ -11,7 +11,9 @@ const inputSchema = z
     // or by a time range (min date and max date)
     minDate: z.date().optional(),
     maxDate: z.date().optional(),
-    limit: z.number().int().positive().optional().default(100_000)
+    // Pagination
+    limit: z.number().int().positive("Parameter 'limit' must be > 0.").optional().default(100_000),
+    offset: z.number().int().nonnegative("Parameter 'offset' must be >= 0.").optional().default(0)
   })
   .refine(s => !(s.minDate && s.maxDate && s.minDate >= s.maxDate), {
     message: 'Min date must be before the max date.'
@@ -28,7 +30,8 @@ async function findPlayerSnapshots(payload: FindPlayerSnapshotsParams): Promise<
     .findMany({
       where: { playerId: params.id, ...filterQuery },
       orderBy: { createdAt: 'desc' },
-      take: params.limit
+      take: params.limit,
+      skip: params.offset
     })
     .then(modifySnapshots);
 

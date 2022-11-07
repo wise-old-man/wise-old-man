@@ -452,18 +452,27 @@ describe('Player API', () => {
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.lastImportedAt).not.toBeNull();
 
-      const snapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
-        startDate: new Date('2010-01-01'),
-        endDate: new Date('2030-01-01')
-      });
+      const allSnapshots = [];
 
-      expect(snapshotsResponse.status).toBe(200);
-      expect(snapshotsResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
-      expect(snapshotsResponse.body.filter(s => s.importedAt !== null).length).toBe(219);
+      for (let i = 0; i < 5; i++) {
+        const snapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+          startDate: new Date('2010-01-01'),
+          endDate: new Date('2030-01-01'),
+          offset: i * 50,
+          limit: 50
+        });
+
+        expect(snapshotsResponse.status).toBe(200);
+
+        allSnapshots.push(...snapshotsResponse.body);
+      }
+
+      expect(allSnapshots.length).toBe(222); // 219 imported, 3 tracked (during this test session)
+      expect(allSnapshots.filter(s => s.importedAt !== null).length).toBe(219);
+
       expect(
-        snapshotsResponse.body.filter(
-          s => s.importedAt !== null && new Date(s.createdAt) > new Date('2020-05-10')
-        ).length
+        allSnapshots.filter(s => s.importedAt !== null && new Date(s.createdAt) > new Date('2020-05-10'))
+          .length
       ).toBe(0); // there should be no imported snapshots from AFTER May 10th 2020
 
       // Mock the history fetch from CML
