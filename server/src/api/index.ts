@@ -92,6 +92,12 @@ class API {
 
     // Register each http request for metrics processing
     this.express.use((req, res, next) => {
+      // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
+      const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
+      const userAgent = metricsService.reduceUserAgent(userAgentHeader, req.useragent);
+
+      res.locals.userAgent = userAgent;
+
       const endTimer = metricsService.trackHttpRequestStarted();
 
       res.on('finish', () => {
@@ -102,10 +108,6 @@ class API {
 
         const status = res.statusCode;
         const method = req.method;
-
-        // Browsers block sending a custom user agent, so we're sending a custom header in our webapp
-        const userAgentHeader = req.get('X-User-Agent') || req.get('User-Agent');
-        const userAgent = metricsService.reduceUserAgent(userAgentHeader, req.useragent);
 
         metricsService.trackHttpRequestEnded(endTimer, route, status, method, userAgent);
       });

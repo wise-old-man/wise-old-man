@@ -1,6 +1,7 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { ForbiddenError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
+import redisService from '../../services/external/redis.service';
 import * as achievementServices from '../achievements/achievement.services';
 import * as nameChangeServices from '../name-changes/name-change.services';
 import * as recordServices from '../records/record.services';
@@ -13,6 +14,7 @@ import * as snapshotUtils from '../snapshots/snapshot.utils';
 import * as playerUtils from './player.utils';
 import { getDate, getEnum, getNumber, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
+import logger from '../../util/logging';
 
 // GET /players/search?username={username}
 async function search(req: Request): Promise<ControllerResponse> {
@@ -27,7 +29,25 @@ async function search(req: Request): Promise<ControllerResponse> {
 }
 
 // POST /players/:username
-async function track(req: Request): Promise<ControllerResponse> {
+async function track(req: Request, res: Response): Promise<ControllerResponse> {
+  const userAgent = res.locals.userAgent;
+
+  // RuneLite requests include an "accountHash" query param that serves as a unique ID per OSRS account.
+  // If this ID is linked to a different username than before, that means that account has changed
+  // their name and we should automatically submit a name change for it.
+  if ((userAgent === 'RuneLite' || userAgent === 'WiseOldMan RuneLite Plugin') && req.query.accountHash) {
+    const accountHash = req.query.accountHash?.toString();
+    const storedUsername = await redisService.getValue('hash', accountHash);
+
+    if (storedUsername && storedUsername !== req.params.username) {
+      await nameChangeServices
+        .submitNameChange({ oldName: storedUsername, newName: req.params.username })
+        .catch(e => logger.error('Failed to auto-submit name changed from account hash.', e));
+    }
+
+    await redisService.setValue('hash', accountHash, req.params.username);
+  }
+
   // Update the player, by creating a new snapshot
   const [playerDetails, isNew] = await playerServices.updatePlayer({
     username: getString(req.params.username)

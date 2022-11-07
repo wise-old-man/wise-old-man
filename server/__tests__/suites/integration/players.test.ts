@@ -16,6 +16,7 @@ import {
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
+import redisService from '../../../src/api/services/external/redis.service';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -407,6 +408,63 @@ describe('Player API', () => {
       expect(response.status).toBe(200);
       expect(response.body.lastChangedAt).not.toBeNull();
       expect(new Date(response.body.lastChangedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // changed under a second ago
+    });
+
+    it('should track player (w/ account hash and auto-submit name change)', async () => {
+      const response = await api
+        .post(`/players/ruben`)
+        .query({ accountHash: '123456' })
+        .set('User-Agent', 'RuneLite');
+
+      expect(response.status).toBe(201);
+
+      const secondResponse = await api
+        .post(`/players/alan`)
+        .query({ accountHash: '123456' })
+        .set('User-Agent', 'RuneLite');
+
+      expect(secondResponse.status).toBe(201);
+
+      const fetchNameChangesResponse = await api.get('/names').query({ username: 'ruben' });
+
+      expect(fetchNameChangesResponse.status).toBe(200);
+      expect(fetchNameChangesResponse.body.length).toBe(1);
+      expect(fetchNameChangesResponse.body[0]).toMatchObject({ oldName: 'ruben', newName: 'alan' });
+
+      // Ensure the hash was updated to now be linked to "alan"
+      const storedUsername = await redisService.getValue('hash', '123456');
+      expect(storedUsername).toBe('alan');
+    });
+
+    it('should track player (w/ account hash and SKIP auto-submit name change)', async () => {
+      const firstTrackResponse = await api.post(`/players/will`);
+      expect(firstTrackResponse.status).toBe(201);
+
+      const submitResponse = await api.post('/names').send({ oldName: 'will', newName: 'chuckie' });
+      expect(submitResponse.status).toBe(201);
+
+      const secondTrackResponse = await api
+        .post(`/players/will`)
+        .query({ accountHash: '98765' })
+        .set('User-Agent', 'RuneLite');
+
+      expect(secondTrackResponse.status).toBe(200);
+
+      const thirdTrackResponse = await api
+        .post(`/players/chuckie`)
+        .query({ accountHash: '98765' })
+        .set('User-Agent', 'RuneLite');
+
+      expect(thirdTrackResponse.status).toBe(201);
+
+      // This shouldn't submit another name changes because one already exists for that oldName->newName
+      const fetchNameChangesResponse = await api.get('/names').query({ username: 'will' });
+      expect(fetchNameChangesResponse.status).toBe(200);
+      expect(fetchNameChangesResponse.body.length).toBe(1);
+
+      // It should however stll update the hash to the new name
+      const storedUsername = await redisService.getValue('hash', '98765');
+      expect(storedUsername).toBe('chuckie');
     });
   });
 
