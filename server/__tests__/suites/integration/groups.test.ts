@@ -929,11 +929,6 @@ describe('Group API', () => {
 
       expect(usernameResponse.status).toBe(404);
       expect(usernameResponse.body.message).toMatch('Player not found.');
-
-      const idResponse = await api.get(`/players/id/100000/groups`);
-
-      expect(idResponse.status).toBe(404);
-      expect(idResponse.body.message).toMatch('Player not found.');
     });
 
     it('should not list player groups (negative offset)', async () => {

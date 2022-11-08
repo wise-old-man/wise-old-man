@@ -2,6 +2,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import { Metric, PlayerType } from '../../../src/utils';
 import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
@@ -30,8 +31,7 @@ const globalData = {
   cmlRawData: '',
   hiscoresRawDataA: '',
   hiscoresRawDataB: '',
-  expectedAchievements: [],
-  testPlayerId: -1
+  expectedAchievements: []
 };
 
 beforeEach(() => {
@@ -75,14 +75,6 @@ describe('Achievements API', () => {
       const secondResponse = await api.get(`/players/idk/achievements/progress`);
       expect(secondResponse.status).toBe(404);
       expect(secondResponse.body.message).toBe('Player not found.');
-
-      const thirdResponse = await api.get(`/players/id/2000000/achievements`);
-      expect(thirdResponse.status).toBe(404);
-      expect(thirdResponse.body.message).toBe('Player not found.');
-
-      const fourthResponse = await api.get(`/players/id/2000000/achievements/progress`);
-      expect(fourthResponse.status).toBe(404);
-      expect(fourthResponse.body.message).toBe('Player not found.');
     });
 
     test('Track Player (first time, all achievements (unknown dates)', async () => {
@@ -112,13 +104,11 @@ describe('Achievements API', () => {
       );
 
       // Check their achievements
-      const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
-
-      globalData.testPlayerId = trackResponse.body.id;
     });
 
     test('Track Player (second time, no new achievements)', async () => {
@@ -146,14 +136,14 @@ describe('Achievements API', () => {
       expect(onAchievementsCreatedEvent).not.toHaveBeenCalled();
 
       // Check their achievements (again)
-      const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
     });
 
     test('Check Achievements Match (unknown dates)', async () => {
-      const fetchResponse = await api.get(`/players/id/${globalData.testPlayerId}/achievements`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(globalData.expectedAchievements.length);
@@ -169,14 +159,17 @@ describe('Achievements API', () => {
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
       // Import player history
-      const importResponse = await api.post(`/players/Psikoi/import-history`);
+      const importResponse = await api
+        .post(`/players/Psikoi/import-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
       expect(importResponse.status).toBe(200);
 
       // Wait a bit for the onPlayerImported hook to fire
       await sleep(500);
 
       // Check their achievements
-      const fetchResponse = await api.get(`/players/id/${globalData.testPlayerId}/achievements`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
@@ -211,7 +204,7 @@ describe('Achievements API', () => {
     }, 30_000);
 
     test('Check Achievements Progress', async () => {
-      const fetchResponse = await api.get(`/players/id/${globalData.testPlayerId}/achievements/progress`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements/progress`);
 
       // Calculate the number of possible achievements, from the templates
       let achievementCount = 0;
@@ -357,7 +350,7 @@ describe('Achievements API', () => {
       await sleep(500);
 
       // Check their achievements (again)
-      const fetchResponse = await api.get(`/players/id/${trackResponse.body.id}/achievements`);
+      const fetchResponse = await api.get(`/players/psikoi/achievements`);
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(38);

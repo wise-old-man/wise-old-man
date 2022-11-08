@@ -22,15 +22,4 @@ api.get('/:username', setupController(controller.details));
 api.post('/:username', setupController(controller.track));
 api.delete('/:username', setupController(controller.deletePlayer));
 
-api.get('/id/:id/groups', setupController(controller.groups));
-api.get('/id/:id/gained', setupController(controller.gained));
-api.get('/id/:id/records', setupController(controller.records));
-api.get('/id/:id/snapshots', setupController(controller.snapshots));
-api.get('/id/:id/achievements', setupController(controller.achievements));
-api.get('/id/:id/achievements/progress', setupController(controller.achievementsProgress));
-api.get('/id/:id/competitions', setupController(controller.competitions));
-api.get('/id/:id/competitions/standings', setupController(controller.competitionStandings));
-api.get('/id/:id/names', setupController(controller.names));
-api.get('/id/:id', setupController(controller.details));
-
 export default api;

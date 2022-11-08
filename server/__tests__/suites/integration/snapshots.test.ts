@@ -367,13 +367,7 @@ describe('Snapshots API', () => {
 
     it('should not fetch all (player not found)', async () => {
       const result = await services.findPlayerSnapshots({ id: 2_000_000 });
-
       expect(result.length).toBe(0);
-
-      const response = await api.get(`/players/id/200000/snapshots`).query({ period: 'week' });
-
-      expect(response.status).toBe(404);
-      expect(response.body.message).toBe('Player not found.');
     });
 
     it('should fetch all snapshots (high limit)', async () => {

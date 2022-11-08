@@ -50,3 +50,7 @@ table {
 .language-curl .token-line {
   filter: brightness(255);
 }
+
+.token.constant {
+  color: inherit !important;
+}

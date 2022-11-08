@@ -122,7 +122,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const playerDetails = await client.players.updatePlayer({ username: 'zezima' });
+const playerDetails = await client.players.updatePlayer('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -227,7 +227,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const { player, changed } = await client.players.assertPlayerType({ username: 'zezima' });
+const { player, changed } = await client.players.assertPlayerType('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -291,7 +291,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const playerDetails = await client.players.getPlayerDetails({ username: 'zezima' });
+const playerDetails = await client.players.getPlayerDetails('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -396,7 +396,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const achievements = await client.players.getPlayerAchievements({ username: 'zezima' });
+const achievements = await client.players.getPlayerAchievements('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -457,7 +457,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const achievementsProgress = await client.players.getPlayerAchievementProgress({ username: 'zezima' });
+const achievementsProgress = await client.players.getPlayerAchievementProgress('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -556,10 +556,9 @@ import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const participations = await client.players.getPlayerCompetitions(
-  { username: 'zezima' },
-  { status: CompetitionStatus.ONGOING }
-);
+const participations = await client.players.getPlayerCompetitions('zezima', {
+  status: CompetitionStatus.ONGOING
+});
 ```
 
 </TabbedCodeBlock>
@@ -676,10 +675,9 @@ import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const standings = await client.players.getPlayerCompetitionStandings(
-  { username: 'zezima' },
-  { status: CompetitionStatus.ONGOING }
-);
+const standings = await client.players.getPlayerCompetitionStandings('zezima', {
+  status: CompetitionStatus.ONGOING
+});
 ```
 
 </TabbedCodeBlock>
@@ -771,7 +769,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const memberships = await client.players.getPlayerGroups({ username: 'zezima' });
+const memberships = await client.players.getPlayerGroups('zezima');
 ```
 
 </TabbedCodeBlock>
@@ -868,7 +866,7 @@ import { WOMClient, Period } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const gains = await client.players.getPlayerGains({ username: 'zezima' }, { period: Period.WEEK });
+const gains = await client.players.getPlayerGains('zezima', { period: Period.WEEK });
 ```
 
 </TabbedCodeBlock>
@@ -1005,7 +1003,7 @@ import { WOMClient, Metric } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const records = await client.players.getPlayerRecords({ username: 'zezima' }, { metric: Metric.AGILITY });
+const records = await client.players.getPlayerRecords('zezima', { metric: Metric.AGILITY });
 ```
 
 </TabbedCodeBlock>
@@ -1098,7 +1096,7 @@ import { WOMClient, Period } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const snapshots = await client.players.getPlayerSnapshots({ username: 'zezima' }, { period: Period.WEEK });
+const snapshots = await client.players.getPlayerSnapshots('zezima', { period: Period.WEEK });
 ```
 
 </TabbedCodeBlock>
@@ -1184,7 +1182,7 @@ import { WOMClient } from '@wise-old-man/utils';
 
 const client = new WOMClient();
 
-const nameChanges = await client.players.getPlayerNames({ username: 'zezima' });
+const nameChanges = await client.players.getPlayerNames('zezima');
 ```
 
 </TabbedCodeBlock>

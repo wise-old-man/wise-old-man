@@ -166,11 +166,6 @@ describe('Records API', () => {
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toBe('Player not found.');
-
-      const secondResponse = await api.get(`/players/id/2000000/records`);
-
-      expect(secondResponse.status).toBe(404);
-      expect(secondResponse.body.message).toBe('Player not found.');
     });
 
     it('should not fetch records (invalid period)', async () => {

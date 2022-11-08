@@ -469,8 +469,24 @@ describe('Player API', () => {
   });
 
   describe('2. Importing', () => {
+    it('should not import player (invalid admin password)', async () => {
+      const response = await api.post(`/players/psikoi/import-history`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not import player (incorrect admin password)', async () => {
+      const response = await api.post(`/players/psikoi/import-history`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
     it('should not import player (player not found)', async () => {
-      const response = await api.post(`/players/zezima/import-history`);
+      const response = await api
+        .post(`/players/zezima/import-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toMatch('Player not found.');
@@ -482,7 +498,9 @@ describe('Player API', () => {
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
 
-      const response = await api.post(`/players/psikoi/import-history`);
+      const response = await api
+        .post(`/players/psikoi/import-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load history from CML.');
@@ -497,7 +515,10 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api.post(`/players/psikoi/import-history`);
+      const importResponse = await api
+        .post(`/players/psikoi/import-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
       expect(importResponse.status).toBe(200);
       expect(importResponse.body).toMatchObject({
         count: 219,
@@ -541,7 +562,10 @@ describe('Player API', () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 200, globalData.cmlRawData);
 
-      const importResponse = await api.post(`/players/psikoi/import-history`);
+      const importResponse = await api
+        .post(`/players/psikoi/import-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
       expect(importResponse.status).toBe(429);
       expect(importResponse.body.message).toMatch('Imported too soon, please wait');
 
