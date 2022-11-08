@@ -3,7 +3,6 @@ import type {
   PlayerRecordsFilter,
   AssertPlayerTypeResponse,
   GetPlayerGainsResponse,
-  GenericCountMessageResponse,
   PlayerCompetitionsFilter
 } from '../api-types';
 import {
@@ -47,14 +46,6 @@ export default class PlayersClient extends BaseAPIClient {
    */
   assertPlayerType(player: PlayerResolvable) {
     return this.postRequest<AssertPlayerTypeResponse>(`${getPlayerURL(player)}/assert-type`);
-  }
-
-  /**
-   * Attempts to import a player's snapshot history from CrystalMathLabs.
-   * @returns The number of snapshots that were imported.
-   */
-  importPlayer(player: PlayerResolvable) {
-    return this.postRequest<GenericCountMessageResponse>(`${getPlayerURL(player)}/import-history`);
   }
 
   /**

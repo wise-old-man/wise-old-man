@@ -76,6 +76,10 @@ async function assertType(req: Request): Promise<ControllerResponse> {
 
 // POST /players/:username/import-history
 async function importPlayer(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
   // Find the player using the username param
   const player = await playerUtils.resolvePlayer({
     username: getString(req.params.username)
