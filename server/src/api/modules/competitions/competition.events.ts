@@ -1,5 +1,5 @@
 import { Competition, Participation } from '../../../prisma';
-import { PlayerType } from '../../../utils';
+import { CompetitionWithParticipations, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
@@ -27,7 +27,7 @@ async function onParticipantsJoined(participations: Participation[]) {
   });
 }
 
-async function onCompetitionCreated(competition: Competition) {
+async function onCompetitionCreated(competition: CompetitionWithParticipations) {
   // Dispatch a competition created event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchCompetitionCreated, competition);
 }
