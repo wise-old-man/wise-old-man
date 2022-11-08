@@ -160,23 +160,25 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
     }
   });
 
-  competitionEvents.onCompetitionCreated(createdCompetition);
+  const formattedCompetition: CompetitionWithParticipations = {
+    ...omit(createdCompetition, 'verificationHash'),
+    group: createdCompetition.group
+      ? {
+          ...omit(createdCompetition.group, '_count', 'verificationHash'),
+          memberCount: createdCompetition.group._count.memberships
+        }
+      : undefined,
+    participantCount: createdCompetition.participations.length,
+    participations: createdCompetition.participations.map(p => ({
+      ...omit(p, 'startSnapshotId', 'endSnapshotId'),
+      player: modifyPlayer(p.player)
+    }))
+  };
+
+  competitionEvents.onCompetitionCreated(formattedCompetition);
 
   return {
-    competition: {
-      ...omit(createdCompetition, 'verificationHash'),
-      group: createdCompetition.group
-        ? {
-            ...omit(createdCompetition.group, '_count', 'verificationHash'),
-            memberCount: createdCompetition.group._count.memberships
-          }
-        : undefined,
-      participantCount: createdCompetition.participations.length,
-      participations: createdCompetition.participations.map(p => ({
-        ...omit(p, 'startSnapshotId', 'endSnapshotId'),
-        player: modifyPlayer(p.player)
-      }))
-    },
+    competition: formattedCompetition,
     verificationCode: code
   };
 }

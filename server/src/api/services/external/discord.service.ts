@@ -2,7 +2,10 @@ import axios from 'axios';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
 import logger from '../../util/logging';
-import { CompetitionDetails } from '../../modules/competitions/competition.types';
+import {
+  CompetitionDetails,
+  CompetitionWithParticipations
+} from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
 
 export interface EventPeriodDelay {
@@ -110,11 +113,11 @@ async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
 /**
  * Dispatch a competition created event to our discord bot API.
  */
-function dispatchCompetitionCreated(competition: Competition) {
-  dispatch('COMPETITION_CREATED', {
-    groupId: competition.groupId,
-    competition
-  });
+function dispatchCompetitionCreated(competition: CompetitionWithParticipations) {
+  // Omit this field when sending to discord, to prevent sending a huge payload unnecessarily
+  delete competition.participations;
+
+  dispatch('COMPETITION_CREATED', { groupId: competition.groupId, competition });
 }
 
 /**
