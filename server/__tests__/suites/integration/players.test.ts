@@ -413,14 +413,14 @@ describe('Player API', () => {
     it('should track player (w/ account hash and auto-submit name change)', async () => {
       const response = await api
         .post(`/players/ruben`)
-        .query({ accountHash: '123456' })
+        .send({ accountHash: '123456' })
         .set('User-Agent', 'RuneLite');
 
       expect(response.status).toBe(201);
 
       const secondResponse = await api
         .post(`/players/alan`)
-        .query({ accountHash: '123456' })
+        .send({ accountHash: '123456' })
         .set('User-Agent', 'RuneLite');
 
       expect(secondResponse.status).toBe(201);
@@ -445,14 +445,14 @@ describe('Player API', () => {
 
       const secondTrackResponse = await api
         .post(`/players/will`)
-        .query({ accountHash: '98765' })
+        .send({ accountHash: '98765' })
         .set('User-Agent', 'RuneLite');
 
       expect(secondTrackResponse.status).toBe(200);
 
       const thirdTrackResponse = await api
         .post(`/players/chuckie`)
-        .query({ accountHash: '98765' })
+        .send({ accountHash: '98765' })
         .set('User-Agent', 'RuneLite');
 
       expect(thirdTrackResponse.status).toBe(201);

@@ -32,25 +32,27 @@ async function search(req: Request): Promise<ControllerResponse> {
 async function track(req: Request, res: Response): Promise<ControllerResponse> {
   const userAgent = res.locals.userAgent;
 
-  // RuneLite requests include an "accountHash" query param that serves as a unique ID per OSRS account.
+  const { accountHash } = req.body;
+  const { username } = req.params;
+
+  // RuneLite requests include an "accountHash" body param that serves as a unique ID per OSRS account.
   // If this ID is linked to a different username than before, that means that account has changed
   // their name and we should automatically submit a name change for it.
-  if ((userAgent === 'RuneLite' || userAgent === 'WiseOldMan RuneLite Plugin') && req.query.accountHash) {
-    const accountHash = req.query.accountHash?.toString();
+  if ((userAgent === 'RuneLite' || userAgent === 'WiseOldMan RuneLite Plugin') && accountHash) {
     const storedUsername = await redisService.getValue('hash', accountHash);
 
-    if (storedUsername && storedUsername !== req.params.username) {
+    if (storedUsername && storedUsername !== username) {
       await nameChangeServices
-        .submitNameChange({ oldName: storedUsername, newName: req.params.username })
+        .submitNameChange({ oldName: storedUsername, newName: username })
         .catch(e => logger.error('Failed to auto-submit name changed from account hash.', e));
     }
 
-    await redisService.setValue('hash', accountHash, req.params.username);
+    await redisService.setValue('hash', accountHash, username);
   }
 
   // Update the player, by creating a new snapshot
   const [playerDetails, isNew] = await playerServices.updatePlayer({
-    username: getString(req.params.username)
+    username: getString(username)
   });
 
   return { statusCode: isNew ? 201 : 200, response: playerDetails };
