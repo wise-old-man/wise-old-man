@@ -61,9 +61,7 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
 // POST /players/:username/assert-type
 async function assertType(req: Request): Promise<ControllerResponse> {
   // Find the player using the username param
-  const player = await playerUtils.resolvePlayer({
-    username: getString(req.params.username)
-  });
+  const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
   // (Forcefully) Assert the player's account type
   const [, updatedPlayer, changed] = await playerServices.assertPlayerType(player, true);
@@ -81,9 +79,7 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
   }
 
   // Find the player using the username param
-  const player = await playerUtils.resolvePlayer({
-    username: getString(req.params.username)
-  });
+  const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
   const { count } = await playerServices.importPlayerHistory(player);
 
@@ -94,13 +90,9 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /players/:username
-// GET /players/id/:id
 async function details(req: Request): Promise<ControllerResponse> {
   // Find the player by either the id or the username
-  const player = await playerUtils.resolvePlayer({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
   // Fetch the player's details
   const playerDetails = await playerServices.fetchPlayerDetails(player);
@@ -109,50 +101,28 @@ async function details(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /players/:username/achievements
-// GET /players/id/:id/achievements
 async function achievements(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Get all player achievements (by player id)
   const achievements = await achievementServices.findPlayerAchievements({ id: playerId });
-
-  if (playerId && achievements.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
 
   return { statusCode: 200, response: achievements };
 }
 
 // GET /players/:username/achievements/progress
-// GET /players/id/:id/achievements/progress
 async function achievementsProgress(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Get all player achievements (by player id)
   const result = await achievementServices.findPlayerAchievementProgress({ id: playerId });
-
-  if (playerId && result.filter(a => a.absoluteProgress > 0).length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
 
   return { statusCode: 200, response: result };
 }
 
 // GET /players/:username/competitions
-// GET /players/id/:id/competitions
 async function competitions(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   const results = await competitionServices.findPlayerParticipations({
     playerId,
@@ -161,42 +131,24 @@ async function competitions(req: Request): Promise<ControllerResponse> {
     offset: getNumber(req.query.offset)
   });
 
-  if (playerId && results.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
-
   return { statusCode: 200, response: results };
 }
 
 // GET /players/:username/competitions/standings
-// GET /players/id/:id/competitions/standings
 async function competitionStandings(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   const results = await competitionServices.findPlayerParticipationsStandings({
     playerId,
     status: getEnum(req.query.status)
   });
 
-  if (playerId && results.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
-
   return { statusCode: 200, response: results };
 }
 
 // GET /players/:username/groups
-// GET /players/id/:id/groups
 async function groups(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   const results = await groupServices.findPlayerMemberships({
     playerId,
@@ -204,21 +156,12 @@ async function groups(req: Request): Promise<ControllerResponse> {
     offset: getNumber(req.query.offset)
   });
 
-  if (playerId && results.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
-
   return { statusCode: 200, response: results };
 }
 
 // GET /players/:username/gained
-// GET /players/id/:id/gained
 async function gained(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   const results = await deltaServices.findPlayerDeltas({
     id: playerId,
@@ -232,12 +175,8 @@ async function gained(req: Request): Promise<ControllerResponse> {
 }
 
 // GET /players/:username/records
-// GET /players/id/:id/records
 async function records(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   // Fetch all player records for the given period and metric
   const results = await recordServices.findPlayerRecords({
@@ -246,21 +185,12 @@ async function records(req: Request): Promise<ControllerResponse> {
     metric: getEnum(req.query.metric)
   });
 
-  if (playerId && results.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
-
   return { statusCode: 200, response: results };
 }
 
 // GET /players/:username/snapshots
-// GET /players/id/:id/snapshots
 async function snapshots(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
 
   const results = await snapshotServices.findPlayerSnapshots({
     id: playerId,
@@ -271,30 +201,13 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
     limit: req.query.limit ? Math.min(50, getNumber(req.query.limit)) : 20
   });
 
-  const formattedSnapshots = results.map(s => snapshotUtils.format(s));
-
-  if (playerId && formattedSnapshots.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
-
-  return { statusCode: 200, response: formattedSnapshots };
+  return { statusCode: 200, response: results.map(s => snapshotUtils.format(s)) };
 }
 
 // GET /players/:username/names
-// GET /players/id/:id/names
 async function names(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId({
-    id: getNumber(req.params.id),
-    username: getString(req.params.username)
-  });
-
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
   const result = await nameChangeServices.findPlayerNameChanges({ playerId });
-
-  if (playerId && result.length === 0) {
-    // Ensure this player ID exists (if not, it'll throw a 404 error)
-    await playerUtils.resolvePlayer({ id: playerId });
-  }
 
   return { statusCode: 200, response: result };
 }

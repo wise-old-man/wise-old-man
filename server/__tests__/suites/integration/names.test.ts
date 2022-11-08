@@ -379,11 +379,6 @@ describe('Names API', () => {
 
       expect(firstResponse.status).toBe(404);
       expect(firstResponse.body.message).toMatch('Player not found.');
-
-      const secondResponse = await api.get(`/players/id/2000000/names`);
-
-      expect(secondResponse.status).toBe(404);
-      expect(secondResponse.body.message).toMatch('Player not found.');
     });
 
     it('should fetch list', async () => {

@@ -5,7 +5,6 @@ import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../snapshots/snapshot.utils';
 import { findPlayer } from './services/FindPlayerService';
-import { PlayerResolvable } from './player.types';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
@@ -13,11 +12,7 @@ const DAY_IN_SECONDS = PeriodProps[Period.DAY].milliseconds / 1000;
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-async function resolvePlayerId(playerResolvable: PlayerResolvable): Promise<number | null> {
-  if (playerResolvable.id) return playerResolvable.id;
-
-  const { username } = playerResolvable;
-
+async function resolvePlayerId(username: string): Promise<number | null> {
   if (!username || username.length === 0) {
     throw new BadRequestError(`Parameter 'username' is undefined.`);
   }
@@ -35,12 +30,12 @@ async function resolvePlayerId(playerResolvable: PlayerResolvable): Promise<numb
   return player.id;
 }
 
-async function resolvePlayer(playerResolvable: PlayerResolvable): Promise<Player | null> {
-  if (!playerResolvable.username && !playerResolvable.id) {
-    throw new BadRequestError('Undefined id and username.');
+async function resolvePlayer(username: string): Promise<Player | null> {
+  if (!username || username.length === 0) {
+    throw new BadRequestError('Undefined username.');
   }
 
-  const [player] = await findPlayer(playerResolvable);
+  const [player] = await findPlayer({ username });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
