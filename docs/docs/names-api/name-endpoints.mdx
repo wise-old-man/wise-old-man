@@ -45,7 +45,7 @@ curl -X GET https://api.wiseoldman.net/v2/names?username=zezi&status=pending&lim
 ```
 
 ```javascript
-import { WOMClient, NameChangeStatus } from '@wise-old-man/utils';
+const { WOMClient, NameChangeStatus } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -120,7 +120,7 @@ curl -X POST https://api.wiseoldman.net/v2/names \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -175,7 +175,7 @@ curl -X GET https://api.wiseoldman.net/v2/names/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 

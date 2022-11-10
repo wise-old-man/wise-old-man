@@ -48,7 +48,7 @@ curl -X GET https://api.wiseoldman.net/v2/competitions?title=the&status=ongoing&
 ```
 
 ```javascript
-import { WOMClient, CompetitionStatus } from '@wise-old-man/utils';
+const { WOMClient, CompetitionStatus } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -156,7 +156,7 @@ curl -X GET https://api.wiseoldman.net/v2/competitions/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -284,7 +284,7 @@ curl -X GET https://api.wiseoldman.net/v2/competitions/123/top-history \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -427,7 +427,7 @@ curl -X POST https://api.wiseoldman.net/v2/competitions \
 ```
 
 ```javascript
-import { WOMClient, Metric } from '@wise-old-man/utils';
+const { WOMClient, Metric } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -599,7 +599,7 @@ curl -X PUT https://api.wiseoldman.net/v2/competitions/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -782,7 +782,7 @@ curl -X DELETE https://api.wiseoldman.net/v2/competitions/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -843,7 +843,7 @@ curl -X POST https://api.wiseoldman.net/v2/competitions/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -905,7 +905,7 @@ curl -X DELETE https://api.wiseoldman.net/v2/competitions/123 \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -976,7 +976,7 @@ curl -X POST https://api.wiseoldman.net/v2/competitions/123/teams \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -1051,7 +1051,7 @@ curl -X DELETE https://api.wiseoldman.net/v2/competitions/123/teams \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
@@ -1128,7 +1128,7 @@ curl -X POST https://api.wiseoldman.net/v2/competitions/123/update-all \
 ```
 
 ```javascript
-import { WOMClient } from '@wise-old-man/utils';
+const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
