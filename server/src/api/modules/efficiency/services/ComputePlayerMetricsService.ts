@@ -43,7 +43,7 @@ async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const ehbRank = await efficiencyServices.computeEfficiencyRank({
     player,
     metric: Metric.EHB,
-    value: ehpValue
+    value: ehbValue
   });
 
   const result: ComputePlayerMetricsResult = {
