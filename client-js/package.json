@@ -1,7 +1,21 @@
 {
   "name": "@wise-old-man/utils",
-  "version": "2.0.6",
-  "description": "",
+  "version": "2.0.7",
+  "description": "A JavaScript/TypeScript client that interfaces and consumes the Wise Old Man API, an API that tracks and measures players' progress in Old School Runescape.",
+  "keywords": [
+    "wiseoldman",
+    "wom",
+    "osrs",
+    "runescape",
+    "oldschool",
+    "api"
+  ],
+  "author": "Psikoi",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wise-old-man/wise-old-man.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -13,9 +27,6 @@
     "prebuild": "cd ../server && npm run prisma:generate",
     "build": "rm -rf ./dist && npx rollup -c && node prisma-transform.js && tsc dist/index.d.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.40.1",
