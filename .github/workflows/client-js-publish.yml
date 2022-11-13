@@ -10,6 +10,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Checkout current branch
         uses: actions/checkout@v3
@@ -23,5 +25,8 @@ jobs:
       - name: Install client-js dependencies & build JavaScript bundle
         run: cd client-js && npm ci
 
-      - name: Publish package bundle to NPM
-        run: cd client-js && npm publish
+      - name: Publish package
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: ./client-js/package.json
