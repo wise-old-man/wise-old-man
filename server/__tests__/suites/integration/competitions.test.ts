@@ -867,19 +867,6 @@ describe('Competition API', () => {
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
-    it('should not edit (past dates)', async () => {
-      const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
-        startsAt: new Date(Date.now() - 3_600_000),
-        endsAt: new Date(Date.now() - 1_200_000),
-        verificationCode: globalData.testCompetitionStarting.verificationCode
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Invalid dates: All start and end dates must be in the future.');
-
-      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
-    });
-
     it('should not edit (invalid participants list)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
         verificationCode: globalData.testCompetitionStarting.verificationCode,
@@ -1058,30 +1045,6 @@ describe('Competition API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toMatch('Incorrect verification code.');
-
-      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
-    });
-
-    it('should not edit start date (already started)', async () => {
-      const response = await api.put(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
-        startsAt: new Date(Date.now() + 3_600_000),
-        verificationCode: globalData.testCompetitionOngoing.verificationCode
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition has started, the start date cannot be changed.');
-
-      expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
-    });
-
-    it('should not edit metric (already started)', async () => {
-      const response = await api.put(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
-        metric: 'obor',
-        verificationCode: globalData.testCompetitionOngoing.verificationCode
-      });
-
-      expect(response.status).toBe(400);
-      expect(response.body.message).toMatch('The competition has started, the metric cannot be changed.');
 
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });

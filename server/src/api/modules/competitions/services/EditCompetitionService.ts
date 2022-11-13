@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CompetitionType, Metric } from '../../../../utils';
+import { CompetitionType, Metric, Snapshot } from '../../../../utils';
 import prisma, {
   PrismaPlayer,
   Participation,
@@ -9,6 +9,7 @@ import prisma, {
 } from '../../../../prisma';
 import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
+import * as snapshotServices from '../../snapshots/snapshot.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import {
   sanitizeTeams,
@@ -116,16 +117,8 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
     const startDate = params.startsAt || competition.startsAt;
     const endDate = params.endsAt || competition.endsAt;
 
-    const hasChangedDates =
-      startDate.getTime() !== competition.startsAt.getTime() ||
-      endDate.getTime() !== competition.endsAt.getTime();
-
     if (endDate.getTime() < startDate.getTime()) {
       throw new BadRequestError('Start date must be before the end date.');
-    }
-
-    if (hasChangedDates && (startDate.getTime() < Date.now() || endDate.getTime() < Date.now())) {
-      throw new BadRequestError('Invalid dates: All start and end dates must be in the future.');
     }
   }
 
@@ -135,17 +128,6 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
 
   if (competition.type === CompetitionType.TEAM && hasParticipants) {
     throw new BadRequestError("The competition type cannot be changed to 'classic'.");
-  }
-
-  // If competition has already started
-  if (competition.startsAt.getTime() < Date.now()) {
-    if (params.metric && params.metric !== competition.metric) {
-      throw new BadRequestError('The competition has started, the metric cannot be changed.');
-    }
-
-    if (params.startsAt && params.startsAt.getTime() !== competition.startsAt.getTime()) {
-      throw new BadRequestError('The competition has started, the start date cannot be changed.');
-    }
   }
 
   let participations: PartialParticipation[] = [];
@@ -169,6 +151,25 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
     throw new ServerError('Failed to edit competition. (EditCompetitionService)');
   }
 
+  // if start date changed
+  if (competition.startsAt.getTime() !== updatedCompetition.startsAt.getTime()) {
+    if (updatedCompetition.startsAt.getTime() < Date.now()) {
+      // if new start date is in the past
+      await recalculateParticipationsStart(competition.id, updatedCompetition.startsAt);
+    } else if (competition.startsAt.getTime() < Date.now()) {
+      // if had already started and new start date is in the future
+      await invalidateParticipations(competition.id);
+    }
+  }
+
+  // if end date changed and (had already ended OR new end date is in the past)
+  if (
+    competition.endsAt.getTime() !== updatedCompetition.endsAt.getTime() &&
+    (competition.endsAt.getTime() < Date.now() || updatedCompetition.endsAt.getTime() < Date.now())
+  ) {
+    await recalculateParticipationsEnd(competition.id, updatedCompetition.endsAt);
+  }
+
   return {
     ...omit(updatedCompetition, 'verificationHash'),
     group: updatedCompetition.group
@@ -183,6 +184,65 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
       player: modifyPlayer(p.player)
     }))
   };
+}
+
+async function invalidateParticipations(competitionId: number) {
+  await prisma.participation.updateMany({
+    where: { competitionId },
+    data: { startSnapshotId: null, endSnapshotId: null }
+  });
+}
+
+async function recalculateParticipationsStart(competitionId: number, startDate: Date) {
+  // Fetch the player IDs of all the participants
+  const playerIds = (
+    await prisma.participation.findMany({
+      where: { competitionId },
+      select: { playerId: true }
+    })
+  ).map(p => p.playerId);
+
+  // Find everyone's first snapshot AFTER the new start date
+  const playerSnapshots = await snapshotServices.findGroupSnapshots({ playerIds, minDate: startDate });
+
+  // Map these snapshots for O(1) lookups
+  const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
+
+  // Update participations with the new start snapshot IDs
+  await Promise.all(
+    playerIds.map(playerId => {
+      return prisma.participation.update({
+        where: { playerId_competitionId: { competitionId, playerId } },
+        data: { startSnapshotId: snapshotMap.get(playerId) ? snapshotMap.get(playerId).id : null }
+      });
+    })
+  );
+}
+
+async function recalculateParticipationsEnd(competitionId: number, endDate: Date) {
+  // Fetch the player IDs of all the participants
+  const playerIds = (
+    await prisma.participation.findMany({
+      where: { competitionId },
+      select: { playerId: true }
+    })
+  ).map(p => p.playerId);
+
+  // Find everyone's last snapshot BEFORE the new end date
+  const playerSnapshots = await snapshotServices.findGroupSnapshots({ playerIds, maxDate: endDate });
+
+  // Map these snapshots for O(1) lookups
+  const snapshotMap = new Map<number, Snapshot>(playerSnapshots.map(s => [s.playerId, s]));
+
+  // Update participations with the new end snapshot IDs
+  await Promise.all(
+    playerIds.map(playerId => {
+      return prisma.participation.update({
+        where: { playerId_competitionId: { competitionId, playerId } },
+        data: { endSnapshotId: snapshotMap.get(playerId) ? snapshotMap.get(playerId).id : null }
+      });
+    })
+  );
 }
 
 async function executeUpdate(
