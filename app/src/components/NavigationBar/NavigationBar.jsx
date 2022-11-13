@@ -68,7 +68,7 @@ const MENU_CONFIG = [
   {
     type: 'link',
     label: 'API',
-    url: 'https://wiseoldman.net/docs'
+    url: 'https://docs.wiseoldman.net'
   },
   {
     type: 'link',
