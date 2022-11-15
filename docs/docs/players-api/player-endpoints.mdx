@@ -1068,13 +1068,11 @@ Fetches all of the player's past snapshots. Returns an array of [Snapshot](/play
 
 **Request Params**
 
-| Field     | Type                                           | Required | Description                                           |
-| --------- | ---------------------------------------------- | -------- | ----------------------------------------------------- |
-| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by.                |
-| startDate | date                                           | `false`  | The minimum date for the snapshots.                   |
-| endDate   | date                                           | `false`  | The maximum date for the snapshots.                   |
-| limit     | integer                                        | `false`  | The pagination limit. See [Pagination](/#pagination)  |
-| offset    | integer                                        | `false`  | The pagination offset. See [Pagination](/#pagination) |
+| Field     | Type                                           | Required | Description                            |
+| --------- | ---------------------------------------------- | -------- | -------------------------------------- |
+| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by. |
+| startDate | date                                           | `false`  | The minimum date for the snapshots.    |
+| endDate   | date                                           | `false`  | The maximum date for the snapshots.    |
 
 :::info
 This endpoint accepts either `period` or `startDate` + `endDate`.
