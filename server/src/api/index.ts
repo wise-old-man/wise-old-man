@@ -66,16 +66,17 @@ class API {
 
           if (activeKey === null) {
             return res.status(403).json({
-              message: 'Invalid API Key. Contact support at https://wiseoldman.net/discord'
+              message: 'Invalid API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
             });
           }
 
           if (activeKey === 'false') {
             return res.status(403).json({
-              message: 'Unauthorized API Key. Contact support at https://wiseoldman.net/discord'
+              message: 'Unauthorized API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
             });
           }
 
+          res.locals.apiKey = apiKey;
           isTrustedOrigin = true;
         }
 
@@ -84,7 +85,7 @@ class API {
           .then(() => next())
           .catch(() =>
             res.status(429).json({
-              message: 'Too Many Requests, please try again later.'
+              message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys. '
             })
           );
       });
@@ -109,7 +110,9 @@ class API {
         const status = res.statusCode;
         const method = req.method;
 
-        metricsService.trackHttpRequestEnded(endTimer, route, status, method, userAgent);
+        const origin = res.locals.apiKey ? `${res.locals.apiKey}-${userAgent}` : userAgent;
+
+        metricsService.trackHttpRequestEnded(endTimer, route, status, method, origin);
       });
 
       next();
