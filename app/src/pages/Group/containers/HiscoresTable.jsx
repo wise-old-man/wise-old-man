@@ -105,6 +105,7 @@ function getTableConfig(metric) {
   if (isSkill(metric)) {
     TABLE_CONFIG.columns.splice(3, 0, {
       key: 'level',
+      get: row => row.data.level,
       transform: (_, row) => <NumberLabel value={row.data.level} />
     });
   }
