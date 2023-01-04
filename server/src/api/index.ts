@@ -125,7 +125,7 @@ class API {
 
   private setupServices() {
     Sentry.init({
-      dsn: env.SENTRY_DSN_V2,
+      dsn: env.SENTRY_DSN,
       tracesSampleRate: 0.01,
       integrations: [
         new Sentry.Integrations.Http({ tracing: true }),

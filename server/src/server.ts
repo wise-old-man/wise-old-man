@@ -2,7 +2,7 @@ import env, { getThreadIndex } from './env';
 import logger from './api/util/logging';
 import api from './api';
 
-const port = env.API_PORT || 5001;
+const port = env.API_PORT || 5000;
 
 const server = api.express.listen(port, () => {
   logger.info(

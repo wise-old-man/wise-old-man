@@ -119,7 +119,7 @@ This command will start your dependencies, reset your development database and s
 
 If you're using the regular Docker installation, you should be able to access the API at
 
-http://localhost:5001/
+http://localhost:5000/
 
 If you're using Docker Toolbox instead, you can find out what the machine's ip is by typing:
 
@@ -127,9 +127,9 @@ If you're using Docker Toolbox instead, you can find out what the machine's ip i
 docker-machine ip
 ```
 
-and adding :5001 to it.
+and adding :5000 to it.
 
-The default URL should be http://192.168.99.100:5001
+The default URL should be http://192.168.99.100:5000
 
 #### Troubleshooting
 
@@ -151,7 +151,7 @@ and run `npm run dev` again.
 
 ## Accessing the database
 
-You can use pgadmin to manage your database, by visting the API url, and replacing the 5001 port with 54321.
+You can use pgadmin to manage your database, by visting the API url, and replacing the 5000 port with 54321.
 
 Example: http://localhost:54321 or http://192.168.99.100:54321
 
