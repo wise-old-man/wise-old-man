@@ -298,6 +298,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [50, 100, 500, 1000]
   },
   {
+    name: '{threshold} Phantom Muspah kills',
+    metric: Metric.PHANTOM_MUSPAH,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Sarachnis kills',
     metric: Metric.SARACHNIS,
     thresholds: [500, 1000, 5000, 10_000]

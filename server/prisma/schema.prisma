@@ -120,6 +120,7 @@ model Delta {
   nightmare                        Int       @default(0)
   phosanis_nightmare               Int       @default(0)
   obor                             Int       @default(0)
+  phantom_muspah                   Int       @default(0)
   sarachnis                        Int       @default(0)
   scorpia                          Int       @default(0)
   skotizo                          Int       @default(0)
@@ -434,6 +435,8 @@ model Snapshot {
   nightmareKills                        Int       @default(-1)
   oborRank                              Int       @default(-1)
   oborKills                             Int       @default(-1)
+  phantom_muspahRank                    Int       @default(-1)
+  phantom_muspahKills                   Int       @default(-1)
   sarachnisRank                         Int       @default(-1)
   sarachnisKills                        Int       @default(-1)
   scorpiaRank                           Int       @default(-1)
@@ -1138,6 +1141,7 @@ enum Metric {
   nex
   nightmare
   obor
+  phantom_muspah
   sarachnis
   scorpia
   skotizo

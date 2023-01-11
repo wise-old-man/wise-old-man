@@ -114,6 +114,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.NIGHTMARE]: { name: 'Nightmare' },
     [Boss.PHOSANIS_NIGHTMARE]: { name: "Phosani's Nightmare" },
     [Boss.OBOR]: { name: 'Obor', minimumValue: 5, isMembers: false },
+    [Boss.PHANTOM_MUSPAH]: { name: 'Phantom Muspah', minimumValue: 50 },
     [Boss.SARACHNIS]: { name: 'Sarachnis' },
     [Boss.SKOTIZO]: { name: 'Skotizo', minimumValue: 5 },
     [Boss.SCORPIA]: { name: 'Scorpia' },
@@ -350,6 +351,10 @@ function parseMetricAbbreviation(abbreviation: string): Metric | null {
     case 'guardians':
     case 'ggs':
       return Metric.GROTESQUE_GUARDIANS;
+
+    case 'phantom':
+    case 'muspah':
+      return Metric.PHANTOM_MUSPAH;
 
     case 'kq':
       return Metric.KALPHITE_QUEEN;

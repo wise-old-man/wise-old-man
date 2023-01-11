@@ -116,6 +116,7 @@ export const Boss = {
   NIGHTMARE: 'nightmare',
   PHOSANIS_NIGHTMARE: 'phosanis_nightmare',
   OBOR: 'obor',
+  PHANTOM_MUSPAH: 'phantom_muspah',
   SARACHNIS: 'sarachnis',
   SCORPIA: 'scorpia',
   SKOTIZO: 'skotizo',
