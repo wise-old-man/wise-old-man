@@ -217,6 +217,11 @@ describe('Efficiency API', () => {
           cooking: 0
         })
       ).toBeCloseTo(399.25525 - 147.29375, 4);
+
+      // Make sure unranked skills return 0 EHP (and definitely not negative numbers)
+      const unrankedStats = Object.fromEntries(SKILLS.map(s => [s, -1])) as ExperienceMap;
+      expect(ALGORITHMS.main.calculateEHP(unrankedStats)).toBe(0);
+      expect(ALGORITHMS.main.calculateSkillEHP('prayer', unrankedStats)).toBe(0);
     });
   });
 
@@ -240,6 +245,17 @@ describe('Efficiency API', () => {
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB
       expect(ALGORITHMS.main.calculateEHB(killcountMap)).toBe(ehbSum);
+
+      const unrankedKillcountMap = {
+        cerberus: -1,
+        corporeal_beast: -1,
+        nex: -1,
+        tzkal_zuk: -1
+      } as KillcountMap;
+
+      // Make sure unranked skills return 0 EHB (and definitely not negative numbers)
+      expect(ALGORITHMS.main.calculateEHB(unrankedKillcountMap)).toBe(0);
+      expect(ALGORITHMS.main.calculateBossEHB('cerberus', unrankedKillcountMap)).toBe(0);
     });
 
     test('EHB calcs (ironman)', () => {

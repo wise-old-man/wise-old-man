@@ -286,7 +286,7 @@ describe('Deltas API', () => {
     it('should fetch deltas between (array formatting)', async () => {
       const response = await api.get(`/players/psikoi/gained`).query({
         startDate: new Date('2015-12-14T04:15:36.000Z'),
-        endDate: new Date('2022-12-14T04:15:36.000Z'),
+        endDate: new Date('2025-12-14T04:15:36.000Z'),
         formatting: 'array'
       });
 

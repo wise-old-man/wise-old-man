@@ -162,10 +162,13 @@ function calculateEHB(killcountMap: KillcountMap, metas: BossMetaConfig[]) {
 }
 
 function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[]): number {
-  const startBonusExp = calculateBonuses(experienceMap, getBonuses(metas, BonusType.START));
-  const endBonusExp = calculateBonuses(experienceMap, getBonuses(metas, BonusType.END));
+  // Ensure unranked skills (-1) are treated as 0 exp
+  const fixedMap = mapValues(experienceMap, exp => Math.max(0, exp));
 
-  const startExps = Object.fromEntries(SKILLS.map(s => [s, experienceMap[s] + (startBonusExp[s] || 0)]));
+  const startBonusExp = calculateBonuses(fixedMap, getBonuses(metas, BonusType.START));
+  const endBonusExp = calculateBonuses(fixedMap, getBonuses(metas, BonusType.END));
+
+  const startExps = Object.fromEntries(SKILLS.map(s => [s, fixedMap[s] + (startBonusExp[s] || 0)]));
 
   const targetExps = Object.fromEntries(
     SKILLS.map(s => [s, s in endBonusExp ? MAX_SKILL_EXP - endBonusExp[s] : MAX_SKILL_EXP])
