@@ -22,4 +22,6 @@ api.get('/:username', setupController(controller.details));
 api.post('/:username', setupController(controller.track));
 api.delete('/:username', setupController(controller.deletePlayer));
 
+api.get('/id/:id', setupController(controller.detailsById));
+
 export default api;

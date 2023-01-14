@@ -367,6 +367,111 @@ const playerDetails = await client.players.getPlayerDetails('zezima');
 
 ---
 
+## Get Player Details (by ID)
+
+<Endpoint verb="GET" path="/players/id/:id" />
+<br />
+
+Fetches a player's details by their ID. Returns a [PlayerDetails](/players-api/player-type-definitions#object-player-details) object.
+
+**Request Params**
+
+| Field | Type   | Required | Description      |
+| ----- | ------ | -------- | ---------------- |
+| id    | number | `true`   | The player's ID. |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/players/id/123 \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const playerDetails = await client.players.getPlayerDetailsById(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+{
+  "id": 123,
+  "username": "zezima",
+  "displayName": "Zezima",
+  "type": "regular",
+  "build": "main",
+  "country": null,
+  "flagged": false,
+  "exp": 27957906,
+  "ehp": 118.1123000000007,
+  "ehb": 0,
+  "ttm": 891.24136,
+  "tt200m": 13406.30792,
+  "registeredAt": "2020-04-22T18:54:52.487Z",
+  "updatedAt": "2022-10-27T11:44:11.564Z",
+  "lastChangedAt": "2021-04-17T15:57:49.039Z",
+  "lastImportedAt": "2022-10-23T18:24:22.792Z",
+  "combatLevel": 93,
+  "latestSnapshot": {
+    "id": 68052294,
+    "playerId": 1135,
+    "createdAt": "2022-10-27T11:44:11.057Z",
+    "importedAt": null,
+    "data": {
+      "skills": {
+        "overall": {
+          "metric": "overall",
+          "experience": 27957906,
+          "rank": 948821,
+          "level": 1422,
+          "ehp": 118.1123000000007
+        }
+        // ... etc for all skills
+      },
+      "bosses": {
+        "abyssal_sire": {
+          "metric": "abyssal_sire",
+          "kills": -1,
+          "rank": -1,
+          "ehb": 0
+        }
+        // ... etc for all bosses
+      },
+      "activities": {
+        "bounty_hunter_hunter": {
+          "metric": "bounty_hunter_hunter",
+          "score": -1,
+          "rank": -1
+        }
+        // ... etc for all activities
+      },
+      "computed": {
+        "ehp": {
+          "metric": "ehp",
+          "value": 118.1123000000007,
+          "rank": 289382
+        }
+        // ... etc for all computed metrics
+      }
+    }
+  }
+}
+```
+
+---
+
 ## Get Player Achievements
 
 <Endpoint verb="GET" path="/players/:username/achievements" />

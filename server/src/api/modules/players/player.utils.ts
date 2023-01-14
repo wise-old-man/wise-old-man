@@ -44,6 +44,20 @@ async function resolvePlayer(username: string): Promise<Player | null> {
   return player;
 }
 
+async function resolvePlayerById(id: number): Promise<Player | null> {
+  if (!id) {
+    throw new BadRequestError('Undefined player ID.');
+  }
+
+  const [player] = await findPlayer({ id });
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  return player;
+}
+
 async function getCachedPlayerId(username: string): Promise<number | null> {
   if (!username || username.length === 0) return null;
 
@@ -183,5 +197,6 @@ export {
   getBuild,
   resolvePlayer,
   resolvePlayerId,
+  resolvePlayerById,
   setCachedPlayerId
 };

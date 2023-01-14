@@ -56,6 +56,14 @@ export default class PlayersClient extends BaseAPIClient {
   }
 
   /**
+   * Fetches a player's details by ID.
+   * @returns The player's details, including the latest snapshot.
+   */
+  getPlayerDetailsById(id: number) {
+    return this.getRequest<PlayerDetails>(`/players/id/${id}`);
+  }
+
+  /**
    * Fetches a player's current achievements.
    * @returns A list of achievements.
    */

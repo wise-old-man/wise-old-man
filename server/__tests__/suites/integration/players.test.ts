@@ -633,23 +633,39 @@ describe('Player API', () => {
 
   describe('4. Viewing', () => {
     it('should not view player details (player not found)', async () => {
-      const response = await api.get('/players/zezima');
+      const byUsernameResponse = await api.get('/players/zezima');
 
-      expect(response.status).toBe(404);
-      expect(response.body.message).toMatch('Player not found.');
+      expect(byUsernameResponse.status).toBe(404);
+      expect(byUsernameResponse.body.message).toMatch('Player not found.');
+
+      const byIdResponse = await api.get('/players/id/4847847474');
+
+      expect(byIdResponse.status).toBe(404);
+      expect(byIdResponse.body.message).toMatch('Player not found.');
     });
 
     it('should view player details', async () => {
-      const response = await api.get('/players/PsiKOI');
+      const byUsernameResponse = await api.get('/players/PsiKOI');
 
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject({
+      expect(byUsernameResponse.status).toBe(200);
+      expect(byUsernameResponse.body).toMatchObject({
         username: 'psikoi',
         displayName: 'PSIKOI',
         type: 'regular',
         build: 'main'
       });
-      expect(response.body.latestSnapshot).not.toBeNull();
+      expect(byUsernameResponse.body.latestSnapshot).not.toBeNull();
+
+      const byIdResponse = await api.get(`/players/id/${byUsernameResponse.body.id}`);
+
+      expect(byIdResponse.status).toBe(200);
+      expect(byIdResponse.body).toMatchObject({
+        username: 'psikoi',
+        displayName: 'PSIKOI',
+        type: 'regular',
+        build: 'main'
+      });
+      expect(byIdResponse.body.latestSnapshot).not.toBeNull();
     });
   });
 

@@ -91,8 +91,19 @@ async function importPlayer(req: Request): Promise<ControllerResponse> {
 
 // GET /players/:username
 async function details(req: Request): Promise<ControllerResponse> {
-  // Find the player by either the id or the username
+  // Find the player by their username
   const player = await playerUtils.resolvePlayer(getString(req.params.username));
+
+  // Fetch the player's details
+  const playerDetails = await playerServices.fetchPlayerDetails(player);
+
+  return { statusCode: 200, response: playerDetails };
+}
+
+// GET /players/id/:id
+async function detailsById(req: Request): Promise<ControllerResponse> {
+  // Find the player by their id
+  const player = await playerUtils.resolvePlayerById(getNumber(req.params.id));
 
   // Fetch the player's details
   const playerDetails = await playerServices.fetchPlayerDetails(player);
@@ -248,6 +259,7 @@ export {
   assertType,
   importPlayer,
   details,
+  detailsById,
   achievements,
   achievementsProgress,
   competitions,
