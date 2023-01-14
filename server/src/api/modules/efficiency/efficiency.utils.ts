@@ -215,11 +215,15 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
 }
 
 function getKillcountMap(snapshot: Snapshot): KillcountMap {
-  return Object.fromEntries(BOSSES.map(b => [b, snapshot[getMetricValueKey(b)]])) as KillcountMap;
+  return Object.fromEntries(
+    BOSSES.map(b => [b, Math.max(0, snapshot[getMetricValueKey(b)])])
+  ) as KillcountMap;
 }
 
 function getExperienceMap(snapshot: Snapshot): ExperienceMap {
-  return Object.fromEntries(SKILLS.map(s => [s, snapshot[getMetricValueKey(s)]])) as ExperienceMap;
+  return Object.fromEntries(
+    SKILLS.map(s => [s, Math.max(0, snapshot[getMetricValueKey(s)])])
+  ) as ExperienceMap;
 }
 
 function getPlayerEHB(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'>) {
