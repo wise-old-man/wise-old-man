@@ -22,6 +22,7 @@ export default [
   { boss: Boss.KRAKEN, rate: 90 },
   { boss: Boss.KREEARRA, rate: 25 },
   { boss: Boss.KRIL_TSUTSAROTH, rate: 65 },
+  { boss: Boss.PHANTOM_MUSPAH, rate: 25 },
   { boss: Boss.SARACHNIS, rate: 80 },
   { boss: Boss.SCORPIA, rate: 130 },
   { boss: Boss.SKOTIZO, rate: 45 },

@@ -29,6 +29,7 @@ export default [
   { boss: Boss.KRIL_TSUTSAROTH, rate: 26 },
   { boss: Boss.MIMIC, rate: 60 },
   { boss: Boss.OBOR, rate: 12 },
+  { boss: Boss.PHANTOM_MUSPAH, rate: 25 },
   { boss: Boss.SARACHNIS, rate: 56 },
   { boss: Boss.SCORPIA, rate: 60 },
   { boss: Boss.SKOTIZO, rate: 38 },
