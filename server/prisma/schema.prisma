@@ -46,7 +46,7 @@ model Competition {
   updatedAt        DateTime?       @updatedAt @db.Timestamptz(6)
 
   // Relations
-  group          Group?          @relation(fields: [groupId], references: [id], onUpdate: NoAction)
+  group          Group?          @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   participations Participation[]
 
   // Indices
@@ -238,8 +238,8 @@ model Participation {
   // Relations
   player        Player      @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [startSnapshotId], references: [id], onUpdate: NoAction)
-  endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [endSnapshotId], references: [id], onUpdate: NoAction)
+  startSnapshot Snapshot?   @relation("participations_startSnapshotIdTosnapshots", fields: [startSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  endSnapshot   Snapshot?   @relation("participations_endSnapshotIdTosnapshots", fields: [endSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   // Constraints
   @@id([playerId, competitionId])

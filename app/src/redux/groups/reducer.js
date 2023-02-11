@@ -129,11 +129,8 @@ const slice = createSlice({
     onDeleteRequest(state) {
       state.isDeleting = true;
     },
-    onDeleteSuccess(state, action) {
-      const { groupId } = action.payload;
-
+    onDeleteSuccess(state) {
       state.isDeleting = false;
-      state.groups = omit(state.competitions, groupId);
     },
     onDeleteError(state, action) {
       state.isDeleting = false;
