@@ -37,7 +37,9 @@ function DeleteGroupModal({ group, onCancel }) {
           <img src="/img/icons/clear.svg" alt="X" />
         </button>
         <b className="modal-title">Are you sure you want to delete this group?</b>
-        <span className="modal-warning">This action is permanent and cannot be reversed</span>
+        <span className="modal-warning">
+          This action is permanent and cannot be reversed. All linked competitions will also be deleted.
+        </span>
         <input
           className="verification-input"
           value={verificationCode}
