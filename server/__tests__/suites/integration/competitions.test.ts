@@ -3481,5 +3481,46 @@ describe('Competition API', () => {
       expect(teamCompParticipantsB).not.toContain('usbc');
       expect(teamCompParticipantsB).not.toContain('jakesterwars');
     });
+
+    it('should delete when the group is deleted', async () => {
+      const createGroupResponse = await api.post('/groups').send({
+        name: 'Test 987',
+        members: [{ username: 'psikoi' }, { username: 'boom' }, { username: 'sethmare' }]
+      });
+
+      expect(createGroupResponse.status).toBe(201);
+
+      const createClassicCompResponse = await api.post('/competitions').send({
+        title: 'Thieving SOTW',
+        metric: 'thieving',
+        startsAt: new Date(Date.now() + 1_200_000),
+        endsAt: new Date(Date.now() + 1_200_000 + 604_800_000),
+        groupId: createGroupResponse.body.group.id,
+        groupVerificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(createClassicCompResponse.status).toBe(201);
+
+      // Delete the group
+      const response = await api.delete(`/groups/${createGroupResponse.body.group.id}`).send({
+        verificationCode: createGroupResponse.body.verificationCode
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toMatch('Successfully deleted group:');
+
+      // Confirm the group was successfully deleted
+      const fetchGroupConfirmResponse = await api.get(`/groups/${createGroupResponse.body.group.id}`);
+      expect(fetchGroupConfirmResponse.status).toBe(404);
+      expect(fetchGroupConfirmResponse.body.message).toBe('Group not found.');
+
+      // Confirm the competition was deleted as a side effect
+      const fetchCompetitionConfirmResponse = await api.get(
+        `/competitions/${createClassicCompResponse.body.competition.id}`
+      );
+
+      expect(fetchCompetitionConfirmResponse.status).toBe(404);
+      expect(fetchCompetitionConfirmResponse.body.message).toBe('Competition not found.');
+    });
   });
 });
