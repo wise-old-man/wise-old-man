@@ -75,6 +75,9 @@ async function dispatchHardcoreDied(player: Player) {
  * so that it can notify any relevant guilds/servers.
  */
 async function dispatchNameChanged(player: Player, previousDisplayName: string) {
+  // If only capitlization changed, ignore this action
+  if (player.displayName.toLowerCase() === previousDisplayName.toLowerCase()) return;
+
   const memberships = await prisma.membership.findMany({
     where: { playerId: player.id }
   });
