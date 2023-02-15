@@ -114,7 +114,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     [Boss.NIGHTMARE]: { name: 'Nightmare' },
     [Boss.PHOSANIS_NIGHTMARE]: { name: "Phosani's Nightmare" },
     [Boss.OBOR]: { name: 'Obor', minimumValue: 5, isMembers: false },
-    [Boss.PHANTOM_MUSPAH]: { name: 'Phantom Muspah', minimumValue: 50 },
+    [Boss.PHANTOM_MUSPAH]: { name: 'Phantom Muspah' },
     [Boss.SARACHNIS]: { name: 'Sarachnis' },
     [Boss.SKOTIZO]: { name: 'Skotizo', minimumValue: 5 },
     [Boss.SCORPIA]: { name: 'Scorpia' },
@@ -140,7 +140,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     type: MetricType.BOSS,
     measure: MetricMeasure.KILLS,
     isMembers: 'isMembers' in props ? props.isMembers : true,
-    minimumValue: 'minimumValue' in props ? props.minimumValue : 50
+    minimumValue: 'minimumValue' in props ? props.minimumValue : 45
   })
 );
 
