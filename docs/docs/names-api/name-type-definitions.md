@@ -49,7 +49,7 @@ sidebar_position: 1
 
 ### `(Object)` Name Change Details
 
-| Field      | Type                                                                       | Description                                                                  |
-| :--------- | :------------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
-| nameChange | [NameChange](/names-api/name-type-definitions#object-name-change)          | The name change object.                                                      |
-| data       | [NameChangeData](/names-api/name-type-definitions#object-name-change-data) | The name change data object. Used to review the validity of the name change. |
+| Field      | Type                                                                        | Description                                                                                                                             |
+| :--------- | :-------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| nameChange | [NameChange](/names-api/name-type-definitions#object-name-change)           | The name change object.                                                                                                                 |
+| data       | [NameChangeData](/names-api/name-type-definitions#object-name-change-data)? | The name change data object. Used to review the validity of the name change. (null if the name change status is 'approved' or 'denied') |
