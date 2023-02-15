@@ -150,6 +150,10 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 > extends [Achievement](/players-api/player-type-definitions#object-achievement)
 
+:::caution
+Although this type mostly extends from [Achievement](/players-api/player-type-definitions#object-achievement), please note that `createdAt` now becomes nullable, as null `createdAt` dates signify that the achievement has not been yet been achieved.
+:::
+
 | Field            | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                        |
 | :--------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | currentValue     | integer | The player's current value for that achievement's metric (& measure)                                                                                                                                                                                                                                                                                                                               |
