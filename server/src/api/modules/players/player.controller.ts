@@ -11,6 +11,7 @@ import * as playerServices from './player.services';
 import * as snapshotServices from '../snapshots/snapshot.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
+import * as efficiencyUtils from '../efficiency/efficiency.utils';
 import * as playerUtils from './player.utils';
 import { getDate, getEnum, getNumber, getString } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
@@ -201,16 +202,23 @@ async function records(req: Request): Promise<ControllerResponse> {
 
 // GET /players/:username/snapshots
 async function snapshots(req: Request): Promise<ControllerResponse> {
-  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
+  const player = await playerUtils.resolvePlayer(getString(req.params.username));
 
   const results = await snapshotServices.findPlayerSnapshots({
-    id: playerId,
+    id: player.id,
     period: getEnum(req.query.period),
     minDate: getDate(req.query.startDate),
     maxDate: getDate(req.query.endDate)
   });
 
-  return { statusCode: 200, response: results.map(s => snapshotUtils.format(s)) };
+  const formattedSnapshots = results.map(s =>
+    snapshotUtils.format(s, efficiencyUtils.getPlayerEfficiencyMap(s, player))
+  );
+
+  return {
+    statusCode: 200,
+    response: formattedSnapshots
+  };
 }
 
 // GET /players/:username/names

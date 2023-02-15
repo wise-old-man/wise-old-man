@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
+import { PlayerBuild, PlayerType } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
+import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 import {
   get200msCount,
   format,
@@ -48,7 +50,15 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
   const maxedCombatCount = snapshots.filter(s => getCombatLevelFromSnapshot(s) === 126).length;
   const maxedTotalCount = snapshots.filter(s => getTotalLevel(s) === 2277).length;
   const maxed200msCount = snapshots.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
-  const averageStats = format(average(snapshots));
+
+  const averageSnapshot = average(snapshots);
+
+  const averageEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(averageSnapshot, {
+    type: PlayerType.REGULAR,
+    build: PlayerBuild.MAIN
+  });
+
+  const averageStats = format(averageSnapshot, averageEfficiencyMap);
 
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats };
 }

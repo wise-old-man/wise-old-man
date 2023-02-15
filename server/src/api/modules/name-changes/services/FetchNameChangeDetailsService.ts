@@ -89,6 +89,9 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameC
 
   const hasNegativeGains = newStats ? snapshotUtils.hasNegativeGains(oldStats, newStats) : false;
 
+  const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
+  const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
+
   return {
     nameChange,
     data: {
@@ -100,8 +103,8 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameC
       hoursDiff,
       ehpDiff,
       ehbDiff,
-      oldStats: snapshotUtils.format(oldStats),
-      newStats: snapshotUtils.format(newStats)
+      oldStats: snapshotUtils.format(oldStats, oldPlayerEfficiencyMap),
+      newStats: snapshotUtils.format(newStats, newPlayerEfficiencyMap)
     }
   };
 }
