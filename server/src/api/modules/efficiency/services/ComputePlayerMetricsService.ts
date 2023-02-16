@@ -26,6 +26,8 @@ interface ComputePlayerMetricsResult {
 async function computePlayerMetrics(payload: ComputePlayerMetricsParams) {
   const { player, snapshot } = { ...inputSchema.parse(payload), snapshot: payload.snapshot };
 
+  if (!snapshot) return null;
+
   const killcountMap = efficiencyUtils.getKillcountMap(snapshot);
   const experienceMap = efficiencyUtils.getExperienceMap(snapshot);
 
