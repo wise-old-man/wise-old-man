@@ -1,11 +1,13 @@
 import { z } from 'zod';
 import prisma, { NameChangeStatus } from '../../../../prisma';
+import { PlayerType, PlayerBuild } from '../../../../utils';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerServices from '../../players/player.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
+import * as efficiencyServices from '../../efficiency/efficiency.services';
 import { NameChangeDetails } from '../name-change.types';
 
 const inputSchema = z.object({
@@ -79,18 +81,39 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameC
   const timeDiff = afterDate.getTime() - oldStats.createdAt.getTime();
   const hoursDiff = timeDiff / 1000 / 60 / 60;
 
-  const ehpDiff = newStats
-    ? efficiencyUtils.getPlayerEHP(newStats) - efficiencyUtils.getPlayerEHP(oldStats)
-    : 0;
+  const oldPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
+    player: oldPlayer,
+    snapshot: oldStats
+  });
 
-  const ehbDiff = newStats
-    ? efficiencyUtils.getPlayerEHB(newStats) - efficiencyUtils.getPlayerEHB(oldStats)
-    : 0;
+  const newPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
+    player: newPlayer || { id: 1, type: PlayerType.REGULAR, build: PlayerBuild.MAIN },
+    snapshot: newStats
+  });
+
+  oldStats.ehpValue = oldPlayerComputedMetrics.ehpValue;
+  oldStats.ehpRank = oldPlayerComputedMetrics.ehpRank;
+
+  oldStats.ehbValue = oldPlayerComputedMetrics.ehbValue;
+  oldStats.ehbRank = oldPlayerComputedMetrics.ehbRank;
+
+  newStats.ehpValue = newPlayerComputedMetrics.ehpValue;
+  newStats.ehpRank = newPlayerComputedMetrics.ehpRank;
+
+  newStats.ehbValue = newPlayerComputedMetrics.ehbValue;
+  newStats.ehbRank = newPlayerComputedMetrics.ehbRank;
+
+  const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
+  const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
 
   const hasNegativeGains = newStats ? snapshotUtils.hasNegativeGains(oldStats, newStats) : false;
 
   const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
   const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
+
+  if (!newPlayer) {
+    delete newStats.playerId;
+  }
 
   return {
     nameChange,

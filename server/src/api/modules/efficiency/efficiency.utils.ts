@@ -236,6 +236,8 @@ function getPlayerEHP(snapshot: Snapshot, player?: Pick<Player, 'type' | 'build'
 }
 
 function getPlayerEfficiencyMap(snapshot: Snapshot, player: Pick<Player, 'type' | 'build'>): EfficiencyMap {
+  if (!snapshot) return null;
+
   const algorithm = getAlgorithm(player);
 
   const expMap = getExperienceMap(snapshot);
