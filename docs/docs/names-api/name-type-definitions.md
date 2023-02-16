@@ -43,7 +43,11 @@ sidebar_position: 1
 | ehpDiff          | integer                                                          | The difference in efficient hours played (EHP) between the old name's last snapshot, and the new name's first snapshot (or name change submission date, if not tracked.). |
 | ehbDiff          | integer                                                          | The difference in efficient hours bossed (EHB) between the old name's last snapshot, and the new name's first snapshot (or name change submission date, if not tracked.). |
 | oldStats         | [Snapshot](/players-api/player-type-definitions#object-snapshot) | The old name's last snapshot.                                                                                                                                             |
-| newStats         | [Snapshot](/players-api/player-type-definitions#object-snapshot) | The new name's first snapshot. (or current hiscores stats if untracked.)                                                                                                  |
+| newStats         | [Snapshot](/players-api/player-type-definitions#object-snapshot)? | The new name's first snapshot, current hiscores stats if untracked, or null if untracked and not present on hiscores. |
+
+:::caution
+`newStats` may not include `id` or `playerId` if the new username wasn't already tracked on WOM.
+:::
 
 <br />
 

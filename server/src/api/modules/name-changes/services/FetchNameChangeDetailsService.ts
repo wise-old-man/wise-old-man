@@ -97,11 +97,12 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameC
   oldStats.ehbValue = oldPlayerComputedMetrics.ehbValue;
   oldStats.ehbRank = oldPlayerComputedMetrics.ehbRank;
 
-  newStats.ehpValue = newPlayerComputedMetrics.ehpValue;
-  newStats.ehpRank = newPlayerComputedMetrics.ehpRank;
-
-  newStats.ehbValue = newPlayerComputedMetrics.ehbValue;
-  newStats.ehbRank = newPlayerComputedMetrics.ehbRank;
+  if (newPlayerComputedMetrics) {
+    newStats.ehpValue = newPlayerComputedMetrics.ehpValue;
+    newStats.ehpRank = newPlayerComputedMetrics.ehpRank;
+    newStats.ehbValue = newPlayerComputedMetrics.ehbValue;
+    newStats.ehbRank = newPlayerComputedMetrics.ehbRank;
+  }
 
   const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
   const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
@@ -111,7 +112,7 @@ async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameC
   const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
   const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
 
-  if (!newPlayer) {
+  if (!newPlayer && newStats) {
     delete newStats.playerId;
   }
 

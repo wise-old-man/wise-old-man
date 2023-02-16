@@ -291,6 +291,30 @@ describe('Names API', () => {
       expect(response.body.data.hasNegativeGains).toBe(false);
     });
 
+    it('should not have new stats (pending name change, invalid new name)', async () => {
+      // Create a new invalid name change
+      const updateResponse = await api.post(`/names`).send({ oldName: 'Psikoi', newName: 'invalid' });
+      expect(updateResponse.status).toBe(201);
+
+      // Mock the hiscores to not find the new username
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: 'no stats here :)' }
+      });
+
+      // Get the name change details
+      const response = await api.get(`/names/${updateResponse.body.id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.oldStats).toBeTruthy();
+      expect(response.body.data.newStats).toBeNull();
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+    });
+
     it('should fetch details (approved name change, no data)', async () => {
       const response = await api.get(`/names/${globalData.secondNameChangeId}`);
 
@@ -329,11 +353,11 @@ describe('Names API', () => {
       const response = await api.get(`/names`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(4);
-      expect(response.body.filter(n => n.status === 'pending').length).toBe(2);
+      expect(response.body.length).toBe(5);
+      expect(response.body.filter(n => n.status === 'pending').length).toBe(3);
       expect(response.body.filter(n => n.status === 'approved').length).toBe(2);
       expect(response.body.filter(n => n.oldName === 'Zezima').length).toBe(1);
-      expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(1);
+      expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(2);
     });
 
     it('should fetch list (filtered by status)', async () => {
