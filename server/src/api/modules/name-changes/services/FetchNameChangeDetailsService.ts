@@ -14,9 +14,9 @@ const inputSchema = z.object({
   id: z.number().int().positive()
 });
 
-type FetchetailsParams = z.infer<typeof inputSchema>;
+type FetchDetailsParams = z.infer<typeof inputSchema>;
 
-async function fetchNameChangeDetails(payload: FetchetailsParams): Promise<NameChangeDetails> {
+async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<NameChangeDetails> {
   const params = inputSchema.parse(payload);
 
   const nameChange = await prisma.nameChange.findFirst({ where: { id: params.id } });

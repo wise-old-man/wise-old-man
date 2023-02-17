@@ -2,8 +2,10 @@ import { z } from 'zod';
 import { Metric, NameChangeDetails } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import logger from '../../../util/logging';
-import * as nameChangeServices from '../name-change.services';
 import * as playerUtils from '../../players/player.utils';
+import { approveNameChange } from './ApproveNameChangeService';
+import { denyNameChange } from './DenyNameChangeService';
+import { fetchNameChangeDetails } from './FetchNameChangeDetailsService';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -17,11 +19,11 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   let details: NameChangeDetails;
 
   try {
-    details = await nameChangeServices.fetchNameChangeDetails({ id: params.id });
+    details = await fetchNameChangeDetails({ id: params.id });
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
       logger.debug(`Denying ${params.id}: Old stats not found`);
-      await nameChangeServices.denyNameChange({ id: params.id });
+      await denyNameChange({ id: params.id });
       return;
     }
   }
@@ -33,7 +35,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If it's a capitalization change, auto-approve
   if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
-    await nameChangeServices.approveNameChange({ id: params.id });
+    await approveNameChange({ id: params.id });
     return;
   }
 
@@ -46,14 +48,14 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
     logger.debug(`Denying ${params.id}: New name is not on the hiscores`);
-    await nameChangeServices.denyNameChange({ id: params.id });
+    await denyNameChange({ id: params.id });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
   if (hasNegativeGains) {
     logger.debug(`Denying ${params.id}: Negative gains`);
-    await nameChangeServices.denyNameChange({ id: params.id });
+    await denyNameChange({ id: params.id });
     return;
   }
 
@@ -85,7 +87,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   }
 
   // All seems to be fine, auto approve
-  await nameChangeServices.approveNameChange({ id: params.id });
+  await approveNameChange({ id: params.id });
 }
 
 /**
