@@ -10,7 +10,7 @@ const create = (name, description, clanChat, homeworld, members) => async dispat
       name,
       description,
       clanChat,
-      homeworld: homeworld ? parseInt(homeworld) : undefined,
+      homeworld: homeworld ? parseInt(homeworld, 10) : undefined,
       members
     };
     const { data } = await api.post(endpoints.createGroup, body);

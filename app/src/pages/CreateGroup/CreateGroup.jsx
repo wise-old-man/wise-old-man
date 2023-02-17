@@ -224,9 +224,10 @@ function CreateGroup() {
 
           <MembersSelector
             members={members}
-            roles={Object.entries(GroupRoleProps).map(([groupRole, props]) => {
+            roles={Object.entries(GroupRoleProps).map(([groupRole, groupProps]) => {
               return {
-                label: props.name,
+
+                label: groupProps.name,
                 value: groupRole,
                 icon: getRoleTypeIcon(groupRole)
               };

@@ -157,7 +157,7 @@ MembersSelector.defaultProps = {
 
 MembersSelector.propTypes = {
   members: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  roles: PropTypes.arrayOf(PropTypes.object).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   invalidUsernames: PropTypes.arrayOf(PropTypes.string),
   onMemberAdded: PropTypes.func.isRequired,
   onMemberRemoved: PropTypes.func.isRequired,

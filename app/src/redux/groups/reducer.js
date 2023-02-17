@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { omit } from 'lodash';
 import { toMap } from '../utils';
 
 const initialState = {
