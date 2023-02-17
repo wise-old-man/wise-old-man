@@ -51,7 +51,12 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
   }
 
   // Attempt to transfer data between both accounts
-  await transferPlayerData(oldPlayer, newPlayer, nameChange.newName);
+  try {
+    await transferPlayerData(oldPlayer, newPlayer, nameChange.newName);
+  } catch (error) {
+    logger.debug('Failed to transfer name change data.', error);
+    throw error;
+  }
 
   // If successful, resolve the name change
   const updatedNameChange = await prisma.nameChange.update({
