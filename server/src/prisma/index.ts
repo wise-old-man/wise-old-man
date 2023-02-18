@@ -53,12 +53,15 @@ function modifyDeltas(deltas: PrismaDelta[]): Delta[] {
   return deltas.map(d => ({ ...d, overall: parseBigInt(d.overall) }));
 }
 
-function modifyPlayers(players: PrismaPlayer[]): Player[] {
-  return players.map(p => ({ ...p, exp: parseBigInt(p.exp) }));
-}
-
 function modifyPlayer(player: PrismaPlayer): Player {
-  return player ? { ...player, exp: parseBigInt(player.exp) } : null;
+  const modifiedPlayer = player ? { ...player, exp: parseBigInt(player.exp) } : null;
+
+  // TODO: Temporary until latestSnapshotId becomes public
+  if (modifiedPlayer) {
+    delete modifiedPlayer.latestSnapshotId;
+  }
+
+  return modifiedPlayer;
 }
 
 function modifySnapshot(snapshot: PrismaSnapshot): Snapshot {
@@ -93,7 +96,7 @@ type Snapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
   overallExperience: number;
 };
 
-type Player = Omit<PrismaPlayer, 'exp'> & {
+type Player = Omit<PrismaPlayer, 'exp' | 'latestSnapshotId'> & {
   exp: number;
 };
 
@@ -123,7 +126,6 @@ export {
   modifyDelta,
   modifyDeltas,
   modifyPlayer,
-  modifyPlayers,
   modifyRecords,
   modifySnapshot,
   modifySnapshots,

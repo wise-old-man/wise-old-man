@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayers, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
+import prisma, { modifyPlayer, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric, Country } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
@@ -54,7 +54,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
         take: params.limit,
         skip: params.offset
       })
-      .then(modifyPlayers);
+      .then(p => p.map(modifyPlayer));
 
     return players;
   }
@@ -86,7 +86,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
   }));
 
-  return modifyPlayers(fixedPlayers);
+  return fixedPlayers.map(modifyPlayer);
 }
 
 export { findEfficiencyLeaderboards };

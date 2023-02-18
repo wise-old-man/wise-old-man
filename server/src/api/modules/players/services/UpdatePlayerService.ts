@@ -14,6 +14,11 @@ import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { PlayerDetails } from '../player.types';
 
+type UpdatablePlayerFields = PrismaTypes.XOR<
+  PrismaTypes.PlayerUpdateInput,
+  PrismaTypes.PlayerUncheckedUpdateInput
+>;
+
 const inputSchema = z.object({
   username: z.string()
 });
@@ -33,7 +38,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   try {
-    const updatedPlayerFields: PrismaTypes.PlayerUpdateInput = {};
+    const updatedPlayerFields: UpdatablePlayerFields = {};
 
     // Always determine the rank before tracking (to fetch correct ranks)
     if (player.type === PlayerType.UNKNOWN) {
@@ -88,6 +93,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     currentStats.ehbValue = computedMetrics.ehbValue;
     currentStats.ehbRank = computedMetrics.ehbRank;
 
+    // Create (and save) a new snapshot
+    const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
+
+    updatedPlayerFields.latestSnapshotId = newSnapshot.id;
+
     // update player with all this new data
     const updatedPlayer = await prisma.player
       .update({
@@ -95,9 +105,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
         where: { id: player.id }
       })
       .then(modifyPlayer);
-
-    // Create (and save) a new snapshot
-    const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
 
     playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
 
