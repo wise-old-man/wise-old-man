@@ -21,6 +21,7 @@ model Achievement {
   name      String   @db.VarChar(255)
   metric    Metric
   threshold BigInt
+  accuracy  BigInt?
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 
   // Relations

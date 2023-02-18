@@ -77,7 +77,7 @@ describe('Achievements API', () => {
       expect(secondResponse.body.message).toBe('Player not found.');
     });
 
-    test('Track Player (first time, all achievements (unknown dates)', async () => {
+    test('Track Player (first time, all achievements (unknown dates))', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
         { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 50 }
       ]);
@@ -108,13 +108,12 @@ describe('Achievements API', () => {
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
     test('Track Player (second time, no new achievements)', async () => {
       // Force some gains (+1 GOTR) so that achievements sync is triggered
-      // Note: this should be reviewed in the future, as it would make sense to still
-      // sync and back date achievements on the first ever player update
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
         { metric: Metric.GUARDIANS_OF_THE_RIFT, value: 51 }
       ]);
@@ -152,6 +151,9 @@ describe('Achievements API', () => {
       globalData.expectedAchievements.forEach(ea => {
         expect(fetchResponse.body.map(a => a.name).includes(ea.name)).toBe(true);
       });
+
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
+      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
     test('Import Player History, all achievements, some known dates', async () => {
@@ -173,34 +175,52 @@ describe('Achievements API', () => {
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
+
       // 17 out of the 37 achievements have now been back-dated
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(20);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
 
       // Check if all previously dated achievements have been correctly dated
-      const achievementDateMap = Object.fromEntries(fetchResponse.body.map(a => [a.name, a.createdAt]));
+      const achievementMap = Object.fromEntries(fetchResponse.body.map(a => [a.name, a]));
 
-      // These achievements should be all dated before May 2020
-      expect(achievementDateMap['100m Overall Exp.']).toBe('2015-12-14T04:15:36.000Z');
-      expect(achievementDateMap['200m Overall Exp.']).toBe('2018-08-03T18:33:56.000Z');
-      expect(achievementDateMap['99 Attack']).toBe('2015-12-05T03:56:16.000Z');
-      expect(achievementDateMap['99 Defence']).toBe('2016-09-17T10:00:24.000Z');
-      expect(achievementDateMap['99 Farming']).toBe('2019-11-03T02:15:05.000Z');
-      expect(achievementDateMap['99 Hitpoints']).toBe('2015-12-05T03:56:16.000Z');
-      expect(achievementDateMap['99 Magic']).toBe('2016-09-17T10:00:24.000Z');
-      expect(achievementDateMap['99 Ranged']).toBe('2016-09-17T10:00:24.000Z');
-      expect(achievementDateMap['99 Slayer']).toBe('2018-08-03T18:33:56.000Z');
-      expect(achievementDateMap['99 Strength']).toBe('2016-09-17T10:00:24.000Z');
-      expect(achievementDateMap['Base 60 Stats']).toBe('2015-05-03T01:29:04.000Z');
-      expect(achievementDateMap['Base 70 Stats']).toBe('2016-09-17T10:00:24.000Z');
-      expect(achievementDateMap['Base 80 Stats']).toBe('2018-09-14T04:33:00.000Z');
+      const _100mOverallExp = achievementMap['100m Overall Exp.'];
+
+      expect(_100mOverallExp.createdAt).toBe('2015-12-14T04:15:36.000Z');
+
+      // The "prev" snapshot for this achievement is on December 5th 2015, so the accuracy should be
+      // the difference between the two dates (prev and current) in milliseconds
+      expect(_100mOverallExp.accuracy).toBe(
+        new Date(_100mOverallExp.createdAt).getTime() - new Date('2015-12-05T03:56:16.000Z').getTime()
+      );
+
+      const _200mOverallExp = achievementMap['200m Overall Exp.'];
+      expect(_200mOverallExp.createdAt).toBe('2018-08-03T18:33:56.000Z');
+
+      // The "prev" snapshot for this achievement is on January 21st 2018, so the accuracy should be
+      // the difference between the two dates (prev and current) in milliseconds
+      expect(_200mOverallExp.accuracy).toBe(
+        new Date(_200mOverallExp.createdAt).getTime() - new Date('2018-01-21T18:02:52.000Z').getTime()
+      );
+
+      expect(achievementMap['99 Attack'].createdAt).toBe('2015-12-05T03:56:16.000Z');
+      expect(achievementMap['99 Defence'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementMap['99 Farming'].createdAt).toBe('2019-11-03T02:15:05.000Z');
+      expect(achievementMap['99 Hitpoints'].createdAt).toBe('2015-12-05T03:56:16.000Z');
+      expect(achievementMap['99 Magic'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementMap['99 Ranged'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementMap['99 Slayer'].createdAt).toBe('2018-08-03T18:33:56.000Z');
+      expect(achievementMap['99 Strength'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementMap['Base 60 Stats'].createdAt).toBe('2015-05-03T01:29:04.000Z');
+      expect(achievementMap['Base 70 Stats'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(achievementMap['Base 80 Stats'].createdAt).toBe('2018-09-14T04:33:00.000Z');
 
       const now = dayjs();
 
       // These achievements should be from today (within the last hour)
-      expect(dayjs(achievementDateMap['99 Cooking']).isSame(now, 'hour'));
-      expect(dayjs(achievementDateMap['99 Woodcutting']).isSame(now, 'hour'));
-      expect(dayjs(achievementDateMap['99 Firemaking']).isSame(now, 'hour'));
-      expect(dayjs(achievementDateMap['99 Fletching']).isSame(now, 'hour'));
+      expect(dayjs(achievementMap['99 Cooking'].createdAt).isSame(now, 'hour'));
+      expect(dayjs(achievementMap['99 Woodcutting'].createdAt).isSame(now, 'hour'));
+      expect(dayjs(achievementMap['99 Firemaking'].createdAt).isSame(now, 'hour'));
+      expect(dayjs(achievementMap['99 Fletching'].createdAt).isSame(now, 'hour'));
     }, 30_000);
 
     test('Check Achievements Progress', async () => {
@@ -216,6 +236,23 @@ describe('Achievements API', () => {
       expect(fetchResponse.body.filter(a => a.relativeProgress === 1).length).toBe(37);
 
       const progressMap = Object.fromEntries(fetchResponse.body.map(a => [a.name, a]));
+
+      const _100mOverallExp = progressMap['100m Overall Exp.'];
+
+      expect(_100mOverallExp.createdAt).toBe('2015-12-14T04:15:36.000Z');
+
+      // The "prev" snapshot for this achievement is on December 5th 2015, so the accuracy should be
+      // the difference between the two dates (prev and current) in milliseconds
+      expect(_100mOverallExp.accuracy).toBe(
+        new Date(_100mOverallExp.createdAt).getTime() - new Date('2015-12-05T03:56:16.000Z').getTime()
+      );
+
+      expect(progressMap['99 Attack'].createdAt).toBe('2015-12-05T03:56:16.000Z');
+      expect(progressMap['99 Defence'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(progressMap['99 Slayer'].createdAt).toBe('2018-08-03T18:33:56.000Z');
+
+      expect(progressMap['10k Barrows Chests'].accuracy).toBe(-1);
+      expect(progressMap['10k Barrows Chests'].createdAt).toBe(null);
 
       expect(progressMap['1k Barrows Chests']).toMatchObject({
         currentValue: 1773,
@@ -330,10 +367,9 @@ describe('Achievements API', () => {
 
     test('Track player again, test new achievements', async () => {
       // Change construction to 99 (15m exp)
-      const modifiedRawData = globalData.hiscoresRawDataA
-        .split('\n')
-        .map((row, index) => (index === 23 ? '80761,99,15000000' : row))
-        .join('\n');
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { metric: 'construction', value: 15000000 }
+      ]);
 
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
@@ -354,8 +390,12 @@ describe('Achievements API', () => {
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(38);
-      expect(fetchResponse.body.map(a => a.name)).toContain('99 Construction');
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
+
+      expect(fetchResponse.body.map(a => a.name)).toContain('99 Construction');
+      expect(fetchResponse.body.find(a => a.name === '99 Construction').createdAt).not.toBe(0);
+      // accuracy should be less than 10 seconds, since we just updated the player (plus/minus async request delays and such)
+      expect(fetchResponse.body.find(a => a.name === '99 Construction').accuracy).toBeLessThan(10_000);
     });
   });
 });

@@ -27,7 +27,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
     // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
     const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(latestSnapshots[0])).map(
       ({ name, metric, threshold }) => {
-        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE };
+        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE, accuracy: -1 };
       }
     );
 
@@ -66,13 +66,28 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
 
   // Create achievement instances for all the missing definitions
   const missingAchievements = missingDefinitions.map(({ name, metric, threshold }) => {
-    const date = missingPastDates[name] || UNKNOWN_DATE;
-    return { playerId: params.id, name, metric, threshold, createdAt: date };
+    const missingAchievementData = missingPastDates[name];
+
+    return {
+      playerId: params.id,
+      name,
+      metric,
+      threshold,
+      accuracy: missingAchievementData?.accuracy || -1,
+      createdAt: missingAchievementData?.date || UNKNOWN_DATE
+    };
   });
 
   // Create achievement instances for all the newly achieved definitions
   const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
-    return { playerId: params.id, name, metric, threshold, createdAt: current.createdAt };
+    return {
+      playerId: params.id,
+      name,
+      metric,
+      threshold,
+      createdAt: current.createdAt,
+      accuracy: current.createdAt.getTime() - previous.createdAt.getTime()
+    };
   });
 
   // Add all missing/new achievements

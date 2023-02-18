@@ -15,7 +15,7 @@ sidebar_position: 1
 | playerId  | integer                                        | The record's parent player ID.           |
 | period    | [Period](/global-type-definitions#enum-period) | The record's time period.                |
 | metric    | [Metric](/global-type-definitions#enum-metric) | The record's metric.                     |
-| value     | long                                           | The record's value (gained value).       |
+| value     | long (bigint)                                  | The record's value (gained value).       |
 | updatedAt | date                                           | The record's creation/modification date. |
 
 ### `(Object)` Record Leaderboard Entry

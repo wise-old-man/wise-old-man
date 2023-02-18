@@ -21,6 +21,10 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
     .findMany({ where: { playerId: params.id } })
     .then(modifyAchievements);
 
+  // Map achievement names to achievement objects, for O(1) lookups
+  const currentAchievementMap = new Map<string, Achievement>();
+  achievements.forEach(achievement => currentAchievementMap.set(achievement.name, achievement));
+
   // Find the player's latest snapshot
   const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: params.id });
 
@@ -35,15 +39,18 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
     const currentValue = latestSnapshot ? d.getCurrentValue(latestSnapshot) : 0;
     const prevThreshold = isFirstInCluster ? startValue : prevDef.threshold;
 
+    const existingAchievement = currentAchievementMap.get(d.name);
+
     return {
       ...d,
       playerId: params.id,
+      createdAt: existingAchievement?.createdAt || null,
+      accuracy: existingAchievement?.accuracy || -1,
       currentValue,
       absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
-      relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold)),
-      createdAt: findDate(d, achievements) || null
+      relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold))
     };
-  }) as AchievementProgress[];
+  });
 }
 
 function getAchievementStartValue(definition: AchievementDefinition) {
@@ -64,11 +71,6 @@ function clusterDefinitions(definitions: AchievementDefinition[]) {
 
 function clamp(val: number) {
   return round(Math.min(Math.max(val, 0), 1), 4);
-}
-
-function findDate(definition: AchievementDefinition, achievements: Achievement[]) {
-  // TODO: this can be optimized to map the names to dates, instead of iterating through the list
-  return achievements.find(a => a.name === definition.name)?.createdAt;
 }
 
 export { findPlayerAchievementProgress };

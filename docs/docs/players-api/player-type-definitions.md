@@ -49,7 +49,7 @@ sidebar_position: 1
         ehp: number,
         rank: number,
         level: number,
-        experience: number
+        experience: number // (can be a long/bigint)
     },
     // ... etc for all skills
   },
@@ -110,7 +110,7 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | build          | [PlayerBuild](/players-api/player-type-definitions#enum-player-build) | The player's account build. (Default: `main`)                                                               |
 | country        | [Country](/players-api/player-type-definitions#enum-country)?         | The player's country of origin.                                                                             |
 | flagged        | boolean                                                               | Whether the player is flagged for having an invalid snapshot history. (Default: `false`)                    |
-| exp            | integer                                                               | The player's overall experience.                                                                            |
+| exp            | long (bigint)                                                         | The player's overall experience.                                                                            |
 | ehp            | float                                                                 | The player's (skilling) Efficient Hours Played.                                                             |
 | ehb            | float                                                                 | The player's Efficient Hours Bossed.                                                                        |
 | ttm            | float                                                                 | The player's Time to Max (all 99s), in hours.                                                               |
@@ -135,14 +135,15 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 ### `(Object)` Achievement
 
-| Field     | Type                                                                                | Description                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :-------------------------------------------- |
-| playerId  | integer                                                                             | The parent player's ID.                       |
-| name      | string                                                                              | The achievement's description/name.           |
-| metric    | [Metric](/global-type-definitions#enum-metric)                                      | The achievement's metric (Ex: `agility`).     |
-| measure   | [AchievementMeasure](/players-api/player-type-definitions#enum-achievement-measure) | The achievement's measure (Ex: `experience`). |
-| threshold | integer                                                                             | The achievement's threshold. (Ex: `13034431`) |
-| createdAt | date                                                                                | The achievement's creation date.              |
+| Field     | Type                                                                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| :-------- | :---------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| playerId  | integer                                                                             | The parent player's ID.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| name      | string                                                                              | The achievement's description/name.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| metric    | [Metric](/global-type-definitions#enum-metric)                                      | The achievement's metric (Ex: `agility`).                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| measure   | [AchievementMeasure](/players-api/player-type-definitions#enum-achievement-measure) | The achievement's measure (Ex: `experience`).                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| threshold | long (bigint)                                                                       | The achievement's threshold. (Ex: `13034431`)                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| createdAt | date                                                                                | The achievement's creation date.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| accuracy  | long? (bigint?)                                                                     | The achievement's creation date's accuracy (aka the margin of error, in milliseconds). <br/><br/> This value is the number of milliseconds between the "before" and the "after" snapshots, the lower this number is, the more certain we are that the `createdAt` date is accurate. <br /><br /> Note: This number can be `null` if the achievement hasn't been recalculated since the addition of this field. It can also be `-1` on achievements with unknown dates. |
 
 <br />
 
