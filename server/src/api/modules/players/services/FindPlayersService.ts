@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayers, Player } from '../../../../prisma';
+import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { sanitize, standardize } from '../player.utils';
 
 const inputSchema = z
@@ -42,7 +42,7 @@ async function findPlayersByUsername(usernames: string[]): Promise<Player[]> {
     .findMany({
       where: { username: { in: standardizedUsernames } }
     })
-    .then(modifyPlayers);
+    .then(p => p.map(modifyPlayer));
 
   return players.sort(
     (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
@@ -67,7 +67,7 @@ async function findOrCreatePlayersByUsername(usernames: string[]): Promise<Playe
     .findMany({
       where: { username: { in: newPlayerInputs.map(n => n.username) } }
     })
-    .then(modifyPlayers);
+    .then(p => p.map(modifyPlayer));
 
   // Sort the resulting players list by the order of the input usernames
   const standardizedUsernames = usernames.map(standardize);
@@ -82,7 +82,7 @@ async function findPlayersById(ids: number[]): Promise<Player[]> {
     .findMany({
       where: { id: { in: ids } }
     })
-    .then(modifyPlayers);
+    .then(p => p.map(modifyPlayer));
 
   return players;
 }

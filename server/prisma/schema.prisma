@@ -248,24 +248,26 @@ model Participation {
 }
 
 model Player {
-  id             Int         @id @default(autoincrement())
-  username       String      @unique @db.VarChar(12)
-  displayName    String      @db.VarChar(12)
-  type           PlayerType  @default(unknown)
-  build          PlayerBuild @default(main)
-  country        Country?
-  flagged        Boolean     @default(false)
-  exp            BigInt      @default(0)
-  ehp            Float       @default(0)
-  ehb            Float       @default(0)
-  ttm            Float       @default(0)
-  tt200m         Float       @default(0)
-  registeredAt   DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt      DateTime?   @updatedAt @db.Timestamptz(6)
-  lastChangedAt  DateTime?   @db.Timestamptz(6)
-  lastImportedAt DateTime?   @db.Timestamptz(6)
+  id               Int         @id @default(autoincrement())
+  username         String      @unique @db.VarChar(12)
+  displayName      String      @db.VarChar(12)
+  type             PlayerType  @default(unknown)
+  build            PlayerBuild @default(main)
+  country          Country?
+  flagged          Boolean     @default(false)
+  exp              BigInt      @default(0)
+  ehp              Float       @default(0)
+  ehb              Float       @default(0)
+  ttm              Float       @default(0)
+  tt200m           Float       @default(0)
+  registeredAt     DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime?   @updatedAt @db.Timestamptz(6)
+  lastChangedAt    DateTime?   @db.Timestamptz(6)
+  lastImportedAt   DateTime?   @db.Timestamptz(6)
+  latestSnapshotId Int?
 
   // Relations
+  latestSnapshot Snapshot?       @relation("player_latest_snapshot", fields: [latestSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   achievements   Achievement[]
   deltas         Delta[]
   memberships    Membership[]
@@ -492,6 +494,7 @@ model Snapshot {
   player                     Player          @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   participationStartPointers Participation[] @relation("participations_endSnapshotIdTosnapshots")
   participationEndPointers   Participation[] @relation("participations_startSnapshotIdTosnapshots")
+  Player                     Player[]        @relation("player_latest_snapshot")
 
   // Indices
   @@index([playerId, createdAt(sort: Desc)], map: "snapshots_player_id_created_at")

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayers, Player } from '../../../../prisma';
+import prisma, { modifyPlayer, Player } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const inputSchema = z
@@ -24,7 +24,7 @@ async function searchPlayers(payload: SearchPlayersParams): Promise<Player[]> {
       take: params.limit,
       skip: params.offset
     })
-    .then(modifyPlayers);
+    .then(p => p.map(modifyPlayer));
 
   return players;
 }
