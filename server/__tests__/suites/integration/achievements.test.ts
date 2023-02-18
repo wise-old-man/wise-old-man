@@ -108,7 +108,7 @@ describe('Achievements API', () => {
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
-      expect(fetchResponse.body.filter(a => a.accuracy === 0).length).toBe(37);
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
@@ -152,7 +152,7 @@ describe('Achievements API', () => {
         expect(fetchResponse.body.map(a => a.name).includes(ea.name)).toBe(true);
       });
 
-      expect(fetchResponse.body.filter(a => a.accuracy === 0).length).toBe(37);
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
@@ -177,7 +177,7 @@ describe('Achievements API', () => {
       expect(fetchResponse.body.length).toBe(37);
 
       // 17 out of the 37 achievements have now been back-dated
-      expect(fetchResponse.body.filter(a => a.accuracy === 0).length).toBe(20);
+      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(20);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
 
       // Check if all previously dated achievements have been correctly dated
@@ -251,7 +251,7 @@ describe('Achievements API', () => {
       expect(progressMap['99 Defence'].createdAt).toBe('2016-09-17T10:00:24.000Z');
       expect(progressMap['99 Slayer'].createdAt).toBe('2018-08-03T18:33:56.000Z');
 
-      expect(progressMap['10k Barrows Chests'].accuracy).toBe(0);
+      expect(progressMap['10k Barrows Chests'].accuracy).toBe(-1);
       expect(progressMap['10k Barrows Chests'].createdAt).toBe(null);
 
       expect(progressMap['1k Barrows Chests']).toMatchObject({

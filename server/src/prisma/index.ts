@@ -38,7 +38,11 @@ function setHooksEnabled(enabled: boolean) {
 }
 
 function modifyAchievements(achievements: PrismaAchievement[]): Achievement[] {
-  return achievements.map(a => ({ ...a, threshold: parseBigInt(a.threshold) }));
+  return achievements.map(a => ({
+    ...a,
+    threshold: parseBigInt(a.threshold),
+    accuracy: a.accuracy != null ? parseBigInt(a.accuracy) : null
+  }));
 }
 
 function modifySnapshots(snapshots: PrismaSnapshot[]): Snapshot[] {
@@ -80,8 +84,9 @@ function modifyRecords(records: PrismaRecord[]): Record[] {
   });
 }
 
-type Achievement = Omit<PrismaAchievement, 'threshold'> & {
+type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
   threshold: number;
+  accuracy: number;
 };
 
 type Record = Omit<PrismaRecord, 'value'> & {
