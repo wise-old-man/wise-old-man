@@ -81,7 +81,7 @@ function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementD
   // The player must have atleast 2 snapshots to find a achievement date
   if (!pastSnapshots || pastSnapshots.length < 2) return {};
 
-  const dateMap: { [definitionName: string]: Date } = {};
+  const dateMap: Record<string, { date: Date; accuracy: number }> = {};
 
   for (let i = 0; i < pastSnapshots.length - 2; i++) {
     const prev = pastSnapshots[i];
@@ -98,7 +98,10 @@ function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementD
 
     valid.forEach(v => {
       if (!(v.name in dateMap)) {
-        dateMap[v.name] = next.createdAt;
+        dateMap[v.name] = {
+          date: next.createdAt,
+          accuracy: next.createdAt.getTime() - prev.createdAt.getTime()
+        };
       }
     });
   }
