@@ -12,7 +12,7 @@ sidebar_position: 1
 | Field     | Type                                                         | Description                                |
 | :-------- | :----------------------------------------------------------- | :----------------------------------------- |
 | playerId  | integer                                                      | The delta's parent player ID.              |
-| gained    | integer                                                      | The delta's gained value.                  |
+| gained    | long                                                         | The delta's gained value.                  |
 | startDate | date                                                         | The starting date of the delta's timespan. |
 | endDate   | date                                                         | The ending date of the delta's timespan.   |
 | player    | [Player](/players-api/player-type-definitions#object-player) | The delta's parent player object.          |

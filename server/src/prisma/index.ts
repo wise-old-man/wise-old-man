@@ -86,7 +86,7 @@ function modifyRecords(records: PrismaRecord[]): Record[] {
 
 type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
   threshold: number;
-  accuracy: number;
+  accuracy: number | null;
 };
 
 type Record = Omit<PrismaRecord, 'value'> & {
