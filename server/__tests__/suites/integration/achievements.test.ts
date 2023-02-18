@@ -217,6 +217,11 @@ describe('Achievements API', () => {
 
       const progressMap = Object.fromEntries(fetchResponse.body.map(a => [a.name, a]));
 
+      expect(progressMap['99 Attack'].createdAt).toBe('2015-12-05T03:56:16.000Z');
+      expect(progressMap['99 Defence'].createdAt).toBe('2016-09-17T10:00:24.000Z');
+      expect(progressMap['99 Slayer'].createdAt).toBe('2018-08-03T18:33:56.000Z');
+      expect(progressMap['10k Barrows Chests'].createdAt).toBe(null);
+
       expect(progressMap['1k Barrows Chests']).toMatchObject({
         currentValue: 1773,
         absoluteProgress: 1, // 100% done with this achievement - (1773 / 1000) >= 1
