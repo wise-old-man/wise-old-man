@@ -41,7 +41,7 @@ function Gained() {
   const [isReducedChart, setReducedChart] = useState(true);
 
   const metric = getSelectedMetric(context.metric, metricType);
-  const measure = MetricProps[metric].measure;
+  const { measure } = MetricProps[metric];
   const periodIndex = PERIOD_OPTIONS.findIndex(o => o.value === period);
   const metricTypeIndex = METRIC_TYPE_OPTIONS.findIndex(o => o.value === metricType);
 

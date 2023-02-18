@@ -24,6 +24,8 @@
     "jsx-a11y/control-has-associated-label": "off",
     "import/prefer-default-export": "off",
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "react/jsx-no-bind": [0],
+    "react/jsx-props-no-spreading": [0]
   }
 }

@@ -39,7 +39,7 @@ function TeamPlayersTable({
         get: row => (row.progress ? row.progress.start : 0),
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
-          const props = MetricProps[metric];
+          const metricProps = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -58,19 +58,19 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < props.minimumValue)
+          if (isBoss(metric) && val < metricProps.minimumValue)
             return (
               <abbr
-                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumValue} kc.`}
+                title={`The Hiscores only start tracking ${metricProps.name} kills after ${metricProps.minimumValue} kc.`}
               >
-                <span>{`< ${props.minimumValue}`}</span>
+                <span>{`< ${metricProps.minimumValue}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${props.name}.`}>
+              <abbr title={`This player is currently unranked in ${metricProps.name}.`}>
                 <span>--</span>
               </abbr>
             );
@@ -83,7 +83,7 @@ function TeamPlayersTable({
         get: row => (row.progress ? row.progress.end : 0),
         transform: (val, row) => {
           const lastUpdated = row.updatedAt;
-          const props = MetricProps[metric];
+          const metricProps = MetricProps[metric];
 
           // If competition hasn't started
           if (competition.startsAt >= Date.now())
@@ -102,19 +102,19 @@ function TeamPlayersTable({
             );
 
           // If is unranked on a boss metric
-          if (isBoss(metric) && val < props.minimumValue)
+          if (isBoss(metric) && val < metricProps.minimumValue)
             return (
               <abbr
-                title={`The Hiscores only start tracking ${props.name} kills after ${props.minimumValue} kc.`}
+                title={`The Hiscores only start tracking ${metricProps.name} kills after ${metricProps.minimumValue} kc.`}
               >
-                <span>{`< ${props.minimumValue}`}</span>
+                <span>{`< ${metricProps.minimumValue}`}</span>
               </abbr>
             );
 
           // If unranked or not updated
           if (val === -1)
             return (
-              <abbr title={`This player is currently unranked in ${props.name}.`}>
+              <abbr title={`This player is currently unranked in ${metricProps.name}.`}>
                 <span>--</span>
               </abbr>
             );

@@ -43,7 +43,8 @@ Widgets.propTypes = {
     totalGained: PropTypes.number,
     startsAt: PropTypes.instanceOf(Date),
     endsAt: PropTypes.instanceOf(Date),
-    participants: PropTypes.arrayOf(PropTypes.shape())
+    participants: PropTypes.arrayOf(PropTypes.shape()),
+    participations: PropTypes.arrayOf(PropTypes.shape())
   })
 };
 

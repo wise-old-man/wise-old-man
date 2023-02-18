@@ -225,7 +225,8 @@ ParticipantsTable.propTypes = {
     metric: PropTypes.string,
     status: PropTypes.string,
     startsAt: PropTypes.instanceOf(Date),
-    participants: PropTypes.arrayOf(PropTypes.shape({}))
+    participants: PropTypes.arrayOf(PropTypes.shape({})),
+    participations: PropTypes.arrayOf(PropTypes.shape())
   }).isRequired,
   onUpdateClicked: PropTypes.func.isRequired,
   onExportParticipantsClicked: PropTypes.func.isRequired

@@ -120,9 +120,10 @@ function Overview() {
 function ClosestSkills({ player }) {
   const expAt99 = getExperienceAt(99);
   const expLeftTo99 = skill => expAt99 - player.latestSnapshot.data.skills[skill].experience;
+  const getLevel = skill => player.latestSnapshot.data.skills[skill].level;
 
   const diffs = SKILLS.filter(s => s !== 'overall')
-    .map(s => ({ skill: s, expLeft: Math.max(0, expLeftTo99(s)) }))
+    .map(s => ({ skill: s, expLeft: Math.max(0, expLeftTo99(s)), level: getLevel(s) }))
     .filter(s => s.expLeft > 0)
     .sort((a, b) => a.expLeft - b.expLeft)
     .slice(0, 5);
@@ -133,7 +134,7 @@ function ClosestSkills({ player }) {
 
   const diffItems = diffs.map(d => ({
     icon: getMetricIcon(d.skill),
-    title: `99 ${capitalize(d.skill)}`,
+    title: `${d.level} ${capitalize(d.skill)}`,
     subtitle: `${formatNumber(d.expLeft)} exp left`
   }));
 

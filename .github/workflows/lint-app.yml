@@ -29,8 +29,6 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install global dependencies
-        run: npm i
       - name: Install app dependencies
         run: |
           cd app

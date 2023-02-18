@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { getPlayerTypeIcon, getPlayerTooltip, getOfficialHiscoresUrl } from 'utils';
 import { PageHeader, Dropdown, Button, Badge } from 'components';
 
@@ -65,6 +64,7 @@ function Header(props) {
 }
 
 function FlaggedWarning({ displayName }) {
+  // eslint-disable-next-line no-unused-vars
   const nameChangeURL = `/names/submit/${displayName}`;
 
   // return (
@@ -92,10 +92,11 @@ function FlaggedWarning({ displayName }) {
         This player is flagged.
         <br />
         <br />
-        <b>Update:</b> The official OSRS hiscores were down from Wednesday (July 6th) up until July 9th
-        during which time there were numerous rollbacks, which means some people's stats are higher on
+        <b>Update:</b>
+        The official OSRS hiscores were down from Wednesday (July 6th) up until July 9th
+        during which time there were numerous rollbacks, which means some people&apos;s stats are higher on
         WOM than on the current version of the hiscores. This caused a large amount of players to be
-        falsely detected as "flagged".
+        falsely detected as &quot;flagged&quot;.
         <br />
         <br />
         <b>
@@ -104,7 +105,7 @@ function FlaggedWarning({ displayName }) {
         </b>
         <br />
         <br />
-        Didn't work? Join our &nbsp;
+        Didn&apos;t work? Join our &nbsp;
         <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
           Discord server
         </a>
