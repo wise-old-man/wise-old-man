@@ -19,11 +19,7 @@ export interface EventPeriodDelay {
 function dispatch(type: string, payload: unknown) {
   if (isTesting()) return;
 
-  const url = env.DISCORD_BOT_API_URL;
-  const api_token = env.DISCORD_BOT_API_TOKEN;
-  const body = { type, api_token, data: payload };
-
-  axios.post(url, body).catch(e => {
+  axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
   });
 }
