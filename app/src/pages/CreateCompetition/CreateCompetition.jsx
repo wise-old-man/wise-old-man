@@ -109,14 +109,14 @@ function CreateCompetition() {
             />
           </div>
         </div>
-        {result && !result.competition.groupId && (
+        {result?.competition && !result.competition.groupId && (
           <VerificationModal
             entity="competition"
             verificationCode={result.verificationCode}
             onConfirm={handleRedirect}
           />
         )}
-        {result && result.competition.groupId && (
+        {result?.competition && result.competition.groupId && (
           <CustomConfirmationModal
             title="Verification code"
             message="To edit this competition in the future, please use your group verification code on submission."
