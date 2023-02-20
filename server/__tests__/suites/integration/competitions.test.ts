@@ -1086,7 +1086,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(getResponse.body.participations.count).toEqual(response.body.participations.count);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
     it('should not edit participants (participants undefined)', async () => {
@@ -1100,7 +1100,7 @@ describe('Competition API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(getResponse.body.participations.count).toEqual(response.body.participations.count);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
     it('should edit (own fields)', async () => {
