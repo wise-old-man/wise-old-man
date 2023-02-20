@@ -102,8 +102,10 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
 
   const updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput = {};
 
-  const hasTeams = params.teams && params.teams.length > 0;
-  const hasParticipants = params.participants && params.participants.length > 0;
+  const teamsExist = params.teams !== undefined;
+  const participantsExist = params.participants !== undefined;
+  const hasTeams = teamsExist && params.teams.length > 0;
+  const hasParticipants = participantsExist && params.participants.length > 0;
 
   const competition = await prisma.competition.findFirst({
     where: { id: params.id }
@@ -130,11 +132,11 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
     throw new BadRequestError("The competition type cannot be changed to 'classic'.");
   }
 
-  let participations: PartialParticipation[] = [];
+  let participations: PartialParticipation[] = null;
 
-  if (hasParticipants) {
+  if (participantsExist) {
     participations = await getParticipations(params);
-  } else if (hasTeams) {
+  } else if (teamsExist) {
     participations = await getTeamsParticipations(params);
   }
 
@@ -247,7 +249,7 @@ async function recalculateParticipationsEnd(competitionId: number, endDate: Date
 
 async function executeUpdate(
   params: EditCompetitionParams,
-  nextParticipations: PartialParticipation[],
+  nextParticipations: PartialParticipation[] | null,
   updatedCompetitionFields: PrismaTypes.CompetitionUpdateInput
 ) {
   // This action updates the competition's fields and returns all the new data + participations,
@@ -278,38 +280,43 @@ async function executeUpdate(
     }
   });
 
-  const currentParticipations = await prisma.participation.findMany({
-    where: { competitionId: params.id },
-    include: { player: true }
-  });
+  // Only update the participations if the consumer supplied an array
+  if (nextParticipations) {
+    const currentParticipations = await prisma.participation.findMany({
+      where: { competitionId: params.id },
+      include: { player: true }
+    });
 
-  // The usernames of all current (pre-edit) participants
-  const currentUsernames = currentParticipations.map(m => m.player.username);
+    // The usernames of all current (pre-edit) participants
+    const currentUsernames = currentParticipations.map(m => m.player.username);
 
-  // The usernames of all future (post-edit) participants
-  const nextUsernames = nextParticipations.map(p => standardize(p.username));
+    // The usernames of all future (post-edit) participants
+    const nextUsernames = nextParticipations.map(p => standardize(p.username));
 
-  // These players should be added to the competition
-  const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
+    // These players should be added to the competition
+    const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
 
-  // These players should remain in the group
-  const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
+    // These players should remain in the group
+    const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
 
-  const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
-  const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
+    const missingParticipations = nextParticipations.filter(p => missingUsernames.includes(p.username));
+    const keptParticipations = nextParticipations.filter(p => keptUsernames.includes(p.username));
 
-  const results = await prisma.$transaction([
-    // Remove any players that are no longer participants
-    removeExcessParticipations(params.id, nextUsernames, currentParticipations),
-    // Add any missing participations
-    addMissingParticipations(params.id, missingParticipations),
-    // Update any team changes
-    ...updateExistingTeams(params.id, currentParticipations, keptParticipations),
-    // Update the competition
-    competitionUpdatePromise
-  ]);
+    const results = await prisma.$transaction([
+      // Remove any players that are no longer participants
+      removeExcessParticipations(params.id, nextUsernames, currentParticipations),
+      // Add any missing participations
+      addMissingParticipations(params.id, missingParticipations),
+      // Update any team changes
+      ...updateExistingTeams(params.id, currentParticipations, keptParticipations),
+      // Update the competition
+      competitionUpdatePromise
+    ]);
 
-  return results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
+    return results[results.length - 1] as Awaited<typeof competitionUpdatePromise>;
+  }
+
+  return await competitionUpdatePromise;
 }
 
 function updateExistingTeams(
