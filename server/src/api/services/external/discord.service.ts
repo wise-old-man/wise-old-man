@@ -7,6 +7,7 @@ import {
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
+import { omit } from 'lodash';
 
 export interface EventPeriodDelay {
   hours?: number;
@@ -113,10 +114,11 @@ async function dispatchMembersLeft(groupId: number, playerIds: number[]) {
  * Dispatch a competition created event to our discord bot API.
  */
 function dispatchCompetitionCreated(competition: CompetitionWithParticipations) {
-  // Omit this field when sending to discord, to prevent sending a huge payload unnecessarily
-  delete competition.participations;
-
-  dispatch('COMPETITION_CREATED', { groupId: competition.groupId, competition });
+  // Omit participations field when sending to discord, to decrease payload size
+  dispatch('COMPETITION_CREATED', {
+    groupId: competition.groupId,
+    competition: omit(competition, 'participations')
+  });
 }
 
 /**
@@ -146,10 +148,12 @@ function dispatchCompetitionEnded(competition: CompetitionDetails) {
     .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }))
     .slice(0, 10);
 
-  // Omit this field when sending to discord, to prevent sending a huge payload unnecessarily
-  delete competition.participations;
-
-  dispatch('COMPETITION_ENDED', { groupId, competition, standings });
+  // Omit participations field when sending to discord, to decrease payload size
+  dispatch('COMPETITION_ENDED', {
+    competition: omit(competition, 'participations'),
+    standings,
+    groupId
+  });
 }
 
 /**

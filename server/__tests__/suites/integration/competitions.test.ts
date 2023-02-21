@@ -480,6 +480,7 @@ describe('Competition API', () => {
       expect(response.body.competition.groupId).toBeNull();
       expect(response.body.competition.group).not.toBeDefined();
       expect(response.body.competition.verificationHash).not.toBeDefined();
+      expect(response.body.competition.participations.length).toBe(0);
 
       expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -524,6 +525,7 @@ describe('Competition API', () => {
       expect(response.body.competition.groupId).toBeNull();
       expect(response.body.competition.group).not.toBeDefined();
       expect(response.body.competition.verificationHash).not.toBeDefined();
+      expect(response.body.competition.participations.length).toBe(4);
 
       expect(onCompetitionCreatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
