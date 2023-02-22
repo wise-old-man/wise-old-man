@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PlayerType } from '../../../../utils';
 import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
