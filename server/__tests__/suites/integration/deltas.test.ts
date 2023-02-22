@@ -122,7 +122,7 @@ describe('Deltas API', () => {
       expect(secondDeltas.length).toBe(3);
       expect(secondDeltas.filter(d => d.ehp > 0.1).length).toBe(3);
       expect(secondDeltas.filter(d => d.ehb > 0.1).length).toBe(3);
-      expect(secondDeltas.filter(d => d.nex === 9).length).toBe(3); // 53 - 45 (min kc) = 9
+      expect(secondDeltas.filter(d => d.nex === 14).length).toBe(3); // 53 - 40 (min kc) = 14
       expect(secondDeltas.filter(d => d.smithing === 50_000).length).toBe(3);
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('week');
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('month');
@@ -252,7 +252,7 @@ describe('Deltas API', () => {
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
       expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
-      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 10 });
+      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 15 });
       expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
 
       const dayResponse = await api.get(`/players/psikoi/gained`).query({ period: 'day' });

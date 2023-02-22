@@ -81,7 +81,7 @@ function calculateRankDiff(metric: Metric, startSnapshot: Snapshot, endSnapshot:
  * - Ending Snapshot: Cooking Exp: 9,456,596
  * - Output: { start: 8756484, end:  9456596, gained: 700112 }
  *
- * Example (unranked boss, min kc = 45 (or 5 or 1 for some bosses)):
+ * Example (unranked boss):
  * - Starting Snapshot: Zulrah KC: -1
  * - Ending Snapshot: Zulrah KC: 73
  * - Output: { start: -1, end:  73, gained: 24 }
