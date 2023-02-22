@@ -50,6 +50,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run type-checking
+        run: npm run build
+
       - name: Run Integration Tests
         run: npm run test -
   type-check-client-js:
@@ -70,18 +73,3 @@ jobs:
 
       - name: Build & Type Check
         run: cd client-js && npm run build
-  type-check-server:
-    name: Type-check Server package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-
-      - name: Install server dependencies
-        run: cd server && npm ci
-
-      - name: Build & Type Check
-        run: cd server && npm run build
