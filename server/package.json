@@ -10,7 +10,7 @@
     "node": ">=16.14.0"
   },
   "scripts": {
-    "build": "rm -rf ./dist/ && tsc",
+    "build": "rm -rf ./dist/ && prisma generate && tsc",
     "lint": "eslint . --ext .ts",
     "prisma:generate": "prisma generate",
     "dev": "cross-env ./scripts/run-dev.sh",
