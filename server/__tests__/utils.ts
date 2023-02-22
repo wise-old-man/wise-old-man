@@ -18,7 +18,10 @@ async function readFile(path: string) {
 
 async function resetDatabase() {
   const modelNames = Object.keys(prisma).filter(k => !k.startsWith('_'));
-  await Promise.all(modelNames.map(model => prisma[model].deleteMany()));
+
+  for (const model of modelNames) {
+    await prisma[model].deleteMany();
+  }
 }
 
 async function resetRedis() {

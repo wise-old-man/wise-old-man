@@ -1075,6 +1075,34 @@ describe('Competition API', () => {
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
+    it('should not edit teams (teams undefined)', async () => {
+      const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(getResponse.status).toBe(200);
+
+      const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
+        verificationCode: globalData.testCompetitionEnding.verificationCode,
+        title: getResponse.body.title,
+        teams: undefined
+      });
+
+      expect(response.status).toBe(200);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
+    });
+
+    it('should not edit participants (participants undefined)', async () => {
+      const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(getResponse.status).toBe(200);
+
+      const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
+        verificationCode: globalData.testCompetitionEnding.verificationCode,
+        title: getResponse.body.title,
+        participants: undefined
+      });
+
+      expect(response.status).toBe(200);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
+    });
+
     it('should edit (own fields)', async () => {
       const response = await api.put(`/competitions/${globalData.testCompetitionStarting.id}`).send({
         verificationCode: globalData.testCompetitionStarting.verificationCode,
