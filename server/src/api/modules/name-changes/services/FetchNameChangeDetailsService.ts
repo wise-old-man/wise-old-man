@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import prisma, { NameChangeStatus } from '../../../../prisma';
-import { PlayerType, PlayerBuild } from '../../../../utils';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -87,7 +86,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   });
 
   const newPlayerComputedMetrics = await efficiencyServices.computePlayerMetrics({
-    player: newPlayer || { id: 1, type: PlayerType.REGULAR, build: PlayerBuild.MAIN },
+    player: newPlayer || { id: 1, type: oldPlayer.type, build: oldPlayer.build },
     snapshot: newStats
   });
 
