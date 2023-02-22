@@ -291,6 +291,26 @@ describe('Names API', () => {
       expect(response.body.data.hasNegativeGains).toBe(false);
     });
 
+    it('should fetch details (pending name change, fallback to ironman hiscores)', async () => {
+      // Mock the regular hiscores to not find the new username
+      // this should force the API to fallback to checking the ironman hiscores instead.
+      // This is useful because some low level ironmen don't show up on the regular hiscores.
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404 },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData }
+      });
+
+      const response = await api.get(`/names/${globalData.firstNameChangeId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.nameChange.id).toBe(globalData.firstNameChangeId);
+      expect(response.body.nameChange.status).toBe('pending');
+      expect(response.body.data.isOldOnHiscores).toBe(false);
+      expect(response.body.data.isNewOnHiscores).toBe(true);
+      expect(response.body.data.isNewTracked).toBe(true);
+      expect(response.body.data.hasNegativeGains).toBe(false);
+    });
+
     it('should not have new stats (pending name change, invalid new name)', async () => {
       // Create a new invalid name change
       const updateResponse = await api.post(`/names`).send({ oldName: 'Psikoi', newName: 'invalid' });
@@ -298,7 +318,8 @@ describe('Names API', () => {
 
       // Mock the hiscores to not find the new username
       registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 404, rawData: 'no stats here :)' }
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: 'no stats here :)' },
+        [PlayerType.IRONMAN]: { statusCode: 404, rawData: 'no stats here :)' }
       });
 
       // Get the name change details
