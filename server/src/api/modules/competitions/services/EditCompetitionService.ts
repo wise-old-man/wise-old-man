@@ -134,9 +134,9 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
 
   let participations: PartialParticipation[] = null;
 
-  if (participantsExist) {
+  if (participantsExist && competition.type === CompetitionType.CLASSIC) {
     participations = await getParticipations(params);
-  } else if (teamsExist) {
+  } else if (teamsExist && competition.type === CompetitionType.TEAM) {
     participations = await getTeamsParticipations(params);
   }
 
