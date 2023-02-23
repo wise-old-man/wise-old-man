@@ -1123,7 +1123,7 @@ describe('Competition API', () => {
       expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
-    it('should not edit participants (team competition, undefined participants, undefined teams)', async () => {
+    it('should not edit participants (classic competition, undefined participants, undefined teams)', async () => {
       const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
       expect(getResponse.status).toBe(200);
 
