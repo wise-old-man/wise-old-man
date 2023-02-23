@@ -1075,31 +1075,67 @@ describe('Competition API', () => {
       expect(onParticipantsJoinedEvent).not.toHaveBeenCalled();
     });
 
-    it('should not edit teams (teams undefined)', async () => {
+    it('should not edit teams (team competition, undefined teams, defined participants)', async () => {
       const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
       expect(getResponse.status).toBe(200);
 
       const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         title: getResponse.body.title,
-        teams: undefined
+        teams: undefined, // make sure this doesn't override the existing teams
+        participants: [] // make sure this doesn't override the existing teams
       });
 
       expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBeGreaterThan(0);
       expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
-    it('should not edit participants (participants undefined)', async () => {
+    it('should not edit teams (team competition, undefined teams, undefined participants)', async () => {
       const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
       expect(getResponse.status).toBe(200);
 
       const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
         verificationCode: globalData.testCompetitionEnding.verificationCode,
         title: getResponse.body.title,
-        participants: undefined
+        teams: undefined, // make sure this doesn't override the existing teams
+        participants: undefined // make sure this doesn't override the existing teams
       });
 
       expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBeGreaterThan(0);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
+    });
+
+    it('should not edit participants (classic competition, undefined participants, defined teams)', async () => {
+      const getResponse = await api.get(`/competitions/${globalData.testCompetitionStarted.id}`);
+      expect(getResponse.status).toBe(200);
+
+      const response = await api.put(`/competitions/${globalData.testCompetitionStarted.id}`).send({
+        verificationCode: globalData.testCompetitionStarted.verificationCode,
+        title: getResponse.body.title,
+        participants: undefined, // make sure this doesn't override the existing participants
+        teams: [] // make sure this doesn't override the existing participants
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBeGreaterThan(0);
+      expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
+    });
+
+    it('should not edit participants (team competition, undefined participants, undefined teams)', async () => {
+      const getResponse = await api.get(`/competitions/${globalData.testCompetitionEnding.id}`);
+      expect(getResponse.status).toBe(200);
+
+      const response = await api.put(`/competitions/${globalData.testCompetitionEnding.id}`).send({
+        verificationCode: globalData.testCompetitionEnding.verificationCode,
+        title: getResponse.body.title,
+        teams: undefined, // make sure this doesn't override the existing participants
+        participants: undefined // make sure this doesn't override the existing participants
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.participations.length).toBeGreaterThan(0);
       expect(getResponse.body.participations.length).toEqual(response.body.participations.length);
     });
 
@@ -1136,7 +1172,8 @@ describe('Competition API', () => {
         startsAt: detailsBeforeResponse.body.startsAt,
         endsAt: detailsBeforeResponse.body.endsAt,
         verificationCode: globalData.testCompetitionStarted.verificationCode,
-        participants: ['psikoi', ' RORRO', '_usbc ', 'hydrox6']
+        participants: ['psikoi', ' RORRO', '_usbc ', 'hydrox6'],
+        teams: [] // make sure this doesn't override the new participants
       });
 
       expect(response.status).toBe(200);
@@ -1178,7 +1215,8 @@ describe('Competition API', () => {
           { name: 'Team B', participants: ['ruben_', ' seth   _'] },
           { name: 'Team C', participants: ['jake0011011', 'alexcantfly'] },
           { name: 'Team D', participants: ['alice', 'MARIA   '] }
-        ]
+        ],
+        participants: [] // make sure this doesn't override the new teams
       });
 
       expect(createResponse.status).toBe(201);
@@ -1194,7 +1232,8 @@ describe('Competition API', () => {
           { name: 'Team C ', participants: ['jake0011011', ' ALICE '] },
           { name: 'Team_D', participants: ['MARIA   ', 'alexcantfly'] },
           { name: 'Team_E', participants: ['alanturing', 'luigi'] }
-        ]
+        ],
+        participants: undefined // make sure this doesn't override the new teams
       });
 
       expect(response.status).toBe(200);
@@ -1271,7 +1310,8 @@ describe('Competition API', () => {
           { name: 'Mods', participants: [' SETHMARE', 'boom__'] },
           { name: 'Contributors', participants: [' psikoi', 'RORRO', 'JAKEsterwars', '__USBC'] },
           { name: 'Cool Guys', participants: [' hydrox6', '_alexsuperfly'] }
-        ]
+        ],
+        participants: undefined // make sure this doesn't override the new teams
       });
 
       expect(response.status).toBe(200);
