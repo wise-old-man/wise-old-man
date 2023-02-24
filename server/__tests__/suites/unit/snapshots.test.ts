@@ -18,5 +18,9 @@ describe('Util - Snapshots', () => {
     expect(() => snapshotUtils.getBestInEachMetric([], [{} as Player])).toThrow(
       'Invalid snapshots list. Failed to find best players.'
     );
+
+    expect(() => snapshotUtils.getBestInEachMetric([{} as Snapshot], [{} as Player, {} as Player])).toThrow(
+      'Invalid players list. Failed to find best players.'
+    );
   });
 });
