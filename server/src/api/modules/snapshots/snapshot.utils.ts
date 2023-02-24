@@ -182,7 +182,7 @@ function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
 }
 
 function average(snapshots: Snapshot[]): Snapshot {
-  if (!snapshots && snapshots.length === 0) {
+  if (!snapshots || snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find average.');
   }
 
