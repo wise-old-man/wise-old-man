@@ -18,7 +18,8 @@ import {
   Activity,
   ComputedMetric,
   MapOf,
-  MetricValueKey
+  MetricValueKey,
+  Player
 } from '../../../utils';
 import { Snapshot } from '../../../prisma';
 import { ServerError } from '../../errors';
@@ -27,10 +28,15 @@ import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
 import { EfficiencyMap } from '../efficiency/efficiency.types';
 import {
   ActivityValue,
+  ActivityValueWithPlayer,
+  BestGroupSnapshot,
   BossValue,
+  BossValueWithPlayer,
   ComputedMetricValue,
+  ComputedMetricValueWithPlayer,
   FormattedSnapshot,
-  SkillValue
+  SkillValue,
+  SkillValueWithPlayer
 } from './snapshot.types';
 
 function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
@@ -183,8 +189,8 @@ function average(snapshots: Snapshot[]): Snapshot {
   const base = {
     id: -1,
     playerId: -1,
-    createdAt: null,
-    importedAt: null
+    importedAt: null,
+    createdAt: new Date()
   };
 
   METRICS.forEach(metric => {
@@ -202,6 +208,87 @@ function average(snapshots: Snapshot[]): Snapshot {
   });
 
   return base as Snapshot;
+}
+
+/**
+ * Gets the best player/snapshot data for each metric.
+ */
+function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGroupSnapshot {
+  if (!snapshots || snapshots.length === 0) {
+    throw new ServerError('Invalid snapshots list. Failed to find best players.');
+  }
+
+  if (!players || players.length !== snapshots.length) {
+    throw new ServerError('Invalid players list. Failed to find best players.');
+  }
+
+  return {
+    skills: Object.fromEntries(
+      SKILLS.map(s => {
+        const valueKey = getMetricValueKey(s);
+        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
+        const experience = snapshot[valueKey];
+
+        const value: SkillValueWithPlayer = {
+          metric: s,
+          experience,
+          rank: snapshot[getMetricRankKey(s)],
+          level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
+          player: players.find(p => p.id === snapshot.playerId)
+        };
+
+        return [s, value];
+      })
+    ) as MapOf<Skill, SkillValueWithPlayer>,
+    bosses: Object.fromEntries(
+      BOSSES.map(b => {
+        const valueKey = getMetricValueKey(b);
+        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
+        const kills = snapshot[valueKey];
+
+        const value: BossValueWithPlayer = {
+          metric: b,
+          kills,
+          rank: snapshot[getMetricRankKey(b)],
+          player: players.find(p => p.id === snapshot.playerId)
+        };
+
+        return [b, value];
+      })
+    ) as MapOf<Boss, BossValueWithPlayer>,
+    activities: Object.fromEntries(
+      ACTIVITIES.map(a => {
+        const valueKey = getMetricValueKey(a);
+        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
+        const score = snapshot[valueKey];
+
+        const value: ActivityValueWithPlayer = {
+          metric: a,
+          score,
+          rank: snapshot[getMetricRankKey(a)],
+          player: players.find(p => p.id === snapshot.playerId)
+        };
+
+        return [a, value];
+      })
+    ) as MapOf<Activity, ActivityValueWithPlayer>,
+    computed: Object.fromEntries(
+      COMPUTED_METRICS.map(c => {
+        const valueKey = getMetricValueKey(c);
+        const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
+        const value = snapshot[valueKey];
+
+        const metric: ComputedMetricValueWithPlayer = {
+          metric: c,
+          value,
+          rank: snapshot[getMetricRankKey(c)],
+          player: players.find(p => p.id === snapshot.playerId)
+        };
+
+        return [c, metric];
+      })
+    ) as MapOf<ComputedMetric, ComputedMetricValueWithPlayer>
+  };
 }
 
 function getCombatLevelFromSnapshot(snapshot: Snapshot) {
@@ -273,5 +360,6 @@ export {
   get200msCount,
   getMinimumExp,
   getTotalLevel,
-  getCombatLevelFromSnapshot
+  getCombatLevelFromSnapshot,
+  getBestInEachMetric
 };
