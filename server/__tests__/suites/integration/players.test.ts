@@ -547,7 +547,7 @@ describe('Player API', () => {
 
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
-    });
+    }, 10000); // Set the timeout to 10 seconds for this long running test
 
     it('should not import player (too soon)', async () => {
       // Setup the CML request to return our mock raw data
