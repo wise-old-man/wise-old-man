@@ -23,7 +23,7 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
 
   if (params.type) query.type = params.type;
   if (params.metric) query.metric = params.metric;
-  if (params.title) query.title = { contains: params.title, mode: 'insensitive' };
+  if (params.title) query.title = { contains: params.title.trim(), mode: 'insensitive' };
 
   if (params.status) {
     const now = new Date();
