@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { MetricProps, getLevel, SKILLS } from '@wise-old-man/utils';
+import { MetricProps, getLevel, REAL_SKILLS } from '@wise-old-man/utils';
 import { getMetricIcon, formatDate, formatNumber } from 'utils';
 import './AchievementGroup.scss';
 
@@ -89,9 +89,8 @@ function formatThreshold(threshold) {
     return threshold;
   }
 
-  const totalSkills = SKILLS.filter(s => s !== 'overall').length;
-  if ([273742, 737627, 1986068, 5346332, 13034431].map(i => i * totalSkills).includes(threshold)) {
-    return getLevel((threshold / totalSkills) + 100).toString();
+  if ([273742, 737627, 1986068, 5346332, 13034431].map(i => i * REAL_SKILLS.length).includes(threshold)) {
+    return getLevel((threshold / REAL_SKILLS.length) + 100).toString();
   }
 
   if (threshold <= 10000) {

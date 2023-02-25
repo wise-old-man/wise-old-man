@@ -22,12 +22,10 @@ function getAchievementMeasure(metric: Metric, threshold: number): string {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
-  if (name === 'Base {level} Stats') {
-    threshold = threshold / REAL_SKILLS.length;
-  }
+  const adjustedThreshold = name === 'Base {level} Stats' ? threshold / REAL_SKILLS.length : threshold;
   const newName = name
-    .replace('{threshold}', formatThreshold(threshold))
-    .replace('{level}', formatThreshold(threshold));
+    .replace('{threshold}', formatThreshold(adjustedThreshold))
+    .replace('{level}', formatThreshold(adjustedThreshold));
 
   if (newName === 'Base 99 Stats') {
     return 'Maxed Overall';
