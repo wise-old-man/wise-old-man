@@ -1448,7 +1448,7 @@ describe('Group API', () => {
             }
           }
         },
-        best: {
+        metricLeaders: {
           bosses: {
             abyssal_sire: {
               kills: 1049

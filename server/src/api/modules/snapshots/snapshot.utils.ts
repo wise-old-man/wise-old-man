@@ -29,12 +29,12 @@ import { EfficiencyMap } from '../efficiency/efficiency.types';
 import {
   ActivityValue,
   ActivityValueWithPlayer,
-  BestGroupSnapshot,
   BossValue,
   BossValueWithPlayer,
   ComputedMetricValue,
   ComputedMetricValueWithPlayer,
   FormattedSnapshot,
+  MetricLeaders,
   SkillValue,
   SkillValueWithPlayer
 } from './snapshot.types';
@@ -210,16 +210,22 @@ function average(snapshots: Snapshot[]): Snapshot {
   return base as Snapshot;
 }
 
+function assignPlayersAsMetricLeaders(leaders: MetricLeaders, players: Player[]): void {
+  Object.values(leaders.skills).forEach(s => (s.player = players.find(p => p.id === s.playerId)));
+  Object.values(leaders.bosses).forEach(b => (b.player = players.find(p => p.id === b.playerId)));
+  Object.values(leaders.activities).forEach(a => (a.player = players.find(p => p.id === a.playerId)));
+  Object.values(leaders.computed).forEach(c => (c.player = players.find(p => p.id === c.playerId)));
+}
+
 /**
- * Gets the best player/snapshot data for each metric.
+ * Gets the best snapshot data for each metric in the given snapshots.
+ *
+ * The `player` field will be null, you are expected to populate it with
+ * the provided `playerId`.
  */
-function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGroupSnapshot {
+function getMetricLeaders(snapshots: Snapshot[]): MetricLeaders {
   if (!snapshots || snapshots.length === 0) {
     throw new ServerError('Invalid snapshots list. Failed to find best players.');
-  }
-
-  if (!players || players.length !== snapshots.length) {
-    throw new ServerError('Invalid players list. Failed to find best players.');
   }
 
   return {
@@ -234,7 +240,8 @@ function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGrou
           experience,
           rank: snapshot[getMetricRankKey(s)],
           level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience),
-          player: players.find(p => p.id === snapshot.playerId)
+          playerId: snapshot.playerId,
+          player: null
         };
 
         return [s, value];
@@ -250,7 +257,8 @@ function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGrou
           metric: b,
           kills,
           rank: snapshot[getMetricRankKey(b)],
-          player: players.find(p => p.id === snapshot.playerId)
+          playerId: snapshot.playerId,
+          player: null
         };
 
         return [b, value];
@@ -266,7 +274,8 @@ function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGrou
           metric: a,
           score,
           rank: snapshot[getMetricRankKey(a)],
-          player: players.find(p => p.id === snapshot.playerId)
+          playerId: snapshot.playerId,
+          player: null
         };
 
         return [a, value];
@@ -282,7 +291,8 @@ function getBestInEachMetric(snapshots: Snapshot[], players: Player[]): BestGrou
           metric: c,
           value,
           rank: snapshot[getMetricRankKey(c)],
-          player: players.find(p => p.id === snapshot.playerId)
+          playerId: snapshot.playerId,
+          player: null
         };
 
         return [c, metric];
@@ -361,5 +371,6 @@ export {
   getMinimumExp,
   getTotalLevel,
   getCombatLevelFromSnapshot,
-  getBestInEachMetric
+  getMetricLeaders,
+  assignPlayersAsMetricLeaders
 };
