@@ -21,9 +21,11 @@ async function searchNameChanges(payload: SearchNameChangesParams): Promise<Name
   }
 
   if (params.username && params.username.length > 0) {
+    const startsWith = params.username.trim();
+
     query.OR = [
-      { oldName: { startsWith: params.username, mode: 'insensitive' } },
-      { newName: { startsWith: params.username, mode: 'insensitive' } }
+      { oldName: { startsWith, mode: 'insensitive' } },
+      { newName: { startsWith, mode: 'insensitive' } }
     ];
   }
 

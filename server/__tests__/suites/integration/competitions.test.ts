@@ -1440,6 +1440,16 @@ describe('Competition API', () => {
       expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
     });
 
+    it('should search competitions (w/ title filter, leading/trailing whitespace)', async () => {
+      const response = await api.get('/competitions').query({ title: '  competition  ' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      // Hashes shouldn't be exposed to the API consumer
+      expect(response.body.filter(c => !!c.verificationHash).length).toBe(0);
+    });
+
     it('should search competitions (w/ title & status filter)', async () => {
       const response = await api.get('/competitions').query({ title: 'competition', status: 'ongoing' });
 

@@ -12,7 +12,7 @@ const inputSchema = z
     id: z.number().positive().optional(),
     username: z.string().optional(),
     // This service accepts country codes, and country names (will attempt to parse these into country codes)
-    country: z.string({ required_error: ERROR_MESSAGE }).nonempty({ message: ERROR_MESSAGE })
+    country: z.string({ required_error: ERROR_MESSAGE }).min(1, { message: ERROR_MESSAGE })
   })
   .refine(s => s.id || s.username, {
     message: 'Undefined id and username.'

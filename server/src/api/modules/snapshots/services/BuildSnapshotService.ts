@@ -7,7 +7,7 @@ import { SnapshotDataSource } from '../snapshot.types';
 
 const inputSchema = z.object({
   playerId: z.number().int().positive(),
-  rawCSV: z.string().nonempty(),
+  rawCSV: z.string().min(1),
   source: z.nativeEnum(SnapshotDataSource).default(SnapshotDataSource.HISCORES)
 });
 

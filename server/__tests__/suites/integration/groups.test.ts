@@ -615,6 +615,17 @@ describe('Group API', () => {
       expect(response.body.filter(g => !!g.verificationHash).length).toBe(0);
     });
 
+    it('should search groups (w/ name query, leading/trailing whitespace)', async () => {
+      const response = await api.get('/groups').query({ name: '  ey  ' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].id).toBe(globalData.testGroupNoLeaders.id);
+
+      // Hashes shouldn't be exposed to the API consumer
+      expect(response.body.filter(g => !!g.verificationHash).length).toBe(0);
+    });
+
     it('should search groups (w/ limit)', async () => {
       const response = await api.get('/groups').query({ limit: 1 });
 
