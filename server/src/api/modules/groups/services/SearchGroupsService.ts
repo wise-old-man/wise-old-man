@@ -18,7 +18,7 @@ async function searchGroups(payload: SearchGroupsParams): Promise<GroupListItem[
   const groups = await prisma.group.findMany({
     where: {
       name: {
-        contains: params.name.trim(),
+        contains: params.name ? params.name.trim() : params.name,
         mode: 'insensitive'
       }
     },
