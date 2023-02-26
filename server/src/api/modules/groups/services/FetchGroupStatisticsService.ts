@@ -11,7 +11,8 @@ import {
   average,
   getCombatLevelFromSnapshot,
   getTotalLevel,
-  getMetricLeaders
+  getMetricLeaders,
+  assignPlayersToMetricLeaders
 } from '../../snapshots/snapshot.utils';
 import { GroupStatistics } from '../group.types';
 
@@ -61,7 +62,11 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
   });
 
   const averageStats = format(averageSnapshot, averageEfficiencyMap);
-  const metricLeaders = getMetricLeaders(snapshots);
+
+  const { metricLeaders, leaderIdMap } = getMetricLeaders(snapshots);
+  const leaderIds = [...new Set(leaderIdMap.values())];
+  const players = await playerServices.findPlayers({ ids: leaderIds });
+  assignPlayersToMetricLeaders(metricLeaders, leaderIdMap, players);
 
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats, metricLeaders };
 }

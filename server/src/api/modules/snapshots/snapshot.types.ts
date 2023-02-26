@@ -17,7 +17,6 @@ export interface SkillValue {
 }
 
 export interface SkillValueWithPlayer extends SkillValue {
-  playerId: number;
   player: Player;
 }
 
@@ -29,7 +28,6 @@ export interface BossValue {
 }
 
 export interface BossValueWithPlayer extends BossValue {
-  playerId: number;
   player: Player;
 }
 
@@ -40,7 +38,6 @@ export interface ActivityValue {
 }
 
 export interface ActivityValueWithPlayer extends ActivityValue {
-  playerId: number;
   player: Player;
 }
 
@@ -51,7 +48,6 @@ export interface ComputedMetricValue {
 }
 
 export interface ComputedMetricValueWithPlayer extends ComputedMetricValue {
-  playerId: number;
   player: Player;
 }
 
