@@ -4,7 +4,8 @@ import {
   getMetricValueKey,
   getLevel,
   SKILL_EXP_AT_99,
-  isMetric
+  isMetric,
+  REAL_SKILLS
 } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 import { ACHIEVEMENT_TEMPLATES } from './achievement.templates';
@@ -21,9 +22,10 @@ function getAchievementMeasure(metric: Metric, threshold: number): string {
 }
 
 function getAchievemenName(name: string, threshold: number): string {
+  const adjustedThreshold = name === 'Base {level} Stats' ? threshold / REAL_SKILLS.length : threshold;
   const newName = name
-    .replace('{threshold}', formatThreshold(threshold))
-    .replace('{level}', formatThreshold(threshold));
+    .replace('{threshold}', formatThreshold(adjustedThreshold))
+    .replace('{level}', formatThreshold(adjustedThreshold));
 
   if (newName === 'Base 99 Stats') {
     return 'Maxed Overall';
