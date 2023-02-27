@@ -14,7 +14,7 @@ class UpdatePlayerJob implements JobDefinition<UpdatePlayerJobPayload> {
     this.type = JobType.UPDATE_PLAYER;
 
     this.options = {
-      rateLimiter: { max: 1, duration: 2000 },
+      rateLimiter: { max: 1, duration: 1000 },
       defaultOptions: { attempts: 3, backoff: 30_000 }
     };
   }

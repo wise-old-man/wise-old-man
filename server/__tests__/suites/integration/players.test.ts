@@ -623,6 +623,23 @@ describe('Player API', () => {
       });
     });
 
+    it('should search players (leading/trailing whitespace)', async () => {
+      const response = await api.get('/players/search').query({ username: '  HYDRO  ' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(2);
+
+      expect(response.body[0]).toMatchObject({
+        username: 'hydrox6',
+        type: 'ironman'
+      });
+
+      expect(response.body[1]).toMatchObject({
+        username: 'hydroman',
+        type: 'unknown'
+      });
+    });
+
     it('should search players (unknown partial username)', async () => {
       const response = await api.get('/players/search').query({ username: 'zez' });
 

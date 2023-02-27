@@ -397,6 +397,14 @@ describe('Names API', () => {
       expect(response.body.filter(n => n.oldName !== 'Zezima').length).toBe(0);
     });
 
+    it('should fetch list (filtered by username, leading/trailing whitespace)', async () => {
+      const response = await api.get(`/names`).query({ username: '  zezi  ' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+      expect(response.body.filter(n => n.oldName !== 'Zezima').length).toBe(0);
+    });
+
     it('should fetch (empty) list (filtered by username & status)', async () => {
       const response = await api.get(`/names`).query({ username: 'zez', status: 'pending' });
 
