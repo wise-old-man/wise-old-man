@@ -1426,6 +1426,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/statistics`);
 
       expect(response.status).toBe(200);
+      expect(new Date(response.body.averageStats.createdAt).getMonth()).toEqual(new Date().getMonth());
       expect(response.body).toMatchObject({
         maxedCombatCount: 1,
         maxedTotalCount: 1,
@@ -1443,6 +1444,33 @@ describe('Group API', () => {
             skills: {
               magic: {
                 experience: 74929535 // (19288604 + 200000000 + 5500000) / 3
+              }
+            }
+          }
+        },
+        metricLeaders: {
+          bosses: {
+            abyssal_sire: {
+              kills: 1049
+            },
+            zulrah: {
+              kills: 1646,
+              player: {
+                username: 'psikoi'
+              }
+            }
+          },
+          skills: {
+            agility: {
+              experience: 200000000,
+              player: {
+                username: 'alexsuperfly'
+              }
+            },
+            magic: {
+              experience: 200000000,
+              player: {
+                username: 'alexsuperfly'
               }
             }
           }

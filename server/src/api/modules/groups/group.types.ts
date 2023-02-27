@@ -1,6 +1,6 @@
 import { GroupRole } from '../../../utils';
 import { Group, Membership, Player } from '../../../prisma';
-import { FormattedSnapshot } from '../snapshots/snapshot.types';
+import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
@@ -58,6 +58,7 @@ export interface GroupStatistics {
   maxedTotalCount: number;
   maxed200msCount: number;
   averageStats: FormattedSnapshot;
+  metricLeaders: MetricLeaders;
 }
 
 export enum MigrationDataSource {
