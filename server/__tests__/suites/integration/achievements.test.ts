@@ -271,6 +271,19 @@ describe('Achievements API', () => {
         absoluteProgress: 0.1773, // 17.7% done with this achievement - (1773 / 10000) = 0.1773
         relativeProgress: 0 // 0% done between 5k and 10k kc - ((1773 - 1000) / (5000 - 1000)) <= 0
       });
+
+      expect(progressMap['Base 80 Stats']).toMatchObject({
+        currentValue: 45_679_564, // 1_986_068 (lvl 80) * 23 skills
+        absoluteProgress: 1, // 100% done with this achievement - (45_679_564 / 45_679_564) = 1
+        relativeProgress: 1 // 100% done between Base 70 and Base 80 - ((45_679_564 - 16_965_421) / (45_679_564 - 16_965_421)) >= 1
+      });
+
+      expect(progressMap['Base 90 Stats']).toMatchObject({
+        // there's 2 skills under 90, agility and construction
+        currentValue: 121_252_498, // (5_346_332 * 21 skills) + 4_537_106 (construction) + 4_442_420 (agility)
+        absoluteProgress: 0.9861, // 100% done with this achievement - (121_252_498 / 122_965_636) = 0.9861
+        relativeProgress: 0.9778 // 19.3% done between Base 80 and Base 90 - ((121_252_498 - 45_679_564) / (122_965_636 - 45_679_564)) = 0.9778
+      });
     });
 
     test('Create Group and check all group achievements', async () => {
@@ -366,9 +379,9 @@ describe('Achievements API', () => {
     });
 
     test('Track player again, test new achievements', async () => {
-      // Change construction to 99 (15m exp)
+      // Change attack to 50.5m
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
-        { metric: 'construction', value: 15000000 }
+        { metric: Metric.ATTACK, value: 50_585_985 }
       ]);
 
       registerHiscoresMock(axiosMock, {
@@ -392,10 +405,10 @@ describe('Achievements API', () => {
       expect(fetchResponse.body.length).toBe(38);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
 
-      expect(fetchResponse.body.map(a => a.name)).toContain('99 Construction');
-      expect(fetchResponse.body.find(a => a.name === '99 Construction').createdAt).not.toBe(0);
+      expect(fetchResponse.body.map(a => a.name)).toContain('50m Attack');
+      expect(fetchResponse.body.find(a => a.name === '50m Attack').createdAt).not.toBe(0);
       // accuracy should be less than 10 seconds, since we just updated the player (plus/minus async request delays and such)
-      expect(fetchResponse.body.find(a => a.name === '99 Construction').accuracy).toBeLessThan(10_000);
+      expect(fetchResponse.body.find(a => a.name === '50m Attack').accuracy).toBeLessThan(10_000);
     });
   });
 });
