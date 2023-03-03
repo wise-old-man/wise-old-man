@@ -74,6 +74,14 @@ function sortCompetitions(competitions) {
   if (!competitions) return [];
 
   return competitions.sort((a, b) => {
+    if (a.status === b.status) {
+      if (a.status === 'ongoing') {
+        return a.endsAt.getTime() - b.endsAt.getTime();
+      } else if (a.status === 'finished') {
+        return b.endsAt.getTime() - a.endsAt.getTime();
+      }
+    }
+
     return (
       STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) ||
       a.startsAt.getTime() - b.startsAt.getTime() ||
