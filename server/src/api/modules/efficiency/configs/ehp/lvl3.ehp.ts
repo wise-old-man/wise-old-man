@@ -2,83 +2,6 @@ import { Skill } from '../../../../../utils';
 
 export default [
   {
-    skill: Skill.ATTACK,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.DEFENCE,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.STRENGTH,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.HITPOINTS,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.RANGED,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.PRAYER,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.MAGIC,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
     skill: Skill.COOKING,
     methods: [
       {
@@ -149,42 +72,42 @@ export default [
       },
       {
         startExp: 22_406,
-        rate: 89_733,
+        rate: 87_750,
         description: '1.5t Teaks'
       },
       {
         startExp: 41_171,
-        rate: 108_130,
+        rate: 108_161,
         description: '1.5t Teaks'
       },
       {
         startExp: 111_945,
-        rate: 119_190,
+        rate: 119_224,
         description: '1.5t Teaks'
       },
       {
         startExp: 302_288,
-        rate: 148_428,
+        rate: 148_471,
         description: '1.5t Teaks'
       },
       {
         startExp: 737_627,
-        rate: 158_816,
+        rate: 158_861,
         description: '1.5t Teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 171_782,
+        rate: 171_832,
         description: '1.5t Teaks'
       },
       {
         startExp: 5_346_332,
-        rate: 183_571,
+        rate: 183_623,
         description: '1.5t Teaks'
       },
       {
         startExp: 13_034_431,
-        rate: 195_122,
+        rate: 195_178,
         description: '1.5t Teaks'
       }
     ],
@@ -195,20 +118,10 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2
+        ratio: 0.2,
+        maxBonus: 39_939_542
       }
     ]
-  },
-  {
-    skill: Skill.FLETCHING,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: 'Multi-skilling darts'
-      }
-    ],
-    bonuses: []
   },
   {
     skill: Skill.FISHING,
@@ -225,35 +138,36 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 94_364,
-        description: 'Drift net'
+        rate: 82_355,
+        description: 'Fly fishing (Trout & Salmon)'
       },
       {
         startExp: 273_742,
-        rate: 113_709,
-        description: 'Drift net'
+        rate: 97_862,
+        description: 'Fly fishing (Trout & Salmon)'
       },
       {
         startExp: 737_627,
-        rate: 130_434,
-        description: 'Drift net'
+        rate: 124_127,
+        description: 'Fly fishing (Trout & Salmon)'
       },
       {
-        startExp: 151_728_219,
-        rate: 119_261,
-        description: '2t Tuna & Swordfish'
+        startExp: 1_986_068,
+        rate: 128_908,
+        description: 'Fly fishing (Trout & Salmon)'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 131_109,
+        description: 'Fly fishing (Trout & Salmon)'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 95_000,
+        description: 'Fly fishing (Trout & Salmon)'
       }
     ],
-    bonuses: [
-      {
-        originSkill: Skill.FISHING,
-        bonusSkill: Skill.COOKING,
-        startExp: 151_728_219,
-        endExp: 200_000_000,
-        end: true,
-        ratio: 0.216
-      }
-    ]
+    bonuses: []
   },
   {
     skill: Skill.FIREMAKING,
@@ -286,22 +200,22 @@ export default [
       {
         startExp: 101_333,
         rate: 232_155,
-        description: 'Mahogany logs'
+        description: 'Firebwan (Mahogany logs)'
       },
       {
         startExp: 273_742,
         rate: 298_485,
-        description: 'Yew logs'
+        description: 'Firebwan (Yew logs)'
       },
       {
         startExp: 1_210_421,
         rate: 447_801,
-        description: 'Magic logs'
+        description: 'Firebwan (Magic logs)'
       },
       {
         startExp: 5_346_332,
         rate: 505_000,
-        description: 'Firebwan'
+        description: 'Firebwan (Redwood logs)'
       }
     ],
     bonuses: [
@@ -311,7 +225,8 @@ export default [
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7
+        ratio: 0.7,
+        maxBonus: 111_971_387
       }
     ]
   },
@@ -377,7 +292,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 410_000,
-        description: 'Blast Furnance Gold bars'
+        description: 'Blast Furnace Gold'
       }
     ],
     bonuses: []
@@ -392,7 +307,7 @@ export default [
       },
       {
         startExp: 13_363,
-        rate: 59_158,
+        rate: 53_780,
         description: '3t Iron'
       },
       {
@@ -407,17 +322,17 @@ export default [
       },
       {
         startExp: 302_288,
-        rate: 88_815,
+        rate: 88_350,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 737_627,
-        rate: 94_319,
+        rate: 93_609,
         description: '3t4g at Desert Quarry'
       },
       {
-        startExp: 986_068,
-        rate: 99_221,
+        startExp: 1_986_068,
+        rate: 98_474,
         description: '3t4g at Desert Quarry'
       },
       {
@@ -426,8 +341,8 @@ export default [
         description: 'Motherlode Mine for Prospector kit'
       },
       {
-        startExp: 3_548_694,
-        rate: 102_988,
+        startExp: 3_693_744,
+        rate: 103_620,
         description: '3t4g at Desert Quarry'
       },
       {
@@ -448,7 +363,8 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.08
+        ratio: 0.08,
+        maxBonus: 15_975_817
       }
     ]
   },
@@ -601,17 +517,6 @@ export default [
     ]
   },
   {
-    skill: Skill.SLAYER,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
     skill: Skill.FARMING,
     methods: [
       {
@@ -672,42 +577,67 @@ export default [
         description: 'Varrock Museum'
       },
       {
-        startExp: 2_411,
+        startExp: 2_107,
         rate: 82_000,
         description: 'Oak bird house runs'
       },
       {
-        startExp: 7_842,
+        startExp: 7_028,
         rate: 110_000,
         description: 'Willow bird house runs'
       },
       {
-        startExp: 22_406,
+        startExp: 20_224,
         rate: 138_000,
         description: 'Teak bird house runs'
       },
       {
-        startExp: 61_512,
+        startExp: 55_649,
         rate: 161_000,
         description: 'Maple bird house runs'
       },
       {
         startExp: 101_333,
-        rate: 251_565,
+        rate: 361_981,
         description: 'Drift net'
       },
       {
         startExp: 273_742,
-        rate: 291_175,
+        rate: 427_613,
         description: 'Drift net'
       },
       {
         startExp: 737_627,
-        rate: 344_512,
+        rate: 430_165,
         description: 'Drift net'
+      },
+      {
+        startExp: 1_986_068,
+        rate: 391_950,
+        description: 'Drift net'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 377_338,
+        description: 'Drift net'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 310_000,
+        description: 'Drift net (Bird house runs)'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.HUNTER,
+        bonusSkill: Skill.FISHING,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.7586,
+        maxBonus: 49_288_098
+      }
+    ]
   },
   {
     skill: Skill.CONSTRUCTION,
@@ -726,6 +656,11 @@ export default [
         startExp: 123_660,
         rate: 935_000,
         description: 'Mahogany tables'
+      },
+      {
+        startExp: 1_475_581,
+        rate: 1_050_000,
+        description: 'Mahogany benches'
       }
     ],
     bonuses: []

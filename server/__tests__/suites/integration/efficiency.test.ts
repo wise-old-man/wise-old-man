@@ -284,7 +284,9 @@ describe('Efficiency API', () => {
     it('should not list (invalid type)', async () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('Incorrect type: zerker. Must be one of [main, ironman, lvl3, f2p]');
+      expect(response.body.message).toBe(
+        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p]'
+      );
     });
 
     it('should list (invalid metric, default to EHP)', async () => {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerType } from '../../../../utils';
+import { PlayerType, PlayerBuild } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
@@ -76,7 +76,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     updatedPlayerFields.flagged = false;
 
     const computedMetrics = await efficiencyServices.computePlayerMetrics({
-      player,
+      player: {
+        id: player.id,
+        type: (updatedPlayerFields.type as PlayerType) || player.type,
+        build: (updatedPlayerFields.build as PlayerBuild) || player.build
+      },
       snapshot: currentStats
     });
 
