@@ -13,6 +13,7 @@ export enum BonusType {
 export enum EfficiencyAlgorithmType {
   MAIN = 'main',
   IRONMAN = 'ironman',
+  ULTIMATE = 'ultimate',
   LVL3 = 'lvl3',
   F2P = 'f2p'
 }
