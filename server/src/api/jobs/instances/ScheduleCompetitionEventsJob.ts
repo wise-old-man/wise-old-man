@@ -53,7 +53,7 @@ async function scheduleStarting(delayMs: number): Promise<void> {
     }
   });
 
-  competitionsStarting.forEach(c => {
+  competitionsStarting.forEach((c, index) => {
     const eventDelay = Math.max(0, c.startsAt.getTime() - delayMs - Date.now());
 
     setTimeout(() => {
@@ -63,7 +63,8 @@ async function scheduleStarting(delayMs: number): Promise<void> {
       } else {
         competitionEvents.onCompetitionStarting(c, getEventPeriodDelay(delayMs));
       }
-    }, eventDelay);
+      // stagger each event by 500ms to avoid overloading the database
+    }, eventDelay + index * 500);
   });
 }
 
@@ -80,7 +81,7 @@ async function scheduleEnding(delayMs: number): Promise<void> {
     }
   });
 
-  competitionsEnding.forEach(c => {
+  competitionsEnding.forEach((c, index) => {
     const eventDelay = Math.max(0, c.endsAt.getTime() - delayMs - Date.now());
 
     setTimeout(() => {
@@ -90,7 +91,8 @@ async function scheduleEnding(delayMs: number): Promise<void> {
       } else {
         competitionEvents.onCompetitionEnding(c, getEventPeriodDelay(delayMs));
       }
-    }, eventDelay);
+      // stagger each event by 500ms to avoid overloading the database
+    }, eventDelay + index * 500);
   });
 }
 
