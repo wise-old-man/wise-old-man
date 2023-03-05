@@ -118,8 +118,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2,
-        maxBonus: 39_939_542
+        ratio: 0.2
       }
     ]
   },
@@ -225,8 +224,7 @@ export default [
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7,
-        maxBonus: 111_971_387
+        ratio: 0.7
       }
     ]
   },
@@ -363,8 +361,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.08,
-        maxBonus: 15_975_817
+        ratio: 0.08
       }
     ]
   },
