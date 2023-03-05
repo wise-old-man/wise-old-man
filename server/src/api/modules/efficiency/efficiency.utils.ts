@@ -34,6 +34,9 @@ import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
 
+const ZERO_STATS = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
+const MAXED_STATS = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
+
 export const ALGORITHMS: AlgorithmCache = {
   [EfficiencyAlgorithmType.MAIN]: buildAlgorithmCache(mainSkillingMetas, mainBossingMetas),
   [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
@@ -46,8 +49,8 @@ export const ALGORITHMS: AlgorithmCache = {
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
 export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[] = []) {
-  const maxedEHP = calculateMaxedEHP(skillMetas);
-  const maximumEHP = calculateMaximumEHP(skillMetas);
+  const maxedEHP = calculateTT200m(ZERO_STATS, skillMetas) - calculateTT200m(MAXED_STATS, skillMetas);
+  const maximumEHP = calculateTT200m(ZERO_STATS, skillMetas);
 
   function _calculateTT200m(experienceMap: ExperienceMap) {
     return calculateTT200m(experienceMap, skillMetas);
@@ -140,19 +143,6 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[]) {
   });
 
   return map;
-}
-
-function calculateMaximumEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
-
-  return calculateTT200m(zeroStats, metas);
-}
-
-function calculateMaxedEHP(metas: SkillMetaConfig[]) {
-  const zeroStats = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
-  const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
-
-  return calculateTT200m(zeroStats, metas) - calculateTT200m(maxedStats, metas);
 }
 
 function calculateBossEHB(boss: Boss, killcount: number, metas: BossMetaConfig[]) {
