@@ -12,7 +12,9 @@ import {
   PlayerType,
   PlayerBuild,
   MAX_SKILL_EXP,
-  SKILL_EXP_AT_99
+  SKILL_EXP_AT_99,
+  REAL_SKILLS,
+  MapOf
 } from '../../../utils';
 import {
   AlgorithmCache,
@@ -49,11 +51,11 @@ export const ALGORITHMS: AlgorithmCache = {
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
 export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[] = []) {
-  const maxedEHP = calculateTT200m(ZERO_STATS, skillMetas) - calculateTT200m(MAXED_STATS, skillMetas);
-  const maximumEHP = calculateTT200m(ZERO_STATS, skillMetas);
+  const maxedEHP = _calculateTT200m(ZERO_STATS) - _calculateTT200m(MAXED_STATS);
+  const maximumEHP = _calculateTT200m(ZERO_STATS);
 
   function _calculateTT200m(experienceMap: ExperienceMap) {
-    return calculateTT200m(experienceMap, skillMetas);
+    return calculateTT200mMap(experienceMap, skillMetas)[Metric.OVERALL];
   }
 
   function _calculateEHP(experienceMap: ExperienceMap) {
@@ -158,7 +160,7 @@ function calculateEHB(killcountMap: KillcountMap, metas: BossMetaConfig[]) {
   return BOSSES.map(b => calculateBossEHB(b, killcountMap[b], metas)).reduce((a, c) => a + c);
 }
 
-function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[]): number {
+function calculateTT200mMap(experienceMap: ExperienceMap, metas: SkillMetaConfig[]) {
   // Ensure unranked skills (-1) are treated as 0 exp
   const fixedMap = mapValues(experienceMap, exp => Math.max(0, exp));
 
@@ -171,16 +173,17 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
     SKILLS.map(s => [s, s in endBonusExp ? MAX_SKILL_EXP - endBonusExp[s] : MAX_SKILL_EXP])
   );
 
-  const skillTimes = SKILLS.map(skill => {
-    if (skill === Metric.OVERALL) return 0;
+  const map = Object.fromEntries(SKILLS.map(s => [s, 0])) as MapOf<Skill, number>;
 
+  REAL_SKILLS.forEach(skill => {
     const methods = metas.find(sm => sm.skill === skill)?.methods;
     const startExp = startExps[skill];
     const endExp = targetExps[skill];
 
     // Handle 0 time skills (Hitpoints, Magic, Fletching)
     if (!methods || (methods.length === 1 && methods[0].rate === 0)) {
-      return (endExp - startExp) / MAX_SKILL_EXP;
+      map[skill] = (endExp - startExp) / MAX_SKILL_EXP;
+      return;
     }
 
     let skillTime = 0;
@@ -204,14 +207,13 @@ function calculateTT200m(experienceMap: ExperienceMap, metas: SkillMetaConfig[])
       }
     }
 
-    return skillTime;
+    map[skill] = skillTime;
   });
 
-  // Sum all inidividual skill times, into the total TTM
-  return round(
-    skillTimes.reduce((a, c) => a + c),
-    5
-  );
+  const sum = Object.values(map).reduce((a, c) => a + c, 0);
+  map[Metric.OVERALL] = round(sum, 5);
+
+  return map;
 }
 
 function getKillcountMap(snapshot: Snapshot): KillcountMap {
