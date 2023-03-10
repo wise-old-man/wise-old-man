@@ -18,13 +18,16 @@ export enum EfficiencyAlgorithmType {
   F2P = 'f2p'
 }
 
+export interface SkillMetaMethod {
+  rate: number;
+  realRate?: number;
+  startExp: number;
+  description: string;
+}
+
 export interface SkillMetaConfig {
   skill: Skill;
-  methods: Array<{
-    rate: number;
-    startExp: number;
-    description: string;
-  }>;
+  methods: Array<SkillMetaMethod>;
   bonuses: Bonus[];
 }
 
@@ -40,7 +43,6 @@ export interface Bonus {
   endExp: number;
   end: boolean;
   ratio: number;
-  maxBonus?: number;
 }
 
 export interface EfficiencyAlgorithm {

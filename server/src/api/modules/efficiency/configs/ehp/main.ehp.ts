@@ -50,7 +50,7 @@ export default [
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.RANGED,
-        startExp: 85_565_839,
+        startExp: 0,
         endExp: 200_000_000,
         end: false,
         ratio: 1.2094
@@ -58,9 +58,9 @@ export default [
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.PRAYER,
-        startExp: 85_565_839,
+        startExp: 0,
         endExp: 200_000_000,
-        end: false,
+        end: true,
         ratio: 0.09399465048
       }
     ]
@@ -731,7 +731,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 0,
         endExp: 1_986_068,
-        end: false,
+        end: true,
         ratio: 0.0673
       },
       {
@@ -739,7 +739,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 1_986_068,
         endExp: 3_258_594,
-        end: false,
+        end: true,
         ratio: 0.0824
       },
       {
@@ -747,7 +747,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 3_258_594,
         endExp: 5_346_332,
-        end: false,
+        end: true,
         ratio: 0.11917
       },
       {
@@ -755,7 +755,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 5_346_332,
         endExp: 7_195_629,
-        end: false,
+        end: true,
         ratio: 0.21689
       },
       {
@@ -763,7 +763,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 7_195_629,
         endExp: 13_034_431,
-        end: false,
+        end: true,
         ratio: 0.18914
       },
       {
@@ -771,7 +771,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 13_034_431,
         endExp: 200_000_000,
-        end: false,
+        end: true,
         ratio: 0.21605
       }
     ]
@@ -874,6 +874,7 @@ export default [
       {
         startExp: 737_627,
         rate: 255_000,
+        realRate: 118_535,
         description: 'Drift Net (Black Chinchompas)'
       }
     ],
@@ -884,8 +885,7 @@ export default [
         startExp: 737_627,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7586,
-        maxBonus: 32_414_530
+        ratio: 0.7586029443
       }
     ]
   },

@@ -498,6 +498,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 260_000,
+        realRate: 139_062,
         description: 'Swimming'
       }
     ],
@@ -508,8 +509,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2727,
-        maxBonus: 12_029_509
+        ratio: 0.2727272727
       }
     ]
   },
@@ -621,6 +621,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 310_000,
+        realRate: 118_535,
         description: 'Drift net (Bird house runs)'
       }
     ],
@@ -631,8 +632,7 @@ export default [
         startExp: 13_034_431,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7586,
-        maxBonus: 49_288_098
+        ratio: 0.7586029443
       }
     ]
   },
