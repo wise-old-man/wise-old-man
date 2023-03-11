@@ -70,24 +70,25 @@ function CompetitionsTable() {
   );
 }
 
+const compareCompetitions = status => (a, b) => {
+  switch (status) {
+    case 'ongoing':
+      return a.endsAt.getTime() - b.endsAt.getTime() || a.startsAt.getTime() - b.startsAt.getTime();
+    case 'finished':
+      return b.endsAt.getTime() - a.endsAt.getTime() || b.startsAt.getTime() - a.startsAt.getTime();
+    default:
+      return a.startsAt.getTime() - b.startsAt.getTime() || a.endsAt.getTime() - b.endsAt.getTime();
+  }
+};
+
 function sortCompetitions(competitions) {
   if (!competitions) return [];
 
-  return competitions.sort((a, b) => {
-    if (a.status === b.status) {
-      if (a.status === 'ongoing') {
-        return a.endsAt.getTime() - b.endsAt.getTime();
-      } else if (a.status === 'finished') {
-        return b.endsAt.getTime() - a.endsAt.getTime();
-      }
-    }
-
-    return (
+  return competitions.sort(
+    (a, b) =>
       STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) ||
-      a.startsAt.getTime() - b.startsAt.getTime() ||
-      a.endsAt.getTime() - b.endsAt.getTime()
-    );
-  });
+      compareCompetitions(a.status)(a, b)
+  );
 }
 
 function convertStatus(status) {
