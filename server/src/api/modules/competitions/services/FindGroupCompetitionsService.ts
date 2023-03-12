@@ -2,14 +2,13 @@ import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+// import { PAGINATION_SCHEMA } from '../../../util/validation'; // disable pagination for now
 import { CompetitionListItem } from '../competition.types';
 
-const inputSchema = z
-  .object({
-    groupId: z.number().positive()
-  })
-  .merge(PAGINATION_SCHEMA);
+const inputSchema = z.object({
+  groupId: z.number().positive()
+});
+// .merge(PAGINATION_SCHEMA); // disable pagination for now
 
 type FindGroupCompetitionsParams = z.infer<typeof inputSchema>;
 
@@ -34,9 +33,9 @@ async function findGroupCompetitions(payload: FindGroupCompetitionsParams): Prom
         }
       }
     },
-    orderBy: [{ id: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    orderBy: [{ id: 'desc' }]
+    // take: params.limit, // disable pagination for now
+    // skip: params.offset // disable pagination for now
   });
 
   if (!competitions || competitions.length === 0) {

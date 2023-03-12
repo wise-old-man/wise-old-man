@@ -2,15 +2,14 @@ import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { CompetitionStatus } from '../../../../utils';
-import { PAGINATION_SCHEMA } from '../../../util/validation';
+// import { PAGINATION_SCHEMA } from '../../../util/validation';  // disable pagination for now
 import { ParticipationWithCompetition } from '../competition.types';
 
-const inputSchema = z
-  .object({
-    playerId: z.number().int().positive(),
-    status: z.nativeEnum(CompetitionStatus).optional()
-  })
-  .merge(PAGINATION_SCHEMA);
+const inputSchema = z.object({
+  playerId: z.number().int().positive(),
+  status: z.nativeEnum(CompetitionStatus).optional()
+});
+// .merge(PAGINATION_SCHEMA);  // disable pagination for now
 
 type FindPlayerParticipationsParams = z.infer<typeof inputSchema>;
 
@@ -59,9 +58,9 @@ async function findPlayerParticipations(
         }
       }
     },
-    orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }],
-    take: params.limit,
-    skip: params.offset
+    orderBy: [{ competition: { score: 'desc' } }, { createdAt: 'desc' }]
+    // take: params.limit,  // disable pagination for now
+    // skip: params.offset  // disable pagination for now
   });
 
   return participations.map(participation => {
