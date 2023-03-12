@@ -55,21 +55,6 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   const maxedEHP = _calculateTT200m(ZERO_STATS) - _calculateTT200m(MAXED_STATS);
   const maximumEHP = _calculateTT200m(ZERO_STATS);
 
-  /**
-   * Create a map of Skills and their bonus origins (Defence -> Slayer, Smithing -> Mining)
-   */
-  const bonusMap = new Map<Skill, Skill[]>();
-
-  getBonuses(skillMetas).forEach(bonus => {
-    const currentValues = bonusMap.get(bonus.bonusSkill);
-
-    if (!currentValues) {
-      bonusMap.set(bonus.bonusSkill, [bonus.originSkill]);
-    } else if (!currentValues.includes(bonus.originSkill)) {
-      bonusMap.set(bonus.bonusSkill, [...currentValues, bonus.originSkill]);
-    }
-  });
-
   function _calculateTT200m(experienceMap: ExperienceMap) {
     return calculateTT200mMap(experienceMap, skillMetas)[Metric.OVERALL];
   }
@@ -89,15 +74,7 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
 
   function _calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap) {
     if (skill === Skill.OVERALL) return _calculateEHP(experienceMap);
-
-    const resetSkills = bonusMap.get(skill) || [];
-    const resetExpMap = { ...experienceMap };
-
-    resetSkills.forEach(skill => {
-      resetExpMap[skill] = 0;
-    });
-
-    return _calculateTT200m({ ...resetExpMap, [skill]: 0 }) - _calculateTT200m(resetExpMap);
+    return _calculateTT200m({ ...experienceMap, [skill]: 0 }) - _calculateTT200m(experienceMap);
   }
 
   function _calculateBossEHB(boss: Boss, killcountMap: KillcountMap) {
