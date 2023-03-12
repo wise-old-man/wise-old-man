@@ -21,14 +21,15 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
 >;
 
 const inputSchema = z.object({
-  username: z.string()
+  username: z.string(),
+  skipFlagChecks: z.boolean().optional().default(false)
 });
 
 type UpdatePlayerParams = z.infer<typeof inputSchema>;
 type UpdatePlayerResult = [playerDetails: PlayerDetails, isNew: boolean];
 
 async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerResult> {
-  const { username } = inputSchema.parse(payload);
+  const { username, skipFlagChecks } = inputSchema.parse(payload);
 
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findPlayer({ username, createIfNotFound: true });
@@ -54,7 +55,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
 
     // There has been a significant change in this player's stats, mark it as flagged
-    if (!snapshotUtils.withinRange(previousStats, currentStats)) {
+    if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
       if (!player.flagged) {
         await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
       }

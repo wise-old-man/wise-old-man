@@ -533,6 +533,39 @@ describe('Player API', () => {
       const storedUsername = await redisService.getValue('hash', '98765');
       expect(storedUsername).toBe('chuckie');
     });
+
+    it('should force update (despite excessive gains)', async () => {
+      const firstResponse = await api.post(`/players/jonxslays`);
+      expect(firstResponse.status).toBe(201);
+
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/jonxslays`);
+      expect(secondResponse.status).toBe(500);
+      expect(secondResponse.body.message).toMatch('Failed to update: Unregistered name change.');
+
+      const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
+      expect(thirdResponse.status).toBe(400);
+      expect(thirdResponse.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+
+      const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
+
+      expect(fourthResponse.status).toBe(403);
+      expect(fourthResponse.body.message).toBe('Incorrect admin password.');
+
+      const fifthResponse = await api
+        .post(`/players/jonxslays`)
+        .send({ force: true, adminPassword: env.ADMIN_PASSWORD });
+
+      expect(fifthResponse.status).toBe(200);
+    });
   });
 
   describe('2. Importing', () => {
