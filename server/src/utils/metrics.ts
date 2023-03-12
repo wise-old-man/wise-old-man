@@ -140,7 +140,7 @@ const BossProps: MapOf<Boss, BossProperties> = mapValues(
     type: MetricType.BOSS,
     measure: MetricMeasure.KILLS,
     isMembers: 'isMembers' in props ? props.isMembers : true,
-    minimumValue: 'minimumValue' in props ? props.minimumValue : 40
+    minimumValue: 'minimumValue' in props ? props.minimumValue : 35
   })
 );
 
