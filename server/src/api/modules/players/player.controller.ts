@@ -56,7 +56,7 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
     throw new ForbiddenError('Incorrect admin password.');
   }
 
-  // Update the player, by creating a new snapshot
+  // Update the player, and create a new snapshot
   const [playerDetails, isNew] = await playerServices.updatePlayer({
     username: getString(username),
     skipFlagChecks: Boolean(force)
@@ -267,9 +267,29 @@ async function deletePlayer(req: Request): Promise<ControllerResponse> {
   };
 }
 
+// POST /players/:username/rollback
+// REQUIRES ADMIN PASSWORD
+async function rollback(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
+  const username = getString(req.params.username);
+  const playerId = await playerUtils.resolvePlayerId(username);
+
+  await snapshotServices.deleteLastSnapshot({ playerId });
+  const [playerDetails] = await playerServices.updatePlayer({ username });
+
+  return {
+    statusCode: 200,
+    response: { message: `Successfully rolled back player: ${playerDetails.displayName}` }
+  };
+}
+
 export {
   search,
   track,
+  rollback,
   assertType,
   importPlayer,
   details,

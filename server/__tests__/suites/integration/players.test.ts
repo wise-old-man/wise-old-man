@@ -1,6 +1,7 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import { BOSSES, Metric, PlayerType } from '../../../src/utils';
@@ -983,7 +984,97 @@ describe('Player API', () => {
     });
   });
 
-  describe('7. Deleting', () => {
+  describe('7. Rolling back', () => {
+    it('should not rollback player (invalid admin password)', async () => {
+      const response = await api.post(`/players/psikoi/rollback`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not rollback player (incorrect admin password)', async () => {
+      const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it('should not rollback player (player not found)', async () => {
+      const response = await api.post(`/players/woah/rollback`).send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Player not found.');
+    });
+
+    it('should not rollback player (player has no snapshots)', async () => {
+      await prisma.player.create({
+        data: {
+          username: 'rollmeback',
+          displayName: `rollmeback`
+        }
+      });
+
+      const response = await api
+        .post(`/players/rollmeback/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe("Failed to delete a player's last snapshots.");
+    });
+
+    it('should rollback player', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
+        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
+      ]);
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(firstSnapshotsResponse.status).toBe(200);
+      expect(firstSnapshotsResponse.body.length).toBe(223);
+
+      const rollbackResponse = await api
+        .post(`/players/psikoi/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
+
+      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(secondSnapshotsResponse.status).toBe(200);
+
+      // the total number of snapshots should remain the same, because we delete the last snapshot
+      // but we also create a new one by updating immediately after
+      expect(secondSnapshotsResponse.body.length).toBe(223);
+
+      // The last snapshot (sorted desc) should be different
+      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
+
+      // The second to last snapshot (sorted desc) should be the same
+      expect(secondSnapshotsResponse.body.at(1).id).toBe(firstSnapshotsResponse.body.at(1).id);
+
+      // The previous last snapshot shouldn't be on the new snapshots list anymore
+      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
+      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+    });
+  });
+
+  describe('8. Deleting', () => {
     it('should not delete player (invalid admin password)', async () => {
       const response = await api.delete(`/players/psikoi`);
 
@@ -1020,7 +1111,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('8. Player Utils', () => {
+  describe('9. Player Utils', () => {
     it('should sanitize usernames', () => {
       expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
       expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
