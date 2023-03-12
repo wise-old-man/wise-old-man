@@ -184,9 +184,9 @@ async function removeMembers(req: Request): Promise<ControllerResponse> {
 // GET /groups/:id/competitions
 async function competitions(req: Request): Promise<ControllerResponse> {
   const results = await competitionServices.findGroupCompetitions({
-    groupId: getNumber(req.params.id),
-    limit: getNumber(req.query.limit),
-    offset: getNumber(req.query.offset)
+    groupId: getNumber(req.params.id)
+    // limit: getNumber(req.query.limit), // disable pagination for now
+    // offset: getNumber(req.query.offset) // disable pagination for now
   });
 
   return { statusCode: 200, response: results };
