@@ -1,6 +1,5 @@
 import {
   CompetitionListItem,
-  ExtendedAchievement,
   GroupListItem,
   GroupDetails,
   MembershipWithPlayer,
@@ -9,7 +8,8 @@ import {
   NameChange,
   GroupStatistics,
   RecordLeaderboardEntry,
-  DeltaLeaderboardEntry
+  DeltaLeaderboardEntry,
+  ExtendedAchievementWithPlayer
 } from '../../../server/src/utils';
 import type {
   CreateGroupPayload,
@@ -129,7 +129,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of achievements.
    */
   getGroupAchievements(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<ExtendedAchievement[]>(`/groups/${id}/achievements`, { ...pagination });
+    return this.getRequest<ExtendedAchievementWithPlayer[]>(`/groups/${id}/achievements`, { ...pagination });
   }
 
   /**
