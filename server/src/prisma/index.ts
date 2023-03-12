@@ -37,12 +37,12 @@ function setHooksEnabled(enabled: boolean) {
   hooksEnabled = enabled;
 }
 
-function modifyAchievements(achievements: PrismaAchievement[]): Achievement[] {
-  return achievements.map(a => ({
-    ...a,
-    threshold: parseBigInt(a.threshold),
-    accuracy: a.accuracy != null ? parseBigInt(a.accuracy) : null
-  }));
+function modifyAchievement(achievement: PrismaAchievement): Achievement {
+  return {
+    ...achievement,
+    threshold: parseBigInt(achievement.threshold),
+    accuracy: achievement.accuracy != null ? parseBigInt(achievement.accuracy) : null
+  };
 }
 
 function modifySnapshots(snapshots: PrismaSnapshot[]): Snapshot[] {
@@ -134,7 +134,7 @@ export {
   modifyRecords,
   modifySnapshot,
   modifySnapshots,
-  modifyAchievements
+  modifyAchievement
 };
 
 export default prisma;

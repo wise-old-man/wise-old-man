@@ -147,6 +147,18 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 
 <br />
 
+### `(Object)` Achievement With Player
+
+Used in endpoints where the resource context is not the player (ex: group achievements).
+
+> extends [Achievement](/players-api/player-type-definitions#object-achievement)
+
+| Field  | Type                                                         | Description              |
+| :----- | :----------------------------------------------------------- | :----------------------- |
+| player | [Player](/players-api/player-type-definitions#object-player) | The membership's player. |
+
+<br />
+
 ### `(Object)` Player Achievement Progress
 
 > extends [Achievement](/players-api/player-type-definitions#object-achievement)
