@@ -55,6 +55,21 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   const maxedEHP = _calculateTT200m(ZERO_STATS) - _calculateTT200m(MAXED_STATS);
   const maximumEHP = _calculateTT200m(ZERO_STATS);
 
+  /**
+   * Create a map of Skills and their bonus origins (Defence -> Slayer, Smithing -> Mining)
+   */
+  const bonusMap = new Map<Skill, Skill[]>();
+
+  getBonuses(skillMetas).forEach(bonus => {
+    const currentValues = bonusMap.get(bonus.bonusSkill);
+
+    if (!currentValues) {
+      bonusMap.set(bonus.bonusSkill, [bonus.originSkill]);
+    } else if (!currentValues.includes(bonus.originSkill)) {
+      bonusMap.set(bonus.bonusSkill, [...currentValues, bonus.originSkill]);
+    }
+  });
+
   function _calculateTT200m(experienceMap: ExperienceMap) {
     return calculateTT200mMap(experienceMap, skillMetas)[Metric.OVERALL];
   }
@@ -74,16 +89,15 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
 
   function _calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap) {
     if (skill === Skill.OVERALL) return _calculateEHP(experienceMap);
-    // This one fails for a bunch of skills like defence and prayer
-    // return (
-    //   calculateTT200mMap(ZERO_STATS, skillMetas)[skill] - calculateTT200mMap(experienceMap, skillMetas)[skill]
-    // );
 
-    // This one fails for a bunch of skills like attack and strength
-    // return _calculateTT200m({ ...experienceMap, [skill]: 0 }) - _calculateTT200m(experienceMap);
+    const resetSkills = bonusMap.get(skill) || [];
+    const resetExpMap = { ...experienceMap };
 
-    // This one fails for slayer and hunter
-    return _calculateTT200m(ZERO_STATS) - _calculateTT200m({ ...ZERO_STATS, [skill]: experienceMap[skill] });
+    resetSkills.forEach(skill => {
+      resetExpMap[skill] = 0;
+    });
+
+    return _calculateTT200m({ ...resetExpMap, [skill]: 0 }) - _calculateTT200m(resetExpMap);
   }
 
   function _calculateBossEHB(boss: Boss, killcountMap: KillcountMap) {
@@ -133,12 +147,12 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   }
 }
 
-function getBonuses(metas: SkillMetaConfig[], type: BonusType): Bonus[] {
+function getBonuses(metas: SkillMetaConfig[], type?: BonusType): Bonus[] {
   return metas
     .filter(r => r.bonuses.length > 0)
     .map(r => r.bonuses)
     .flat()
-    .filter(b => b?.end === (type === BonusType.END));
+    .filter(b => type === undefined || b?.end === (type === BonusType.END));
 }
 
 function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[], isStart: boolean) {
