@@ -1,4 +1,4 @@
-import { Metric } from '../../../utils';
+import { Metric, Player } from '../../../utils';
 import { Achievement, Snapshot } from '../../../prisma';
 
 interface AchievementTemplate {
@@ -22,10 +22,21 @@ interface ExtendedAchievement extends Achievement {
   measure: string;
 }
 
+interface ExtendedAchievementWithPlayer extends ExtendedAchievement {
+  player: Player;
+}
+
 interface AchievementProgress extends ExtendedAchievement {
   currentValue: number;
   absoluteProgress: number;
   relativeProgress: number;
 }
 
-export { Achievement, ExtendedAchievement, AchievementProgress, AchievementDefinition, AchievementTemplate };
+export {
+  Achievement,
+  ExtendedAchievement,
+  ExtendedAchievementWithPlayer,
+  AchievementProgress,
+  AchievementDefinition,
+  AchievementTemplate
+};

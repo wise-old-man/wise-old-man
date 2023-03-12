@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import prisma, { modifyAchievements } from '../../../../prisma';
+import prisma, { modifyAchievement, modifyPlayer } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
-import { ExtendedAchievement } from '../achievement.types';
+import { ExtendedAchievementWithPlayer } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
 const inputSchema = z
@@ -13,7 +13,9 @@ const inputSchema = z
 
 type FindGroupAchievementsParams = z.infer<typeof inputSchema>;
 
-async function findGroupAchievements(payload: FindGroupAchievementsParams): Promise<ExtendedAchievement[]> {
+async function findGroupAchievements(
+  payload: FindGroupAchievementsParams
+): Promise<ExtendedAchievementWithPlayer[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
@@ -34,17 +36,17 @@ async function findGroupAchievements(payload: FindGroupAchievementsParams): Prom
   }
 
   // Fetch all achievements for these player IDs
-  const achievements = await prisma.achievement
-    .findMany({
-      where: { playerId: { in: playerIds } },
-      include: { player: true },
-      orderBy: [{ createdAt: 'desc' }],
-      take: params.limit,
-      skip: params.offset
-    })
-    .then(modifyAchievements);
+  const achievements = await prisma.achievement.findMany({
+    where: { playerId: { in: playerIds } },
+    include: { player: true },
+    orderBy: [{ createdAt: 'desc' }],
+    take: params.limit,
+    skip: params.offset
+  });
 
-  return achievements.map(extend);
+  return achievements.map(a => {
+    return { ...extend(modifyAchievement(a)), player: modifyPlayer(a.player) };
+  });
 }
 
 export { findGroupAchievements };
