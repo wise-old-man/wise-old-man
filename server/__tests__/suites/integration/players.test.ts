@@ -91,7 +91,7 @@ describe('Player API', () => {
         [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
-      const response = await api.post(`/players/hydroman`);
+      const response = await api.post(`/players/enrique`);
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
@@ -140,6 +140,10 @@ describe('Player API', () => {
       expect(response.body.ehp).toBe(response.body.latestSnapshot.data.computed.ehp.value);
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.computed.ehb.value);
 
+      // This is a new player, so we shouldn't be reviewing their type yet
+      const firstTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      expect(firstTypeReviewCooldown).toBeNull();
+
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
 
@@ -154,6 +158,10 @@ describe('Player API', () => {
         }),
         false
       );
+
+      // No longer a new player, but they are a regular player, so we shouldn't be reviewing their type
+      const secondTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      expect(secondTypeReviewCooldown).toBeNull();
 
       globalData.testPlayerId = response.body.id;
     });
@@ -320,13 +328,13 @@ describe('Player API', () => {
         [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/players/Hydrox6`);
+      const response = await api.post(`/players/Enriath`);
 
       expect(response.status).toBe(201);
 
       expect(response.body).toMatchObject({
-        username: 'hydrox6',
-        displayName: 'Hydrox6',
+        username: 'enriath',
+        displayName: 'Enriath',
         build: 'main',
         type: 'ironman'
       });
@@ -340,7 +348,7 @@ describe('Player API', () => {
 
       expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          username: 'hydrox6',
+          username: 'enriath',
           type: 'ironman'
         }),
         expect.objectContaining({
@@ -348,6 +356,57 @@ describe('Player API', () => {
         }),
         true
       );
+
+      // This is a new player, so we shouldn't be reviewing their type yet
+      const firstUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(firstUpdateCooldown).toBeNull();
+
+      // Track again, no stats have changed
+      await api.post(`/players/enriath`);
+
+      // This is no longer a new player AND they're an ironman AND their stats haven't changed
+      // so their type should be reviewed
+      const secondUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(secondUpdateCooldown).not.toBeNull();
+
+      // Track again, no stats have changed
+      await api.post(`/players/enriath`);
+
+      // This player was recently reviewed, and since the current timestamp gets stored on Redis
+      // if they were to get reviewed again, their timestamp would be greater than the one stored
+      const thirdUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(thirdUpdateCooldown).toBe(secondUpdateCooldown);
+    });
+
+    it('should track and review type', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.OVERALL, value: 350_192_115 } // overall exp increased by 50m
+      ]);
+
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      // The player has de-ironed, but their review cooldown isn't up yet
+      const firstResponse = await api.post(`/players/Enriath`);
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body).toMatchObject({ username: 'enriath', type: 'ironman' });
+
+      // Manually clear the cooldown
+      await redisService.deleteKey(`cd:PlayerTypeReview:enriath`);
+
+      const secondResponse = await api.post(`/players/Enriath`);
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body).toMatchObject({ username: 'enriath', type: 'regular' }); // type changed to regular
+
+      const cooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(cooldown).not.toBeNull();
 
       // Revert the hiscores mocking back to "regular" player type
       registerHiscoresMock(axiosMock, {
@@ -360,10 +419,10 @@ describe('Player API', () => {
       // This cooldown is set to 0 during testing by default
       playerUtils.setUpdateCooldown(60);
 
-      const response = await api.post(`/players/hydrox6`);
+      const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
-      expect(response.body.message).toMatch('Error: hydrox6 has been updated recently.');
+      expect(response.body.message).toMatch('Error: enriath has been updated recently.');
 
       playerUtils.setUpdateCooldown(0);
     });
@@ -591,59 +650,59 @@ describe('Player API', () => {
     });
 
     it('should not search players (negative pagination limit)', async () => {
-      const response = await api.get(`/players/search`).query({ username: 'hydro', limit: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'enr', limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not search players (negative pagination offset)', async () => {
-      const response = await api.get(`/players/search`).query({ username: 'hydro', offset: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'enr', offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should search players (partial username w/ offset)', async () => {
-      const firstResponse = await api.get('/players/search').query({ username: 'HYDRO' });
+      const firstResponse = await api.get('/players/search').query({ username: 'ENR' });
 
       expect(firstResponse.status).toBe(200);
       expect(firstResponse.body.length).toBe(2);
 
       expect(firstResponse.body[0]).toMatchObject({
-        username: 'hydrox6',
-        type: 'ironman'
+        username: 'enriath',
+        type: 'regular'
       });
 
       expect(firstResponse.body[1]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
 
-      const secondResponse = await api.get('/players/search').query({ username: 'HYDRO', offset: 1 });
+      const secondResponse = await api.get('/players/search').query({ username: 'ENR', offset: 1 });
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body.length).toBe(1);
 
       expect(secondResponse.body[0]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
     });
 
     it('should search players (leading/trailing whitespace)', async () => {
-      const response = await api.get('/players/search').query({ username: '  HYDRO  ' });
+      const response = await api.get('/players/search').query({ username: '  ENR  ' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(2);
 
       expect(response.body[0]).toMatchObject({
-        username: 'hydrox6',
-        type: 'ironman'
+        username: 'enriath',
+        type: 'regular'
       });
 
       expect(response.body[1]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
     });
@@ -952,26 +1011,26 @@ describe('Player API', () => {
 
     it('should find all players or create', async () => {
       const existingPlayers = await playerServices.findPlayers({
-        usernames: ['PSIKOI', 'hydrox6', 'hydroman'],
+        usernames: ['PSIKOI', 'enriath', 'enrique'],
         createIfNotFound: true
       });
 
       expect(existingPlayers.length).toBe(3);
 
       expect(existingPlayers[0].username).toBe('psikoi');
-      expect(existingPlayers[1].username).toBe('hydrox6');
-      expect(existingPlayers[2].username).toBe('hydroman');
+      expect(existingPlayers[1].username).toBe('enriath');
+      expect(existingPlayers[2].username).toBe('enrique');
 
       const oneNewPlayer = await playerServices.findPlayers({
-        usernames: ['PSIKOI', '_hydrox6 ', 'hydroman', 'Zezima'],
+        usernames: ['PSIKOI', '_enriath ', 'enrique', 'Zezima'],
         createIfNotFound: true
       });
 
       expect(oneNewPlayer.length).toBe(4);
 
       expect(oneNewPlayer[0].username).toBe('psikoi');
-      expect(oneNewPlayer[1].username).toBe('hydrox6');
-      expect(oneNewPlayer[2].username).toBe('hydroman');
+      expect(oneNewPlayer[1].username).toBe('enriath');
+      expect(oneNewPlayer[2].username).toBe('enrique');
       expect(oneNewPlayer[3].username).toBe('zezima');
 
       const [player, isNew] = await playerServices.findPlayer({ username: 'zezima' });

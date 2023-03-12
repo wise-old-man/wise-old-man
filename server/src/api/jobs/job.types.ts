@@ -2,7 +2,6 @@ import { JobsOptions as BullJobOptions, RateLimiterOptions } from 'bullmq';
 import { AssertPlayerTypePayload } from './instances/AssertPlayerTypeJob';
 import { InvalidatePeriodDeltasPayload } from './instances/InvalidatePeriodDeltasJob';
 import { ReviewNameChangePayload } from './instances/ReviewNameChangeJob';
-import { ReviewPlayerTypePayload } from './instances/ReviewPlayerTypeJob';
 import { UpdateCompetitionScorePayload } from './instances/UpdateCompetitionScoreJob';
 import { UpdateGroupScorePayload } from './instances/UpdateGroupScoreJob';
 import { UpdatePlayerJobPayload } from './instances/UpdatePlayerJob';
@@ -12,7 +11,6 @@ export enum JobType {
   INVALIDATE_PERIOD_DELTAS = 'INVALIDATE_PERIOD_DELTAS',
   REFRESH_API_KEYS = 'REFRESH_API_KEYS',
   REVIEW_NAME_CHANGE = 'REVIEW_NAME_CHANGE',
-  REVIEW_PLAYER_TYPE = 'REVIEW_PLAYER_TYPE',
   SCHEDULE_COMPETITION_EVENTS = 'SCHEDULE_COMPETITION_EVENTS',
   SCHEDULE_COMPETITION_SCORE_UPDATES = 'SCHEDULE_COMPETITION_SCORE_UPDATES',
   SCHEDULE_DELTA_INVALIDATIONS = 'SCHEDULE_DELTA_INVALIDATIONS',
@@ -27,7 +25,6 @@ export type JobPayload = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypePayload;
   [JobType.INVALIDATE_PERIOD_DELTAS]: InvalidatePeriodDeltasPayload;
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangePayload;
-  [JobType.REVIEW_PLAYER_TYPE]: ReviewPlayerTypePayload;
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScorePayload;
   [JobType.UPDATE_GROUP_SCORE]: UpdateGroupScorePayload;
   [JobType.UPDATE_PLAYER]: UpdatePlayerJobPayload;

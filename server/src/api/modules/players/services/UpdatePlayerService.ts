@@ -4,6 +4,7 @@ import { PlayerType, PlayerBuild } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
+import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -71,6 +72,19 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       hasChanged = true;
     }
 
+    // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
+    // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
+    // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
+    if (await shouldReviewType(player, hasChanged)) {
+      const hasTypeChanged = await reviewType(player);
+
+      // If they did in fact de-iron, call this function recursively,
+      // so that it fetches their stats from the correct hiscores.
+      if (hasTypeChanged) {
+        return updatePlayer(player);
+      }
+    }
+
     // Refresh the player's build
     updatedPlayerFields.build = getBuild(currentStats);
     updatedPlayerFields.flagged = false;
@@ -124,6 +138,23 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     throw error;
   }
+}
+
+async function shouldReviewType(player: Player, hasChanged: boolean) {
+  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) return false;
+  if (player.flagged || hasChanged) return false;
+
+  // Check if this player has been reviewed recently (past 7 days)
+  return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
+}
+
+async function reviewType(player: Player) {
+  const [, , changed] = await assertPlayerType(player, true);
+
+  // Store the current timestamp in Redis, so that we don't review this player again for 7 days
+  await redisService.setValue('cd:PlayerTypeReview', player.username, Date.now(), 604_800_000);
+
+  return changed;
 }
 
 async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
