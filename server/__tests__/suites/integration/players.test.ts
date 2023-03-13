@@ -26,6 +26,7 @@ const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
+const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
 
@@ -441,7 +442,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi`);
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'psikoi' }),
+        expect.objectContaining({ runecraftingExperience: 5_347_176 }),
+        expect.objectContaining({ runecraftingExperience: 100_000_000 })
+      );
     });
 
     it('should not track player (negative gains)', async () => {
@@ -457,7 +464,10 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi`);
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+
+      // The player is already flagged, so this event shouldn't be triggeted
+      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should track player (new gains)', async () => {
@@ -550,7 +560,9 @@ describe('Player API', () => {
 
       const secondResponse = await api.post(`/players/jonxslays`);
       expect(secondResponse.status).toBe(500);
-      expect(secondResponse.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
 
       const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
       expect(thirdResponse.status).toBe(400);
@@ -810,7 +822,9 @@ describe('Player API', () => {
       const trackResponse = await api.post(`/players/psikoi`);
 
       expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(trackResponse.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
 
       const detailsResponse = await api.get('/players/PsiKOI');
 

@@ -8,6 +8,10 @@ import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
+async function onPlayerFlagged(player: Player, previousSnapshot: Snapshot, newSnapshot: Snapshot) {
+  console.log(`Player ${player.username} has been flagged!`);
+}
+
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
@@ -59,4 +63,4 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export { onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerFlagged, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

@@ -56,13 +56,14 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
     // There has been a significant change in this player's stats, mark it as flagged
     if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
-      if (!player.flagged) {
-        await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
-      }
-
       logger.moderation(`[Player:${username}] Flagged`);
 
-      throw new ServerError('Failed to update: Unregistered name change.');
+      if (!player.flagged) {
+        await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
+        playerEvents.onPlayerFlagged(player, previousStats, currentStats);
+      }
+
+      throw new ServerError('Failed to update: Player is flagged.');
     }
 
     // The player has gained exp/kc/scores since the last update
