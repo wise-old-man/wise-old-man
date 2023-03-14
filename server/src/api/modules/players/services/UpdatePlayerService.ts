@@ -39,107 +39,98 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     throw new RateLimitError(`Error: ${username} has been updated recently.`);
   }
 
-  try {
-    const updatedPlayerFields: UpdatablePlayerFields = {};
+  const updatedPlayerFields: UpdatablePlayerFields = {};
 
-    // Always determine the rank before tracking (to fetch correct ranks)
-    if (player.type === PlayerType.UNKNOWN) {
-      const [type] = await assertPlayerType(player);
-      updatedPlayerFields.type = type;
-    }
-
-    // Fetch the previous player stats from the database
-    const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
-
-    // Fetch the new player stats from the hiscores API
-    const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
-
-    // There has been a significant change in this player's stats, mark it as flagged
-    if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
-      logger.moderation(`[Player:${username}] Flagged`);
-
-      if (!player.flagged) {
-        await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
-        playerEvents.onPlayerFlagged(player, previousStats, currentStats);
-      }
-
-      throw new ServerError('Failed to update: Player is flagged.');
-    }
-
-    // The player has gained exp/kc/scores since the last update
-    let hasChanged = false;
-
-    if (snapshotUtils.hasChanged(previousStats, currentStats)) {
-      updatedPlayerFields.lastChangedAt = new Date();
-      hasChanged = true;
-    }
-
-    // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
-    // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
-    // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
-    if (await shouldReviewType(player, hasChanged)) {
-      const hasTypeChanged = await reviewType(player);
-
-      // If they did in fact de-iron, call this function recursively,
-      // so that it fetches their stats from the correct hiscores.
-      if (hasTypeChanged) {
-        return updatePlayer(player);
-      }
-    }
-
-    // Refresh the player's build
-    updatedPlayerFields.build = getBuild(currentStats);
-    updatedPlayerFields.flagged = false;
-
-    const computedMetrics = await efficiencyServices.computePlayerMetrics({
-      player: {
-        id: player.id,
-        type: (updatedPlayerFields.type as PlayerType) || player.type,
-        build: (updatedPlayerFields.build as PlayerBuild) || player.build
-      },
-      snapshot: currentStats
-    });
-
-    // Set the player's global computed data
-    updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
-    updatedPlayerFields.ehp = computedMetrics.ehpValue;
-    updatedPlayerFields.ehb = computedMetrics.ehbValue;
-    updatedPlayerFields.ttm = computedMetrics.ttm;
-    updatedPlayerFields.tt200m = computedMetrics.tt200m;
-
-    // Add the computed metrics to the snapshot
-    currentStats.ehpValue = computedMetrics.ehpValue;
-    currentStats.ehpRank = computedMetrics.ehpRank;
-    currentStats.ehbValue = computedMetrics.ehbValue;
-    currentStats.ehbRank = computedMetrics.ehbRank;
-
-    // Create (and save) a new snapshot
-    const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
-
-    updatedPlayerFields.latestSnapshotId = newSnapshot.id;
-
-    // update player with all this new data
-    const updatedPlayer = await prisma.player
-      .update({
-        data: updatedPlayerFields,
-        where: { id: player.id }
-      })
-      .then(modifyPlayer);
-
-    playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
-
-    const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
-
-    return [playerDetails, isNew];
-  } catch (error) {
-    if (isNew && player.type !== PlayerType.UNKNOWN) {
-      // If the player was just registered and it failed to fetch hiscores,
-      // set updatedAt to null to allow for re-attempts without the 60s waiting period
-      await prisma.player.update({ data: { updatedAt: null }, where: { id: player.id } });
-    }
-
-    throw error;
+  // Always determine the rank before tracking (to fetch correct ranks)
+  if (player.type === PlayerType.UNKNOWN) {
+    const [type] = await assertPlayerType(player);
+    updatedPlayerFields.type = type;
   }
+
+  // Fetch the previous player stats from the database
+  const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
+
+  // Fetch the new player stats from the hiscores API
+  const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
+
+  // There has been a significant change in this player's stats, mark it as flagged
+  if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
+    logger.moderation(`[Player:${username}] Flagged`);
+
+    if (!player.flagged) {
+      await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
+      playerEvents.onPlayerFlagged(player, previousStats, currentStats);
+    }
+
+    throw new ServerError('Failed to update: Player is flagged.');
+  }
+
+  // The player has gained exp/kc/scores since the last update
+  let hasChanged = false;
+
+  if (snapshotUtils.hasChanged(previousStats, currentStats)) {
+    updatedPlayerFields.lastChangedAt = new Date();
+    hasChanged = true;
+  }
+
+  // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
+  // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
+  // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
+  if (await shouldReviewType(player, hasChanged)) {
+    const hasTypeChanged = await reviewType(player);
+
+    // If they did in fact de-iron, call this function recursively,
+    // so that it fetches their stats from the correct hiscores.
+    if (hasTypeChanged) {
+      return updatePlayer(player);
+    }
+  }
+
+  // Refresh the player's build
+  updatedPlayerFields.build = getBuild(currentStats);
+  updatedPlayerFields.flagged = false;
+
+  const computedMetrics = await efficiencyServices.computePlayerMetrics({
+    player: {
+      id: player.id,
+      type: (updatedPlayerFields.type as PlayerType) || player.type,
+      build: (updatedPlayerFields.build as PlayerBuild) || player.build
+    },
+    snapshot: currentStats
+  });
+
+  // Set the player's global computed data
+  updatedPlayerFields.exp = Math.max(0, currentStats.overallExperience);
+  updatedPlayerFields.ehp = computedMetrics.ehpValue;
+  updatedPlayerFields.ehb = computedMetrics.ehbValue;
+  updatedPlayerFields.ttm = computedMetrics.ttm;
+  updatedPlayerFields.tt200m = computedMetrics.tt200m;
+
+  // Add the computed metrics to the snapshot
+  currentStats.ehpValue = computedMetrics.ehpValue;
+  currentStats.ehpRank = computedMetrics.ehpRank;
+  currentStats.ehbValue = computedMetrics.ehbValue;
+  currentStats.ehbRank = computedMetrics.ehbRank;
+
+  // Create (and save) a new snapshot
+  const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
+
+  updatedPlayerFields.latestSnapshotId = newSnapshot.id;
+  updatedPlayerFields.updatedAt = new Date();
+
+  // update player with all this new data
+  const updatedPlayer = await prisma.player
+    .update({
+      data: updatedPlayerFields,
+      where: { id: player.id }
+    })
+    .then(modifyPlayer);
+
+  playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
+
+  const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
+
+  return [playerDetails, isNew];
 }
 
 async function shouldReviewType(player: Player, hasChanged: boolean) {

@@ -107,6 +107,40 @@ describe('Player API', () => {
       });
     });
 
+    it('should not track player (not found on the hiscores)', async () => {
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const firstResponse = await api.post(`/players/toby`);
+      expect(firstResponse.status).toBe(400);
+      expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+
+      // this player failed to be tracked, and their type remains "unknown"
+      // therefor, we should allow them to be tracked again without waiting 60s
+      const secondResponse = await api.post(`/players/toby`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      // this player failed to be tracked, and their type remains "unknown"
+      // therefor, we should allow them to be tracked again without waiting 60s
+      const thirdResponse = await api.post(`/players/toby`);
+      expect(thirdResponse.status).toBe(200);
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+    });
+
     it('should track player', async () => {
       const response = await api.post(`/players/ PSIKOI_ `);
 
