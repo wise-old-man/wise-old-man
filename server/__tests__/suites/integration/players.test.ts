@@ -141,7 +141,220 @@ describe('Player API', () => {
       expect(onPlayerUpdatedEvent).toHaveBeenCalled();
     });
 
+    it("shouldn't review player type on 400 (unknown type)", async () => {
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const response = await api.post(`/players/alanec`);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Failed to load hiscores for alanec.');
+
+      // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'alanec')).toBeNull();
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't review player type on 400 (regular type)", async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/aluminoti`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('regular');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const secondResponse = await api.post(`/players/aluminoti`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+    });
+
+    it("shouldn't review player type on 400 (ironman, but flagged)", async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/winie`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'winie')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Manually flag the player
+      await prisma.player.update({
+        where: { id: firstResponse.body.id },
+        data: { flagged: true }
+      });
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/winie`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      // this player has "ironman" type, but is flagged, so they shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'winie')).toBeNull();
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't review player type on 400 (ironman, but has cooldown)", async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/tony_stark`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      const currentTimestamp = Date.now();
+
+      // Manually set a review cooldown for this username
+      await redisService.setValue('cd:PlayerTypeReview', 'tony stark', currentTimestamp, 604_800_000);
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/tony_stark`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
+      // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).not.toBe(currentTimestamp);
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should review player type on 400 (no change)', async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/ash`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail for every type
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404 },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/ash`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores for ash.');
+
+      // failed to review (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
+      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should review player type on 400 (changed type)', async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/peter_parker`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      // (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/peter_parker`);
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.type).toBe('regular');
+
+      // non-null cooldown = successfully reviewed
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).not.toBeNull();
+
+      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'peter parker', type: 'regular' }),
+        'ironman'
+      );
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+    });
+
     it('should track player', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const response = await api.post(`/players/ PSIKOI_ `);
 
       expect(response.status).toBe(201);

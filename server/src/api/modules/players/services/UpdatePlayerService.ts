@@ -50,8 +50,23 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // Fetch the previous player stats from the database
   const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
 
+  let currentStats: Snapshot | undefined;
+
   // Fetch the new player stats from the hiscores API
-  const currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
+  try {
+    currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
+  } catch (error) {
+    // if failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
+    // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
+    if (error.statusCode === 400 && (await shouldReviewType(player))) {
+      const hasTypeChanged = await reviewType(player);
+      // If they did in fact change type, call this function recursively,
+      // so that it fetches their stats from the correct hiscores.
+      if (hasTypeChanged) return updatePlayer(player);
+    }
+
+    throw error;
+  }
 
   // There has been a significant change in this player's stats, mark it as flagged
   if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
@@ -76,14 +91,12 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
   // To fix, we can check the "regular" hiscores to see if they've de-ironed, and update their type accordingly.
-  if (await shouldReviewType(player, hasChanged)) {
+  if (!hasChanged && (await shouldReviewType(player))) {
     const hasTypeChanged = await reviewType(player);
 
     // If they did in fact de-iron, call this function recursively,
     // so that it fetches their stats from the correct hiscores.
-    if (hasTypeChanged) {
-      return updatePlayer(player);
-    }
+    if (hasTypeChanged) return updatePlayer(player);
   }
 
   // Refresh the player's build
@@ -133,9 +146,10 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   return [playerDetails, isNew];
 }
 
-async function shouldReviewType(player: Player, hasChanged: boolean) {
-  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) return false;
-  if (player.flagged || hasChanged) return false;
+async function shouldReviewType(player: Player) {
+  if (player.flagged || player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
+    return false;
+  }
 
   // Check if this player has been reviewed recently (past 7 days)
   return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
