@@ -81,12 +81,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // The player has gained exp/kc/scores since the last update
-  let hasChanged = false;
-
-  if (snapshotUtils.hasChanged(previousStats, currentStats)) {
-    updatedPlayerFields.lastChangedAt = new Date();
-    hasChanged = true;
-  }
+  const hasChanged = snapshotUtils.hasChanged(previousStats, currentStats);
 
   // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
@@ -129,7 +124,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
 
   updatedPlayerFields.latestSnapshotId = newSnapshot.id;
-  updatedPlayerFields.updatedAt = new Date();
+  updatedPlayerFields.updatedAt = newSnapshot.createdAt;
+
+  if (hasChanged) updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
 
   // update player with all this new data
   const updatedPlayer = await prisma.player

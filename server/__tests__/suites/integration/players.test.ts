@@ -386,6 +386,9 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
+      expect(response.body.updatedAt).toBe(response.body.latestSnapshot.createdAt);
+      expect(response.body.lastChangedAt).toBe(response.body.latestSnapshot.createdAt);
+
       expect(response.body.ehp).toBe(response.body.latestSnapshot.data.computed.ehp.value);
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.computed.ehb.value);
 
@@ -732,6 +735,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.lastChangedAt).not.toBeNull();
+      expect(response.body.updatedAt).toBe(response.body.latestSnapshot.createdAt);
+      expect(response.body.lastChangedAt).toBe(response.body.latestSnapshot.createdAt);
       expect(new Date(response.body.lastChangedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // changed under a second ago
     });
 
