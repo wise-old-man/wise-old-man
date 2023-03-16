@@ -156,6 +156,8 @@ async function shouldReviewType(player: Player) {
 }
 
 async function reviewType(player: Player) {
+  logger.moderation(`[Player:${player.username}] Reviewing type`);
+
   const [, , changed] = await assertPlayerType(player, true);
 
   // Store the current timestamp in Redis, so that we don't review this player again for 7 days
