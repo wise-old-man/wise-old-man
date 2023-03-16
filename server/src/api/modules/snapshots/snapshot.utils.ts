@@ -61,12 +61,8 @@ function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSna
             level: s === Metric.OVERALL ? getTotalLevel(snapshot) : getLevel(experience)
           };
 
-          if (efficiencyMap) {
-            if (s === Metric.OVERALL) {
-              value.ehp = snapshot.ehpValue;
-            } else if (efficiencyMap[s] !== undefined) {
-              value.ehp = efficiencyMap[s];
-            }
+          if (efficiencyMap && efficiencyMap[s] !== undefined) {
+            value.ehp = efficiencyMap[s];
           }
 
           return [s, value];

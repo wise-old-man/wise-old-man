@@ -1,5 +1,7 @@
 import axios from 'axios';
+import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
+import { Snapshot } from '../../../utils';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
 import logger from '../../util/logging';
 import {
@@ -7,7 +9,7 @@ import {
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
-import { omit } from 'lodash';
+import * as playerUtils from '../../modules/players/player.utils';
 
 export interface EventPeriodDelay {
   hours?: number;
@@ -47,6 +49,14 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   memberships.forEach(({ groupId }) => {
     dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });
   });
+}
+
+function dispatchPlayerFlagged(player: Player, previous: Snapshot, rejected: Snapshot) {
+  if (!player || !previous || !rejected) return;
+
+  const flagReport = playerUtils.getPlayerFlagContext(player, previous, rejected);
+
+  dispatch('PLAYER_FLAGGED', flagReport);
 }
 
 /**
@@ -184,6 +194,7 @@ export {
   dispatch,
   dispatchAchievements,
   dispatchHardcoreDied,
+  dispatchPlayerFlagged,
   dispatchNameChanged,
   dispatchMembersJoined,
   dispatchMembersLeft,
