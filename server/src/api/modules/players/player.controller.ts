@@ -275,9 +275,13 @@ async function rollback(req: Request): Promise<ControllerResponse> {
   }
 
   const username = getString(req.params.username);
-  const playerId = await playerUtils.resolvePlayerId(username);
+  const player = await playerUtils.resolvePlayer(username);
 
-  await snapshotServices.deleteLastSnapshot({ playerId });
+  await snapshotServices.rollbackSnapshots({
+    playerId: player.id,
+    deleteAllSince: req.body.untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
+  });
+
   const [playerDetails] = await playerServices.updatePlayer({ username });
 
   return {

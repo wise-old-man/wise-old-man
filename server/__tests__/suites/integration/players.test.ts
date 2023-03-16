@@ -1251,28 +1251,28 @@ describe('Player API', () => {
   });
 
   describe('7. Rolling back', () => {
-    it('should not rollback player (invalid admin password)', async () => {
+    it("shouldn't rollback player (invalid admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`);
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
-    it('should not rollback player (incorrect admin password)', async () => {
+    it("shouldn't rollback player (incorrect admin password)", async () => {
       const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect admin password.');
     });
 
-    it('should not rollback player (player not found)', async () => {
+    it("shouldn't rollback player (player not found)", async () => {
       const response = await api.post(`/players/woah/rollback`).send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Player not found.');
     });
 
-    it('should not rollback player (player has no snapshots)', async () => {
+    it("shouldn't rollback player (player has no snapshots)", async () => {
       await prisma.player.create({
         data: {
           username: 'rollmeback',
@@ -1280,15 +1280,22 @@ describe('Player API', () => {
         }
       });
 
-      const response = await api
+      const firstResponse = await api
         .post(`/players/rollmeback/rollback`)
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
-      expect(response.status).toBe(500);
-      expect(response.body.message).toBe("Failed to delete a player's last snapshots.");
+      expect(firstResponse.status).toBe(500);
+      expect(firstResponse.body.message).toBe("Failed to delete a player's last snapshots.");
+
+      const secondResponse = await api
+        .post(`/players/rollmeback/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD, untilLastChange: true });
+
+      expect(secondResponse.status).toBe(500);
+      expect(secondResponse.body.message).toBe("Failed to delete a player's last snapshots.");
     });
 
-    it('should rollback player', async () => {
+    it('should rollback player (last snapshot)', async () => {
       const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
         { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
@@ -1333,6 +1340,56 @@ describe('Player API', () => {
 
       // The second to last snapshot (sorted desc) should be the same
       expect(secondSnapshotsResponse.body.at(1).id).toBe(firstSnapshotsResponse.body.at(1).id);
+
+      // The previous last snapshot shouldn't be on the new snapshots list anymore
+      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
+      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+    });
+
+    it('should rollback player (until last changed)', async () => {
+      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(firstSnapshotsResponse.status).toBe(200);
+      expect(firstSnapshotsResponse.body.length).toBe(223);
+
+      const fakeLastChangedAt = new Date(Date.now() - 30_000); // 30 seconds ago
+
+      // this is the number of snapshots that should be deleted
+      const recentSnapshotsCount = firstSnapshotsResponse.body.filter(
+        s => new Date(s.createdAt) > fakeLastChangedAt
+      ).length;
+
+      expect(recentSnapshotsCount).toBeGreaterThan(0);
+
+      // Manually update this player's lastChangedAt to be 30s ago
+      await prisma.player.update({
+        where: { username: 'psikoi' },
+        data: { lastChangedAt: fakeLastChangedAt }
+      });
+
+      // this should now delete any snapshots from the past 30s
+      const rollbackResponse = await api
+        .post(`/players/psikoi/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD, untilLastChange: true });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
+
+      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(secondSnapshotsResponse.status).toBe(200);
+
+      // it should have deleted the recent snapshots, but also added one at the end
+      expect(secondSnapshotsResponse.body.length).toBe(223 - recentSnapshotsCount + 1);
+
+      // The last snapshot (sorted desc) should be different
+      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
 
       // The previous last snapshot shouldn't be on the new snapshots list anymore
       const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
