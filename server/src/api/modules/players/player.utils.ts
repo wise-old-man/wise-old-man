@@ -1,5 +1,5 @@
 import { isTesting } from '../../../env';
-import { Period, PeriodProps, PlayerBuild, PlayerType } from '../../../utils';
+import { Period, PeriodProps, PlayerBuild } from '../../../utils';
 import { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
@@ -8,7 +8,6 @@ import { findPlayer } from './services/FindPlayerService';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
-const DAY_IN_SECONDS = PeriodProps[Period.DAY].milliseconds / 1000;
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
@@ -151,30 +150,6 @@ function shouldImport(lastImportedAt: Date | null): [boolean, number] {
   return [seconds / 60 / 60 >= 24, seconds];
 }
 
-/**
- * Checks if a given player should have their player type reviewed.
- * This is useful to periodically re-check iron players' acc types. Incase of de-ironing.
- */
-async function shouldReviewType(
-  player: Pick<Player, 'username' | 'type' | 'lastChangedAt'>
-): Promise<boolean> {
-  const { username, type, lastChangedAt } = player;
-
-  // Type reviews should only be done on iron players
-  if (type === PlayerType.REGULAR || type === PlayerType.FRESH_START || type === PlayerType.UNKNOWN) {
-    return false;
-  }
-
-  // After checking a player's type, we add their username to a cache that blocks
-  // this action to be repeated again within the next week (as to not overload the server)
-  const hasCooldown = !!(await redisService.getValue('cd:PlayerTypeReview', username));
-
-  // If player hasn't gained exp in over 24h, despite being updated recently
-  const isInactive = !lastChangedAt || (Date.now() - lastChangedAt.getTime()) / 1000 > DAY_IN_SECONDS;
-
-  return !hasCooldown && isInactive;
-}
-
 function getBuild(snapshot: Snapshot): PlayerBuild {
   if (isF2p(snapshot)) return PlayerBuild.F2P;
   if (isLvl3(snapshot)) return PlayerBuild.LVL3;
@@ -193,7 +168,6 @@ export {
   isValidUsername,
   shouldUpdate,
   shouldImport,
-  shouldReviewType,
   getBuild,
   resolvePlayer,
   resolvePlayerId,

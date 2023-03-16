@@ -262,7 +262,7 @@ model Player {
   ttm              Float       @default(0)
   tt200m           Float       @default(0)
   registeredAt     DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt        DateTime?   @updatedAt @db.Timestamptz(6)
+  updatedAt        DateTime?   @db.Timestamptz(6)
   lastChangedAt    DateTime?   @db.Timestamptz(6)
   lastImportedAt   DateTime?   @db.Timestamptz(6)
   latestSnapshotId Int?

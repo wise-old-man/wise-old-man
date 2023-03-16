@@ -1,6 +1,7 @@
 import axios from 'axios';
 import supertest from 'supertest';
 import MockAdapter from 'axios-mock-adapter';
+import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import { BOSSES, Metric, PlayerType } from '../../../src/utils';
@@ -25,6 +26,7 @@ const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 
 const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
+const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
 
@@ -91,7 +93,7 @@ describe('Player API', () => {
         [PlayerType.REGULAR]: { statusCode: 500, rawData: '' }
       });
 
-      const response = await api.post(`/players/hydroman`);
+      const response = await api.post(`/players/enrique`);
 
       expect(response.status).toBe(500);
       expect(response.body.message).toMatch('Failed to load hiscores: Connection refused.');
@@ -105,7 +107,254 @@ describe('Player API', () => {
       });
     });
 
+    it('should not track player (not found on the hiscores)', async () => {
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const firstResponse = await api.post(`/players/toby`);
+      expect(firstResponse.status).toBe(400);
+      expect(firstResponse.body.message).toMatch('Failed to load hiscores for toby.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+
+      // this player failed to be tracked, and their type remains "unknown"
+      // therefor, we should allow them to be tracked again without waiting 60s
+      const secondResponse = await api.post(`/players/toby`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores for toby.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      // this player failed to be tracked, and their type remains "unknown"
+      // therefor, we should allow them to be tracked again without waiting 60s
+      const thirdResponse = await api.post(`/players/toby`);
+      expect(thirdResponse.status).toBe(200);
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+    });
+
+    it("shouldn't review player type on 400 (unknown type)", async () => {
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const response = await api.post(`/players/alanec`);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('Failed to load hiscores for alanec.');
+
+      // this player has "unknown" type, shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'alanec')).toBeNull();
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't review player type on 400 (regular type)", async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/aluminoti`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('regular');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404, rawData: '' }
+      });
+
+      const secondResponse = await api.post(`/players/aluminoti`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+      // this player has "regular" type, shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'aluminoti')).toBeNull();
+    });
+
+    it("shouldn't review player type on 400 (ironman, but flagged)", async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/winie`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'winie')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Manually flag the player
+      await prisma.player.update({
+        where: { id: firstResponse.body.id },
+        data: { flagged: true }
+      });
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/winie`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      // this player has "ironman" type, but is flagged, so they shouldn't be reviewed on 400 (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'winie')).toBeNull();
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it("shouldn't review player type on 400 (ironman, but has cooldown)", async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/tony_stark`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      const currentTimestamp = Date.now();
+
+      // Manually set a review cooldown for this username
+      await redisService.setValue('cd:PlayerTypeReview', 'tony stark', currentTimestamp, 604_800_000);
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/tony_stark`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores: Invalid username.');
+
+      // this player has "ironman" type, but has been reviewed recently, so they shouldn't be reviewed on 400
+      // if the cooldown timestamp is the same as the previous one, then it didn't get reviewed again
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'tony stark')).not.toBe(currentTimestamp);
+
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should review player type on 400 (no change)', async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/ash`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail for every type
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 404 },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/ash`);
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body.message).toMatch('Failed to load hiscores for ash.');
+
+      // failed to review (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'ash')).toBeNull();
+      expect(onPlayerTypeChangedEvent).not.toHaveBeenCalled();
+      expect(onPlayerUpdatedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should review player type on 400 (changed type)', async () => {
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const firstResponse = await api.post(`/players/peter_parker`);
+      expect(firstResponse.status).toBe(201);
+      expect(firstResponse.body.type).toBe('ironman');
+
+      // (null cooldown = no review)
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).toBeNull();
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+
+      jest.resetAllMocks();
+
+      // Mock the hiscores to fail for ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/peter_parker`);
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body.type).toBe('regular');
+
+      // non-null cooldown = successfully reviewed
+      expect(await redisService.getValue('cd:PlayerTypeReview', 'peter parker')).not.toBeNull();
+
+      expect(onPlayerTypeChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'peter parker', type: 'regular' }),
+        'ironman'
+      );
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalled();
+    });
+
     it('should track player', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const response = await api.post(`/players/ PSIKOI_ `);
 
       expect(response.status).toBe(201);
@@ -137,8 +386,15 @@ describe('Player API', () => {
 
       expect(response.body.latestSnapshot).not.toBeNull();
 
+      expect(response.body.updatedAt).toBe(response.body.latestSnapshot.createdAt);
+      expect(response.body.lastChangedAt).toBe(response.body.latestSnapshot.createdAt);
+
       expect(response.body.ehp).toBe(response.body.latestSnapshot.data.computed.ehp.value);
       expect(response.body.ehb).toBe(response.body.latestSnapshot.data.computed.ehb.value);
+
+      // This is a new player, so we shouldn't be reviewing their type yet
+      const firstTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      expect(firstTypeReviewCooldown).toBeNull();
 
       // Track again, stats shouldn't have changed
       await api.post(`/players/ PSIKOI_ `);
@@ -154,6 +410,10 @@ describe('Player API', () => {
         }),
         false
       );
+
+      // No longer a new player, but they are a regular player, so we shouldn't be reviewing their type
+      const secondTypeReviewCooldown = await redisService.getValue('cd:PlayerTypeReview', 'psikoi');
+      expect(secondTypeReviewCooldown).toBeNull();
 
       globalData.testPlayerId = response.body.id;
     });
@@ -320,13 +580,13 @@ describe('Player API', () => {
         [PlayerType.ULTIMATE]: { statusCode: 404 }
       });
 
-      const response = await api.post(`/players/Hydrox6`);
+      const response = await api.post(`/players/Enriath`);
 
       expect(response.status).toBe(201);
 
       expect(response.body).toMatchObject({
-        username: 'hydrox6',
-        displayName: 'Hydrox6',
+        username: 'enriath',
+        displayName: 'Enriath',
         build: 'main',
         type: 'ironman'
       });
@@ -340,7 +600,7 @@ describe('Player API', () => {
 
       expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
-          username: 'hydrox6',
+          username: 'enriath',
           type: 'ironman'
         }),
         expect.objectContaining({
@@ -348,6 +608,57 @@ describe('Player API', () => {
         }),
         true
       );
+
+      // This is a new player, so we shouldn't be reviewing their type yet
+      const firstUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(firstUpdateCooldown).toBeNull();
+
+      // Track again, no stats have changed
+      await api.post(`/players/enriath`);
+
+      // This is no longer a new player AND they're an ironman AND their stats haven't changed
+      // so their type should be reviewed
+      const secondUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(secondUpdateCooldown).not.toBeNull();
+
+      // Track again, no stats have changed
+      await api.post(`/players/enriath`);
+
+      // This player was recently reviewed, and since the current timestamp gets stored on Redis
+      // if they were to get reviewed again, their timestamp would be greater than the one stored
+      const thirdUpdateCooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(thirdUpdateCooldown).toBe(secondUpdateCooldown);
+    });
+
+    it('should track and review type', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.OVERALL, value: 350_192_115 } // overall exp increased by 50m
+      ]);
+
+      // Mock the hiscores to mark the next tracked player as a regular ironman
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 },
+        [PlayerType.ULTIMATE]: { statusCode: 404 }
+      });
+
+      // The player has de-ironed, but their review cooldown isn't up yet
+      const firstResponse = await api.post(`/players/Enriath`);
+
+      expect(firstResponse.status).toBe(200);
+      expect(firstResponse.body).toMatchObject({ username: 'enriath', type: 'ironman' });
+
+      // Manually clear the cooldown
+      await redisService.deleteKey(`cd:PlayerTypeReview:enriath`);
+
+      const secondResponse = await api.post(`/players/Enriath`);
+
+      expect(secondResponse.status).toBe(200);
+      expect(secondResponse.body).toMatchObject({ username: 'enriath', type: 'regular' }); // type changed to regular
+
+      const cooldown = await redisService.getValue('cd:PlayerTypeReview', 'enriath');
+      expect(cooldown).not.toBeNull();
 
       // Revert the hiscores mocking back to "regular" player type
       registerHiscoresMock(axiosMock, {
@@ -360,10 +671,10 @@ describe('Player API', () => {
       // This cooldown is set to 0 during testing by default
       playerUtils.setUpdateCooldown(60);
 
-      const response = await api.post(`/players/hydrox6`);
+      const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
-      expect(response.body.message).toMatch('Error: hydrox6 has been updated recently.');
+      expect(response.body.message).toMatch('Error: enriath has been updated recently.');
 
       playerUtils.setUpdateCooldown(0);
     });
@@ -381,7 +692,13 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi`);
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'psikoi' }),
+        expect.objectContaining({ runecraftingExperience: 5_347_176 }),
+        expect.objectContaining({ runecraftingExperience: 100_000_000 })
+      );
     });
 
     it('should not track player (negative gains)', async () => {
@@ -397,7 +714,10 @@ describe('Player API', () => {
       const response = await api.post(`/players/psikoi`);
 
       expect(response.status).toBe(500);
-      expect(response.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(response.body.message).toMatch('Failed to update: Player is flagged.');
+
+      // The player is already flagged, so this event shouldn't be triggeted
+      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should track player (new gains)', async () => {
@@ -415,6 +735,8 @@ describe('Player API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.lastChangedAt).not.toBeNull();
+      expect(response.body.updatedAt).toBe(response.body.latestSnapshot.createdAt);
+      expect(response.body.lastChangedAt).toBe(response.body.latestSnapshot.createdAt);
       expect(new Date(response.body.lastChangedAt).getTime()).toBeGreaterThan(Date.now() - 1000); // changed under a second ago
     });
 
@@ -473,6 +795,41 @@ describe('Player API', () => {
       // It should however stll update the hash to the new name
       const storedUsername = await redisService.getValue('hash', '98765');
       expect(storedUsername).toBe('chuckie');
+    });
+
+    it('should force update (despite excessive gains)', async () => {
+      const firstResponse = await api.post(`/players/jonxslays`);
+      expect(firstResponse.status).toBe(201);
+
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.RUNECRAFTING, value: 100_000_000 } // player jumps to 100m RC exp
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const secondResponse = await api.post(`/players/jonxslays`);
+      expect(secondResponse.status).toBe(500);
+      expect(secondResponse.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
+
+      const thirdResponse = await api.post(`/players/jonxslays`).send({ force: true });
+      expect(thirdResponse.status).toBe(400);
+      expect(thirdResponse.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+
+      const fourthResponse = await api.post(`/players/jonxslays`).send({ force: true, adminPassword: 'idk' });
+
+      expect(fourthResponse.status).toBe(403);
+      expect(fourthResponse.body.message).toBe('Incorrect admin password.');
+
+      const fifthResponse = await api
+        .post(`/players/jonxslays`)
+        .send({ force: true, adminPassword: env.ADMIN_PASSWORD });
+
+      expect(fifthResponse.status).toBe(200);
     });
   });
 
@@ -591,59 +948,59 @@ describe('Player API', () => {
     });
 
     it('should not search players (negative pagination limit)', async () => {
-      const response = await api.get(`/players/search`).query({ username: 'hydro', limit: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'enr', limit: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'limit' must be > 0.");
     });
 
     it('should not search players (negative pagination offset)', async () => {
-      const response = await api.get(`/players/search`).query({ username: 'hydro', offset: -5 });
+      const response = await api.get(`/players/search`).query({ username: 'enr', offset: -5 });
 
       expect(response.status).toBe(400);
       expect(response.body.message).toMatch("Parameter 'offset' must be >= 0.");
     });
 
     it('should search players (partial username w/ offset)', async () => {
-      const firstResponse = await api.get('/players/search').query({ username: 'HYDRO' });
+      const firstResponse = await api.get('/players/search').query({ username: 'ENR' });
 
       expect(firstResponse.status).toBe(200);
       expect(firstResponse.body.length).toBe(2);
 
       expect(firstResponse.body[0]).toMatchObject({
-        username: 'hydrox6',
-        type: 'ironman'
+        username: 'enriath',
+        type: 'regular'
       });
 
       expect(firstResponse.body[1]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
 
-      const secondResponse = await api.get('/players/search').query({ username: 'HYDRO', offset: 1 });
+      const secondResponse = await api.get('/players/search').query({ username: 'ENR', offset: 1 });
 
       expect(secondResponse.status).toBe(200);
       expect(secondResponse.body.length).toBe(1);
 
       expect(secondResponse.body[0]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
     });
 
     it('should search players (leading/trailing whitespace)', async () => {
-      const response = await api.get('/players/search').query({ username: '  HYDRO  ' });
+      const response = await api.get('/players/search').query({ username: '  ENR  ' });
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(2);
 
       expect(response.body[0]).toMatchObject({
-        username: 'hydrox6',
-        type: 'ironman'
+        username: 'enriath',
+        type: 'regular'
       });
 
       expect(response.body[1]).toMatchObject({
-        username: 'hydroman',
+        username: 'enrique',
         type: 'unknown'
       });
     });
@@ -717,7 +1074,9 @@ describe('Player API', () => {
       const trackResponse = await api.post(`/players/psikoi`);
 
       expect(trackResponse.status).toBe(500);
-      expect(trackResponse.body.message).toMatch('Failed to update: Unregistered name change.');
+      expect(trackResponse.body.message).toMatch('Failed to update: Player is flagged.');
+
+      expect(onPlayerFlaggedEvent).toHaveBeenCalled();
 
       const detailsResponse = await api.get('/players/PsiKOI');
 
@@ -891,7 +1250,154 @@ describe('Player API', () => {
     });
   });
 
-  describe('7. Deleting', () => {
+  describe('7. Rolling back', () => {
+    it("shouldn't rollback player (invalid admin password)", async () => {
+      const response = await api.post(`/players/psikoi/rollback`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it("shouldn't rollback player (incorrect admin password)", async () => {
+      const response = await api.post(`/players/psikoi/rollback`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it("shouldn't rollback player (player not found)", async () => {
+      const response = await api.post(`/players/woah/rollback`).send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Player not found.');
+    });
+
+    it("shouldn't rollback player (player has no snapshots)", async () => {
+      await prisma.player.create({
+        data: {
+          username: 'rollmeback',
+          displayName: `rollmeback`
+        }
+      });
+
+      const firstResponse = await api
+        .post(`/players/rollmeback/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(firstResponse.status).toBe(500);
+      expect(firstResponse.body.message).toBe("Failed to delete a player's last snapshots.");
+
+      const secondResponse = await api
+        .post(`/players/rollmeback/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD, untilLastChange: true });
+
+      expect(secondResponse.status).toBe(500);
+      expect(secondResponse.body.message).toBe("Failed to delete a player's last snapshots.");
+    });
+
+    it('should rollback player (last snapshot)', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.ZULRAH, value: 1646 + 7 }, // restore the zulrah kc,
+        { metric: Metric.SMITHING, value: 6_177_978 + 1337 } // restore the smithing exp
+      ]);
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.ULTIMATE]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.HARDCORE]: { statusCode: 404 }
+      });
+
+      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(firstSnapshotsResponse.status).toBe(200);
+      expect(firstSnapshotsResponse.body.length).toBe(223);
+
+      const rollbackResponse = await api
+        .post(`/players/psikoi/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
+
+      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(secondSnapshotsResponse.status).toBe(200);
+
+      // the total number of snapshots should remain the same, because we delete the last snapshot
+      // but we also create a new one by updating immediately after
+      expect(secondSnapshotsResponse.body.length).toBe(223);
+
+      // The last snapshot (sorted desc) should be different
+      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
+
+      // The second to last snapshot (sorted desc) should be the same
+      expect(secondSnapshotsResponse.body.at(1).id).toBe(firstSnapshotsResponse.body.at(1).id);
+
+      // The previous last snapshot shouldn't be on the new snapshots list anymore
+      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
+      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+    });
+
+    it('should rollback player (until last changed)', async () => {
+      const firstSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(firstSnapshotsResponse.status).toBe(200);
+      expect(firstSnapshotsResponse.body.length).toBe(223);
+
+      const fakeLastChangedAt = new Date(Date.now() - 30_000); // 30 seconds ago
+
+      // this is the number of snapshots that should be deleted
+      const recentSnapshotsCount = firstSnapshotsResponse.body.filter(
+        s => new Date(s.createdAt) > fakeLastChangedAt
+      ).length;
+
+      expect(recentSnapshotsCount).toBeGreaterThan(0);
+
+      // Manually update this player's lastChangedAt to be 30s ago
+      await prisma.player.update({
+        where: { username: 'psikoi' },
+        data: { lastChangedAt: fakeLastChangedAt }
+      });
+
+      // this should now delete any snapshots from the past 30s
+      const rollbackResponse = await api
+        .post(`/players/psikoi/rollback`)
+        .send({ adminPassword: env.ADMIN_PASSWORD, untilLastChange: true });
+
+      expect(rollbackResponse.status).toBe(200);
+      expect(rollbackResponse.body.message).toMatch('Successfully rolled back player: PSIKOI');
+
+      const secondSnapshotsResponse = await api.get(`/players/psikoi/snapshots`).query({
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(secondSnapshotsResponse.status).toBe(200);
+
+      // it should have deleted the recent snapshots, but also added one at the end
+      expect(secondSnapshotsResponse.body.length).toBe(223 - recentSnapshotsCount + 1);
+
+      // The last snapshot (sorted desc) should be different
+      expect(secondSnapshotsResponse.body.at(0).id).not.toBe(firstSnapshotsResponse.body.at(0).id);
+
+      // The previous last snapshot shouldn't be on the new snapshots list anymore
+      const previousLastSnapshotId = firstSnapshotsResponse.body.at(0).id;
+      expect(secondSnapshotsResponse.body.find(s => s.id === previousLastSnapshotId)).not.toBeDefined();
+    });
+  });
+
+  describe('8. Deleting', () => {
     it('should not delete player (invalid admin password)', async () => {
       const response = await api.delete(`/players/psikoi`);
 
@@ -928,7 +1434,7 @@ describe('Player API', () => {
     });
   });
 
-  describe('8. Player Utils', () => {
+  describe('9. Player Utils', () => {
     it('should sanitize usernames', () => {
       expect(playerUtils.sanitize('PSIKOI')).toBe('PSIKOI');
       expect(playerUtils.sanitize(' PSIKOI_')).toBe('PSIKOI');
@@ -952,26 +1458,26 @@ describe('Player API', () => {
 
     it('should find all players or create', async () => {
       const existingPlayers = await playerServices.findPlayers({
-        usernames: ['PSIKOI', 'hydrox6', 'hydroman'],
+        usernames: ['PSIKOI', 'enriath', 'enrique'],
         createIfNotFound: true
       });
 
       expect(existingPlayers.length).toBe(3);
 
       expect(existingPlayers[0].username).toBe('psikoi');
-      expect(existingPlayers[1].username).toBe('hydrox6');
-      expect(existingPlayers[2].username).toBe('hydroman');
+      expect(existingPlayers[1].username).toBe('enriath');
+      expect(existingPlayers[2].username).toBe('enrique');
 
       const oneNewPlayer = await playerServices.findPlayers({
-        usernames: ['PSIKOI', '_hydrox6 ', 'hydroman', 'Zezima'],
+        usernames: ['PSIKOI', '_enriath ', 'enrique', 'Zezima'],
         createIfNotFound: true
       });
 
       expect(oneNewPlayer.length).toBe(4);
 
       expect(oneNewPlayer[0].username).toBe('psikoi');
-      expect(oneNewPlayer[1].username).toBe('hydrox6');
-      expect(oneNewPlayer[2].username).toBe('hydroman');
+      expect(oneNewPlayer[1].username).toBe('enriath');
+      expect(oneNewPlayer[2].username).toBe('enrique');
       expect(oneNewPlayer[3].username).toBe('zezima');
 
       const [player, isNew] = await playerServices.findPlayer({ username: 'zezima' });

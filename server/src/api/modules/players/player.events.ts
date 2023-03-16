@@ -6,8 +6,11 @@ import metrics from '../../services/external/metrics.service';
 import * as achievementServices from '../achievements/achievement.services';
 import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
-import * as playerUtils from './player.utils';
 import * as playerServices from './player.services';
+
+async function onPlayerFlagged(player: Player, _previousSnapshot: Snapshot, _newSnapshot: Snapshot) {
+  console.log(`Player ${player.username} has been flagged!`);
+}
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
@@ -53,15 +56,6 @@ async function onPlayerUpdated(player: Player, snapshot: Snapshot, hasChanged: b
 
   // Attempt to import this player's history from CML
   await metrics.trackEffect(playerServices.importPlayerHistory, player);
-
-  // If this player is an inactive iron player, their type should be reviewed
-  // This allows us to catch de-iron players early, and adjust their type accordingly
-  if (await playerUtils.shouldReviewType(player)) {
-    jobManager.add({
-      type: JobType.REVIEW_PLAYER_TYPE,
-      payload: { playerId: player.id }
-    });
-  }
 }
 
 async function onPlayerImported(playerId: number) {
@@ -69,4 +63,4 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export { onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export { onPlayerFlagged, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };

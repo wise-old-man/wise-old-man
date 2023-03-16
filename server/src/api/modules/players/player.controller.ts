@@ -33,7 +33,7 @@ async function search(req: Request): Promise<ControllerResponse> {
 async function track(req: Request, res: Response): Promise<ControllerResponse> {
   const userAgent = res.locals.userAgent;
 
-  const { accountHash } = req.body;
+  const { accountHash, force } = req.body;
   const { username } = req.params;
 
   // RuneLite requests include an "accountHash" body param that serves as a unique ID per OSRS account.
@@ -51,9 +51,15 @@ async function track(req: Request, res: Response): Promise<ControllerResponse> {
     await redisService.setValue('hash', accountHash, username);
   }
 
-  // Update the player, by creating a new snapshot
+  // Force updates are moderator-only
+  if (force && !adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
+  // Update the player, and create a new snapshot
   const [playerDetails, isNew] = await playerServices.updatePlayer({
-    username: getString(username)
+    username: getString(username),
+    skipFlagChecks: Boolean(force)
   });
 
   return { statusCode: isNew ? 201 : 200, response: playerDetails };
@@ -261,9 +267,33 @@ async function deletePlayer(req: Request): Promise<ControllerResponse> {
   };
 }
 
+// POST /players/:username/rollback
+// REQUIRES ADMIN PASSWORD
+async function rollback(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
+  const username = getString(req.params.username);
+  const player = await playerUtils.resolvePlayer(username);
+
+  await snapshotServices.rollbackSnapshots({
+    playerId: player.id,
+    deleteAllSince: req.body.untilLastChange && player.lastChangedAt ? player.lastChangedAt : undefined
+  });
+
+  const [playerDetails] = await playerServices.updatePlayer({ username });
+
+  return {
+    statusCode: 200,
+    response: { message: `Successfully rolled back player: ${playerDetails.displayName}` }
+  };
+}
+
 export {
   search,
   track,
+  rollback,
   assertType,
   importPlayer,
   details,

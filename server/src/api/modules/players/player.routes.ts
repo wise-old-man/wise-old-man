@@ -19,6 +19,7 @@ api.get('/:username/competitions/standings', setupController(controller.competit
 api.get('/:username/names', setupController(controller.names));
 api.put('/:username/country', setupController(controller.changeCountry));
 api.get('/:username', setupController(controller.details));
+api.post('/:username/rollback', setupController(controller.rollback));
 api.post('/:username', setupController(controller.track));
 api.delete('/:username', setupController(controller.deletePlayer));
 
