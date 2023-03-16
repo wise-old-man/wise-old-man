@@ -8,7 +8,7 @@ import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
-async function onPlayerFlagged(player: Player, previousSnapshot: Snapshot, newSnapshot: Snapshot) {
+async function onPlayerFlagged(player: Player, _previousSnapshot: Snapshot, _newSnapshot: Snapshot) {
   console.log(`Player ${player.username} has been flagged!`);
 }
 
