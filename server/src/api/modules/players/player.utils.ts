@@ -3,7 +3,8 @@ import { Period, PeriodProps, PlayerBuild } from '../../../utils';
 import { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
-import { isF2p, is10HP, isZerker, isLvl3, is1Def } from '../snapshots/snapshot.utils';
+import * as snapshotUtils from '../snapshots/snapshot.utils';
+import * as efficiencyUtils from '../efficiency/efficiency.utils';
 import { findPlayer } from './services/FindPlayerService';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
@@ -151,14 +152,39 @@ function shouldImport(lastImportedAt: Date | null): [boolean, number] {
 }
 
 function getBuild(snapshot: Snapshot): PlayerBuild {
-  if (isF2p(snapshot)) return PlayerBuild.F2P;
-  if (isLvl3(snapshot)) return PlayerBuild.LVL3;
+  if (snapshotUtils.isF2p(snapshot)) return PlayerBuild.F2P;
+  if (snapshotUtils.isLvl3(snapshot)) return PlayerBuild.LVL3;
   // This must be above 1def because 10 HP accounts can also have 1 def
-  if (is10HP(snapshot)) return PlayerBuild.HP10;
-  if (is1Def(snapshot)) return PlayerBuild.DEF1;
-  if (isZerker(snapshot)) return PlayerBuild.ZERKER;
+  if (snapshotUtils.is10HP(snapshot)) return PlayerBuild.HP10;
+  if (snapshotUtils.is1Def(snapshot)) return PlayerBuild.DEF1;
+  if (snapshotUtils.isZerker(snapshot)) return PlayerBuild.ZERKER;
 
   return PlayerBuild.MAIN;
+}
+
+function getPlayerFlagContext(player: Player, previous: Snapshot, rejected: Snapshot) {
+  const negativeGains = snapshotUtils.hasNegativeGains(previous, rejected);
+  const excessiveGains = snapshotUtils.hasExcessiveGains(previous, rejected);
+  const excessiveGainsReversed = snapshotUtils.hasExcessiveGains(rejected, previous);
+
+  const previousSnapshot = snapshotUtils.format(
+    previous,
+    efficiencyUtils.getPlayerEfficiencyMap(previous, player)
+  );
+
+  const rejectedSnapshot = snapshotUtils.format(
+    rejected,
+    efficiencyUtils.getPlayerEfficiencyMap(rejected, player)
+  );
+
+  return {
+    player,
+    previousSnapshot,
+    rejectedSnapshot,
+    negativeGains,
+    excessiveGains,
+    excessiveGainsReversed
+  };
 }
 
 export {
@@ -172,5 +198,6 @@ export {
   resolvePlayer,
   resolvePlayerId,
   resolvePlayerById,
-  setCachedPlayerId
+  setCachedPlayerId,
+  getPlayerFlagContext
 };

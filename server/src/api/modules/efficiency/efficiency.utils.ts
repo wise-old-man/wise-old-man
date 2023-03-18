@@ -67,6 +67,7 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   }
 
   function _calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap) {
+    if (skill === Skill.OVERALL) return _calculateEHP(experienceMap);
     return _calculateTT200m({ ...experienceMap, [skill]: 0 }) - _calculateTT200m(experienceMap);
   }
 
