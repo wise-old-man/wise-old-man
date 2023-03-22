@@ -40,8 +40,8 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   // Check if there's any pending name changes for these names
   const pending = await prisma.nameChange.findFirst({
     where: {
-      oldName: { contains: stOldName, mode: 'insensitive' },
-      newName: { contains: stNewName, mode: 'insensitive' },
+      oldName: { equals: stOldName, mode: 'insensitive' },
+      newName: { equals: stNewName, mode: 'insensitive' },
       status: NameChangeStatus.PENDING
     }
   });
