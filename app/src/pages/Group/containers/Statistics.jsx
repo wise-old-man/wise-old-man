@@ -1,10 +1,13 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useCallback, useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { SKILLS, BOSSES, ACTIVITIES, MetricProps, getLevel } from '@wise-old-man/utils';
 import { groupSelectors, groupActions } from 'redux/groups';
-import { Table, TablePlaceholder, NumberLabel } from 'components';
+import { Table, TablePlaceholder, NumberLabel, Tabs } from 'components';
 import { getMetricIcon } from 'utils';
 import { GroupContext } from '../context';
+
+const TABS = ['Average member stats', 'Metric leaders'];
 
 function Statistics() {
   const dispatch = useDispatch();
@@ -13,6 +16,7 @@ function Statistics() {
 
   const group = useSelector(groupSelectors.getGroup(id));
   const isLoading = useSelector(groupSelectors.isFetchingStatistics);
+  const [selectedStatsTab, setSelectedStatsTab] = useState(0);
 
   const { statistics } = group;
   const showPlaceholder = isLoading || !group || !statistics;
@@ -49,8 +53,12 @@ function Statistics() {
         </div>
       </div>
       <div className="statistics-table">
-        <span className="widget-label">Average member stats</span>
-        {showPlaceholder ? <TablePlaceholder size={20} /> : renderTable(statistics.averageStats)}
+        <Tabs tabs={TABS} selectedIndex={selectedStatsTab} onTabSelected={setSelectedStatsTab} />
+        {showPlaceholder ? (
+          <TablePlaceholder size={20} />
+        ) : (
+          renderStatsTable(statistics, selectedStatsTab)
+        )}
       </div>
     </div>
   );
@@ -62,24 +70,52 @@ function getValue(row) {
   return row.score;
 }
 
-function renderTable(snapshot) {
+function renderStatsTable(stats, selectedStatsTab) {
+  const isMetricLeaders = selectedStatsTab === 1;
+  let data;
+
+  if (isMetricLeaders) {
+    data = stats.metricLeaders;
+  } else {
+    data = stats.averageStats.data;
+  }
+
   const totalLevel = SKILLS.filter(skill => skill !== 'overall')
-    .map(s => getLevel(snapshot.data.skills[s].experience))
+    .map(s => getLevel(data.skills[s].experience))
     .reduce((acc, cur) => acc + cur);
 
   const rows = [
     ...SKILLS.map(skill => {
-      const { experience, rank } = snapshot.data.skills[skill];
+      const { experience, rank, player } = data.skills[skill];
       const level = skill === 'overall' ? totalLevel : getLevel(experience);
-      return { metric: skill, level, experience, rank, ehp: 0 };
+      return {
+        metric: skill,
+        level,
+        experience,
+        rank,
+        ehp: 0,
+        username: player ? player.displayName : null
+      };
     }),
     ...BOSSES.map(boss => {
-      const { kills, rank } = snapshot.data.bosses[boss];
-      return { metric: boss, kills, rank, ehp: 0 };
+      const { kills, rank, player } = data.bosses[boss];
+      return {
+        metric: boss,
+        kills,
+        rank,
+        ehp: 0,
+        username: player ? player.displayName : null
+      };
     }),
     ...ACTIVITIES.map(activity => {
-      const { score, rank } = snapshot.data.activities[activity];
-      return { metric: activity, score, rank, ehp: 0 };
+      const { score, rank, player } = data.activities[activity];
+      return {
+        metric: activity,
+        score,
+        rank,
+        ehp: 0,
+        username: player ? player.displayName : null
+      };
     })
   ];
 
@@ -106,12 +142,22 @@ function renderTable(snapshot) {
       key: 'value',
       get: getValue,
       transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
-    },
-    {
-      key: 'rank',
-      transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
     }
   ];
+
+  if (isMetricLeaders) {
+    // Add the players username for metric leaders
+    columns.splice(1, 0, {
+      key: 'username',
+      transform: val => <Link to={`/players/${val}`}>{val}</Link>
+    });
+
+    // Add the rank for individual stats (excluded for the average)
+    columns.push({
+      key: 'rank',
+      transform: val => (val === -1 ? `---` : <NumberLabel value={val} />)
+    });
+  }
 
   return <Table rows={rows} columns={columns} uniqueKeySelector={uniqueKeySelector} />;
 }
