@@ -155,8 +155,7 @@ function dispatchCompetitionEnded(competition: CompetitionDetails) {
   // Map the competition's end standings
   const standings = participations
     .filter(p => p.progress.gained > 0)
-    .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }))
-    .slice(0, 10);
+    .map(p => ({ displayName: p.player.displayName, teamName: p.teamName, gained: p.progress.gained }));
 
   // Omit participations field when sending to discord, to decrease payload size
   dispatch('COMPETITION_ENDED', {
