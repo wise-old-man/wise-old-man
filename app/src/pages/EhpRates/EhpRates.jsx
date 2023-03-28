@@ -23,13 +23,14 @@ const RATES_TABLE_CONFIG = {
       transform: (value, row) => {
         if (value === 0) return '---';
 
-        if (row.realRate)
+        if (row.realRate) {
           return (
             <div className="scaled-rate">
-              {formatNumber(value)} per hour
-              <span>(actually {formatNumber(row.realRate)} per hour)</span>
+              {`${formatNumber(value)} per hour`}
+              <span>{`(actually ${formatNumber(row.realRate)} per hour)`}</span>
             </div>
           );
+        }
 
         return `${formatNumber(value)} per hour`;
       }
