@@ -194,7 +194,7 @@ function calculateTT200mMap(experienceMap: ExperienceMap, metas: SkillMetaConfig
   const startBonusExp = calculateBonuses(fixedMap, getBonuses(metas, BonusType.START), true);
   const startExps = Object.fromEntries(SKILLS.map(s => [s, fixedMap[s] + (startBonusExp[s] || 0)]));
 
-  const endBonusExp = calculateBonuses(startExps as ExperienceMap, getBonuses(metas, BonusType.END), false);
+  const endBonusExp = calculateBonuses(fixedMap as ExperienceMap, getBonuses(metas, BonusType.END), false);
 
   const endExps = Object.fromEntries(
     SKILLS.map(s => [s, s in endBonusExp ? MAX_SKILL_EXP - endBonusExp[s] : MAX_SKILL_EXP])

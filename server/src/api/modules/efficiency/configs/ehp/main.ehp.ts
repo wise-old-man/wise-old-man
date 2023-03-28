@@ -731,7 +731,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 0,
         endExp: 1_986_068,
-        end: true,
+        end: false,
         ratio: 0.0673
       },
       {
@@ -739,7 +739,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 1_986_068,
         endExp: 3_258_594,
-        end: true,
+        end: false,
         ratio: 0.0824
       },
       {
@@ -747,7 +747,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 3_258_594,
         endExp: 5_346_332,
-        end: true,
+        end: false,
         ratio: 0.11917
       },
       {
@@ -755,7 +755,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 5_346_332,
         endExp: 7_195_629,
-        end: true,
+        end: false,
         ratio: 0.21689
       },
       {
@@ -763,7 +763,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 7_195_629,
         endExp: 13_034_431,
-        end: true,
+        end: false,
         ratio: 0.18914
       },
       {
@@ -771,7 +771,7 @@ export default [
         bonusSkill: Skill.PRAYER,
         startExp: 13_034_431,
         endExp: 200_000_000,
-        end: true,
+        end: false,
         ratio: 0.21605
       }
     ]
