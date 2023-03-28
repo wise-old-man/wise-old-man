@@ -368,7 +368,7 @@ describe('Player API', () => {
       });
 
       // Using the test "main" rates, we should get this number for regular accs
-      expect(response.body.ehp).toBeCloseTo(694.4541800000006, 4);
+      expect(response.body.ehp).toBeCloseTo(673.7863500000003, 4);
 
       expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
         expect.objectContaining({
