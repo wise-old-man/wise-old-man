@@ -3,7 +3,7 @@
     "rootDir": "../../",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es6", "dom", "es2019"],
+    "lib": ["es6", "dom", "es2019", "es2022"],
     "noImplicitAny": false,
     "moduleResolution": "node",
     "skipLibCheck": true,
