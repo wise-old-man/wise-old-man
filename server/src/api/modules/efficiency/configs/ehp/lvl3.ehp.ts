@@ -508,6 +508,7 @@ export default [
         bonusSkill: Skill.AGILITY,
         startExp: 13_034_431,
         endExp: 200_000_000,
+        maxBonus: 12_029_509,
         end: true,
         ratio: 0.2727272727
       }
@@ -631,6 +632,7 @@ export default [
         bonusSkill: Skill.FISHING,
         startExp: 13_034_431,
         endExp: 200_000_000,
+        maxBonus: 49_288_098,
         end: true,
         ratio: 0.7586029443
       }

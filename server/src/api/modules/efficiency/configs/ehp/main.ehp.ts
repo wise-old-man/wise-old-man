@@ -884,6 +884,7 @@ export default [
         bonusSkill: Skill.FISHING,
         startExp: 737_627,
         endExp: 200_000_000,
+        maxBonus: 32_414_530,
         end: true,
         ratio: 0.7586029443
       }

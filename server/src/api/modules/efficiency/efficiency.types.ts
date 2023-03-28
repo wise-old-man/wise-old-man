@@ -41,6 +41,7 @@ export interface Bonus {
   bonusSkill: Skill;
   startExp: number;
   endExp: number;
+  maxBonus?: number;
   end: boolean;
   ratio: number;
 }
