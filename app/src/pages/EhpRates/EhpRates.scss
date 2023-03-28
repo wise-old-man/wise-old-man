@@ -37,6 +37,16 @@
           border: 1px solid $gray-00;
           border-bottom: none;
 
+          .scaled-rate {
+            display: flex;
+            flex-direction: column;
+
+            span {
+              padding-top: 8px;
+              color: $gray-60;
+            }
+          }
+
           th {
             background: $gray-00;
           }

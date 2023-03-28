@@ -27,12 +27,12 @@ export default [
       {
         startExp: 1_210_421,
         rate: 315_000,
-        description: 'Bonus XP from Slayer (Nechwark)'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 13_034_431,
-        rate: 330_000,
-        description: 'Bonus XP from Slayer (Nechwark)'
+        rate: 440_000,
+        description: 'Bonus XP from Slayer'
       }
     ],
     bonuses: []
@@ -42,11 +42,28 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 700_000,
+        rate: 406_000,
         description: "Chinning in Kruk's Dungeon"
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.RANGED,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 1.2094
+      },
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.PRAYER,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.09399465048
+      }
+    ]
   },
   {
     skill: Skill.STRENGTH,
@@ -59,42 +76,31 @@ export default [
       {
         startExp: 37_224,
         rate: 38_000,
-        description: 'Crystal Halberd Nechryael'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 61_512,
         rate: 145_000,
-        description: 'Crystal Halberd Nechryael'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 449_428,
         rate: 245_000,
-        description: 'Crystal Halberd Nechryael'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 1_986_068,
         rate: 300_000,
-        description: 'Crystal Halberd Nechryael'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 6_517_253,
         rate: 335_000,
-        description: 'Crystal Halberd Nechryael'
+        description: 'Bonus XP from Slayer'
       },
       {
         startExp: 13_034_431,
-        rate: 380_000,
-        description: 'Crystal Halberd Nechryael'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.DEFENCE,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
+        rate: 390_000,
         description: 'Bonus XP from Slayer'
       }
     ],
@@ -115,7 +121,7 @@ export default [
       },
       {
         startExp: 13_034_431,
-        rate: 1_180_000,
+        rate: 1_154_000,
         description: "Chinning in Kruk's Dungeon"
       }
     ],
@@ -133,17 +139,6 @@ export default [
         startExp: 737_627,
         rate: 1_800_000,
         description: 'Superior dragon bones at Chaos Altar'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.MAGIC,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: 'Bonus XP from Slayer & Magic Imbue'
       }
     ],
     bonuses: []
@@ -270,17 +265,6 @@ export default [
     ]
   },
   {
-    skill: Skill.FLETCHING,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: 'Multi-skilling darts'
-      }
-    ],
-    bonuses: []
-  },
-  {
     skill: Skill.FISHING,
     methods: [
       {
@@ -296,17 +280,17 @@ export default [
       {
         startExp: 101_333,
         rate: 94_364,
-        description: 'Drift net (2t Fishing)'
+        description: '2t Swordfish'
       },
       {
         startExp: 273_742,
         rate: 113_709,
-        description: 'Drift net (2t Fishing)'
+        description: '2t Swordfish'
       },
       {
         startExp: 737_627,
         rate: 132_000,
-        description: 'Drift net (2t Fishing)'
+        description: '2t Swordfish'
       }
     ],
     bonuses: []
@@ -342,22 +326,22 @@ export default [
       {
         startExp: 101_333,
         rate: 232_155,
-        description: 'Mahogany logs'
+        description: 'Firebwan (Mahogany logs)'
       },
       {
         startExp: 273_742,
         rate: 298_485,
-        description: 'Yew logs'
+        description: 'Firebwan (Yew logs)'
       },
       {
         startExp: 1_210_421,
         rate: 447_801,
-        description: 'Magic logs'
+        description: 'Firebwan (Magic logs)'
       },
       {
         startExp: 5_346_332,
         rate: 505_000,
-        description: 'Firebwan'
+        description: 'Firebwan (Redwood logs)'
       }
     ],
     bonuses: [
@@ -413,12 +397,12 @@ export default [
       {
         startExp: 37_224,
         rate: 380_000,
-        description: 'Blast Furnance Gold bars'
+        description: 'Blast Furnace Gold'
       },
       {
         startExp: 13_034_431,
         rate: 410_000,
-        description: 'Blast Furnance Gold bars'
+        description: 'Blast Furnace Gold'
       }
     ],
     bonuses: []
@@ -569,7 +553,7 @@ export default [
       },
       {
         startExp: 6_517_253,
-        rate: 95_000,
+        rate: 98_500,
         description: 'Floors 1-5 of The Hallowed Sepulchre'
       }
     ],
@@ -640,196 +624,36 @@ export default [
       },
       {
         startExp: 449_428,
-        rate: 69_500,
+        rate: 74_250,
         description: 'Efficient Slayer'
       },
       {
         startExp: 1_986_068,
-        rate: 68_500,
+        rate: 79_000,
         description: 'Efficient Slayer'
       },
       {
         startExp: 3_258_594,
-        rate: 76_000,
+        rate: 86_500,
         description: 'Efficient Slayer'
       },
       {
         startExp: 5_346_332,
-        rate: 76_000,
+        rate: 87_000,
         description: 'Efficient Slayer'
       },
       {
         startExp: 7_195_629,
-        rate: 82_000,
+        rate: 93_000,
         description: 'Efficient Slayer'
       },
       {
         startExp: 13_034_431,
-        rate: 83_000,
+        rate: 99_000,
         description: 'Efficient Slayer'
       }
     ],
     bonuses: [
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.STRENGTH,
-        startExp: 0,
-        endExp: 1_986_068,
-        end: false,
-        ratio: 0.23
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.STRENGTH,
-        startExp: 1_986_068,
-        endExp: 3_258_594,
-        end: false,
-        ratio: 1.35
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.STRENGTH,
-        startExp: 3_258_594,
-        endExp: 7_195_629,
-        end: false,
-        ratio: 0.81
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.STRENGTH,
-        startExp: 7_195_629,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.59
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.DEFENCE,
-        startExp: 0,
-        endExp: 1_986_068,
-        end: false,
-        ratio: 0.47
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.DEFENCE,
-        startExp: 1_986_068,
-        endExp: 3_258_594,
-        end: false,
-        ratio: 0.34
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.DEFENCE,
-        startExp: 3_258_594,
-        endExp: 7_195_629,
-        end: false,
-        ratio: 0.47
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.DEFENCE,
-        startExp: 7_195_629,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.51
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.DEFENCE,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.52
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.RANGED,
-        startExp: 0,
-        endExp: 1_986_068,
-        end: false,
-        ratio: 0.62
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.RANGED,
-        startExp: 1_986_068,
-        endExp: 3_258_594,
-        end: false,
-        ratio: 0.47
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.RANGED,
-        startExp: 3_258_594,
-        endExp: 7_195_629,
-        end: false,
-        ratio: 0.37
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.RANGED,
-        startExp: 7_195_629,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.31
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.RANGED,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.3
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 0,
-        endExp: 1_986_068,
-        end: false,
-        ratio: 0.019
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 1_986_068,
-        endExp: 3_258_594,
-        end: false,
-        ratio: 0.058
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 3_258_594,
-        endExp: 5_346_332,
-        end: false,
-        ratio: 0.112
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 5_346_332,
-        endExp: 7_195_629,
-        end: false,
-        ratio: 0.213
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 7_195_629,
-        endExp: 13_034_431,
-        end: false,
-        ratio: 0.194
-      },
-      {
-        originSkill: Skill.SLAYER,
-        bonusSkill: Skill.PRAYER,
-        startExp: 13_034_431,
-        endExp: 200_000_000,
-        end: false,
-        ratio: 0.197
-      },
       {
         originSkill: Skill.SLAYER,
         bonusSkill: Skill.ATTACK,
@@ -837,6 +661,118 @@ export default [
         endExp: 200_000_000,
         end: false,
         ratio: 1
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 1
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.427844
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 0,
+        endExp: 1_986_068,
+        end: false,
+        ratio: 0.3299
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 1_986_068,
+        endExp: 3_258_594,
+        end: false,
+        ratio: 0.2494
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 3_258_594,
+        endExp: 5_346_332,
+        end: false,
+        ratio: 0.1896
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 5_346_332,
+        endExp: 7_195_629,
+        end: false,
+        ratio: 0.174
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 7_195_629,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.1521
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.1728
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 0,
+        endExp: 1_986_068,
+        end: false,
+        ratio: 0.0673
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 1_986_068,
+        endExp: 3_258_594,
+        end: false,
+        ratio: 0.0824
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 3_258_594,
+        endExp: 5_346_332,
+        end: false,
+        ratio: 0.11917
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 5_346_332,
+        endExp: 7_195_629,
+        end: false,
+        ratio: 0.21689
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 7_195_629,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.18914
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.21605
       }
     ]
   },
@@ -906,39 +842,40 @@ export default [
         description: 'Varrock Museum'
       },
       {
-        startExp: 2_411,
+        startExp: 2_107,
         rate: 82_000,
         description: 'Oak bird house runs'
       },
       {
-        startExp: 7_842,
+        startExp: 7_028,
         rate: 110_000,
         description: 'Willow bird house runs'
       },
       {
-        startExp: 22_406,
+        startExp: 20_224,
         rate: 138_000,
         description: 'Teak bird house runs'
       },
       {
-        startExp: 61_512,
+        startExp: 55_649,
         rate: 161_000,
         description: 'Maple bird house runs'
       },
       {
         startExp: 101_333,
         rate: 251_565,
-        description: 'Drift Net (Chinchompas)'
+        description: 'Drift Net'
       },
       {
         startExp: 273_742,
         rate: 291_175,
-        description: 'Drift Net (Chinchompas)'
+        description: 'Drift Net'
       },
       {
         startExp: 737_627,
         rate: 255_000,
-        description: 'Drift Net (Chinchompas)'
+        realRate: 118_535,
+        description: 'Drift Net (Black Chinchompas)'
       }
     ],
     bonuses: [
@@ -948,8 +885,7 @@ export default [
         startExp: 737_627,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7586,
-        maxBonus: 24_985_376
+        ratio: 0.7586029443
       }
     ]
   },
@@ -970,6 +906,11 @@ export default [
         startExp: 123_660,
         rate: 935_000,
         description: 'Mahogany tables'
+      },
+      {
+        startExp: 1_475_581,
+        rate: 1_050_000,
+        description: 'Mahogany benches'
       }
     ],
     bonuses: []

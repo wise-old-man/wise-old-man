@@ -118,8 +118,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2,
-        maxBonus: 39_939_542
+        ratio: 0.2
       }
     ]
   },
@@ -225,8 +224,7 @@ export default [
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7,
-        maxBonus: 111_971_387
+        ratio: 0.7
       }
     ]
   },
@@ -363,8 +361,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.08,
-        maxBonus: 15_975_817
+        ratio: 0.08
       }
     ]
   },
@@ -501,6 +498,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 260_000,
+        realRate: 139_062,
         description: 'Swimming'
       }
     ],
@@ -510,9 +508,9 @@ export default [
         bonusSkill: Skill.AGILITY,
         startExp: 13_034_431,
         endExp: 200_000_000,
+        maxBonus: 12_029_509,
         end: true,
-        ratio: 0.2727,
-        maxBonus: 12_029_509
+        ratio: 0.2727272727
       }
     ]
   },
@@ -624,6 +622,7 @@ export default [
       {
         startExp: 13_034_431,
         rate: 310_000,
+        realRate: 118_535,
         description: 'Drift net (Bird house runs)'
       }
     ],
@@ -633,9 +632,9 @@ export default [
         bonusSkill: Skill.FISHING,
         startExp: 13_034_431,
         endExp: 200_000_000,
+        maxBonus: 49_288_098,
         end: true,
-        ratio: 0.7586,
-        maxBonus: 49_288_098
+        ratio: 0.7586029443
       }
     ]
   },

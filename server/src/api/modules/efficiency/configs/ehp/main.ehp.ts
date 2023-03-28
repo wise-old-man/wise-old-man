@@ -50,7 +50,7 @@ export default [
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.RANGED,
-        startExp: 85_565_839,
+        startExp: 0,
         endExp: 200_000_000,
         end: false,
         ratio: 1.2094
@@ -58,9 +58,9 @@ export default [
       {
         originSkill: Skill.DEFENCE,
         bonusSkill: Skill.PRAYER,
-        startExp: 85_565_839,
+        startExp: 0,
         endExp: 200_000_000,
-        end: false,
+        end: true,
         ratio: 0.09399465048
       }
     ]
@@ -260,8 +260,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.2,
-        maxBonus: 39_939_542
+        ratio: 0.2
       }
     ]
   },
@@ -352,8 +351,7 @@ export default [
         startExp: 101_333,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.7,
-        maxBonus: 111_971_387
+        ratio: 0.7
       }
     ]
   },
@@ -475,8 +473,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.08,
-        maxBonus: 15_975_817
+        ratio: 0.08
       }
     ]
   },
@@ -567,8 +564,7 @@ export default [
         startExp: 6_517_253,
         endExp: 200_000_000,
         end: true,
-        ratio: 0.017,
-        maxBonus: 3_289_207
+        ratio: 0.017
       }
     ]
   },
@@ -878,6 +874,7 @@ export default [
       {
         startExp: 737_627,
         rate: 255_000,
+        realRate: 118_535,
         description: 'Drift Net (Black Chinchompas)'
       }
     ],
@@ -887,9 +884,9 @@ export default [
         bonusSkill: Skill.FISHING,
         startExp: 737_627,
         endExp: 200_000_000,
+        maxBonus: 32_414_530,
         end: true,
-        ratio: 0.7586,
-        maxBonus: 32_414_530
+        ratio: 0.7586029443
       }
     ]
   },

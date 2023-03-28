@@ -291,8 +291,7 @@ export default [
         startExp: 83_014,
         endExp: 8_417_783,
         end: false,
-        ratio: 0.0885,
-        maxBonus: 737_627
+        ratio: 0.0885
       }
     ]
   },

@@ -92,17 +92,17 @@ afterAll(async () => {
 describe('Efficiency API', () => {
   describe('1 - Maximum TTM and TT200m', () => {
     test('Check maximum TTM', () => {
-      expect(ALGORITHMS.main.maxedEHP).toBeCloseTo(1009.3534010368603, 4);
-      expect(ALGORITHMS.ironman.maxedEHP).toBeCloseTo(1762.2395881043994, 4);
-      expect(ALGORITHMS.lvl3.maxedEHP).toBeCloseTo(882.1445120689223, 4);
-      expect(ALGORITHMS.f2p.maxedEHP).toBeCloseTo(1843.5639973947145, 4);
+      expect(ALGORITHMS.main.maxedEHP).toBeCloseTo(962.9246300000013, 4);
+      expect(ALGORITHMS.ironman.maxedEHP).toBeCloseTo(1603.4281499999997, 4);
+      expect(ALGORITHMS.lvl3.maxedEHP).toBeCloseTo(880.0553999999993, 4);
+      expect(ALGORITHMS.f2p.maxedEHP).toBeCloseTo(1578.9323799999984, 4);
     });
 
     test('Check maximum TT200m', () => {
-      expect(ALGORITHMS.main.maximumEHP).toBeCloseTo(13524.420219560474, 4);
-      expect(ALGORITHMS.ironman.maximumEHP).toBeCloseTo(22452.8113112858, 4);
-      expect(ALGORITHMS.lvl3.maximumEHP).toBeCloseTo(11767.772868272423);
-      expect(ALGORITHMS.f2p.maximumEHP).toBeCloseTo(25061.345909596945, 4);
+      expect(ALGORITHMS.main.maximumEHP).toBeCloseTo(12813.80829, 4);
+      expect(ALGORITHMS.ironman.maximumEHP).toBeCloseTo(20300.84631, 4);
+      expect(ALGORITHMS.lvl3.maximumEHP).toBeCloseTo(11796.08924, 4);
+      expect(ALGORITHMS.f2p.maximumEHP).toBeCloseTo(23319.208, 4);
     });
   });
 

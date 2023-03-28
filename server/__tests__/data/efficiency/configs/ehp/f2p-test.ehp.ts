@@ -6,43 +6,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_200,
-        description: 'Castle wars alt-killing'
+        rate: 12_000,
+        description: 'Vampyre Slayer'
+      },
+      {
+        startExp: 4_825,
+        rate: 30_000,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 37_224,
-        rate: 17_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 100_000,
-        rate: 34_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 1_000_000,
-        rate: 50_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 60_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 3_000_000,
-        rate: 68_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 72_000,
-        description: 'Castle wars alt-killing'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 80_000,
-        description: 'Castle wars alt-killing'
+        rate: 90_000,
+        description: 'Castle Wars Alt. Killing'
       }
     ],
     bonuses: []
@@ -52,8 +27,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 80_000,
-        description: 'Castle wars alt-killing'
+        rate: 90_000,
+        description: 'Castle Wars Alt. Killing'
       }
     ],
     bonuses: []
@@ -63,54 +38,88 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_200,
-        description: 'Castle wars alt-killing'
+        rate: 12_000,
+        description: 'Dragon Slayer'
+      },
+      {
+        startExp: 18_650,
+        rate: 25_000,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 37_224,
-        rate: 17_000,
-        description: 'Castle wars alt-killing'
+        rate: 40_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 100_000,
-        rate: 34_000,
-        description: 'Castle wars alt-killing'
+        startExp: 50_339,
+        rate: 43_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 1_000_000,
-        rate: 50_000,
-        description: 'Castle wars alt-killing'
+        startExp: 75_127,
+        rate: 49_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 123_660,
+        rate: 52_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 166_636,
+        rate: 55_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 273_742,
+        rate: 58_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 407_015,
+        rate: 61_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 547_953,
+        rate: 66_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 899_257,
+        rate: 69_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 1_336_443,
+        rate: 72_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 1_986_068,
-        rate: 60_000,
-        description: 'Castle wars alt-killing'
+        rate: 75_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 3_000_000,
-        rate: 68_000,
-        description: 'Castle wars alt-killing'
+        startExp: 2_951_373,
+        rate: 78_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 5_346_332,
-        rate: 72_000,
-        description: 'Castle wars alt-killing'
+        startExp: 4_385_776,
+        rate: 84_000,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 13_034_431,
-        rate: 80_000,
-        description: 'Castle wars alt-killing'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.HITPOINTS,
-    methods: [
+        startExp: 7_195_629,
+        rate: 87_000,
+        description: 'Castle Wars Alt. Killing'
+      },
       {
-        startExp: 0,
-        rate: 0,
-        description: 'Castle wars alt-killing'
+        startExp: 9_684_577,
+        rate: 90_000,
+        description: 'Castle Wars Alt. Killing'
       }
     ],
     bonuses: []
@@ -120,43 +129,83 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_000,
-        description: 'Castle wars alt-killing'
+        rate: 8_000,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 37_224,
-        rate: 17_000,
-        description: 'Castle wars alt-killing'
+        startExp: 13_363,
+        rate: 30_000,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 100_000,
+        startExp: 20_224,
         rate: 34_000,
-        description: 'Castle wars alt-killing'
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 1_000_000,
-        rate: 50_000,
-        description: 'Castle wars alt-killing'
+        startExp: 33_648,
+        rate: 40_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 55_649,
+        rate: 44_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 91_721,
+        rate: 48_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 150_872,
+        rate: 52_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 273_742,
+        rate: 56_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 449_428,
+        rate: 63_000,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 737_627,
+        rate: 66_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 1_210_421,
+        rate: 70_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 1_986_068,
-        rate: 60_000,
-        description: 'Castle wars alt-killing'
+        rate: 74_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
-        startExp: 3_000_000,
-        rate: 68_000,
-        description: 'Castle wars alt-killing'
+        startExp: 3_258_594,
+        rate: 78_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 5_346_332,
-        rate: 72_000,
-        description: 'Castle wars alt-killing'
+        rate: 85_500,
+        description: 'Castle Wars Alt. Killing'
+      },
+      {
+        startExp: 8_771_558,
+        rate: 89_500,
+        description: 'Castle Wars Alt. Killing'
       },
       {
         startExp: 13_034_431,
-        rate: 80_000,
-        description: 'Castle wars alt-killing'
+        rate: 90_000,
+        description: 'Castle Wars Alt. Killing'
       }
     ],
     bonuses: []
@@ -167,7 +216,7 @@ export default [
       {
         startExp: 0,
         rate: 105_000,
-        description: 'Bury big bones'
+        description: 'Bury Big bones & Vile ashes'
       }
     ],
     bonuses: []
@@ -177,8 +226,28 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 0,
-        description: 'Bonus xp'
+        rate: 15_000,
+        description: 'Misc. Spells'
+      },
+      {
+        startExp: 5_018,
+        rate: 60_000,
+        description: 'Low Alchemy'
+      },
+      {
+        startExp: 50_339,
+        rate: 100_000,
+        description: 'Superheat Gold'
+      },
+      {
+        startExp: 166_636,
+        rate: 165_000,
+        description: 'Alchemy + Falador Teleport + Fire Blast Splashing'
+      },
+      {
+        startExp: 3_258_594,
+        rate: 180_000,
+        description: 'Alchemy + Teleblock'
       }
     ],
     bonuses: []
@@ -188,23 +257,18 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 40_000,
-        description: 'Best fish'
+        rate: 100_000,
+        description: '1t Beef'
       },
       {
-        startExp: 7_842,
-        rate: 130_000,
-        description: 'Best fish'
+        startExp: 22_406,
+        rate: 450_000,
+        description: 'Wines (Incl. Avg. Rate of Failure)'
       },
       {
-        startExp: 37_224,
-        rate: 175_000,
+        startExp: 605_032,
+        rate: 500_000,
         description: 'Wines'
-      },
-      {
-        startExp: 224_466,
-        rate: 2_052_000,
-        description: '3t fish-cook method'
       }
     ],
     bonuses: []
@@ -214,57 +278,90 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 7_000,
-        description: 'Trees'
+        rate: 29_500,
+        description: '4t Trees'
       },
       {
         startExp: 2_411,
-        rate: 15_000,
-        description: '3t Oak trees'
+        rate: 30_000,
+        description: '2t Oaks (steel axe)'
       },
       {
-        startExp: 13_363,
-        rate: 28_000,
-        description: '2.66t, 2x snow Willows'
+        startExp: 5_018,
+        rate: 40_000,
+        description: '2t oaks (mith axe)'
+      },
+      {
+        startExp: 14_833,
+        rate: 55_000,
+        description: '2t oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 45_000,
-        description: '2.66t, 2x snow Willows'
+        rate: 73_500,
+        description: '2t oaks (rune axe)'
+      },
+      {
+        startExp: 101_333,
+        rate: 81_500,
+        description: '2t oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 58_500,
-        description: '2.66t, 2x snow Willows'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 70_000,
-        description: '2.66t, 2x snow Willows'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 81_000,
-        description: '2.66t, 2x snow Willows'
-      },
-      {
-        startExp: 13_034_431,
         rate: 90_000,
-        description: '2.66t, 2x snow Willows'
+        description: '2t oaks (100% success)'
       }
     ],
-    bonuses: []
-  },
-  {
-    skill: Skill.FLETCHING,
-    methods: [
+    bonuses: [
       {
-        startExp: 0,
-        rate: 0,
-        description: '-'
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 2_411,
+        endExp: 5_018,
+        end: false,
+        ratio: 1.8
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 5_018,
+        endExp: 14_833,
+        end: false,
+        ratio: 1.35
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 14_833,
+        endExp: 41_171,
+        end: false,
+        ratio: 0.97
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 41_171,
+        endExp: 101_333,
+        end: false,
+        ratio: 0.73
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 101_333,
+        endExp: 302_288,
+        end: false,
+        ratio: 0.66
+      },
+      {
+        originSkill: Skill.WOODCUTTING,
+        bonusSkill: Skill.MAGIC,
+        startExp: 302_288,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.6
       }
-    ],
-    bonuses: []
+    ]
   },
   {
     skill: Skill.FISHING,
@@ -281,36 +378,111 @@ export default [
       },
       {
         startExp: 13_363,
-        rate: 35_250,
-        description: '3t fish-cook method'
+        rate: 37_500,
+        description: '3t Cake Scatter'
+      },
+      {
+        startExp: 101_333,
+        rate: 52_000,
+        description: '3t Cake Scatter'
       },
       {
         startExp: 273_742,
-        rate: 60_350,
-        description: '3t fish-cook method'
+        rate: 58_000,
+        description: '3t Cake Scatter'
       },
       {
         startExp: 737_627,
-        rate: 71_000,
-        description: '3t fish-cook method'
+        rate: 64_000,
+        description: '3t Cake Scatter'
       },
       {
-        startExp: 2_500_000,
-        rate: 76_250,
-        description: '3t fish-cook method'
+        startExp: 1_986_068,
+        rate: 70_000,
+        description: '3t Cake Scatter'
       },
       {
-        startExp: 6_000_000,
-        rate: 81_000,
-        description: '3t fish-cook method'
+        startExp: 5_902_831,
+        rate: 75_000,
+        description: '3t Cake Scatter'
+      },
+      {
+        startExp: 8_771_558,
+        rate: 77_500,
+        description: '3t Cake Scatter'
       },
       {
         startExp: 13_034_431,
-        rate: 90_000,
-        description: '3t fish-cook method'
+        rate: 80_000,
+        description: '3t Cake Scatter'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 13_363,
+        endExp: 101_333,
+        end: false,
+        ratio: 0.667
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 101_333,
+        endExp: 273_742,
+        end: false,
+        ratio: 0.48
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 273_742,
+        endExp: 737_627,
+        end: false,
+        ratio: 0.43
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 737_627,
+        endExp: 1_986_068,
+        end: false,
+        ratio: 0.39
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 1_986_068,
+        endExp: 5_902_831,
+        end: false,
+        ratio: 0.356
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 5_902_831,
+        endExp: 8_771_558,
+        end: false,
+        ratio: 0.333
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 8_771_558,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.323
+      },
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.PRAYER,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.313
+      }
+    ]
   },
   {
     skill: Skill.FIREMAKING,
@@ -318,22 +490,22 @@ export default [
       {
         startExp: 0,
         rate: 45_000,
-        description: 'Best logs @ GE w/ vile ashes'
+        description: 'Best logs @ GE w/ Vile ashes'
       },
       {
         startExp: 13_363,
         rate: 130_500,
-        description: 'Best logs @ GE w/ vile ashes'
+        description: 'Best logs @ GE w/ Vile ashes'
       },
       {
         startExp: 61_512,
         rate: 195_750,
-        description: 'Best logs @ GE w/ vile ashes'
+        description: 'Best logs @ GE w/ Vile ashes'
       },
       {
         startExp: 273_742,
         rate: 293_625,
-        description: 'Best logs @ GE w/ vile ashes'
+        description: 'Best logs @ GE w/ Vile ashes'
       }
     ],
     bonuses: [
@@ -343,7 +515,7 @@ export default [
         startExp: 13_363,
         endExp: 61_512,
         end: false,
-        ratio: 0.2666
+        ratio: 0.267
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -351,7 +523,7 @@ export default [
         startExp: 61_512,
         endExp: 273_742,
         end: false,
-        ratio: 0.1777
+        ratio: 0.178
       },
       {
         originSkill: Skill.FIREMAKING,
@@ -368,18 +540,28 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 57_000,
-        description: 'Best gems'
+        rate: 37_000,
+        description: 'Leather'
       },
       {
         startExp: 4_470,
-        rate: 135_000,
-        description: 'Best gems'
+        rate: 137_200,
+        description: 'Sapphires'
+      },
+      {
+        startExp: 9_730,
+        rate: 185_220,
+        description: 'Emeralds'
+      },
+      {
+        startExp: 20_224,
+        rate: 233_240,
+        description: 'Rubies'
       },
       {
         startExp: 50_339,
         rate: 295_000,
-        description: 'Best gems'
+        description: 'Diamonds'
       }
     ],
     bonuses: []
@@ -389,13 +571,33 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 4_385_776,
-        description: "Knight's sword -> superheat"
+        rate: 38_175,
+        description: "Knight's Sword"
+      },
+      {
+        startExp: 12_725,
+        rate: 58_000,
+        description: 'Bronze Platebodies w/ alt'
+      },
+      {
+        startExp: 18_247,
+        rate: 116_000,
+        description: 'Iron Platebodies w/ alt'
+      },
+      {
+        startExp: 83_014,
+        rate: 174_000,
+        description: 'Steel Platebodies w/ alt'
+      },
+      {
+        startExp: 605_032,
+        rate: 232_000,
+        description: 'Mithril Platebodies w/ alt'
       },
       {
         startExp: 4_385_776,
-        rate: 275_000,
-        description: 'Addy bodies w/ alt'
+        rate: 290_000,
+        description: 'Adamant Platebodies w/ alt'
       }
     ],
     bonuses: []
@@ -409,91 +611,46 @@ export default [
         description: 'Tin/copper'
       },
       {
-        startExp: 14_833,
-        rate: 12_000,
-        description: '3t iron with alt'
+        startExp: 2_411,
+        rate: 40_500,
+        description: '4t leather double roll at hobgoblin mine'
       },
       {
-        startExp: 41_171,
-        rate: 25_000,
-        description: '3t iron with alt'
+        startExp: 13_363,
+        rate: 45_500,
+        description: '4t leather double roll at hobgoblin mine'
       },
       {
-        startExp: 111_945,
+        startExp: 37_224,
+        rate: 48_000,
+        description: '3.33t snow mining at al kharid'
+      },
+      {
+        startExp: 101_333,
+        rate: 54_000,
+        description: '3.33t snow mining at al kharid'
+      },
+      {
+        startExp: 247_886,
+        rate: 56_000,
+        description: '3t cake scatter iron at mining guild'
+      },
+      {
+        startExp: 302_288,
         rate: 57_000,
-        description: '3t iron with alt'
-      },
-      {
-        startExp: 737_627,
-        rate: 65_000,
-        description: '3t iron with alt'
+        description: '3t cake scatter iron at mining guild'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.MINING,
-        bonusSkill: Skill.SMITHING,
-        startExp: 0,
+        bonusSkill: Skill.PRAYER,
+        startExp: 247_886,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.25
+        ratio: 0.54
       }
     ]
-  },
-  {
-    skill: Skill.HERBLORE,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.AGILITY,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.THIEVING,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.SLAYER,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.FARMING,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
   },
   {
     skill: Skill.RUNECRAFTING,
@@ -501,31 +658,18 @@ export default [
       {
         startExp: 0,
         rate: 55_000,
-        description: 'Pvp world body tiaras'
+        description: 'Solo Body talismans'
       }
     ],
-    bonuses: []
-  },
-  {
-    skill: Skill.HUNTER,
-    methods: [
+    bonuses: [
       {
+        originSkill: Skill.RUNECRAFTING,
+        bonusSkill: Skill.MAGIC,
         startExp: 0,
-        rate: 0,
-        description: '-'
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.4
       }
-    ],
-    bonuses: []
-  },
-  {
-    skill: Skill.CONSTRUCTION,
-    methods: [
-      {
-        startExp: 0,
-        rate: 0,
-        description: '-'
-      }
-    ],
-    bonuses: []
+    ]
   }
 ];

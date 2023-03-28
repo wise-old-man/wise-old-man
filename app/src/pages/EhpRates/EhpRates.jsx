@@ -20,7 +20,20 @@ const RATES_TABLE_CONFIG = {
     {
       key: 'rate',
       isSortable: false,
-      transform: value => (value === 0 ? '---' : `${formatNumber(value)} per hour`)
+      transform: (value, row) => {
+        if (value === 0) return '---';
+
+        if (row.realRate) {
+          return (
+            <div className="scaled-rate">
+              {`${formatNumber(value)} per hour`}
+              <span>{`(actually ${formatNumber(row.realRate)} per hour)`}</span>
+            </div>
+          );
+        }
+
+        return `${formatNumber(value)} per hour`;
+      }
     },
     {
       key: 'description',
@@ -64,8 +77,10 @@ const BONUSES_TABLE_CONFIG = {
       key: 'bonusExp',
       label: 'Bonus Exp.',
       isSortable: false,
-      transform: (val, row) =>
-        formatNumber(Math.min(row.maxBonus || 200000000, (row.endExp - row.startExp) * row.ratio))
+      transform: (_, row) => {
+        if (row.maxBonus) return `${formatNumber(row.maxBonus)} (max)`;
+        return formatNumber(Math.min(200000000, Math.floor((row.endExp - row.startExp) * row.ratio)));
+      }
     }
   ]
 };
