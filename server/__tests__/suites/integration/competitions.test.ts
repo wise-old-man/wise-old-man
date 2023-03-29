@@ -2367,7 +2367,7 @@ describe('Competition API', () => {
 
       expect(response.body.participations[1]).toMatchObject({
         player: { username: 'usbc' },
-        progress: { start: -1, end: 60, gained: 26 } // we start counting at 34 kc (min kc is 35)
+        progress: { start: -1, end: 60, gained: 31 } // we start counting at 29 kc (min kc is 30)
       });
 
       expect(response.body.participations[2]).toMatchObject({
@@ -2567,7 +2567,7 @@ describe('Competition API', () => {
 
       // Check the table body
       expect(rows[1]).toMatch('1,rorro,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,-1,60,26,');
+      expect(rows[2]).toMatch('2,usbc,-1,60,31,');
       expect(rows[3]).toMatch('3,LYNX TITAN,1646,1646,0,');
       expect(rows[4]).toMatch('4,Psikoi,1000,1000,0,');
       expect(rows[5]).toMatch('5,ZULU,-1,-1,0,');
@@ -2608,7 +2608,7 @@ describe('Competition API', () => {
 
       // Check the table body, ensure it has a "Team" column
       expect(rows[1]).toMatch('1,rorro,Team 1,500,557,57,');
-      expect(rows[2]).toMatch('2,usbc,Team 2,-1,60,26,');
+      expect(rows[2]).toMatch('2,usbc,Team 2,-1,60,31,');
       expect(rows[3]).toMatch('3,Psikoi,Team 1,1000,1000,0,');
       expect(rows[4]).toMatch('4,Zezima,Team 2,-1,-1,0,');
     });
@@ -2629,7 +2629,7 @@ describe('Competition API', () => {
 
       // Check the table body
       expect(rows[1]).toMatch('1,Team 1,2,57,28.5,rorro');
-      expect(rows[2]).toMatch('2,Team 2,2,26,13,usbc');
+      expect(rows[2]).toMatch('2,Team 2,2,31,15.5,usbc');
     });
 
     it('should view CSV export (team)', async () => {
