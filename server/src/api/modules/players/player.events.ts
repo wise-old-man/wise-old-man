@@ -9,7 +9,10 @@ import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
 async function onPlayerFlagged(player: Player, previous: Snapshot, rejected: Snapshot) {
-  await metrics.trackEffect(discordService.dispatchPlayerFlagged, player, previous, rejected);
+  jobManager.add({
+    type: JobType.REVIEW_FLAGGED_PLAYER,
+    payload: { player, previous, rejected }
+  });
 }
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {

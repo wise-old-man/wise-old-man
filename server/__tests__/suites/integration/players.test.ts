@@ -4,7 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
-import { BOSSES, Metric, PlayerType } from '../../../src/utils';
+import { BOSSES, Metric, PlayerType, SnapshotDataSource } from '../../../src/utils';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -14,10 +14,15 @@ import {
   sleep,
   resetRedis
 } from '../../utils';
+import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
+import * as snapshotUtils from '../../../src/api/modules/snapshots/snapshot.utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
+import * as efficiencyUtils from '../../../src/api/modules/efficiency/efficiency.utils';
+import * as discordService from '../../../src/api/services/external/discord.service';
 import redisService from '../../../src/api/services/external/redis.service';
+import ReviewFlaggedPlayerJob from '../../../src/api/jobs/instances/ReviewFlaggedPlayerJob';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -29,6 +34,7 @@ const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
+const discordPlayerFlaggedEvent = jest.spyOn(discordService, 'dispatchPlayerFlaggedReview');
 
 const globalData = {
   testPlayerId: -1,
@@ -1488,4 +1494,485 @@ describe('Player API', () => {
       expect(player.displayName).toBe('Zezima');
     });
   });
+
+  describe('10. Archiving', () => {
+    const reviewJob = ReviewFlaggedPlayerJob;
+
+    it('should not review with invalid params', async () => {
+      // @ts-expect-error - invalid params
+      await expect(reviewJob.execute()).rejects.toThrow();
+
+      // @ts-expect-error - invalid params
+      reviewJob.execute({ player: null });
+      // @ts-expect-error - invalid params
+      reviewJob.execute({ player: null, previous: null });
+      reviewJob.execute({ player: null, previous: null, rejected: null });
+
+      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should send discord flagged report (excessive gains)', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/Kendall`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
+        { metric: Metric.AGILITY, value: 10_000_000 },
+        { metric: Metric.THIEVING, value: 20_000_000 }
+      ]);
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      // Manually set overall ranks and exp for de-iron checks later on
+      previousSnapshot.overallRank = 10_000;
+      rejectedSnapshot.overallRank = 60_000;
+      rejectedSnapshot.overallExperience = 363_192_115;
+
+      const formattedPrevious = snapshotUtils.format(
+        previousSnapshot,
+        efficiencyUtils.getPlayerEfficiencyMap(previousSnapshot, player)
+      );
+
+      const formattedRejected = snapshotUtils.format(
+        rejectedSnapshot,
+        efficiencyUtils.getPlayerEfficiencyMap(rejectedSnapshot, player)
+      );
+
+      const runecraftingEHPDiff =
+        formattedRejected.data.skills.runecrafting.ehp - formattedPrevious.data.skills.runecrafting.ehp;
+
+      const aglityEHPDiff =
+        formattedRejected.data.skills.agility.ehp - formattedPrevious.data.skills.agility.ehp;
+
+      const thievingEHPDiff =
+        formattedRejected.data.skills.thieving.ehp - formattedPrevious.data.skills.thieving.ehp;
+
+      const stackableEHPRatio =
+        (aglityEHPDiff + thievingEHPDiff) / (runecraftingEHPDiff + aglityEHPDiff + thievingEHPDiff);
+
+      expect(stackableEHPRatio).toBeCloseTo(0.37953714429306246, 7);
+
+      const rankIncrease =
+        (rejectedSnapshot.overallRank - previousSnapshot.overallRank) / previousSnapshot.overallRank;
+
+      const expIncrease =
+        (rejectedSnapshot.overallExperience - previousSnapshot.overallExperience) /
+        previousSnapshot.overallExperience;
+
+      expect(rankIncrease).toBe(5); // Increased by 500% (10k -> 60k)
+      expect(expIncrease).toBeCloseTo(0.20986560556395695, 8); // Increased by 20.98% (300_192_115 -> 363_192_115)
+
+      reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+
+      expect(discordPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'kendall' }),
+        expect.objectContaining({
+          stackableGainedRatio: 0.37953714429306246,
+          rankChange: 5,
+          expChange: 0.20986560556395695,
+          excessiveGains: true,
+          negativeGains: false,
+          excessiveGainsReversed: false,
+          previous: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({
+                  experience: 5_347_176
+                }),
+                agility: expect.objectContaining({
+                  experience: 4_442_420
+                }),
+                thieving: expect.objectContaining({
+                  experience: 6_517_527
+                })
+              })
+            })
+          }),
+          rejected: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({
+                  experience: 50_000_000
+                }),
+                agility: expect.objectContaining({
+                  experience: 10_000_000
+                }),
+                thieving: expect.objectContaining({
+                  experience: 20_000_000
+                })
+              })
+            })
+          })
+        })
+      );
+    });
+
+    it('should send discord flagged report (negative gains, possible rollback)', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/Roman`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.ZULRAH, value: 1615 }, // zulrah kc dropped from 1646 to 1615
+        { metric: Metric.CONSTRUCTION, value: 10_000_000 } // construction exp increased from 4_537_106 to 10m
+      ]);
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedRejectedRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+
+      expect(discordPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'roman' }),
+        expect.objectContaining({
+          possibleRollback: true,
+          excessiveGains: false,
+          negativeGains: true,
+          excessiveGainsReversed: false,
+          previous: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                construction: expect.objectContaining({
+                  experience: 4_537_106
+                })
+              }),
+              bosses: expect.objectContaining({
+                zulrah: expect.objectContaining({
+                  kills: 1646
+                })
+              })
+            })
+          }),
+          rejected: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                construction: expect.objectContaining({
+                  experience: 10_000_000
+                })
+              }),
+              bosses: expect.objectContaining({
+                zulrah: expect.objectContaining({
+                  kills: 1615
+                })
+              })
+            })
+          })
+        })
+      );
+    });
+
+    it("should not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/Siobhan`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await sleep(500);
+
+      const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.ZULRAH, value: 20_000 },
+        { metric: Metric.TOMBS_OF_AMASCUT, value: 20_000 },
+        { metric: Metric.RUNECRAFTING, value: 200_000_000 },
+        { metric: Metric.WOODCUTTING, value: 200_000_000 },
+        { metric: Metric.SKOTIZO, value: 20 } // Skotizo kc decreased from 21 to 20
+      ]);
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedRejectedRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+
+      expect(discordPlayerFlaggedEvent).not.toBeCalled();
+    });
+
+    it("should not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
+      const modifiedPreviousRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.MINING, value: 200_000_000 } // mining exp will go from 200m to 6.5m
+      ]);
+
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedPreviousRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/Connor`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedPreviousRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await sleep(500);
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+
+      expect(discordPlayerFlaggedEvent).not.toBeCalled();
+    });
+
+    it('should auto-archive', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/Greg Hirsch`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      // pre changes setup
+      const groupId = await setupPreTransitionData(player.id);
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await sleep(500);
+      await setupPostTransitionDate(player.id, groupId);
+
+      const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
+        { metric: Metric.AGILITY, value: 10_000_000 },
+        { metric: Metric.THIEVING, value: 20_000_000 },
+        { metric: Metric.MINING, value: 1_000_000 }
+      ]);
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedRejectedRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      const {
+        newPlayerGroupIds,
+        newPlayerCompetitionIds,
+        archivedPlayerCompetitionIds,
+        archivedPlayerGroupIds
+      } = await playerUtils.splitArchivalData(player.id, previousSnapshot.createdAt);
+
+      expect(Array.from(archivedPlayerGroupIds)).toEqual([1001]);
+      expect(Array.from(archivedPlayerCompetitionIds)).toEqual([1001, 1002, 1003, 1005, 1007, 1009]);
+
+      expect(Array.from(newPlayerGroupIds)).toEqual([1002, 1003, 1004]);
+      expect(Array.from(newPlayerCompetitionIds)).toEqual([1004, 1006, 1008]);
+
+      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+
+      // if the discord event is dispatched, that means it wasn't auto-archived
+      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
+    });
+  });
 });
+
+async function setupPostTransitionDate(playerId: number, groupId: number) {
+  await prisma.group.create({
+    data: {
+      id: 1002,
+      name: `Test Group 2`,
+      verificationHash: '',
+      memberships: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1004,
+      title: `Test Competition 4`,
+      metric: 'zulrah',
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1005,
+      title: `Test Competition 5`,
+      metric: 'zulrah',
+      groupId,
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1006,
+      title: `Test Competition 6`,
+      metric: 'zulrah',
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.group.create({
+    data: {
+      id: 1003,
+      name: `Test Group 3`,
+      verificationHash: '',
+      memberships: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1007,
+      title: `Test Competition 7`,
+      metric: 'zulrah',
+      groupId,
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1008,
+      title: `Test Competition 8`,
+      metric: 'zulrah',
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1009,
+      title: `Test Competition 9`,
+      metric: 'zulrah',
+      groupId,
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 3_600_000),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.group.create({
+    data: { id: 1004, name: `Test Group 4`, verificationHash: '', memberships: { create: { playerId } } }
+  });
+}
+
+async function setupPreTransitionData(playerId: number) {
+  const group1 = await prisma.group.create({
+    data: {
+      id: 1001,
+      name: `Test Group 1`,
+      verificationHash: '',
+      memberships: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1001,
+      title: `Test Competition 1`,
+      metric: 'zulrah',
+      startsAt: new Date('2020-01-01'),
+      endsAt: new Date('2020-03-01'),
+      verificationHash: '',
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1002,
+      title: `Test Competition 2`,
+      metric: 'zulrah',
+      startsAt: new Date('2020-01-01'),
+      endsAt: new Date('2020-03-01'),
+      verificationHash: '',
+      groupId: group1.id,
+      participations: { create: { playerId } }
+    }
+  });
+
+  await prisma.competition.create({
+    data: {
+      id: 1003,
+      title: `Test Competition 3`,
+      metric: 'zulrah',
+      startsAt: new Date('2020-01-01'),
+      endsAt: new Date('2030-03-01'),
+      verificationHash: '',
+      groupId: group1.id,
+      participations: { create: { playerId } }
+    }
+  });
+
+  return group1.id;
+}
