@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerType, PlayerBuild } from '../../../../utils';
+import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
@@ -72,8 +72,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
 
-    if (!player.flagged) {
-      await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
+    if (player.status !== PlayerStatus.FLAGGED) {
+      await prisma.player.update({
+        data: { flagged: true, status: PlayerStatus.FLAGGED },
+        where: { id: player.id }
+      });
       playerEvents.onPlayerFlagged(player, previousStats, currentStats);
     }
 
@@ -97,6 +100,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // Refresh the player's build
   updatedPlayerFields.build = getBuild(currentStats);
   updatedPlayerFields.flagged = false;
+  updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
   const computedMetrics = await efficiencyServices.computePlayerMetrics({
     player: {
@@ -144,7 +148,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 }
 
 async function shouldReviewType(player: Player) {
-  if (player.flagged || player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
+  if (
+    player.status === PlayerStatus.FLAGGED ||
+    player.type === PlayerType.UNKNOWN ||
+    player.type === PlayerType.REGULAR
+  ) {
     return false;
   }
 

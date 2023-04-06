@@ -4,7 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
-import { BOSSES, Metric, PlayerType, SnapshotDataSource } from '../../../src/utils';
+import { BOSSES, Metric, PlayerStatus, PlayerType, SnapshotDataSource } from '../../../src/utils';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -218,7 +218,7 @@ describe('Player API', () => {
       // Manually flag the player
       await prisma.player.update({
         where: { id: firstResponse.body.id },
-        data: { flagged: true }
+        data: { flagged: true, status: PlayerStatus.FLAGGED }
       });
 
       // Mock the hiscores to fail for ironman
@@ -1092,6 +1092,7 @@ describe('Player API', () => {
 
       expect(detailsResponse.status).toBe(200);
       expect(detailsResponse.body.flagged).toBe(true);
+      expect(detailsResponse.body.status).toBe(PlayerStatus.FLAGGED);
 
       const assertTypeResponse = await api.post(`/players/psikoi/assert-type`);
 
@@ -1116,6 +1117,7 @@ describe('Player API', () => {
       const trackResponse = await api.post(`/players/psikoi`);
       expect(trackResponse.status).toBe(200);
       expect(trackResponse.body.flagged).toBe(false);
+      expect(trackResponse.body.status).toBe(PlayerStatus.ACTIVE);
 
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {

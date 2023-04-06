@@ -1,6 +1,6 @@
 import { BadRequestError, ServerError } from '../../../errors';
 import prisma, { modifyPlayer, Player } from '../../../../prisma';
-import { PlayerType } from '../../../../utils';
+import { PlayerStatus, PlayerType } from '../../../../utils';
 import logger from '../../../util/logging';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../../modules/snapshots/snapshot.services';
@@ -9,7 +9,7 @@ import * as playerEvents from '../player.events';
 type AssertPlayerTypeResult = [type: PlayerType, player: Player, changed: boolean];
 
 async function assertPlayerType(player: Player, updateIfChanged = false): Promise<AssertPlayerTypeResult> {
-  if (player.flagged) {
+  if (player.status === PlayerStatus.FLAGGED) {
     throw new BadRequestError('Type Assertion Not Allowed: Player is Flagged.');
   }
 

@@ -196,6 +196,15 @@ export const PlayerBuild = {
 
 export type PlayerBuild = typeof PlayerBuild[keyof typeof PlayerBuild];
 
+export const PlayerStatus = {
+  ACTIVE: 'active',
+  UNRANKED: 'unranked',
+  FLAGGED: 'flagged',
+  ARCHIVED: 'archived'
+} as const;
+
+export type PlayerStatus = typeof PlayerStatus[keyof typeof PlayerStatus];
+
 export const CompetitionType = {
   CLASSIC: 'classic',
   TEAM: 'team'

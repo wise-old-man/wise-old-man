@@ -250,22 +250,23 @@ model Participation {
 }
 
 model Player {
-  id               Int         @id @default(autoincrement())
-  username         String      @unique @db.VarChar(12)
-  displayName      String      @db.VarChar(12)
-  type             PlayerType  @default(unknown)
-  build            PlayerBuild @default(main)
+  id               Int          @id @default(autoincrement())
+  username         String       @unique @db.VarChar(12)
+  displayName      String       @db.VarChar(12)
+  type             PlayerType   @default(unknown)
+  build            PlayerBuild  @default(main)
+  status           PlayerStatus @default(active)
   country          Country?
-  flagged          Boolean     @default(false)
-  exp              BigInt      @default(0)
-  ehp              Float       @default(0)
-  ehb              Float       @default(0)
-  ttm              Float       @default(0)
-  tt200m           Float       @default(0)
-  registeredAt     DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt        DateTime?   @db.Timestamptz(6)
-  lastChangedAt    DateTime?   @db.Timestamptz(6)
-  lastImportedAt   DateTime?   @db.Timestamptz(6)
+  flagged          Boolean      @default(false)
+  exp              BigInt       @default(0)
+  ehp              Float        @default(0)
+  ehb              Float        @default(0)
+  ttm              Float        @default(0)
+  tt200m           Float        @default(0)
+  registeredAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime?    @db.Timestamptz(6)
+  lastChangedAt    DateTime?    @db.Timestamptz(6)
+  lastImportedAt   DateTime?    @db.Timestamptz(6)
   latestSnapshotId Int?
 
   // Relations
@@ -548,6 +549,15 @@ enum PlayerBuild {
   hp10
 
   @@map("player_build")
+}
+
+enum PlayerStatus {
+  active
+  unranked
+  flagged
+  archived
+
+  @@map("player_status")
 }
 
 enum Country {

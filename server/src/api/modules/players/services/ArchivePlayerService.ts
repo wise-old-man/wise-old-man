@@ -1,3 +1,4 @@
+import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
 import prisma, { Player, setHooksEnabled } from '../../../../prisma';
@@ -20,7 +21,11 @@ async function archivePlayer(player: Player): Promise<void> {
       // Change the archived player's username to the random username
       await transaction.player.update({
         where: { id: player.id },
-        data: { username: archiveUsername, displayName: archiveUsername }
+        data: {
+          username: archiveUsername,
+          displayName: archiveUsername,
+          status: PlayerStatus.ARCHIVED
+        }
       });
 
       // TODO: set player status to archived
