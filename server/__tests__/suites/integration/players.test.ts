@@ -18,6 +18,7 @@ import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.s
 import * as snapshotUtils from '../../../src/api/modules/snapshots/snapshot.utils';
 import * as playerServices from '../../../src/api/modules/players/player.services';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
+import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import * as efficiencyUtils from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as discordService from '../../../src/api/services/external/discord.service';
@@ -29,6 +30,9 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const CML_FILE_PATH = `${__dirname}/../../data/cml/psikoi_cml.txt`;
 const HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
+
+const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
+const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
 const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
@@ -1790,6 +1794,8 @@ describe('Player API', () => {
         source: SnapshotDataSource.HISCORES
       });
 
+      await prisma.snapshot.create({ data: previousSnapshot });
+
       await sleep(500);
       await setupPostTransitionDate(player.id, groupId);
 
@@ -1823,6 +1829,63 @@ describe('Player API', () => {
 
       // if the discord event is dispatched, that means it wasn't auto-archived
       expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
+
+      // hooks should be disabled during archival, so that we don't send any member joined/left events
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+
+      const archivedPlayer = await prisma.player.findFirst({
+        where: { id: player.id }
+      });
+
+      // TODO: check if status is archived
+      expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
+      expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
+
+      const archivals = await prisma.playerArchive.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivals.length).toBe(1);
+      expect(archivals[0].previousUsername).toBe(player.username);
+      expect(archivals[0].archiveUsername).toBe(archivedPlayer.username);
+
+      const archivedPlayerMemberships = await prisma.membership.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivedPlayerMemberships.length).toBe(1);
+      expect(archivedPlayerMemberships.map(m => m.groupId)).toEqual([1001]);
+
+      const archivedPlayerParticipations = await prisma.participation.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivedPlayerParticipations.length).toBe(6);
+      expect(archivedPlayerParticipations.map(m => m.competitionId)).toEqual([
+        1001, 1002, 1003, 1005, 1007, 1009
+      ]);
+
+      const newPlayer = await prisma.player.findFirst({
+        where: { username: player.username }
+      });
+
+      expect(newPlayer.username).toBe(player.username);
+      expect(newPlayer.displayName).toBe(player.displayName);
+
+      const newPlayerMemberships = await prisma.membership.findMany({
+        where: { playerId: newPlayer.id }
+      });
+
+      expect(newPlayerMemberships.length).toBe(3);
+      expect(newPlayerMemberships.map(m => m.groupId)).toEqual([1002, 1003, 1004]);
+
+      const newPlayerParticipations = await prisma.participation.findMany({
+        where: { playerId: newPlayer.id }
+      });
+
+      expect(newPlayerParticipations.length).toBe(3);
+      expect(newPlayerParticipations.map(m => m.competitionId)).toEqual([1004, 1006, 1008]);
     });
   });
 });

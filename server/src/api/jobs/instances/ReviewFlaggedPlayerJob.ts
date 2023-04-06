@@ -3,6 +3,7 @@ import { Player, Snapshot } from '../../../prisma';
 import * as discordService from '../../services/external/discord.service';
 import * as snapshotUtils from '../../modules/snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../modules/efficiency/efficiency.utils';
+import * as playerServices from '../../modules/players/player.services';
 import { JobType, JobDefinition } from '../job.types';
 
 const STACKABLE_EXP_SKILLS = [
@@ -50,7 +51,8 @@ class ReviewFlaggedPlayerJob implements JobDefinition<ReviewFlaggedPlayerPayload
         !excessiveGains && !excessiveGainsReversed && !hasLostTooMuch(previous, rejected);
 
       if (!possibleRollback) {
-        // TODO: auto-archive here
+        // If it isn't a rollback, then it's definitely a name transfer, and should be archived
+        await playerServices.archivePlayer(player);
         return;
       }
 

@@ -276,6 +276,7 @@ model Player {
   participations Participation[]
   records        Record[]
   snapshots      Snapshot[]
+  archives       PlayerArchive[]
 
   // Indices
   @@index([type], map: "players_type")
@@ -283,6 +284,21 @@ model Player {
   @@index([country], map: "players_country")
   // Map
   @@map("players")
+}
+
+model PlayerArchive {
+  playerId         Int
+  previousUsername String   @db.VarChar(12)
+  archiveUsername  String   @db.VarChar(12)
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  // Constraints
+  @@id([playerId, createdAt])
+  // Map
+  @@map("playerArchives")
 }
 
 model Record {

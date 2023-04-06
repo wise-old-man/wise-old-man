@@ -1,3 +1,4 @@
+export * from './services/ArchivePlayerService';
 export * from './services/AssertPlayerTypeService';
 export * from './services/ChangePlayerCountryService';
 export * from './services/DeletePlayerService';
