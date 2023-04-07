@@ -23,6 +23,14 @@ sidebar_position: 1
 
 <br />
 
+### `(Enum)` Player Status
+
+```bash
+'active', 'unranked', 'flagged', 'archived'
+```
+
+<br />
+
 ### `(Enum)` Country
 
 ```bash
@@ -101,24 +109,25 @@ sidebar_position: 1
 Not to be confused with [Player Details](/players-api/player-type-definitions#object-player-details), which extends `Player`.
 :::
 
-| Field          | Type                                                                  | Description                                                                                                 |
-| :------------- | :-------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
-| id             | integer                                                               | The player's unique ID.                                                                                     |
-| username       | string                                                                | The player's usernam. (lowercase 1-12 characters)                                                           |
-| displayName    | string                                                                | The player's display name, very similar to `username`, except it supports capitalization. (1-12 characters) |
-| type           | [PlayerType](/players-api/player-type-definitions#enum-player-type)   | The player's account type. (Default: `unknown`)                                                             |
-| build          | [PlayerBuild](/players-api/player-type-definitions#enum-player-build) | The player's account build. (Default: `main`)                                                               |
-| country        | [Country](/players-api/player-type-definitions#enum-country)?         | The player's country of origin.                                                                             |
-| flagged        | boolean                                                               | Whether the player is flagged for having an invalid snapshot history. (Default: `false`)                    |
-| exp            | long (bigint)                                                         | The player's overall experience.                                                                            |
-| ehp            | float                                                                 | The player's (skilling) Efficient Hours Played.                                                             |
-| ehb            | float                                                                 | The player's Efficient Hours Bossed.                                                                        |
-| ttm            | float                                                                 | The player's Time to Max (all 99s), in hours.                                                               |
-| ttm200m        | float                                                                 | The player's Time to 200m All, in hours.                                                                    |
-| registeredAt   | date                                                                  | The player's registration date.                                                                             |
-| updatedAt      | date                                                                  | The player's last update date.                                                                              |
-| lastChangedAt  | date?                                                                 | The player's last change (gained exp, kc, etc) date.                                                        |
-| lastImportedAt | date?                                                                 | The date of the last CML history import.                                                                    |
+| Field          | Type                                                                    | Description                                                                                                 |
+| :------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
+| id             | integer                                                                 | The player's unique ID.                                                                                     |
+| username       | string                                                                  | The player's usernam. (lowercase 1-12 characters)                                                           |
+| displayName    | string                                                                  | The player's display name, very similar to `username`, except it supports capitalization. (1-12 characters) |
+| type           | [PlayerType](/players-api/player-type-definitions#enum-player-type)     | The player's account type. (Default: `unknown`)                                                             |
+| build          | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)   | The player's account build. (Default: `main`)                                                               |
+| country        | [Country](/players-api/player-type-definitions#enum-country)?           | The player's country of origin.                                                                             |
+| status         | [PlayerStatus](/players-api/player-type-definitions#enum-player-status) | The player's account status. (Default: `active`)                                                            |
+| flagged        | boolean                                                                 | Whether the player is flagged for having an invalid snapshot history. (Default: `false`)                    |
+| exp            | long (bigint)                                                           | The player's overall experience.                                                                            |
+| ehp            | float                                                                   | The player's (skilling) Efficient Hours Played.                                                             |
+| ehb            | float                                                                   | The player's Efficient Hours Bossed.                                                                        |
+| ttm            | float                                                                   | The player's Time to Max (all 99s), in hours.                                                               |
+| ttm200m        | float                                                                   | The player's Time to 200m All, in hours.                                                                    |
+| registeredAt   | date                                                                    | The player's registration date.                                                                             |
+| updatedAt      | date                                                                    | The player's last update date.                                                                              |
+| lastChangedAt  | date?                                                                   | The player's last change (gained exp, kc, etc) date.                                                        |
+| lastImportedAt | date?                                                                   | The date of the last CML history import.                                                                    |
 
 <br />
 
