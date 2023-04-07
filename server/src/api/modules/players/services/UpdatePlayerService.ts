@@ -6,14 +6,17 @@ import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
+import * as discordService from '../../../services/external/discord.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
+import { PlayerDetails } from '../player.types';
 import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
-import { PlayerDetails } from '../player.types';
+import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
+import { archivePlayer } from './ArchivePlayerService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -73,10 +76,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
-      await prisma.player.update({
-        data: { flagged: true, status: PlayerStatus.FLAGGED },
-        where: { id: player.id }
-      });
+      const handled = await handlePlayerFlagged(player, previousStats, currentStats);
+      // If the flag was properly handled (via a player archive),
+      // call this function recursively, so that the new player can be tracked
+      if (handled) return updatePlayer({ username: player.username });
+
       playerEvents.onPlayerFlagged(player, previousStats, currentStats);
     }
 
@@ -158,6 +162,25 @@ async function shouldReviewType(player: Player) {
 
   // Check if this player has been reviewed recently (past 7 days)
   return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
+}
+
+async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
+  await prisma.player.update({
+    data: { flagged: true, status: PlayerStatus.FLAGGED },
+    where: { id: player.id }
+  });
+
+  const flaggedContext = await reviewFlaggedPlayer(player, previousStats, rejectedStats);
+
+  if (!flaggedContext) {
+    // no context, we know this is a name transfer and can be auto-archived
+    await archivePlayer(player);
+    return true;
+  }
+
+  // if there is a flag context, report it to our Discord for manual review
+  discordService.dispatchPlayerFlaggedReview(player, flaggedContext);
+  return false;
 }
 
 async function reviewType(player: Player) {

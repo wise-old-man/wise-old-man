@@ -8,11 +8,8 @@ import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
-async function onPlayerFlagged(player: Player, previous: Snapshot, rejected: Snapshot) {
-  jobManager.add({
-    type: JobType.REVIEW_FLAGGED_PLAYER,
-    payload: { player, previous, rejected }
-  });
+async function onPlayerFlagged(_player: Player, _previous: Snapshot, _rejected: Snapshot) {
+  console.log('player flagged!');
 }
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {

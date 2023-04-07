@@ -8,7 +8,6 @@ import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.type
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
 import RefreshApiKeysJob from './instances/RefreshApiKeysJobs';
-import ReviewFlaggedPlayerJob from './instances/ReviewFlaggedPlayerJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
@@ -23,7 +22,6 @@ const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,
-  ReviewFlaggedPlayerJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,

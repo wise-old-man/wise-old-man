@@ -23,7 +23,7 @@ import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import * as efficiencyUtils from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as discordService from '../../../src/api/services/external/discord.service';
 import redisService from '../../../src/api/services/external/redis.service';
-import ReviewFlaggedPlayerJob from '../../../src/api/jobs/instances/ReviewFlaggedPlayerJob';
+import { reviewFlaggedPlayer } from '../../../src/api/modules/players/player.services';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -808,6 +808,11 @@ describe('Player API', () => {
     });
 
     it('should force update (despite excessive gains)', async () => {
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const firstResponse = await api.post(`/players/jonxslays`);
       expect(firstResponse.status).toBe(201);
 
@@ -1502,22 +1507,7 @@ describe('Player API', () => {
   });
 
   describe('10. Archiving', () => {
-    const reviewJob = ReviewFlaggedPlayerJob;
-
-    it('should not review with invalid params', async () => {
-      // @ts-expect-error - invalid params
-      await expect(reviewJob.execute()).rejects.toThrow();
-
-      // @ts-expect-error - invalid params
-      reviewJob.execute({ player: null });
-      // @ts-expect-error - invalid params
-      reviewJob.execute({ player: null, previous: null });
-      reviewJob.execute({ player: null, previous: null, rejected: null });
-
-      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
-    });
-
-    it('should send discord flagged report (excessive gains)', async () => {
+    it("shouldn't auto-archive, send discord flagged report instead (excessive gains)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1540,6 +1530,11 @@ describe('Player API', () => {
         { metric: Metric.AGILITY, value: 10_000_000 },
         { metric: Metric.THIEVING, value: 20_000_000 }
       ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
 
       const rejectedSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
@@ -1586,52 +1581,43 @@ describe('Player API', () => {
       expect(rankIncrease).toBe(5); // Increased by 500% (10k -> 60k)
       expect(expIncrease).toBeCloseTo(0.20986560556395695, 8); // Increased by 20.98% (300_192_115 -> 363_192_115)
 
-      reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
-      expect(discordPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'kendall' }),
-        expect.objectContaining({
-          stackableGainedRatio: 0.37953714429306246,
-          rankChange: 5,
-          expChange: 0.20986560556395695,
-          excessiveGains: true,
-          negativeGains: false,
-          excessiveGainsReversed: false,
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({
-                  experience: 5_347_176
-                }),
-                agility: expect.objectContaining({
-                  experience: 4_442_420
-                }),
-                thieving: expect.objectContaining({
-                  experience: 6_517_527
-                })
-              })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                runecrafting: expect.objectContaining({
-                  experience: 50_000_000
-                }),
-                agility: expect.objectContaining({
-                  experience: 10_000_000
-                }),
-                thieving: expect.objectContaining({
-                  experience: 20_000_000
-                })
-              })
-            })
-          })
-        })
-      );
+      expect(flagContext).toMatchObject({
+        stackableGainedRatio: 0.37953714429306246,
+        rankChange: 5,
+        expChange: 0.20986560556395695,
+        excessiveGains: true,
+        negativeGains: false,
+        excessiveGainsReversed: false,
+        previous: {
+          data: {
+            skills: {
+              runecrafting: { experience: 5_347_176 },
+              agility: { experience: 4_442_420 },
+              thieving: { experience: 6_517_527 }
+            }
+          }
+        },
+        rejected: {
+          data: {
+            skills: {
+              runecrafting: { experience: 50_000_000 },
+              agility: { experience: 10_000_000 },
+              thieving: { experience: 20_000_000 }
+            }
+          }
+        }
+      });
+
+      const trackResponse = await api.post(`/players/Kendall`);
+      expect(trackResponse.status).toBe(500);
+      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+
+      expect(discordPlayerFlaggedEvent).toBeCalled();
     });
 
-    it('should send discord flagged report (negative gains, possible rollback)', async () => {
+    it("shouldn't auto-archive, send discord flagged report instead (negative gains, possible rollback)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1654,54 +1640,54 @@ describe('Player API', () => {
         { metric: Metric.CONSTRUCTION, value: 10_000_000 } // construction exp increased from 4_537_106 to 10m
       ]);
 
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRejectedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const rejectedSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
       });
 
-      reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
-      expect(discordPlayerFlaggedEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ username: 'roman' }),
-        expect.objectContaining({
-          possibleRollback: true,
-          excessiveGains: false,
-          negativeGains: true,
-          excessiveGainsReversed: false,
-          previous: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                construction: expect.objectContaining({
-                  experience: 4_537_106
-                })
-              }),
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({
-                  kills: 1646
-                })
-              })
-            })
-          }),
-          rejected: expect.objectContaining({
-            data: expect.objectContaining({
-              skills: expect.objectContaining({
-                construction: expect.objectContaining({
-                  experience: 10_000_000
-                })
-              }),
-              bosses: expect.objectContaining({
-                zulrah: expect.objectContaining({
-                  kills: 1615
-                })
-              })
-            })
-          })
-        })
-      );
+      expect(flagContext).toMatchObject({
+        possibleRollback: true,
+        excessiveGains: false,
+        negativeGains: true,
+        excessiveGainsReversed: false,
+        previous: {
+          data: {
+            skills: {
+              construction: { experience: 4_537_106 }
+            },
+            bosses: {
+              zulrah: { kills: 1646 }
+            }
+          }
+        },
+        rejected: {
+          data: {
+            skills: {
+              construction: { experience: 10_000_000 }
+            },
+            bosses: {
+              zulrah: { kills: 1615 }
+            }
+          }
+        }
+      });
+
+      const trackResponse = await api.post(`/players/Roman`);
+      expect(trackResponse.status).toBe(500);
+      expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
+
+      expect(discordPlayerFlaggedEvent).toHaveBeenCalled();
     });
 
-    it("should not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
+    it("should auto-archive, and not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1729,18 +1715,29 @@ describe('Player API', () => {
         { metric: Metric.SKOTIZO, value: 20 } // Skotizo kc decreased from 21 to 20
       ]);
 
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRejectedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const rejectedSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
         source: SnapshotDataSource.HISCORES
       });
 
-      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      expect(flagContext).toBeNull();
 
-      expect(discordPlayerFlaggedEvent).not.toBeCalled();
+      const trackResponse = await api.post(`/players/Siobhan`);
+      expect(trackResponse.status).toBe(200);
+      expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
+      expect(trackResponse.body.type).not.toBe('unknown');
+
+      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
-    it("should not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
+    it("should auto-archive, and not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
       const modifiedPreviousRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.MINING, value: 200_000_000 } // mining exp will go from 200m to 6.5m
       ]);
@@ -1764,15 +1761,26 @@ describe('Player API', () => {
 
       await sleep(500);
 
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const rejectedSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
         rawCSV: globalData.hiscoresRawData,
         source: SnapshotDataSource.HISCORES
       });
 
-      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      expect(flagContext).toBeNull();
 
-      expect(discordPlayerFlaggedEvent).not.toBeCalled();
+      const trackResponse = await api.post(`/players/Connor`);
+      expect(trackResponse.status).toBe(200);
+      expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
+      expect(trackResponse.body.type).not.toBe('unknown');
+
+      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should auto-archive', async () => {
@@ -1808,6 +1816,11 @@ describe('Player API', () => {
         { metric: Metric.MINING, value: 1_000_000 }
       ]);
 
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRejectedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
       const rejectedSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
         rawCSV: modifiedRejectedRawData,
@@ -1842,7 +1855,13 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([1002, 1003, 1004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([1004, 1006, 1008]);
 
-      await reviewJob.execute({ player, previous: previousSnapshot, rejected: rejectedSnapshot });
+      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      expect(flagContext).toBeNull();
+
+      const trackResponse = await api.post(`/players/Greg Hirsch`);
+      expect(trackResponse.status).toBe(200);
+      expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
+      expect(trackResponse.body.type).not.toBe('unknown');
 
       // if the discord event is dispatched, that means it wasn't auto-archived
       expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
@@ -1855,7 +1874,7 @@ describe('Player API', () => {
         where: { id: player.id }
       });
 
-      // TODO: check if status is archived
+      expect(archivedPlayer.status).toBe('archived');
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
@@ -1887,6 +1906,7 @@ describe('Player API', () => {
         where: { username: player.username }
       });
 
+      expect(newPlayer.status).toBe('active');
       expect(newPlayer.username).toBe(player.username);
       expect(newPlayer.displayName).toBe(player.displayName);
 

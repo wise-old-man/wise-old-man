@@ -6,5 +6,6 @@ export * from './services/FetchPlayerDetailsService';
 export * from './services/FindPlayerService';
 export * from './services/FindPlayersService';
 export * from './services/ImportPlayerHistoryService';
+export * from './services/ReviewFlaggedPlayerService';
 export * from './services/SearchPlayersService';
 export * from './services/UpdatePlayerService';
