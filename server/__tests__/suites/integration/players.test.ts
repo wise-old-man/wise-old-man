@@ -1814,6 +1814,21 @@ describe('Player API', () => {
         source: SnapshotDataSource.HISCORES
       });
 
+      const submitNameChangeResponse = await api.post(`/names`).send({
+        oldName: 'Greg Hirsch',
+        newName: 'Cousin Greg'
+      });
+
+      expect(submitNameChangeResponse.status).toBe(201);
+
+      const preArchiveNameChangesResponse = await api.get(`/names`);
+
+      expect(preArchiveNameChangesResponse.status).toBe(200);
+      expect(preArchiveNameChangesResponse.body.length).toBeGreaterThan(1);
+      expect(preArchiveNameChangesResponse.body[0].status).toBe('pending');
+      expect(preArchiveNameChangesResponse.body[0].oldName).toBe('Greg Hirsch');
+      expect(preArchiveNameChangesResponse.body[0].newName).toBe('Cousin Greg');
+
       const {
         newPlayerGroupIds,
         newPlayerCompetitionIds,
@@ -1888,6 +1903,15 @@ describe('Player API', () => {
 
       expect(newPlayerParticipations.length).toBe(3);
       expect(newPlayerParticipations.map(m => m.competitionId)).toEqual([1004, 1006, 1008]);
+
+      const postArchiveNameChangesResponse = await api.get(`/names`);
+
+      expect(postArchiveNameChangesResponse.status).toBe(200);
+      expect(postArchiveNameChangesResponse.body.length).toBe(preArchiveNameChangesResponse.body.length);
+      expect(postArchiveNameChangesResponse.body[0].status).toBe('denied');
+      expect(postArchiveNameChangesResponse.body[0].oldName).toBe('Greg Hirsch');
+      expect(postArchiveNameChangesResponse.body[0].newName).toBe('Cousin Greg');
+      expect(postArchiveNameChangesResponse.body[0].playerId).toBe(archivedPlayer.id);
     });
   });
 });

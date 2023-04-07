@@ -1,7 +1,7 @@
 import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
-import prisma, { Player, setHooksEnabled } from '../../../../prisma';
+import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
 
@@ -28,8 +28,6 @@ async function archivePlayer(player: Player): Promise<void> {
         }
       });
 
-      // TODO: set player status to archived
-
       // Create a new player archive
       await transaction.playerArchive.create({
         data: {
@@ -49,6 +47,12 @@ async function archivePlayer(player: Player): Promise<void> {
 
       // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events
       setHooksEnabled(false);
+
+      // Deny every pending name change for the archived player
+      await transaction.nameChange.updateMany({
+        where: { playerId: player.id, status: NameChangeStatus.PENDING },
+        data: { status: NameChangeStatus.DENIED }
+      });
 
       // Transfer all post-last-snapshot memberships to the new player
       for (const groupId of splitData.newPlayerGroupIds) {
