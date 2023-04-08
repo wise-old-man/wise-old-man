@@ -5,6 +5,7 @@ import prisma, { modifyPlayer, NameChangeStatus, Player, setHooksEnabled } from 
 import * as discordService from '../../../services/external/discord.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
+import * as playerEvents from '../player.events';
 
 interface ArchivePlayerResult {
   newPlayer: Player;
@@ -88,6 +89,8 @@ async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
     });
 
   await playerUtils.setCachedPlayerId(player.username, null);
+
+  playerEvents.onPlayerArchived(modifyPlayer(result.archivedPlayer), player.displayName);
 
   return {
     newPlayer: modifyPlayer(result.newPlayer),

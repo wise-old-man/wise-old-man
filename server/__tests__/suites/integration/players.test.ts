@@ -1744,7 +1744,7 @@ describe('Player API', () => {
       expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
 
-    it("should auto-archive, and not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
+    it("should auto-archive, and not send discord flagged report (can't be a rollback)", async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1860,7 +1860,7 @@ describe('Player API', () => {
       );
     });
 
-    it('should auto-archive', async () => {
+    it('should detect flag and auto-archive', async () => {
       // Mock regular hiscores data, and block any ironman requests
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
@@ -1873,7 +1873,7 @@ describe('Player API', () => {
       const player = playerResponse.body;
 
       // pre changes setup
-      const groupId = await setupPreTransitionData(player.id);
+      const groupId = await setupPreTransitionData(1000, player.id);
 
       const previousSnapshot = await snapshotServices.buildSnapshot({
         playerId: player.id,
@@ -1884,7 +1884,7 @@ describe('Player API', () => {
       await prisma.snapshot.create({ data: previousSnapshot });
 
       await sleep(500);
-      await setupPostTransitionDate(player.id, groupId);
+      await setupPostTransitionDate(1000, player.id, groupId);
 
       const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
         { metric: Metric.RUNECRAFTING, value: 50_000_000 },
@@ -2020,14 +2020,197 @@ describe('Player API', () => {
       expect(postArchiveNameChangesResponse.body[0].newName).toBe('Cousin Greg');
       expect(postArchiveNameChangesResponse.body[0].playerId).toBe(archivedPlayer.id);
     });
+
+    it("shouldn't archive player (invalid admin password)", async () => {
+      const response = await api.post(`/players/psikoi/archive`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it("shouldn't archive player (incorrect admin password)", async () => {
+      const response = await api.post(`/players/psikoi/archive`).send({ adminPassword: 'abc' });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
+    it("shouldn't archive player (player not found)", async () => {
+      const response = await api.post(`/players/woah/archive`).send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Player not found.');
+    });
+
+    it('should archive (endpoint)', async () => {
+      // Mock regular hiscores data, and block any ironman requests
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: globalData.hiscoresRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const playerResponse = await api.post(`/players/TomWambsgans`);
+      expect(playerResponse.status).toBe(201);
+
+      const player = playerResponse.body;
+
+      // pre changes setup
+      const groupId = await setupPreTransitionData(2000, player.id);
+
+      const previousSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: globalData.hiscoresRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      await prisma.snapshot.create({ data: previousSnapshot });
+
+      await sleep(500);
+      await setupPostTransitionDate(2000, player.id, groupId);
+
+      const modifiedRejectedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.RUNECRAFTING, value: 50_000_000 },
+        { metric: Metric.AGILITY, value: 10_000_000 },
+        { metric: Metric.THIEVING, value: 20_000_000 },
+        { metric: Metric.MINING, value: 1_000_000 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRejectedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const rejectedSnapshot = await snapshotServices.buildSnapshot({
+        playerId: player.id,
+        rawCSV: modifiedRejectedRawData,
+        source: SnapshotDataSource.HISCORES
+      });
+
+      const submitNameChangeResponse = await api.post(`/names`).send({
+        oldName: 'TomWambsgans',
+        newName: 'Tom'
+      });
+
+      expect(submitNameChangeResponse.status).toBe(201);
+
+      const preArchiveNameChangesResponse = await api.get(`/names`);
+
+      expect(preArchiveNameChangesResponse.status).toBe(200);
+      expect(preArchiveNameChangesResponse.body.length).toBeGreaterThan(1);
+      expect(preArchiveNameChangesResponse.body[0].status).toBe('pending');
+      expect(preArchiveNameChangesResponse.body[0].oldName).toBe('TomWambsgans');
+      expect(preArchiveNameChangesResponse.body[0].newName).toBe('Tom');
+
+      const {
+        newPlayerGroupIds,
+        newPlayerCompetitionIds,
+        archivedPlayerCompetitionIds,
+        archivedPlayerGroupIds
+      } = await playerUtils.splitArchivalData(player.id, previousSnapshot.createdAt);
+
+      expect(Array.from(archivedPlayerGroupIds)).toEqual([2001]);
+      expect(Array.from(archivedPlayerCompetitionIds)).toEqual([2001, 2002, 2003, 2005, 2007, 2009]);
+
+      expect(Array.from(newPlayerGroupIds)).toEqual([2002, 2003, 2004]);
+      expect(Array.from(newPlayerCompetitionIds)).toEqual([2004, 2006, 2008]);
+
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      expect(flagContext).toBeNull();
+
+      const archiveResponse = await api
+        .post(`/players/TomWambsgans/archive`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(archiveResponse.status).toBe(200);
+      expect(archiveResponse.body.status).toBe(PlayerStatus.ARCHIVED);
+      expect(archiveResponse.body.username).toContain('archive');
+      expect(archiveResponse.body.displayName).toContain('archive');
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: player.id,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'TomWambsgans'
+      );
+
+      // hooks should be disabled during archival, so that we don't send any member joined/left events
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+
+      const archivedPlayer = await prisma.player.findFirst({
+        where: { id: player.id }
+      });
+
+      expect(archivedPlayer.status).toBe('archived');
+      expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
+      expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
+
+      const archivals = await prisma.playerArchive.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivals.length).toBe(1);
+      expect(archivals[0].previousUsername).toBe(player.username);
+      expect(archivals[0].archiveUsername).toBe(archivedPlayer.username);
+
+      const archivedPlayerMemberships = await prisma.membership.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivedPlayerMemberships.length).toBe(1);
+      expect(archivedPlayerMemberships.map(m => m.groupId)).toEqual([2001]);
+
+      const archivedPlayerParticipations = await prisma.participation.findMany({
+        where: { playerId: player.id }
+      });
+
+      expect(archivedPlayerParticipations.length).toBe(6);
+      expect(archivedPlayerParticipations.map(m => m.competitionId)).toEqual([
+        2001, 2002, 2003, 2005, 2007, 2009
+      ]);
+
+      const newPlayer = await prisma.player.findFirst({
+        where: { username: player.username }
+      });
+
+      expect(newPlayer.status).toBe('active');
+      expect(newPlayer.username).toBe(player.username);
+      expect(newPlayer.displayName).toBe(player.displayName);
+
+      const newPlayerMemberships = await prisma.membership.findMany({
+        where: { playerId: newPlayer.id }
+      });
+
+      expect(newPlayerMemberships.length).toBe(3);
+      expect(newPlayerMemberships.map(m => m.groupId)).toEqual([2002, 2003, 2004]);
+
+      const newPlayerParticipations = await prisma.participation.findMany({
+        where: { playerId: newPlayer.id }
+      });
+
+      expect(newPlayerParticipations.length).toBe(3);
+      expect(newPlayerParticipations.map(m => m.competitionId)).toEqual([2004, 2006, 2008]);
+
+      const postArchiveNameChangesResponse = await api.get(`/names`);
+
+      expect(postArchiveNameChangesResponse.status).toBe(200);
+      expect(postArchiveNameChangesResponse.body.length).toBe(preArchiveNameChangesResponse.body.length);
+      expect(postArchiveNameChangesResponse.body[0].status).toBe('denied');
+      expect(postArchiveNameChangesResponse.body[0].oldName).toBe('TomWambsgans');
+      expect(postArchiveNameChangesResponse.body[0].newName).toBe('Tom');
+      expect(postArchiveNameChangesResponse.body[0].playerId).toBe(archivedPlayer.id);
+    });
   });
 });
 
-async function setupPostTransitionDate(playerId: number, groupId: number) {
+async function setupPostTransitionDate(idOffset: number, playerId: number, groupId: number) {
   await prisma.group.create({
     data: {
-      id: 1002,
-      name: `Test Group 2`,
+      id: idOffset + 2,
+      name: `Test Group 2 ${idOffset}`,
       verificationHash: '',
       memberships: { create: { playerId } }
     }
@@ -2035,7 +2218,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1004,
+      id: idOffset + 4,
       title: `Test Competition 4`,
       metric: 'zulrah',
       startsAt: new Date(),
@@ -2047,7 +2230,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1005,
+      id: idOffset + 5,
       title: `Test Competition 5`,
       metric: 'zulrah',
       groupId,
@@ -2060,7 +2243,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1006,
+      id: idOffset + 6,
       title: `Test Competition 6`,
       metric: 'zulrah',
       startsAt: new Date(),
@@ -2072,8 +2255,8 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.group.create({
     data: {
-      id: 1003,
-      name: `Test Group 3`,
+      id: idOffset + 3,
+      name: `Test Group 3 ${idOffset}`,
       verificationHash: '',
       memberships: { create: { playerId } }
     }
@@ -2081,7 +2264,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1007,
+      id: idOffset + 7,
       title: `Test Competition 7`,
       metric: 'zulrah',
       groupId,
@@ -2094,7 +2277,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1008,
+      id: idOffset + 8,
       title: `Test Competition 8`,
       metric: 'zulrah',
       startsAt: new Date(),
@@ -2106,7 +2289,7 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1009,
+      id: idOffset + 9,
       title: `Test Competition 9`,
       metric: 'zulrah',
       groupId,
@@ -2118,15 +2301,20 @@ async function setupPostTransitionDate(playerId: number, groupId: number) {
   });
 
   await prisma.group.create({
-    data: { id: 1004, name: `Test Group 4`, verificationHash: '', memberships: { create: { playerId } } }
+    data: {
+      id: idOffset + 4,
+      name: `Test Group 4 ${idOffset}`,
+      verificationHash: '',
+      memberships: { create: { playerId } }
+    }
   });
 }
 
-async function setupPreTransitionData(playerId: number) {
+async function setupPreTransitionData(idOffset: number, playerId: number) {
   const group1 = await prisma.group.create({
     data: {
-      id: 1001,
-      name: `Test Group 1`,
+      id: idOffset + 1,
+      name: `Test Group 1 ${idOffset}`,
       verificationHash: '',
       memberships: { create: { playerId } }
     }
@@ -2134,7 +2322,7 @@ async function setupPreTransitionData(playerId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1001,
+      id: idOffset + 1,
       title: `Test Competition 1`,
       metric: 'zulrah',
       startsAt: new Date('2020-01-01'),
@@ -2146,7 +2334,7 @@ async function setupPreTransitionData(playerId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1002,
+      id: idOffset + 2,
       title: `Test Competition 2`,
       metric: 'zulrah',
       startsAt: new Date('2020-01-01'),
@@ -2159,7 +2347,7 @@ async function setupPreTransitionData(playerId: number) {
 
   await prisma.competition.create({
     data: {
-      id: 1003,
+      id: idOffset + 3,
       title: `Test Competition 3`,
       metric: 'zulrah',
       startsAt: new Date('2020-01-01'),
