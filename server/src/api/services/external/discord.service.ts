@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { WebhookClient } from 'discord.js';
 import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
-import { Snapshot } from '../../../utils';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
 import logger from '../../util/logging';
 import {
@@ -9,11 +10,22 @@ import {
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
-import * as playerUtils from '../../modules/players/player.utils';
 
 export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
+}
+
+function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
+  if (isTesting()) return;
+
+  if (!env.DISCORD_MONITORING_WEBHOOK_URL) {
+    logger.error('Missing Discord Webhook URL.');
+    return;
+  }
+
+  const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
+  return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
 
 /**
@@ -21,6 +33,11 @@ export interface EventPeriodDelay {
  */
 function dispatch(type: string, payload: unknown) {
   if (isTesting()) return;
+
+  if (!env.DISCORD_BOT_API_URL) {
+    logger.error('Missing Discord Bot API URL.');
+    return;
+  }
 
   axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
@@ -51,12 +68,10 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   });
 }
 
-function dispatchPlayerFlagged(player: Player, previous: Snapshot, rejected: Snapshot) {
-  if (!player || !previous || !rejected) return;
+function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerReviewContext) {
+  if (!player || !flagContext) return;
 
-  const flagReport = playerUtils.getPlayerFlagContext(player, previous, rejected);
-
-  dispatch('PLAYER_FLAGGED', flagReport);
+  dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
 }
 
 /**
@@ -190,10 +205,11 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 }
 
 export {
+  sendMonitoringMessage,
   dispatch,
   dispatchAchievements,
   dispatchHardcoreDied,
-  dispatchPlayerFlagged,
+  dispatchPlayerFlaggedReview,
   dispatchNameChanged,
   dispatchMembersJoined,
   dispatchMembersLeft,

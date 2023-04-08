@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ForbiddenError } from '../../errors';
+import { ForbiddenError, ServerError } from '../../errors';
 import * as adminGuard from '../../guards/admin.guard';
 import redisService from '../../services/external/redis.service';
 import * as achievementServices from '../achievements/achievement.services';
@@ -290,10 +290,35 @@ async function rollback(req: Request): Promise<ControllerResponse> {
   };
 }
 
+// POST /players/:username/archive
+// REQUIRES ADMIN PASSWORD
+async function archive(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
+  const username = getString(req.params.username);
+  const player = await playerUtils.resolvePlayer(username);
+
+  const { archivedPlayer } = await playerServices.archivePlayer(player);
+
+  try {
+    await playerServices.updatePlayer({ username });
+  } catch (e) {
+    throw new ServerError('Failed to update new player post-archive.');
+  }
+
+  return {
+    statusCode: 200,
+    response: archivedPlayer
+  };
+}
+
 export {
   search,
   track,
   rollback,
+  archive,
   assertType,
   importPlayer,
   details,

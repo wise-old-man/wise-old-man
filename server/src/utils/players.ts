@@ -1,4 +1,4 @@
-import { PlayerType, PlayerBuild } from '../prisma/enum-adapter';
+import { PlayerType, PlayerBuild, PlayerStatus } from '../prisma/enum-adapter';
 import { MapOf } from './types';
 
 const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
@@ -19,8 +19,16 @@ const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {
   [PlayerBuild.HP10]: { name: '10 Hitpoints Pure' }
 };
 
+const PlayerStatusProps: MapOf<PlayerStatus, { name: string }> = {
+  [PlayerStatus.ACTIVE]: { name: 'Active' },
+  [PlayerStatus.UNRANKED]: { name: 'Unranked' },
+  [PlayerStatus.FLAGGED]: { name: 'Flagged' },
+  [PlayerStatus.ARCHIVED]: { name: 'Archived' }
+};
+
 const PLAYER_TYPES = Object.values(PlayerType);
 const PLAYER_BUILDS = Object.values(PlayerBuild);
+const PLAYER_STATUSES = Object.values(PlayerStatus);
 
 function isPlayerType(typeString: string): typeString is PlayerType {
   return typeString in PlayerTypeProps;
@@ -28,6 +36,10 @@ function isPlayerType(typeString: string): typeString is PlayerType {
 
 function isPlayerBuild(buildString: string): buildString is PlayerBuild {
   return buildString in PlayerBuildProps;
+}
+
+function isPlayerStatus(statusString: string): statusString is PlayerStatus {
+  return statusString in PlayerStatusProps;
 }
 
 function findPlayerType(typeName: string): PlayerType | null {
@@ -50,14 +62,18 @@ export {
   // Enums
   PlayerType,
   PlayerBuild,
+  PlayerStatus,
   PlayerTypeProps,
   PlayerBuildProps,
+  PlayerStatusProps,
   // Lists
   PLAYER_TYPES,
   PLAYER_BUILDS,
+  PLAYER_STATUSES,
   // Functions
   isPlayerType,
   isPlayerBuild,
+  isPlayerStatus,
   findPlayerType,
   findPlayerBuild
 };

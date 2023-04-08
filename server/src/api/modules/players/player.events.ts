@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../prisma';
-import { PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
@@ -8,8 +8,13 @@ import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
-async function onPlayerFlagged(player: Player, previous: Snapshot, rejected: Snapshot) {
-  await metrics.trackEffect(discordService.dispatchPlayerFlagged, player, previous, rejected);
+async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
+  await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
+}
+
+async function onPlayerArchived(player: Player, previousDisplayName: string) {
+  const successMessage = `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`;
+  await metrics.trackEffect(discordService.sendMonitoringMessage, successMessage);
 }
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
@@ -63,4 +68,11 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export { onPlayerFlagged, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export {
+  onPlayerFlagged,
+  onPlayerArchived,
+  onPlayerTypeChanged,
+  onPlayerNameChanged,
+  onPlayerUpdated,
+  onPlayerImported
+};

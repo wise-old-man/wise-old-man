@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
-import { PlayerType, PlayerBuild } from '../../../../utils';
+import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { RateLimitError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
@@ -10,10 +10,12 @@ import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
+import { PlayerDetails } from '../player.types';
 import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
-import { PlayerDetails } from '../player.types';
+import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
+import { archivePlayer } from './ArchivePlayerService';
 
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
@@ -72,9 +74,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
 
-    if (!player.flagged) {
-      await prisma.player.update({ data: { flagged: true }, where: { id: player.id } });
-      playerEvents.onPlayerFlagged(player, previousStats, currentStats);
+    if (player.status !== PlayerStatus.FLAGGED) {
+      const handled = await handlePlayerFlagged(player, previousStats, currentStats);
+      // If the flag was properly handled (via a player archive),
+      // call this function recursively, so that the new player can be tracked
+      if (handled) return updatePlayer({ username: player.username });
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -97,6 +101,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   // Refresh the player's build
   updatedPlayerFields.build = getBuild(currentStats);
   updatedPlayerFields.flagged = false;
+  updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
   const computedMetrics = await efficiencyServices.computePlayerMetrics({
     player: {
@@ -144,12 +149,35 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 }
 
 async function shouldReviewType(player: Player) {
-  if (player.flagged || player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
+  if (
+    player.status === PlayerStatus.FLAGGED ||
+    player.type === PlayerType.UNKNOWN ||
+    player.type === PlayerType.REGULAR
+  ) {
     return false;
   }
 
   // Check if this player has been reviewed recently (past 7 days)
   return !(await redisService.getValue('cd:PlayerTypeReview', player.username));
+}
+
+async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
+  await prisma.player.update({
+    data: { flagged: true, status: PlayerStatus.FLAGGED },
+    where: { id: player.id }
+  });
+
+  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
+
+  if (flaggedContext) {
+    playerEvents.onPlayerFlagged(player, flaggedContext);
+    return false;
+  }
+
+  // no context, we know this is a name transfer and can be auto-archived
+  await archivePlayer(player);
+
+  return true;
 }
 
 async function reviewType(player: Player) {

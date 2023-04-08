@@ -1,10 +1,9 @@
 import { isTesting } from '../../../env';
 import { Period, PeriodProps, PlayerBuild } from '../../../utils';
-import { Player, Snapshot } from '../../../prisma';
+import prisma, { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-import * as efficiencyUtils from '../efficiency/efficiency.utils';
 import { findPlayer } from './services/FindPlayerService';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
@@ -162,28 +161,71 @@ function getBuild(snapshot: Snapshot): PlayerBuild {
   return PlayerBuild.MAIN;
 }
 
-function getPlayerFlagContext(player: Player, previous: Snapshot, rejected: Snapshot) {
-  const negativeGains = snapshotUtils.hasNegativeGains(previous, rejected);
-  const excessiveGains = snapshotUtils.hasExcessiveGains(previous, rejected);
-  const excessiveGainsReversed = snapshotUtils.hasExcessiveGains(rejected, previous);
+async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
+  const memberships = await prisma.membership.findMany({
+    where: { playerId }
+  });
 
-  const previousSnapshot = snapshotUtils.format(
-    previous,
-    efficiencyUtils.getPlayerEfficiencyMap(previous, player)
-  );
+  const participations = await prisma.participation.findMany({
+    where: { playerId },
+    include: { competition: true }
+  });
 
-  const rejectedSnapshot = snapshotUtils.format(
-    rejected,
-    efficiencyUtils.getPlayerEfficiencyMap(rejected, player)
-  );
+  const newPlayerGroupIds = new Set<number>();
+  const newPlayerCompetitionIds = new Set<number>();
+
+  const archivedPlayerGroupIds = new Set<number>();
+  const archivedPlayerCompetitionIds = new Set<number>();
+
+  if (memberships.length === 0 && participations.length === 0) {
+    return {
+      newPlayerGroupIds,
+      newPlayerCompetitionIds,
+      archivedPlayerGroupIds,
+      archivedPlayerCompetitionIds
+    };
+  }
+
+  memberships.forEach(m => {
+    if (m.createdAt.getTime() <= lastSnapshotDate.getTime()) {
+      // if this membership was created before the cutoff date, it belongs to the archived player
+      archivedPlayerGroupIds.add(m.groupId);
+    } else {
+      // if it was created sometime after the cutoff date, then it probably belongs to the new player
+      newPlayerGroupIds.add(m.groupId);
+    }
+  });
+
+  participations.forEach(p => {
+    if (p.competition.groupId && archivedPlayerGroupIds.has(p.competition.groupId)) {
+      // Any competitions hosted by "before" groups should be considered "before" competitions
+      archivedPlayerCompetitionIds.add(p.competitionId);
+      return;
+    }
+
+    if (p.createdAt.getTime() <= lastSnapshotDate.getTime()) {
+      // if this participation was created before the cutoff date, it belongs to the archived player
+      archivedPlayerCompetitionIds.add(p.competitionId);
+    } else {
+      // if the competition has ended and is missing a start or end snapshot, then that player has no real progress
+      // in this competition, and therefor it isn't important enough to keep them from being archived
+      if (
+        p.competition.endsAt.getTime() < Date.now() &&
+        (p.startSnapshotId === -1 || p.endSnapshotId === -1)
+      ) {
+        return;
+      }
+
+      // if it was created sometime after the cutoff date, then it probably belongs to the new player
+      newPlayerCompetitionIds.add(p.competitionId);
+    }
+  });
 
   return {
-    player,
-    previousSnapshot,
-    rejectedSnapshot,
-    negativeGains,
-    excessiveGains,
-    excessiveGainsReversed
+    newPlayerGroupIds,
+    newPlayerCompetitionIds,
+    archivedPlayerGroupIds,
+    archivedPlayerCompetitionIds
   };
 }
 
@@ -199,5 +241,5 @@ export {
   resolvePlayerId,
   resolvePlayerById,
   setCachedPlayerId,
-  getPlayerFlagContext
+  splitArchivalData
 };

@@ -14,6 +14,7 @@ import prisma, {
   setHooksEnabled,
   modifyPlayer
 } from '../../../../prisma';
+import { PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -138,6 +139,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   playerUpdateFields.username = playerUtils.standardize(newName);
   playerUpdateFields.displayName = playerUtils.sanitize(newName);
   playerUpdateFields.flagged = false;
+  playerUpdateFields.status = PlayerStatus.ACTIVE;
 
   // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events,
   // that wouldn't make sense because it's the same player, just under a different name, and about to be merged into one
