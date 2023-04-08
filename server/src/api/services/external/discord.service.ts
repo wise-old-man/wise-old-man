@@ -17,6 +17,8 @@ export interface EventPeriodDelay {
 }
 
 function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
+  if (isTesting()) return;
+
   const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }

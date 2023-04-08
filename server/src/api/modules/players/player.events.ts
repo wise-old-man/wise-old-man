@@ -12,6 +12,11 @@ async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerRevi
   await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
 }
 
+async function onPlayerArchived(player: Player, previousDisplayName: string) {
+  const successMessage = `🟢 \`${previousDisplayName}\` has been archived. (\`${player.username}\`)`;
+  await metrics.trackEffect(discordService.sendMonitoringMessage, successMessage);
+}
+
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {
   if (previousType === PlayerType.HARDCORE && player.type === PlayerType.IRONMAN) {
     // Dispatch a "HCIM player died" event to our discord bot API.
@@ -63,4 +68,11 @@ async function onPlayerImported(playerId: number) {
   await metrics.trackEffect(achievementServices.reevaluatePlayerAchievements, { id: playerId });
 }
 
-export { onPlayerFlagged, onPlayerTypeChanged, onPlayerNameChanged, onPlayerUpdated, onPlayerImported };
+export {
+  onPlayerFlagged,
+  onPlayerArchived,
+  onPlayerTypeChanged,
+  onPlayerNameChanged,
+  onPlayerUpdated,
+  onPlayerImported
+};

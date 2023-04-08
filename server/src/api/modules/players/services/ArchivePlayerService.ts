@@ -1,11 +1,16 @@
 import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
-import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
+import prisma, { modifyPlayer, NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
 
-async function archivePlayer(player: Player): Promise<void> {
+interface ArchivePlayerResult {
+  newPlayer: Player;
+  archivedPlayer: Player;
+}
+
+async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
   const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
   const cutoffDate = latestSnapshot.createdAt;
 
@@ -16,10 +21,10 @@ async function archivePlayer(player: Player): Promise<void> {
   const archiveUsername = await findAvailableArchiveUsername();
 
   // Run all these changes in a database transaction, so that it rolls back in case of error
-  await prisma
+  const result = await prisma
     .$transaction(async transaction => {
       // Change the archived player's username to the random username
-      await transaction.player.update({
+      const archivedPlayer = await transaction.player.update({
         where: { id: player.id },
         data: {
           username: archiveUsername,
@@ -71,6 +76,8 @@ async function archivePlayer(player: Player): Promise<void> {
       }
 
       setHooksEnabled(true);
+
+      return { archivedPlayer, newPlayer };
     })
     .catch(e => {
       logger.error('Failed to archive player', e);
@@ -78,6 +85,11 @@ async function archivePlayer(player: Player): Promise<void> {
     });
 
   await playerUtils.setCachedPlayerId(player.username, null);
+
+  return {
+    newPlayer: modifyPlayer(result.newPlayer),
+    archivedPlayer: modifyPlayer(result.archivedPlayer)
+  };
 }
 
 async function findAvailableArchiveUsername() {

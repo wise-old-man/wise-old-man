@@ -175,7 +175,9 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
   }
 
   // no context, we know this is a name transfer and can be auto-archived
-  await archivePlayer(player);
+  const { archivedPlayer } = await archivePlayer(player);
+
+  playerEvents.onPlayerArchived(archivedPlayer, player.displayName);
 
   return true;
 }

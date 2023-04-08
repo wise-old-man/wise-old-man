@@ -21,7 +21,6 @@ import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
 import * as playerUtils from '../../../src/api/modules/players/player.utils';
 import * as efficiencyUtils from '../../../src/api/modules/efficiency/efficiency.utils';
-import * as discordService from '../../../src/api/services/external/discord.service';
 import redisService from '../../../src/api/services/external/redis.service';
 import { reviewFlaggedPlayer } from '../../../src/api/modules/players/player.services';
 
@@ -36,9 +35,9 @@ const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 
 const onPlayerUpdatedEvent = jest.spyOn(playerEvents, 'onPlayerUpdated');
 const onPlayerFlaggedEvent = jest.spyOn(playerEvents, 'onPlayerFlagged');
+const onPlayerArchivedEvent = jest.spyOn(playerEvents, 'onPlayerArchived');
 const onPlayerImportedEvent = jest.spyOn(playerEvents, 'onPlayerImported');
 const onPlayerTypeChangedEvent = jest.spyOn(playerEvents, 'onPlayerTypeChanged');
-const discordPlayerFlaggedEvent = jest.spyOn(discordService, 'dispatchPlayerFlaggedReview');
 
 const globalData = {
   testPlayerId: -1,
@@ -1648,6 +1647,8 @@ describe('Player API', () => {
           })
         })
       );
+
+      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("shouldn't auto-archive, send discord flagged report instead (negative gains, possible rollback)", async () => {
@@ -1739,6 +1740,8 @@ describe('Player API', () => {
           })
         })
       );
+
+      expect(onPlayerArchivedEvent).not.toHaveBeenCalled();
     });
 
     it("should auto-archive, and not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
@@ -1789,6 +1792,16 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: player.id,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Siobhan'
+      );
     });
 
     it("should auto-archive, and not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
@@ -1835,6 +1848,16 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: player.id,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Connor'
+      );
     });
 
     it('should auto-archive', async () => {
@@ -1917,9 +1940,18 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
+      // if the flagged event is dispatched, that means it wasn't auto-archived
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
-      // if the discord event is dispatched, that means it wasn't auto-archived
-      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
+
+      expect(onPlayerArchivedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: player.id,
+          status: PlayerStatus.ARCHIVED,
+          username: expect.stringContaining('archive'),
+          displayName: expect.stringContaining('archive')
+        }),
+        'Greg Hirsch'
+      );
 
       // hooks should be disabled during archival, so that we don't send any member joined/left events
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
