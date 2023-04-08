@@ -19,6 +19,11 @@ export interface EventPeriodDelay {
 function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
   if (isTesting()) return;
 
+  if (!env.DISCORD_MONITORING_WEBHOOK_URL) {
+    logger.error('Missing Discord Webhook URL.');
+    return;
+  }
+
   const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
@@ -28,6 +33,11 @@ function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
  */
 function dispatch(type: string, payload: unknown) {
   if (isTesting()) return;
+
+  if (!env.DISCORD_BOT_API_URL) {
+    logger.error('Missing Discord Bot API URL.');
+    return;
+  }
 
   axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
     logger.error('Error sending discord event.', e);
