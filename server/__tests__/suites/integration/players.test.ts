@@ -1614,6 +1614,12 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
+      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'kendall' }),
+        expect.objectContaining({ runecraftingExperience: 5_347_176 }),
+        expect.objectContaining({ runecraftingExperience: 50_000_000 })
+      );
+
       expect(discordPlayerFlaggedEvent).toBeCalled();
     });
 
@@ -1684,6 +1690,12 @@ describe('Player API', () => {
       expect(trackResponse.status).toBe(500);
       expect(trackResponse.body.message).toBe('Failed to update: Player is flagged.');
 
+      expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'roman' }),
+        expect.objectContaining({ zulrahKills: 1646 }),
+        expect.objectContaining({ zulrahKills: 1615 })
+      );
+
       expect(discordPlayerFlaggedEvent).toHaveBeenCalled();
     });
 
@@ -1734,6 +1746,7 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
+      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
       expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
@@ -1780,6 +1793,7 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
+      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
       expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
@@ -1863,6 +1877,7 @@ describe('Player API', () => {
       expect(trackResponse.body.id).not.toBe(player.id); // ID changed, meaning this username is now on a new account
       expect(trackResponse.body.type).not.toBe('unknown');
 
+      expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
       // if the discord event is dispatched, that means it wasn't auto-archived
       expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
 

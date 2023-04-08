@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { WebhookClient } from 'discord.js';
 import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
@@ -12,6 +13,11 @@ import * as playerServices from '../../modules/players/player.services';
 export interface EventPeriodDelay {
   hours?: number;
   minutes?: number;
+}
+
+function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
+  const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
+  return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
 }
 
 /**
@@ -186,6 +192,7 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 }
 
 export {
+  sendMonitoringMessage,
   dispatch,
   dispatchAchievements,
   dispatchHardcoreDied,
