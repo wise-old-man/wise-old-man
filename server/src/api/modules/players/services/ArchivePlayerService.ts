@@ -2,6 +2,7 @@ import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
 import prisma, { modifyPlayer, NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
+import * as discordService from '../../../services/external/discord.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
 
@@ -81,6 +82,8 @@ async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
     })
     .catch(e => {
       logger.error('Failed to archive player', e);
+      discordService.sendMonitoringMessage(`🔴 Failed to archive \`${player.username}\``, true);
+
       throw new ServerError('Failed to archive player');
     });
 
