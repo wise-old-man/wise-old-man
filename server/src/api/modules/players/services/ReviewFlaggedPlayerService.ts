@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../../prisma';
-import { BOSSES, Metric, REAL_SKILLS } from '../../../../utils';
+import { BOSSES, FlaggedPlayerReviewContext, Metric, REAL_SKILLS } from '../../../../utils';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 import { FormattedSnapshot } from '../../snapshots/snapshot.types';
@@ -12,8 +12,12 @@ const STACKABLE_EXP_SKILLS = [
   Metric.THIEVING
 ];
 
-async function reviewFlaggedPlayer(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
-  if (!player || !previousStats || !rejectedStats) return;
+function reviewFlaggedPlayer(
+  player: Player,
+  previousStats: Snapshot,
+  rejectedStats: Snapshot
+): FlaggedPlayerReviewContext | null {
+  if (!player || !previousStats || !rejectedStats) return null;
 
   const negativeGains = snapshotUtils.hasNegativeGains(previousStats, rejectedStats);
   const excessiveGains = snapshotUtils.hasExcessiveGains(previousStats, rejectedStats);
@@ -39,27 +43,33 @@ async function reviewFlaggedPlayer(player: Player, previousStats: Snapshot, reje
     }
 
     return {
+      previous,
+      rejected,
       negativeGains,
       excessiveGains,
+      possibleRollback,
       excessiveGainsReversed,
-      ...buildNegativeGainsReport(possibleRollback, previous, rejected)
+      data: buildNegativeGainsReport(previous, rejected)
     };
   }
 
   return {
+    previous,
+    rejected,
     negativeGains,
     excessiveGains,
+    possibleRollback: false,
     excessiveGainsReversed,
-    ...buildExcessiveGainsReport(previous, rejected)
+    data: buildExcessiveGainsReport(previous, rejected)
   };
 }
 
-function buildExcessiveGainsReport(previous: FormattedSnapshot, rejected: FormattedSnapshot) {
+function buildExcessiveGainsReport(
+  previous: FormattedSnapshot,
+  rejected: FormattedSnapshot
+): FlaggedPlayerReviewContext['data'] {
   const previousRank = previous.data.skills.overall.rank;
   const rejectedRank = rejected.data.skills.overall.rank;
-
-  const previousExp = previous.data.skills.overall.experience;
-  const rejectedExp = rejected.data.skills.overall.experience;
 
   const previousEHP = previous.data.skills.overall.ehp;
   const rejectedEHP = rejected.data.skills.overall.ehp;
@@ -70,9 +80,6 @@ function buildExcessiveGainsReport(previous: FormattedSnapshot, rejected: Format
   const ehpDiff = rejectedEHP - previousEHP;
   const ehbDiff = rejectedEHB - previousEHB;
 
-  const ehpChange = Math.round(getPercentageIncrease(previousEHP, rejectedEHP) * 100);
-  const ehbChange = Math.round(getPercentageIncrease(previousEHB, rejectedEHB) * 100);
-
   // Sum the gained EHP from all stackable skills
   const gainedEHPFromStackableSkills = STACKABLE_EXP_SKILLS.map(
     s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp
@@ -80,17 +87,8 @@ function buildExcessiveGainsReport(previous: FormattedSnapshot, rejected: Format
 
   const stackableGainedRatio = gainedEHPFromStackableSkills / (ehpDiff + ehbDiff);
 
-  const rankChange = getPercentageIncrease(previousRank, rejectedRank);
-  const expChange = getPercentageIncrease(previousExp, rejectedExp);
-
   return {
-    previous,
-    rejected,
     stackableGainedRatio,
-    rankChange,
-    expChange,
-    ehpChange,
-    ehbChange,
     previousEHP,
     previousEHB,
     previousRank,
@@ -101,34 +99,26 @@ function buildExcessiveGainsReport(previous: FormattedSnapshot, rejected: Format
 }
 
 function buildNegativeGainsReport(
-  possibleRollback: boolean,
   previous: FormattedSnapshot,
   rejected: FormattedSnapshot
-) {
+): FlaggedPlayerReviewContext['data'] {
   const previousEHP = previous.data.skills.overall.ehp;
   const rejectedEHP = rejected.data.skills.overall.ehp;
 
   const previousEHB = BOSSES.map(b => previous.data.bosses[b].ehb).reduce((a, b) => a + b, 0);
   const rejectedEHB = BOSSES.map(b => rejected.data.bosses[b].ehb).reduce((a, b) => a + b, 0);
 
-  const ehpDiff = rejectedEHP - previousEHP;
-  const ehbDiff = rejectedEHB - previousEHB;
-
-  const ehpChange = Math.round(getPercentageIncrease(previousEHP, rejectedEHP) * 100);
-  const ehbChange = Math.round(getPercentageIncrease(previousEHB, rejectedEHB) * 100);
+  const previousRank = previous.data.skills.overall.rank;
+  const rejectedRank = rejected.data.skills.overall.rank;
 
   return {
-    possibleRollback,
-    previous,
-    rejected,
+    stackableGainedRatio: 0,
     previousEHP,
     previousEHB,
+    previousRank,
     rejectedEHP,
     rejectedEHB,
-    ehpDiff,
-    ehbDiff,
-    ehpChange,
-    ehbChange
+    rejectedRank
   };
 }
 
@@ -147,11 +137,6 @@ function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot
   // If lost over 24h (or 20%) of EHP and EHB, then it's probably not a rollback.
   // Rollbacks are usually quickly fixed by Jagex, so it's unlikely that a player gains a huge amount of EHP and EHB in a short period of time.
   return lostEHP + lostEHB > Math.min(24, (previousEHP + previousEHB) * 0.2);
-}
-
-function getPercentageIncrease(previous: number, current: number) {
-  if (previous === 0) return 0;
-  return (current - previous) / previous;
 }
 
 export { reviewFlaggedPlayer };

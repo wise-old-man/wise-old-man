@@ -2,6 +2,7 @@ import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
+import { FlaggedPlayerReviewContext } from '../../../utils';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
 import logger from '../../util/logging';
 import {
@@ -55,10 +56,10 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   });
 }
 
-function dispatchPlayerFlaggedReview(player: Player, payload: unknown) {
-  if (!player || !payload) return;
+function dispatchPlayerFlaggedReview(player: Player, flagContext: FlaggedPlayerReviewContext) {
+  if (!player || !flagContext) return;
 
-  dispatch('PLAYER_FLAGGED', { player, payload });
+  dispatch('PLAYER_FLAGGED_REVIEW', { player, flagContext });
 }
 
 /**

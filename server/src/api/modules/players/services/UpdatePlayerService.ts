@@ -6,7 +6,6 @@ import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
-import * as discordService from '../../../services/external/discord.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
@@ -80,8 +79,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) return updatePlayer({ username: player.username });
-
-      playerEvents.onPlayerFlagged(player, previousStats, currentStats);
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -170,17 +167,17 @@ async function handlePlayerFlagged(player: Player, previousStats: Snapshot, reje
     where: { id: player.id }
   });
 
-  const flaggedContext = await reviewFlaggedPlayer(player, previousStats, rejectedStats);
+  const flaggedContext = reviewFlaggedPlayer(player, previousStats, rejectedStats);
 
-  if (!flaggedContext) {
-    // no context, we know this is a name transfer and can be auto-archived
-    await archivePlayer(player);
-    return true;
+  if (flaggedContext) {
+    playerEvents.onPlayerFlagged(player, flaggedContext);
+    return false;
   }
 
-  // if there is a flag context, report it to our Discord for manual review
-  discordService.dispatchPlayerFlaggedReview(player, flaggedContext);
-  return false;
+  // no context, we know this is a name transfer and can be auto-archived
+  await archivePlayer(player);
+
+  return true;
 }
 
 async function reviewType(player: Player) {

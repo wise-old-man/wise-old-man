@@ -1,5 +1,5 @@
 import { Snapshot, Player } from '../../../prisma';
-import { PlayerType } from '../../../utils';
+import { FlaggedPlayerReviewContext, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import * as discordService from '../../services/external/discord.service';
 import metrics from '../../services/external/metrics.service';
@@ -8,8 +8,8 @@ import * as competitionServices from '../competitions/competition.services';
 import * as deltaServices from '../deltas/delta.services';
 import * as playerServices from './player.services';
 
-async function onPlayerFlagged(_player: Player, _previous: Snapshot, _rejected: Snapshot) {
-  console.log('player flagged!');
+async function onPlayerFlagged(player: Player, flaggedContext: FlaggedPlayerReviewContext) {
+  await metrics.trackEffect(discordService.dispatchPlayerFlaggedReview, player, flaggedContext);
 }
 
 async function onPlayerTypeChanged(player: Player, previousType: PlayerType) {

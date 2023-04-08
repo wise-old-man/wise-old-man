@@ -706,8 +706,22 @@ describe('Player API', () => {
 
       expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({ username: 'psikoi' }),
-        expect.objectContaining({ runecraftingExperience: 5_347_176 }),
-        expect.objectContaining({ runecraftingExperience: 100_000_000 })
+        expect.objectContaining({
+          previous: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+              })
+            })
+          }),
+          rejected: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({ experience: 100_000_000 })
+              })
+            })
+          })
+        })
       );
     });
 
@@ -1581,15 +1595,16 @@ describe('Player API', () => {
       expect(rankIncrease).toBe(5); // Increased by 500% (10k -> 60k)
       expect(expIncrease).toBeCloseTo(0.20986560556395695, 8); // Increased by 20.98% (300_192_115 -> 363_192_115)
 
-      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
-        stackableGainedRatio: 0.37953714429306246,
-        rankChange: 5,
-        expChange: 0.20986560556395695,
-        excessiveGains: true,
         negativeGains: false,
+        excessiveGains: true,
         excessiveGainsReversed: false,
+        possibleRollback: false,
+        data: {
+          stackableGainedRatio: 0.37953714429306246
+        },
         previous: {
           data: {
             skills: {
@@ -1616,11 +1631,23 @@ describe('Player API', () => {
 
       expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({ username: 'kendall' }),
-        expect.objectContaining({ runecraftingExperience: 5_347_176 }),
-        expect.objectContaining({ runecraftingExperience: 50_000_000 })
+        expect.objectContaining({
+          previous: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({ experience: 5_347_176 })
+              })
+            })
+          }),
+          rejected: expect.objectContaining({
+            data: expect.objectContaining({
+              skills: expect.objectContaining({
+                runecrafting: expect.objectContaining({ experience: 50_000_000 })
+              })
+            })
+          })
+        })
       );
-
-      expect(discordPlayerFlaggedEvent).toBeCalled();
     });
 
     it("shouldn't auto-archive, send discord flagged report instead (negative gains, possible rollback)", async () => {
@@ -1657,13 +1684,16 @@ describe('Player API', () => {
         source: SnapshotDataSource.HISCORES
       });
 
-      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
 
       expect(flagContext).toMatchObject({
         possibleRollback: true,
         excessiveGains: false,
         negativeGains: true,
         excessiveGainsReversed: false,
+        data: {
+          stackableGainedRatio: 0
+        },
         previous: {
           data: {
             skills: {
@@ -1692,11 +1722,23 @@ describe('Player API', () => {
 
       expect(onPlayerFlaggedEvent).toHaveBeenCalledWith(
         expect.objectContaining({ username: 'roman' }),
-        expect.objectContaining({ zulrahKills: 1646 }),
-        expect.objectContaining({ zulrahKills: 1615 })
+        expect.objectContaining({
+          previous: expect.objectContaining({
+            data: expect.objectContaining({
+              bosses: expect.objectContaining({
+                zulrah: expect.objectContaining({ kills: 1646 })
+              })
+            })
+          }),
+          rejected: expect.objectContaining({
+            data: expect.objectContaining({
+              bosses: expect.objectContaining({
+                zulrah: expect.objectContaining({ kills: 1615 })
+              })
+            })
+          })
+        })
       );
-
-      expect(discordPlayerFlaggedEvent).toHaveBeenCalled();
     });
 
     it("should auto-archive, and not send discord flagged report (negative gains, excessive gains, can't be a rollback)", async () => {
@@ -1738,7 +1780,7 @@ describe('Player API', () => {
         source: SnapshotDataSource.HISCORES
       });
 
-      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Siobhan`);
@@ -1747,7 +1789,6 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
-      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it("should auto-archive, and not send discord flagged report (negative gains, excessive gains reversed, can't be a rollback)", async () => {
@@ -1785,7 +1826,7 @@ describe('Player API', () => {
         source: SnapshotDataSource.HISCORES
       });
 
-      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Connor`);
@@ -1794,7 +1835,6 @@ describe('Player API', () => {
       expect(trackResponse.body.type).not.toBe('unknown');
 
       expect(onPlayerFlaggedEvent).not.toHaveBeenCalled();
-      expect(discordPlayerFlaggedEvent).not.toHaveBeenCalled();
     });
 
     it('should auto-archive', async () => {
@@ -1869,7 +1909,7 @@ describe('Player API', () => {
       expect(Array.from(newPlayerGroupIds)).toEqual([1002, 1003, 1004]);
       expect(Array.from(newPlayerCompetitionIds)).toEqual([1004, 1006, 1008]);
 
-      const flagContext = await reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
+      const flagContext = reviewFlaggedPlayer(player, previousSnapshot, rejectedSnapshot);
       expect(flagContext).toBeNull();
 
       const trackResponse = await api.post(`/players/Greg Hirsch`);
