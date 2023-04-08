@@ -1965,9 +1965,19 @@ describe('Player API', () => {
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
-      const trackArchivedPlayer = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayer.status).toBe(400);
-      expect(trackArchivedPlayer.body.message).toBe('Failed to update: Player is archived.');
+      const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
+      expect(trackArchivedPlayerResponse.status).toBe(400);
+      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+
+      const submitArchivedPlayerNameChangeResponse = await api.post(`/names`).send({
+        oldName: archivedPlayer.username,
+        newName: 'gerri'
+      });
+
+      expect(submitArchivedPlayerNameChangeResponse.status).toBe(400);
+      expect(submitArchivedPlayerNameChangeResponse.body.message).toBe(
+        'Failed to submit name change: Player is archived.'
+      );
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
@@ -2152,9 +2162,19 @@ describe('Player API', () => {
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
-      const trackArchivedPlayer = await api.post(`/players/${archivedPlayer.username}`);
-      expect(trackArchivedPlayer.status).toBe(400);
-      expect(trackArchivedPlayer.body.message).toBe('Failed to update: Player is archived.');
+      const trackArchivedPlayerResponse = await api.post(`/players/${archivedPlayer.username}`);
+      expect(trackArchivedPlayerResponse.status).toBe(400);
+      expect(trackArchivedPlayerResponse.body.message).toBe('Failed to update: Player is archived.');
+
+      const submitArchivedPlayerNameChangeResponse = await api.post(`/names`).send({
+        oldName: archivedPlayer.username,
+        newName: 'gerri'
+      });
+
+      expect(submitArchivedPlayerNameChangeResponse.status).toBe(400);
+      expect(submitArchivedPlayerNameChangeResponse.body.message).toBe(
+        'Failed to submit name change: Player is archived.'
+      );
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
