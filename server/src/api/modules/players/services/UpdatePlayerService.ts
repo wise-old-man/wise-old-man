@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
-import { RateLimitError, ServerError } from '../../../errors';
+import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
@@ -35,6 +35,10 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
   // Find a player with the given username or create a new one if needed
   const [player, isNew] = await findPlayer({ username, createIfNotFound: true });
+
+  if (player.status === PlayerStatus.ARCHIVED) {
+    throw new BadRequestError('Failed to update: Player is archived.');
+  }
 
   // If the player was updated recently, don't update it
   if (!shouldUpdate(player) && !isNew) {

@@ -1965,6 +1965,10 @@ describe('Player API', () => {
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
 
+      const trackArchivedPlayer = await api.post(`/players/${archivedPlayer.username}`);
+      expect(trackArchivedPlayer.status).toBe(400);
+      expect(trackArchivedPlayer.body.message).toBe('Failed to update: Player is archived.');
+
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
       });
@@ -2147,6 +2151,10 @@ describe('Player API', () => {
       expect(archivedPlayer.status).toBe('archived');
       expect(archivedPlayer.username).toBe(archivedPlayer.displayName);
       expect(archivedPlayer.username.startsWith('archive')).toBeTruthy();
+
+      const trackArchivedPlayer = await api.post(`/players/${archivedPlayer.username}`);
+      expect(trackArchivedPlayer.status).toBe(400);
+      expect(trackArchivedPlayer.body.message).toBe('Failed to update: Player is archived.');
 
       const archivals = await prisma.playerArchive.findMany({
         where: { playerId: player.id }
