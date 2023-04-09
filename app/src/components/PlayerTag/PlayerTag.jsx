@@ -44,13 +44,15 @@ function PlayerTag({ name, type, country, status }) {
 
 PlayerTag.defaultProps = {
   type: undefined,
-  country: undefined
+  country: undefined,
+  status: undefined
 };
 
 PlayerTag.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.string,
-  country: PropTypes.string
+  country: PropTypes.string,
+  status: PropTypes.string
 };
 
 export default React.memo(PlayerTag);

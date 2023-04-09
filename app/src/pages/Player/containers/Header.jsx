@@ -77,9 +77,9 @@ function ArchivedWarning() {
         Their previous username has been taken by another player. If you know their new username, you
         can&nbsp;
         <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
-          contact us on Discord{' '}
+          contact us on Discord
         </a>
-        &nbsp;to transfer their old data to their current username.
+        &nbsp;&nbsp;to transfer their old data to their current username.
       </span>
     </div>
   );
@@ -98,9 +98,12 @@ function UnrankedWarning(player) {
         <b>This player is unranked.</b>
         <br />
         <br />
-        This player could not be found on the hiscores as of{' '}
-        {formatDate(updatedAt, 'DD MMM YYYY, HH:mm')}. This can mean they either changed their in-game
-        name, or dropped out of the hiscores (by having very low skills).&nbsp;&nbsp;
+        {`This player could not be found on the hiscores as of ${formatDate(
+          updatedAt,
+          'DD MMM YYYY, HH:mm'
+        )}. This can mean they either changed their in-game
+        name, or dropped out of the hiscores (by having very low skills).`}
+        &nbsp;&nbsp;
         <a href={getOfficialHiscoresUrl(player)}>Visit their hiscores page here</a>
         <br />
         <br />
@@ -164,6 +167,7 @@ Header.propTypes = {
     username: PropTypes.string,
     displayName: PropTypes.string,
     flagged: PropTypes.bool,
+    status: PropTypes.string,
     type: PropTypes.string,
     build: PropTypes.string,
     country: PropTypes.string
