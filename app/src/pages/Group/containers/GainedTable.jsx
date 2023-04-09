@@ -154,12 +154,7 @@ function getTableConfig(metric, period) {
         get: row => row.player.displayName,
         transform: (_, { player }) => (
           <Link to={`/players/${player.username}`}>
-            <PlayerTag
-              name={player.displayName}
-              type={player.type}
-              flagged={player.flagged}
-              country={player.country}
-            />
+            <PlayerTag name={player.displayName} {...player} />
           </Link>
         )
       },

@@ -35,12 +35,7 @@ const TABLE_CONFIG = {
       className: () => '-primary -break-medium',
       transform: (value, row) => (
         <Link to={`/players/${row.player.username}/names`}>
-          <PlayerTag
-            name={value}
-            type={row.player.type}
-            flagged={row.player.flagged}
-            country={row.player.country}
-          />
+          <PlayerTag name={value} {...row.player} />
         </Link>
       )
     },

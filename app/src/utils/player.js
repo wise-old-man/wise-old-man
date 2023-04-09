@@ -1,4 +1,4 @@
-import { capitalize } from "./strings";
+import { capitalize } from './strings';
 
 export function standardize(username) {
   return sanitize(username).toLowerCase();
@@ -12,9 +12,17 @@ export function getPlayerTypeIcon(type) {
   return `/img/runescape/icons_small/${type}.png`;
 }
 
-export function getPlayerTooltip(type, flagged) {
-  if (flagged) {
-    return 'This player is flagged. Likely caused by an unregistered name change. Join our Discord to submit one.';
+export function getPlayerTooltip(type, status) {
+  if (status === 'archived') {
+    return 'This player is archived. Their previous username has been taken by some other account.';
+  }
+
+  if (status === 'unranked') {
+    return 'This player is uranked. Could not be found in the hiscores.';
+  }
+
+  if (status === 'flagged') {
+    return 'This player is flagged. Likely caused by an unregistered name change. Visit their profile for more information.';
   }
 
   // Unknown player types happen when the first tracking attempt fails,

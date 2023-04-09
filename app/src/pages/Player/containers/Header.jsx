@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getPlayerTypeIcon, getPlayerTooltip, getOfficialHiscoresUrl } from 'utils';
+import { getPlayerTypeIcon, getPlayerTooltip, getOfficialHiscoresUrl, formatDate } from 'utils';
 import { PageHeader, Dropdown, Button, Badge } from 'components';
 
 const MENU_OPTIONS = [
@@ -28,11 +28,13 @@ function Header(props) {
 
   return (
     <>
-      {player.flagged && <FlaggedWarning displayName={player.displayName} />}
+      {player.status === 'flagged' && <FlaggedWarning {...player} />}
+      {player.status === 'unranked' && <UnrankedWarning {...player} />}
+      {player.status === 'archived' && <ArchivedWarning {...player} />}
       <PageHeader
         title={player.displayName}
         icon={getPlayerTypeIcon(player.type)}
-        iconTooltip={getPlayerTooltip(player.type, player.flagged)}
+        iconTooltip={getPlayerTooltip(player.type, player.status)}
         renderLeft={() => {
           const buildBadge = getBuildBadge(player.build);
           return (
@@ -64,12 +66,61 @@ function Header(props) {
   );
 }
 
-function FlaggedWarning({ displayName }) {
+function ArchivedWarning() {
+  return (
+    <div className="warning" style={{ borderColor: '#d10f0f' }}>
+      <img src="/img/runescape/icons_small/archived.png" alt="" />
+      <span>
+        <b>This player is archived.</b>
+        <br />
+        <br />
+        Their previous username has been taken by another player. If you know their new username, you
+        can&nbsp;
+        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+          contact us on Discord{' '}
+        </a>
+        &nbsp;to transfer their old data to their current username.
+      </span>
+    </div>
+  );
+}
+
+function UnrankedWarning(player) {
+  const { displayName, updatedAt } = player;
+
   // eslint-disable-next-line no-unused-vars
   const nameChangeURL = `/names/submit/${displayName}`;
 
   return (
     <div className="warning">
+      <img src="/img/runescape/icons_small/unranked.png" alt="" />
+      <span>
+        <b>This player is unranked.</b>
+        <br />
+        <br />
+        This player could not be found on the hiscores as of{' '}
+        {formatDate(updatedAt, 'DD MMM YYYY, HH:mm')}. This can mean they either changed their in-game
+        name, or dropped out of the hiscores (by having very low skills).&nbsp;&nbsp;
+        <a href={getOfficialHiscoresUrl(player)}>Visit their hiscores page here</a>
+        <br />
+        <br />
+        <Link to={nameChangeURL}>Click here to submit a name change</Link>
+        &nbsp; or join our &nbsp;
+        <a href="https://wiseoldman.net/discord" target="_blank" rel="noopener noreferrer">
+          Discord server
+        </a>
+        &nbsp; for help.
+      </span>
+    </div>
+  );
+}
+
+function FlaggedWarning({ displayName }) {
+  // eslint-disable-next-line no-unused-vars
+  const nameChangeURL = `/names/submit/${displayName}`;
+
+  return (
+    <div className="warning" style={{ borderColor: '#e6792c' }}>
       <img src="/img/runescape/icons_small/flagged.png" alt="" />
       <span>
         <b>This player is flagged.</b>
