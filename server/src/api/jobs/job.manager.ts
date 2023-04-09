@@ -17,9 +17,11 @@ import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJ
 import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
+import CheckPlayerRankingJob from './instances/CheckPlayerRankingJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
+  CheckPlayerRankingJob,
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,
   ReviewNameChangeJob,
@@ -132,6 +134,12 @@ class JobManager {
       );
 
       worker.on('failed', (bullJob, error) => {
+        const maxAttempts = bullJob.opts.attempts || 1;
+
+        if (bullJob.attemptsMade >= maxAttempts && job.onFailedAllAttempts) {
+          job.onFailedAllAttempts(bullJob.data, error);
+        }
+
         if (job.onFailure) job.onFailure(bullJob.data, error);
         logger.error(`Failed job: ${job.type}`, { ...bullJob.data, error }, true);
       });
