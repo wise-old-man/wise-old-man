@@ -36,7 +36,7 @@ function getTableConfig(metric) {
     columns: [
       {
         key: 'rank',
-        label: 'Rank',
+        label: 'Rank'
       },
       {
         key: 'displayName',
@@ -44,12 +44,7 @@ function getTableConfig(metric) {
         className: () => '-primary',
         transform: (value, row) => (
           <Link to={`/players/${row.username}`}>
-            <PlayerTag
-              name={row.displayName}
-              type={row.type}
-              flagged={row.flagged}
-              country={row.country}
-            />
+            <PlayerTag name={row.displayName} {...row} />
           </Link>
         )
       },

@@ -16,12 +16,7 @@ const TABLE_CONFIG = {
       get: row => row.player.displayName,
       transform: (_, row) => (
         <Link to={`/players/${row.player.username}`}>
-          <PlayerTag
-            name={row.player.displayName}
-            type={row.player.type}
-            flagged={row.player.flagged}
-            country={row.player.country}
-          />
+          <PlayerTag name={row.player.displayName} {...row.player} />
         </Link>
       )
     },

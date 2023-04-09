@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
+import { jobManager, JobType } from '../../../jobs';
 import logger from '../../../util/logging';
 import { getBuild, shouldUpdate } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
@@ -62,13 +63,24 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   try {
     currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
   } catch (error) {
-    // if failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
-    // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
-    if (error.statusCode === 400 && (await shouldReviewType(player))) {
-      const hasTypeChanged = await reviewType(player);
-      // If they did in fact change type, call this function recursively,
-      // so that it fetches their stats from the correct hiscores.
-      if (hasTypeChanged) return updatePlayer(player);
+    if (error.statusCode === 400) {
+      // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
+      // we should at least check if their type has changed (e.g. the name was transfered to a regular acc)
+      if (await shouldReviewType(player)) {
+        const hasTypeChanged = await reviewType(player);
+        // If they did in fact change type, call this function recursively,
+        // so that it fetches their stats from the correct hiscores.
+        if (hasTypeChanged) return updatePlayer(player);
+      }
+
+      // If it failed to load their stats, and the player isn't unranked,
+      // we should start a background job to check (a few times) if they're really unranked
+      if (player.status !== PlayerStatus.UNRANKED) {
+        jobManager.add({
+          type: JobType.CHECK_PLAYER_RANKING,
+          payload: { username: player.username }
+        });
+      }
     }
 
     throw error;
