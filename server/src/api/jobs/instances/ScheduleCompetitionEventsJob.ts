@@ -25,18 +25,14 @@ class ScheduleCompetitionEventsJob implements JobDefinition<unknown> {
 
   async execute() {
     // Schedule "starting" and "started" events for each interval
-    await Promise.all(
-      START_TIME_INTERVALS.map(async t => {
-        await scheduleStarting(t * 60 * 1000);
-      })
-    );
+    for (const start of START_TIME_INTERVALS) {
+      await scheduleStarting(start * 60 * 1000);
+    }
 
     // Schedule "ending" and "ended" events for each interval
-    await Promise.all(
-      END_TIME_INTERVALS.map(async t => {
-        await scheduleEnding(t * 60 * 1000);
-      })
-    );
+    for (const end of END_TIME_INTERVALS) {
+      await scheduleEnding(end * 60 * 1000);
+    }
   }
 }
 

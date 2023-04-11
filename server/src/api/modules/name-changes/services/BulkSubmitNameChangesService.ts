@@ -1,3 +1,4 @@
+import { NameChange } from '@prisma/client';
 import { z } from 'zod';
 import { BadRequestError } from '../../../errors';
 import * as playerUtils from '../../players/player.utils';
@@ -32,28 +33,24 @@ type BulkSubmitResult = {
 
 async function bulkSubmitNameChanges(payload: BulkSubmitParams): Promise<BulkSubmitResult> {
   const input = inputSchema.parse(payload);
+  const submitted: NameChange[] = [];
 
   // Submit all the entries one by one, using the submitNameChange service.
-  const submitted = await Promise.all(
-    input.map(async entry => {
-      try {
-        return await submitNameChange(entry);
-      } catch (error) {
-        return null;
-      }
-    })
-  );
+  for (const entry of input) {
+    try {
+      submitted.push(await submitNameChange(entry));
+    } catch (_) {
+      // Skip over errors
+    }
+  }
 
-  // Only non-null results count as successful
-  const submittedCount = submitted.filter(s => !!s).length;
-
-  if (submittedCount === 0) {
+  if (submitted.length === 0) {
     throw new BadRequestError(`Could not find any valid name changes to submit.`);
   }
 
   return {
-    nameChangesSubmitted: submittedCount,
-    message: `Successfully submitted ${submittedCount}/${input.length} name changes.`
+    nameChangesSubmitted: submitted.length,
+    message: `Successfully submitted ${submitted.length}/${input.length} name changes.`
   };
 }
 
