@@ -35,6 +35,17 @@ Our REST API uses standard HTTP response codes and verbs, and mostly supports JS
 
 This documentation website will provide examples for each request using **cURL** and our own **JavaScript/TypeScript** client library (highly recommended if you are using any of those languages). There could be more client libraries built for other languages in the future, but it is not our main priority right now. Please do contact us if you are interested in developing one for any other languages.
 
+### 3rd party libraries
+
+| Library  | Language | Maintainer        | Links                                                                                            |
+| -------- | -------- | ----------------- | ------------------------------------------------------------------------------------------------ |
+| `wom.py` | Python3  | `@Jonxslays#0666` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
+
+:::caution
+**Little to no support** may be provided for 3rd party libraries in the Wise Old Man discord server.
+If you are having issues or have questions, feel free to ask - but understand you may need to inquire with the maintainer of the library, or on the github repository directly.
+:::
+
 ## Getting started
 
 ### Base URL
