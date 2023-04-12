@@ -31,7 +31,8 @@ async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
         data: {
           username: archiveUsername,
           displayName: archiveUsername,
-          status: PlayerStatus.ARCHIVED
+          status: PlayerStatus.ARCHIVED,
+          flagged: false
         }
       });
 
