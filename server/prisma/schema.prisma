@@ -93,9 +93,11 @@ model Delta {
   construction                     Int       @default(0)
   abyssal_sire                     Int       @default(0)
   alchemical_hydra                 Int       @default(0)
+  artio                            Int       @default(0)
   barrows_chests                   Int       @default(0)
   bryophyta                        Int       @default(0)
   callisto                         Int       @default(0)
+  calvarion                        Int       @default(0)
   cerberus                         Int       @default(0)
   chambers_of_xeric                Int       @default(0)
   chambers_of_xeric_challenge_mode Int       @default(0)
@@ -126,6 +128,7 @@ model Delta {
   sarachnis                        Int       @default(0)
   scorpia                          Int       @default(0)
   skotizo                          Int       @default(0)
+  spindel                          Int       @default(0)
   tempoross                        Int       @default(0)
   the_gauntlet                     Int       @default(0)
   the_corrupted_gauntlet           Int       @default(0)
@@ -402,6 +405,8 @@ model Snapshot {
   abyssal_sireKills                     Int       @default(-1)
   alchemical_hydraRank                  Int       @default(-1)
   alchemical_hydraKills                 Int       @default(-1)
+  artioRank                             Int       @default(-1)
+  artioKills                            Int       @default(-1)
   barrows_chestsRank                    Int       @default(-1)
   barrows_chestsKills                   Int       @default(-1)
   bryophytaKills                        Int       @default(-1)
@@ -411,6 +416,8 @@ model Snapshot {
   cerberusRank                          Int       @default(-1)
   callistoRank                          Int       @default(-1)
   callistoKills                         Int       @default(-1)
+  calvarionRank                         Int       @default(-1)
+  calvarionKills                        Int       @default(-1)
   chambers_of_xericKills                Int       @default(-1)
   chambers_of_xeric_challenge_modeRank  Int       @default(-1)
   chambers_of_xeric_challenge_modeKills Int       @default(-1)
@@ -464,6 +471,8 @@ model Snapshot {
   scorpiaKills                          Int       @default(-1)
   skotizoRank                           Int       @default(-1)
   skotizoKills                          Int       @default(-1)
+  spindelRank                           Int       @default(-1)
+  spindelKills                          Int       @default(-1)
   the_gauntletRank                      Int       @default(-1)
   the_gauntletKills                     Int       @default(-1)
   the_corrupted_gauntletKills           Int       @default(-1)
@@ -1144,9 +1153,11 @@ enum Metric {
   pvp_arena
   abyssal_sire
   alchemical_hydra
+  artio
   barrows_chests
   bryophyta
   callisto
+  calvarion
   cerberus
   chambers_of_xeric
   chambers_of_xeric_challenge_mode
@@ -1176,6 +1187,7 @@ enum Metric {
   sarachnis
   scorpia
   skotizo
+  spindel
   the_gauntlet
   the_corrupted_gauntlet
   theatre_of_blood
