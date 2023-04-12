@@ -104,6 +104,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       if (!flagContext) {
         // no context, we know this is a name transfer and can be auto-archived
         await archivePlayer(player);
+        return updatePlayer({ username: player.username });
       }
     }
 
