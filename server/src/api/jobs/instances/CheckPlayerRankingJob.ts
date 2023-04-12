@@ -44,7 +44,7 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     if (error instanceof BadRequestError && error.message.includes('Failed to load hiscores')) {
       await prisma.player.update({
         where: { username: data.username },
-        data: { status: PlayerStatus.UNRANKED }
+        data: { status: PlayerStatus.UNRANKED, flagged: false }
       });
     }
   }
