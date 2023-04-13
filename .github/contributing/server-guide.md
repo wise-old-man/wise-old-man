@@ -172,18 +172,38 @@ You should now have access to the database, on the left side panel.
 
 <br />
 
-## Running integration tests
+## Running tests
 
-I suggest running integration tests before commiting, to make sure your new code doesn't ruin any previous code.
+It is recommended to run tests before committing, to make sure your new code doesn't cause any regressions.
 
-Open the terminal and type the following commands:
+Start by changing directory into the server:
 
 ```
 cd server
 ```
 
+To run all unit and integration tests:
+
 ```
 npm run test
+```
+
+To run both the `players.test.ts` unit and integration test files:
+
+```
+npm run test players
+```
+
+To run an individual unit test file, append a `u` to the end of the command:
+
+```
+npm run test countries u
+```
+
+To run an individual integration test file, append an `i` to the end of the command:
+
+```
+npm run test snapshots i
 ```
 
 Read the logs in the terminal, and if all the tests passed, go ahead and commit your changes!
