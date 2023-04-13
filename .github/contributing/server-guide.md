@@ -150,7 +150,7 @@ and run `npm run dev` again.
 
 ## Accessing the database
 
-You can use pgadmin to manage your database, by visting the API url, and replacing the 5000 port with 54321.
+You can use pgadmin to manage your database, by visiting the API url, and replacing the 5000 port with 54321.
 
 Example: http://localhost:54321 or http://192.168.99.100:54321
 
