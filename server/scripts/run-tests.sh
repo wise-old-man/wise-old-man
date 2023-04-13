@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 ARGS="--verbose --runInBand";
 BASE="__tests__/suites";
@@ -6,19 +6,19 @@ I="integration";
 S=".test.ts";
 U="unit";
 
-function fail() {
+fail() {
     echo "Error: $1";
     exit 1;
 }
 
-function setup() {
+setup() {
     # Reset the test database
     export CORE_DATABASE=wise-old-man-test;
     export NODE_ENV=test TZ=UTC;
     prisma migrate reset --force;
 }
 
-function execute() {
+execute() {
     # Setup docker dependencies (Postgres, PGAdmin and Redis)
     docker-compose up --build -d;
     setup;
