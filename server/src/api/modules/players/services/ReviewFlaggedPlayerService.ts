@@ -141,8 +141,6 @@ function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot
   const hesporiKcLoss =
     Math.max(0, rejected.data.bosses.hespori.kills) - Math.max(0, previous.data.bosses.hespori.kills);
 
-  console.log(hesporiKcLoss);
-
   if (hesporiKcLoss <= -3) {
     // If lost more than 3 Hespori kills, then it's probably not a rollback.
     // Because that would mean this player killed 3 hesporis in a very short period of time (before Jagex reset the servers).
