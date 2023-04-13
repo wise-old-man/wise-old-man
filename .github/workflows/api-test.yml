@@ -54,7 +54,7 @@ jobs:
         run: npm run build
 
       - name: Run Integration Tests
-        run: npm run test -
+        run: npm run test ci
   type-check-client-js:
     name: Type-check Client JS package
     runs-on: ubuntu-latest
