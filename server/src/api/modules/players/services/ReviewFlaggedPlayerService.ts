@@ -126,17 +126,30 @@ function hasLostTooMuch(previous: FormattedSnapshot, rejected: FormattedSnapshot
   const previousEHP = previous.data.skills.overall.ehp;
   const previousEHB = BOSSES.map(b => previous.data.bosses[b].ehb).reduce((a, b) => a + b, 0);
 
-  const lostEHP = REAL_SKILLS.map(s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp)
-    .filter(ehpDiff => ehpDiff < 0)
-    .reduce((a, b) => a + b, 0);
+  const lostEHP = Math.abs(
+    REAL_SKILLS.map(s => rejected.data.skills[s].ehp - previous.data.skills[s].ehp)
+      .filter(ehpDiff => ehpDiff < 0)
+      .reduce((a, b) => a + b, 0)
+  );
 
-  const lostEHB = BOSSES.map(s => rejected.data.bosses[s].ehb - previous.data.bosses[s].ehb)
-    .filter(ehbDiff => ehbDiff < 0)
-    .reduce((a, b) => a + b, 0);
+  const lostEHB = Math.abs(
+    BOSSES.map(s => rejected.data.bosses[s].ehb - previous.data.bosses[s].ehb)
+      .filter(ehbDiff => ehbDiff < 0)
+      .reduce((a, b) => a + b, 0)
+  );
 
-  // If lost over 24h (or 20%) of EHP and EHB, then it's probably not a rollback.
+  const hesporiKcLoss =
+    Math.max(0, rejected.data.bosses.hespori.kills) - Math.max(0, previous.data.bosses.hespori.kills);
+
+  if (hesporiKcLoss <= -3) {
+    // If lost more than 3 Hespori kills, then it's probably not a rollback.
+    // Because that would mean this player killed 3 hesporis in a very short period of time (before Jagex reset the servers).
+    return true;
+  }
+
+  // If lost over 12h (or 20%) of EHP and EHB, then it's probably not a rollback.
   // Rollbacks are usually quickly fixed by Jagex, so it's unlikely that a player gains a huge amount of EHP and EHB in a short period of time.
-  return lostEHP + lostEHB > Math.min(24, (previousEHP + previousEHB) * 0.2);
+  return lostEHP + lostEHB > Math.min(12, (previousEHP + previousEHB) * 0.2);
 }
 
 export { reviewFlaggedPlayer };
