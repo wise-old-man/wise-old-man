@@ -1,15 +1,64 @@
-# Only setup docker for local runs (not in CI)
-if [ $# -eq 0 ]; then
-    # Setup the docker dependencies (Postgres, PGAdmin and Redis)
-    docker-compose up --build -d
+#!/usr/bin/env sh
+
+ARGS="--verbose --runInBand";
+BASE="__tests__/suites";
+I="integration";
+S=".test.ts";
+U="unit";
+
+function fail() {
+    echo "Error: $1";
+    exit 1;
+}
+
+function setup() {
+    # Reset the test database
+    export CORE_DATABASE=wise-old-man-test;
+    export NODE_ENV=test TZ=UTC;
+    prisma migrate reset --force;
+}
+
+function execute() {
+    # Setup docker dependencies (Postgres, PGAdmin and Redis)
+    docker-compose up --build -d;
+    setup;
+    jest $1 $ARGS;
+}
+
+if [ $1 = "ci" ]; then
+    # Skip docker setup for CI runs
+    setup;
+    jest $BASE $ARGS;
+    exit $?;
 fi
 
-# Reset the test database.
-export CORE_DATABASE=wise-old-man-test
-prisma migrate reset --force
+if [ $2 ]; then
+    case $2 in
+        U|-U|u|-u|unit) TARGET="$BASE/$U/$1$S";;
+        I|-I|i|-i|integration) TARGET="$BASE/$I/$1$S";;
+        *) fail "'$2' is not a valid test suite. Use 'i' for integration or 'u' for unit.";;
+    esac
 
-# Run jest on all unit and integration tests tests
-export NODE_ENV=test TZ=UTC
+    if ! [ -f $TARGET ]; then
+        # The requested test is not valid
+        fail "$1 is not a valid test name.";
+    fi
 
-# jest __tests__/suites/integration/players.test.ts --verbose --runInBand # to run a specific test file
-jest __tests__/suites --verbose --runInBand
+    # Run only the single requested test
+    execute $TARGET;
+elif [ $1 ]; then
+    TARGET="$BASE/*/$1$S";
+    TARGET_U="$BASE/$U/$1$S";
+    TARGET_I="$BASE/$I/$1$S";
+
+    if ! [ -f $TARGET_U ] && ! [ -f $TARGET_I ]; then
+        # The requested test is not valid.
+        fail "'$1' is not a valid test name.";
+    fi
+
+    # Execute both unit and integration tests with the given name
+    execute $TARGET;
+else
+    # Execute all unit and integration tests
+    execute $BASE;
+fi
