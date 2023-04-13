@@ -41,7 +41,7 @@ if [ $2 ]; then
 
     if ! [ -f $TARGET ]; then
         # The requested test is not valid
-        fail "$1 is not a valid test name.";
+        fail "'$1' is not a valid test name.";
     fi
 
     # Run only the single requested test
