@@ -176,11 +176,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 }
 
 async function shouldReviewType(player: Player) {
-  if (
-    player.status === PlayerStatus.FLAGGED ||
-    player.type === PlayerType.UNKNOWN ||
-    player.type === PlayerType.REGULAR
-  ) {
+  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
     return false;
   }
 
