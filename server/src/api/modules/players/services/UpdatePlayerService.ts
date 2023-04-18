@@ -95,17 +95,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) return updatePlayer({ username: player.username });
-    } else {
-      // Note: this is temporary, as I write this, there's a backlog of 2.3k flagged accounts that need
-      // to slowly be reviewed and resolved. The solution is to auto-archive the ones that can be,
-      // even if they were already flagged. It should be removed once the backlog is cleared.
-      const flagContext = reviewFlaggedPlayer(player, previousStats, currentStats);
-
-      if (!flagContext) {
-        // no context, we know this is a name transfer and can be auto-archived
-        await archivePlayer(player);
-        return updatePlayer({ username: player.username });
-      }
     }
 
     throw new ServerError('Failed to update: Player is flagged.');
@@ -176,11 +165,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 }
 
 async function shouldReviewType(player: Player) {
-  if (
-    player.status === PlayerStatus.FLAGGED ||
-    player.type === PlayerType.UNKNOWN ||
-    player.type === PlayerType.REGULAR
-  ) {
+  if (player.type === PlayerType.UNKNOWN || player.type === PlayerType.REGULAR) {
     return false;
   }
 
