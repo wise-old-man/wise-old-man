@@ -91,7 +91,7 @@ describe('Util - Metrics', () => {
 
   test('getMinimumValue', () => {
     expect(getMinimumValue(Metric.ATTACK)).toBe(1);
-    expect(getMinimumValue(Metric.ZALCANO)).toBe(25);
+    expect(getMinimumValue(Metric.ZALCANO)).toBe(20);
     expect(getMinimumValue(Metric.TZTOK_JAD)).toBe(5);
     expect(getMinimumValue(Metric.TZKAL_ZUK)).toBe(1);
     expect(getMinimumValue(Metric.CLUE_SCROLLS_ALL)).toBe(1);
