@@ -56,7 +56,7 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
-    interval: '0 */2 * * *' // every 2 hours
+    interval: '0 * * * *' // every hour
   },
   {
     type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
