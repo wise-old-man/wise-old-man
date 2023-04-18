@@ -18,6 +18,7 @@ import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
 import CheckPlayerRankingJob from './instances/CheckPlayerRankingJob';
+import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
@@ -28,6 +29,7 @@ const JOBS: JobDefinition<unknown>[] = [
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
   ScheduleDeltaInvalidationsJob,
+  ScheduleFlaggedPlayerReview,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
   UpdateCompetitionScoreJob,
@@ -51,6 +53,10 @@ const CRON_JOBS = [
   {
     type: JobType.SCHEDULE_COMPETITION_SCORE_UPDATES,
     interval: '0 */12 * * *' // every 12 hours
+  },
+  {
+    type: JobType.SCHEDULE_FLAGGED_PLAYER_REVIEW,
+    interval: '0 */2 * * *' // every 2 hours
   },
   {
     type: JobType.SCHEDULE_GROUP_SCORE_UPDATES,
