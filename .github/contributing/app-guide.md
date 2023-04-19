@@ -66,7 +66,7 @@ SKIP_PREFLIGHT_CHECK=true
 # REACT_APP_BASE_API_URL=http://localhost:5000/api
 ```
 
-**Notice how the REACT_APP_BASE_API_URL variable is commented out using a `#` at the start of it. When this variable is commented out, the app will use the production API URL (`https://api.wiseoldman.net`) by default. If you are running your own local server, you can uncomment that variable and insert your local server URL. This local server URL can differ from localhost,  ou can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md).**
+**Notice how the REACT_APP_BASE_API_URL variable is commented out using a `#` at the start of it. When this variable is commented out, the app will use the production API URL (`https://api.wiseoldman.net`) by default. If you are running your own local server, you can uncomment that variable and insert your local server URL. This local server URL can differ from localhost,  you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md).**
 
 <br />
 <br />
