@@ -262,6 +262,24 @@ describe('Names API', () => {
 
       expect(onNameChangeSubmittedEvent).not.toHaveBeenCalled();
     });
+
+    it('should submit (names contained in repeated pending submission)', async () => {
+      const trackResponse = await api.post(`/players/Dro`);
+      expect(trackResponse.status).toBe(201);
+      expect(trackResponse.body.username).toBe('dro');
+
+      const submitResponse = await api.post(`/names`).send({ oldName: 'dro', newName: 'Super' });
+
+      expect(submitResponse.status).toBe(201);
+      expect(submitResponse.body.oldName).toBe('Dro');
+      expect(submitResponse.body.newName).toBe('Super');
+
+      expect(onNameChangeSubmittedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: submitResponse.body.id
+        })
+      );
+    });
   });
 
   describe('2 - Details', () => {
@@ -374,8 +392,8 @@ describe('Names API', () => {
       const response = await api.get(`/names`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(5);
-      expect(response.body.filter(n => n.status === 'pending').length).toBe(3);
+      expect(response.body.length).toBe(6);
+      expect(response.body.filter(n => n.status === 'pending').length).toBe(4);
       expect(response.body.filter(n => n.status === 'approved').length).toBe(2);
       expect(response.body.filter(n => n.oldName === 'Zezima').length).toBe(1);
       expect(response.body.filter(n => n.oldName === 'psikoi').length).toBe(2);
