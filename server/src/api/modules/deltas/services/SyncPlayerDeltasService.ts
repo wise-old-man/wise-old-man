@@ -67,7 +67,9 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
   }
 
   // Execute all update promises, sequentially
-  await Promise.all(PERIODS.map(buildUpdatePromise));
+  for (const period of PERIODS) {
+    await buildUpdatePromise(period);
+  }
 }
 
 export { syncPlayerDeltas };

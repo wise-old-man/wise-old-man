@@ -64,10 +64,8 @@ async function syncPlayerRecords(payload: SyncPlayerRecordsParams): Promise<void
     await prisma.record.createMany({ data: toCreate, skipDuplicates: true });
   }
 
-  if (toUpdate.length > 0) {
-    await Promise.all(
-      toUpdate.map(r => prisma.record.update({ where: { id: r.recordId }, data: { value: r.newValue } }))
-    );
+  for (const update of toUpdate) {
+    await prisma.record.update({ where: { id: update.recordId }, data: { value: update.newValue } });
   }
 }
 

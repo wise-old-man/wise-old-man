@@ -32,28 +32,25 @@ type BulkSubmitResult = {
 
 async function bulkSubmitNameChanges(payload: BulkSubmitParams): Promise<BulkSubmitResult> {
   const input = inputSchema.parse(payload);
+  let submitted = 0;
 
   // Submit all the entries one by one, using the submitNameChange service.
-  const submitted = await Promise.all(
-    input.map(async entry => {
-      try {
-        return await submitNameChange(entry);
-      } catch (error) {
-        return null;
-      }
-    })
-  );
+  for (const entry of input) {
+    try {
+      await submitNameChange(entry);
+      submitted++;
+    } catch (_) {
+      // Skip over errors
+    }
+  }
 
-  // Only non-null results count as successful
-  const submittedCount = submitted.filter(s => !!s).length;
-
-  if (submittedCount === 0) {
+  if (submitted === 0) {
     throw new BadRequestError(`Could not find any valid name changes to submit.`);
   }
 
   return {
-    nameChangesSubmitted: submittedCount,
-    message: `Successfully submitted ${submittedCount}/${input.length} name changes.`
+    nameChangesSubmitted: submitted,
+    message: `Successfully submitted ${submitted}/${input.length} name changes.`
   };
 }
 
