@@ -1,6 +1,8 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
 import "../globals.css";
+import { TailwindIndicator } from "~/components/TailwindIndicator";
+import { TooltipProvider } from "~/components/Tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +16,10 @@ function RootLayout(props: PropsWithChildren) {
 
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+        <TailwindIndicator />
+      </body>
     </html>
   );
 }
