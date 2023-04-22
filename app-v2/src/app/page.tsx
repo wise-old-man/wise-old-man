@@ -21,6 +21,8 @@ import {
 import PlusIcon from "~/assets/plus.svg";
 import CheckIcon from "~/assets/check.svg";
 import SearchIcon from "~/assets/search.svg";
+import WarningIcon from "~/assets/warning.svg";
+import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/Tabs";
@@ -48,6 +50,7 @@ import {
 import { Badge } from "~/components/Badge";
 import { DatePicker } from "~/components/DatePicker";
 import { Input } from "~/components/Input";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 
 const NAMES = [
   "Amya Ware",
@@ -175,46 +178,71 @@ const NAMES = [
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
-      <Input
-        placeholder="Varrock Warriors"
-        rightElement={<span className="text-xs text-gray-300">4/30</span>}
-      />
+      <Alert className="flex items-center justify-between">
+        <div>
+          <AlertTitle>Migrating from TempleOSRS or CrystalMathLabs?</AlertTitle>
+          <AlertDescription>
+            You can add components and dependencies to your app using the cli.
+          </AlertDescription>
+        </div>
+        <Button variant="blue">Migrate</Button>
+      </Alert>
+      <Alert variant="error">
+        <WarningIcon className="h-5 w-5" />
+        <AlertTitle>This player is flagged.</AlertTitle>
+        <AlertDescription>
+          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse adipisicing est ex veniam.
+          Nisi Lorem veniam mollit ullamco consequat deserunt commodo. Tempor qui ex magna aute officia
+          qui commodo dolor.
+        </AlertDescription>
+      </Alert>
+      <Alert variant="success">
+        <CheckIcon className="h-5 w-5" />
+        <AlertTitle>Something wonderful just happened.</AlertTitle>
+        <AlertDescription>
+          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse.
+        </AlertDescription>
+      </Alert>
 
-      <Input
-        placeholder="Varrock Warriors"
-        leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
-      />
+      <div className="grid grid-cols-2 gap-5">
+        <Input
+          placeholder="Varrock Warriors"
+          value="woah"
+          autoFocus
+          rightElement={<span className="text-xs text-gray-300">4/30</span>}
+        />
 
-      <Input
-        placeholder="Varrock Warriors"
-        rightElement={<span className="text-xs text-gray-300">4/30</span>}
-      />
+        <Input
+          placeholder="Varrock Warriors"
+          leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
+        />
 
-      <div className="flex flex-col">
-        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
-        <Input placeholder="Varrock Warriors" />
-        <span className="mt-2 text-xs font-normal text-gray-200">Tip: Try doing this first</span>
+        <div className="flex flex-col">
+          <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+          <Input placeholder="Varrock Warriors" />
+          <span className="mt-2 text-xs font-normal text-gray-200">Tip: Try doing this first</span>
+        </div>
+
+        <div className="flex flex-col">
+          <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+          <Input placeholder="Varrock Warriors" className="border-green-400" />
+          <Label className="mt-2 text-xs font-normal text-green-400">Found 23 players</Label>
+        </div>
+
+        <div className="flex flex-col">
+          <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+          <Input placeholder="Varrock Warriors" className="border-red-400" />
+          <Label className="mt-2 text-xs font-normal text-red-400">Failed to load URL</Label>
+        </div>
+
+        <div className="flex flex-col">
+          <Label className="mb-2 text-xs font-normal text-gray-200">Homeworld</Label>
+          <Input placeholder="450" type="number" />
+        </div>
+
+        <Input placeholder="Something" disabled value="Disabled with value" />
+        <Input placeholder="Disabled (empty)" disabled />
       </div>
-
-      <div className="flex flex-col">
-        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
-        <Input placeholder="Varrock Warriors" className="border-green-400" />
-        <Label className="mt-2 text-xs font-normal text-green-400">Found 23 players</Label>
-      </div>
-
-      <div className="flex flex-col">
-        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
-        <Input placeholder="Varrock Warriors" className="border-red-400" />
-        <Label className="mt-2 text-xs font-normal text-red-400">Failed to load URL</Label>
-      </div>
-
-      <div className="flex flex-col">
-        <Label className="mb-2 text-xs font-normal text-gray-200">Homeworld</Label>
-        <Input placeholder="450" type="number" />
-      </div>
-
-      <Input placeholder="Something" disabled value="sdjdhd" />
-      <Input placeholder="Something" disabled />
 
       <div className="flex max-w-sm gap-x-4">
         <DatePicker />
@@ -225,22 +253,22 @@ export default function Home() {
         <Badge>Classic</Badge>
         <Badge>Team</Badge>
         <Badge variant="success">Top 0.1%</Badge>
-        <Badge variant="outline">Hey!</Badge>
+        <Badge variant="outline">
+          <CheckIcon className="-ml-1 mr-1 h-4 w-4 text-gray-100" />
+          Hey!
+        </Badge>
         <Badge variant="outline" className="border-yellow-500 text-yellow-500">
           Patreon Supporter
         </Badge>
 
         <Badge>Pending</Badge>
-        <Badge variant="success">
-          <CheckIcon className="-ml-1 mr-1 h-4 w-4" />
-          Approved
-        </Badge>
+        <Badge variant="success">Approved</Badge>
         <Badge variant="error">Denied</Badge>
       </div>
 
       <div className="flex flex-col gap-y-3">
-        <h1 className="text-h1 font-bold">Leaderboards</h1>
-        <h2 className="text-h2 font-semibold">Records</h2>
+        <h1 className="text-h1 font-bold">H1 title</h1>
+        <h2 className="text-h2 font-semibold">H2 subtitle</h2>
         <p className="max-w-prose text-body text-gray-200">
           Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute
           sint tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et
@@ -250,35 +278,41 @@ export default function Home() {
       </div>
 
       <div className="flex gap-x-4">
-        <Button variant="blue">Update</Button>
-        <Button>Cancel</Button>
+        <Button variant="blue">Primary action</Button>
+        <Button>Secondary action</Button>
         <Button iconButton>
           <PlusIcon className="h-5 w-5" />
         </Button>
       </div>
       <div className="flex gap-x-4">
-        <Button variant="blue">
-          Update
-          <PlusIcon className="-mr-2 h-5 w-5 animate-spin" />
+        <Button disabled variant="blue">
+          <LoadingIcon className="-ml-2 h-4 w-4 animate-spin" />
+          Primary action
         </Button>
-        <Button>
-          <PlusIcon className="-ml-2 h-5 w-5" />
-          Cancel
+        <Button disabled>Secondary action</Button>
+        <Button iconButton disabled>
+          <PlusIcon className="h-5 w-5" />
         </Button>
       </div>
       <div className="flex gap-x-4">
         <Button size="sm" variant="blue">
-          Update
+          Primary small
         </Button>
-        <Button size="sm">Update</Button>
+        <Button size="sm">Secondary small</Button>
+      </div>
+      <div className="flex gap-x-4">
+        <Button size="sm" disabled variant="blue">
+          Primary small
+        </Button>
+        <Button size="sm" disabled>
+          Secondary small
+        </Button>
       </div>
 
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="focus:outline-none">
-            <Button iconButton>
-              <PlusIcon className="h-5 w-5" />
-            </Button>
+            <Button>Dropdown Trigger</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel>Actions for Psikoi</DropdownMenuLabel>
@@ -307,8 +341,6 @@ export default function Home() {
             <TabsTrigger value="123">Groups</TabsTrigger>
             <TabsTrigger value="123fff">Competitions</TabsTrigger>
           </TabsList>
-          <TabsContent value="hey">HEEEYYY!!</TabsContent>
-          <TabsContent value="ho">Hoooo!!</TabsContent>
         </Tabs>
       </div>
 
@@ -325,7 +357,7 @@ export default function Home() {
       <div>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button>Tooltip!</Button>
+            <Button>Tooltip trigger</Button>
           </TooltipTrigger>
           <TooltipContent align="start">
             Magna aliqua ea dolore eu minim. Nisi sunt excepteur ea elit aute dolore nisi commodo sunt
@@ -335,14 +367,14 @@ export default function Home() {
       </div>
 
       <div className="flex items-center space-x-2">
-        <Switch id="airplane-mode" />
-        <Label htmlFor="airplane-mode">Airplane Mode</Label>
+        <Switch id="replace_members" />
+        <Label htmlFor="replace_members">Replace members</Label>
       </div>
 
       <div>
         <Select>
           <SelectTrigger asChild>
-            <Button variant="blue">Hey</Button>
+            <Button variant="blue">Open select menu</Button>
           </SelectTrigger>
           <SelectContent align="start">
             <SelectInput placeholder="Search metrics..." />
