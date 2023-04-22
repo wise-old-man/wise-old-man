@@ -46,6 +46,7 @@ import {
 
 import { Badge } from "~/components/Badge";
 import { DatePicker } from "~/components/DatePicker";
+import { Input } from "~/components/Input";
 
 const NAMES = [
   "Amya Ware",
@@ -173,6 +174,10 @@ const NAMES = [
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
+      <Input placeholder="Something" />
+
+      <Input placeholder="Something" />
+
       <div className="flex max-w-sm gap-x-4">
         <DatePicker />
         <DatePicker />
