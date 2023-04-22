@@ -20,6 +20,7 @@ import {
 
 import PlusIcon from "~/assets/plus.svg";
 import CheckIcon from "~/assets/check.svg";
+import SearchIcon from "~/assets/search.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/Tabs";
@@ -174,9 +175,46 @@ const NAMES = [
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
-      <Input placeholder="Something" />
+      <Input
+        placeholder="Varrock Warriors"
+        rightElement={<span className="text-xs text-gray-300">4/30</span>}
+      />
 
-      <Input placeholder="Something" />
+      <Input
+        placeholder="Varrock Warriors"
+        leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
+      />
+
+      <Input
+        placeholder="Varrock Warriors"
+        rightElement={<span className="text-xs text-gray-300">4/30</span>}
+      />
+
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+        <Input placeholder="Varrock Warriors" />
+        <span className="mt-2 text-xs font-normal text-gray-200">Tip: Try doing this first</span>
+      </div>
+
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+        <Input placeholder="Varrock Warriors" className="border-green-400" />
+        <Label className="mt-2 text-xs font-normal text-green-400">Found 23 players</Label>
+      </div>
+
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200">Group Name</Label>
+        <Input placeholder="Varrock Warriors" className="border-red-400" />
+        <Label className="mt-2 text-xs font-normal text-red-400">Failed to load URL</Label>
+      </div>
+
+      <div className="flex flex-col">
+        <Label className="mb-2 text-xs font-normal text-gray-200">Homeworld</Label>
+        <Input placeholder="450" type="number" />
+      </div>
+
+      <Input placeholder="Something" disabled value="sdjdhd" />
+      <Input placeholder="Something" disabled />
 
       <div className="flex max-w-sm gap-x-4">
         <DatePicker />

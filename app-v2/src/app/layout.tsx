@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { TooltipProvider } from "~/components/Tooltip";
+import { ToastManager } from "~/components/ToastManager";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ function RootLayout(props: PropsWithChildren) {
       <body className={inter.className}>
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <TailwindIndicator />
+        <ToastManager />
       </body>
     </html>
   );

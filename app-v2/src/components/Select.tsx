@@ -60,6 +60,7 @@ const CommandInput = forwardRef<
     />
   </div>
 ));
+CommandInput.displayName = CommandPrimitive.Input.displayName;
 
 const CommandEmpty = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
