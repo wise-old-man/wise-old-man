@@ -6,3 +6,23 @@ body {
   @apply bg-gray-900;
   @apply text-white;
 }
+
+/* body ::-webkit-scrollbar, */
+.custom-scroll::-webkit-scrollbar {
+  @apply w-1.5;
+}
+
+/* body ::-webkit-scrollbar-track, */
+.custom-scroll::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+/* body ::-webkit-scrollbar-thumb, */
+.custom-scroll::-webkit-scrollbar-thumb {
+  @apply rounded bg-gray-400;
+}
+
+/* body ::-webkit-scrollbar-thumb:hover, */
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}

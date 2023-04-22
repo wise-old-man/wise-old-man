@@ -1,3 +1,12 @@
+import {
+  SKILLS,
+  BOSSES,
+  ACTIVITIES,
+  METRICS,
+  MetricProps,
+  PLAYER_TYPES,
+  PlayerTypeProps,
+} from "@wise-old-man/utils";
 import { Button } from "~/components/Button";
 
 import {
@@ -8,19 +17,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "~/components/Dropdown";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/Select";
 
 import PlusIcon from "~/assets/plus.svg";
 import CheckIcon from "~/assets/check.svg";
+import ChevronDownIcon from "~/assets/chevron_down.svg";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/Tabs";
 import {
   ToggleTabs,
@@ -31,6 +32,20 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { Switch } from "~/components/Switch";
 import { Label } from "~/components/Label";
+import {
+  SelectItemsContainer,
+  Select,
+  SelectContent,
+  SelectEmpty,
+  SelectInput,
+  SelectItem,
+  SelectItemGroup,
+  SelectSeparator,
+  SelectTrigger,
+} from "~/components/Select";
+
+import { Badge } from "~/components/Badge";
+import { DatePicker } from "~/components/DatePicker";
 
 const NAMES = [
   "Amya Ware",
@@ -155,31 +170,48 @@ const NAMES = [
   "Coleman Mcguire",
 ];
 
-const METRICS = [
-  "hitpoints",
-  "defence",
-  "magic",
-  "prayer",
-  "ranged",
-  "woodcutting",
-  "firemaking",
-  "mining",
-  "smithing",
-  "agility",
-  "slayer",
-  "hunter",
-  "crafting",
-  "fletching",
-  "fishing",
-  "cooking",
-];
-
 export default function Home() {
   return (
-    <div className="flex flex-col gap-y-7 p-20">
+    <div className="flex flex-col gap-y-10 p-20">
+      <div className="flex max-w-sm gap-x-4">
+        <DatePicker />
+        <DatePicker />
+      </div>
+
+      <div className="flex gap-x-4">
+        <Badge>Classic</Badge>
+        <Badge>Team</Badge>
+        <Badge variant="success">Top 0.1%</Badge>
+        <Badge variant="outline">Hey!</Badge>
+        <Badge variant="outline" className="border-yellow-500 text-yellow-500">
+          Patreon Supporter
+        </Badge>
+
+        <Badge>Pending</Badge>
+        <Badge variant="success">
+          <CheckIcon className="-ml-1 mr-1 h-4 w-4" />
+          Approved
+        </Badge>
+        <Badge variant="error">Denied</Badge>
+      </div>
+
+      <div className="flex flex-col gap-y-3">
+        <h1 className="text-h1 font-bold">Leaderboards</h1>
+        <h2 className="text-h2 font-semibold">Records</h2>
+        <p className="max-w-prose text-body text-gray-200">
+          Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute
+          sint tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et
+          aliqua ipsum sit laborum sunt ad. Elit velit reprehenderit proident cupidatat non excepteur
+          nostrud eu pariatur consectetur non exercitation.
+        </p>
+      </div>
+
       <div className="flex gap-x-4">
         <Button variant="blue">Update</Button>
         <Button>Cancel</Button>
+        <Button iconButton>
+          <PlusIcon className="h-5 w-5" />
+        </Button>
       </div>
       <div className="flex gap-x-4">
         <Button variant="blue">
@@ -196,45 +228,6 @@ export default function Home() {
           Update
         </Button>
         <Button size="sm">Update</Button>
-      </div>
-
-      <div>
-        <Select>
-          <SelectTrigger className="w-[14rem]">
-            <SelectValue placeholder="Select a person..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup className="relative">
-              <SelectLabel>People</SelectLabel>
-              <SelectSeparator />
-              {NAMES.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Select>
-          <SelectTrigger className="w-[12rem]">
-            <SelectValue placeholder="Select a metric..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup className="relative">
-              {METRICS.map((metric) => (
-                <SelectItem key={metric} value={metric}>
-                  <div className="flex items-center gap-x-2">
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${metric}.png`} />
-                    {metric}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
       </div>
 
       <div>
@@ -277,14 +270,12 @@ export default function Home() {
       </div>
 
       <div>
-        <ToggleTabs defaultValue="ho">
+        <ToggleTabs>
           <ToggleTabsList>
             <ToggleTabsTrigger value="hey">Skills</ToggleTabsTrigger>
             <ToggleTabsTrigger value="ho">Bosses</ToggleTabsTrigger>
             <ToggleTabsTrigger value="123">Activities</ToggleTabsTrigger>
           </ToggleTabsList>
-          <ToggleTabsContent value="hey">HEEEYYY!!</ToggleTabsContent>
-          <ToggleTabsContent value="ho">Hoooo!!</ToggleTabsContent>
         </ToggleTabs>
       </div>
 
@@ -304,6 +295,71 @@ export default function Home() {
         <Switch id="airplane-mode" />
         <Label htmlFor="airplane-mode">Airplane Mode</Label>
       </div>
+
+      <div>
+        <Select>
+          <SelectTrigger asChild>
+            <Button variant="blue">Hey</Button>
+          </SelectTrigger>
+          <SelectContent align="start">
+            <SelectInput placeholder="Search metrics..." />
+            <SelectEmpty>No results were found</SelectEmpty>
+            <SelectItemsContainer>
+              <SelectItemGroup label="Skills">
+                {SKILLS.map((skill) => (
+                  <SelectItem key={skill} value={skill}>
+                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${skill}.png`} />
+                    {MetricProps[skill].name}
+                  </SelectItem>
+                ))}
+              </SelectItemGroup>
+              <SelectSeparator />
+              <SelectItemGroup label="Bosses">
+                {BOSSES.map((boss) => (
+                  <SelectItem key={boss} value={boss}>
+                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${boss}.png`} />
+                    {MetricProps[boss].name}
+                  </SelectItem>
+                ))}
+              </SelectItemGroup>
+              <SelectSeparator />
+              <SelectItemGroup label="Activities">
+                {ACTIVITIES.map((activity) => (
+                  <SelectItem key={activity} value={activity}>
+                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${activity}.png`} />
+                    {MetricProps[activity].name}
+                  </SelectItem>
+                ))}
+              </SelectItemGroup>
+            </SelectItemsContainer>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Select>
+          <SelectTrigger asChild>
+            <Button className="w-auto font-normal text-gray-100">
+              Select player type...
+              <ChevronDownIcon className="ml-5 h-4 w-4" />
+            </Button>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItemsContainer>
+              <SelectItemGroup label="Player Type">
+                {PLAYER_TYPES.map((playerType) => (
+                  <SelectItem key={playerType} value={playerType}>
+                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${playerType}.png`} />
+                    {PlayerTypeProps[playerType].name}
+                  </SelectItem>
+                ))}
+              </SelectItemGroup>
+            </SelectItemsContainer>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="h-[20rem] w-full" />
     </div>
   );
 }

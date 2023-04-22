@@ -1,122 +1,156 @@
 "use client";
 
-import * as React from "react";
-import * as SelectPrimitive from "@radix-ui/react-select";
+import { useState, forwardRef, PropsWithChildren } from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { cn } from "~/utils";
 
 import CheckIcon from "~/assets/check.svg";
-import ChevronDownIcon from "~/assets/chevron_down.svg";
+import SearchIcon from "~/assets/search.svg";
 
-import { cn } from "~/utils";
-import { Button } from "./Button";
+const Popover = PopoverPrimitive.Root;
+const PopoverTrigger = PopoverPrimitive.Trigger;
 
-const Select = SelectPrimitive.Root;
-const SelectGroup = SelectPrimitive.Group;
-const SelectValue = SelectPrimitive.Value;
-
-const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className="outline-none data-[placeholder]:text-gray-200"
-    asChild
-    {...props}
-  >
-    <Button className={cn("px-2.5 font-normal", className)}>
-      {children}
-      <SelectPrimitive.Icon>
-        <ChevronDownIcon className="h-5 w-5" />
-      </SelectPrimitive.Icon>
-    </Button>
-  </SelectPrimitive.Trigger>
+const PopoverContent = forwardRef<
+  React.ElementRef<typeof PopoverPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
+>(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+  <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Content
+      ref={ref}
+      align={align}
+      sideOffset={sideOffset}
+      className={cn(
+        "z-10 mt-1 min-w-[12rem] overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
+        "animate-in data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        className
+      )}
+      {...props}
+    />
+  </PopoverPrimitive.Portal>
 ));
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
+PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-const SelectContent = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => {
-  return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        ref={ref}
-        className={cn(
-          "animate-in fade-in-80 custom-scroll relative z-10 mt-1 max-h-[20rem] min-w-[12rem] overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md",
-          position === "popper" && "translate-y-1",
-          className
-        )}
-        position={position}
-        {...props}
-      >
-        <SelectPrimitive.Viewport
-          className={cn(
-            "relative p-1",
-            position === "popper" &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
-          )}
-        >
-          {children}
-        </SelectPrimitive.Viewport>
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
-  );
-});
-SelectContent.displayName = SelectPrimitive.Content.displayName;
-
-const SelectLabel = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Label>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
+const Command = forwardRef<
+  React.ElementRef<typeof CommandPrimitive>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label
+  <CommandPrimitive
     ref={ref}
-    className={cn("px-2 py-1.5 text-sm font-semibold text-white", className)}
+    className={cn("flex h-full w-full flex-col overflow-hidden", className)}
     {...props}
   />
 ));
-SelectLabel.displayName = SelectPrimitive.Label.displayName;
+Command.displayName = CommandPrimitive.displayName;
 
-const SelectItem = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
+const CommandInput = forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+>(({ className, ...props }, ref) => (
+  <div className="flex items-center border-b border-gray-500 pl-3" cmdk-input-wrapper="">
+    <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+    <CommandPrimitive.Input
+      ref={ref}
+      className={cn(
+        "flex w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-300",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+  </div>
+));
+
+const CommandEmpty = forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Empty>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
+>((props, ref) => (
+  <CommandPrimitive.Empty ref={ref} className="p-3 text-center text-sm text-gray-200" {...props} />
+));
+CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
+
+const CommandGroup = forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Group>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group> & { label?: string }
+>(({ className, label, ...props }, ref) => (
+  <CommandPrimitive.Group
+    ref={ref}
+    heading={label}
+    className={cn(
+      "p-1",
+      "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-gray-200",
+      className
+    )}
+    {...props}
+  />
+));
+CommandGroup.displayName = CommandPrimitive.Group.displayName;
+
+const CommandItem = forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item> & { selected?: boolean }
+>(({ className, selected, children, ...props }, ref) => (
+  <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm text-gray-100 outline-none focus:bg-gray-600 focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      selected && "!bg-gray-800 font-medium !text-white",
       className
     )}
     {...props}
   >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-      <SelectPrimitive.ItemIndicator>
-        <CheckIcon className="h-4 w-4 text-blue-300" />
-      </SelectPrimitive.ItemIndicator>
-    </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
+    {children}
+    {selected && (
+      <div className="flex grow justify-end">
+        <CheckIcon className="h-4 w-4" />
+      </div>
+    )}
+  </CommandPrimitive.Item>
 ));
-SelectItem.displayName = SelectPrimitive.Item.displayName;
+CommandItem.displayName = CommandPrimitive.Item.displayName;
 
-const SelectSeparator = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Separator>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
+const CommandSeparator = forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Separator>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>
 >(({ className, ...props }, ref) => (
-  <SelectPrimitive.Separator
-    ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-gray-500", className)}
-    {...props}
-  />
+  <CommandPrimitive.Separator ref={ref} className={cn("-mx-1 h-px bg-gray-500", className)} {...props} />
 ));
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
-export {
-  Select,
-  SelectGroup,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectLabel,
-  SelectItem,
-  SelectSeparator,
-};
+export function Select(props: PopoverPrimitive.PopoverProps & PropsWithChildren) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} {...props}>
+      {props.children}
+    </Popover>
+  );
+}
+
+export const SelectTrigger = PopoverTrigger;
+export const SelectInput = CommandInput;
+export const SelectEmpty = CommandEmpty;
+export const SelectItemGroup = CommandGroup;
+export const SelectItem = CommandItem;
+export const SelectSeparator = CommandSeparator;
+
+export function SelectItemsContainer(props: { className?: string } & PropsWithChildren) {
+  return (
+    <div
+      className={cn("custom-scroll max-h-[20rem] overflow-y-auto overflow-x-hidden", props.className)}
+    >
+      {props.children}
+    </div>
+  );
+}
+
+export function SelectContent(props: PropsWithChildren & PopoverPrimitive.PopoverContentProps) {
+  const { children, ...popoverProps } = props;
+
+  return (
+    <PopoverContent {...popoverProps}>
+      <Command>{props.children}</Command>
+    </PopoverContent>
+  );
+}

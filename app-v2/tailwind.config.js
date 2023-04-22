@@ -23,7 +23,12 @@ module.exports = {
         "gray-200": "hsl(215 10% 64%)",
         "gray-100": "hsl(215 10% 83%)",
       },
+      fontSize: {
+        h1: ["2.25rem", "2.5rem"],
+        h2: ["1.875rem", "2.25rem"],
+        body: ["0.875rem", "1.75rem"],
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
