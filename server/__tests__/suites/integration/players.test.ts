@@ -1116,7 +1116,6 @@ describe('Player API', () => {
       // the scenario where it fails to fetch regular stats, but succeeds to fetch ironman stats
       registerHiscoresMock(axiosMock, {
         [PlayerType.REGULAR]: { statusCode: 404 },
-        [PlayerType.FRESH_START]: { statusCode: 404 },
         [PlayerType.IRONMAN]: { statusCode: 200, rawData: globalData.hiscoresRawData },
         [PlayerType.HARDCORE]: { statusCode: 200, rawData: globalData.hiscoresRawData },
         [PlayerType.ULTIMATE]: { statusCode: 404 }
@@ -1125,17 +1124,6 @@ describe('Player API', () => {
       const trackResponse = await api.post(`/players/low_lvl_hcim`);
       expect(trackResponse.status).toBe(201);
       expect(trackResponse.body.type).toBe('hardcore');
-    });
-
-    it('should detect player type (fresh start)', async () => {
-      registerHiscoresMock(axiosMock, {
-        [PlayerType.REGULAR]: { statusCode: 404 },
-        [PlayerType.FRESH_START]: { statusCode: 200, rawData: globalData.hiscoresRawData }
-      });
-
-      const trackResponse = await api.post(`/players/fsw_guy`);
-      expect(trackResponse.status).toBe(201);
-      expect(trackResponse.body.type).toBe('fresh_start');
     });
   });
 

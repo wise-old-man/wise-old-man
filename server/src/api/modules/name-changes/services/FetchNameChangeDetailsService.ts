@@ -150,13 +150,6 @@ async function fetchHiscoresWithFallback(username: string) {
     if (error instanceof ServerError) throw error;
   }
 
-  // If the ironman hiscores failed, finally, try the FSW hiscores
-  try {
-    return await jagexService.getHiscoresData(username, PlayerType.FRESH_START);
-  } catch (error) {
-    if (error instanceof ServerError) throw error;
-  }
-
   return undefined;
 }
 

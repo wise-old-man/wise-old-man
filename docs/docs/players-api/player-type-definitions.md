@@ -10,7 +10,7 @@ sidebar_position: 1
 ### `(Enum)` Player Type
 
 ```bash
-'unknown', 'regular', 'ironman', 'hardcore', 'ultimate', 'fresh_start'
+'unknown', 'regular', 'ironman', 'hardcore', 'ultimate'
 ```
 
 <br />
