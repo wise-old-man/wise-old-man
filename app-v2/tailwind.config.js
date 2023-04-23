@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)"],
+      },
       boxShadow: {
         button: "0 1px 2px 0 rgb(0 0 0 / 0.15)",
         "inner-border": `inset 0px 0px 0px 1px rgba(255, 255, 255, 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.15)`,
@@ -26,6 +29,7 @@ module.exports = {
       fontSize: {
         h1: ["2.25rem", "2.5rem"],
         h2: ["1.875rem", "2.25rem"],
+        h3: ["1.125rem", "1.5rem"],
         body: ["0.875rem", "1.75rem"],
       },
     },

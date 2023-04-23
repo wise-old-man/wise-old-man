@@ -51,133 +51,49 @@ import { Badge } from "~/components/Badge";
 import { DatePicker } from "~/components/DatePicker";
 import { Input } from "~/components/Input";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-
-const NAMES = [
-  "Amya Ware",
-  "Giada Knox",
-  "Bethany Shah",
-  "Ty Hughes",
-  "Alejandro Charles",
-  "Kylee Curtis",
-  "Taylor Henderson",
-  "Alissa Gonzalez",
-  "Jordan Underwood",
-  "Adyson Alexander",
-  "Carter Chung",
-  "Ariana Gross",
-  "Xiomara Harrison",
-  "Madilyn Tran",
-  "Jewel Colon",
-  "Makenzie Wolfe",
-  "Lyric Ryan",
-  "Kassidy Pennington",
-  "Adyson Floyd",
-  "Kelton Cook",
-  "Zain Weber",
-  "Sage Rubio",
-  "Chanel Wood",
-  "Kody Ramsey",
-  "Evelin Watson",
-  "Ulises Landry",
-  "Deangelo Richardson",
-  "Erika Berg",
-  "Cordell Gonzalez",
-  "Yahir Carter",
-  "Kason Flynn",
-  "Reina Lewis",
-  "Katrina Buckley",
-  "Rubi Ward",
-  "Jayla Boyd",
-  "Averi Brady",
-  "Esmeralda Wiggins",
-  "Ari Patel",
-  "Donavan Bird",
-  "Damaris Bridges",
-  "Blake Dudley",
-  "Janiya Collier",
-  "Nayeli Scott",
-  "Bruce Black",
-  "Amari Patton",
-  "Tiara Randall",
-  "Sergio Lopez",
-  "Magdalena Morales",
-  "Karsyn Li",
-  "Marlee Mcguire",
-  "Oswaldo Carrillo",
-  "Patrick Monroe",
-  "Aaron Shaffer",
-  "Callie Zuniga",
-  "Jovanny Mcfarland",
-  "Lee Small",
-  "Oswaldo Sims",
-  "Shaun Leblanc",
-  "Nayeli Barajas",
-  "Anabelle Flowers",
-  "Angela Beasley",
-  "Walter Atkinson",
-  "Jair Romero",
-  "Kailyn Robles",
-  "Emmalee Good",
-  "Lilly Newman",
-  "Athena Vaughan",
-  "Miguel Lambert",
-  "Ellie Rollins",
-  "Quintin Watts",
-  "Eden Leonard",
-  "Reyna York",
-  "Madilyn Barrett",
-  "George Chambers",
-  "Alejandro Hopkins",
-  "Madelynn Cook",
-  "Timothy Stephens",
-  "Victoria Ochoa",
-  "Paula Cross",
-  "Isabela Taylor",
-  "Dominique Shah",
-  "Adrienne Wilkerson",
-  "Derick Henderson",
-  "Aubrie Hendrix",
-  "Litzy Bradley",
-  "Ciara Frazier",
-  "Ahmed Hudson",
-  "Nathen Gross",
-  "Freddy Hicks",
-  "River Orr",
-  "Joe Caldwell",
-  "Terrance Alvarez",
-  "Kinley Patel",
-  "Kobe Johnson",
-  "Isabell Cruz",
-  "Kathy Bernard",
-  "Samuel Keith",
-  "Micaela Gibson",
-  "Connor Goodwin",
-  "Rosemary Combs",
-  "Maggie Dillon",
-  "Madalyn Merritt",
-  "Simone Perez",
-  "Amelia Fuller",
-  "Cheyanne Garner",
-  "Francesca Fritz",
-  "Kaylyn Fuller",
-  "Shaun Williams",
-  "Isiah Jackson",
-  "Jayson Hester",
-  "Vaughn Weber",
-  "Magdalena Abbott",
-  "Haylie Farrell",
-  "Makayla Sullivan",
-  "Aliana Boyle",
-  "Erick Frey",
-  "Maddox Crawford",
-  "Cassius Potter",
-  "Sierra Massey",
-  "Coleman Mcguire",
-];
+import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
+import Link from "next/link";
+import { TestTable } from "./TestTable";
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
+      <TestTable />
+      <div className="max-w-sm">
+        <ListTable>
+          <ListTableRow>
+            <ListTableCell className="w-1 pr-1">1</ListTableCell>
+            <ListTableCell className="text-sm text-white">
+              <Link href="/psikoi" className="hover:underline">
+                <div className="flex items-center gap-x-3">
+                  <div className="h-8 w-8 rounded-full bg-gray-600" />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Psikoi</span>
+                    <span className="text-xs text-gray-200">Updated 2 days ago</span>
+                  </div>
+                </div>
+              </Link>
+            </ListTableCell>
+            <ListTableCell className="w-5 text-right font-medium tabular-nums text-green-400">
+              +3765k
+            </ListTableCell>
+          </ListTableRow>
+          <ListTableRow>
+            <ListTableCell className="w-1 pr-1">2</ListTableCell>
+            <ListTableCell className="text-sm text-white">Jaketserwars</ListTableCell>
+            <ListTableCell className="w-5 text-right font-medium tabular-nums text-green-400">
+              +598k
+            </ListTableCell>
+          </ListTableRow>
+          <ListTableRow>
+            <ListTableCell className="w-1 pr-1">3</ListTableCell>
+            <ListTableCell className="text-sm text-white">Boom</ListTableCell>
+            <ListTableCell className="w-5 text-right font-medium tabular-nums text-green-400">
+              +485k
+            </ListTableCell>
+          </ListTableRow>
+        </ListTable>
+      </div>
       <Alert className="flex items-center justify-between">
         <div>
           <AlertTitle>Migrating from TempleOSRS or CrystalMathLabs?</AlertTitle>
@@ -203,11 +119,9 @@ export default function Home() {
           Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse.
         </AlertDescription>
       </Alert>
-
       <div className="grid grid-cols-2 gap-5">
         <Input
           placeholder="Varrock Warriors"
-          value="woah"
           autoFocus
           rightElement={<span className="text-xs text-gray-300">4/30</span>}
         />
@@ -243,12 +157,10 @@ export default function Home() {
         <Input placeholder="Something" disabled value="Disabled with value" />
         <Input placeholder="Disabled (empty)" disabled />
       </div>
-
       <div className="flex max-w-sm gap-x-4">
         <DatePicker />
         <DatePicker />
       </div>
-
       <div className="flex gap-x-4">
         <Badge>Classic</Badge>
         <Badge>Team</Badge>
@@ -265,7 +177,6 @@ export default function Home() {
         <Badge variant="success">Approved</Badge>
         <Badge variant="error">Denied</Badge>
       </div>
-
       <div className="flex flex-col gap-y-3">
         <h1 className="text-h1 font-bold">H1 title</h1>
         <h2 className="text-h2 font-semibold">H2 subtitle</h2>
@@ -276,7 +187,6 @@ export default function Home() {
           nostrud eu pariatur consectetur non exercitation.
         </p>
       </div>
-
       <div className="flex gap-x-4">
         <Button variant="blue">Primary action</Button>
         <Button>Secondary action</Button>
@@ -308,7 +218,6 @@ export default function Home() {
           Secondary small
         </Button>
       </div>
-
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="focus:outline-none">
@@ -332,7 +241,6 @@ export default function Home() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
       <div>
         <Tabs defaultValue="ho">
           <TabsList>
@@ -343,7 +251,6 @@ export default function Home() {
           </TabsList>
         </Tabs>
       </div>
-
       <div>
         <ToggleTabs>
           <ToggleTabsList>
@@ -353,7 +260,6 @@ export default function Home() {
           </ToggleTabsList>
         </ToggleTabs>
       </div>
-
       <div>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -365,12 +271,10 @@ export default function Home() {
           </TooltipContent>
         </Tooltip>
       </div>
-
       <div className="flex items-center space-x-2">
         <Switch id="replace_members" />
         <Label htmlFor="replace_members">Replace members</Label>
       </div>
-
       <div>
         <Select>
           <SelectTrigger asChild>
@@ -410,7 +314,6 @@ export default function Home() {
           </SelectContent>
         </Select>
       </div>
-
       <div>
         <Select>
           <SelectTrigger asChild>
@@ -433,7 +336,6 @@ export default function Home() {
           </SelectContent>
         </Select>
       </div>
-
       <div className="h-[20rem] w-full" />
     </div>
   );

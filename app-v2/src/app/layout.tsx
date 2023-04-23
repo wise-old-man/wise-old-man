@@ -1,11 +1,15 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
-import "../globals.css";
-import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
+import { TailwindIndicator } from "~/components/TailwindIndicator";
+import "../globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata = {
   title: "Wise Old Man",
@@ -16,8 +20,8 @@ function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable}`}>
+      <body>
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <TailwindIndicator />
         <ToastManager />
