@@ -1,63 +1,121 @@
+import dynamic from "next/dynamic";
+
 import {
-  SKILLS,
-  BOSSES,
   ACTIVITIES,
-  METRICS,
+  BOSSES,
   MetricProps,
   PLAYER_TYPES,
   PlayerTypeProps,
+  SKILLS,
 } from "@wise-old-man/utils";
 import { Button } from "~/components/Button";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "~/components/Dropdown";
 
-import PlusIcon from "~/assets/plus.svg";
 import CheckIcon from "~/assets/check.svg";
+import ChevronDownIcon from "~/assets/chevron_down.svg";
+import LoadingIcon from "~/assets/loading.svg";
+import PlusIcon from "~/assets/plus.svg";
 import SearchIcon from "~/assets/search.svg";
 import WarningIcon from "~/assets/warning.svg";
-import LoadingIcon from "~/assets/loading.svg";
-import ChevronDownIcon from "~/assets/chevron_down.svg";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/Tabs";
-import {
-  ToggleTabs,
-  ToggleTabsContent,
-  ToggleTabsList,
-  ToggleTabsTrigger,
-} from "~/components/ToggleTabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { Switch } from "~/components/Switch";
+import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
+import { Badge } from "~/components/Badge";
+import { DatePicker } from "~/components/DatePicker";
+import { Input } from "~/components/Input";
 import { Label } from "~/components/Label";
+import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
-  SelectItemsContainer,
   Select,
   SelectContent,
   SelectEmpty,
   SelectInput,
   SelectItem,
   SelectItemGroup,
+  SelectItemsContainer,
   SelectSeparator,
   SelectTrigger,
 } from "~/components/Select";
-
-import { Badge } from "~/components/Badge";
-import { DatePicker } from "~/components/DatePicker";
-import { Input } from "~/components/Input";
-import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
-import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import Link from "next/link";
+import { Switch } from "~/components/Switch";
+import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { TestTable } from "./TestTable";
+
+const BarChartSSR = dynamic(() => import("../components/BarChart"), {
+  ssr: false,
+  loading: () => <div className="aspect-video w-full bg-transparent" />,
+});
+
+const LineChartSSR = dynamic(() => import("../components/LineChart"), {
+  ssr: false,
+  loading: () => <div className="aspect-video w-full bg-transparent" />,
+});
+
+const DATA_A = {
+  name: "Psikoi",
+  data: [
+    { time: 1681649147024, value: 122875 },
+    { time: 1681748825702, value: 130163 },
+    { time: 1681816268407, value: 158934 },
+    { time: 1681920682461, value: 189094 },
+    { time: 1682171203920, value: 189094 },
+    { time: 1682221310566, value: 268309 },
+    { time: 1682232930454, value: 278474 },
+    { time: 1682301763846, value: 278474 },
+    { time: 1682304374888, value: 267564 },
+    { time: 1682330297922, value: 317267 },
+    { time: 1682331743741, value: 346320 },
+  ],
+};
+
+const DATA_B = {
+  name: "rro",
+  data: [
+    { time: 1681807226141, value: 2 * 37475 },
+    { time: 1681874287242, value: 2 * 41345 },
+    { time: 1681934452595, value: 2 * 51375 },
+    { time: 1681987520257, value: 2 * 57046 },
+    { time: 1682027871417, value: 2 * 68700 },
+    { time: 1682057437313, value: 2 * 71050 },
+    { time: 1682153718429, value: 2 * 120100 },
+    { time: 1682216617781, value: 2 * 120100 },
+    { time: 1682235028775, value: 2 * 136100 },
+    { time: 1682266836442, value: 2 * 178100 },
+    { time: 1682301362784, value: 2 * 178100 },
+    { time: 1682333071001, value: 2 * 218100 },
+  ],
+};
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
+      <div className="max-w-xl border border-gray-500 p-5">
+        <LineChartSSR datasets={[DATA_A, DATA_B]} showLegend />
+      </div>
+
+      <div className="max-w-xl border border-gray-500 p-5">
+        <BarChartSSR
+          name="Experience"
+          data={[
+            { date: new Date("2023-04-23T12:07:04.464Z"), value: 0 },
+            { date: new Date("2023-04-22T12:07:04.464Z"), value: 10 * 282087 },
+            { date: new Date("2023-04-21T12:07:04.464Z"), value: 10 * 20206 },
+            { date: new Date("2023-04-20T12:07:04.464Z"), value: 10 * 357552 },
+            { date: new Date("2023-04-19T12:07:04.464Z"), value: 10 * 363373 },
+            { date: new Date("2023-04-18T12:07:04.464Z"), value: 10 * 101489 },
+            { date: new Date("2023-04-17T12:07:04.464Z"), value: 10 * 636910 },
+          ]}
+        />
+      </div>
       <TestTable />
       <div className="max-w-sm">
         <ListTable>
@@ -122,7 +180,6 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-5">
         <Input
           placeholder="Varrock Warriors"
-          autoFocus
           rightElement={<span className="text-xs text-gray-300">4/30</span>}
         />
 
