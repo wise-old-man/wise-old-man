@@ -1,0 +1,227 @@
+"use client";
+
+import { formatNumber } from "@wise-old-man/utils";
+import React, { useState } from "react";
+import {
+  LineChart as LineChartPrimitive,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { cn } from "~/utils";
+
+const GRID_STYLE = { stroke: "#1f2937" };
+const X_AXIS_TICK_LINE = { stroke: "#1f2937" };
+const AXIS_TICK_STYLE = { fill: "#6b7280", fontSize: "0.75rem" };
+const TOOLTIP_CURSOR_STYLE = { stroke: "#6b7280", strokeDasharray: "4 4" };
+const TOOLTIP_WRAPPER_STYLE = { outline: "none" };
+
+interface LineChartDataset {
+  name: string;
+  data: Array<{
+    time: number;
+    value: number;
+  }>;
+}
+
+const COLORS = ["#3b82f6", "#f87171", "#fbbf24", "#a3e635", "#c084fc"];
+
+interface LineChartProps {
+  datasets: Array<LineChartDataset>;
+  showLegend?: boolean;
+  minDate?: Date;
+  maxDate?: Date;
+  yAxisValueFormatter?: (value: number) => string;
+  xAxisLabelFormatter?: (label: string, index: number) => string;
+  tooltipLabelFormatter?: (label: string) => string;
+  tooltipValueFormatter?: (value: number) => string;
+}
+
+export default function LineChart(props: LineChartProps) {
+  const {
+    datasets,
+    showLegend,
+    minDate,
+    maxDate,
+    xAxisLabelFormatter,
+    yAxisValueFormatter,
+    tooltipLabelFormatter,
+    tooltipValueFormatter,
+  } = props;
+
+  const [selectedDataset, setSelectedDataset] = useState<string | undefined>(undefined);
+
+  const domain = minDate && maxDate ? [minDate.getTime(), maxDate.getTime()] : ["dataMin", "dataMax"];
+
+  function toggleSelectedDataset(name: string) {
+    if (selectedDataset && selectedDataset === name) {
+      setSelectedDataset(undefined);
+    } else {
+      setSelectedDataset(name);
+    }
+  }
+
+  return (
+    <ResponsiveContainer width="100%" aspect={16 / 9}>
+      <LineChartPrimitive margin={{ bottom: 20 }}>
+        <CartesianGrid vertical={false} style={GRID_STYLE} />
+        <XAxis
+          dataKey="time"
+          type="number"
+          domain={domain}
+          tickLine={false}
+          tick={AXIS_TICK_STYLE}
+          axisLine={X_AXIS_TICK_LINE}
+          allowDuplicatedCategory={false}
+          tickMargin={10}
+          tickFormatter={xAxisLabelFormatter || defaultXAxisLabelFormatter}
+        />
+        <YAxis
+          dataKey="value"
+          axisLine={false}
+          tickLine={false}
+          tick={AXIS_TICK_STYLE}
+          tickMargin={10}
+          tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
+        />
+        <Tooltip
+          animationDuration={200}
+          cursor={TOOLTIP_CURSOR_STYLE}
+          wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+          content={({ payload, label }) => {
+            if (!payload || payload.length === 0) return null;
+
+            const labelFormatter = tooltipLabelFormatter || defaultTooltipLabelFormatter;
+            const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
+
+            const { name, value, stroke } = payload[0];
+
+            return (
+              <ChartTooltip
+                stroke={stroke}
+                name={String(name) || "Value"}
+                value={valueFormatter(Number(value))}
+                label={labelFormatter(label)}
+              />
+            );
+          }}
+        />
+        {showLegend && (
+          <Legend
+            content={({ payload }) => {
+              if (!payload || payload.length === 0) return null;
+
+              const legendItems = payload.map((a: any) => ({
+                name: a.payload.name,
+                stroke: a.payload.stroke,
+              }));
+
+              return (
+                <div className="flex translate-y-5 flex-wrap items-center justify-center gap-x-4">
+                  {legendItems.map((a) => (
+                    <button
+                      key={a.name}
+                      className={cn(
+                        "flex items-center gap-x-2 rounded px-2 py-1 text-gray-200 hover:bg-gray-700",
+                        !!selectedDataset && a.name !== selectedDataset && "opacity-50",
+                        !!selectedDataset && a.name === selectedDataset && "bg-gray-800 text-white"
+                      )}
+                      onClick={() => toggleSelectedDataset(a.name)}
+                    >
+                      <div className="h-2 w-2 rounded-full" style={{ background: a.stroke }} />
+                      <span className="text-sm">{a.name}</span>
+                    </button>
+                  ))}
+                </div>
+              );
+            }}
+          />
+        )}
+        {datasets.map((d, index) => (
+          <Line
+            key={d.name}
+            data={d.data}
+            name={d.name}
+            hide={!!selectedDataset && selectedDataset !== d.name}
+            type="linear"
+            dataKey="value"
+            stroke={COLORS[index]}
+            strokeWidth="2"
+            dot={<ChartDot />}
+            activeDot={<ChartDot stroke={COLORS[index]} active />}
+            isAnimationActive={false}
+          />
+        ))}
+      </LineChartPrimitive>
+    </ResponsiveContainer>
+  );
+}
+
+interface ChartDotProps extends React.SVGProps<SVGCircleElement> {
+  active?: boolean;
+}
+
+function ChartDot(props: ChartDotProps) {
+  const { active, cx, cy, stroke } = props;
+
+  if (active) {
+    return (
+      <g>
+        <circle cx={cx} cy={cy} fill={stroke} stroke={stroke} r={4} strokeWidth={1} />
+        <circle cx={cx} cy={cy} fill="transparent" stroke={stroke} r={7} />
+      </g>
+    );
+  }
+
+  return <circle cx={cx} cy={cy} r={4} fill={active ? "red" : stroke} />;
+}
+
+interface ChartTooltipProps {
+  name: string;
+  label: string;
+  value: string;
+  stroke?: string;
+}
+
+function ChartTooltip(props: ChartTooltipProps) {
+  const { label, value, name, stroke } = props;
+
+  return (
+    <div className="flex flex-col overflow-hidden rounded border border-gray-500 bg-gray-700 shadow-lg outline-none">
+      <div className="border-b border-gray-500 px-3 py-2 text-sm text-gray-200">{label}</div>
+      <div className="flex px-3 py-2 text-sm">
+        <div className="flex items-center gap-x-2">
+          <div className="h-2 w-2 rounded-full" style={{ background: stroke }} />
+          <span className="mr-2 text-gray-200">{name}:</span>
+        </div>
+        <span>{value}</span>
+      </div>
+    </div>
+  );
+}
+
+function defaultYAxisValueFormatter(value: number) {
+  return String(formatNumber(value, true));
+}
+
+function defaultXAxisLabelFormatter(label: string) {
+  return new Date(label).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function defaultTooltipValueFormatter(value: number) {
+  return String(formatNumber(value, false));
+}
+
+function defaultTooltipLabelFormatter(label: string) {
+  return new Date(label).toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+}
