@@ -59,22 +59,47 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
           <LeaderboardsFilters {...filters} />
         </div>
         <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
-          <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-            {/** @ts-expect-error - Server Component */}
+          {/* <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+             @ts-expect-error - Server Component 
             <Leaderboard period={Period.WEEK} filters={filters} />
           </Suspense>
           <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-            {/** @ts-expect-error - Server Component */}
+             @ts-expect-error - Server Component 
             <Leaderboard period={Period.MONTH} filters={filters} />
           </Suspense>
           <Suspense fallback={<LeaderboardSkeleton period={Period.YEAR} />}>
-            {/** @ts-expect-error - Server Component */}
+             @ts-expect-error - Server Component 
             <Leaderboard period={Period.YEAR} filters={filters} />
+          </Suspense> */}
+
+          <Suspense fallback={<p>Loading...</p>}>
+            {/* @ts-expect-error - Server Component  */}
+            <Test delay={3000} />
+          </Suspense>
+
+          <Suspense fallback={<p>Loading...</p>}>
+            {/* @ts-expect-error - Server Component  */}
+            <Test delay={5000} />
+          </Suspense>
+
+          <Suspense fallback={<p>Loading...</p>}>
+            {/* @ts-expect-error - Server Component  */}
+            <Test delay={10_000} />
           </Suspense>
         </div>
       </Tabs>
     </Container>
   );
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function Test(props: { delay: number }) {
+  await sleep(props.delay);
+
+  return <div>Delaying for {props.delay} milliseconds</div>;
 }
 
 interface LeaderboardProps {
