@@ -75,17 +75,17 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
 
         <Suspense fallback={<p>Loading...</p>}>
           {/* @ts-expect-error - Server Component  */}
-          <Test delay={3000} />
+          <Test delay={2000} />
         </Suspense>
 
         <Suspense fallback={<p>Loading...</p>}>
           {/* @ts-expect-error - Server Component  */}
-          <Test delay={5000} />
+          <Test delay={4000} />
         </Suspense>
 
         <Suspense fallback={<p>Loading...</p>}>
           {/* @ts-expect-error - Server Component  */}
-          <Test delay={10_000} />
+          <Test delay={6000} />
         </Suspense>
       </div>
     </Container>
