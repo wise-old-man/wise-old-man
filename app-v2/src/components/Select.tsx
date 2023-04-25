@@ -4,9 +4,11 @@ import { useState, forwardRef, PropsWithChildren } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn } from "~/utils";
+import { Button } from "./Button";
 
 import CheckIcon from "~/assets/check.svg";
 import SearchIcon from "~/assets/search.svg";
+import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 const Popover = PopoverPrimitive.Root;
 const PopoverTrigger = PopoverPrimitive.Trigger;
@@ -153,5 +155,18 @@ export function SelectContent(props: PropsWithChildren & PopoverPrimitive.Popove
     <PopoverContent {...popoverProps}>
       <Command>{props.children}</Command>
     </PopoverContent>
+  );
+}
+
+export function SelectButton(props: { className?: string } & PropsWithChildren) {
+  return (
+    <SelectTrigger asChild>
+      <Button
+        className={cn("flex w-auto justify-between px-3 font-normal text-gray-100", props.className)}
+      >
+        {props.children}
+        <ChevronDownIcon className="ml-5 h-4 w-4" />
+      </Button>
+    </SelectTrigger>
   );
 }
