@@ -55,11 +55,12 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
             <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
           </Link>
         </TabsList>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-          <LeaderboardsFilters {...filters} />
-        </div>
-        <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
-          {/* <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+      </Tabs>
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+        <LeaderboardsFilters {...filters} />
+      </div>
+      <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
+        {/* <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
              @ts-expect-error - Server Component 
             <Leaderboard period={Period.WEEK} filters={filters} />
           </Suspense>
@@ -72,22 +73,21 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
             <Leaderboard period={Period.YEAR} filters={filters} />
           </Suspense> */}
 
-          <Suspense fallback={<p>Loading...</p>}>
-            {/* @ts-expect-error - Server Component  */}
-            <Test delay={3000} />
-          </Suspense>
+        <Suspense fallback={<p>Loading...</p>}>
+          {/* @ts-expect-error - Server Component  */}
+          <Test delay={3000} />
+        </Suspense>
 
-          <Suspense fallback={<p>Loading...</p>}>
-            {/* @ts-expect-error - Server Component  */}
-            <Test delay={5000} />
-          </Suspense>
+        <Suspense fallback={<p>Loading...</p>}>
+          {/* @ts-expect-error - Server Component  */}
+          <Test delay={5000} />
+        </Suspense>
 
-          <Suspense fallback={<p>Loading...</p>}>
-            {/* @ts-expect-error - Server Component  */}
-            <Test delay={10_000} />
-          </Suspense>
-        </div>
-      </Tabs>
+        <Suspense fallback={<p>Loading...</p>}>
+          {/* @ts-expect-error - Server Component  */}
+          <Test delay={10_000} />
+        </Suspense>
+      </div>
     </Container>
   );
 }
