@@ -98,7 +98,7 @@ const DATA_B = {
 export default function Home() {
   return (
     <div className="flex flex-col gap-y-10 p-20">
-      <Link href="/leaderboards/top">Go to leaderboards </Link>
+      {/* <Link href="/leaderboards/top">Go to leaderboards </Link>
 
       <div className="max-w-xl border border-gray-500 p-5">
         <LineChartSSR datasets={[DATA_A, DATA_B]} showLegend />
@@ -395,7 +395,8 @@ export default function Home() {
           </SelectContent>
         </Select>
       </div>
-      <div className="h-[20rem] w-full" />
+      <div className="h-[20rem] w-full" /> */}
+      Home!
     </div>
   );
 }
