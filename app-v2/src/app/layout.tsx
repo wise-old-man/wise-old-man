@@ -12,8 +12,11 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Wise Old Man",
-  description: "Magna proident consequat in in quis aliquip duis dolore.",
+  title: {
+    template: "%s | Wise Old Man",
+    default: "Wise Old Man",
+  },
+  description: "The Open Source Old School Runescape player progress tracker.",
 };
 
 function RootLayout(props: PropsWithChildren) {
