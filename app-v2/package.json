@@ -27,6 +27,7 @@
     "date-fns": "^2.29.3",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
+    "javascript-time-ago": "^2.5.9",
     "next": "13.3.0",
     "next-plugin-svgr": "^1.1.4",
     "postcss": "8.4.22",

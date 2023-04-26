@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import {
   DeltaLeaderboardFilter,
   Metric,
+  MetricProps,
   Period,
   PeriodProps,
   isCountry,
@@ -11,9 +11,10 @@ import {
   isPlayerType,
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
+import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
-import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { LeaderboardSkeleton } from "./components/LeaderboardSkeleton";
+import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 
 interface LeaderboardsPageProps {
   params: {
@@ -24,6 +25,18 @@ interface LeaderboardsPageProps {
     playerType?: string;
     playerBuild?: string;
     country?: string;
+  };
+}
+
+export async function generateMetadata(props: LeaderboardsPageProps) {
+  const { params, searchParams } = props;
+  const { section } = params;
+
+  const metric = getMetricParam(searchParams.metric) || Metric.OVERALL;
+  const sectionName = section === "records" ? "Records" : "Top";
+
+  return {
+    title: `${MetricProps[metric].name} - ${sectionName} Leaderboards`,
   };
 }
 
@@ -90,14 +103,8 @@ async function TopLeaderboard(props: LeaderboardProps) {
         {data.map((row, index) => (
           <ListTableRow key={row.player.username}>
             <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-            <ListTableCell className="flex items-center text-sm text-white">
-              <div className="h-8 w-8 shrink-0 rounded-full bg-gray-600" />
-              <Link
-                href={`/players/${row.player.username}`}
-                className="ml-2 line-clamp-1 text-sm font-medium hover:underline"
-              >
-                {row.player.displayName}
-              </Link>
+            <ListTableCell>
+              <PlayerIdentity player={row.player} />
             </ListTableCell>
             <ListTableCell className="w-5 text-right font-medium text-green-400">
               +<FormattedNumber value={row.gained} />
@@ -121,17 +128,8 @@ async function RecordLeaderboard(props: LeaderboardProps) {
         {data.map((row, index) => (
           <ListTableRow key={row.player.username}>
             <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-            <ListTableCell className="flex items-center text-sm text-white">
-              <div className="h-8 w-8 shrink-0 rounded-full bg-gray-600" />
-              <div className="ml-2 flex flex-col">
-                <Link
-                  href={`/players/${row.player.username}`}
-                  className="line-clamp-1 text-sm font-medium hover:underline"
-                >
-                  {row.player.displayName}
-                </Link>
-                <span className="text-xs text-gray-200">{formatRecordDate(row.updatedAt)}</span>
-              </div>
+            <ListTableCell>
+              <PlayerIdentity player={row.player} caption={formatRecordDate(row.updatedAt)} />
             </ListTableCell>
             <ListTableCell className="w-5 text-right font-medium text-green-400">
               +<FormattedNumber value={row.value} />
