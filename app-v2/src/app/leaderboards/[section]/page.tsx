@@ -38,25 +38,21 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
-  console.log("here");
-
-  // return (
-  //   <>
-  //     {/* @ts-expect-error - Server Component  */}
-  //     <Leaderboard period={Period.DAY} filters={filters} />
-  //     {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
-  //     <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-  //       {/* @ts-expect-error - Server Component  */}
-  //       <Leaderboard period={Period.WEEK} filters={filters} />
-  //     </Suspense>
-  //     <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-  //       {/* @ts-expect-error - Server Component  */}
-  //       <Leaderboard period={Period.MONTH} filters={filters} />
-  //     </Suspense>
-  //   </>
-  // );
-
-  return <div>content!</div>;
+  return (
+    <>
+      {/* @ts-expect-error - Server Component  */}
+      <Leaderboard period={Period.DAY} filters={filters} />
+      {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+      <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+        {/* @ts-expect-error - Server Component  */}
+        <Leaderboard period={Period.WEEK} filters={filters} />
+      </Suspense>
+      <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
+        {/* @ts-expect-error - Server Component  */}
+        <Leaderboard period={Period.MONTH} filters={filters} />
+      </Suspense>
+    </>
+  );
 }
 
 interface LeaderboardProps {

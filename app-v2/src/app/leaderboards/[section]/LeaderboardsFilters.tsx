@@ -54,7 +54,7 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.push(`${pathname}?${nextParams.toString()}`, { forceOptimisticNavigation: true });
+    router.push(`${pathname}?${nextParams.toString()}`);
   }
 
   return (
@@ -91,8 +91,6 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
-  console.timeEnd("Rendering");
-
   return (
     <Select>
       <SelectButton className="w-full">
@@ -125,10 +123,7 @@ function MetricSelect(props: MetricSelectProps) {
                 key={boss}
                 value={MetricProps[boss].name}
                 selected={boss === metric}
-                onSelect={() => {
-                  console.time("Rendering");
-                  onMetricSelected(boss);
-                }}
+                onSelect={() => onMetricSelected(boss)}
               >
                 <MetricIcon metric={boss} />
                 {MetricProps[boss].name}
