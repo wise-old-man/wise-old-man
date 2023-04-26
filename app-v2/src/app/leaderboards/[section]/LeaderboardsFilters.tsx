@@ -34,6 +34,7 @@ import {
   SelectSeparator,
 } from "~/components/Select";
 import { cn } from "~/utils";
+import { useState } from "react";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
@@ -60,7 +61,6 @@ export function LeaderboardsFilters() {
   return (
     <>
       <MetricSelect
-        key={metric}
         metric={metric}
         onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
       />
@@ -91,8 +91,15 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
+  const [open, setOpen] = useState(false);
+
+  function handleMetricSelected(metric: Metric) {
+    setOpen(false);
+    onMetricSelected(metric);
+  }
+
   return (
-    <Select>
+    <Select open={open} onOpenChange={(open) => setOpen(open)}>
       <SelectButton className="w-full">
         <div className="flex items-center gap-x-2">
           <MetricIcon metric={metric} />
@@ -109,7 +116,7 @@ function MetricSelect(props: MetricSelectProps) {
                 key={skill}
                 value={MetricProps[skill].name}
                 selected={skill === metric}
-                onSelect={() => onMetricSelected(skill)}
+                onSelect={() => handleMetricSelected(skill)}
               >
                 <MetricIcon metric={skill} />
                 {MetricProps[skill].name}
@@ -123,7 +130,7 @@ function MetricSelect(props: MetricSelectProps) {
                 key={boss}
                 value={MetricProps[boss].name}
                 selected={boss === metric}
-                onSelect={() => onMetricSelected(boss)}
+                onSelect={() => handleMetricSelected(boss)}
               >
                 <MetricIcon metric={boss} />
                 {MetricProps[boss].name}
@@ -137,7 +144,7 @@ function MetricSelect(props: MetricSelectProps) {
                 key={activity}
                 value={MetricProps[activity].name}
                 selected={activity === metric}
-                onSelect={() => onMetricSelected(activity)}
+                onSelect={() => handleMetricSelected(activity)}
               >
                 <MetricIcon metric={activity} />
                 {MetricProps[activity].name}
