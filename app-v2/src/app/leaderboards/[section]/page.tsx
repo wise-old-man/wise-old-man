@@ -38,6 +38,8 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
+  console.log("here");
+
   // return (
   //   <>
   //     {/* @ts-expect-error - Server Component  */}

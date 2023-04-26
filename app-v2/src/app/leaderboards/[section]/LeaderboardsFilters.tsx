@@ -34,7 +34,6 @@ import {
   SelectSeparator,
 } from "~/components/Select";
 import { cn } from "~/utils";
-import { useState } from "react";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
@@ -55,7 +54,7 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.push(`${pathname}?${nextParams.toString()}`);
+    router.push(`${pathname}?${nextParams.toString()}`, { forceOptimisticNavigation: true });
   }
 
   return (
@@ -99,7 +98,7 @@ function MetricSelect(props: MetricSelectProps) {
       <SelectButton className="w-full">
         <div className="flex items-center gap-x-2">
           <MetricIcon metric={metric} />
-          <span className="line-clamp-1">{MetricProps[metric].name} </span>
+          <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
       </SelectButton>
       <SelectContent align="end" className="w-[16rem]">
@@ -247,7 +246,9 @@ function CountrySelect(props: CountrySelectProps) {
       <SelectButton className="w-full">
         <div className={cn("flex items-center gap-x-2", !country && "text-gray-300")}>
           {country && <CountryIcon country={country} />}
-          <span className="line-clamp-1"> {country ? CountryProps[country].name : "Country"}</span>
+          <span className="line-clamp-1 text-left">
+            {country ? CountryProps[country].name : "Country"}
+          </span>
         </div>
       </SelectButton>
       <SelectContent align="end" className="w-[20rem]">
