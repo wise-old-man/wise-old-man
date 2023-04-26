@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
-import { LeaderboardsFilters } from "./LeaderboardsFilters";
+import { LeaderboardsFilters } from "./components/LeaderboardsFilters";
 
 interface LeaderboardsLayoutProps extends PropsWithChildren {
   params: {
