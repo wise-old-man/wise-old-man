@@ -17,6 +17,10 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
+  isCountry,
+  isMetric,
+  isPlayerBuild,
+  isPlayerType,
 } from "@wise-old-man/utils";
 import {
   Select,
@@ -31,19 +35,15 @@ import {
 } from "~/components/Select";
 import { cn } from "~/utils";
 
-interface LeaderboardsFiltersProps {
-  metric: Metric;
-  playerType: PlayerType | undefined;
-  playerBuild: PlayerBuild | undefined;
-  country: Country | undefined;
-}
-
-export function LeaderboardsFilters(props: LeaderboardsFiltersProps) {
-  const { metric, playerType, playerBuild, country } = props;
-
+export function LeaderboardsFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
+  const country = getCountryParam(searchParams.get("country"));
+  const playerType = getPlayerTypeParam(searchParams.get("playerType"));
+  const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
   function handleParamChanged(paramName: string, paramValue: string | undefined) {
     const nextParams = new URLSearchParams(searchParams);
@@ -60,18 +60,22 @@ export function LeaderboardsFilters(props: LeaderboardsFiltersProps) {
   return (
     <>
       <MetricSelect
+        key={metric}
         metric={metric}
         onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
       />
       <PlayerTypeSelect
+        key={playerType}
         playerType={playerType}
         onPlayerTypeSelected={(newPlayerType) => handleParamChanged("playerType", newPlayerType)}
       />
       <PlayerBuildSelect
+        key={playerBuild}
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
       />
       <CountrySelect
+        key={country}
         country={country}
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
@@ -300,4 +304,28 @@ function CountryIcon(props: { country: Country }) {
       src={`https://wiseoldman.net/img/flags/${country}.svg`}
     />
   );
+}
+
+function getMetricParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isMetric(param)) return undefined;
+  return param;
+}
+
+function getPlayerTypeParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isPlayerType(param)) return undefined;
+  return param;
+}
+
+function getPlayerBuildParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isPlayerBuild(param)) return undefined;
+  return param;
+}
+
+function getCountryParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isCountry(param)) return undefined;
+  return param;
 }

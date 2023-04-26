@@ -11,11 +11,9 @@ import {
   isPlayerType,
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
-import { Container } from "~/components/Container";
 import { FormattedNumber } from "~/components/FormattedNumber";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { LeaderboardsFilters } from "./LeaderboardsFilters";
+import { LeaderboardSkeleton } from "./LeaderboardSkeleton";
 
 interface LeaderboardsPageProps {
   params: {
@@ -31,7 +29,7 @@ interface LeaderboardsPageProps {
 
 export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
   const { params, searchParams } = props;
-  const { section } = params;
+  // const { section } = params;
 
   const filters = {
     metric: getMetricParam(searchParams.metric) || Metric.OVERALL,
@@ -41,65 +39,20 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
   };
 
   return (
-    <Container>
-      <h1 className="mb-8 text-h1 font-bold">Leaderboards</h1>
-      <Tabs defaultValue={section}>
-        <TabsList>
-          <Link href="/leaderboards/top">
-            <TabsTrigger value="top">Current Top</TabsTrigger>
-          </Link>
-          <Link href="/leaderboards/records">
-            <TabsTrigger value="records">Records</TabsTrigger>
-          </Link>
-          <Link href="/leaderboards/efficiency">
-            <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-        <LeaderboardsFilters {...filters} />
-      </div>
-      <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
-        {/* <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-             @ts-expect-error - Server Component 
-            <Leaderboard period={Period.WEEK} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-             @ts-expect-error - Server Component 
-            <Leaderboard period={Period.MONTH} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.YEAR} />}>
-             @ts-expect-error - Server Component 
-            <Leaderboard period={Period.YEAR} filters={filters} />
-          </Suspense> */}
-
-        <Suspense fallback={<p>Loading...</p>}>
-          {/* @ts-expect-error - Server Component  */}
-          <Test delay={2000} />
-        </Suspense>
-
-        <Suspense fallback={<p>Loading...</p>}>
-          {/* @ts-expect-error - Server Component  */}
-          <Test delay={4000} />
-        </Suspense>
-
-        <Suspense fallback={<p>Loading...</p>}>
-          {/* @ts-expect-error - Server Component  */}
-          <Test delay={6000} />
-        </Suspense>
-      </div>
-    </Container>
+    <>
+      {/* @ts-expect-error - Server Component  */}
+      <Leaderboard period={Period.DAY} filters={filters} />
+      {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+      <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+        {/* @ts-expect-error - Server Component  */}
+        <Leaderboard period={Period.WEEK} filters={filters} />
+      </Suspense>
+      <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
+        {/* @ts-expect-error - Server Component  */}
+        <Leaderboard period={Period.MONTH} filters={filters} />
+      </Suspense>
+    </>
   );
-}
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function Test(props: { delay: number }) {
-  await sleep(props.delay);
-
-  return <div>Delaying for {props.delay} milliseconds</div>;
 }
 
 interface LeaderboardProps {
@@ -130,32 +83,6 @@ async function Leaderboard(props: LeaderboardProps) {
             </ListTableCell>
             <ListTableCell className="w-5 text-right font-medium text-green-400">
               <FormattedNumber value={row.gained} />
-            </ListTableCell>
-          </ListTableRow>
-        ))}
-      </ListTable>
-    </div>
-  );
-}
-
-function LeaderboardSkeleton(props: { period: Period }) {
-  const { period } = props;
-
-  return (
-    <div>
-      <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
-      <ListTable>
-        {[...Array(20)].map((i) => (
-          <ListTableRow key={`${period}_skeleton_${i}`}>
-            <ListTableCell className="w-1 pr-1">
-              <div className="h-4 w-4 animate-pulse rounded-xl bg-gray-600" />
-            </ListTableCell>
-            <ListTableCell className="flex items-center text-sm text-white">
-              <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-gray-600" />
-              <div className="ml-2 h-4 w-24 animate-pulse rounded-xl bg-gray-600" />
-            </ListTableCell>
-            <ListTableCell className="w-5 text-right font-medium">
-              <div className="h-5 w-12 animate-pulse rounded-xl bg-gray-600" />
             </ListTableCell>
           </ListTableRow>
         ))}
