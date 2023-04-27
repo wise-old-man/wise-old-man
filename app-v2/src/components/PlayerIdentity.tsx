@@ -97,7 +97,7 @@ function Flag(props: { country: Country }) {
 
   return (
     <Image
-      src={`https://hatscripts.github.io/circle-flags/flags/${code.toLowerCase()}.svg`}
+      src={`/images/flags/${code}.svg`}
       width={14}
       height={14}
       className="h-3.5 w-3.5 overflow-hidden rounded-full border-2 border-gray-900"
