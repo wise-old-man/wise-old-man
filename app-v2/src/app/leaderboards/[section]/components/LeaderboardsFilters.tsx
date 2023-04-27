@@ -274,38 +274,17 @@ function CountrySelect(props: CountrySelectProps) {
 
 function MetricIcon(props: { metric: Metric }) {
   const { metric } = props;
-  return (
-    <Image
-      width={16}
-      height={16}
-      alt={metric}
-      src={`https://wiseoldman.net/img/runescape/icons_small/${metric}.png`}
-    />
-  );
+  return <Image width={16} height={16} alt={metric} src={`/img/metrics_small/${metric}.png`} />;
 }
 
 function PlayerTypeIcon(props: { playerType: PlayerType }) {
   const { playerType } = props;
-  return (
-    <Image
-      width={10}
-      height={13}
-      alt={playerType}
-      src={`https://wiseoldman.net/img/runescape/icons_small/${playerType}.png`}
-    />
-  );
+  return <Image width={10} height={13} alt={playerType} src={`/img/player_types/${playerType}.png`} />;
 }
 
 function CountryIcon(props: { country: Country }) {
   const { country } = props;
-  return (
-    <Image
-      width={16}
-      height={16}
-      alt={country}
-      src={`https://wiseoldman.net/img/flags/${country}.svg`}
-    />
-  );
+  return <Image width={12} height={12} alt={country} src={`/img/flags/${country}.svg`} />;
 }
 
 function getMetricParam(param: string | null) {

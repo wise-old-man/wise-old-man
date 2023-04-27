@@ -344,7 +344,7 @@ export default function Home() {
               <SelectItemGroup label="Skills">
                 {SKILLS.map((skill) => (
                   <SelectItem key={skill} value={skill}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${skill}.png`} />
+                    <img src={`/img/metrics_small/${skill}.png`} />
                     {MetricProps[skill].name}
                   </SelectItem>
                 ))}
@@ -353,7 +353,7 @@ export default function Home() {
               <SelectItemGroup label="Bosses">
                 {BOSSES.map((boss) => (
                   <SelectItem key={boss} value={boss}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${boss}.png`} />
+                    <img src={`/img/metrics_small/${boss}.png`} />
                     {MetricProps[boss].name}
                   </SelectItem>
                 ))}
@@ -362,7 +362,7 @@ export default function Home() {
               <SelectItemGroup label="Activities">
                 {ACTIVITIES.map((activity) => (
                   <SelectItem key={activity} value={activity}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${activity}.png`} />
+                    <img src={`/img/metrics_small/${activity}.png`} />
                     {MetricProps[activity].name}
                   </SelectItem>
                 ))}
@@ -384,7 +384,7 @@ export default function Home() {
               <SelectItemGroup label="Player Type">
                 {PLAYER_TYPES.map((playerType) => (
                   <SelectItem key={playerType} value={playerType}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${playerType}.png`} />
+                    <img src={`/img/player_types/${playerType}.png`} />
                     {PlayerTypeProps[playerType].name}
                   </SelectItem>
                 ))}
