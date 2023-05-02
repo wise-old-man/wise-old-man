@@ -12,6 +12,8 @@ import {
 } from "@wise-old-man/utils";
 import { timeago } from "~/utils/dates";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+import { timeago } from "~/utils/dates";
 
 interface PlayerIdentityProps {
   player: Player;
