@@ -1,6 +1,3 @@
-import { PropsWithChildren } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import {
   Country,
   CountryProps,
@@ -10,10 +7,11 @@ import {
   PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { PropsWithChildren } from "react";
 import { timeago } from "~/utils/dates";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
-import { timeago } from "~/utils/dates";
 
 interface PlayerIdentityProps {
   player: Player;
