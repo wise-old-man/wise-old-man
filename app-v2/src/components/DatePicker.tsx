@@ -4,7 +4,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { format } from "date-fns";
 import { forwardRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 import { Button } from "./Button";
 
 import CalendarIcon from "~/assets/calendar.svg";

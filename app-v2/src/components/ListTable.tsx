@@ -1,5 +1,5 @@
 import { PropsWithChildren, forwardRef } from "react";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 function ListTable(props: PropsWithChildren) {
   return (

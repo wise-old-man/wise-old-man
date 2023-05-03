@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import Logo from "~/assets/logo.svg";

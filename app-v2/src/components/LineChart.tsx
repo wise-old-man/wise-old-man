@@ -12,7 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 const GRID_STYLE = { stroke: "#1f2937" };
 const X_AXIS_TICK_LINE = { stroke: "#1f2937" };

@@ -33,7 +33,7 @@ import {
   SelectItemsContainer,
   SelectSeparator,
 } from "~/components/Select";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 export function LeaderboardsFilters() {
   const router = useRouter();

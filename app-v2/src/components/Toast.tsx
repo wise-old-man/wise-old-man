@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { VariantProps, cva } from "class-variance-authority";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 import CloseIcon from "~/assets/close.svg";
 import { Button } from "./Button";

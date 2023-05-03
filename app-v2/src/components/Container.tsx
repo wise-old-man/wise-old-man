@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 function Container(props: PropsWithChildren & { className?: string }) {
   return (

@@ -3,7 +3,7 @@
 import { useState, forwardRef, PropsWithChildren } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 import { Button } from "./Button";
 
 import CheckIcon from "~/assets/check.svg";
