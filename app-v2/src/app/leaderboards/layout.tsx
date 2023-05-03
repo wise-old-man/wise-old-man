@@ -2,22 +2,18 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
-import { LeaderboardsFilters } from "./components/LeaderboardsFilters";
+import { LeaderboardsFilters } from "./_components/LeaderboardsFilters";
 
-interface LeaderboardsLayoutProps extends PropsWithChildren {
-  params: {
-    section?: string;
-  };
-}
+export default function LeaderboardsLayout(props: PropsWithChildren) {
+  const { children } = props;
 
-export default function LeaderboardsLayout(props: LeaderboardsLayoutProps) {
-  const { params, children } = props;
-  const { section } = params;
+  // @ts-ignore - There's no decent API from Next.js yet (as of 13.3.0)
+  const routeSegment = children.props.childProp.segment;
 
   return (
     <Container>
       <h1 className="mb-8 text-h1 font-bold">Leaderboards</h1>
-      <Tabs defaultValue={section}>
+      <Tabs defaultValue={routeSegment}>
         <TabsList>
           <Link href="/leaderboards/top">
             <TabsTrigger value="top">Current Top</TabsTrigger>

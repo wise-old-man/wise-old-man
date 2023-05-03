@@ -5,7 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
   BOSSES,
+  COMPUTED_METRICS,
   COUNTRY_CODES,
+  ComputedMetric,
   Country,
   CountryProps,
   Metric,
@@ -17,10 +19,7 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
-  isCountry,
-  isMetric,
-  isPlayerBuild,
-  isPlayerType,
+  isComputedMetric,
 } from "@wise-old-man/utils";
 import {
   Select,
@@ -34,16 +33,28 @@ import {
   SelectSeparator,
 } from "~/components/Select";
 import { cn } from "~/utils/styling";
+import {
+  getComputedMetricParam,
+  getCountryParam,
+  getMetricParam,
+  getPlayerBuildParam,
+  getPlayerTypeParam,
+} from "~/utils/params";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const isEfficiencyLeaderboard = pathname.includes("efficiency");
+
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
   const country = getCountryParam(searchParams.get("country"));
   const playerType = getPlayerTypeParam(searchParams.get("playerType"));
   const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
+
+  // For efficiency leaderboards (it only accepts "ehp"/"ehb/"combined")
+  const computedMetric = getComputedMetricParam(searchParams.get("metric")) || Metric.EHP;
 
   function handleParamChanged(paramName: string, paramValue: string | undefined) {
     const nextParams = new URLSearchParams(searchParams);
@@ -59,11 +70,19 @@ export function LeaderboardsFilters() {
 
   return (
     <>
-      <MetricSelect
-        key={metric}
-        metric={metric}
-        onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
-      />
+      {isEfficiencyLeaderboard ? (
+        <ComputedMetricSelect
+          key={computedMetric}
+          metric={computedMetric}
+          onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
+        />
+      ) : (
+        <MetricSelect
+          key={metric}
+          metric={metric}
+          onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
+        />
+      )}
       <PlayerTypeSelect
         key={playerType}
         playerType={playerType}
@@ -80,6 +99,60 @@ export function LeaderboardsFilters() {
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
     </>
+  );
+}
+
+interface ComputedMetricSelectProps {
+  metric: ComputedMetric | "combined";
+  onMetricSelected: (metric: ComputedMetric | "combined") => void;
+}
+
+function ComputedMetricSelect(props: ComputedMetricSelectProps) {
+  const { metric, onMetricSelected } = props;
+
+  return (
+    <Select>
+      <SelectButton className="w-full">
+        <div className="flex items-center gap-x-2">
+          {metric === "combined" ? (
+            <>
+              <MetricIcon metric="ehp+ehb" />
+              <span className="line-clamp-1 text-left">EHP + EHB</span>
+            </>
+          ) : (
+            <>
+              <MetricIcon metric={metric} />
+              <span className="line-clamp-1 text-left">{MetricProps[metric].name}</span>
+            </>
+          )}
+        </div>
+      </SelectButton>
+      <SelectContent align="end" className="w-[16rem]">
+        <SelectItemsContainer>
+          <SelectItemGroup>
+            {COMPUTED_METRICS.map((computed) => (
+              <SelectItem
+                key={computed}
+                value={MetricProps[computed].name}
+                selected={computed === metric}
+                onSelect={() => onMetricSelected(computed)}
+              >
+                <MetricIcon metric={computed} />
+                {MetricProps[computed].name}
+              </SelectItem>
+            ))}
+            <SelectItem
+              value="combined"
+              selected={metric === "combined"}
+              onSelect={() => onMetricSelected("combined")}
+            >
+              <MetricIcon metric="ehp+ehb" />
+              EHP + EHB
+            </SelectItem>
+          </SelectItemGroup>
+        </SelectItemsContainer>
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -141,6 +214,19 @@ function MetricSelect(props: MetricSelectProps) {
               >
                 <MetricIcon metric={activity} />
                 {MetricProps[activity].name}
+              </SelectItem>
+            ))}
+          </SelectItemGroup>
+          <SelectItemGroup label="Computed">
+            {COMPUTED_METRICS.map((computed) => (
+              <SelectItem
+                key={computed}
+                value={MetricProps[computed].name}
+                selected={computed === metric}
+                onSelect={() => onMetricSelected(computed)}
+              >
+                <MetricIcon metric={computed} />
+                {MetricProps[computed].name}
               </SelectItem>
             ))}
           </SelectItemGroup>
@@ -272,7 +358,7 @@ function CountrySelect(props: CountrySelectProps) {
   );
 }
 
-function MetricIcon(props: { metric: Metric }) {
+function MetricIcon(props: { metric: Metric | "ehp+ehb" }) {
   const { metric } = props;
   return <Image width={16} height={16} alt={metric} src={`/img/metrics_small/${metric}.png`} />;
 }
@@ -285,28 +371,4 @@ function PlayerTypeIcon(props: { playerType: PlayerType }) {
 function CountryIcon(props: { country: Country }) {
   const { country } = props;
   return <Image width={12} height={12} alt={country} src={`/img/flags/${country}.svg`} />;
-}
-
-function getMetricParam(param: string | null) {
-  if (!param) return undefined;
-  if (!isMetric(param)) return undefined;
-  return param;
-}
-
-function getPlayerTypeParam(param: string | null) {
-  if (!param) return undefined;
-  if (!isPlayerType(param)) return undefined;
-  return param;
-}
-
-function getPlayerBuildParam(param: string | null) {
-  if (!param) return undefined;
-  if (!isPlayerBuild(param)) return undefined;
-  return param;
-}
-
-function getCountryParam(param: string | null) {
-  if (!param) return undefined;
-  if (!isCountry(param)) return undefined;
-  return param;
 }

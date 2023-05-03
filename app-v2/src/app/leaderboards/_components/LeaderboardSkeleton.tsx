@@ -2,7 +2,7 @@ import { Period, PeriodProps } from "@wise-old-man/utils";
 import { ListTable, ListTableRow, ListTableCell } from "~/components/ListTable";
 
 interface LeaderboardSkeletonProps {
-  period: Period;
+  period?: Period;
   hasCaption?: boolean;
 }
 
@@ -11,7 +11,7 @@ export function LeaderboardSkeleton(props: LeaderboardSkeletonProps) {
 
   return (
     <div>
-      <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
+      {period && <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>}
       <ListTable>
         {[...Array(20)].map((_, i) => (
           <ListTableRow key={`${period}_skeleton_${i}`}>
