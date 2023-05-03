@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import {
   DeltaLeaderboardFilter,
   Metric,
+  MetricProps,
   Period,
   PeriodProps,
   isCountry,
@@ -11,11 +11,10 @@ import {
   isPlayerType,
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
-import { Container } from "~/components/Container";
+import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { LeaderboardSkeleton } from "./components/LeaderboardSkeleton";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { LeaderboardsFilters } from "./LeaderboardsFilters";
 
 interface LeaderboardsPageProps {
   params: {
@@ -26,6 +25,18 @@ interface LeaderboardsPageProps {
     playerType?: string;
     playerBuild?: string;
     country?: string;
+  };
+}
+
+export function generateMetadata(props: LeaderboardsPageProps) {
+  const { params, searchParams } = props;
+  const { section } = params;
+
+  const metric = getMetricParam(searchParams.metric) || Metric.OVERALL;
+  const sectionName = section === "records" ? "Records" : "Top";
+
+  return {
+    title: `${MetricProps[metric].name} - ${sectionName} Leaderboards`,
   };
 }
 
@@ -40,41 +51,43 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
-  return (
-    <Container>
-      <h1 className="mb-8 text-h1 font-bold">Leaderboards</h1>
-      <Tabs defaultValue={section}>
-        <TabsList>
-          <Link href="/leaderboards/top">
-            <TabsTrigger value="top">Current Top</TabsTrigger>
-          </Link>
-          <Link href="/leaderboards/records">
-            <TabsTrigger value="records">Records</TabsTrigger>
-          </Link>
-          <Link href="/leaderboards/efficiency">
-            <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
-          </Link>
-        </TabsList>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-          <LeaderboardsFilters {...filters} />
-        </div>
-        <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
-          <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-            {/** @ts-expect-error - Server Component */}
-            <Leaderboard period={Period.WEEK} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-            {/** @ts-expect-error - Server Component */}
-            <Leaderboard period={Period.MONTH} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.YEAR} />}>
-            {/** @ts-expect-error - Server Component */}
-            <Leaderboard period={Period.YEAR} filters={filters} />
-          </Suspense>
-        </div>
-      </Tabs>
-    </Container>
-  );
+  if (section === "top") {
+    return (
+      <>
+        {/* @ts-expect-error - Server Component  */}
+        <TopLeaderboard period={Period.DAY} filters={filters} />
+        {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+        <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <TopLeaderboard period={Period.WEEK} filters={filters} />
+        </Suspense>
+        <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <TopLeaderboard period={Period.MONTH} filters={filters} />
+        </Suspense>
+      </>
+    );
+  }
+
+  if (section === "records") {
+    return (
+      <>
+        {/* @ts-expect-error - Server Component  */}
+        <RecordLeaderboard period={Period.DAY} filters={filters} />
+        {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+        <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <RecordLeaderboard period={Period.WEEK} filters={filters} />
+        </Suspense>
+        <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <RecordLeaderboard period={Period.MONTH} filters={filters} />
+        </Suspense>
+      </>
+    );
+  }
+
+  return <>Not yet implemented.</>;
 }
 
 interface LeaderboardProps {
@@ -82,7 +95,7 @@ interface LeaderboardProps {
   filters: Omit<DeltaLeaderboardFilter, "period">;
 }
 
-async function Leaderboard(props: LeaderboardProps) {
+async function TopLeaderboard(props: LeaderboardProps) {
   const { period, filters } = props;
 
   const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
@@ -94,17 +107,11 @@ async function Leaderboard(props: LeaderboardProps) {
         {data.map((row, index) => (
           <ListTableRow key={row.player.username}>
             <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-            <ListTableCell className="flex items-center text-sm text-white">
-              <div className="h-8 w-8 shrink-0 rounded-full bg-gray-600" />
-              <Link
-                href={`/players/${row.player.username}`}
-                className="ml-2 line-clamp-1 text-sm font-medium hover:underline"
-              >
-                {row.player.displayName}
-              </Link>
+            <ListTableCell>
+              <PlayerIdentity player={row.player} />
             </ListTableCell>
             <ListTableCell className="w-5 text-right font-medium text-green-400">
-              <FormattedNumber value={row.gained} />
+              +<FormattedNumber value={row.gained} />
             </ListTableCell>
           </ListTableRow>
         ))}
@@ -113,24 +120,23 @@ async function Leaderboard(props: LeaderboardProps) {
   );
 }
 
-function LeaderboardSkeleton(props: { period: Period }) {
-  const { period } = props;
+async function RecordLeaderboard(props: LeaderboardProps) {
+  const { period, filters } = props;
+
+  const data = await apiClient.records.getRecordLeaderboard({ period, ...filters });
 
   return (
     <div>
       <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
       <ListTable>
-        {[...Array(20)].map((i) => (
-          <ListTableRow key={`${period}_skeleton_${i}`}>
-            <ListTableCell className="w-1 pr-1">
-              <div className="h-4 w-4 animate-pulse rounded-xl bg-gray-600" />
+        {data.map((row, index) => (
+          <ListTableRow key={row.player.username}>
+            <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
+            <ListTableCell>
+              <PlayerIdentity player={row.player} caption={formatRecordDate(row.updatedAt)} />
             </ListTableCell>
-            <ListTableCell className="flex items-center text-sm text-white">
-              <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-gray-600" />
-              <div className="ml-2 h-4 w-24 animate-pulse rounded-xl bg-gray-600" />
-            </ListTableCell>
-            <ListTableCell className="w-5 text-right font-medium">
-              <div className="h-5 w-12 animate-pulse rounded-xl bg-gray-600" />
+            <ListTableCell className="w-5 text-right font-medium text-green-400">
+              +<FormattedNumber value={row.value} />
             </ListTableCell>
           </ListTableRow>
         ))}
@@ -161,4 +167,12 @@ function getCountryParam(param: string | undefined) {
   if (!param) return undefined;
   if (!isCountry(param)) return undefined;
   return param;
+}
+
+function formatRecordDate(date: Date) {
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

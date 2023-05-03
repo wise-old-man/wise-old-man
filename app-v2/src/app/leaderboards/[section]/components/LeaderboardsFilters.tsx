@@ -17,6 +17,10 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
+  isCountry,
+  isMetric,
+  isPlayerBuild,
+  isPlayerType,
 } from "@wise-old-man/utils";
 import {
   Select,
@@ -31,19 +35,15 @@ import {
 } from "~/components/Select";
 import { cn } from "~/utils";
 
-interface LeaderboardsFiltersProps {
-  metric: Metric;
-  playerType: PlayerType | undefined;
-  playerBuild: PlayerBuild | undefined;
-  country: Country | undefined;
-}
-
-export function LeaderboardsFilters(props: LeaderboardsFiltersProps) {
-  const { metric, playerType, playerBuild, country } = props;
-
+export function LeaderboardsFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
+  const country = getCountryParam(searchParams.get("country"));
+  const playerType = getPlayerTypeParam(searchParams.get("playerType"));
+  const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
 
   function handleParamChanged(paramName: string, paramValue: string | undefined) {
     const nextParams = new URLSearchParams(searchParams);
@@ -60,18 +60,22 @@ export function LeaderboardsFilters(props: LeaderboardsFiltersProps) {
   return (
     <>
       <MetricSelect
+        key={metric}
         metric={metric}
         onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
       />
       <PlayerTypeSelect
+        key={playerType}
         playerType={playerType}
         onPlayerTypeSelected={(newPlayerType) => handleParamChanged("playerType", newPlayerType)}
       />
       <PlayerBuildSelect
+        key={playerBuild}
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
       />
       <CountrySelect
+        key={country}
         country={country}
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
@@ -92,7 +96,7 @@ function MetricSelect(props: MetricSelectProps) {
       <SelectButton className="w-full">
         <div className="flex items-center gap-x-2">
           <MetricIcon metric={metric} />
-          <span className="line-clamp-1">{MetricProps[metric].name} </span>
+          <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
       </SelectButton>
       <SelectContent align="end" className="w-[16rem]">
@@ -237,7 +241,9 @@ function CountrySelect(props: CountrySelectProps) {
       <SelectButton className="w-full">
         <div className={cn("flex items-center gap-x-2", !country && "text-gray-300")}>
           {country && <CountryIcon country={country} />}
-          <span className="line-clamp-1"> {country ? CountryProps[country].name : "Country"}</span>
+          <span className="line-clamp-1 text-left">
+            {country ? CountryProps[country].name : "Country"}
+          </span>
         </div>
       </SelectButton>
       <SelectContent align="end" className="w-[20rem]">
@@ -268,36 +274,39 @@ function CountrySelect(props: CountrySelectProps) {
 
 function MetricIcon(props: { metric: Metric }) {
   const { metric } = props;
-  return (
-    <Image
-      width={16}
-      height={16}
-      alt={metric}
-      src={`https://wiseoldman.net/img/runescape/icons_small/${metric}.png`}
-    />
-  );
+  return <Image width={16} height={16} alt={metric} src={`/img/metrics_small/${metric}.png`} />;
 }
 
 function PlayerTypeIcon(props: { playerType: PlayerType }) {
   const { playerType } = props;
-  return (
-    <Image
-      width={10}
-      height={13}
-      alt={playerType}
-      src={`https://wiseoldman.net/img/runescape/icons_small/${playerType}.png`}
-    />
-  );
+  return <Image width={10} height={13} alt={playerType} src={`/img/player_types/${playerType}.png`} />;
 }
 
 function CountryIcon(props: { country: Country }) {
   const { country } = props;
-  return (
-    <Image
-      width={16}
-      height={16}
-      alt={country}
-      src={`https://wiseoldman.net/img/flags/${country}.svg`}
-    />
-  );
+  return <Image width={12} height={12} alt={country} src={`/img/flags/${country}.svg`} />;
+}
+
+function getMetricParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isMetric(param)) return undefined;
+  return param;
+}
+
+function getPlayerTypeParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isPlayerType(param)) return undefined;
+  return param;
+}
+
+function getPlayerBuildParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isPlayerBuild(param)) return undefined;
+  return param;
+}
+
+function getCountryParam(param: string | null) {
+  if (!param) return undefined;
+  if (!isCountry(param)) return undefined;
+  return param;
 }

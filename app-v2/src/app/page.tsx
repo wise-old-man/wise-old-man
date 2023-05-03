@@ -1,13 +1,6 @@
 import dynamic from "next/dynamic";
 
-import {
-  ACTIVITIES,
-  BOSSES,
-  MetricProps,
-  PLAYER_TYPES,
-  PlayerTypeProps,
-  SKILLS,
-} from "@wise-old-man/utils";
+import { ACTIVITIES, BOSSES, MetricProps, PLAYER_TYPES, PlayerTypeProps, SKILLS } from "@wise-old-man/utils";
 import { Button } from "~/components/Button";
 
 import {
@@ -49,6 +42,7 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { TestTable } from "./TestTable";
+import { Container } from "~/components/Container";
 
 const BarChartSSR = dynamic(() => import("../components/BarChart"), {
   ssr: false,
@@ -97,13 +91,11 @@ const DATA_B = {
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-y-10 p-20">
+    <Container className="flex flex-col gap-y-10">
       <Link href="/leaderboards/top">Go to leaderboards </Link>
-
       <div className="max-w-xl border border-gray-500 p-5">
         <LineChartSSR datasets={[DATA_A, DATA_B]} showLegend />
       </div>
-
       <div className="max-w-xl border border-gray-500 p-5">
         <BarChartSSR
           name="Experience"
@@ -167,9 +159,9 @@ export default function Home() {
         <WarningIcon className="h-5 w-5" />
         <AlertTitle>This player is flagged.</AlertTitle>
         <AlertDescription>
-          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse adipisicing est ex veniam.
-          Nisi Lorem veniam mollit ullamco consequat deserunt commodo. Tempor qui ex magna aute officia
-          qui commodo dolor.
+          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse adipisicing est ex veniam. Nisi
+          Lorem veniam mollit ullamco consequat deserunt commodo. Tempor qui ex magna aute officia qui commodo
+          dolor.
         </AlertDescription>
       </Alert>
       <Alert variant="success">
@@ -240,10 +232,10 @@ export default function Home() {
         <h1 className="text-h1 font-bold">H1 title</h1>
         <h2 className="text-h2 font-semibold">H2 subtitle</h2>
         <p className="max-w-prose text-body text-gray-200">
-          Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute
-          sint tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et
-          aliqua ipsum sit laborum sunt ad. Elit velit reprehenderit proident cupidatat non excepteur
-          nostrud eu pariatur consectetur non exercitation.
+          Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute sint
+          tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et aliqua ipsum
+          sit laborum sunt ad. Elit velit reprehenderit proident cupidatat non excepteur nostrud eu pariatur
+          consectetur non exercitation.
         </p>
       </div>
       <div className="flex gap-x-4">
@@ -325,8 +317,8 @@ export default function Home() {
             <Button>Tooltip trigger</Button>
           </TooltipTrigger>
           <TooltipContent align="start">
-            Magna aliqua ea dolore eu minim. Nisi sunt excepteur ea elit aute dolore nisi commodo sunt
-            sint reprehenderit fugiat dolore aliqua.
+            Magna aliqua ea dolore eu minim. Nisi sunt excepteur ea elit aute dolore nisi commodo sunt sint
+            reprehenderit fugiat dolore aliqua.
           </TooltipContent>
         </Tooltip>
       </div>
@@ -346,7 +338,7 @@ export default function Home() {
               <SelectItemGroup label="Skills">
                 {SKILLS.map((skill) => (
                   <SelectItem key={skill} value={skill}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${skill}.png`} />
+                    <img src={`/img/metrics_small/${skill}.png`} />
                     {MetricProps[skill].name}
                   </SelectItem>
                 ))}
@@ -355,7 +347,7 @@ export default function Home() {
               <SelectItemGroup label="Bosses">
                 {BOSSES.map((boss) => (
                   <SelectItem key={boss} value={boss}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${boss}.png`} />
+                    <img src={`/img/metrics_small/${boss}.png`} />
                     {MetricProps[boss].name}
                   </SelectItem>
                 ))}
@@ -364,7 +356,7 @@ export default function Home() {
               <SelectItemGroup label="Activities">
                 {ACTIVITIES.map((activity) => (
                   <SelectItem key={activity} value={activity}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${activity}.png`} />
+                    <img src={`/img/metrics_small/${activity}.png`} />
                     {MetricProps[activity].name}
                   </SelectItem>
                 ))}
@@ -386,7 +378,7 @@ export default function Home() {
               <SelectItemGroup label="Player Type">
                 {PLAYER_TYPES.map((playerType) => (
                   <SelectItem key={playerType} value={playerType}>
-                    <img src={`https://wiseoldman.net/img/runescape/icons_small/${playerType}.png`} />
+                    <img src={`/img/player_types/${playerType}.png`} />
                     {PlayerTypeProps[playerType].name}
                   </SelectItem>
                 ))}
@@ -396,6 +388,7 @@ export default function Home() {
         </Select>
       </div>
       <div className="h-[20rem] w-full" />
-    </div>
+      Home!
+    </Container>
   );
 }

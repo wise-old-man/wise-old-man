@@ -45,7 +45,7 @@ export function TestTable() {
         <TableBody>
           <TableRow>
             <TableCell className="flex items-center gap-x-2 text-white">
-              <img src={`https://wiseoldman.net/img/runescape/icons_small/overall.png`} />
+              <img src={`/img/metrics_small/overall.png`} />
               Overall
             </TableCell>
             <TableCell>301.68m</TableCell>
@@ -55,7 +55,7 @@ export function TestTable() {
           </TableRow>
           <TableRow>
             <TableCell className="flex items-center gap-x-2 text-white">
-              <img src={`https://wiseoldman.net/img/runescape/icons_small/attack.png`} />
+              <img src={`/img/metrics_small/attack.png`} />
               Attack
             </TableCell>
             <TableCell>301.68m</TableCell>
@@ -65,7 +65,7 @@ export function TestTable() {
           </TableRow>
           <TableRow>
             <TableCell className="flex items-center gap-x-2 text-white">
-              <img src={`https://wiseoldman.net/img/runescape/icons_small/defence.png`} />
+              <img src={`/img/metrics_small/defence.png`} />
               Defence
             </TableCell>
             <TableCell>301.68m</TableCell>
@@ -75,7 +75,7 @@ export function TestTable() {
           </TableRow>
           <TableRow>
             <TableCell className="flex items-center gap-x-2 text-white">
-              <img src={`https://wiseoldman.net/img/runescape/icons_small/strength.png`} />
+              <img src={`/img/metrics_small/strength.png`} />
               Strength
             </TableCell>
             <TableCell>301.68m</TableCell>
