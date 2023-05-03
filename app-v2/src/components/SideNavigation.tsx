@@ -55,7 +55,7 @@ function SideNavigation(props: SideNavigationProps) {
 
   return (
     <>
-      <div className="z-1 fixed bottom-0 left-0 top-[4.5rem] hidden h-screen w-64 lg:flex">
+      <div className="z-1 fixed bottom-0 left-0 top-[4.5rem] hidden w-64 lg:flex">
         <SideBar currentRouteHref={currentRoute?.href} onRouteSelected={onSidebarClosed} />
       </div>
       <Transition.Root show={isSidebarOpen} as={Fragment}>
@@ -117,7 +117,7 @@ function SideBar(props: SideBarProps) {
   const { currentRouteHref, onRouteSelected } = props;
 
   return (
-    <nav className="flex h-full w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
+    <nav className="custom-scroll flex w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
       <Link href="/" className="block outline-none ring-0 lg:hidden" onClick={onRouteSelected}>
         <Logo className="my-7 ml-7 w-28 shrink-0" />
       </Link>
