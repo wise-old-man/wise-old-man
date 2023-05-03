@@ -15,13 +15,13 @@ export default function LeaderboardsLayout(props: PropsWithChildren) {
       <h1 className="mb-8 text-h1 font-bold">Leaderboards</h1>
       <Tabs defaultValue={routeSegment}>
         <TabsList>
-          <Link href="/leaderboards/top">
+          <Link href="/leaderboards/top" prefetch={false}>
             <TabsTrigger value="top">Current Top</TabsTrigger>
           </Link>
-          <Link href="/leaderboards/records">
+          <Link href="/leaderboards/records" prefetch={false}>
             <TabsTrigger value="records">Records</TabsTrigger>
           </Link>
-          <Link href="/leaderboards/efficiency">
+          <Link href="/leaderboards/efficiency" prefetch={false}>
             <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
           </Link>
         </TabsList>

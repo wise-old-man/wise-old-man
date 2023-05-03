@@ -125,6 +125,7 @@ function SideBar(props: SideBarProps) {
         {ROUTES.map((link) => (
           <li key={link.href}>
             <Link
+              prefetch={false}
               href={link.href}
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",
