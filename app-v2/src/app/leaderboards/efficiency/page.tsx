@@ -3,6 +3,7 @@ import {
   EfficiencyLeaderboardsFilter,
   Metric,
   MetricProps,
+  PlayerBuildProps,
   formatNumber,
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
@@ -87,7 +88,7 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
           <ListTableRow key={player.username}>
             <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
             <ListTableCell>
-              <PlayerIdentity player={player} />
+              <PlayerIdentity player={player} caption={PlayerBuildProps[player.build].name} />
             </ListTableCell>
             <ListTableCell className="w-5 text-right font-medium">
               {metric === COMBINED_METRIC ? (
