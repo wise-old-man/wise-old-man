@@ -28,7 +28,7 @@ interface LeaderboardsPageProps {
   };
 }
 
-export async function generateMetadata(props: LeaderboardsPageProps) {
+export function generateMetadata(props: LeaderboardsPageProps) {
   const { params, searchParams } = props;
   const { section } = params;
 
@@ -51,39 +51,43 @@ export default async function LeaderboardsPage(props: LeaderboardsPageProps) {
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
-  return (
-    <>
-      {section === "records" ? (
-        <>
+  if (section === "top") {
+    return (
+      <>
+        {/* @ts-expect-error - Server Component  */}
+        <TopLeaderboard period={Period.DAY} filters={filters} />
+        {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+        <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
           {/* @ts-expect-error - Server Component  */}
-          <RecordLeaderboard period={Period.DAY} filters={filters} />
-          {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
-          <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-            {/* @ts-expect-error - Server Component  */}
-            <RecordLeaderboard period={Period.WEEK} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-            {/* @ts-expect-error - Server Component  */}
-            <RecordLeaderboard period={Period.MONTH} filters={filters} />
-          </Suspense>
-        </>
-      ) : (
-        <>
+          <TopLeaderboard period={Period.WEEK} filters={filters} />
+        </Suspense>
+        <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
           {/* @ts-expect-error - Server Component  */}
-          <TopLeaderboard period={Period.DAY} filters={filters} />
-          {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
-          <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-            {/* @ts-expect-error - Server Component  */}
-            <TopLeaderboard period={Period.WEEK} filters={filters} />
-          </Suspense>
-          <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-            {/* @ts-expect-error - Server Component  */}
-            <TopLeaderboard period={Period.MONTH} filters={filters} />
-          </Suspense>
-        </>
-      )}
-    </>
-  );
+          <TopLeaderboard period={Period.MONTH} filters={filters} />
+        </Suspense>
+      </>
+    );
+  }
+
+  if (section === "records") {
+    return (
+      <>
+        {/* @ts-expect-error - Server Component  */}
+        <RecordLeaderboard period={Period.DAY} filters={filters} />
+        {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
+        <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <RecordLeaderboard period={Period.WEEK} filters={filters} />
+        </Suspense>
+        <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
+          {/* @ts-expect-error - Server Component  */}
+          <RecordLeaderboard period={Period.MONTH} filters={filters} />
+        </Suspense>
+      </>
+    );
+  }
+
+  return <>Not yet implemented.</>;
 }
 
 interface LeaderboardProps {
