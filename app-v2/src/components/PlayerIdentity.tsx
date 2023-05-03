@@ -28,7 +28,7 @@ function PlayerIdentity(props: PlayerIdentityProps) {
           <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
             {player.country && (
               <div className="absolute -right-1 bottom-0">
-                <Flag country={player.country} />
+                <Flag country={player.country} className="h-3.5 w-3.5 border-2 border-gray-900" />
               </div>
             )}
             <PlayerTypeIcon playerType={player.type} />
@@ -81,10 +81,16 @@ function PlayerIdentityTooltip(props: PropsWithChildren<{ player: Player }>) {
         {player.country && (
           <div className="flex min-w-[5rem] flex-col px-4 py-3">
             <span className="mb-1 text-xs text-gray-200">Country</span>
-            <div className="flex items-center gap-x-1">
-              <Flag country={player.country} />
+            <a
+              className="flex items-center gap-x-1 hover:underline"
+              href="https://wiseoldman.net/flags"
+              title="How to setup?"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Flag country={player.country} className="h-3 w-3" />
               <span className="line-clamp-1">{CountryProps[player.country].name}</span>
-            </div>
+            </a>
           </div>
         )}
       </div>
@@ -92,7 +98,7 @@ function PlayerIdentityTooltip(props: PropsWithChildren<{ player: Player }>) {
   );
 }
 
-function Flag(props: { country: Country }) {
+function Flag(props: { country: Country; className?: string }) {
   const { code, name } = CountryProps[props.country];
 
   return (
@@ -101,7 +107,7 @@ function Flag(props: { country: Country }) {
       height={14}
       alt={`${name} (${code} Flag)`}
       src={`/img/flags/${code}.svg`}
-      className="h-3.5 w-3.5 overflow-hidden rounded-full border-2 border-gray-900"
+      className={props.className}
     />
   );
 }
