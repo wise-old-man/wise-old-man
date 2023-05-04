@@ -3,7 +3,7 @@
 import { useState, forwardRef, PropsWithChildren } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 import { Button } from "./Button";
 
 import CheckIcon from "~/assets/check.svg";
@@ -16,15 +16,16 @@ const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverContent = forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+>(({ className, align = "start", sideOffset = 4, ...props }, ref) => (
   <PopoverPrimitive.Portal>
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-10 mt-1 min-w-[12rem] overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
+        "z-10 min-w-[12rem] translate-y-1 overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
         "animate-in data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        align !== "center" && "min-w-[--radix-popper-anchor-width]",
         className
       )}
       {...props}
@@ -44,33 +45,6 @@ const Command = forwardRef<
   />
 ));
 Command.displayName = CommandPrimitive.displayName;
-
-const CommandInput = forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-gray-500 pl-3" cmdk-input-wrapper="">
-    <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
-      ref={ref}
-      className={cn(
-        "flex w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-300",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  </div>
-));
-CommandInput.displayName = CommandPrimitive.Input.displayName;
-
-const CommandEmpty = forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Empty>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
->((props, ref) => (
-  <CommandPrimitive.Empty ref={ref} className="p-3 text-center text-sm text-gray-200" {...props} />
-));
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
 
 const CommandGroup = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
@@ -132,8 +106,6 @@ export function Select(props: PopoverPrimitive.PopoverProps & PropsWithChildren)
 }
 
 export const SelectTrigger = PopoverTrigger;
-export const SelectInput = CommandInput;
-export const SelectEmpty = CommandEmpty;
 export const SelectItemGroup = CommandGroup;
 export const SelectItem = CommandItem;
 export const SelectSeparator = CommandSeparator;

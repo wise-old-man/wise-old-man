@@ -1,6 +1,13 @@
 import dynamic from "next/dynamic";
 
-import { ACTIVITIES, BOSSES, MetricProps, PLAYER_TYPES, PlayerTypeProps, SKILLS } from "@wise-old-man/utils";
+import {
+  ACTIVITIES,
+  BOSSES,
+  MetricProps,
+  PLAYER_TYPES,
+  PlayerTypeProps,
+  SKILLS,
+} from "@wise-old-man/utils";
 import { Button } from "~/components/Button";
 
 import {
@@ -29,8 +36,6 @@ import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
   Select,
   SelectContent,
-  SelectEmpty,
-  SelectInput,
   SelectItem,
   SelectItemGroup,
   SelectItemsContainer,
@@ -43,6 +48,17 @@ import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/Togg
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { TestTable } from "./TestTable";
 import { Container } from "~/components/Container";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxItemGroup,
+  ComboboxItemsContainer,
+  ComboboxSeparator,
+  ComboboxTrigger,
+} from "~/components/Combobox";
 
 const BarChartSSR = dynamic(() => import("../components/BarChart"), {
   ssr: false,
@@ -159,9 +175,9 @@ export default function Home() {
         <WarningIcon className="h-5 w-5" />
         <AlertTitle>This player is flagged.</AlertTitle>
         <AlertDescription>
-          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse adipisicing est ex veniam. Nisi
-          Lorem veniam mollit ullamco consequat deserunt commodo. Tempor qui ex magna aute officia qui commodo
-          dolor.
+          Ea sit cillum cupidatat officia. Culpa laboris aute nisi fugiat esse adipisicing est ex veniam.
+          Nisi Lorem veniam mollit ullamco consequat deserunt commodo. Tempor qui ex magna aute officia
+          qui commodo dolor.
         </AlertDescription>
       </Alert>
       <Alert variant="success">
@@ -232,10 +248,10 @@ export default function Home() {
         <h1 className="text-h1 font-bold">H1 title</h1>
         <h2 className="text-h2 font-semibold">H2 subtitle</h2>
         <p className="max-w-prose text-body text-gray-200">
-          Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute sint
-          tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et aliqua ipsum
-          sit laborum sunt ad. Elit velit reprehenderit proident cupidatat non excepteur nostrud eu pariatur
-          consectetur non exercitation.
+          Dolor occaecat id est qui non adipisicing reprehenderit nostrud est voluptate ad sint. Aute
+          sint tempor ut adipisicing exercitation ullamco incididunt labore deserunt. Pariatur quis et
+          aliqua ipsum sit laborum sunt ad. Elit velit reprehenderit proident cupidatat non excepteur
+          nostrud eu pariatur consectetur non exercitation.
         </p>
       </div>
       <div className="flex gap-x-4">
@@ -317,8 +333,8 @@ export default function Home() {
             <Button>Tooltip trigger</Button>
           </TooltipTrigger>
           <TooltipContent align="start">
-            Magna aliqua ea dolore eu minim. Nisi sunt excepteur ea elit aute dolore nisi commodo sunt sint
-            reprehenderit fugiat dolore aliqua.
+            Magna aliqua ea dolore eu minim. Nisi sunt excepteur ea elit aute dolore nisi commodo sunt
+            sint reprehenderit fugiat dolore aliqua.
           </TooltipContent>
         </Tooltip>
       </div>
@@ -331,9 +347,7 @@ export default function Home() {
           <SelectTrigger asChild>
             <Button variant="blue">Open select menu</Button>
           </SelectTrigger>
-          <SelectContent align="start">
-            <SelectInput placeholder="Search metrics..." />
-            <SelectEmpty>No results were found</SelectEmpty>
+          <SelectContent>
             <SelectItemsContainer>
               <SelectItemGroup label="Skills">
                 {SKILLS.map((skill) => (
@@ -366,6 +380,45 @@ export default function Home() {
         </Select>
       </div>
       <div>
+        <Combobox>
+          <ComboboxTrigger asChild>
+            <Button variant="blue">Open Combobox menu</Button>
+          </ComboboxTrigger>
+          <ComboboxContent>
+            <ComboboxInput placeholder="Search metrics..." />
+            <ComboboxEmpty>No results were found</ComboboxEmpty>
+            <ComboboxItemsContainer>
+              <ComboboxItemGroup label="Skills">
+                {SKILLS.map((skill) => (
+                  <ComboboxItem key={skill} value={skill}>
+                    <img src={`/img/metrics_small/${skill}.png`} />
+                    {MetricProps[skill].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Bosses">
+                {BOSSES.map((boss) => (
+                  <ComboboxItem key={boss} value={boss}>
+                    <img src={`/img/metrics_small/${boss}.png`} />
+                    {MetricProps[boss].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Activities">
+                {ACTIVITIES.map((activity) => (
+                  <ComboboxItem key={activity} value={activity}>
+                    <img src={`/img/metrics_small/${activity}.png`} />
+                    {MetricProps[activity].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+            </ComboboxItemsContainer>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+      <div>
         <Select>
           <SelectTrigger asChild>
             <Button className="w-auto font-normal text-gray-100">
@@ -387,7 +440,7 @@ export default function Home() {
           </SelectContent>
         </Select>
       </div>
-      <div className="h-[20rem] w-full" />
+      <div className="h-80 w-full" />
       Home!
     </Container>
   );

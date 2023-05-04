@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Fragment } from "react";
+import { usePathname } from "next/navigation";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import Logo from "~/assets/logo.svg";
@@ -94,7 +94,7 @@ function SideNavigation(props: SideNavigationProps) {
                 >
                   <div className="flex h-full w-full items-start">
                     <SideBar currentRouteHref={currentRoute?.href} onRouteSelected={onSidebarClosed} />
-                    <button className="ml-4 mt-4" onClick={onSidebarClosed}>
+                    <button className="ml-4 mt-6" onClick={onSidebarClosed}>
                       <CloseIcon className="h-6 w-6" />
                     </button>
                   </div>
@@ -117,14 +117,15 @@ function SideBar(props: SideBarProps) {
   const { currentRouteHref, onRouteSelected } = props;
 
   return (
-    <nav className="custom-scroll flex w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
+    <nav className="custom-scroll flex h-full w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
       <Link href="/" className="block outline-none ring-0 lg:hidden" onClick={onRouteSelected}>
         <Logo className="my-7 ml-7 w-28 shrink-0" />
       </Link>
-      <ul className="mt-4 flex flex-col">
+      <ul className="mt-0 flex flex-col lg:mt-4">
         {ROUTES.map((link) => (
           <li key={link.href}>
             <Link
+              prefetch={false}
               href={link.href}
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",

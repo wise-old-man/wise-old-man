@@ -22,16 +22,16 @@ function Navigation(props: PropsWithChildren) {
           className="hidden outline-none ring-0 lg:block"
           onClick={() => setSidebarOpen(false)}
         >
-          <Logo className="h-[3rem] shrink-0" />
+          <Logo className="h-12 shrink-0" />
         </Link>
         <button onClick={() => setSidebarOpen(true)} className="block p-1 lg:hidden">
           <MenuIcon className="h-6 w-6 text-white" />
         </button>
-        <div className="absolute left-64 right-0">
+        <div className="absolute left-20 right-0 lg:left-64">
           <div className="mx-auto flex w-full max-w-7xl justify-end px-8 md:px-12">
             <Input
               leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
-              containerClassName="max-w-xs w-full"
+              containerClassName="w-full max-w-xs"
               className="border-gray-600"
               placeholder="Search..."
             />

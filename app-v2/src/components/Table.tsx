@@ -1,5 +1,5 @@
 import { PropsWithChildren, forwardRef } from "react";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 import { TableSortingDirection } from "~/hooks/useTableSorting";

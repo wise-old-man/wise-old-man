@@ -1,6 +1,6 @@
 import * as React from "react";
 import { VariantProps, cva } from "class-variance-authority";
-import { cn } from "~/utils";
+import { cn } from "~/utils/styling";
 
 const buttonVariants = cva(
   "relative inline-flex gap-x-2 items-center justify-between duration-75 font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-button",

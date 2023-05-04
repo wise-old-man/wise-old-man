@@ -4,6 +4,7 @@ import {
   Player,
   PlayerBuild,
   PlayerBuildProps,
+  PlayerStatus,
   PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
@@ -11,7 +12,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { timeago } from "~/utils/dates";
+import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
+
+import WarningIcon from "~/assets/warning.svg";
 
 interface PlayerIdentityProps {
   player: Player;
@@ -25,18 +29,28 @@ function PlayerIdentity(props: PlayerIdentityProps) {
     <Tooltip delayDuration={700}>
       <div className="flex items-center text-sm text-white">
         <TooltipTrigger asChild>
-          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
+          <div
+            className={cn(
+              "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50",
+              player.status === PlayerStatus.ARCHIVED && "border-red-500"
+            )}
+          >
             {player.country && (
               <div className="absolute -right-1 bottom-0">
                 <Flag country={player.country} className="h-3.5 w-3.5 border-2 border-gray-900" />
               </div>
             )}
-            <PlayerTypeIcon playerType={player.type} />
+            {player.status === PlayerStatus.ARCHIVED ? (
+              <WarningIcon className="h-3 w-3 text-red-500" />
+            ) : (
+              <PlayerTypeIcon playerType={player.type} />
+            )}
           </div>
         </TooltipTrigger>
         <div className="ml-2 flex flex-col">
           <TooltipTrigger asChild>
             <Link
+              prefetch={false}
               href={`/players/${player.username}`}
               className="line-clamp-1 text-sm font-medium hover:underline"
             >
@@ -63,6 +77,11 @@ function PlayerIdentityTooltip(props: PropsWithChildren<{ player: Player }>) {
       <div className="flex flex-col rounded-t-lg border-b border-gray-500 px-4 py-3">
         <span>{player.displayName}</span>
         <span className="text-xs text-gray-200">{updatedTimeago}</span>
+        {player.status === PlayerStatus.ARCHIVED && (
+          <span className="mt-4 text-xs text-red-300">
+            This player is archived. Visit their profile for more information.
+          </span>
+        )}
       </div>
       <div className="flex divide-x divide-gray-500">
         <div className="flex min-w-[5rem] flex-col px-4 py-3">
