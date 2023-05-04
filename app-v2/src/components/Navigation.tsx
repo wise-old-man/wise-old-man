@@ -22,7 +22,7 @@ function Navigation(props: PropsWithChildren) {
           className="hidden outline-none ring-0 lg:block"
           onClick={() => setSidebarOpen(false)}
         >
-          <Logo className="h-[3rem] shrink-0" />
+          <Logo className="h-12 shrink-0" />
         </Link>
         <button onClick={() => setSidebarOpen(true)} className="block p-1 lg:hidden">
           <MenuIcon className="h-6 w-6 text-white" />

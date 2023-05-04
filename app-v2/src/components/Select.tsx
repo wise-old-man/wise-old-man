@@ -16,15 +16,16 @@ const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverContent = forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+>(({ className, align = "start", sideOffset = 4, ...props }, ref) => (
   <PopoverPrimitive.Portal>
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-10 mt-1 min-w-[12rem] overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
+        "z-10 min-w-[12rem] translate-y-1 overflow-hidden rounded-md border border-gray-500 bg-gray-700 shadow-md outline-none",
         "animate-in data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        align !== "center" && "min-w-[--radix-popper-anchor-width]",
         className
       )}
       {...props}

@@ -19,7 +19,6 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
-  isComputedMetric,
 } from "@wise-old-man/utils";
 import {
   Select,
@@ -127,7 +126,7 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
           )}
         </div>
       </SelectButton>
-      <SelectContent align="end" className="w-[16rem]">
+      <SelectContent className="w-64">
         <SelectItemsContainer>
           <SelectItemGroup>
             {COMPUTED_METRICS.map((computed) => (
@@ -172,7 +171,7 @@ function MetricSelect(props: MetricSelectProps) {
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
       </SelectButton>
-      <SelectContent align="end" className="w-[16rem]">
+      <SelectContent className="w-64">
         <SelectInput placeholder="Search metrics..." />
         <SelectEmpty>No results were found</SelectEmpty>
         <SelectItemsContainer>
@@ -252,7 +251,7 @@ function PlayerTypeSelect(props: PlayerTypeSelectProps) {
           {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
         </div>
       </SelectButton>
-      <SelectContent align="end">
+      <SelectContent>
         <SelectItemsContainer>
           <SelectItemGroup label="Player Type">
             <SelectItem selected={!playerType} onSelect={() => onPlayerTypeSelected(undefined)}>
@@ -291,7 +290,7 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
           {playerBuild ? PlayerBuildProps[playerBuild].name : "Player Build"}
         </div>
       </SelectButton>
-      <SelectContent align="end">
+      <SelectContent>
         <SelectItemsContainer>
           <SelectItemGroup label="Player Build">
             <SelectItem selected={!playerBuild} onSelect={() => onPlayerBuildSelected(undefined)}>
@@ -332,7 +331,7 @@ function CountrySelect(props: CountrySelectProps) {
           </span>
         </div>
       </SelectButton>
-      <SelectContent align="end" className="w-[20rem]">
+      <SelectContent className="w-80" align="end">
         <SelectInput placeholder="Search countries..." />
         <SelectEmpty>No results were found</SelectEmpty>
         <SelectItemsContainer>
