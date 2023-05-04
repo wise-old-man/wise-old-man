@@ -76,11 +76,6 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
     ...filters,
   });
 
-  console.log({
-    metric: metric === COMBINED_METRIC ? "ehp+ehb" : metric,
-    ...filters,
-  });
-
   return (
     <div className="col-span-3 mx-auto w-full max-w-lg">
       {data.length === 0 ? (
