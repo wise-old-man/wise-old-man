@@ -36,8 +36,6 @@ import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
   Select,
   SelectContent,
-  SelectEmpty,
-  SelectInput,
   SelectItem,
   SelectItemGroup,
   SelectItemsContainer,
@@ -50,6 +48,17 @@ import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/Togg
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { TestTable } from "./TestTable";
 import { Container } from "~/components/Container";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxItemGroup,
+  ComboboxItemsContainer,
+  ComboboxSeparator,
+  ComboboxTrigger,
+} from "~/components/Combobox";
 
 const BarChartSSR = dynamic(() => import("../components/BarChart"), {
   ssr: false,
@@ -339,8 +348,6 @@ export default function Home() {
             <Button variant="blue">Open select menu</Button>
           </SelectTrigger>
           <SelectContent>
-            <SelectInput placeholder="Search metrics..." />
-            <SelectEmpty>No results were found</SelectEmpty>
             <SelectItemsContainer>
               <SelectItemGroup label="Skills">
                 {SKILLS.map((skill) => (
@@ -371,6 +378,45 @@ export default function Home() {
             </SelectItemsContainer>
           </SelectContent>
         </Select>
+      </div>
+      <div>
+        <Combobox>
+          <ComboboxTrigger asChild>
+            <Button variant="blue">Open Combobox menu</Button>
+          </ComboboxTrigger>
+          <ComboboxContent>
+            <ComboboxInput placeholder="Search metrics..." />
+            <ComboboxEmpty>No results were found</ComboboxEmpty>
+            <ComboboxItemsContainer>
+              <ComboboxItemGroup label="Skills">
+                {SKILLS.map((skill) => (
+                  <ComboboxItem key={skill} value={skill}>
+                    <img src={`/img/metrics_small/${skill}.png`} />
+                    {MetricProps[skill].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Bosses">
+                {BOSSES.map((boss) => (
+                  <ComboboxItem key={boss} value={boss}>
+                    <img src={`/img/metrics_small/${boss}.png`} />
+                    {MetricProps[boss].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Activities">
+                {ACTIVITIES.map((activity) => (
+                  <ComboboxItem key={activity} value={activity}>
+                    <img src={`/img/metrics_small/${activity}.png`} />
+                    {MetricProps[activity].name}
+                  </ComboboxItem>
+                ))}
+              </ComboboxItemGroup>
+            </ComboboxItemsContainer>
+          </ComboboxContent>
+        </Combobox>
       </div>
       <div>
         <Select>

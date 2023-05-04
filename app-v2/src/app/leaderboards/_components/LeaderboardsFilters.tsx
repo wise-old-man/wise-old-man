@@ -19,18 +19,28 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
+  isCountry,
+  isMetric,
 } from "@wise-old-man/utils";
 import {
   Select,
   SelectButton,
   SelectContent,
-  SelectEmpty,
-  SelectInput,
   SelectItem,
   SelectItemGroup,
   SelectItemsContainer,
-  SelectSeparator,
 } from "~/components/Select";
+import {
+  Combobox,
+  ComboboxButton,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxItemGroup,
+  ComboboxItemsContainer,
+  ComboboxSeparator,
+} from "~/components/Combobox";
 import { cn } from "~/utils/styling";
 import {
   getComputedMetricParam,
@@ -164,74 +174,59 @@ function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
   return (
-    <Select>
-      <SelectButton className="w-full">
+    <Combobox
+      value={metric}
+      onValueChanged={(value) => {
+        if (isMetric(value)) onMetricSelected(value);
+      }}
+    >
+      <ComboboxButton>
         <div className="flex items-center gap-x-2">
           <MetricIcon metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
-      </SelectButton>
-      <SelectContent className="w-64">
-        <SelectInput placeholder="Search metrics..." />
-        <SelectEmpty>No results were found</SelectEmpty>
-        <SelectItemsContainer>
-          <SelectItemGroup label="Skills">
+      </ComboboxButton>
+      <ComboboxContent>
+        <ComboboxInput placeholder="Search metrics..." />
+        <ComboboxEmpty>No results were found</ComboboxEmpty>
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup label="Skills">
             {SKILLS.map((skill) => (
-              <SelectItem
-                key={skill}
-                value={MetricProps[skill].name}
-                selected={skill === metric}
-                onSelect={() => onMetricSelected(skill)}
-              >
+              <ComboboxItem key={skill} value={skill}>
                 <MetricIcon metric={skill} />
                 {MetricProps[skill].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-          <SelectSeparator />
-          <SelectItemGroup label="Bosses">
+          </ComboboxItemGroup>
+          <ComboboxSeparator />
+          <ComboboxItemGroup label="Bosses">
             {BOSSES.map((boss) => (
-              <SelectItem
-                key={boss}
-                value={MetricProps[boss].name}
-                selected={boss === metric}
-                onSelect={() => onMetricSelected(boss)}
-              >
+              <ComboboxItem key={boss} value={boss}>
                 <MetricIcon metric={boss} />
                 {MetricProps[boss].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-          <SelectSeparator />
-          <SelectItemGroup label="Activities">
+          </ComboboxItemGroup>
+          <ComboboxSeparator />
+          <ComboboxItemGroup label="Activities">
             {ACTIVITIES.map((activity) => (
-              <SelectItem
-                key={activity}
-                value={MetricProps[activity].name}
-                selected={activity === metric}
-                onSelect={() => onMetricSelected(activity)}
-              >
+              <ComboboxItem key={activity} value={activity}>
                 <MetricIcon metric={activity} />
                 {MetricProps[activity].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-          <SelectItemGroup label="Computed">
+          </ComboboxItemGroup>
+          <ComboboxItemGroup label="Computed">
             {COMPUTED_METRICS.map((computed) => (
-              <SelectItem
-                key={computed}
-                value={MetricProps[computed].name}
-                selected={computed === metric}
-                onSelect={() => onMetricSelected(computed)}
-              >
+              <ComboboxItem key={computed} value={computed}>
                 <MetricIcon metric={computed} />
                 {MetricProps[computed].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-        </SelectItemsContainer>
-      </SelectContent>
-    </Select>
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -322,38 +317,37 @@ function CountrySelect(props: CountrySelectProps) {
   const { country, onCountrySelected } = props;
 
   return (
-    <Select>
-      <SelectButton className="w-full">
+    <Combobox
+      value={country}
+      onValueChanged={(val) => {
+        const [code] = val.split("_");
+        if (code && isCountry(code)) onCountrySelected(code);
+      }}
+    >
+      <ComboboxButton>
         <div className={cn("flex items-center gap-x-2", !country && "text-gray-300")}>
           {country && <CountryIcon country={country} />}
           <span className="line-clamp-1 text-left">
             {country ? CountryProps[country].name : "Country"}
           </span>
         </div>
-      </SelectButton>
-      <SelectContent className="w-80" align="end">
-        <SelectInput placeholder="Search countries..." />
-        <SelectEmpty>No results were found</SelectEmpty>
-        <SelectItemsContainer>
-          <SelectItemGroup label="Countries">
-            <SelectItem selected={!country} onSelect={() => onCountrySelected(undefined)}>
-              Any country
-            </SelectItem>
+      </ComboboxButton>
+      <ComboboxContent className="w-80" align="end">
+        <ComboboxInput placeholder="Search countries..." />
+        <ComboboxEmpty>No results were found</ComboboxEmpty>
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup label="Countries">
+            <ComboboxItem>Any country</ComboboxItem>
             {COUNTRY_CODES.map((c) => (
-              <SelectItem
-                key={c}
-                value={CountryProps[c].name}
-                selected={c === country}
-                onSelect={() => onCountrySelected(c)}
-              >
+              <ComboboxItem key={c} value={`${c}_${CountryProps[c].name}`}>
                 <CountryIcon country={c} />
                 <span className="line-clamp-1">{CountryProps[c].name}</span>
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-        </SelectItemsContainer>
-      </SelectContent>
-    </Select>
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 

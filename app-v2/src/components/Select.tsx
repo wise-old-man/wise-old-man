@@ -46,33 +46,6 @@ const Command = forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-const CommandInput = forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-gray-500 pl-3" cmdk-input-wrapper="">
-    <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
-      ref={ref}
-      className={cn(
-        "flex w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-gray-300",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  </div>
-));
-CommandInput.displayName = CommandPrimitive.Input.displayName;
-
-const CommandEmpty = forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Empty>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
->((props, ref) => (
-  <CommandPrimitive.Empty ref={ref} className="p-3 text-center text-sm text-gray-200" {...props} />
-));
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
-
 const CommandGroup = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group> & { label?: string }
@@ -133,8 +106,6 @@ export function Select(props: PopoverPrimitive.PopoverProps & PropsWithChildren)
 }
 
 export const SelectTrigger = PopoverTrigger;
-export const SelectInput = CommandInput;
-export const SelectEmpty = CommandEmpty;
 export const SelectItemGroup = CommandGroup;
 export const SelectItem = CommandItem;
 export const SelectSeparator = CommandSeparator;
