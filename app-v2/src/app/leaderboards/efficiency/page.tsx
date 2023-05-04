@@ -83,32 +83,38 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
 
   return (
     <div className="col-span-3 mx-auto w-full max-w-lg">
-      <ListTable>
-        {data.map((player, index) => (
-          <ListTableRow key={player.username}>
-            <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-            <ListTableCell>
-              <PlayerIdentity player={player} caption={PlayerBuildProps[player.build].name} />
-            </ListTableCell>
-            <ListTableCell className="w-5 text-right font-medium">
-              {metric === COMBINED_METRIC ? (
-                <>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>{formatNumber(player.ehp + player.ehb)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent align="start">
-                      {formatNumber(player.ehp)} EHP + {formatNumber(player.ehb)} EHB
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              ) : (
-                <>{metric === Metric.EHP ? formatNumber(player.ehp) : formatNumber(player.ehb)}</>
-              )}
-            </ListTableCell>
-          </ListTableRow>
-        ))}
-      </ListTable>
+      {data.length === 0 ? (
+        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
+          No results were found
+        </div>
+      ) : (
+        <ListTable>
+          {data.map((player, index) => (
+            <ListTableRow key={player.username}>
+              <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
+              <ListTableCell>
+                <PlayerIdentity player={player} caption={PlayerBuildProps[player.build].name} />
+              </ListTableCell>
+              <ListTableCell className="w-5 text-right font-medium">
+                {metric === COMBINED_METRIC ? (
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>{formatNumber(player.ehp + player.ehb)}</span>
+                      </TooltipTrigger>
+                      <TooltipContent align="start">
+                        {formatNumber(player.ehp)} EHP + {formatNumber(player.ehb)} EHB
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                ) : (
+                  <>{metric === Metric.EHP ? formatNumber(player.ehp) : formatNumber(player.ehb)}</>
+                )}
+              </ListTableCell>
+            </ListTableRow>
+          ))}
+        </ListTable>
+      )}
     </div>
   );
 }
