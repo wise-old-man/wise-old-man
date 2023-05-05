@@ -107,7 +107,13 @@ const CommandItem = forwardRef<
   return (
     <CommandPrimitive.Item
       ref={ref}
-      onSelect={() => onItemSelected(props.value || "")}
+      onSelect={() => {
+        if (selectedValue === props.value) {
+          onItemSelected("");
+        } else {
+          onItemSelected(props.value || "");
+        }
+      }}
       className={cn(
         "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",

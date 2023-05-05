@@ -26,9 +26,7 @@ export default function LeaderboardsLayout(props: PropsWithChildren) {
           </Link>
         </TabsList>
       </Tabs>
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-        <LeaderboardsFilters />
-      </div>
+      <LeaderboardsFilters />
       <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
         {children}
       </div>

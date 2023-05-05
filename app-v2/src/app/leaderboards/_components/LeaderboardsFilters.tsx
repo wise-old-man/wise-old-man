@@ -49,11 +49,14 @@ import {
   getPlayerBuildParam,
   getPlayerTypeParam,
 } from "~/utils/params";
+import { useTransition } from "react";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [isPending, startTransition] = useTransition();
 
   const isEfficiencyLeaderboard = pathname.includes("efficiency");
 
@@ -74,11 +77,18 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.push(`${pathname}?${nextParams.toString()}`);
+    startTransition(() => {
+      router.push(`${pathname}?${nextParams.toString()}`);
+    });
   }
 
   return (
-    <>
+    <div
+      className={cn(
+        "mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4",
+        isPending && "pointer-events-none opacity-50"
+      )}
+    >
       {isEfficiencyLeaderboard ? (
         <ComputedMetricSelect
           key={computedMetric}
@@ -107,7 +117,7 @@ export function LeaderboardsFilters() {
         country={country}
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
-    </>
+    </div>
   );
 }
 
@@ -320,6 +330,8 @@ function CountrySelect(props: CountrySelectProps) {
     <Combobox
       value={country}
       onValueChanged={(val) => {
+        if (!val) return onCountrySelected(undefined);
+
         const [code] = val.split("_");
         if (code && isCountry(code)) onCountrySelected(code);
       }}
