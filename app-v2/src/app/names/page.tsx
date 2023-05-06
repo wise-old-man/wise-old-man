@@ -60,39 +60,41 @@ export default async function NameChangesPage(props: PageProps) {
           No results were found
         </div>
       ) : (
-        <ListTable>
-          {data.map((nameChange) => (
-            <ListTableRow key={nameChange.id}>
-              <ListTableCell>{nameChange.id}</ListTableCell>
-              <ListTableCell className="py-4 text-sm font-medium text-white">
-                {nameChange.oldName}
-              </ListTableCell>
-              <ListTableCell>
-                <ArrowRightIcon className="h-4 w-4 text-white" />
-              </ListTableCell>
-              <ListTableCell className="text-sm font-medium text-white">
-                {nameChange.newName}
-              </ListTableCell>
-              <ListTableCell>
-                <Tooltip>
-                  <TooltipTrigger>Submitted {timeago.format(nameChange.createdAt)}</TooltipTrigger>
-                  <TooltipContent>{formatDate(nameChange.createdAt)}</TooltipContent>
-                </Tooltip>
-              </ListTableCell>
-              <ListTableCell>
-                {nameChange.resolvedAt && (
+        <div className="overflow-x-auto">
+          <ListTable>
+            {data.map((nameChange) => (
+              <ListTableRow key={nameChange.id}>
+                <ListTableCell>{nameChange.id}</ListTableCell>
+                <ListTableCell className="py-4 text-sm font-medium text-white">
+                  {nameChange.oldName}
+                </ListTableCell>
+                <ListTableCell>
+                  <ArrowRightIcon className="h-4 w-4 text-white" />
+                </ListTableCell>
+                <ListTableCell className="text-sm font-medium text-white">
+                  {nameChange.newName}
+                </ListTableCell>
+                <ListTableCell>
                   <Tooltip>
-                    <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
-                    <TooltipContent>{formatDate(nameChange.resolvedAt)}</TooltipContent>
+                    <TooltipTrigger>Submitted {timeago.format(nameChange.createdAt)}</TooltipTrigger>
+                    <TooltipContent>{formatDate(nameChange.createdAt)}</TooltipContent>
                   </Tooltip>
-                )}
-              </ListTableCell>
-              <ListTableCell>
-                <StatusBadge status={nameChange.status} />
-              </ListTableCell>
-            </ListTableRow>
-          ))}
-        </ListTable>
+                </ListTableCell>
+                <ListTableCell>
+                  {nameChange.resolvedAt && (
+                    <Tooltip>
+                      <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
+                      <TooltipContent>{formatDate(nameChange.resolvedAt)}</TooltipContent>
+                    </Tooltip>
+                  )}
+                </ListTableCell>
+                <ListTableCell>
+                  <StatusBadge status={nameChange.status} />
+                </ListTableCell>
+              </ListTableRow>
+            ))}
+          </ListTable>
+        </div>
       )}
       <div className="mt-2">
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />

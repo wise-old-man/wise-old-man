@@ -35,7 +35,7 @@ export function Pagination(props: PaginationProps) {
   }
 
   return (
-    <div className="flex justify-end">
+    <div className="flex justify-center lg:justify-end">
       <nav
         aria-label="Pagination"
         className="flex justify-center -space-x-px rounded-md bg-gray-800 shadow-button"

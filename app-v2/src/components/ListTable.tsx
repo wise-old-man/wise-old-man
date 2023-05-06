@@ -3,7 +3,7 @@ import { cn } from "~/utils/styling";
 
 function ListTable(props: PropsWithChildren) {
   return (
-    <table className="w-full border-separate border-spacing-y-2">
+    <table className="w-full border-separate border-spacing-y-2 whitespace-nowrap">
       <tbody>{props.children}</tbody>
     </table>
   );
