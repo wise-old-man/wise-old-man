@@ -1,5 +1,6 @@
 import { NameChange, NameChangeStatus } from "@wise-old-man/utils";
 import { Badge } from "~/components/Badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { apiClient } from "~/utils/api";
 import { timeago } from "~/utils/dates";
@@ -58,8 +59,20 @@ export default async function NameChangesPage(props: PageProps) {
             <ArrowRightIcon className="h-4 w-4 text-white" />
           </ListTableCell>
           <ListTableCell className="text-sm font-medium text-white">{nameChange.newName}</ListTableCell>
-          <ListTableCell>Submitted {timeago.format(nameChange.createdAt)}</ListTableCell>
-          <ListTableCell>{getResolvedTimeago(nameChange)}</ListTableCell>
+          <ListTableCell>
+            <Tooltip>
+              <TooltipTrigger>Submitted {timeago.format(nameChange.createdAt)}</TooltipTrigger>
+              <TooltipContent>{formatDate(nameChange.createdAt)}</TooltipContent>
+            </Tooltip>
+          </ListTableCell>
+          <ListTableCell>
+            {nameChange.resolvedAt && (
+              <Tooltip>
+                <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
+                <TooltipContent>{formatDate(nameChange.resolvedAt)}</TooltipContent>
+              </Tooltip>
+            )}
+          </ListTableCell>
           <ListTableCell>
             <StatusBadge status={nameChange.status} />
           </ListTableCell>
@@ -90,4 +103,15 @@ function getResolvedTimeago(nameChange: NameChange) {
   }
 
   return "";
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleString(undefined, {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
