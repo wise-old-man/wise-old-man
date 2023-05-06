@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
-import { NameChangesFilters } from "./_components/NameChangesFilters";
+import { NameChangesFilters } from "~/components/names/NameChangesFilters";
 
 export default function NameChangesLayout(props: PropsWithChildren) {
   const { children } = props;

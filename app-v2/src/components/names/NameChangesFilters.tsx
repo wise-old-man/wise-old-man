@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { NameChangeStatus } from "@wise-old-man/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Input } from "~/components/Input";
 import useDebounceCallback from "~/hooks/useDebounceCallback";
 import { getNameChangeStatusParam, getSearchParam } from "~/utils/params";
-import { cn } from "~/utils/styling";
 import { capitalize } from "~/utils/strings";
-
-import SearchIcon from "~/assets/search.svg";
+import { cn } from "~/utils/styling";
 import {
   Combobox,
   ComboboxButton,
@@ -18,6 +16,7 @@ import {
   ComboboxItemGroup,
   ComboboxItemsContainer,
 } from "~/components/Combobox";
+import SearchIcon from "~/assets/search.svg";
 
 export function NameChangesFilters() {
   const router = useRouter();
