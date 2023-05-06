@@ -12,10 +12,8 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const RESULTS_PER_PAGE = 20;
 
-export const dynamic = "force-dynamic";
-// I do the revalidate 0 here because "force-dynamic" doesn't actually work
-// See: https://github.com/vercel/next.js/issues/47273
 export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: {
@@ -52,7 +50,7 @@ export default async function NameChangesPage(props: PageProps) {
 
   const data = await apiClient.nameChanges.searchNameChanges(
     { username: search, status },
-    { limit: RESULTS_PER_PAGE, offset: page * RESULTS_PER_PAGE }
+    { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
 
   return (

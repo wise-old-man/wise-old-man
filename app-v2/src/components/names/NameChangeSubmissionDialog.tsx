@@ -65,6 +65,7 @@ function SubmitNameChangeForm() {
         });
 
         router.back();
+        router.refresh();
       },
       onError: (error) => {
         if (error instanceof Error) {
