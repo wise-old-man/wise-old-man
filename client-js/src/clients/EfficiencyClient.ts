@@ -17,7 +17,10 @@ export default class EfficiencyClient extends BaseAPIClient {
    * @returns A list of skilling methods and their bonus exp ratios.
    */
   getEHPRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
-    return this.getRequest<SkillMetaConfig>('/efficiency/rates', { metric: Metric.EHP, type: algorithmType });
+    return this.getRequest<SkillMetaConfig[]>('/efficiency/rates', {
+      metric: Metric.EHP,
+      type: algorithmType
+    });
   }
 
   /**
