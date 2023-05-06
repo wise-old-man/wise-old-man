@@ -3,9 +3,6 @@
 const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withSvgr({
-  experimental: {
-    appDir: true,
-  },
   images: {
     domains: ["wiseoldman.net"],
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
@@ -19,17 +20,12 @@ import {
   PlayerType,
   PlayerTypeProps,
   SKILLS,
+  isComputedMetric,
   isCountry,
   isMetric,
+  isPlayerBuild,
+  isPlayerType,
 } from "@wise-old-man/utils";
-import {
-  Select,
-  SelectButton,
-  SelectContent,
-  SelectItem,
-  SelectItemGroup,
-  SelectItemsContainer,
-} from "~/components/Select";
 import {
   Combobox,
   ComboboxButton,
@@ -55,6 +51,8 @@ export function LeaderboardsFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [isPending, startTransition] = useTransition();
+
   const isEfficiencyLeaderboard = pathname.includes("efficiency");
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
@@ -74,11 +72,18 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.push(`${pathname}?${nextParams.toString()}`);
+    startTransition(() => {
+      router.push(`${pathname}?${nextParams.toString()}`);
+    });
   }
 
   return (
-    <>
+    <div
+      className={cn(
+        "mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4",
+        isPending && "pointer-events-none opacity-50"
+      )}
+    >
       {isEfficiencyLeaderboard ? (
         <ComputedMetricSelect
           key={computedMetric}
@@ -107,7 +112,7 @@ export function LeaderboardsFilters() {
         country={country}
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
-    </>
+    </div>
   );
 }
 
@@ -120,8 +125,17 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
   return (
-    <Select>
-      <SelectButton className="w-full">
+    <Combobox
+      value={metric}
+      onValueChanged={(val) => {
+        if (val === undefined) {
+          onMetricSelected(Metric.EHP);
+        } else if (val === "combined" || isComputedMetric(val)) {
+          onMetricSelected(val);
+        }
+      }}
+    >
+      <ComboboxButton className="w-full">
         <div className="flex items-center gap-x-2">
           {metric === "combined" ? (
             <>
@@ -135,33 +149,24 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
             </>
           )}
         </div>
-      </SelectButton>
-      <SelectContent className="w-64">
-        <SelectItemsContainer>
-          <SelectItemGroup>
+      </ComboboxButton>
+      <ComboboxContent className="w-64">
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup>
             {COMPUTED_METRICS.map((computed) => (
-              <SelectItem
-                key={computed}
-                value={MetricProps[computed].name}
-                selected={computed === metric}
-                onSelect={() => onMetricSelected(computed)}
-              >
+              <ComboboxItem key={computed} value={computed}>
                 <MetricIcon metric={computed} />
                 {MetricProps[computed].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-            <SelectItem
-              value="combined"
-              selected={metric === "combined"}
-              onSelect={() => onMetricSelected("combined")}
-            >
+            <ComboboxItem value="combined">
               <MetricIcon metric="ehp+ehb" />
               EHP + EHB
-            </SelectItem>
-          </SelectItemGroup>
-        </SelectItemsContainer>
-      </SelectContent>
-    </Select>
+            </ComboboxItem>
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -176,8 +181,12 @@ function MetricSelect(props: MetricSelectProps) {
   return (
     <Combobox
       value={metric}
-      onValueChanged={(value) => {
-        if (isMetric(value)) onMetricSelected(value);
+      onValueChanged={(val) => {
+        if (val === undefined) {
+          onMetricSelected(Metric.OVERALL);
+        } else if (isMetric(val)) {
+          onMetricSelected(val);
+        }
       }}
     >
       <ComboboxButton>
@@ -236,37 +245,36 @@ interface PlayerTypeSelectProps {
 }
 
 function PlayerTypeSelect(props: PlayerTypeSelectProps) {
-  const { onPlayerTypeSelected, playerType } = props;
+  const { playerType, onPlayerTypeSelected } = props;
 
   return (
-    <Select>
-      <SelectButton className="w-full">
+    <Combobox
+      value={playerType}
+      onValueChanged={(val) => {
+        if (val === undefined || isPlayerType(val)) {
+          onPlayerTypeSelected(val);
+        }
+      }}
+    >
+      <ComboboxButton className="w-full">
         <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-300")}>
           {playerType && <PlayerTypeIcon playerType={playerType} />}
           {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
         </div>
-      </SelectButton>
-      <SelectContent>
-        <SelectItemsContainer>
-          <SelectItemGroup label="Player Type">
-            <SelectItem selected={!playerType} onSelect={() => onPlayerTypeSelected(undefined)}>
-              Any player type
-            </SelectItem>
+      </ComboboxButton>
+      <ComboboxContent>
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup label="Player Type">
             {PLAYER_TYPES.filter((type) => type !== PlayerType.UNKNOWN).map((t) => (
-              <SelectItem
-                key={t}
-                value={t}
-                selected={t === playerType}
-                onSelect={() => onPlayerTypeSelected(t)}
-              >
+              <ComboboxItem key={t} value={t}>
                 <PlayerTypeIcon playerType={t} />
                 {PlayerTypeProps[t].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-        </SelectItemsContainer>
-      </SelectContent>
-    </Select>
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -276,35 +284,35 @@ interface PlayerBuildSelectProps {
 }
 
 function PlayerBuildSelect(props: PlayerBuildSelectProps) {
-  const { onPlayerBuildSelected, playerBuild } = props;
+  const { playerBuild, onPlayerBuildSelected } = props;
 
   return (
-    <Select>
-      <SelectButton className="w-full">
+    <Combobox
+      value={playerBuild}
+      onValueChanged={(val) => {
+        if (val === undefined || isPlayerBuild(val)) {
+          onPlayerBuildSelected(val);
+        }
+      }}
+    >
+      <ComboboxButton className="w-full">
         <div className={cn("flex items-center gap-x-2", !playerBuild && "text-gray-300")}>
           {playerBuild ? PlayerBuildProps[playerBuild].name : "Player Build"}
         </div>
-      </SelectButton>
-      <SelectContent>
-        <SelectItemsContainer>
-          <SelectItemGroup label="Player Build">
-            <SelectItem selected={!playerBuild} onSelect={() => onPlayerBuildSelected(undefined)}>
-              Any player Build
-            </SelectItem>
+      </ComboboxButton>
+      <ComboboxContent>
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup label="Player Build">
+            <ComboboxItem>Any player Build</ComboboxItem>
             {PLAYER_BUILDS.map((b) => (
-              <SelectItem
-                key={b}
-                value={b}
-                selected={b === playerBuild}
-                onSelect={() => onPlayerBuildSelected(b)}
-              >
+              <ComboboxItem key={b} value={b}>
                 {PlayerBuildProps[b].name}
-              </SelectItem>
+              </ComboboxItem>
             ))}
-          </SelectItemGroup>
-        </SelectItemsContainer>
-      </SelectContent>
-    </Select>
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
@@ -320,6 +328,8 @@ function CountrySelect(props: CountrySelectProps) {
     <Combobox
       value={country}
       onValueChanged={(val) => {
+        if (!val) return onCountrySelected(undefined);
+
         const [code] = val.split("_");
         if (code && isCountry(code)) onCountrySelected(code);
       }}

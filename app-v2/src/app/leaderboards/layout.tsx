@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
-import { LeaderboardsFilters } from "./_components/LeaderboardsFilters";
+import { LeaderboardsFilters } from "~/components/leaderboards/LeaderboardsFilters";
 
 export default function LeaderboardsLayout(props: PropsWithChildren) {
   const { children } = props;
@@ -26,9 +26,7 @@ export default function LeaderboardsLayout(props: PropsWithChildren) {
           </Link>
         </TabsList>
       </Tabs>
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-        <LeaderboardsFilters />
-      </div>
+      <LeaderboardsFilters />
       <div className="mx-auto mt-10 grid max-w-md grid-cols-1 gap-x-4 gap-y-8 lg:max-w-none lg:grid-cols-3">
         {children}
       </div>

@@ -5,6 +5,7 @@ import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import "../globals.css";
 import { Navigation } from "~/components/Navigation";
+import { ReactQueryProvider } from "~/components/ReactQueryProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,7 +28,9 @@ function RootLayout(props: PropsWithChildren) {
     <html lang="en" className={`${inter.variable}`}>
       <body>
         <TooltipProvider delayDuration={300}>
-          <Navigation>{children}</Navigation>
+          <ReactQueryProvider>
+            <Navigation>{children}</Navigation>
+          </ReactQueryProvider>
         </TooltipProvider>
         <TailwindIndicator />
         <ToastManager />

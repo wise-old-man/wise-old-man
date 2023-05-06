@@ -4,7 +4,7 @@ import { apiClient } from "~/utils/api";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { LeaderboardSkeleton } from "../_components/LeaderboardSkeleton";
+import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
 import {
   getMetricParam,
   getCountryParam,

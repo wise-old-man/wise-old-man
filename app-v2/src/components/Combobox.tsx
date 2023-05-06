@@ -107,7 +107,13 @@ const CommandItem = forwardRef<
   return (
     <CommandPrimitive.Item
       ref={ref}
-      onSelect={() => onItemSelected(props.value || "")}
+      onSelect={() => {
+        if (selectedValue === props.value) {
+          onItemSelected(undefined);
+        } else {
+          onItemSelected(props.value);
+        }
+      }}
       className={cn(
         "relative flex cursor-pointer select-none items-center gap-x-2 rounded p-2 text-sm text-gray-100 outline-none aria-selected:bg-gray-600 aria-selected:text-white",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
@@ -136,16 +142,16 @@ const CommandSeparator = forwardRef<
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
 
 const ComboboxContext = createContext<{
-  selectedValue: string;
-  onItemSelected: (value: string) => void;
+  selectedValue: string | undefined;
+  onItemSelected: (value: string | undefined) => void;
 }>({
-  selectedValue: "",
+  selectedValue: undefined,
   onItemSelected: () => {},
 });
 
 interface ComboboxProps extends PopoverPrimitive.PopoverProps, PropsWithChildren {
   value?: string;
-  onValueChanged?: (value: string) => void;
+  onValueChanged?: (value: string | undefined) => void;
 }
 
 export function Combobox(props: ComboboxProps) {
@@ -157,8 +163,8 @@ export function Combobox(props: ComboboxProps) {
     <Popover open={open} onOpenChange={setOpen} {...props}>
       <ComboboxContext.Provider
         value={{
-          selectedValue: value || "",
-          onItemSelected: (val: string) => {
+          selectedValue: value,
+          onItemSelected: (val) => {
             setOpen(false);
             if (onValueChanged) onValueChanged(val);
           },

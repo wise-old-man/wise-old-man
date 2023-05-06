@@ -1,5 +1,5 @@
 import { Period } from "@wise-old-man/utils";
-import { LeaderboardSkeleton } from "../_components/LeaderboardSkeleton";
+import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
 
 export default function Loading() {
   return (
