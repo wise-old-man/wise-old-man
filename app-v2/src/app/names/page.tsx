@@ -2,14 +2,14 @@ import { NameChange, NameChangeStatus } from "@wise-old-man/utils";
 import { Badge } from "~/components/Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-// import { apiClient } from "~/utils/api";
+import { apiClient } from "~/utils/api";
 import { timeago } from "~/utils/dates";
 import { getNameChangeStatusParam, getSearchParam } from "~/utils/params";
 import { capitalize } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 interface PageProps {
   searchParams: {
@@ -45,19 +45,19 @@ export default async function NameChangesPage(props: PageProps) {
   if (search) requestParams.set("search", search);
   if (status) requestParams.set("status", status);
 
-  const data = await fetch(`https://api.wiseoldman.net/v2/names?${requestParams.toString()}`).then(
-    async (res) => (await res.json()) as NameChange[]
-  );
+  // const data = await fetch(`https://api.wiseoldman.net/v2/names?${requestParams.toString()}`).then(
+  //   async (res) => (await res.json()) as NameChange[]
+  // );
 
-  data.forEach((d) => {
-    d.createdAt = new Date(d.createdAt);
-    if (d.resolvedAt) d.resolvedAt = new Date(d.resolvedAt);
-  });
-
-  // await apiClient.nameChanges.searchNameChanges({
-  //   username: search,
-  //   status,
+  // data.forEach((d) => {
+  //   d.createdAt = new Date(d.createdAt);
+  //   if (d.resolvedAt) d.resolvedAt = new Date(d.resolvedAt);
   // });
+
+  const data = await apiClient.nameChanges.searchNameChanges({
+    username: search,
+    status,
+  });
 
   if (!data || data.length === 0) {
     return (
