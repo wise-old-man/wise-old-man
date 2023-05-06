@@ -55,11 +55,11 @@ export function Pagination(props: PaginationProps) {
           <>
             <Link
               href={getPaginatedHref(1)}
-              className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0"
+              className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0 sm:inline-flex"
             >
               1
             </Link>
-            <div className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 focus:z-20 focus:outline-offset-0">
+            <div className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 focus:z-20 focus:outline-offset-0 sm:inline-flex">
               ...
             </div>
           </>

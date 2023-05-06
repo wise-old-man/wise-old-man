@@ -19,7 +19,7 @@ export default function NameChangesLayout(props: PropsWithChildren) {
         <NameChangesSubmitLink />
       </div>
       <NameChangesFilters />
-      <div className="custom-scroll mt-6 overflow-x-auto">{children}</div>
+      <div className="mt-6">{children}</div>
       <NameChangeSubmissionDialog />
     </Container>
   );
