@@ -33,15 +33,6 @@ import { DatePicker } from "~/components/DatePicker";
 import { Input } from "~/components/Input";
 import { Label } from "~/components/Label";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectItemGroup,
-  SelectItemsContainer,
-  SelectSeparator,
-  SelectTrigger,
-} from "~/components/Select";
 import { Switch } from "~/components/Switch";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
@@ -59,15 +50,6 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from "~/components/Combobox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/Dialog";
 
 const BarChartSSR = dynamic(() => import("../components/BarChart"), {
   ssr: false,
@@ -352,41 +334,41 @@ export default function Home() {
         <Label htmlFor="replace_members">Replace members</Label>
       </div>
       <div>
-        <Select>
-          <SelectTrigger asChild>
+        <Combobox>
+          <ComboboxTrigger asChild>
             <Button variant="blue">Open select menu</Button>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItemsContainer>
-              <SelectItemGroup label="Skills">
+          </ComboboxTrigger>
+          <ComboboxContent>
+            <ComboboxItemsContainer>
+              <ComboboxItemGroup label="Skills">
                 {SKILLS.map((skill) => (
-                  <SelectItem key={skill} value={skill}>
+                  <ComboboxItem key={skill} value={skill}>
                     <img src={`/img/metrics_small/${skill}.png`} />
                     {MetricProps[skill].name}
-                  </SelectItem>
+                  </ComboboxItem>
                 ))}
-              </SelectItemGroup>
-              <SelectSeparator />
-              <SelectItemGroup label="Bosses">
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Bosses">
                 {BOSSES.map((boss) => (
-                  <SelectItem key={boss} value={boss}>
+                  <ComboboxItem key={boss} value={boss}>
                     <img src={`/img/metrics_small/${boss}.png`} />
                     {MetricProps[boss].name}
-                  </SelectItem>
+                  </ComboboxItem>
                 ))}
-              </SelectItemGroup>
-              <SelectSeparator />
-              <SelectItemGroup label="Activities">
+              </ComboboxItemGroup>
+              <ComboboxSeparator />
+              <ComboboxItemGroup label="Activities">
                 {ACTIVITIES.map((activity) => (
-                  <SelectItem key={activity} value={activity}>
+                  <ComboboxItem key={activity} value={activity}>
                     <img src={`/img/metrics_small/${activity}.png`} />
                     {MetricProps[activity].name}
-                  </SelectItem>
+                  </ComboboxItem>
                 ))}
-              </SelectItemGroup>
-            </SelectItemsContainer>
-          </SelectContent>
-        </Select>
+              </ComboboxItemGroup>
+            </ComboboxItemsContainer>
+          </ComboboxContent>
+        </Combobox>
       </div>
       <div>
         <Combobox>
@@ -428,26 +410,26 @@ export default function Home() {
         </Combobox>
       </div>
       <div>
-        <Select>
-          <SelectTrigger asChild>
+        <Combobox>
+          <ComboboxTrigger asChild>
             <Button className="w-auto font-normal text-gray-100">
               Select player type...
               <ChevronDownIcon className="ml-5 h-4 w-4" />
             </Button>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItemsContainer>
-              <SelectItemGroup label="Player Type">
+          </ComboboxTrigger>
+          <ComboboxContent>
+            <ComboboxItemsContainer>
+              <ComboboxItemGroup label="Player Type">
                 {PLAYER_TYPES.map((playerType) => (
-                  <SelectItem key={playerType} value={playerType}>
+                  <ComboboxItem key={playerType} value={playerType}>
                     <img src={`/img/player_types/${playerType}.png`} />
                     {PlayerTypeProps[playerType].name}
-                  </SelectItem>
+                  </ComboboxItem>
                 ))}
-              </SelectItemGroup>
-            </SelectItemsContainer>
-          </SelectContent>
-        </Select>
+              </ComboboxItemGroup>
+            </ComboboxItemsContainer>
+          </ComboboxContent>
+        </Combobox>
       </div>
       <div className="h-80 w-full" />
       Home!

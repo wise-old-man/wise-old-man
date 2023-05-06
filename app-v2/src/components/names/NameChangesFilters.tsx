@@ -98,8 +98,9 @@ function NameChangeStatusSelect(props: NameChangeStatusSelectProps) {
     <Combobox
       value={status}
       onValueChanged={(val) => {
-        if (val && !Object.values(NameChangeStatus).includes(val as any)) return;
-        onStatusSelected(val as NameChangeStatus);
+        if (val === undefined || Object.values(NameChangeStatus).includes(val as any)) {
+          onStatusSelected(val as NameChangeStatus | undefined);
+        }
       }}
     >
       <ComboboxButton className="w-full sm:w-48">
@@ -119,7 +120,6 @@ function NameChangeStatusSelect(props: NameChangeStatusSelectProps) {
       <ComboboxContent>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Status">
-            <ComboboxItem>Any status</ComboboxItem>
             <ComboboxItem value="pending">
               <div className="h-2 w-2 rounded-full bg-gray-200" />
               Pending

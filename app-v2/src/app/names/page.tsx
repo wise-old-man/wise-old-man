@@ -9,8 +9,6 @@ import { capitalize } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
-// export const runtime = "edge";
-
 interface PageProps {
   searchParams: {
     modal?: string;
@@ -40,19 +38,6 @@ export default async function NameChangesPage(props: PageProps) {
 
   const search = getSearchParam(searchParams.search);
   const status = getNameChangeStatusParam(searchParams.status);
-
-  const requestParams = new URLSearchParams();
-  if (search) requestParams.set("search", search);
-  if (status) requestParams.set("status", status);
-
-  // const data = await fetch(`https://api.wiseoldman.net/v2/names?${requestParams.toString()}`).then(
-  //   async (res) => (await res.json()) as NameChange[]
-  // );
-
-  // data.forEach((d) => {
-  //   d.createdAt = new Date(d.createdAt);
-  //   if (d.resolvedAt) d.resolvedAt = new Date(d.resolvedAt);
-  // });
 
   const data = await apiClient.nameChanges.searchNameChanges({
     username: search,
