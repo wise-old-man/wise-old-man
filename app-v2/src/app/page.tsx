@@ -59,6 +59,15 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from "~/components/Combobox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/Dialog";
 
 const BarChartSSR = dynamic(() => import("../components/BarChart"), {
   ssr: false,

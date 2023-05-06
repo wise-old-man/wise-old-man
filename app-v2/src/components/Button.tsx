@@ -11,8 +11,9 @@ const buttonVariants = cva(
         blue: "bg-blue-600 hover:bg-blue-500 text-white active:opacity-90",
       },
       size: {
-        default: "text-sm h-9 px-5 rounded-md",
         sm: "text-xs py-1 px-2 rounded",
+        md: "text-sm h-9 px-5 rounded-md",
+        lg: "text-base py-3 px-4 rounded-md",
       },
       iconButton: {
         true: "px-2",
@@ -20,7 +21,7 @@ const buttonVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "default",
+      size: "md",
     },
   }
 );

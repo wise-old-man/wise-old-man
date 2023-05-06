@@ -9,8 +9,11 @@ import { capitalize } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
+export const runtime = "edge";
+
 interface PageProps {
   searchParams: {
+    modal?: string;
     search?: string;
     status?: string;
   };
@@ -18,6 +21,10 @@ interface PageProps {
 
 export function generateMetadata(props: PageProps) {
   const { searchParams } = props;
+
+  if (searchParams.modal === "submit") {
+    return { title: "Submit New Name Change" };
+  }
 
   const status = getNameChangeStatusParam(searchParams.status);
 

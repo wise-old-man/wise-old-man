@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
+import { NameChangeSubmissionDialog } from "~/components/names/NameChangeSubmissionDialog";
 import { NameChangesFilters } from "~/components/names/NameChangesFilters";
+import { NameChangesSubmitLink } from "~/components/names/NameChangesSubmitLink";
 
 export default function NameChangesLayout(props: PropsWithChildren) {
   const { children } = props;
@@ -15,15 +16,11 @@ export default function NameChangesLayout(props: PropsWithChildren) {
             Consequat qui ea commodo amet quis qui pariatur cillum sint reprehenderit consequat id.
           </p>
         </div>
-        <Link
-          href="/names?modal=submit"
-          className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
-        >
-          + Submit new
-        </Link>
+        <NameChangesSubmitLink />
       </div>
       <NameChangesFilters />
       <div className="custom-scroll mt-6 overflow-x-auto">{children}</div>
+      <NameChangeSubmissionDialog />
     </Container>
   );
 }
