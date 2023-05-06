@@ -8,6 +8,7 @@ import {
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
   getPlayerTypeParam,
@@ -15,7 +16,6 @@ import {
   getComputedMetricParam,
   getCountryParam,
 } from "~/utils/params";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 
 const COMBINED_METRIC = "combined";
 

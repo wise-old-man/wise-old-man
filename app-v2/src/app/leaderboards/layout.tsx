@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
-import { LeaderboardsFilters } from "./_components/LeaderboardsFilters";
+import { LeaderboardsFilters } from "~/components/leaderboards/LeaderboardsFilters";
 
 export default function LeaderboardsLayout(props: PropsWithChildren) {
   const { children } = props;

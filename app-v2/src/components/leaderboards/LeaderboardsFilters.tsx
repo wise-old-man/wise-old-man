@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
@@ -49,7 +50,6 @@ import {
   getPlayerBuildParam,
   getPlayerTypeParam,
 } from "~/utils/params";
-import { useTransition } from "react";
 
 export function LeaderboardsFilters() {
   const router = useRouter();

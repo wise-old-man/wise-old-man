@@ -3,7 +3,7 @@ import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } fro
 import { apiClient } from "~/utils/api";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
-import { LeaderboardSkeleton } from "../_components/LeaderboardSkeleton";
+import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
   getCountryParam,
