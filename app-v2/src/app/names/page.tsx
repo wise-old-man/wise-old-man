@@ -15,7 +15,7 @@ const RESULTS_PER_PAGE = 20;
 interface PageProps {
   searchParams: {
     page?: string;
-    modal?: string;
+    dialog?: string;
     search?: string;
     status?: string;
   };
@@ -24,7 +24,7 @@ interface PageProps {
 export function generateMetadata(props: PageProps) {
   const { searchParams } = props;
 
-  if (searchParams.modal === "submit") {
+  if (searchParams.dialog === "submit") {
     return { title: "Submit New Name Change" };
   }
 
