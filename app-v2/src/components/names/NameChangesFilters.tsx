@@ -40,6 +40,9 @@ export function NameChangesFilters() {
       nextParams.delete("search");
     }
 
+    // Reset pagination if params change
+    nextParams.delete("page");
+
     startTransition(() => {
       router.push(`/names?${nextParams.toString()}`);
     });
@@ -53,6 +56,9 @@ export function NameChangesFilters() {
     } else {
       nextParams.delete("status");
     }
+
+    // Reset pagination if params change
+    nextParams.delete("page");
 
     startTransition(() => {
       router.push(`/names?${nextParams.toString()}`);
@@ -68,9 +74,9 @@ export function NameChangesFilters() {
     >
       <Input
         value={searchInput}
-        placeholder="Search..."
+        placeholder="Search username..."
         className="border-gray-600"
-        containerClassName="md:w-auto w-full"
+        containerClassName="md:max-w-xs w-full"
         leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
         onChange={(e) => {
           setSearchInput(e.target.value);
