@@ -138,7 +138,6 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
   // Update the player to the new username & displayName
   playerUpdateFields.username = playerUtils.standardize(newName);
   playerUpdateFields.displayName = playerUtils.sanitize(newName);
-  playerUpdateFields.flagged = false;
   playerUpdateFields.status = PlayerStatus.ACTIVE;
 
   // Disable prisma hooks to ensure that we don't get any "player joined group/competition" events,
