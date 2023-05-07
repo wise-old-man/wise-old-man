@@ -25,9 +25,11 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
-    return players.sort((a, b) => {
-      return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
-    });
+    return players
+      .filter(player => player.status !== 'archived')
+      .sort((a, b) => {
+        return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
+      });
   }
 
   return players;
