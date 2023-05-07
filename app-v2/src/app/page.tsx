@@ -37,7 +37,6 @@ import { Switch } from "~/components/Switch";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { TestTable } from "./TestTable";
 import { Container } from "~/components/Container";
 import {
   Combobox,
@@ -96,6 +95,14 @@ const DATA_B = {
   ],
 };
 
+/**
+ * 
+ *  <TableColumn>
+            Skill
+            <TableSorting value="skill" {...sortingProps} />
+          </TableColumn>
+ */
+
 export default function Home() {
   return (
     <Container className="flex flex-col gap-y-10">
@@ -117,7 +124,6 @@ export default function Home() {
           ]}
         />
       </div>
-      <TestTable />
       <div className="max-w-sm">
         <ListTable>
           <ListTableRow>
