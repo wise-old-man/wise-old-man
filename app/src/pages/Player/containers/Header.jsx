@@ -166,7 +166,6 @@ Header.propTypes = {
   player: PropTypes.shape({
     username: PropTypes.string,
     displayName: PropTypes.string,
-    flagged: PropTypes.bool,
     status: PropTypes.string,
     type: PropTypes.string,
     build: PropTypes.string,
