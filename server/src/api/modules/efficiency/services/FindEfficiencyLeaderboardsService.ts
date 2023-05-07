@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric, Country } from '../../../../utils';
+import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
@@ -26,7 +26,7 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
     return players
-      .filter(player => player.status !== 'archived')
+      .filter(player => player.status !== PlayerStatus.ARCHIVED)
       .sort((a, b) => {
         return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
       });
