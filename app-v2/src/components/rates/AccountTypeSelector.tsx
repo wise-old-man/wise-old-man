@@ -30,8 +30,7 @@ export function AccountTypeSelector() {
     // When the user opens the account type selector, we prefetch the other pages in advance,
     // so that by the time they choose an option, it'll be partially or fully loaded.
     Object.values(EfficiencyAlgorithmType).forEach((type) => {
-      router.prefetch(`/ehp/${type}`);
-      router.prefetch(`/ehb/${type}`);
+      router.prefetch(`/${metric}/${type}`);
     });
   }
 
