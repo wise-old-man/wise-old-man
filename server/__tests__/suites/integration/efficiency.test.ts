@@ -397,8 +397,6 @@ describe('Efficiency API', () => {
         ehp: 1000
       });
 
-      // Should not contain archived players
-      expect([...new Set(response.body.map(r => r.status))].length).toBe(0);
       // Should only contain "regular" players
       expect([...new Set(response.body.map(r => r.type))].length).toBe(1);
 
