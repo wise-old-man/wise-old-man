@@ -13,6 +13,16 @@ const nextConfig = withSvgr({
         destination: "/leaderboards/top",
         permanent: true,
       },
+      {
+        source: "/ehp",
+        destination: "/ehp/main",
+        permanent: true,
+      },
+      {
+        source: "/ehb",
+        destination: "/ehb/main",
+        permanent: true,
+      },
     ];
   },
 });
