@@ -16,9 +16,7 @@ interface PageProps {
 export async function generateStaticParams() {
   const types = Object.values(EfficiencyAlgorithmType);
 
-  return types.map((type) => ({
-    params: { type },
-  }));
+  return types.map((type) => ({ params: { type } }));
 }
 
 export default async function EHBRatesPage({ params }: PageProps) {
