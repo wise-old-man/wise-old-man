@@ -260,7 +260,6 @@ model Player {
   build            PlayerBuild  @default(main)
   status           PlayerStatus @default(active)
   country          Country?
-  flagged          Boolean      @default(false)
   exp              BigInt       @default(0)
   ehp              Float        @default(0)
   ehb              Float        @default(0)

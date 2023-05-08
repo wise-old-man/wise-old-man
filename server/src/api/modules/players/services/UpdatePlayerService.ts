@@ -116,7 +116,6 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
   // Refresh the player's build
   updatedPlayerFields.build = getBuild(currentStats);
-  updatedPlayerFields.flagged = false;
   updatedPlayerFields.status = PlayerStatus.ACTIVE;
 
   const computedMetrics = await efficiencyServices.computePlayerMetrics({
@@ -175,7 +174,7 @@ async function shouldReviewType(player: Player) {
 
 async function handlePlayerFlagged(player: Player, previousStats: Snapshot, rejectedStats: Snapshot) {
   await prisma.player.update({
-    data: { flagged: true, status: PlayerStatus.FLAGGED },
+    data: { status: PlayerStatus.FLAGGED },
     where: { id: player.id }
   });
 

@@ -20,8 +20,7 @@ class ScheduleFlaggedPlayerReviewJob implements JobDefinition<unknown> {
     // Force-unflag them
     await prisma.player.update({
       data: {
-        status: PlayerStatus.ACTIVE,
-        flagged: false
+        status: PlayerStatus.ACTIVE
       },
       where: {
         id: flaggedPlayer.id

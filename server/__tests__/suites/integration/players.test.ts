@@ -1062,7 +1062,6 @@ describe('Player API', () => {
       // Unflag the player
       const trackResponse = await api.post(`/players/psikoi`);
       expect(trackResponse.status).toBe(200);
-      expect(trackResponse.body.flagged).toBe(false);
       expect(trackResponse.body.status).toBe(PlayerStatus.ACTIVE);
 
       // Mock regular hiscores data, and block any ironman requests

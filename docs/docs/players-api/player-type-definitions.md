@@ -118,7 +118,6 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | build          | [PlayerBuild](/players-api/player-type-definitions#enum-player-build)   | The player's account build. (Default: `main`)                                                               |
 | country        | [Country](/players-api/player-type-definitions#enum-country)?           | The player's country of origin.                                                                             |
 | status         | [PlayerStatus](/players-api/player-type-definitions#enum-player-status) | The player's account status. (Default: `active`)                                                            |
-| flagged        | boolean                                                                 | Whether the player is flagged for having an invalid snapshot history. (Default: `false`)                    |
 | exp            | long (bigint)                                                           | The player's overall experience.                                                                            |
 | ehp            | float                                                                   | The player's (skilling) Efficient Hours Played.                                                             |
 | ehb            | float                                                                   | The player's Efficient Hours Bossed.                                                                        |
