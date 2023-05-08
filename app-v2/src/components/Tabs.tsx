@@ -14,13 +14,13 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex w-full items-center justify-start gap-x-7 border-b border-gray-700",
+      "flex w-full grow items-center justify-start gap-x-7 border-b border-gray-700",
       className
     )}
     {...props}
   >
     {children}
-    {rightElementSlot && <div className="flex grow justify-end">{rightElementSlot}</div>}
+    {rightElementSlot && <div className="flex w-full grow justify-end">{rightElementSlot}</div>}
   </TabsPrimitive.List>
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;

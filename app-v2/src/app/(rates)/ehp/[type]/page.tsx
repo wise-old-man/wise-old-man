@@ -38,7 +38,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
 
   return (
     <div className="mt-10 flex gap-x-12">
-      <div className="grow space-y-24">
+      <div className="w-full grow space-y-24">
         {data.map((config) => (
           <div key={config.skill} id={config.skill} className="flex scroll-mt-28 flex-col gap-y-7">
             <div className="group flex items-center">
@@ -186,7 +186,7 @@ function ExpRatesTable(props: { methods: SkillMetaMethod[] }) {
 
 function QuickLinksPanel(props: { skills: Skill[] }) {
   return (
-    <div className="h-100 w-full max-w-[12rem]">
+    <div className="h-100 hidden w-full max-w-[12rem] lg:block">
       <ul className="custom-scroll sticky top-28 mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
         <Label className="pb-2 text-white">Quick links</Label>
         {props.skills.map((skill) => (

@@ -7,7 +7,7 @@ import { AccountTypeSelector } from "~/components/rates/AccountTypeSelector";
 export default function RatesLayout(props: PropsWithChildren) {
   const { children } = props;
 
-  // @ts-ignore - There's no decent API from Next.js yet (as of 13.3.0)
+  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
   return (
@@ -19,7 +19,13 @@ export default function RatesLayout(props: PropsWithChildren) {
         </p>
       </div>
       <Tabs defaultValue={routeSegment}>
-        <TabsList rightElementSlot={<AccountTypeSelector />}>
+        <TabsList
+          rightElementSlot={
+            <div className="hidden sm:block">
+              <AccountTypeSelector />
+            </div>
+          }
+        >
           <Link href="/ehp">
             <TabsTrigger value="ehp">EHP Rates</TabsTrigger>
           </Link>
@@ -28,6 +34,9 @@ export default function RatesLayout(props: PropsWithChildren) {
           </Link>
         </TabsList>
       </Tabs>
+      <div className="mt-10 flex justify-end sm:hidden">
+        <AccountTypeSelector />
+      </div>
       {children}
     </Container>
   );

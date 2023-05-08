@@ -7,7 +7,7 @@ import { LeaderboardsFilters } from "~/components/leaderboards/LeaderboardsFilte
 export default function LeaderboardsLayout(props: PropsWithChildren) {
   const { children } = props;
 
-  // @ts-ignore - There's no decent API from Next.js yet (as of 13.3.0)
+  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
   return (
