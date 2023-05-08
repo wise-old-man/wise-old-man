@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { AccountTypeSelector } from "~/components/rates/AccountTypeSelector";
 
 export default function RatesLayout(props: PropsWithChildren) {
   const { children } = props;
@@ -18,7 +19,7 @@ export default function RatesLayout(props: PropsWithChildren) {
         </p>
       </div>
       <Tabs defaultValue={routeSegment}>
-        <TabsList>
+        <TabsList rightElementSlot={<AccountTypeSelector />}>
           <Link href="/ehp">
             <TabsTrigger value="ehp">EHP Rates</TabsTrigger>
           </Link>

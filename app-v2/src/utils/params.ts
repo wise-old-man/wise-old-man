@@ -5,6 +5,7 @@ import {
   isCountry,
   isComputedMetric,
   NameChangeStatus,
+  EfficiencyAlgorithmType,
 } from "@wise-old-man/utils";
 
 export function getMetricParam(param: string | undefined | null) {
@@ -48,4 +49,9 @@ export function getPageParam(param: string | undefined | null) {
   }
 
   return parseInt(param);
+}
+
+export function getAlgorithmTypeParam(param: string | undefined | null) {
+  if (!param || !Object.values(EfficiencyAlgorithmType).includes(param as any)) return undefined;
+  return param as EfficiencyAlgorithmType;
 }

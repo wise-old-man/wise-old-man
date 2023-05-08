@@ -9,8 +9,8 @@ const Tabs = TabsPrimitive.Root;
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & { rightElementSlot?: React.ReactNode }
+>(({ className, rightElementSlot, children, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
@@ -18,7 +18,10 @@ const TabsList = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children}
+    {rightElementSlot && <div className="flex grow justify-end">{rightElementSlot}</div>}
+  </TabsPrimitive.List>
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
