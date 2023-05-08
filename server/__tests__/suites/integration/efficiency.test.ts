@@ -80,6 +80,17 @@ beforeAll(async () => {
       country: 'PT'
     }
   });
+
+  // Add one archived player for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `archived acc`,
+      displayName: `archived acc`,
+      type: 'regular',
+      ehp: 1000,
+      status: 'archived'
+    }
+  });
 });
 
 afterAll(async () => {
@@ -386,6 +397,8 @@ describe('Efficiency API', () => {
         ehp: 1000
       });
 
+      // Should not contain archived players
+      expect([...new Set(response.body.map(r => r.status))].length).toBe(0);
       // Should only contain "regular" players
       expect([...new Set(response.body.map(r => r.type))].length).toBe(1);
 
@@ -393,6 +406,25 @@ describe('Efficiency API', () => {
       for (let i = 0; i < response.body.length; i++) {
         if (i === 0) continue;
         expect(response.body[i].ehp <= response.body[i - 1].ehp).toBe(true);
+      }
+    });
+
+    it('should fetch EHP leaderboards (with no archived players)', async () => {
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(20);
+
+      expect(response.body[0]).toMatchObject({
+        username: 'player 1',
+        type: 'regular',
+        ehp: 1000
+      });
+
+      // Ensure the list does not contain archived players
+      for (let i = 0; i < response.body.length; i++) {
+        if (i === 0) continue;
+        expect(response.body[i].status).not.toBe('archived');
       }
     });
 

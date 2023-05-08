@@ -25,11 +25,9 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
     // This is a bit of an hack, to make sure the max ehp accounts always
     // retain their maxing order, manually set their registration dates to
     // ascend and use that to order them.
-    return players
-      .filter(player => player.status !== PlayerStatus.ARCHIVED)
-      .sort((a, b) => {
-        return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
-      });
+    return players.sort((a, b) => {
+      return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
+    });
   }
 
   return players;
@@ -38,7 +36,8 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
 async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   if (params.metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
-      type: params.playerType
+      type: params.playerType,
+      status: { not: PlayerStatus.ARCHIVED }
     };
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
@@ -61,8 +60,9 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     return players;
   }
 
+  let playerQuery = `status != ${PlayerStatus.ARCHIVED} AND `;
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  let playerQuery =
+  playerQuery +=
     params.playerType !== PlayerType.IRONMAN
       ? `"type" = '${params.playerType}'`
       : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
