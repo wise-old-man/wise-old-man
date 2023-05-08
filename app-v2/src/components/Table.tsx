@@ -70,7 +70,7 @@ const TableColumn = forwardRef<HTMLTableCellElement, React.TableHTMLAttributes<H
     return (
       <th
         className={cn(
-          "border-gray-500 bg-gray-900 px-5 py-3 text-left text-xs font-medium text-gray-200",
+          "whitespace-nowrap border-gray-500 bg-gray-900 px-5 py-3 text-left text-xs font-medium text-gray-200",
           className
         )}
         ref={ref}
@@ -85,7 +85,11 @@ TableColumn.displayName = "TableColumn";
 
 function TableContainer(props: PropsWithChildren) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-500 bg-gray-900">{props.children}</div>
+    <div className="inline-block min-w-full">
+      <div className="overflow-hidden rounded-xl border border-gray-500 bg-gray-900">
+        {props.children}
+      </div>
+    </div>
   );
 }
 
