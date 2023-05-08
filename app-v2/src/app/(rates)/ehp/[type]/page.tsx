@@ -43,9 +43,15 @@ export default async function EHPRatesPage({ params }: PageProps) {
       <div className="grow space-y-24">
         {data.map((config) => (
           <div key={config.skill} id={config.skill} className="flex scroll-mt-28 flex-col gap-y-7">
-            <div className="flex items-center">
+            <div className="group flex items-center">
               <SkillIcon skill={config.skill} />
-              <h3 className="ml-3 text-h3 font-medium">{MetricProps[config.skill].name}</h3>
+              <h3 className="mx-3 text-h3 font-medium">{MetricProps[config.skill].name}</h3>
+              <a
+                href={`#${config.skill}`}
+                className="invisible text-xl text-gray-200 group-hover:visible"
+              >
+                #
+              </a>
             </div>
             <TableContainer>
               <TableHeader>
@@ -126,7 +132,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
         ))}
       </div>
       <div className="h-100 w-52">
-        <ul className="custom-scroll sticky top-28 mt-[3.25rem] flex h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
+        <ul className="custom-scroll sticky top-28 mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
           <Label className="pb-2 text-white">Quick links</Label>
           {data.map((d) => (
             <li key={d.skill}>
