@@ -155,12 +155,19 @@ interface ComboboxProps extends PopoverPrimitive.PopoverProps, PropsWithChildren
 }
 
 export function Combobox(props: ComboboxProps) {
-  const { value, onValueChanged } = props;
+  const { value, onValueChanged, onOpenChange, ...otherProps } = props;
 
   const [open, setOpen] = useState(false);
 
   return (
-    <Popover open={open} onOpenChange={setOpen} {...props}>
+    <Popover
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (onOpenChange) onOpenChange(o);
+      }}
+      {...otherProps}
+    >
       <ComboboxContext.Provider
         value={{
           selectedValue: value,

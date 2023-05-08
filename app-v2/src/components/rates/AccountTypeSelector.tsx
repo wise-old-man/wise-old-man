@@ -26,6 +26,15 @@ export function AccountTypeSelector() {
     router.push(`/${metric}/${value}`);
   }
 
+  function handlePrefetch() {
+    // When the user opens the account type selector, we prefetch the other pages in advance,
+    // so that by the time they choose an option, it'll be partially or fully loaded.
+    Object.values(EfficiencyAlgorithmType).forEach((type) => {
+      router.prefetch(`/ehp/${type}`);
+      router.prefetch(`/ehb/${type}`);
+    });
+  }
+
   return (
     <Combobox
       value={type}
@@ -33,6 +42,9 @@ export function AccountTypeSelector() {
         if (val && Object.values(EfficiencyAlgorithmType).includes(val as any)) {
           handleTypeChanged(val);
         }
+      }}
+      onOpenChange={(open) => {
+        if (open) handlePrefetch();
       }}
     >
       <ComboboxTrigger className="flex items-center text-sm text-gray-200">
