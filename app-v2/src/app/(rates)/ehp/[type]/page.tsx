@@ -41,15 +41,12 @@ export default async function EHPRatesPage({ params }: PageProps) {
   return (
     <div className="mt-10 flex gap-x-12">
       <div className="grow space-y-24">
-        {data.map((config) => (
-          <div key={config.skill} id={config.skill} className="flex scroll-mt-28 flex-col gap-y-7">
+        {data.map(({ skill, methods, bonuses }) => (
+          <div key={skill} id={skill} className="flex scroll-mt-28 flex-col gap-y-7">
             <div className="group flex items-center">
-              <SkillIcon skill={config.skill} />
-              <h3 className="mx-3 text-h3 font-medium">{MetricProps[config.skill].name}</h3>
-              <a
-                href={`#${config.skill}`}
-                className="invisible text-xl text-gray-200 group-hover:visible"
-              >
+              <SkillIcon skill={skill} />
+              <h3 className="mx-3 text-h3 font-medium">{MetricProps[skill].name}</h3>
+              <a href={`#${skill}`} className="invisible text-xl text-gray-200 group-hover:visible">
                 #
               </a>
             </div>
@@ -60,25 +57,37 @@ export default async function EHPRatesPage({ params }: PageProps) {
               <Table>
                 <TableColumns>
                   <TableColumn>Starting exp.</TableColumn>
+                  <TableColumn>Ending exp.</TableColumn>
                   <TableColumn>Rate</TableColumn>
+                  <TableColumn>Estimated duration</TableColumn>
                   <TableColumn>Description</TableColumn>
                 </TableColumns>
                 <TableBody>
-                  {config.methods.map((method) => (
-                    <TableRow key={`${method.startExp}_${method.rate}_${method.description}`}>
-                      <TableCell>
-                        <FormattedNumber value={method.startExp} />
-                      </TableCell>
-                      <TableCell>
-                        <MethodRate {...method} />
-                      </TableCell>
-                      <TableCell>{method.description}</TableCell>
-                    </TableRow>
-                  ))}
+                  {methods.map((method, i) => {
+                    const { startExp, rate, description } = method;
+                    const endExp = i < methods.length - 1 ? methods[i + 1].startExp : MAX_SKILL_EXP;
+                    const duration = (endExp - startExp) / rate;
+
+                    return (
+                      <TableRow key={`${startExp}_${rate}_${description}`}>
+                        <TableCell>
+                          <FormattedNumber value={startExp} />
+                        </TableCell>
+                        <TableCell>
+                          <FormattedNumber value={endExp} />
+                        </TableCell>
+                        <TableCell>
+                          <MethodRate {...method} />
+                        </TableCell>
+                        <TableCell>{Math.floor(duration * 100) / 100} hours</TableCell>
+                        <TableCell>{description}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
-            {!!config.bonuses && config.bonuses.length > 0 && (
+            {!!bonuses && bonuses.length > 0 && (
               <TableContainer>
                 <TableHeader>
                   <span className="text-base font-medium">Bonuses</span>
@@ -86,16 +95,14 @@ export default async function EHPRatesPage({ params }: PageProps) {
                 <Table>
                   <TableColumns>
                     <TableColumn>Starting exp.</TableColumn>
-                    <TableColumn>End exp.</TableColumn>
+                    <TableColumn>Ending exp.</TableColumn>
                     <TableColumn>Skill</TableColumn>
                     <TableColumn>Bonus ratio</TableColumn>
                     <TableColumn>Bonus exp.</TableColumn>
                   </TableColumns>
                   <TableBody>
-                    {config.bonuses.map((bonus) => (
-                      <TableRow
-                        key={`${bonus.startExp}_${bonus.endExp}_${bonus.bonusSkill}_${bonus.ratio}`}
-                      >
+                    {bonuses.map((bonus) => (
+                      <TableRow key={`${bonus.startExp}_${bonus.endExp}_${bonus.bonusSkill}_${bonus.ratio}`}>
                         <TableCell>
                           <FormattedNumber value={bonus.startExp} />
                         </TableCell>
