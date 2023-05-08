@@ -31,9 +31,11 @@ export default async function EHBRatesPage({ params }: PageProps) {
         >
           <div className="flex items-center">
             <BossIcon boss={entry.boss} />
-            <span className="ml-3 text-sm font-medium text-white">{MetricProps[entry.boss].name}</span>
+            <span className="ml-3 text-xs font-medium text-white sm:text-sm">
+              {MetricProps[entry.boss].name}
+            </span>
           </div>
-          <span className="text-sm text-gray-200">{entry.rate} kills per hour</span>
+          <span className="text-xs text-gray-200 sm:text-sm">{entry.rate} kills per hour</span>
         </li>
       ))}
     </ul>
