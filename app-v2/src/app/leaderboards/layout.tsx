@@ -14,14 +14,22 @@ export default function LeaderboardsLayout(props: PropsWithChildren) {
     <Container>
       <h1 className="mb-8 text-h1 font-bold">Leaderboards</h1>
       <Tabs defaultValue={routeSegment}>
-        <TabsList>
-          <Link href="/leaderboards/top" prefetch={false}>
+        <TabsList aria-label="Leaderboards Navigation">
+          <Link aria-label="Navigate to top leaderboards" href="/leaderboards/top" prefetch={false}>
             <TabsTrigger value="top">Current Top</TabsTrigger>
           </Link>
-          <Link href="/leaderboards/records" prefetch={false}>
+          <Link
+            aria-label="Navigate to records leaderboards"
+            href="/leaderboards/records"
+            prefetch={false}
+          >
             <TabsTrigger value="records">Records</TabsTrigger>
           </Link>
-          <Link href="/leaderboards/efficiency" prefetch={false}>
+          <Link
+            aria-label="Navigate to efficiency leaderboards"
+            href="/leaderboards/efficiency"
+            prefetch={false}
+          >
             <TabsTrigger value="efficiency">Efficiency</TabsTrigger>
           </Link>
         </TabsList>

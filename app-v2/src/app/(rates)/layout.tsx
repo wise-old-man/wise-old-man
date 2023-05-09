@@ -21,16 +21,17 @@ export default function RatesLayout(props: PropsWithChildren) {
       <div className="sticky top-16 bg-gray-900 pt-8">
         <Tabs defaultValue={routeSegment}>
           <TabsList
+            aria-label="Efficiency Rates Navigation"
             rightElementSlot={
               <div className="hidden sm:block">
                 <AccountTypeSelector />
               </div>
             }
           >
-            <Link href="/ehp">
+            <Link href="/ehp" aria-label="Navigate to EHP rates">
               <TabsTrigger value="ehp">EHP Rates</TabsTrigger>
             </Link>
-            <Link href="/ehb">
+            <Link href="/ehb" aria-label="Navigate to EHB rates">
               <TabsTrigger value="ehb">EHB Rates</TabsTrigger>
             </Link>
           </TabsList>
