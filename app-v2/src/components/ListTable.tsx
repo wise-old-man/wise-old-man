@@ -1,9 +1,11 @@
 import { PropsWithChildren, forwardRef } from "react";
 import { cn } from "~/utils/styling";
 
-function ListTable(props: PropsWithChildren) {
+function ListTable(props: PropsWithChildren & { className?: string }) {
   return (
-    <table className="w-full border-separate border-spacing-y-2 whitespace-nowrap">
+    <table
+      className={cn("w-full border-separate border-spacing-y-2 whitespace-nowrap", props.className)}
+    >
       <tbody>{props.children}</tbody>
     </table>
   );

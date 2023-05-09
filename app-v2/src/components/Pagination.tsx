@@ -34,6 +34,10 @@ export function Pagination(props: PaginationProps) {
     return `${pathname}?${params.toString()}`;
   }
 
+  if (!hasMorePages && currentPage === 1) {
+    return null;
+  }
+
   return (
     <div className="flex justify-center lg:justify-end">
       <nav
