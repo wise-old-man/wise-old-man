@@ -6,6 +6,8 @@ import {
   isComputedMetric,
   NameChangeStatus,
   EfficiencyAlgorithmType,
+  isCompetitionStatus,
+  isCompetitionType,
 } from "@wise-old-man/utils";
 
 export function getMetricParam(param: string | undefined | null) {
@@ -54,4 +56,14 @@ export function getPageParam(param: string | undefined | null) {
 export function getAlgorithmTypeParam(param: string | undefined | null) {
   if (!param || !Object.values(EfficiencyAlgorithmType).includes(param as any)) return undefined;
   return param as EfficiencyAlgorithmType;
+}
+
+export function getCompetitionStatusParam(param: string | undefined | null) {
+  if (!param || !isCompetitionStatus(param)) return undefined;
+  return param;
+}
+
+export function getCompetitionTypeParam(param: string | undefined | null) {
+  if (!param || !isCompetitionType(param)) return undefined;
+  return param;
 }
