@@ -122,8 +122,13 @@ function SideBar(props: SideBarProps) {
 
   return (
     <nav className="custom-scroll flex h-full w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
-      <Link href="/" className="block outline-none ring-0 lg:hidden" onClick={onRouteSelected}>
-        <Logo className="my-7 ml-7 w-28 shrink-0" />
+      <Link
+        href="/"
+        aria-label="Home"
+        className="block outline-none ring-0 lg:hidden"
+        onClick={onRouteSelected}
+      >
+        <Logo alt="Wise Old Man Logo" className="my-7 ml-7 w-28 shrink-0" />
       </Link>
       <ul className="mt-0 flex flex-col lg:mt-4">
         {ROUTES.map((link) => (
@@ -166,12 +171,13 @@ function SideBar(props: SideBarProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
+                  aria-label={link.label}
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
                 >
-                  <link.icon className="h-5 w-5" />
+                  <link.icon alt={link.label} className="h-5 w-5" />
                 </a>
               </TooltipTrigger>
               <TooltipContent>{link.label}</TooltipContent>

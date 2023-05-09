@@ -19,10 +19,11 @@ function Navigation(props: PropsWithChildren) {
       <nav className="fixed left-0 right-0 top-0 z-50 flex h-[4.5rem] w-full items-center border-b border-gray-700 bg-gray-800 px-7 shadow-lg">
         <Link
           href="/"
+          aria-label="Home"
           className="hidden outline-none ring-0 lg:block"
           onClick={() => setSidebarOpen(false)}
         >
-          <Logo className="h-12 shrink-0" />
+          <Logo alt="Wise Old Man Logo" className="h-12 shrink-0" />
         </Link>
         <button onClick={() => setSidebarOpen(true)} className="block p-1 lg:hidden">
           <MenuIcon className="h-6 w-6 text-white" />
