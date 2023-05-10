@@ -9,7 +9,7 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 export default function NotFound() {
   return (
-    <Container className="flex h-full items-start justify-center pt-40">
+    <Container className="flex h-full items-start justify-center pt-10">
       <div className="relative flex h-[23rem] w-full max-w-3xl flex-col justify-end">
         <Image
           src={TrollImage}
