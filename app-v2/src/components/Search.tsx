@@ -35,6 +35,20 @@ export function Search() {
   const hasExactMatch = players?.some((player) => isExactMatch(query, player.username));
   const showResults = query.length > 0 || (recentSearches && recentSearches.length > 0);
 
+  // Toggle the menu when ⌘+K is pressed
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      const metaKeyPressed = isAppleDevice() ? e.metaKey : e.ctrlKey;
+
+      if (e.key === "k" && metaKeyPressed) {
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
   function handlePlayerSelected(username: string) {
     addSearchTerm(username);
 
@@ -43,9 +57,7 @@ export function Search() {
     }
 
     setTimeout(() => {
-      if (inputRef?.current) {
-        inputRef.current.blur();
-      }
+      inputRef.current?.blur();
     }, 10);
 
     router.push(`/players/${username}`);
@@ -84,7 +96,7 @@ export function Search() {
                           </div>
                           {!hasExactMatch && <SearchSuggestionItem term={debouncedSearchQuery} />}
                           {players
-                            ?.sort((a) => (isExactMatch(query, a.username) ? -1 : 1))
+                            ?.sort((a) => (isExactMatch(query, a.username) ? -1 : 0))
                             .map((player) => (
                               <SearchResultItem key={player.username} player={player} />
                             ))}
@@ -235,13 +247,21 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
         placeholder="Search players..."
         onChange={(event) => onChange(event)}
         className={cn(
-          "flex h-10 w-full items-center rounded-md border border-gray-600 bg-gray-950 px-3 pl-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-400",
+          "flex h-10 w-full items-center rounded-md border border-gray-600 bg-gray-950 px-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-400",
           "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0"
         )}
         {...inputProps}
       />
       <div className="pointer-events-none absolute bottom-0 left-3 top-0 flex items-center">
         <SearchIcon className="h-5 w-5 text-gray-300" />
+      </div>
+      <div className="pointer-events-none absolute bottom-0 right-3 top-0 flex items-center font-medium text-gray-400">
+        {isAppleDevice() ? (
+          <kbd className="mr-px font-mono text-lg font-bold">⌘</kbd>
+        ) : (
+          <kbd className="font-mono text-xs font-bold">ctrl</kbd>
+        )}
+        <kbd className="font-mono text-xs font-bold tracking-widest">+K</kbd>
       </div>
     </div>
   );
@@ -268,4 +288,8 @@ function Prefetcher(props: { activeOption: string | null }) {
 
 function isExactMatch(query: string, username: string) {
   return username.trim().toLowerCase() === query.trim().toLowerCase();
+}
+
+function isAppleDevice() {
+  return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 }

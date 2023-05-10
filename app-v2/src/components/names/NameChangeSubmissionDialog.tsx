@@ -64,8 +64,8 @@ function SubmitNameChangeForm() {
           description: `It should be auto-reviewed within the next few minutes.`,
         });
 
-        router.push("/names");
         router.refresh();
+        router.push("/names");
       },
       onError: (error) => {
         if (error instanceof Error) {
