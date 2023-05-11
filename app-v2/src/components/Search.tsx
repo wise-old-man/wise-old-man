@@ -1,10 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Player } from "@wise-old-man/utils";
 import { Fragment, forwardRef, useEffect, useRef, useState } from "react";
 import { Combobox as HeadlessCombobox, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
+import { isAppleDevice } from "~/utils/platform";
 import useSearchPlayers from "~/hooks/useSearchPlayers";
 import useDebouncedValue from "~/hooks/useDebouncedValue";
 import useRecentSearches from "~/hooks/useRecentSearches";
@@ -13,6 +15,11 @@ import { PlayerIdentity } from "./PlayerIdentity";
 import CloseIcon from "~/assets/close.svg";
 import SearchIcon from "~/assets/search.svg";
 import LoadingIcon from "~/assets/loading.svg";
+
+// Can't be server rendered - requires the browser's navigator to be defined (to determine if it's macOS or not)
+const SearchHotkeys = dynamic(() => import("../components/SearchHotkeys"), {
+  ssr: false,
+});
 
 export function Search() {
   const router = useRouter();
@@ -255,14 +262,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
       <div className="pointer-events-none absolute bottom-0 left-3 top-0 flex items-center">
         <SearchIcon className="h-5 w-5 text-gray-300" />
       </div>
-      <div className="pointer-events-none absolute bottom-0 right-3 top-0 flex items-center font-medium text-gray-400">
-        {isAppleDevice() ? (
-          <kbd className="mr-px font-mono text-lg font-bold">⌘</kbd>
-        ) : (
-          <kbd className="font-mono text-xs font-bold">ctrl</kbd>
-        )}
-        <kbd className="font-mono text-xs font-bold tracking-widest">+K</kbd>
-      </div>
+      <SearchHotkeys />
     </div>
   );
 });
@@ -288,8 +288,4 @@ function Prefetcher(props: { activeOption: string | null }) {
 
 function isExactMatch(query: string, username: string) {
   return username.trim().toLowerCase() === query.trim().toLowerCase();
-}
-
-function isAppleDevice() {
-  return /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 }
