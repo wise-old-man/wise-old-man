@@ -291,5 +291,5 @@ function isExactMatch(query: string, username: string) {
 }
 
 function isAppleDevice() {
-  return /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+  return /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
 }
