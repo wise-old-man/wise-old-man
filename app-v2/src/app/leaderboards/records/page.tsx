@@ -31,7 +31,18 @@ export function generateMetadata(props: PageProps) {
   };
 }
 
-export default async function LeaderboardsPage(props: PageProps) {
+export default async function RecordsLeaderboardsPageWrapper(props: PageProps) {
+  // As of Next.js 13.4.1, modifying searchParams doesn't trigger the page's file-based suspense boundary to re-fallback.
+  // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
+  return (
+    <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
+      {/* @ts-expect-error - Server Component  */}
+      <RecordsLeaderboardsPage {...props} />
+    </Suspense>
+  );
+}
+
+async function RecordsLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
   const filters = {
@@ -91,6 +102,16 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
         </ListTable>
       )}
     </div>
+  );
+}
+
+function LoadingState() {
+  return (
+    <>
+      <LeaderboardSkeleton period={Period.DAY} hasCaption />
+      <LeaderboardSkeleton period={Period.WEEK} hasCaption />
+      <LeaderboardSkeleton period={Period.MONTH} hasCaption />
+    </>
   );
 }
 

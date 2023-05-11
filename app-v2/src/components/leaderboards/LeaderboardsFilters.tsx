@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
@@ -51,8 +50,6 @@ export function LeaderboardsFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [isPending, startTransition] = useTransition();
-
   const isEfficiencyLeaderboard = pathname.includes("efficiency");
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
@@ -72,18 +69,11 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    startTransition(() => {
-      router.push(`${pathname}?${nextParams.toString()}`);
-    });
+    router.push(`${pathname}?${nextParams.toString()}`);
   }
 
   return (
-    <div
-      className={cn(
-        "mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4",
-        isPending && "pointer-events-none opacity-50"
-      )}
-    >
+    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
       {isEfficiencyLeaderboard ? (
         <ComputedMetricSelect
           key={computedMetric}
