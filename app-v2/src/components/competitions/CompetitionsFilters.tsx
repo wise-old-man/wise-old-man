@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   getCompetitionStatusParam,
@@ -44,8 +44,6 @@ export function CompetitionsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [isPending, startTransition] = useTransition();
-
   const search = getSearchParam(searchParams.get("search"));
   const metric = getMetricParam(searchParams.get("metric"));
   const type = getCompetitionTypeParam(searchParams.get("type"));
@@ -67,9 +65,7 @@ export function CompetitionsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    startTransition(() => {
-      router.push(`/competitions?${nextParams.toString()}`);
-    });
+    router.push(`/competitions?${nextParams.toString()}`);
   }
 
   function handleSearchChanged(value: string) {
@@ -84,21 +80,13 @@ export function CompetitionsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    startTransition(() => {
-      router.push(`/competitions?${nextParams.toString()}`);
-    });
+    router.push(`/competitions?${nextParams.toString()}`);
   }
 
   return (
-    <div
-      className={cn(
-        "mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4",
-        isPending && "pointer-events-none opacity-50"
-      )}
-    >
+    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
       <Input
         value={searchInput}
-        disabled={isPending}
         placeholder="Search competitions..."
         className="border-gray-600"
         containerClassName="md:max-w-xs w-full"
