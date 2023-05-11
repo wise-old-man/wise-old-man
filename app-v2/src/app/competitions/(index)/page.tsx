@@ -139,7 +139,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
     return (
       <div className="flex items-center gap-x-2">
         <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-        Ended {timeago.format(endsAt)}
+        Finished · Ended {timeago.format(endsAt)}
       </div>
     );
   }
@@ -148,7 +148,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
     return (
       <div className="flex items-center gap-x-2">
         <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-        Ends in {timeago.format(endsAt, { future: true, round: "floor" })}
+        Ongoing · Ends in {timeago.format(endsAt, { future: true, round: "floor" })}
       </div>
     );
   }
@@ -156,7 +156,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
   return (
     <div className="flex items-center gap-x-2">
       <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
-      Starts in {timeago.format(startsAt, { future: true, round: "floor" })}
+      Upcoming · Starts in {timeago.format(startsAt, { future: true, round: "floor" })}
     </div>
   );
 }
