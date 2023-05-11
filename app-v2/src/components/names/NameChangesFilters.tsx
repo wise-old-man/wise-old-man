@@ -4,7 +4,7 @@ import { NameChangeStatus } from "@wise-old-man/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Input } from "~/components/Input";
-import useDebounceCallback from "~/hooks/useDebounceCallback";
+import useDebounceCallback from "~/hooks/useDebouncedCallback";
 import { getNameChangeStatusParam, getSearchParam } from "~/utils/params";
 import { capitalize } from "~/utils/strings";
 import { cn } from "~/utils/styling";

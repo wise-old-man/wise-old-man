@@ -20,10 +20,11 @@ import WarningIcon from "~/assets/warning.svg";
 interface PlayerIdentityProps {
   player: Player;
   caption?: string;
+  renderTooltip?: boolean;
 }
 
 function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption } = props;
+  const { player, caption, renderTooltip = true } = props;
 
   return (
     <Tooltip delayDuration={700}>
@@ -37,7 +38,10 @@ function PlayerIdentity(props: PlayerIdentityProps) {
           >
             {player.country && (
               <div className="absolute -right-1 bottom-0">
-                <Flag country={player.country} className="h-3.5 w-3.5 border-2 border-gray-900" />
+                <Flag
+                  country={player.country}
+                  className="h-3.5 w-3.5 rounded-full border-2 border-gray-900"
+                />
               </div>
             )}
             {player.status === PlayerStatus.ARCHIVED ? (
@@ -60,9 +64,11 @@ function PlayerIdentity(props: PlayerIdentityProps) {
           {caption && <span className="text-xs text-gray-200">{caption}</span>}
         </div>
       </div>
-      <TooltipContent className="min-w-[16rem] max-w-lg p-0">
-        <PlayerIdentityTooltip player={player} />
-      </TooltipContent>
+      {renderTooltip && (
+        <TooltipContent className="min-w-[16rem] max-w-lg p-0">
+          <PlayerIdentityTooltip player={player} />
+        </TooltipContent>
+      )}
     </Tooltip>
   );
 }

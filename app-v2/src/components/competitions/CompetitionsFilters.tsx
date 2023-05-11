@@ -9,7 +9,7 @@ import {
   getMetricParam,
   getSearchParam,
 } from "~/utils/params";
-import useDebounceCallback from "~/hooks/useDebounceCallback";
+import useDebounceCallback from "~/hooks/useDebouncedCallback";
 import { Input } from "~/components/Input";
 import SearchIcon from "~/assets/search.svg";
 import {
