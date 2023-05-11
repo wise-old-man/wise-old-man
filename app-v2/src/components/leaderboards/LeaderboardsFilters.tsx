@@ -44,6 +44,7 @@ import {
   getPlayerBuildParam,
   getPlayerTypeParam,
 } from "~/utils/params";
+import { MetricIconSmall, PlayerTypeIcon } from "../Icon";
 
 export function LeaderboardsFilters() {
   const router = useRouter();
@@ -129,12 +130,12 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
         <div className="flex items-center gap-x-2">
           {metric === "combined" ? (
             <>
-              <MetricIcon metric="ehp+ehb" />
+              <MetricIconSmall metric="ehp+ehb" />
               <span className="line-clamp-1 text-left">EHP + EHB</span>
             </>
           ) : (
             <>
-              <MetricIcon metric={metric} />
+              <MetricIconSmall metric={metric} />
               <span className="line-clamp-1 text-left">{MetricProps[metric].name}</span>
             </>
           )}
@@ -145,12 +146,12 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
           <ComboboxItemGroup>
             {COMPUTED_METRICS.map((computed) => (
               <ComboboxItem key={computed} value={computed}>
-                <MetricIcon metric={computed} />
+                <MetricIconSmall metric={computed} />
                 {MetricProps[computed].name}
               </ComboboxItem>
             ))}
             <ComboboxItem value="combined">
-              <MetricIcon metric="ehp+ehb" />
+              <MetricIconSmall metric="ehp+ehb" />
               EHP + EHB
             </ComboboxItem>
           </ComboboxItemGroup>
@@ -181,7 +182,7 @@ function MetricSelect(props: MetricSelectProps) {
     >
       <ComboboxButton>
         <div className="flex items-center gap-x-2">
-          <MetricIcon metric={metric} />
+          <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
       </ComboboxButton>
@@ -192,7 +193,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Skills">
             {SKILLS.map((skill) => (
               <ComboboxItem key={skill} value={skill}>
-                <MetricIcon metric={skill} />
+                <MetricIconSmall metric={skill} />
                 {MetricProps[skill].name}
               </ComboboxItem>
             ))}
@@ -201,7 +202,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Bosses">
             {BOSSES.map((boss) => (
               <ComboboxItem key={boss} value={boss}>
-                <MetricIcon metric={boss} />
+                <MetricIconSmall metric={boss} />
                 {MetricProps[boss].name}
               </ComboboxItem>
             ))}
@@ -210,7 +211,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Activities">
             {ACTIVITIES.map((activity) => (
               <ComboboxItem key={activity} value={activity}>
-                <MetricIcon metric={activity} />
+                <MetricIconSmall metric={activity} />
                 {MetricProps[activity].name}
               </ComboboxItem>
             ))}
@@ -218,7 +219,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Computed">
             {COMPUTED_METRICS.map((computed) => (
               <ComboboxItem key={computed} value={computed}>
-                <MetricIcon metric={computed} />
+                <MetricIconSmall metric={computed} />
                 {MetricProps[computed].name}
               </ComboboxItem>
             ))}
@@ -349,16 +350,6 @@ function CountrySelect(props: CountrySelectProps) {
       </ComboboxContent>
     </Combobox>
   );
-}
-
-function MetricIcon(props: { metric: Metric | "ehp+ehb" }) {
-  const { metric } = props;
-  return <Image width={16} height={16} alt={metric} src={`/img/metrics_small/${metric}.png`} />;
-}
-
-function PlayerTypeIcon(props: { playerType: PlayerType }) {
-  const { playerType } = props;
-  return <Image width={10} height={13} alt={playerType} src={`/img/player_types/${playerType}.png`} />;
 }
 
 function CountryIcon(props: { country: Country }) {

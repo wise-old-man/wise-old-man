@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   EfficiencyAlgorithmType,
   EfficiencyAlgorithmTypeUnion,
@@ -21,6 +20,7 @@ import {
 } from "~/components/Table";
 import { Label } from "~/components/Label";
 import { FormattedNumber } from "~/components/FormattedNumber";
+import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 
 interface PageProps {
   params: {
@@ -42,7 +42,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
         {data.map((config) => (
           <div key={config.skill} id={config.skill} className="flex scroll-mt-44 flex-col gap-y-7">
             <div className="group flex items-center">
-              <SkillIcon skill={config.skill} />
+              <MetricIcon metric={config.skill} />
               <h3 className="mx-3 text-h3 font-medium">{MetricProps[config.skill].name}</h3>
               <a
                 href={`#${config.skill}`}
@@ -119,7 +119,7 @@ function BonusesTable(props: { bonuses: SkillMetaConfig["bonuses"] }) {
                 <FormattedNumber value={bonus.endExp} />
               </TableCell>
               <TableCell className="flex items-center gap-x-2">
-                <SkillIconSmall skill={bonus.bonusSkill} />
+                <MetricIconSmall metric={bonus.bonusSkill} />
                 <span>{MetricProps[bonus.bonusSkill].name}</span>
               </TableCell>
               <TableCell>{Math.floor(bonus.ratio * 10000) / 10000}</TableCell>
@@ -201,7 +201,7 @@ function QuickLinksPanel(props: { skills: Skill[] }) {
               href={`#${skill}`}
               className="flex items-center gap-x-2 text-gray-200 hover:text-white hover:underline"
             >
-              <SkillIconSmall skill={skill} />
+              <MetricIconSmall metric={skill} />
               <span className="text-sm">{MetricProps[skill].name}</span>
             </a>
           </li>
@@ -209,14 +209,4 @@ function QuickLinksPanel(props: { skills: Skill[] }) {
       </ul>
     </div>
   );
-}
-
-function SkillIcon(props: { skill: Skill }) {
-  const { skill } = props;
-  return <Image height={24} width={24} alt={skill} src={`/img/metrics/${skill}.png`} />;
-}
-
-function SkillIconSmall(props: { skill: Skill }) {
-  const { skill } = props;
-  return <Image height={16} width={16} alt={skill} src={`/img/metrics_small/${skill}.png`} />;
 }

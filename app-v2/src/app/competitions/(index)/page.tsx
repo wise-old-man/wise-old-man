@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Suspense } from "react";
-import { CompetitionListItem, CompetitionTypeProps, Metric } from "@wise-old-man/utils";
+import { CompetitionListItem, CompetitionTypeProps } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
 import { timeago } from "~/utils/dates";
 import { Badge } from "~/components/Badge";
+import { MetricIcon } from "~/components/Icon";
 import { Pagination } from "~/components/Pagination";
 import {
   getCompetitionStatusParam,
@@ -84,7 +84,7 @@ async function CompetitionsPage(props: PageProps) {
 
               return (
                 <ListTableRow key={competition.id}>
-                  <ListTableCell className="flex items-center gap-x-3">
+                  <ListTableCell className="flex items-center gap-x-4">
                     <MetricIcon metric={competition.metric} />
                     <div className="flex flex-col">
                       <Link
@@ -128,11 +128,6 @@ async function CompetitionsPage(props: PageProps) {
       </div>
     </>
   );
-}
-
-function MetricIcon(props: { metric: Metric }) {
-  const { metric } = props;
-  return <Image height={24} width={24} alt={metric} src={`/img/metrics/${metric}.png`} />;
 }
 
 function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">) {

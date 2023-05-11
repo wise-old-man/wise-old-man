@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "~/utils/styling";
 import {
   getCompetitionStatusParam,
   getCompetitionTypeParam,
@@ -11,7 +11,6 @@ import {
 } from "~/utils/params";
 import useDebounceCallback from "~/hooks/useDebouncedCallback";
 import { Input } from "~/components/Input";
-import SearchIcon from "~/assets/search.svg";
 import {
   ACTIVITIES,
   BOSSES,
@@ -38,7 +37,9 @@ import {
   ComboboxItem,
   ComboboxSeparator,
 } from "../Combobox";
-import { cn } from "~/utils/styling";
+import { MetricIconSmall } from "../Icon";
+
+import SearchIcon from "~/assets/search.svg";
 
 export function CompetitionsFilters() {
   const router = useRouter();
@@ -128,7 +129,7 @@ function MetricSelect(props: MetricSelectProps) {
     >
       <ComboboxButton className="py-5">
         <div className={cn("flex items-center gap-x-2", !metric && "text-gray-300")}>
-          {metric && <MetricIcon metric={metric} />}
+          {metric && <MetricIconSmall metric={metric} />}
           <span className="line-clamp-1 text-left">{metric ? MetricProps[metric].name : "Metric"} </span>
         </div>
       </ComboboxButton>
@@ -139,7 +140,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Skills">
             {SKILLS.map((skill) => (
               <ComboboxItem key={skill} value={skill}>
-                <MetricIcon metric={skill} />
+                <MetricIconSmall metric={skill} />
                 {MetricProps[skill].name}
               </ComboboxItem>
             ))}
@@ -148,7 +149,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Bosses">
             {BOSSES.map((boss) => (
               <ComboboxItem key={boss} value={boss}>
-                <MetricIcon metric={boss} />
+                <MetricIconSmall metric={boss} />
                 {MetricProps[boss].name}
               </ComboboxItem>
             ))}
@@ -157,7 +158,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Activities">
             {ACTIVITIES.map((activity) => (
               <ComboboxItem key={activity} value={activity}>
-                <MetricIcon metric={activity} />
+                <MetricIconSmall metric={activity} />
                 {MetricProps[activity].name}
               </ComboboxItem>
             ))}
@@ -165,7 +166,7 @@ function MetricSelect(props: MetricSelectProps) {
           <ComboboxItemGroup label="Computed">
             {COMPUTED_METRICS.map((computed) => (
               <ComboboxItem key={computed} value={computed}>
-                <MetricIcon metric={computed} />
+                <MetricIconSmall metric={computed} />
                 {MetricProps[computed].name}
               </ComboboxItem>
             ))}
@@ -261,9 +262,4 @@ function TypeSelect(props: TypeSelectProps) {
       </ComboboxContent>
     </Combobox>
   );
-}
-
-function MetricIcon(props: { metric: Metric | "ehp+ehb" }) {
-  const { metric } = props;
-  return <Image width={16} height={16} alt={metric} src={`/img/metrics_small/${metric}.png`} />;
 }
