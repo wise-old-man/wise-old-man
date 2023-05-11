@@ -48,6 +48,7 @@ export function Search() {
       const metaKeyPressed = isAppleDevice() ? e.metaKey : e.ctrlKey;
 
       if (e.key === "k" && metaKeyPressed) {
+        e.preventDefault();
         inputRef.current?.focus();
       }
     };
