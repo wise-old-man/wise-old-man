@@ -51,11 +51,11 @@ export default async function EHPRatesPage({ params }: PageProps) {
                 #
               </a>
             </div>
-            <div className="overflow-x-auto">
+            <div className="custom-scroll overflow-x-auto">
               <ExpRatesTable methods={config.methods} />
             </div>
             {!!config.bonuses && config.bonuses.length > 0 && (
-              <div className="overflow-x-auto">
+              <div className="custom-scroll overflow-x-auto">
                 <BonusesTable bonuses={config.bonuses} />
               </div>
             )}

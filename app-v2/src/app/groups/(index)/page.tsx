@@ -61,7 +61,7 @@ async function GroupsPage(props: PageProps) {
           ))}
         </div>
       )}
-      <div className="mt-5">
+      <div className="mt-4">
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
       </div>
     </>

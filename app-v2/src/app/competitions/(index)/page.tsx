@@ -75,7 +75,7 @@ async function CompetitionsPage(props: PageProps) {
           No results were found
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="custom-scroll overflow-x-auto">
           <ListTable className="border-spacing-y-3">
             {data.map((competition) => {
               const participantLabel = `${competition.participantCount} ${
@@ -123,7 +123,7 @@ async function CompetitionsPage(props: PageProps) {
           </ListTable>
         </div>
       )}
-      <div className="mt-5">
+      <div className="mt-4">
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
       </div>
     </>
@@ -163,7 +163,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
 
 function LoadingState() {
   return (
-    <div className="overflow-x-auto">
+    <div className="custom-scroll overflow-x-auto">
       <ListTable className="border-spacing-y-3">
         {[...Array(20)].map((_, i) => (
           <ListTableRow key={`competition_skeleton_${i}`}>
