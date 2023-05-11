@@ -29,7 +29,6 @@ export default function NotFound() {
           </h3>
           <Link
             href="/"
-            prefetch
             className="relative mt-8 flex items-center gap-x-1 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline"
           >
             <ArrowRightIcon className="h-5 w-5 rotate-180" />

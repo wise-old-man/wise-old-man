@@ -86,7 +86,6 @@ export default async function CompetitionsPage(props: PageProps) {
                           <>
                             Hosted by&nbsp;
                             <Link
-                              prefetch={false}
                               href={`/groups/${competition.group.id}`}
                               className="font-medium text-blue-400 hover:underline"
                             >

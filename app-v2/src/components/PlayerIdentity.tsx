@@ -54,7 +54,6 @@ function PlayerIdentity(props: PlayerIdentityProps) {
         <div className="ml-2 flex flex-col">
           <TooltipTrigger asChild>
             <Link
-              prefetch={false}
               href={`/players/${player.username}`}
               className="line-clamp-1 text-sm font-medium hover:underline"
             >
