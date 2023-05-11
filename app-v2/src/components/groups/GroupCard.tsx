@@ -27,13 +27,3 @@ export function GroupCard(props: GroupListItem) {
     </Link>
   );
 }
-
-export function GroupCardSkeleton() {
-  return (
-    <div className="rounded-lg border border-gray-700 bg-gray-800 p-5 shadow-md">
-      <div className="h-4 w-40 animate-pulse rounded-lg bg-gray-500" />
-      <div className="mt-2.5 h-3 w-24 animate-pulse rounded-lg bg-gray-500" />
-      <div className="mt-7 h-3.5 w-full animate-pulse rounded-lg bg-gray-500" />
-    </div>
-  );
-}
