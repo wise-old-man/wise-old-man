@@ -122,8 +122,8 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
 
   if (!after) return false;
 
-  const negativeGains = hasNegativeGains(before, after);
-  const excessiveGains = hasExcessiveGains(before, after);
+  const negativeGains = !!getNegativeGains(before, after);
+  const excessiveGains = !!getExcessiveGains(before, after);
 
   const withinRange = !negativeGains && !excessiveGains;
 
@@ -132,24 +132,6 @@ function withinRange(before: Snapshot, after: Snapshot): boolean {
   }
 
   return withinRange;
-}
-
-/**
- * Checks whether two snapshots have excessive gains in between.
- * This happens when the gained EHP and gained EHB combined are over
- * the ellapsed time between the two. This would have to mean this player
- * played at over maximum efficiency for the transition duration.
- */
-function hasExcessiveGains(before: Snapshot, after: Snapshot): boolean {
-  const afterDate = after.createdAt || new Date();
-  const timeDiff = afterDate.getTime() - before.createdAt.getTime();
-
-  const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
-
-  const ehpDiff = efficiencyUtils.getPlayerEHP(after) - efficiencyUtils.getPlayerEHP(before);
-  const ehbDiff = efficiencyUtils.getPlayerEHB(after) - efficiencyUtils.getPlayerEHB(before);
-
-  return ehpDiff + ehbDiff > hoursDiff;
 }
 
 /**
@@ -167,14 +149,45 @@ function hasChanged(before: Snapshot, after: Snapshot): boolean {
 }
 
 /**
- * Checks whether two snapshots have negative gains in between.
+ * Checks whether two snapshots have excessive gains in between.
+ * This happens when the gained EHP and gained EHB combined are over
+ * the ellapsed time between the two. This would have to mean this player
+ * played at over maximum efficiency for the transition duration.
  */
-function hasNegativeGains(before: Snapshot, after: Snapshot): boolean {
+function getExcessiveGains(before: Snapshot, after: Snapshot) {
+  const afterDate = after.createdAt || new Date();
+  const timeDiff = afterDate.getTime() - before.createdAt.getTime();
+
+  const hoursDiff = Math.max(120, timeDiff / 1000 / 3600);
+
+  const ehpDiff = efficiencyUtils.getPlayerEHP(after) - efficiencyUtils.getPlayerEHP(before);
+  const ehbDiff = efficiencyUtils.getPlayerEHB(after) - efficiencyUtils.getPlayerEHB(before);
+
+  if (ehpDiff + ehbDiff <= hoursDiff) return null;
+
+  return { ehpDiff, ehbDiff, hoursDiff };
+}
+
+function getNegativeGains(before: Snapshot, after: Snapshot) {
   // LMS scores, PVP ARENA scores, EHP and EHB can fluctuate overtime
   const metricsToIgnore = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
   const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
-  return METRICS.map(getMetricValueKey).some(k => isValidKey(k) && after[k] > -1 && after[k] < before[k]);
+  const negativeMetrics = METRICS.filter(metric => {
+    const valueKey = getMetricValueKey(metric);
+    return isValidKey(valueKey) && after[valueKey] > -1 && after[valueKey] < before[valueKey];
+  });
+
+  if (negativeMetrics.length === 0) return null;
+
+  const negativeGains = Object.fromEntries(
+    negativeMetrics.map(metric => {
+      const valueKey = getMetricValueKey(metric);
+      return [metric, after[valueKey] - before[valueKey]];
+    })
+  ) as Record<Metric, number>;
+
+  return negativeGains;
 }
 
 function average(snapshots: Snapshot[]): Snapshot {
@@ -370,8 +383,8 @@ export {
   format,
   average,
   hasChanged,
-  hasExcessiveGains,
-  hasNegativeGains,
+  getExcessiveGains,
+  getNegativeGains,
   withinRange,
   isF2p,
   isZerker,

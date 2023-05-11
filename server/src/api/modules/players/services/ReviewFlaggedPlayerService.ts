@@ -19,9 +19,10 @@ function reviewFlaggedPlayer(
 ): FlaggedPlayerReviewContext | null {
   if (!player || !previousStats || !rejectedStats) return null;
 
-  const negativeGains = snapshotUtils.hasNegativeGains(previousStats, rejectedStats);
-  const excessiveGains = snapshotUtils.hasExcessiveGains(previousStats, rejectedStats);
-  const excessiveGainsReversed = snapshotUtils.hasExcessiveGains(rejectedStats, previousStats);
+  const negativeGains = !!snapshotUtils.getNegativeGains(previousStats, rejectedStats);
+
+  const excessiveGains = !!snapshotUtils.getExcessiveGains(previousStats, rejectedStats);
+  const excessiveGainsReversed = !!snapshotUtils.getExcessiveGains(rejectedStats, previousStats);
 
   const previous = snapshotUtils.format(
     previousStats,

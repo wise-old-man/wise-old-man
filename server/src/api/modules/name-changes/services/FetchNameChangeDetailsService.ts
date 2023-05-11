@@ -109,7 +109,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
   const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
 
-  const hasNegativeGains = newStats ? snapshotUtils.hasNegativeGains(oldStats, newStats) : false;
+  const hasNegativeGains = newStats ? !!snapshotUtils.getNegativeGains(oldStats, newStats) : false;
 
   const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
   const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
