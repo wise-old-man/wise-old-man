@@ -65,7 +65,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     data: {
       status: NameChangeStatus.APPROVED,
       resolvedAt: new Date(),
-      reviewContext: null
+      reviewContext: undefined
     }
   });
 
