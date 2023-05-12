@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Metric, NameChangeDetails } from '../../../../utils';
+import { Metric, NameChangeDetails, SkipContext } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import logger from '../../../util/logging';
 import * as playerUtils from '../../players/player.utils';
@@ -156,30 +156,6 @@ async function getBundleModifier(nameChange: NameChange): Promise<number> {
 
   return approvedRate >= 0.5 ? BOOSTED_MODIFIER : REGULAR_MODIFIER;
 }
-
-const skipContextSchema = z
-  .object({
-    reason: z.literal('transition_period_too_long'),
-    maxHoursDiff: z.number().positive(),
-    hoursDiff: z.number().positive()
-  })
-  .or(
-    z.object({
-      reason: z.literal('excessive_gains'),
-      ehpDiff: z.number().positive(),
-      ehbDiff: z.number().positive(),
-      hoursDiff: z.number().positive()
-    })
-  )
-  .or(
-    z.object({
-      reason: z.literal('total_level_too_low'),
-      minTotalLevel: z.number().int().positive(),
-      totalLevel: z.number().int().positive()
-    })
-  );
-
-export type SkipContext = z.infer<typeof skipContextSchema>;
 
 async function skipReview(id: number, skipContext: SkipContext) {
   await prisma.nameChange.update({

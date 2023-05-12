@@ -8,13 +8,13 @@ import {
   Achievement as PrismaAchievement,
   Competition,
   Participation,
-  NameChange,
+  NameChange as PrismaNameChange,
   Group,
   Membership,
   Prisma,
   Country
 } from '@prisma/client';
-import { isComputedMetric } from '../utils';
+import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
 import { routeAfterHook } from './hooks';
 import { parseBigInt } from './utils';
@@ -103,6 +103,10 @@ type Snapshot = Omit<PrismaSnapshot, 'overallExperience'> & {
 
 type Player = Omit<PrismaPlayer, 'exp' | 'latestSnapshotId'> & {
   exp: number;
+};
+
+type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
+  reviewContext: SkipContext | DenyContext | null;
 };
 
 export {

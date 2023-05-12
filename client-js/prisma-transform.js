@@ -6,7 +6,7 @@ const fs = require('fs');
  * I can't simply bundle up all type declarations with rollup because the dts plugin doesn't support namespaces.
  */
 
-const PRIVATE_MODEL_NAMES = ['Achievement', 'Record', 'Delta', 'Snapshot', 'Player'];
+const PRIVATE_MODEL_NAMES = ['Achievement', 'Record', 'Delta', 'Snapshot', 'Player', 'NameChange'];
 
 const START_TOKEN = 'export type Achievement';
 const END_TOKEN = ' * Enums';
@@ -36,5 +36,8 @@ let finalContent = `${parsedPrismaContent}\n${parsedBuildContent}`;
 PRIVATE_MODEL_NAMES.forEach(model => {
   finalContent = finalContent.replaceAll(`${model}$1`, `Prisma_Base_${model}`);
 });
+
+finalContent = finalContent.replaceAll('Prisma.JsonValue', 'unknown');
+finalContent = finalContent.replaceAll('export type Prisma_Base_', 'type Prisma_Base_');
 
 fs.writeFileSync(BUILD_DECLARATION_FILE_PATH, finalContent);

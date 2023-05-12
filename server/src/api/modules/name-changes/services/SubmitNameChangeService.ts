@@ -78,13 +78,13 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   }
 
   // Create a new instance (a new name change request)
-  const newNameChange = await prisma.nameChange.create({
+  const newNameChange = (await prisma.nameChange.create({
     data: {
       playerId: oldPlayer.id,
       oldName: oldPlayer.displayName,
       newName: playerUtils.sanitize(params.newName)
     }
-  });
+  })) as NameChange;
 
   nameChangeEvents.onNameChangeSubmitted(newNameChange);
 

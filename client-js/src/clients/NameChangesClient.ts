@@ -1,5 +1,5 @@
 import type { NameChangesSearchFilter } from '../api-types';
-import { NameChange, NameChangeDetails } from '../../../server/src/utils';
+import { NameChange } from '../../../server/src/utils';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
 
@@ -18,13 +18,5 @@ export default class NameChangesClient extends BaseAPIClient {
    */
   submitNameChange(oldName: string, newName: string) {
     return this.postRequest<NameChange>('/names', { oldName, newName });
-  }
-
-  /**
-   * Gets details on a specific name change request.
-   * @returns The name change request's details, which includes all data required to review.
-   */
-  getNameChangeDetails(id: number) {
-    return this.getRequest<NameChangeDetails>(`/names/${id}`);
   }
 }

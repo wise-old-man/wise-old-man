@@ -30,7 +30,6 @@ const inputSchema = z.object({
   reviewContext: z.optional(denyContextSchema).default({ reason: 'manual_review' })
 });
 
-export type DenyContext = z.infer<typeof denyContextSchema>;
 type DenyNameChangeParams = z.infer<typeof inputSchema>;
 
 async function denyNameChange(payload: DenyNameChangeParams): Promise<NameChange> {
@@ -62,7 +61,7 @@ async function denyNameChange(payload: DenyNameChangeParams): Promise<NameChange
     params.reviewContext
   );
 
-  return updatedNameChange;
+  return updatedNameChange as NameChange;
 }
 
 export { denyNameChange };
