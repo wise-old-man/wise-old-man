@@ -36,7 +36,7 @@ export default function RatesLayout(props: PropsWithChildren) {
             </Link>
           </TabsList>
         </Tabs>
-        <div className="mt-10 flex justify-end sm:hidden">
+        <div className="mt-7 flex justify-end pb-7 sm:hidden">
           <AccountTypeSelector />
         </div>
       </div>

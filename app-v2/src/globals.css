@@ -22,6 +22,7 @@ body {
 /* body ::-webkit-scrollbar, */
 .custom-scroll::-webkit-scrollbar {
   @apply w-1.5;
+  @apply h-1.5;
 }
 
 /* body ::-webkit-scrollbar-track, */

@@ -5,7 +5,6 @@ import {
   PlayerBuild,
   PlayerBuildProps,
   PlayerStatus,
-  PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
 import Image from "next/image";
@@ -13,6 +12,7 @@ import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { timeago } from "~/utils/dates";
 import { cn } from "~/utils/styling";
+import { PlayerTypeIcon } from "./Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import WarningIcon from "~/assets/warning.svg";
@@ -54,7 +54,6 @@ function PlayerIdentity(props: PlayerIdentityProps) {
         <div className="ml-2 flex flex-col">
           <TooltipTrigger asChild>
             <Link
-              prefetch={false}
               href={`/players/${player.username}`}
               className="line-clamp-1 text-sm font-medium hover:underline"
             >
@@ -135,12 +134,6 @@ function Flag(props: { country: Country; className?: string }) {
       className={props.className}
     />
   );
-}
-
-function PlayerTypeIcon(props: { playerType: PlayerType }) {
-  const { playerType } = props;
-
-  return <Image width={10} height={13} alt={playerType} src={`/img/player_types/${playerType}.png`} />;
 }
 
 export { PlayerIdentity };

@@ -1,16 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { Input } from "~/components/Input";
 import { getSearchParam } from "~/utils/params";
 import useDebounceCallback from "~/hooks/useDebouncedCallback";
-import { Input } from "~/components/Input";
+
 import SearchIcon from "~/assets/search.svg";
 
 export function GroupsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
 
   const search = getSearchParam(searchParams.get("search"));
 
@@ -30,15 +30,12 @@ export function GroupsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    startTransition(() => {
-      router.push(`/groups?${nextParams.toString()}`);
-    });
+    router.push(`/groups?${nextParams.toString()}`);
   }
 
   return (
     <Input
       value={searchInput}
-      disabled={isPending}
       placeholder="Search groups..."
       className="border-gray-600"
       containerClassName="md:max-w-xs w-full"

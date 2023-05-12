@@ -26,7 +26,7 @@ const ROUTES = [
   { label: "Competitions", href: "/competitions", icon: TrophyIcon },
   { label: "Groups", href: "/groups", icon: PeopleIcon },
   { label: "Name changes", href: "/names", icon: TagIcon },
-  { label: "Efficiency rates", href: "/ehp", icon: ToolsIcon, prefetch: true, relatedRoutes: ["/ehb"] },
+  { label: "Efficiency rates", href: "/ehp", icon: ToolsIcon, relatedRoutes: ["/ehb"] },
   { label: "(Test) 404 Not Found", href: "/notfound-test", icon: CodeIcon },
 ];
 
@@ -134,7 +134,6 @@ function SideBar(props: SideBarProps) {
         {ROUTES.map((link) => (
           <li key={link.href}>
             <Link
-              prefetch={Boolean(link.prefetch)}
               href={link.href}
               className={cn(
                 "flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700",

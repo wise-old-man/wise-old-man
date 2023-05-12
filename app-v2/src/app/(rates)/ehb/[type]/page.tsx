@@ -1,11 +1,6 @@
-import Image from "next/image";
-import {
-  Boss,
-  EfficiencyAlgorithmType,
-  EfficiencyAlgorithmTypeUnion,
-  MetricProps,
-} from "@wise-old-man/utils";
+import { EfficiencyAlgorithmType, EfficiencyAlgorithmTypeUnion, MetricProps } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
+import { MetricIcon } from "~/components/Icon";
 
 interface PageProps {
   params: {
@@ -36,7 +31,7 @@ export default async function EHBRatesPage({ params }: PageProps) {
               className="flex items-center justify-between rounded-lg border border-gray-600 p-5"
             >
               <div className="flex items-center">
-                <BossIcon boss={entry.boss} />
+                <MetricIcon metric={entry.boss} />
                 <span className="ml-3 text-xs font-medium text-white sm:text-sm">
                   {MetricProps[entry.boss].name}
                 </span>
@@ -48,9 +43,4 @@ export default async function EHBRatesPage({ params }: PageProps) {
       )}
     </ul>
   );
-}
-
-function BossIcon(props: { boss: Boss }) {
-  const { boss } = props;
-  return <Image height={24} width={24} alt={boss} src={`/img/metrics/${boss}.png`} />;
 }
