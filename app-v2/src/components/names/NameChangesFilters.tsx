@@ -2,7 +2,7 @@
 
 import { NameChangeStatus } from "@wise-old-man/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Input } from "~/components/Input";
 import useDebounceCallback from "~/hooks/useDebouncedCallback";
 import { getNameChangeStatusParam, getSearchParam } from "~/utils/params";
@@ -25,8 +25,6 @@ export function NameChangesFilters() {
   const search = getSearchParam(searchParams.get("search"));
   const status = getNameChangeStatusParam(searchParams.get("status"));
 
-  const [isPending, startTransition] = useTransition();
-
   const [searchInput, setSearchInput] = useState(search);
 
   const debouncedUrlUpdate = useDebounceCallback(handleSearchChanged, 500);
@@ -43,9 +41,7 @@ export function NameChangesFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    startTransition(() => {
-      router.push(`/names?${nextParams.toString()}`);
-    });
+    router.push(`/names?${nextParams.toString()}`);
   }
 
   function handleStatusChanged(value: string | undefined) {
@@ -60,18 +56,11 @@ export function NameChangesFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    startTransition(() => {
-      router.push(`/names?${nextParams.toString()}`);
-    });
+    router.push(`/names?${nextParams.toString()}`);
   }
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center gap-3 sm:flex-row",
-        isPending && "pointer-events-none opacity-50"
-      )}
-    >
+    <div className="flex flex-col items-center gap-3 sm:flex-row">
       <Input
         value={searchInput}
         placeholder="Search username..."
