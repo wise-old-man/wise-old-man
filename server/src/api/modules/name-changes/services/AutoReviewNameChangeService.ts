@@ -1,11 +1,14 @@
 import { z } from 'zod';
-import { Metric, NameChangeDetails } from '../../../../utils';
+import { Metric, NameChangeDetails, SkipContext } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import logger from '../../../util/logging';
 import * as playerUtils from '../../players/player.utils';
 import { approveNameChange } from './ApproveNameChangeService';
 import { denyNameChange } from './DenyNameChangeService';
 import { fetchNameChangeDetails } from './FetchNameChangeDetailsService';
+
+const BASE_MAX_HOURS = 504;
+const BASE_MIN_TOTAL_LEVEL = 700;
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -22,8 +25,10 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
     details = await fetchNameChangeDetails({ id: params.id });
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
-      logger.debug(`Denying ${params.id}: Old stats not found`);
-      await denyNameChange({ id: params.id });
+      await denyNameChange({
+        id: params.id,
+        reviewContext: { reason: 'old_stats_cannot_be_found' }
+      });
       return;
     }
   }
@@ -31,7 +36,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
   const { data, nameChange } = details;
-  const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
+  const { isNewOnHiscores, negativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
 
   // If it's a capitalization change, auto-approve
   if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
@@ -47,34 +52,46 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
-    logger.debug(`Denying ${params.id}: New name is not on the hiscores`);
-    await denyNameChange({ id: params.id });
+    await denyNameChange({
+      id: params.id,
+      reviewContext: { reason: 'new_name_not_on_the_hiscores' }
+    });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
-  if (hasNegativeGains) {
-    logger.debug(`Denying ${params.id}: Negative gains`);
-    await denyNameChange({ id: params.id });
+  if (negativeGains) {
+    await denyNameChange({
+      id: params.id,
+      reviewContext: { reason: 'negative_gains', negativeGains }
+    });
     return;
   }
 
-  const baseMaxHours = 504;
   const extraHours = (oldStats.data.skills[Metric.OVERALL].experience / 2_000_000) * 168;
 
-  const allowedTotalLevel = 700 / bundleModifier;
+  const allowedTotalLevel = BASE_MIN_TOTAL_LEVEL / bundleModifier;
   const allowedEfficiencyDiff = hoursDiff * bundleModifier;
-  const allowedHourDiff = (baseMaxHours + extraHours) * bundleModifier;
+  const allowedHourDiff = (BASE_MAX_HOURS + extraHours) * bundleModifier;
 
   // If the transition period is over (3 weeks + 1 week per each 2m exp)
   if (hoursDiff > allowedHourDiff) {
-    logger.debug(`Ignoring ${params.id}: Transition period too long`, { allowedHourDiff, hoursDiff });
+    await skipReview(params.id, {
+      reason: 'transition_period_too_long',
+      maxHoursDiff: BASE_MAX_HOURS,
+      hoursDiff: hoursDiff
+    });
     return;
   }
 
   // If has gained too much exp/kills
   if (ehpDiff + ehbDiff > allowedEfficiencyDiff) {
-    logger.debug(`Ignoring ${params.id}: Excessive gains`, { allowedEfficiencyDiff });
+    await skipReview(params.id, {
+      reason: 'excessive_gains',
+      ehpDiff,
+      ehbDiff,
+      hoursDiff
+    });
     return;
   }
 
@@ -82,7 +99,11 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
 
   // If is high level enough (high level swaps are harder to fake)
   if (totalLevel < allowedTotalLevel) {
-    logger.debug(`Ignoring ${params.id}: Total level too low (${totalLevel} <  ${allowedTotalLevel})`);
+    await skipReview(params.id, {
+      reason: 'total_level_too_low',
+      minTotalLevel: BASE_MIN_TOTAL_LEVEL,
+      totalLevel
+    });
     return;
   }
 
@@ -134,6 +155,15 @@ async function getBundleModifier(nameChange: NameChange): Promise<number> {
   const approvedRate = approvedCount / neighbours.length;
 
   return approvedRate >= 0.5 ? BOOSTED_MODIFIER : REGULAR_MODIFIER;
+}
+
+async function skipReview(id: number, skipContext: SkipContext) {
+  await prisma.nameChange.update({
+    where: { id },
+    data: { reviewContext: skipContext }
+  });
+
+  logger.moderation(`[NameChange:${id}] Skipped ${skipContext.reason}`, skipContext);
 }
 
 export { autoReviewNameChange };

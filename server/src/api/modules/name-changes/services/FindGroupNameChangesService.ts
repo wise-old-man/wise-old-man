@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
+import prisma, { NameChange, NameChangeStatus, Player } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
@@ -43,7 +43,7 @@ async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promis
     skip: params.offset
   });
 
-  return nameChanges;
+  return nameChanges as unknown as Array<NameChange & { player: Player }>;
 }
 
 export { findGroupNameChanges };

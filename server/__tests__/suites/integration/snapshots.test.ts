@@ -270,33 +270,49 @@ describe('Snapshots API', () => {
 
     it('should detect negative gains between snapshots', () => {
       // No changes between these
-      expect(utils.hasNegativeGains(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
+      expect(utils.getNegativeGains(globalData.snapshots[1], globalData.snapshots[0])).toBeNull();
+
       // Positive changes between these
-      expect(utils.hasNegativeGains(globalData.snapshots[10], globalData.snapshots[0])).toBe(false);
+      expect(utils.getNegativeGains(globalData.snapshots[10], globalData.snapshots[0])).toBeNull();
+
       // Negative last_man_standing gains
       const negativeLmsStart = { ...globalData.snapshots[0], last_man_standingScore: 1000 };
       const negativeLmsEnd = { ...globalData.snapshots[0], last_man_standingScore: 700 };
-      expect(utils.hasNegativeGains(negativeLmsStart, negativeLmsEnd)).toBe(false); // LMS score can decrease, so it shouldn't count as negative gains
+      expect(utils.getNegativeGains(negativeLmsStart, negativeLmsEnd)).toBeNull(); // LMS score can decrease, so it shouldn't count as negative gains
+
       // Negative pvp_arena gains
       const negativePvpArenaStart = { ...globalData.snapshots[0], pvp_arenaScore: 1000 };
       const negativePvpArenaEnd = { ...globalData.snapshots[0], pvp_arenaScore: 700 };
-      expect(utils.hasNegativeGains(negativePvpArenaStart, negativePvpArenaEnd)).toBe(false); // PVP Arena score can decrease, so it shouldn't count as negative gains
-      // Negative firemaking gains
-      const negativeFiremaking = { ...globalData.snapshots[0], firemakingExperience: 1 };
-      expect(utils.hasNegativeGains(globalData.snapshots[10], negativeFiremaking)).toBe(true);
-      // Unranked farming exp., shouldn't count
+      expect(utils.getNegativeGains(negativePvpArenaStart, negativePvpArenaEnd)).toBeNull(); // PVP Arena score can decrease, so it shouldn't count as negative gains
+
+      // Negative firemaking and magic gains
+      const negativeFiremaking = { ...globalData.snapshots[0], firemakingExperience: 1, magicExperience: 5 };
+      expect(utils.getNegativeGains(globalData.snapshots[10], negativeFiremaking)).toEqual({
+        firemaking: -6397195,
+        magic: -19219575
+      });
+
+      // Unranked farming exp., shouldn't count (farming became unranked)
       const unrankedFarming = { ...globalData.snapshots[0], farmingExperience: -1 };
-      expect(utils.hasNegativeGains(globalData.snapshots[10], unrankedFarming)).toBe(false);
+      expect(utils.getNegativeGains(globalData.snapshots[10], unrankedFarming)).toBeNull();
     });
 
     it('should detect excessive gains between snapshots', () => {
       // No changes between these
-      expect(utils.hasExcessiveGains(globalData.snapshots[1], globalData.snapshots[0])).toBe(false);
+      expect(utils.getExcessiveGains(globalData.snapshots[1], globalData.snapshots[0])).toBeNull();
+
       // Small changes between these
-      expect(utils.hasExcessiveGains(globalData.snapshots[10], globalData.snapshots[0])).toBe(false);
+      expect(utils.getExcessiveGains(globalData.snapshots[10], globalData.snapshots[0])).toBeNull();
+
       // Excessive changes between these
-      const bigGains = { ...globalData.snapshots[0], runecraftingExperience: 200_000_000 };
-      expect(utils.hasExcessiveGains(globalData.snapshots[10], bigGains)).toBe(true);
+      const bigGains = {
+        ...globalData.snapshots[0],
+        runecraftingExperience: 200_000_000,
+        zulrahKills: 5000
+      };
+
+      const result = utils.getExcessiveGains(globalData.snapshots[10], bigGains);
+      expect(result.ehbDiff + result.ehpDiff).toBeGreaterThan(result.hoursDiff);
     });
   });
 

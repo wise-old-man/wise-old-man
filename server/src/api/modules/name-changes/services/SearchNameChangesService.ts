@@ -36,7 +36,7 @@ async function searchNameChanges(payload: SearchNameChangesParams): Promise<Name
     skip: params.offset
   });
 
-  return nameChanges;
+  return nameChanges as NameChange[];
 }
 
 export { searchNameChanges };

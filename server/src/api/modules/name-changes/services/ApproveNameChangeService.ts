@@ -64,7 +64,8 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     where: { id: params.id },
     data: {
       status: NameChangeStatus.APPROVED,
-      resolvedAt: new Date()
+      resolvedAt: new Date(),
+      reviewContext: undefined
     }
   });
 
@@ -74,7 +75,7 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
 
   logger.moderation(`[NameChange:${nameChange.id}] Approved`);
 
-  return updatedNameChange;
+  return updatedNameChange as NameChange;
 }
 
 async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName: string): Promise<void> {

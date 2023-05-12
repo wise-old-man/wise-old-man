@@ -16,7 +16,7 @@ async function findPlayerNameChanges(payload: FindPlayerNameChangesParams): Prom
     orderBy: { resolvedAt: 'desc' }
   });
 
-  return nameChanges;
+  return nameChanges as NameChange[];
 }
 
 export { findPlayerNameChanges };

@@ -8,7 +8,7 @@ import * as playerServices from '../../players/player.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
-import { NameChangeDetails } from '../name-change.types';
+import { NameChange, NameChangeDetails } from '../name-change.types';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -29,7 +29,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   const [newPlayer] = await playerServices.findPlayer({ username: nameChange.newName });
 
   if (!oldPlayer || nameChange.status !== NameChangeStatus.PENDING) {
-    return { nameChange };
+    return { nameChange: nameChange as NameChange };
   }
 
   let newHiscores;
@@ -109,7 +109,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
   const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
 
-  const hasNegativeGains = newStats ? snapshotUtils.hasNegativeGains(oldStats, newStats) : false;
+  const negativeGains = newStats ? snapshotUtils.getNegativeGains(oldStats, newStats) : null;
 
   const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
   const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
@@ -119,12 +119,13 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   }
 
   return {
-    nameChange,
+    nameChange: nameChange as NameChange,
     data: {
       isNewOnHiscores: !!newHiscores,
       isOldOnHiscores: !!oldHiscores,
       isNewTracked: !!newPlayer,
-      hasNegativeGains,
+      negativeGains,
+      hasNegativeGains: !!negativeGains,
       timeDiff,
       hoursDiff,
       ehpDiff,

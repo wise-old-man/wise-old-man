@@ -69,6 +69,12 @@ const nameChanges = await client.nameChanges.searchNameChanges(
     "oldName": "iicyc",
     "newName": "ZezimaNite",
     "status": "pending",
+    "reviewContext": {
+      "reason": "excessive_gains";
+      "ehpDiff": 407;
+      "ehbDiff": 204;
+      "hoursDiff": 596;
+    }
     "resolvedAt": null,
     "updatedAt": "2022-10-13T18:01:17.159Z",
     "createdAt": "2022-10-13T18:01:17.159Z"
@@ -79,6 +85,7 @@ const nameChanges = await client.nameChanges.searchNameChanges(
     "oldName": "Zezime54",
     "newName": "zezi1meme",
     "status": "pending",
+    "reviewContext": null,
     "resolvedAt": null,
     "updatedAt": "2021-10-25T11:50:31.581Z",
     "createdAt": "2021-10-25T11:50:31.581Z"
@@ -140,159 +147,9 @@ const newNameChange = await client.nameChanges.submitNameChange('psikoi', 'zezim
   "oldName": "psikoi",
   "newName": "zezima",
   "status": "pending",
+  "reviewContext": null,
   "resolvedAt": null,
   "updatedAt": "2022-10-25T11:50:31.581Z",
   "createdAt": "2022-10-25T11:50:31.581Z"
 }
 ```
-
----
-
-## Get Name Change Details
-
-<Endpoint verb="GET" path="/names/:id" />
-<br />
-
-Gets details on a specific name change request. Returns a [NameChangeDetails](/names-api/name-type-definitions#object-name-change-details) object.
-
-<br />
-
-**Request Params**
-
-| Field | Type    | Required | Description           |
-| ----- | ------- | -------- | --------------------- |
-| id    | integer | `true`   | The name change's ID. |
-
-<br />
-
-**Example Request**
-
-<TabbedCodeBlock>
-
-```curl
-curl -X GET https://api.wiseoldman.net/v2/names/123 \
-  -H "Content-Type: application/json"
-```
-
-```javascript
-const { WOMClient } = require('@wise-old-man/utils');
-
-const client = new WOMClient();
-
-const nameChangeDetails = await client.nameChanges.getNameChangeDetails(123);
-```
-
-</TabbedCodeBlock>
-
-<br />
-
-**Example Response**
-
-```json
-{
-  "nameChange": {
-    "id": 123,
-    "playerId": 202807,
-    "oldName": "psikoi",
-    "newName": "zezima",
-    "status": "pending",
-    "resolvedAt": null,
-    "updatedAt": "2022-10-30T19:04:04.848Z",
-    "createdAt": "2022-10-30T19:04:04.847Z"
-  },
-  "data": {
-    "isNewOnHiscores": true,
-    "isOldOnHiscores": false,
-    "isNewTracked": true,
-    "hasNegativeGains": false,
-    "timeDiff": 50812212711,
-    "hoursDiff": 14114.503530833335,
-    "ehpDiff": 11.807679999999891,
-    "ehbDiff": 0,
-    "oldStats": {
-      "id": 16445235,
-      "playerId": 202807,
-      "createdAt": "2021-03-21T16:05:48.284Z",
-      "importedAt": null,
-      "data": {
-        "skills": {
-          "overall": {
-            "metric": "overall",
-            "experience": 2312022,
-            "rank": 55336,
-            "level": 864
-          }
-          // ... etc for all skills
-        },
-        "bosses": {
-          "abyssal_sire": {
-            "metric": "abyssal_sire",
-            "kills": -1,
-            "rank": -1
-          }
-          // ... etc for all bosses
-        },
-        "activities": {
-          "bounty_hunter_hunter": {
-            "metric": "bounty_hunter_hunter",
-            "score": -1,
-            "rank": -1
-          }
-          // ... etc for all activities
-        },
-        "computed": {
-          "ehp": {
-            "metric": "ehp",
-            "value": 45.20698,
-            "rank": 131673
-          }
-          // ... etc for all computed metrics
-        }
-      }
-    },
-    "newStats": {
-      "id": 68362915,
-      "playerId": 788983,
-      "createdAt": "2022-10-30T18:36:00.995Z",
-      "importedAt": null,
-      "data": {
-        "skills": {
-          "overall": {
-            "metric": "overall",
-            "experience": 3194246,
-            "rank": 56732,
-            "level": 1036
-          }
-          // ... etc for all skills
-        },
-        "bosses": {
-          "abyssal_sire": {
-            "metric": "abyssal_sire",
-            "kills": -1,
-            "rank": -1
-          }
-          // ... etc for all bosses
-        },
-        "activities": {
-          "bounty_hunter_hunter": {
-            "metric": "bounty_hunter_hunter",
-            "score": -1,
-            "rank": -1
-          }
-          // ... etc for all activities
-        },
-        "computed": {
-          "ehp": {
-            "metric": "ehp",
-            "value": 43.41906000000017,
-            "rank": 1
-          }
-          // ... etc for all computed metrics
-        }
-      }
-    }
-  }
-}
-```
-
----
