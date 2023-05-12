@@ -4,6 +4,9 @@ import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export { NameChangeStatus } from '../../../prisma/enum-adapter';
 
+export { DenyContext } from './services/DenyNameChangeService';
+export { SkipContext } from './services/AutoReviewNameChangeService';
+
 export type NameChangeDetails = {
   nameChange: NameChange;
   data?: {
