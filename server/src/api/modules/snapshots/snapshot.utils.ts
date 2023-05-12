@@ -185,7 +185,7 @@ function getNegativeGains(before: Snapshot, after: Snapshot) {
       const valueKey = getMetricValueKey(metric);
       return [metric, after[valueKey] - before[valueKey]];
     })
-  ) as Record<Metric, number>;
+  ) as MapOf<Metric, number>;
 
   return negativeGains;
 }

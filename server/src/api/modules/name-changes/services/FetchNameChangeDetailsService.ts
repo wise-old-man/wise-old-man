@@ -109,7 +109,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   const ehpDiff = newStats ? newStats.ehpValue - oldStats.ehpValue : 0;
   const ehbDiff = newStats ? newStats.ehbValue - oldStats.ehbValue : 0;
 
-  const hasNegativeGains = newStats ? !!snapshotUtils.getNegativeGains(oldStats, newStats) : false;
+  const negativeGains = newStats ? snapshotUtils.getNegativeGains(oldStats, newStats) : null;
 
   const oldPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(oldStats, oldPlayer);
   const newPlayerEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(newStats, newPlayer);
@@ -124,7 +124,8 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
       isNewOnHiscores: !!newHiscores,
       isOldOnHiscores: !!oldHiscores,
       isNewTracked: !!newPlayer,
-      hasNegativeGains,
+      negativeGains,
+      hasNegativeGains: !!negativeGains,
       timeDiff,
       hoursDiff,
       ehpDiff,

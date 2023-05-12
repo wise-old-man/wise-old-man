@@ -23,7 +23,10 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   } catch (error) {
     if (error.message === 'Old stats could not be found.') {
       logger.debug(`Denying ${params.id}: Old stats not found`);
-      await denyNameChange({ id: params.id });
+      await denyNameChange({
+        id: params.id,
+        reviewContext: { reason: 'old_stats_cannot_be_found' }
+      });
       return;
     }
   }
@@ -31,7 +34,7 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   if (!details || details.nameChange.status !== NameChangeStatus.PENDING) return;
 
   const { data, nameChange } = details;
-  const { isNewOnHiscores, hasNegativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
+  const { isNewOnHiscores, negativeGains, hoursDiff, ehpDiff, ehbDiff, oldStats } = data;
 
   // If it's a capitalization change, auto-approve
   if (playerUtils.standardize(nameChange.oldName) === playerUtils.standardize(nameChange.newName)) {
@@ -48,14 +51,19 @@ async function autoReviewNameChange(payload: AutoReviewNameChangeParams): Promis
   // If new name is not on the hiscores
   if (!isNewOnHiscores) {
     logger.debug(`Denying ${params.id}: New name is not on the hiscores`);
-    await denyNameChange({ id: params.id });
+    await denyNameChange({
+      id: params.id,
+      reviewContext: { reason: 'new_name_not_on_the_hiscores' }
+    });
     return;
   }
 
   // If has lost exp/kills/scores, deny request
-  if (hasNegativeGains) {
-    logger.debug(`Denying ${params.id}: Negative gains`);
-    await denyNameChange({ id: params.id });
+  if (negativeGains) {
+    await denyNameChange({
+      id: params.id,
+      reviewContext: { reason: 'negative_gains', negativeGains }
+    });
     return;
   }
 

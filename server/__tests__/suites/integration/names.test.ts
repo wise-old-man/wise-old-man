@@ -519,9 +519,10 @@ describe('Names API', () => {
         .send({ adminPassword: env.ADMIN_PASSWORD });
 
       expect(response.status).toBe(200);
+      expect(response.body.id).toBe(globalData.firstNameChangeId);
       expect(response.body.status).toBe('denied');
       expect(response.body.resolvedAt).not.toBe(null);
-      expect(response.body.id).toBe(globalData.firstNameChangeId);
+      expect(response.body.reviewContext).toMatchObject({ reason: 'manual_review' });
     });
   });
 
