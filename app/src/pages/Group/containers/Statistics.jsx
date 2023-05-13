@@ -149,7 +149,7 @@ function renderStatsTable(stats, selectedStatsTab) {
     // Add the players username for metric leaders
     columns.splice(1, 0, {
       key: 'username',
-      transform: val => <Link to={`/players/${val}`}>{val}</Link>
+      transform: val => (val ? <Link to={`/players/${val}`}>{val}</Link> : '---')
     });
 
     // Add the rank for individual stats (excluded for the average)
