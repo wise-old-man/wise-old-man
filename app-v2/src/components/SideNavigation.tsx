@@ -7,7 +7,7 @@ import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
-import Logo from "~/assets/logo.svg";
+import LogoAlt from "~/assets/logo_alt.svg";
 import TagIcon from "~/assets/tag.svg";
 import CodeIcon from "~/assets/code.svg";
 import CloseIcon from "~/assets/close.svg";
@@ -127,9 +127,9 @@ function SideBar(props: SideBarProps) {
         className="block outline-none ring-0 lg:hidden"
         onClick={onRouteSelected}
       >
-        <Logo alt="Wise Old Man Logo" className="my-7 ml-7 w-28 shrink-0" />
+        <LogoAlt alt="Wise Old Man Logo" className="my-7 ml-7 w-32 shrink-0" />
       </Link>
-      <ul className="mt-0 flex flex-col lg:mt-4">
+      <ul className="mt-0 flex flex-col">
         {ROUTES.map((link) => (
           <li key={link.href}>
             <Link

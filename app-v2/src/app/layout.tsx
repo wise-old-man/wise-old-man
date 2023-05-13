@@ -1,11 +1,12 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
+import { Footer } from "~/components/Footer";
+import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
-import "../globals.css";
-import { Navigation } from "~/components/Navigation";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
+import "../globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,7 +30,10 @@ function RootLayout(props: PropsWithChildren) {
       <body>
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
-            <Navigation>{children}</Navigation>
+            <Navigation>
+              {children}
+              <Footer />
+            </Navigation>
           </ReactQueryProvider>
         </TooltipProvider>
         <TailwindIndicator />
