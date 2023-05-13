@@ -211,24 +211,7 @@ Used as an input for group modification endpoints (create, edit, add members, et
       metric: "bounty_hunter_hunter",
       rank: number,
       score: number,
-      player: {
-        id: number,
-        username: string,
-        displayName: string,
-        type: PlayerType,
-        build: PlayerBuild,
-        country: Country?,
-        status: PlayerStatus,
-        exp: number // (can be a long/bigint),
-        ehp: float,
-        ehb: float,
-        ttm: float,
-        tt200m: float,
-        registeredAt: date,
-        updatedAt: date,
-        lastChangedAt: date?,
-        lastImportedAt: date?
-      }
+      player: null // Can be null if no player leads
     },
     // ... etc for all activities
   },
