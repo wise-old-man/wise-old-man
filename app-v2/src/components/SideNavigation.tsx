@@ -27,7 +27,6 @@ const ROUTES = [
   { label: "Groups", href: "/groups", icon: PeopleIcon },
   { label: "Name changes", href: "/names", icon: TagIcon },
   { label: "Efficiency rates", href: "/ehp", icon: ToolsIcon, relatedRoutes: ["/ehb"] },
-  { label: "(Test) 404 Not Found", href: "/notfound-test", icon: CodeIcon },
 ];
 
 const EXTERNAL_LINKS = [
