@@ -30,7 +30,7 @@ module.exports = {
         h1: ["2.25rem", "2.5rem"],
         h2: ["1.875rem", "2.25rem"],
         h3: ["1.125rem", "1.5rem"],
-        body: ["0.875rem", "1.75rem"],
+        body: ["0.875rem", "1.5rem"],
       },
     },
   },

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { NameChange, NameChangeStatus } from "@wise-old-man/utils";
 import { Badge } from "~/components/Badge";
 import { Pagination } from "~/components/Pagination";
+import { ReviewContextTooltip } from "~/components/names/ReviewContextTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { apiClient } from "~/utils/api";
@@ -9,6 +10,7 @@ import { timeago } from "~/utils/dates";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 import { capitalize } from "~/utils/strings";
 
+import InfoIcon from "~/assets/info.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const RESULTS_PER_PAGE = 20;
@@ -103,9 +105,22 @@ async function NameChangesPage(props: PageProps) {
                       <TooltipContent>{formatDate(nameChange.resolvedAt)}</TooltipContent>
                     </Tooltip>
                   )}
+                  {!nameChange.resolvedAt && nameChange.reviewContext && (
+                    <Tooltip>
+                      <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
+                      <TooltipContent>{formatDate(nameChange.updatedAt)}</TooltipContent>
+                    </Tooltip>
+                  )}
+                </ListTableCell>
+                <ListTableCell className="w-20">
+                  <StatusBadge status={nameChange.status} />
                 </ListTableCell>
                 <ListTableCell>
-                  <StatusBadge status={nameChange.status} />
+                  {nameChange.reviewContext && (
+                    <ReviewContextTooltip {...nameChange}>
+                      <InfoIcon className="h-4 w-4 text-gray-300" />
+                    </ReviewContextTooltip>
+                  )}
                 </ListTableCell>
               </ListTableRow>
             ))}
@@ -165,6 +180,10 @@ function LoadingState() {
 }
 
 function getResolvedTimeago(nameChange: NameChange) {
+  if (!nameChange.resolvedAt) {
+    return `Auto-reviewed ${timeago.format(nameChange.updatedAt)} (skipped)`;
+  }
+
   if (nameChange.status === NameChangeStatus.APPROVED && nameChange.resolvedAt) {
     return `Approved ${timeago.format(nameChange.resolvedAt)} `;
   }
