@@ -1473,6 +1473,11 @@ describe('Group API', () => {
                 username: 'alexsuperfly'
               }
             }
+          },
+          activities: {
+            bounty_hunter_hunter: {
+              player: null
+            }
           }
         }
       });
