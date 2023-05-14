@@ -5,22 +5,30 @@ function buildMockMetricLeaders() {
   return {
     skills: {
       attack: {
-        metric: 'attack'
+        metric: 'attack',
+        player: null,
+        rank: -1
       }
     },
     bosses: {
       zulrah: {
-        metric: 'zulrah'
+        metric: 'zulrah',
+        player: null,
+        rank: 100
       }
     },
     activities: {
       bounty_hunter_hunter: {
-        metric: 'bounty_hunter_hunter'
+        metric: 'bounty_hunter_hunter',
+        player: null,
+        rank: 100
       }
     },
     computed: {
       ehp: {
-        metric: 'ehp'
+        metric: 'ehp',
+        player: null,
+        rank: -1
       }
     }
   } as unknown as MetricLeaders;
@@ -70,9 +78,9 @@ describe('Util - Snapshots', () => {
     const players = buildMockPlayers();
     utils.assignPlayersToMetricLeaders(metricLeaders, leaderIdMap, players);
 
-    expect(metricLeaders.skills.attack.player.username).toEqual('jonxslays');
+    expect(metricLeaders.skills.attack.player).toEqual(null);
     expect(metricLeaders.bosses.zulrah.player.username).toEqual('psikoi');
     expect(metricLeaders.activities.bounty_hunter_hunter.player.username).toEqual('alexsuperfly');
-    expect(metricLeaders.computed.ehp.player.username).toEqual('jonxslays');
+    expect(metricLeaders.computed.ehp.player).toEqual(null);
   });
 });
