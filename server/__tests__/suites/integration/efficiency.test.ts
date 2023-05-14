@@ -518,6 +518,17 @@ describe('Efficiency API', () => {
       }
     });
 
+    it('should fetch EHP+EHB leaderboards (with no archived players)', async () => {
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp+ehb' });
+
+      expect(response.status).toBe(200);
+
+      // Ensure the list contains no archived players
+      response.body.forEach(player => {
+        expect(player.status).not.toBe('archived');
+      });
+    });
+
     it('should not fetch EHP leaderboards (negative offset)', async () => {
       const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp', offset: -5 });
 

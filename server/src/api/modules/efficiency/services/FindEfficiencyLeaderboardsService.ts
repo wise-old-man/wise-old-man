@@ -60,9 +60,8 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     return players;
   }
 
-  let playerQuery = `status != ${PlayerStatus.ARCHIVED} AND `;
   // When filtering by player type, the ironman filter should include UIM and HCIM
-  playerQuery +=
+  let playerQuery =
     params.playerType !== PlayerType.IRONMAN
       ? `"type" = '${params.playerType}'`
       : `("type" = '${PlayerType.IRONMAN}' OR "type" = '${PlayerType.HARDCORE}' OR "type" = '${PlayerType.ULTIMATE}')`;
@@ -80,15 +79,16 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     OFFSET ${params.offset}
   `);
 
-  const fixedPlayers = players.map(p => ({
-    ...p,
-    registeredAt: new Date(p.registeredAt),
-    updatedAt: new Date(p.updatedAt),
-    lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
-    lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
-  }));
-
-  return fixedPlayers.map(modifyPlayer);
+  return players
+    .map(p => ({
+      ...p,
+      registeredAt: new Date(p.registeredAt),
+      updatedAt: new Date(p.updatedAt),
+      lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
+      lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
+    }))
+    .filter(p => p.status !== PlayerStatus.ARCHIVED)
+    .map(modifyPlayer);
 }
 
 export { findEfficiencyLeaderboards };
