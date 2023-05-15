@@ -1,11 +1,12 @@
 import Link from "next/link";
-
 import { notFound } from "next/navigation";
+import { PropsWithChildren } from "react";
 import { CompetitionDetails, MetricProps } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
 import { Button } from "~/components/Button";
 import { MetricIcon } from "~/components/Icon";
 import { Container } from "~/components/Container";
+import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 
 import OverflowIcon from "~/assets/overflow.svg";
@@ -16,8 +17,12 @@ interface PageProps {
   };
 }
 
-export default async function CompetitionLayout(props: PageProps) {
-  const { id } = props.params;
+export default async function CompetitionLayout(props: PropsWithChildren<PageProps>) {
+  const { children, params } = props;
+  const { id } = params;
+
+  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
+  const routeSegment = children.props.childProp.segment;
 
   const competition = await apiClient.competitions.getCompetitionDetails(id).catch((e) => {
     if (e instanceof Error && "statusCode" in e && e.statusCode === 404) {
@@ -27,9 +32,32 @@ export default async function CompetitionLayout(props: PageProps) {
   });
 
   return (
-    <Container>
-      <Header {...competition} />
+    <Container className="mt-0 pt-0">
+      <div className="sticky top-12 z-10 bg-gray-900 pb-5 pt-12">
+        <Header {...competition} />
+      </div>
       <CompetitionWidgets {...competition} />
+      <div className="sticky top-40 z-10 mt-5 pt-3">
+        <div className="relative pb-8">
+          <div className="bg-gray-900">
+            <Tabs defaultValue={routeSegment}>
+              <TabsList aria-label="Competition Navigation">
+                <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
+                  <TabsTrigger value="__PAGE__">Participants</TabsTrigger>
+                </Link>
+                <Link
+                  href={`/competitions/${id}/top-5`}
+                  aria-label="Navigate to competition's top 5 participants chart"
+                >
+                  <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
+                </Link>
+              </TabsList>
+            </Tabs>
+          </div>
+          <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
+        </div>
+      </div>
+      <div className="mt-2">{children}</div>
     </Container>
   );
 }

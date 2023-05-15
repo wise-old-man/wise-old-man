@@ -52,7 +52,7 @@ export function CompetitionWidgets(props: CompetitionDetails) {
   const topParticipant = getTopParticipant(topParticipantSorting, participations);
 
   return (
-    <div className="mt-10 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
+    <div className="mt-5 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
       <div>
         <TimezoneSelector showUTC={showUTC} onShowUTCChanged={setShowUTC} />
         <CompetitionDuration startsAt={startsAt} endsAt={endsAt} showUTC={showUTC} />
@@ -133,9 +133,16 @@ function Gained(props: GainedProps) {
 
   return (
     <div className="relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
-      <Image fill alt={metric} className="z-0" src={`/img/backgrounds/${metric}.png`} />
-      <MetricIcon metric={metric} />
-      <div className="flex flex-col gap-y-0.5">
+      <Image
+        fill
+        alt={metric}
+        className="pointer-events-none z-0"
+        src={`/img/backgrounds/${metric}.png`}
+      />
+      <div className="z-1 relative mr-2 scale-150">
+        <MetricIcon metric={metric} />
+      </div>
+      <div className="z-1 relative flex flex-col gap-y-0.5">
         <span className="text-xs text-gray-100">{MetricProps[metric].name}</span>
         <span className="text-xl font-medium">{formatNumber(value)}</span>
       </div>

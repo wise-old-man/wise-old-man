@@ -10,7 +10,11 @@ export default function CompetitionDuration(props: CompetitionDurationProps) {
   const { showUTC } = props;
 
   const duration = durationBetween(props.startsAt, props.endsAt);
-  const durationString = `${duration.days} days, ${duration.hours} hours, ${duration.minutes} minutes`;
+
+  const durationSegments = [];
+  if (duration.days > 0) durationSegments.push(`${duration.days} days`);
+  if (duration.hours > 0) durationSegments.push(`${duration.hours} hours`);
+  if (duration.minutes > 0) durationSegments.push(`${duration.minutes} minutes`);
 
   return (
     <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500">
@@ -25,7 +29,7 @@ export default function CompetitionDuration(props: CompetitionDurationProps) {
         </div>
       </div>
       <div className="w-full border-t border-gray-500 px-4 py-2 text-xs text-gray-200">
-        Duration: {durationString}
+        Duration: {durationSegments.join(", ")}
       </div>
     </div>
   );
