@@ -40,63 +40,78 @@ export default async function CompetitionPage(props: PageProps) {
     throw e;
   });
 
-  return (
-    <TableContainer>
-      <TableHeader>
-        <div className="flex flex-col">
-          <h3 className="text-h3 font-medium">Participants</h3>
-          <p className="text-sm text-gray-200">
-            Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
-          </p>
-        </div>
-        <Button>Export table</Button>
-      </TableHeader>
-      <Table>
-        <TableColumns>
-          <TableColumn>Rank</TableColumn>
-          <TableColumn>Player</TableColumn>
-          <TableColumn>Start</TableColumn>
-          <TableColumn>End</TableColumn>
-          <TableColumn>Gained</TableColumn>
-          <TableColumn>Updated</TableColumn>
-        </TableColumns>
-        <TableBody>
-          {competition.participations.map((p, index) => {
-            const hasStartingValue = p.player.updatedAt && p.player.updatedAt >= competition.startsAt;
+  const hasStarted = competition.startsAt <= new Date();
 
-            return (
-              <TableRow key={p.player.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>
-                  <PlayerIdentity player={p.player} />
-                </TableCell>
-                <TableCell>
-                  <ParticipantStartCell competition={competition} participant={p} />
-                </TableCell>
-                <TableCell>
-                  <ParticipantEndCell competition={competition} participant={p} />
-                </TableCell>
-                <TableCell className={cn(p.progress.gained > 0 && "text-green-500")}>
-                  {p.progress.gained > 0 ? "+" : ""}
-                  <FormattedNumber value={p.progress.gained} />
-                </TableCell>
-                <TableCell>
-                  <div
-                    className={cn(
-                      "flex items-center justify-between gap-x-3",
-                      !hasStartingValue && "text-red-500"
-                    )}
-                  >
-                    {p.player.updatedAt ? timeago.format(p.player.updatedAt) : "---"}
-                    <Button size="sm">Update</Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+  const rowData = competition.participations.map((p, i) => ({ ...p, rank: i + 1 }));
+
+  return (
+    <div className="custom-scroll overflow-x-auto">
+      <TableContainer>
+        <TableHeader>
+          <div className="flex flex-col">
+            <h3 className="text-h3 font-medium">Participants</h3>
+            <p className="text-sm text-gray-200">
+              Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
+            </p>
+          </div>
+          <Button>Export table</Button>
+        </TableHeader>
+        <Table>
+          <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col className="w-56" />
+          </colgroup>
+          <TableColumns>
+            <TableColumn>Rank</TableColumn>
+            <TableColumn>Player</TableColumn>
+            <TableColumn>Start</TableColumn>
+            <TableColumn>End</TableColumn>
+            <TableColumn>Gained</TableColumn>
+            <TableColumn>Updated</TableColumn>
+          </TableColumns>
+          <TableBody>
+            {rowData.map((p) => {
+              const hasGains = p.progress.gained > 0;
+              const hasStartingValue = p.player.updatedAt && p.player.updatedAt >= competition.startsAt;
+
+              return (
+                <TableRow key={p.player.id}>
+                  <TableCell>{p.rank}</TableCell>
+                  <TableCell>
+                    <PlayerIdentity player={p.player} />
+                  </TableCell>
+                  <TableCell>
+                    <ParticipantStartCell competition={competition} participant={p} />
+                  </TableCell>
+                  <TableCell>
+                    <ParticipantEndCell competition={competition} participant={p} />
+                  </TableCell>
+                  <TableCell className={cn(hasGains && "text-green-500")}>
+                    {hasGains ? "+" : ""}
+                    <FormattedNumber value={p.progress.gained} />
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      className={cn(
+                        "flex items-center justify-between gap-x-3",
+                        !hasStartingValue && hasStarted && "text-red-500"
+                      )}
+                    >
+                      {p.player.updatedAt ? timeago.format(p.player.updatedAt) : "---"}
+                      <Button size="sm">Update</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 }
 

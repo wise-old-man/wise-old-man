@@ -5,13 +5,16 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   CompetitionDetails,
+  MeasuredDeltaProgress,
   Metric,
   MetricProps,
   ParticipationWithPlayerAndProgress,
   formatNumber,
+  isActivity,
   isBoss,
   isSkill,
 } from "@wise-old-man/utils";
+import { cn } from "~/utils/styling";
 import {
   Combobox,
   ComboboxContent,
@@ -49,7 +52,7 @@ export function CompetitionWidgets(props: CompetitionDetails) {
   const [topParticipantSorting, setTopParticipantSorting] = useState<TopParticipantSorting>("by_value");
 
   const isUpcoming = startsAt.getTime() > Date.now();
-  const topParticipant = getTopParticipant(topParticipantSorting, participations);
+  const topParticipant = getTopParticipant(topParticipantSorting, metric, participations);
 
   return (
     <div className="mt-5 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
@@ -68,11 +71,11 @@ export function CompetitionWidgets(props: CompetitionDetails) {
           sorting={topParticipantSorting}
           onSortingChanged={setTopParticipantSorting}
         />
-        <TopParticipant metric={metric} topParticipant={topParticipant} />
+        <TopParticipantWidget metric={metric} topParticipant={topParticipant} />
       </div>
       <div>
         <AverageSelector showAverage={showAverage} onShowAverageChanged={setShowAverage} />
-        <Gained metric={metric} participations={participations} showAverage={showAverage} />
+        <GainedWidget metric={metric} participations={participations} showAverage={showAverage} />
       </div>
     </div>
   );
@@ -82,12 +85,12 @@ function PlaceholderWidget() {
   return <div className="h-24 w-full overflow-hidden rounded-lg border border-gray-500 px-3" />;
 }
 
-interface TopParticipantProps {
+interface TopParticipantWidgetrops {
   metric: Metric;
   topParticipant: ParticipationWithPlayerAndProgress | null;
 }
 
-function TopParticipant(props: TopParticipantProps) {
+function TopParticipantWidget(props: TopParticipantWidgetrops) {
   const { metric, topParticipant } = props;
 
   if (!topParticipant) {
@@ -98,34 +101,38 @@ function TopParticipant(props: TopParticipantProps) {
     );
   }
 
+  const hasGains = topParticipant.progress.gained > 0;
+
   const { player, progress } = topParticipant;
-  const percent = 1 - progress.start / progress.end;
 
   return (
     <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 px-5">
       <div className="flex w-full items-end justify-between">
         <div className="flex flex-col gap-y-px">
           <span className="text-base font-medium text-white">{player.displayName}</span>
-          <span className="text-sm font-medium text-green-400">
-            +{formattedGained(progress.gained, metric)}
+          <span className={cn("text-sm font-medium", hasGains && "text-green-500")}>
+            {hasGains ? "+" : ""}
+            {formattedGained(progress.gained, metric)}
           </span>
         </div>
-        <Badge variant="success">
-          <ArrowUpIcon className="-ml-1 h-5 w-5" />
-          {Math.floor(percent * 100)}%
-        </Badge>
+        {hasGains && (
+          <Badge variant="success">
+            <ArrowUpIcon className="-ml-1 h-5 w-5" />
+            {Math.floor(getPercentGained(metric, progress) * 100)}%
+          </Badge>
+        )}
       </div>
     </div>
   );
 }
 
-interface GainedProps {
+interface GainedWidgetProps {
   metric: Metric;
   showAverage: boolean;
   participations: ParticipationWithPlayerAndProgress[];
 }
 
-function Gained(props: GainedProps) {
+function GainedWidget(props: GainedWidgetProps) {
   const { metric, showAverage, participations } = props;
 
   const total = participations.reduce((acc, p) => acc + p.progress.gained, 0);
@@ -134,9 +141,9 @@ function Gained(props: GainedProps) {
   return (
     <div className="relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-500 px-6">
       <Image
-        fill
         alt={metric}
-        className="pointer-events-none z-0"
+        fill
+        className="pointer-events-none z-0 object-cover"
         src={`/img/backgrounds/${metric}.png`}
       />
       <div className="z-1 relative mr-2 scale-150">
@@ -237,19 +244,15 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
 
 function getTopParticipant(
   sorting: TopParticipantSorting,
+  metric: Metric,
   participations: ParticipationWithPlayerAndProgress[]
 ) {
   if (participations.length === 0) return null;
   if (sorting === "by_value") return participations[0];
 
-  return participations
-    .filter((p) => p.progress.start > -1 && p.progress.end > -1)
-    .sort((a, b) => {
-      const percentA = 1 - a.progress.start / a.progress.end;
-      const percentB = 1 - b.progress.start / b.progress.end;
-
-      return percentB - percentA;
-    })[0];
+  return [...participations].sort(
+    (a, b) => getPercentGained(metric, b.progress) - getPercentGained(metric, a.progress)
+  )[0];
 }
 
 function formattedGained(value: number, metric: Metric) {
@@ -262,4 +265,15 @@ function formattedGained(value: number, metric: Metric) {
   }
 
   return formatNumber(value);
+}
+
+function getPercentGained(metric: Metric, progress: MeasuredDeltaProgress) {
+  if (progress.gained === 0) return 0;
+
+  let minimum = 0;
+  if (isBoss(metric) || isActivity(metric)) minimum = MetricProps[metric].minimumValue - 1;
+
+  const start = Math.max(minimum, progress.start);
+
+  return (progress.end - start) / start;
 }

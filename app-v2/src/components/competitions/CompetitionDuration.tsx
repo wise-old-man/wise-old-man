@@ -28,7 +28,7 @@ export default function CompetitionDuration(props: CompetitionDurationProps) {
           <span className="text-sm">{formatDate(props.endsAt, showUTC)}</span>
         </div>
       </div>
-      <div className="w-full border-t border-gray-500 px-4 py-2 text-xs text-gray-200">
+      <div className="line-clamp-1 w-full overflow-hidden truncate border-t border-gray-500 px-4 py-2 text-xs text-gray-200">
         Duration: {durationSegments.join(", ")}
       </div>
     </div>
