@@ -13,7 +13,14 @@ import { Button } from "~/components/Button";
 import { MetricIcon } from "~/components/Icon";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/Dropdown";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
+import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
@@ -71,7 +78,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
 }
 
 function Header(props: CompetitionDetails) {
-  const { metric, title, participantCount, group } = props;
+  const { id, metric, title, participantCount, group } = props;
 
   const status = getCompetitionStatus(props);
 
@@ -110,10 +117,27 @@ function Header(props: CompetitionDetails) {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-x-2">
-        <Button variant="blue">Update all</Button>
-        <Button iconButton>
-          <OverflowIcon className="h-5 w-5" />
-        </Button>
+        <CompetitionDialogLink dialog="update-all">
+          <Button variant="blue">Update all</Button>
+        </CompetitionDialogLink>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button iconButton>
+              <OverflowIcon className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <Link href={`/competitions/${id}/edit`}>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+            </Link>
+            <CompetitionDialogLink dialog="delete">
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </CompetitionDialogLink>
+            <CompetitionDialogLink dialog="preview-other">
+              <DropdownMenuItem>Preview other metric</DropdownMenuItem>
+            </CompetitionDialogLink>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

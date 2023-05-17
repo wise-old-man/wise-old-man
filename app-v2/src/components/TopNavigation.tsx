@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { RemoveScroll } from "react-remove-scroll";
+import { cn } from "~/utils/styling";
 import { Search } from "./Search";
 
 import LogoAlt from "~/assets/logo_alt.svg";
@@ -14,11 +16,16 @@ export function TopNavigation(props: TopNavigationProps) {
   const { onMenuToggled } = props;
 
   return (
-    <nav className="fixed left-0 right-0 top-0 z-50 flex h-[4.5rem] w-full items-center border-b border-gray-700 bg-gray-800 px-7 shadow-lg">
+    <nav
+      className={cn(
+        "fixed top-0 z-50 flex h-[4.5rem] w-full items-center border-b border-gray-700 bg-gray-800 px-7 shadow-lg",
+        RemoveScroll.classNames.zeroRight
+      )}
+    >
       <Link
         href="/"
         aria-label="Home"
-        className="hidden outline-none ring-0 lg:block"
+        className="fixed left-7 hidden outline-none ring-0 lg:block"
         onClick={() => onMenuToggled(false)}
       >
         <LogoAlt alt="Wise Old Man Logo" className="w-32 shrink-0" />
