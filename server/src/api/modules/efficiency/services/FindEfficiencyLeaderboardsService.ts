@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
-import { PlayerType, PlayerBuild, Metric, Country } from '../../../../utils';
+import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
@@ -36,7 +36,8 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
 async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   if (params.metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
-      type: params.playerType
+      type: params.playerType,
+      status: { not: PlayerStatus.ARCHIVED }
     };
 
     // When filtering by player type, the ironman filter should include UIM and HCIM
@@ -78,15 +79,16 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     OFFSET ${params.offset}
   `);
 
-  const fixedPlayers = players.map(p => ({
-    ...p,
-    registeredAt: new Date(p.registeredAt),
-    updatedAt: new Date(p.updatedAt),
-    lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
-    lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
-  }));
-
-  return fixedPlayers.map(modifyPlayer);
+  return players
+    .map(p => ({
+      ...p,
+      registeredAt: new Date(p.registeredAt),
+      updatedAt: new Date(p.updatedAt),
+      lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
+      lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
+    }))
+    .filter(p => p.status !== PlayerStatus.ARCHIVED)
+    .map(modifyPlayer);
 }
 
 export { findEfficiencyLeaderboards };

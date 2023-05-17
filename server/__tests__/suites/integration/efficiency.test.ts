@@ -80,6 +80,17 @@ beforeAll(async () => {
       country: 'PT'
     }
   });
+
+  // Add one archived player for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `archived acc`,
+      displayName: `archived acc`,
+      type: 'regular',
+      ehp: 1000,
+      status: 'archived'
+    }
+  });
 });
 
 afterAll(async () => {
@@ -396,6 +407,25 @@ describe('Efficiency API', () => {
       }
     });
 
+    it('should fetch EHP leaderboards (with no archived players)', async () => {
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(20);
+
+      expect(response.body[0]).toMatchObject({
+        username: 'player 1',
+        type: 'regular',
+        ehp: 1000
+      });
+
+      // Ensure the list does not contain archived players
+      for (let i = 0; i < response.body.length; i++) {
+        if (i === 0) continue;
+        expect(response.body[i].status).not.toBe('archived');
+      }
+    });
+
     it('should fetch EHP leaderboards (with player type filter)', async () => {
       const response = await api
         .get(`/efficiency/leaderboard`)
@@ -486,6 +516,17 @@ describe('Efficiency API', () => {
 
         expect(cur.ehp + cur.ehb <= prev.ehp + prev.ehb).toBe(true);
       }
+    });
+
+    it('should fetch EHP+EHB leaderboards (with no archived players)', async () => {
+      const response = await api.get(`/efficiency/leaderboard`).query({ metric: 'ehp+ehb' });
+
+      expect(response.status).toBe(200);
+
+      // Ensure the list contains no archived players
+      response.body.forEach(player => {
+        expect(player.status).not.toBe('archived');
+      });
     });
 
     it('should not fetch EHP leaderboards (negative offset)', async () => {
