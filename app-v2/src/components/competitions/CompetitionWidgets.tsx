@@ -55,7 +55,7 @@ export function CompetitionWidgets(props: CompetitionDetails) {
   const topParticipant = getTopParticipant(topParticipantSorting, metric, participations);
 
   return (
-    <div className="mt-5 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2 xl:grid-cols-4">
       <div>
         <TimezoneSelector showUTC={showUTC} onShowUTCChanged={setShowUTC} />
         <CompetitionDuration startsAt={startsAt} endsAt={endsAt} showUTC={showUTC} />

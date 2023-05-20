@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
-import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
@@ -51,33 +50,45 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
       <div className="sticky top-12 z-10 bg-gray-900 pb-5 pt-12">
         <Header {...competition} />
       </div>
-      <CompetitionWidgets {...competition} />
-      <div className="sticky top-52 z-10 mt-5 pt-3 md:top-40">
+      <div className="sticky top-56 z-10 pt-3 md:top-40">
         <div className="relative pb-8">
-          <div className="bg-gray-900">
-            <Tabs defaultValue={routeSegment}>
-              <TabsList aria-label="Competition Navigation">
-                <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
-                  <TabsTrigger value="__PAGE__">Participants</TabsTrigger>
-                </Link>
-                <Link
-                  href={`/competitions/${id}/top-5`}
-                  aria-label="Navigate to competition's top 5 participants chart"
-                >
-                  <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
-                </Link>
-              </TabsList>
-            </Tabs>
-          </div>
+          <Navigation id={id} routeSegment={routeSegment} />
           <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
         </div>
       </div>
-      <div className="mt-2">{children}</div>
+      {children}
 
       {/* Dialogs */}
       <UpdateAllParticipantsDialog competitionId={id} />
       <DeleteCompetitionDialog competitionId={id} />
     </Container>
+  );
+}
+
+interface NavigationProps {
+  id: number;
+  routeSegment: string;
+}
+
+function Navigation(props: NavigationProps) {
+  const { id, routeSegment } = props;
+
+  return (
+    <div className="bg-gray-900">
+      <Tabs defaultValue={routeSegment}>
+        <TabsList aria-label="Competition Navigation">
+          <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
+            <TabsTrigger value="__PAGE__">Overview</TabsTrigger>
+          </Link>
+          <Link
+            href={`/competitions/${id}/top-5`}
+            aria-label="Navigate to competition's top 5 participants chart"
+          >
+            <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
+          </Link>
+        </TabsList>
+      </Tabs>
+    </div>
   );
 }
 
