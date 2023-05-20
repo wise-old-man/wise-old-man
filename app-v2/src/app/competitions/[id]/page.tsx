@@ -176,7 +176,7 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
           <span>---</span>
         </TooltipTrigger>
         <TooltipContent>
-          This player is currently unranked in {MetricProps[competition.metric].name}.
+          This player started out unranked in {MetricProps[competition.metric].name}.
         </TooltipContent>
       </Tooltip>
     );
@@ -258,7 +258,7 @@ function ParticipantEndCell(props: ParticipantEndCellProps) {
           <span>---</span>
         </TooltipTrigger>
         <TooltipContent>
-          This player is currently unranked in {MetricProps[competition.metric].name}.
+          This player is unranked in {MetricProps[competition.metric].name}.
         </TooltipContent>
       </Tooltip>
     );

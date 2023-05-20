@@ -275,5 +275,7 @@ function getPercentGained(metric: Metric, progress: MeasuredDeltaProgress) {
 
   const start = Math.max(minimum, progress.start);
 
+  if (start === 0) return 1;
+
   return (progress.end - start) / start;
 }

@@ -1,10 +1,11 @@
 import * as React from "react";
+import { RemoveScroll } from "react-remove-scroll";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { VariantProps, cva } from "class-variance-authority";
 import { cn } from "~/utils/styling";
+import { Button } from "./Button";
 
 import CloseIcon from "~/assets/close.svg";
-import { Button } from "./Button";
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -16,6 +17,7 @@ const ToastViewport = React.forwardRef<
     ref={ref}
     className={cn(
       "pointer-events-none fixed right-0 top-0 z-[100] flex max-h-screen flex-col-reverse p-4 sm:flex-col",
+      RemoveScroll.classNames.zeroRight,
       className
     )}
     {...props}

@@ -21,6 +21,7 @@ import {
 } from "~/components/Dropdown";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
+import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
@@ -72,7 +73,10 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
         </div>
       </div>
       <div className="mt-2">{children}</div>
+
+      {/* Dialogs */}
       <UpdateAllParticipantsDialog competitionId={id} />
+      <DeleteCompetitionDialog competitionId={id} />
     </Container>
   );
 }
