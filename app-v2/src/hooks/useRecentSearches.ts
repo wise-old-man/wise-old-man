@@ -3,9 +3,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 const LOCAL_STORAGE_KEY = "wom-recent-searches-v2";
 
 export default function useRecentSearches({ enabled }: { enabled?: boolean }) {
-  const { data: recentSearches, ...fetchOptions } = useQuery<string[]>(
-    ["recentSearches"],
-    () => {
+  const { data: recentSearches, ...fetchOptions } = useQuery<string[]>({
+    queryKey: ["recentSearches"],
+    queryFn: () => {
       const rawSearches = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (rawSearches == null) return [];
 
@@ -15,28 +15,24 @@ export default function useRecentSearches({ enabled }: { enabled?: boolean }) {
         return [];
       }
     },
-    {
-      enabled: enabled === undefined || enabled,
-      staleTime: 300,
-    }
-  );
+    enabled: enabled === undefined || enabled,
+    staleTime: 300,
+  });
 
-  const addSearchTermMutation = useMutation(
-    async (term: string) => {
+  const addSearchTermMutation = useMutation({
+    mutationFn: async (term: string) => {
       const currentSearches = recentSearches || [];
       if (currentSearches.includes(term)) return;
 
       return localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([...currentSearches, term]));
     },
-    {
-      onSuccess: async () => {
-        return fetchOptions.refetch();
-      },
-    }
-  );
+    onSuccess: async () => {
+      return fetchOptions.refetch();
+    },
+  });
 
-  const removeSearchTermMutation = useMutation(
-    async (term: string) => {
+  const removeSearchTermMutation = useMutation({
+    mutationFn: async (term: string) => {
       const currentSearches = recentSearches || [];
       const nextSearches = currentSearches.filter((searchTerm) => searchTerm !== term);
 
@@ -46,23 +42,19 @@ export default function useRecentSearches({ enabled }: { enabled?: boolean }) {
 
       return localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextSearches));
     },
-    {
-      onSuccess: async () => {
-        return fetchOptions.refetch();
-      },
-    }
-  );
+    onSuccess: async () => {
+      return fetchOptions.refetch();
+    },
+  });
 
-  const clearSearchTermsMutation = useMutation(
-    async () => {
+  const clearSearchTermsMutation = useMutation({
+    mutationFn: async () => {
       return localStorage.removeItem(LOCAL_STORAGE_KEY);
     },
-    {
-      onSuccess: async () => {
-        return fetchOptions.refetch();
-      },
-    }
-  );
+    onSuccess: async () => {
+      return fetchOptions.refetch();
+    },
+  });
 
   return {
     addSearchTerm: addSearchTermMutation.mutateAsync,

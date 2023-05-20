@@ -54,22 +54,22 @@ function UpdateAllParticipantsForm(props: UpdateAllParticipantsDialogProps) {
     userAgent: "WiseOldMan - App v2 (Client Side)",
   });
 
-  const updateMutation = useMutation(
-    () => client.competitions.updateAll(competitionId, verificationCode),
-    {
-      onSuccess: () => {
-        toast.toast({
-          variant: "success",
-          title: "Update all submitted!",
-        });
-      },
-      onError: (error) => {
-        if (error instanceof Error) {
-          toast.toast({ variant: "error", title: error.message });
-        }
-      },
-    }
-  );
+  const updateMutation = useMutation({
+    mutationFn: () => {
+      return client.competitions.updateAll(competitionId, verificationCode);
+    },
+    onSuccess: () => {
+      toast.toast({
+        variant: "success",
+        title: "Update all submitted!",
+      });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
 
   // Clear the inputs when the form is unmounted
   useEffect(() => {
@@ -130,9 +130,9 @@ function UpdateAllParticipantsForm(props: UpdateAllParticipantsDialogProps) {
         size="lg"
         variant="blue"
         className="mt-6 justify-center"
-        disabled={verificationCode.length === 0 || updateMutation.isLoading}
+        disabled={verificationCode.length === 0 || updateMutation.isPending}
       >
-        {updateMutation.isLoading ? "Submitting..." : "Confirm"}
+        {updateMutation.isPending ? "Submitting..." : "Confirm"}
       </Button>
     </form>
   );
