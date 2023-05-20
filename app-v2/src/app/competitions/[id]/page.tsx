@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import {
   CompetitionDetails,
+  Metric,
   MetricProps,
   ParticipationWithPlayerAndProgress,
   isActivity,
   isBoss,
+  isMetric,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { apiClient } from "~/utils/api";
@@ -29,25 +31,34 @@ interface PageProps {
   params: {
     id: number;
   };
+  searchParams: {
+    preview?: string;
+  };
 }
 
 export default async function CompetitionPage(props: PageProps) {
   const { id } = props.params;
+  const { preview } = props.searchParams;
 
-  const competition = await apiClient.competitions.getCompetitionDetails(id).catch((e) => {
-    if (e instanceof Error && "statusCode" in e && e.statusCode === 404) {
-      notFound();
-    }
-    throw e;
-  });
+  const isValidMetric = preview && isMetric(preview);
 
+  const competition = await apiClient.competitions
+    .getCompetitionDetails(id, isValidMetric ? preview : undefined)
+    .catch((e) => {
+      if (e instanceof Error && "statusCode" in e && e.statusCode === 404) {
+        notFound();
+      }
+      throw e;
+    });
+
+  const metric = isValidMetric ? preview : competition.metric;
   const hasStarted = competition.startsAt <= new Date();
 
   const rowData = competition.participations.map((p, i) => ({ ...p, rank: i + 1 }));
 
   return (
     <>
-      <CompetitionWidgets {...competition} />
+      <CompetitionWidgets metric={metric} competition={competition} />
       <div className="custom-scroll mt-7 overflow-x-auto">
         <TableContainer>
           <TableHeader>
@@ -89,10 +100,10 @@ export default async function CompetitionPage(props: PageProps) {
                       <PlayerIdentity player={p.player} />
                     </TableCell>
                     <TableCell>
-                      <ParticipantStartCell competition={competition} participant={p} />
+                      <ParticipantStartCell metric={metric} competition={competition} participant={p} />
                     </TableCell>
                     <TableCell>
-                      <ParticipantEndCell competition={competition} participant={p} />
+                      <ParticipantEndCell metric={metric} competition={competition} participant={p} />
                     </TableCell>
                     <TableCell className={cn(hasGains && "text-green-500")}>
                       {hasGains ? "+" : ""}
@@ -121,12 +132,13 @@ export default async function CompetitionPage(props: PageProps) {
 }
 
 interface ParticipantStartCellProps {
+  metric: Metric;
   competition: CompetitionDetails;
   participant: ParticipationWithPlayerAndProgress;
 }
 
 function ParticipantStartCell(props: ParticipantStartCellProps) {
-  const { competition, participant } = props;
+  const { metric, competition, participant } = props;
   const { player, progress } = participant;
 
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
@@ -144,8 +156,8 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
     );
   }
 
-  if (isBoss(competition.metric) && MetricProps[competition.metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[competition.metric];
+  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.start) {
+    const { name, minimumValue } = MetricProps[metric];
 
     return (
       <Tooltip>
@@ -159,8 +171,8 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
     );
   }
 
-  if (isActivity(competition.metric) && MetricProps[competition.metric].minimumValue > progress.start) {
-    const { name, minimumValue } = MetricProps[competition.metric];
+  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.start) {
+    const { name, minimumValue } = MetricProps[metric];
 
     return (
       <Tooltip>
@@ -180,9 +192,7 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
         <TooltipTrigger asChild>
           <span>---</span>
         </TooltipTrigger>
-        <TooltipContent>
-          This player started out unranked in {MetricProps[competition.metric].name}.
-        </TooltipContent>
+        <TooltipContent>This player started out unranked in {MetricProps[metric].name}.</TooltipContent>
       </Tooltip>
     );
   }
@@ -191,12 +201,13 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
 }
 
 interface ParticipantEndCellProps {
+  metric: Metric;
   competition: CompetitionDetails;
   participant: ParticipationWithPlayerAndProgress;
 }
 
 function ParticipantEndCell(props: ParticipantEndCellProps) {
-  const { competition, participant } = props;
+  const { metric, competition, participant } = props;
 
   if (competition.startsAt > new Date()) {
     return (
@@ -226,8 +237,8 @@ function ParticipantEndCell(props: ParticipantEndCellProps) {
     );
   }
 
-  if (isBoss(competition.metric) && MetricProps[competition.metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[competition.metric];
+  if (isBoss(metric) && MetricProps[metric].minimumValue > progress.end) {
+    const { name, minimumValue } = MetricProps[metric];
 
     return (
       <Tooltip>
@@ -241,8 +252,8 @@ function ParticipantEndCell(props: ParticipantEndCellProps) {
     );
   }
 
-  if (isActivity(competition.metric) && MetricProps[competition.metric].minimumValue > progress.end) {
-    const { name, minimumValue } = MetricProps[competition.metric];
+  if (isActivity(metric) && MetricProps[metric].minimumValue > progress.end) {
+    const { name, minimumValue } = MetricProps[metric];
 
     return (
       <Tooltip>
@@ -262,9 +273,7 @@ function ParticipantEndCell(props: ParticipantEndCellProps) {
         <TooltipTrigger asChild>
           <span>---</span>
         </TooltipTrigger>
-        <TooltipContent>
-          This player is unranked in {MetricProps[competition.metric].name}.
-        </TooltipContent>
+        <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
       </Tooltip>
     );
   }

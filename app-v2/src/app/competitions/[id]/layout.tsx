@@ -19,8 +19,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
+import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
+import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
 
 import OverflowIcon from "~/assets/overflow.svg";
@@ -56,11 +58,13 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
           <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
         </div>
       </div>
+      <CompetitionPreviewWarning trueMetric={competition.metric} />
       {children}
 
       {/* Dialogs */}
-      <UpdateAllParticipantsDialog competitionId={id} />
       <DeleteCompetitionDialog competitionId={id} />
+      <UpdateAllParticipantsDialog competitionId={id} />
+      <PreviewMetricDialog trueMetric={competition.metric} />
     </Container>
   );
 }
@@ -100,7 +104,7 @@ function Header(props: CompetitionDetails) {
   const partipants = participantCount === 1 ? "1 participant" : `${participantCount} participants`;
 
   return (
-    <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
+    <div className="flex flex-col-reverse items-end justify-between gap-x-5 gap-y-7 md:flex-row">
       <div className="flex items-center gap-x-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gray-500 bg-gray-800">
           <MetricIcon metric={metric} />
@@ -148,8 +152,8 @@ function Header(props: CompetitionDetails) {
             <CompetitionDialogLink dialog="delete">
               <DropdownMenuItem>Delete</DropdownMenuItem>
             </CompetitionDialogLink>
-            <CompetitionDialogLink dialog="preview-other">
-              <DropdownMenuItem>Preview other metric</DropdownMenuItem>
+            <CompetitionDialogLink dialog="preview">
+              <DropdownMenuItem>Preview as...</DropdownMenuItem>
             </CompetitionDialogLink>
           </DropdownMenuContent>
         </DropdownMenu>

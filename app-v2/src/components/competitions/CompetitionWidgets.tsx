@@ -44,8 +44,14 @@ const CompetitionDuration = dynamic(() => import("./CompetitionDuration"), {
   ssr: false,
 });
 
-export function CompetitionWidgets(props: CompetitionDetails) {
-  const { startsAt, endsAt, participations, metric } = props;
+interface CompetitionWidgetsProps {
+  metric: Metric;
+  competition: CompetitionDetails;
+}
+
+export function CompetitionWidgets(props: CompetitionWidgetsProps) {
+  const { metric, competition } = props;
+  const { startsAt, endsAt, participations } = competition;
 
   const [showUTC, setShowUTC] = useState(false);
   const [showAverage, setShowAverage] = useState(false);
