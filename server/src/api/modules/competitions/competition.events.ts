@@ -41,6 +41,11 @@ async function onCompetitionStarted(competition: Competition) {
 
   // Dispatch a competition started event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchCompetitionStarted, competition);
+
+  jobManager.add({
+    type: JobType.UPDATE_COMPETITION_SCORE,
+    payload: { competitionId: competition.id }
+  });
 }
 
 async function onCompetitionEnded(competition: Competition) {
@@ -49,6 +54,11 @@ async function onCompetitionEnded(competition: Competition) {
 
   // Dispatch a competition ended event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchCompetitionEnded, competitionDetails);
+
+  jobManager.add({
+    type: JobType.UPDATE_COMPETITION_SCORE,
+    payload: { competitionId: competition.id }
+  });
 }
 
 async function onCompetitionStarting(competition: Competition, period: EventPeriodDelay) {
