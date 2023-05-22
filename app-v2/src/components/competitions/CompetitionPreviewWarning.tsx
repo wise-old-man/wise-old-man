@@ -20,7 +20,7 @@ export function CompetitionPreviewWarning(props: CompetitionPreviewWarningProps)
   if (!preview || !isMetric(preview)) return null;
 
   return (
-    <Alert className="mb-7 flex items-center justify-between">
+    <Alert className="mb-7 flex flex-col items-start justify-between gap-5 md:flex-row md:items-center">
       <div>
         <AlertTitle>
           <div className="mr-1">
@@ -33,9 +33,11 @@ export function CompetitionPreviewWarning(props: CompetitionPreviewWarningProps)
           calculations as if it were a {MetricProps[preview].name} competition.
         </AlertDescription>
       </div>
-      <CompetitionDialogLink dialog="preview">
-        <Button>Preview another</Button>
-      </CompetitionDialogLink>
+      <div className="whitespace-nowrap">
+        <CompetitionDialogLink dialog="preview">
+          <Button>Preview another</Button>
+        </CompetitionDialogLink>
+      </div>
     </Alert>
   );
 }

@@ -77,12 +77,15 @@ interface NavigationProps {
 function Navigation(props: NavigationProps) {
   const { id, routeSegment } = props;
 
+  // If more tabs are added, this should definitely be made better 🤷‍♂️
+  const selectedSegment = routeSegment === "top-5" ? "top-5" : "overview";
+
   return (
     <div className="bg-gray-900">
-      <Tabs defaultValue={routeSegment}>
+      <Tabs defaultValue={selectedSegment}>
         <TabsList aria-label="Competition Navigation">
           <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
-            <TabsTrigger value="__PAGE__">Overview</TabsTrigger>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
           </Link>
           <Link
             href={`/competitions/${id}/top-5`}
@@ -105,7 +108,7 @@ function Header(props: CompetitionDetails) {
 
   return (
     <div className="flex flex-col-reverse items-end justify-between gap-x-5 gap-y-7 md:flex-row">
-      <div className="flex items-center gap-x-3">
+      <div className="flex w-full grow items-center gap-x-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gray-500 bg-gray-800">
           <MetricIcon metric={metric} />
         </div>
