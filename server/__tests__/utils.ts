@@ -3,7 +3,8 @@ import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
-import { PlayerType, METRICS, Metric } from '../src/utils';
+import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
+import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.services';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {
@@ -59,7 +60,15 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
       let modifiedRow;
 
       modifications.forEach(m => {
-        if (METRICS.indexOf(m.metric) === index) {
+        const metricIndex = METRICS.indexOf(m.metric);
+
+        // Account for skipped metrics
+        const adjustedIndex =
+          metricIndex <= SKILLS.length + SKIPPED_ACTIVITY_INDICES.length
+            ? metricIndex
+            : metricIndex + SKIPPED_ACTIVITY_INDICES.filter(x => x < index).length;
+
+        if (adjustedIndex === index) {
           const bits = row.split(',');
           bits[bits.length - 1] = m.value.toString();
           modifiedRow = bits.join(',');
