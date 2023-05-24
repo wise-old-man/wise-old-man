@@ -314,6 +314,24 @@ describe('Snapshots API', () => {
       // Unranked farming exp., shouldn't count (farming became unranked)
       const unrankedFarming = { ...globalData.snapshots[0], farmingExperience: -1 };
       expect(utils.getNegativeGains(globalData.snapshots[10], unrankedFarming)).toBeNull();
+
+      // Negative BH score (not allowed, happened before the BH update on May 24th 2023)
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], bounty_hunter_hunterScore: 70 },
+          { ...globalData.snapshots[0], bounty_hunter_hunterScore: 10 }
+        )
+      ).toEqual({
+        bounty_hunter_hunter: -60
+      });
+
+      // Negative BH score (allowed, the BH update on May 24th 2023 reset people's BH scores, so negative gains are acceptable)
+      expect(
+        utils.getNegativeGains(
+          { ...globalData.snapshots[0], bounty_hunter_hunterScore: 70 },
+          { ...globalData.snapshots[0], createdAt: new Date('2024-01-01'), bounty_hunter_hunterScore: 10 }
+        )
+      ).toBeNull();
     });
 
     it('should detect excessive gains between snapshots', () => {
