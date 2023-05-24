@@ -12,7 +12,8 @@ import {
   readFile,
   registerHiscoresMock,
   registerCMLMock,
-  sleep
+  sleep,
+  modifyRawHiscoresData
 } from '../../utils';
 import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 
@@ -131,6 +132,24 @@ describe('Snapshots API', () => {
       expect(snapshot.kalphite_queenKills).toBe(293);
       expect(snapshot.barrows_chestsKills).toBe(1773);
       expect(snapshot.commander_zilyanaKills).toBe(1350);
+
+      // The legacy BH metrics are set to 100/200 score on the CSV
+      // but we should be ignoring those when parsing the CSV, and instead
+      // use the new BH metrics for the snapshot (which are both unranked at -1)
+      expect(snapshot.bounty_hunter_rogueScore).toBe(-1);
+      expect(snapshot.bounty_hunter_hunterScore).toBe(-1);
+
+      // Now simulate gains in the new BH metrics
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataP, [
+        { metric: Metric.BOUNTY_HUNTER_HUNTER, value: 17 },
+        { metric: Metric.BOUNTY_HUNTER_ROGUE, value: 45 }
+      ]);
+
+      const newSnapshot = await services.buildSnapshot({ playerId: 1, rawCSV: modifiedRawData });
+
+      // Now these shouldn't be unranked
+      expect(newSnapshot.bounty_hunter_rogueScore).toBe(45);
+      expect(newSnapshot.bounty_hunter_hunterScore).toBe(17);
     });
   });
 
