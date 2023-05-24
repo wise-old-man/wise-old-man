@@ -5,6 +5,9 @@ import { Snapshot } from '../../../../prisma';
 import { ServerError } from '../../../errors';
 import { SnapshotDataSource } from '../snapshot.types';
 
+// Legacy bounty hunter (hunter/rogue)
+const SKIPPED_ACTIVITY_INDICES = [3, 4];
+
 const inputSchema = z.object({
   playerId: z.number().int().positive(),
   rawCSV: z.string().min(1),
@@ -30,7 +33,7 @@ async function buildFromRS(playerId: number, rawCSV: string) {
 
   // If a new skill/activity/boss was added to the hiscores,
   // prevent any further snapshot saves to prevent incorrect DB data
-  if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length) {
+  if (rows.length !== SKILLS.length + ACTIVITIES.length + BOSSES.length + SKIPPED_ACTIVITY_INDICES.length) {
     throw new ServerError('The OSRS Hiscores were updated. Please wait for a fix.');
   }
 
@@ -49,15 +52,22 @@ async function buildFromRS(playerId: number, rawCSV: string) {
   });
 
   // Populate the activities' values with the values from the csv
-  ACTIVITIES.forEach((s, i) => {
+  for (let i = 0; i < ACTIVITIES.length + SKIPPED_ACTIVITY_INDICES.length; i++) {
+    if (SKIPPED_ACTIVITY_INDICES.includes(i)) continue;
+
     const [rank, score] = rows[SKILLS.length + i];
-    snapshotFields[getMetricRankKey(s)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s)] = parseInt(score);
-  });
+    const skippedCount = SKIPPED_ACTIVITY_INDICES.filter(x => x < i).length;
+
+    const activity = ACTIVITIES[i - skippedCount];
+
+    snapshotFields[getMetricRankKey(activity)] = parseInt(rank);
+    snapshotFields[getMetricValueKey(activity)] = parseInt(score);
+  }
 
   // Populate the bosses' values with the values from the csv
   BOSSES.forEach((s, i) => {
-    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + i];
+    const [rank, kills] = rows[SKILLS.length + ACTIVITIES.length + SKIPPED_ACTIVITY_INDICES.length + i];
+
     snapshotFields[getMetricRankKey(s)] = parseInt(rank);
     snapshotFields[getMetricValueKey(s)] = parseInt(kills);
   });
