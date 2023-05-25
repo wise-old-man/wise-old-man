@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
+import { useMutation } from "@tanstack/react-query";
 import {
   CompetitionDetails,
   Metric,
   MetricProps,
   ParticipationWithPlayerAndProgress,
+  Player,
+  WOMClient,
   getLevel,
   isActivity,
   isBoss,
@@ -14,12 +17,16 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
+import { useToast } from "~/hooks/useToast";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
+
+import CheckIcon from "~/assets/check.svg";
+import LoadingIcon from "~/assets/loading.svg";
 
 interface ColumnMetadata {
   columnStyle: string;
@@ -64,7 +71,6 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 
 function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
   const showLevelsGained = isSkill(metric);
-  const hasStarted = competition.startsAt <= new Date();
 
   const columns: ColumnDef<ParticipationWithPlayerAndProgress>[] = [
     {
@@ -76,7 +82,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return index + 1;
       },
       meta: {
-        columnStyle: "min-w-[4rem]",
+        columnStyle: showLevelsGained ? "min-w-[4rem]" : "min-w-[6rem]",
       },
     },
     {
@@ -150,23 +156,10 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return <TableSortButton column={column}>Updated</TableSortButton>;
       },
       cell: ({ row }) => {
-        const player = row.original.player;
-        const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
-
-        return (
-          <div
-            className={cn(
-              "flex w-full items-center justify-between gap-x-3",
-              !hasStartingValue && hasStarted && "text-red-500"
-            )}
-          >
-            {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
-            <Button size="sm">Update</Button>
-          </div>
-        );
+        return <UpdateParticipantCell player={row.original.player} competition={competition} />;
       },
       meta: {
-        columnStyle: "min-w-[12rem]",
+        columnStyle: showLevelsGained ? "min-w-[14rem]" : "min-w-[16rem]",
       },
     },
   ];
@@ -217,13 +210,11 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
   return columns;
 }
 
-interface ParticipantStartCellProps {
+function ParticipantStartCell(props: {
   metric: Metric;
   competition: CompetitionDetails;
   participant: ParticipationWithPlayerAndProgress;
-}
-
-function ParticipantStartCell(props: ParticipantStartCellProps) {
+}) {
   const { metric, competition, participant } = props;
   const { player, progress } = participant;
 
@@ -286,13 +277,11 @@ function ParticipantStartCell(props: ParticipantStartCellProps) {
   return <FormattedNumber value={progress.start} />;
 }
 
-interface ParticipantEndCellProps {
+function ParticipantEndCell(props: {
   metric: Metric;
   competition: CompetitionDetails;
   participant: ParticipationWithPlayerAndProgress;
-}
-
-function ParticipantEndCell(props: ParticipantEndCellProps) {
+}) {
   const { metric, competition, participant } = props;
 
   if (competition.startsAt > new Date()) {
@@ -365,4 +354,66 @@ function ParticipantEndCell(props: ParticipantEndCellProps) {
   }
 
   return <FormattedNumber value={progress.end} />;
+}
+
+function UpdateParticipantCell(props: { player: Player; competition: CompetitionDetails }) {
+  const { player, competition } = props;
+
+  const toast = useToast();
+  const [hasUpdated, setHasUpdated] = useState(false);
+
+  const client = new WOMClient({
+    userAgent: "WiseOldMan - App v2 (Client Side)",
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: () => {
+      return client.players.updatePlayer(player.username);
+    },
+    onSuccess: () => {
+      toast.toast({ variant: "success", title: `Updated ${player.displayName}` });
+      setHasUpdated(true);
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  const isUpdating = updateMutation.isPending;
+  const hasStarted = competition.startsAt <= new Date();
+  const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
+
+  return (
+    <div
+      className={cn(
+        "flex w-full items-center justify-between gap-x-3",
+        !hasUpdated && !hasStartingValue && hasStarted && "text-red-500"
+      )}
+    >
+      {hasUpdated ? (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>Refresh to apply</span>
+            </TooltipTrigger>
+            <TooltipContent>Refresh the page to view the updated data.</TooltipContent>
+          </Tooltip>
+          <Button size="sm" disabled>
+            <CheckIcon className="h-3 w-3" />
+            Updated
+          </Button>
+        </>
+      ) : (
+        <>
+          {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
+          <Button size="sm" disabled={isUpdating} onClick={() => updateMutation.mutate()}>
+            {isUpdating && <LoadingIcon className="h-3 w-3 animate-spin" />}
+            {isUpdating ? "Updating..." : "Update"}
+          </Button>
+        </>
+      )}
+    </div>
+  );
 }
