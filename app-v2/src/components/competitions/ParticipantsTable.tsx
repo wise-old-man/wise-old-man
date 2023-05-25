@@ -23,9 +23,11 @@ import { DataTable } from "../DataTable";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { TableSortButton, TableTitle } from "../Table";
+import { CompetitionDialogLink } from "./CompetitionDialogLink";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import CheckIcon from "~/assets/check.svg";
+import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
 
 interface ColumnMetadata {
@@ -55,13 +57,18 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
               Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
             </p>
           </div>
-          <Button>Export table</Button>
+          <CompetitionDialogLink dialog="export">
+            <Button>
+              <ExportIcon className="-ml-1 h-4 w-4" />
+              Export table
+            </Button>
+          </CompetitionDialogLink>
         </TableTitle>
       }
       colGroupSlot={
         <colgroup>
-          {columnDefs.map((column) => (
-            <col key={column.id} className={(column.meta as ColumnMetadata)?.columnStyle} />
+          {columnDefs.map((column, index) => (
+            <col key={column.id || index} className={(column.meta as ColumnMetadata)?.columnStyle} />
           ))}
         </colgroup>
       }

@@ -21,6 +21,7 @@ import {
 } from "~/components/Dropdown";
 import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
+import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
@@ -60,6 +61,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
 
       {/* Dialogs */}
       <DeleteCompetitionDialog competitionId={id} />
+      <ExportCompetitionDialog competitionId={id} />
       <UpdateAllParticipantsDialog competitionId={id} />
       <PreviewMetricDialog trueMetric={competition.metric} />
     </Container>
@@ -165,7 +167,7 @@ function Header(props: CompetitionDetails) {
   );
 }
 
-export function getCompetitionStatus(competition: CompetitionDetails) {
+function getCompetitionStatus(competition: CompetitionDetails) {
   const now = new Date();
 
   if (competition.endsAt.getTime() < now.getTime()) {
