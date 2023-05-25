@@ -106,7 +106,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         );
       },
       meta: {
-        columnStyle: "min-w-[9rem]",
+        columnStyle: "min-w-[8rem]",
       },
     },
     {
@@ -121,7 +121,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         );
       },
       meta: {
-        columnStyle: "min-w-[9rem]",
+        columnStyle: "min-w-[8rem]",
       },
     },
     {
@@ -166,7 +166,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         );
       },
       meta: {
-        columnStyle: "min-w-[14rem]",
+        columnStyle: "min-w-[12rem]",
       },
     },
   ];
@@ -209,7 +209,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         );
       },
       meta: {
-        columnStyle: "min-w-[8rem]",
+        columnStyle: "min-w-[6rem]",
       },
     });
   }
