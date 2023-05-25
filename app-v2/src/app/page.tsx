@@ -95,14 +95,6 @@ const DATA_B = {
   ],
 };
 
-/**
- * 
- *  <TableColumn>
-            Skill
-            <TableSorting value="skill" {...sortingProps} />
-          </TableColumn>
- */
-
 export default function Home() {
   return (
     <Container className="flex flex-col gap-y-10">

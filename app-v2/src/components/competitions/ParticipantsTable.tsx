@@ -15,11 +15,10 @@ import {
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
 import { Button } from "../Button";
-import { TableHeader } from "../Table";
 import { DataTable } from "../DataTable";
 import { PlayerIdentity } from "../PlayerIdentity";
-import { TableNewSortableHead } from "../TableNew";
 import { FormattedNumber } from "../FormattedNumber";
+import { TableSortButton, TableTitle } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 interface ColumnMetadata {
@@ -42,7 +41,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
       data={competition.participations}
       enablePagination
       headerSlot={
-        <TableHeader>
+        <TableTitle>
           <div className="flex flex-col">
             <h3 className="text-h3 font-medium">Participants</h3>
             <p className="text-sm text-gray-200">
@@ -50,7 +49,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
             </p>
           </div>
           <Button>Export table</Button>
-        </TableHeader>
+        </TableTitle>
       }
       colGroupSlot={
         <colgroup>
@@ -71,7 +70,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
     {
       id: "rank",
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Rank</TableNewSortableHead>;
+        return <TableSortButton column={column}>Rank</TableSortButton>;
       },
       accessorFn: (_, index) => {
         return index + 1;
@@ -83,7 +82,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
     {
       accessorKey: "player",
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Player</TableNewSortableHead>;
+        return <TableSortButton column={column}>Player</TableSortButton>;
       },
       cell: ({ row }) => {
         return <PlayerIdentity player={row.original.player} />;
@@ -99,7 +98,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       id: "start",
       accessorFn: (row) => row.progress.start,
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Start</TableNewSortableHead>;
+        return <TableSortButton column={column}>Start</TableSortButton>;
       },
       cell: ({ row }) => {
         return (
@@ -114,7 +113,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       id: "end",
       accessorFn: (row) => row.progress.end,
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>End</TableNewSortableHead>;
+        return <TableSortButton column={column}>End</TableSortButton>;
       },
       cell: ({ row }) => {
         return (
@@ -129,7 +128,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       id: "gained",
       accessorFn: (row) => row.progress.gained,
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Gained</TableNewSortableHead>;
+        return <TableSortButton column={column}>Gained</TableSortButton>;
       },
       cell: ({ row }) => {
         const hasGains = row.original.progress.gained > 0;
@@ -148,7 +147,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       id: "updatedAt",
       accessorFn: (row) => row.player.updatedAt,
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Updated</TableNewSortableHead>;
+        return <TableSortButton column={column}>Updated</TableSortButton>;
       },
       cell: ({ row }) => {
         const player = row.original.player;
@@ -176,7 +175,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
     columns.splice(5, 0, {
       id: "levels",
       header: ({ column }) => {
-        return <TableNewSortableHead column={column}>Levels</TableNewSortableHead>;
+        return <TableSortButton column={column}>Levels</TableSortButton>;
       },
       accessorFn: ({ progress }) => {
         // need to calculate it here as well for sorting

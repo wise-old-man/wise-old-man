@@ -10,16 +10,8 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  TableNew,
-  TableNewBody,
-  TableNewCell,
-  TableNewContainer,
-  TableNewHead,
-  TableNewHeader,
-  TableNewRow,
-} from "./TableNew";
 import { Button } from "./Button";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "./Table";
 
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 import ChevronFirstIcon from "~/assets/chevron_first.svg";
@@ -36,7 +28,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
-  const { columns, meta, data, enablePagination, pageSize = 20, headerSlot, colGroupSlot } = props;
+  const { columns, meta, data, headerSlot, colGroupSlot, pageSize = 20, enablePagination } = props;
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -54,83 +46,85 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
 
   return (
     <>
-      <TableNewContainer>
+      <TableContainer>
         {headerSlot}
-        <TableNew>
+        <Table>
           {colGroupSlot}
-          <TableNewHeader>
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableNewRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableNewHead key={header.id}>
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableNewHead>
+                    </TableHead>
                   );
                 })}
-              </TableNewRow>
+              </TableRow>
             ))}
-          </TableNewHeader>
-          <TableNewBody>
+          </TableHeader>
+          <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableNewRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableNewCell key={cell.id}>
+                    <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableNewCell>
+                    </TableCell>
                   ))}
-                </TableNewRow>
+                </TableRow>
               ))
             ) : (
-              <TableNewRow>
-                <TableNewCell colSpan={columns.length} className="h-24 text-center">
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
-                </TableNewCell>
-              </TableNewRow>
+                </TableCell>
+              </TableRow>
             )}
-          </TableNewBody>
-        </TableNew>
-      </TableNewContainer>
-      <div className="flex items-center justify-end space-x-3 py-4">
-        <span className="mr-3 text-xs text-gray-200">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </span>
-        <Button
-          className="px-1"
-          size="sm"
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronFirstIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          className="px-1"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronDownIcon className="h-4 w-4 rotate-90" />
-        </Button>
-        <Button
-          className="px-1"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronDownIcon className="h-4 w-4 -rotate-90" />
-        </Button>
-        <Button
-          className="px-1"
-          size="sm"
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronFirstIcon className="h-4 w-4 -rotate-180" />
-        </Button>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {enablePagination && (
+        <div className="flex items-center justify-end space-x-3 py-4">
+          <span className="mr-3 text-xs text-gray-200">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
+          <Button
+            className="px-1"
+            size="sm"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronFirstIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            className="px-1"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronDownIcon className="h-4 w-4 rotate-90" />
+          </Button>
+          <Button
+            className="px-1"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronDownIcon className="h-4 w-4 -rotate-90" />
+          </Button>
+          <Button
+            className="px-1"
+            size="sm"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronFirstIcon className="h-4 w-4 -rotate-180" />
+          </Button>
+        </div>
+      )}
     </>
   );
 }

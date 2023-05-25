@@ -1,26 +1,14 @@
 import {
   EfficiencyAlgorithmType,
   EfficiencyAlgorithmTypeUnion,
-  MAX_SKILL_EXP,
   MetricProps,
   Skill,
-  SkillMetaConfig,
-  SkillMetaMethod,
 } from "@wise-old-man/utils";
 import { apiClient } from "~/utils/api";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableColumns,
-  TableContainer,
-  TableHeader,
-  TableRow,
-} from "~/components/Table";
 import { Label } from "~/components/Label";
-import { FormattedNumber } from "~/components/FormattedNumber";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
+import { ExpRatesTable } from "~/components/rates/ExperienceRatesTable";
+import { ExperienceBonusesTable } from "~/components/rates/ExperienceBonusesTable";
 
 interface PageProps {
   params: {
@@ -56,7 +44,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
             </div>
             {!!config.bonuses && config.bonuses.length > 0 && (
               <div className="custom-scroll overflow-x-auto">
-                <BonusesTable bonuses={config.bonuses} />
+                <ExperienceBonusesTable bonuses={config.bonuses} />
               </div>
             )}
           </div>
@@ -64,129 +52,6 @@ export default async function EHPRatesPage({ params }: PageProps) {
       </div>
       <QuickLinksPanel skills={data.map((d) => d.skill)} />
     </div>
-  );
-}
-
-function MethodRate(props: SkillMetaMethod) {
-  if (props.rate === 0) return <>---</>;
-
-  if (props.realRate) {
-    return (
-      <div>
-        <span>
-          <FormattedNumber value={props.rate} />
-          &nbsp;per hour
-        </span>
-        <span>
-          &nbsp;(actually&nbsp;
-          <FormattedNumber value={props.realRate} />)
-        </span>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <FormattedNumber value={props.rate} />
-      &nbsp;per hour
-    </>
-  );
-}
-
-function BonusesTable(props: { bonuses: SkillMetaConfig["bonuses"] }) {
-  const { bonuses } = props;
-
-  return (
-    <TableContainer>
-      <TableHeader>
-        <span className="text-base font-medium">Bonuses</span>
-      </TableHeader>
-      <Table>
-        <TableColumns>
-          <TableColumn>Starting exp.</TableColumn>
-          <TableColumn>Ending exp.</TableColumn>
-          <TableColumn>Skill</TableColumn>
-          <TableColumn>Bonus ratio</TableColumn>
-          <TableColumn>Bonus exp.</TableColumn>
-        </TableColumns>
-        <TableBody>
-          {bonuses.map((bonus) => (
-            <TableRow key={`${bonus.startExp}_${bonus.endExp}_${bonus.bonusSkill}_${bonus.ratio}`}>
-              <TableCell>
-                <FormattedNumber value={bonus.startExp} />
-              </TableCell>
-              <TableCell>
-                <FormattedNumber value={bonus.endExp} />
-              </TableCell>
-              <TableCell className="flex items-center gap-x-2">
-                <MetricIconSmall metric={bonus.bonusSkill} />
-                <span>{MetricProps[bonus.bonusSkill].name}</span>
-              </TableCell>
-              <TableCell>{Math.floor(bonus.ratio * 10000) / 10000}</TableCell>
-              <TableCell>
-                {bonus.maxBonus ? (
-                  <>
-                    <FormattedNumber value={bonus.maxBonus} />
-                    &nbsp;(max)
-                  </>
-                ) : (
-                  <FormattedNumber
-                    value={Math.min(
-                      MAX_SKILL_EXP,
-                      Math.floor((bonus.endExp - bonus.startExp) * bonus.ratio)
-                    )}
-                  />
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
-function ExpRatesTable(props: { methods: SkillMetaMethod[] }) {
-  const { methods } = props;
-
-  return (
-    <TableContainer>
-      <TableHeader>
-        <span className="text-base font-medium">Experience rates</span>
-      </TableHeader>
-      <Table>
-        <TableColumns>
-          <TableColumn>Starting exp.</TableColumn>
-          <TableColumn>Ending exp.</TableColumn>
-          <TableColumn>Rate</TableColumn>
-          <TableColumn>Estimated duration</TableColumn>
-          <TableColumn>Description</TableColumn>
-        </TableColumns>
-        <TableBody>
-          {methods.map((method, i) => {
-            const { startExp, rate, description } = method;
-            const endExp = i < methods.length - 1 ? methods[i + 1].startExp : MAX_SKILL_EXP;
-            const duration = (endExp - startExp) / rate;
-
-            return (
-              <TableRow key={`${startExp}_${rate}_${description}`}>
-                <TableCell>
-                  <FormattedNumber value={startExp} />
-                </TableCell>
-                <TableCell>
-                  <FormattedNumber value={endExp} />
-                </TableCell>
-                <TableCell>
-                  <MethodRate {...method} />
-                </TableCell>
-                <TableCell>{Math.floor(duration * 100) / 100} hours</TableCell>
-                <TableCell>{description}</TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
   );
 }
 
