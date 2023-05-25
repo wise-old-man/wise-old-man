@@ -53,10 +53,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
         <Header {...competition} />
       </div>
       <div className="sticky top-56 z-10 pt-3 md:top-40">
-        <div className="relative pb-8">
-          <Navigation id={id} routeSegment={routeSegment} />
-          <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
-        </div>
+        <Navigation id={id} routeSegment={routeSegment} />
       </div>
       <CompetitionPreviewWarning trueMetric={competition.metric} />
       {children}
@@ -81,20 +78,23 @@ function Navigation(props: NavigationProps) {
   const selectedSegment = routeSegment === "top-5" ? "top-5" : "overview";
 
   return (
-    <div className="bg-gray-900">
-      <Tabs defaultValue={selectedSegment}>
-        <TabsList aria-label="Competition Navigation">
-          <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-          </Link>
-          <Link
-            href={`/competitions/${id}/top-5`}
-            aria-label="Navigate to competition's top 5 participants chart"
-          >
-            <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
+    <div className="pointer-events-none relative pb-8">
+      <div className="pointer-events-auto bg-gray-900">
+        <Tabs defaultValue={selectedSegment}>
+          <TabsList aria-label="Competition Navigation">
+            <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+            </Link>
+            <Link
+              href={`/competitions/${id}/top-5`}
+              aria-label="Navigate to competition's top 5 participants chart"
+            >
+              <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
+            </Link>
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
     </div>
   );
 }

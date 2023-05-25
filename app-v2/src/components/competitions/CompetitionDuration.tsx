@@ -1,4 +1,4 @@
-import { convertToUTC, durationBetween, timeago } from "~/utils/dates";
+import { convertToUTC, durationBetween } from "~/utils/dates";
 
 interface CompetitionDurationProps {
   startsAt: Date;
@@ -21,11 +21,11 @@ export default function CompetitionDuration(props: CompetitionDurationProps) {
       <div className="grid w-full grow grid-cols-2 items-center divide-x divide-gray-500">
         <div className="flex flex-col px-4 py-3">
           <span className="text-xs text-gray-200">Start</span>
-          <span className="text-sm">{formatDate(props.startsAt, showUTC)}</span>
+          <span className="line-clamp-1 text-sm">{formatDate(props.startsAt, showUTC)}</span>
         </div>
         <div className="flex flex-col px-4 py-3">
           <span className="text-xs text-gray-200">End</span>
-          <span className="text-sm">{formatDate(props.endsAt, showUTC)}</span>
+          <span className="line-clamp-1 text-sm">{formatDate(props.endsAt, showUTC)}</span>
         </div>
       </div>
       <div className="line-clamp-1 w-full overflow-hidden truncate border-t border-gray-500 px-4 py-2 text-xs text-gray-200">

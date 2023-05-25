@@ -39,7 +39,7 @@ TableColumns.displayName = "TableColumns";
 const TableRow = forwardRef<HTMLTableRowElement, React.TableHTMLAttributes<HTMLTableRowElement>>(
   ({ className, ...props }, ref) => {
     return (
-      <tr className={cn("", className)} ref={ref} {...props}>
+      <tr className={cn(className)} ref={ref} {...props}>
         {props.children}
       </tr>
     );
@@ -94,7 +94,11 @@ function TableContainer(props: PropsWithChildren) {
 }
 
 function TableHeader(props: PropsWithChildren) {
-  return <div className="flex w-full items-center justify-between px-5 py-4">{props.children}</div>;
+  return (
+    <div className="flex w-full items-center justify-between border-b border-gray-500 px-5 py-4">
+      {props.children}
+    </div>
+  );
 }
 
 interface TableSortingProps {
