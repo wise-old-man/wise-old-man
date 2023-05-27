@@ -109,6 +109,25 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       },
     },
     {
+      id: "gained",
+      accessorFn: (row) => row.progress.gained,
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Gained</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        const hasGains = row.original.progress.gained > 0;
+        return (
+          <span className={cn(hasGains && "text-green-500")}>
+            {hasGains ? "+" : ""}
+            <FormattedNumber value={row.original.progress.gained} />
+          </span>
+        );
+      },
+      meta: {
+        columnStyle: "min-w-[9rem]",
+      },
+    },
+    {
       id: "start",
       accessorFn: (row) => row.progress.start,
       header: ({ column }) => {
@@ -139,25 +158,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       },
     },
     {
-      id: "gained",
-      accessorFn: (row) => row.progress.gained,
-      header: ({ column }) => {
-        return <TableSortButton column={column}>Gained</TableSortButton>;
-      },
-      cell: ({ row }) => {
-        const hasGains = row.original.progress.gained > 0;
-        return (
-          <span className={cn(hasGains && "text-green-500")}>
-            {hasGains ? "+" : ""}
-            <FormattedNumber value={row.original.progress.gained} />
-          </span>
-        );
-      },
-      meta: {
-        columnStyle: "min-w-[9rem]",
-      },
-    },
-    {
       id: "updatedAt",
       accessorFn: (row) => row.player.updatedAt,
       header: ({ column }) => {
@@ -173,7 +173,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
   ];
 
   if (showLevelsGained) {
-    columns.splice(5, 0, {
+    columns.splice(3, 0, {
       id: "levels",
       header: ({ column }) => {
         return <TableSortButton column={column}>Levels</TableSortButton>;

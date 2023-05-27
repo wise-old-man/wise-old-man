@@ -14,7 +14,18 @@ interface PageProps {
   };
 }
 
-export default async function CompetitionPage(props: PageProps) {
+export async function generateMetadata(props: PageProps) {
+  const { id } = props.params;
+  const { preview } = props.searchParams;
+
+  const competition = await fetchCompetition(id);
+
+  return {
+    title: competition.title,
+  };
+}
+
+export default async function CompetitionOverviewPage(props: PageProps) {
   const { id } = props.params;
   const { preview } = props.searchParams;
 
