@@ -14,6 +14,7 @@ export function NameChangesSubmitLink() {
 
   return (
     <Link
+      prefetch={false}
       href={`/names?${nextParams.toString()}`}
       className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
     >
