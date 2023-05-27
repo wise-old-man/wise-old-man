@@ -61,11 +61,13 @@ export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
             <Input
               ref={inputRef}
               readOnly
+              autoFocus={false}
               value={importFormula}
               containerClassName="grow"
               className="font-mono text-blue-300"
             />
             <Button
+              autoFocus
               variant={hasCopied ? "default" : "blue"}
               onClick={() => {
                 if (inputRef.current) inputRef.current.select();

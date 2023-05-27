@@ -78,6 +78,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 
 function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
   const showLevelsGained = isSkill(metric);
+  const hasEnded = competition.endsAt <= new Date();
 
   const columns: ColumnDef<ParticipationWithPlayerAndProgress>[] = [
     {
@@ -166,7 +167,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return <UpdateParticipantCell player={row.original.player} competition={competition} />;
       },
       meta: {
-        columnStyle: showLevelsGained ? "min-w-[14rem]" : "min-w-[16rem]",
+        columnStyle: hasEnded ? "min-w-[12rem]" : "min-w-[16rem]",
       },
     },
   ];
@@ -389,6 +390,7 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
   });
 
   const isUpdating = updateMutation.isPending;
+  const hasEnded = competition.endsAt <= new Date();
   const hasStarted = competition.startsAt <= new Date();
   const hasStartingValue = player.updatedAt && player.updatedAt >= competition.startsAt;
 
@@ -399,7 +401,7 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
         !hasUpdated && !hasStartingValue && hasStarted && "text-red-500"
       )}
     >
-      {hasUpdated ? (
+      {!hasEnded && hasUpdated ? (
         <>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -415,10 +417,12 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
       ) : (
         <>
           {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
-          <Button size="sm" disabled={isUpdating} onClick={() => updateMutation.mutate()}>
-            {isUpdating && <LoadingIcon className="h-3 w-3 animate-spin" />}
-            {isUpdating ? "Updating..." : "Update"}
-          </Button>
+          {!hasEnded && (
+            <Button size="sm" disabled={isUpdating} onClick={() => updateMutation.mutate()}>
+              {isUpdating && <LoadingIcon className="h-3 w-3 animate-spin" />}
+              {isUpdating ? "Updating..." : "Update"}
+            </Button>
+          )}
         </>
       )}
     </div>
