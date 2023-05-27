@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
@@ -28,6 +29,7 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body>
+        <NextTopLoader color="#3b82f6" showSpinner={false} />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
             <Navigation>
