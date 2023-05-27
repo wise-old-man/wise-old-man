@@ -65,13 +65,6 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
           </CompetitionDialogLink>
         </TableTitle>
       }
-      colGroupSlot={
-        <colgroup>
-          {columnDefs.map((column, index) => (
-            <col key={column.id || index} className={(column.meta as ColumnMetadata)?.columnStyle} />
-          ))}
-        </colgroup>
-      }
     />
   );
 }
@@ -89,9 +82,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       accessorFn: (_, index) => {
         return index + 1;
       },
-      meta: {
-        columnStyle: showLevelsGained ? "min-w-[4rem]" : "min-w-[6rem]",
-      },
     },
     {
       accessorKey: "player",
@@ -99,13 +89,14 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return <TableSortButton column={column}>Player</TableSortButton>;
       },
       cell: ({ row }) => {
-        return <PlayerIdentity player={row.original.player} />;
+        return (
+          <div className="pr-5">
+            <PlayerIdentity player={row.original.player} />
+          </div>
+        );
       },
       sortingFn: (rowA, rowB) => {
         return rowA.original.player.displayName.localeCompare(rowB.original.player.displayName);
-      },
-      meta: {
-        columnStyle: "w-full",
       },
     },
     {
@@ -123,9 +114,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
           </span>
         );
       },
-      meta: {
-        columnStyle: "min-w-[9rem]",
-      },
     },
     {
       id: "start",
@@ -137,9 +125,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return (
           <ParticipantStartCell metric={metric} competition={competition} participant={row.original} />
         );
-      },
-      meta: {
-        columnStyle: "min-w-[8rem]",
       },
     },
     {
@@ -153,9 +138,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
           <ParticipantEndCell metric={metric} competition={competition} participant={row.original} />
         );
       },
-      meta: {
-        columnStyle: "min-w-[8rem]",
-      },
     },
     {
       id: "updatedAt",
@@ -165,9 +147,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       },
       cell: ({ row }) => {
         return <UpdateParticipantCell player={row.original.player} competition={competition} />;
-      },
-      meta: {
-        columnStyle: hasEnded ? "min-w-[12rem]" : "min-w-[16rem]",
       },
     },
   ];
@@ -208,9 +187,6 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
             </Tooltip>
           </span>
         );
-      },
-      meta: {
-        columnStyle: "min-w-[6rem]",
       },
     });
   }
