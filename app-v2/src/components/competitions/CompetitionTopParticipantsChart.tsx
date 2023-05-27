@@ -13,7 +13,11 @@ import dynamic from "next/dynamic";
 
 const LineChartSSR = dynamic(() => import("../LineChart"), {
   ssr: false,
-  loading: () => <div className="aspect-video w-full bg-transparent" />,
+  loading: () => (
+    <div className="flex aspect-video w-full items-center justify-center bg-transparent text-gray-200">
+      Loading...
+    </div>
+  ),
 });
 
 interface CompetitionTopParticipantsChartProps {

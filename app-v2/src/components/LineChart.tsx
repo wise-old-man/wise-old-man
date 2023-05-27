@@ -66,106 +66,108 @@ export default function LineChart(props: LineChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" aspect={16 / 9}>
-      <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5 }}>
-        <CartesianGrid vertical={false} style={GRID_STYLE} />
-        <XAxis
-          dataKey="time"
-          type="number"
-          domain={domain}
-          tickLine={false}
-          tick={AXIS_TICK_STYLE}
-          axisLine={X_AXIS_TICK_LINE}
-          allowDuplicatedCategory={false}
-          tickMargin={10}
-          tickFormatter={xAxisLabelFormatter || defaultXAxisLabelFormatter}
-        />
-        <YAxis
-          dataKey="value"
-          axisLine={false}
-          tickLine={false}
-          tick={AXIS_TICK_STYLE}
-          tickMargin={10}
-          tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
-        />
-        <Tooltip
-          animationDuration={200}
-          cursor={TOOLTIP_CURSOR_STYLE}
-          wrapperStyle={TOOLTIP_WRAPPER_STYLE}
-          content={({ payload, label }) => {
-            if (!payload || payload.length === 0) return null;
+    <div className="aspect-video w-full">
+      <ResponsiveContainer width="100%" aspect={16 / 9}>
+        <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5 }}>
+          <CartesianGrid vertical={false} style={GRID_STYLE} />
+          <XAxis
+            dataKey="time"
+            type="number"
+            domain={domain}
+            tickLine={false}
+            tick={AXIS_TICK_STYLE}
+            axisLine={X_AXIS_TICK_LINE}
+            allowDuplicatedCategory={false}
+            tickMargin={10}
+            tickFormatter={xAxisLabelFormatter || defaultXAxisLabelFormatter}
+          />
+          <YAxis
+            dataKey="value"
+            axisLine={false}
+            tickLine={false}
+            tick={AXIS_TICK_STYLE}
+            tickMargin={10}
+            tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
+          />
+          <Tooltip
+            animationDuration={200}
+            cursor={TOOLTIP_CURSOR_STYLE}
+            wrapperStyle={TOOLTIP_WRAPPER_STYLE}
+            content={({ payload, label }) => {
+              if (!payload || payload.length === 0) return null;
 
-            const labelFormatter = tooltipLabelFormatter || defaultTooltipLabelFormatter;
-            const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
+              const labelFormatter = tooltipLabelFormatter || defaultTooltipLabelFormatter;
+              const valueFormatter = tooltipValueFormatter || defaultTooltipValueFormatter;
 
-            const { name, value, stroke } = payload[0];
-
-            return (
-              <ChartTooltip
-                stroke={stroke}
-                name={String(name) || "Value"}
-                value={valueFormatter(Number(value))}
-                label={labelFormatter(label)}
-              />
-            );
-          }}
-        />
-        {showLegend && (
-          <Legend
-            content={() => {
-              if (!datasets || datasets.length === 0) return null;
-
-              const legendItems = datasets.map((d, idx) => ({
-                name: d.name,
-                stroke: COLORS[idx],
-              }));
+              const { name, value, stroke } = payload[0];
 
               return (
-                <div className="flex translate-y-5 flex-wrap items-center justify-center gap-x-4">
-                  {legendItems.map((a) => (
-                    <button
-                      key={a.name}
-                      className={cn(
-                        "flex items-center gap-x-2 rounded px-2 py-1 text-gray-200 hover:bg-gray-700",
-                        !!selectedDataset && a.name !== selectedDataset && "opacity-50",
-                        !!selectedDataset && a.name === selectedDataset && "bg-gray-800 text-white"
-                      )}
-                      onClick={() => toggleSelectedDataset(a.name)}
-                    >
-                      <div className="h-2 w-2 rounded-full" style={{ background: a.stroke }} />
-                      <span className="text-sm">{a.name}</span>
-                    </button>
-                  ))}
-                </div>
+                <ChartTooltip
+                  stroke={stroke}
+                  name={String(name) || "Value"}
+                  value={valueFormatter(Number(value))}
+                  label={labelFormatter(label)}
+                />
               );
             }}
           />
-        )}
-        {datasets
-          .filter((d) => {
-            return !selectedDataset || selectedDataset === d.name;
-          })
-          .map((d) => {
-            const index = datasets.findIndex((a) => a.name === d.name);
+          {showLegend && (
+            <Legend
+              content={() => {
+                if (!datasets || datasets.length === 0) return null;
 
-            return (
-              <Line
-                key={d.name}
-                data={d.data}
-                name={d.name}
-                hide={!!selectedDataset && selectedDataset !== d.name}
-                type="linear"
-                dataKey="value"
-                stroke={COLORS[index]}
-                strokeWidth="2"
-                dot={<ChartDot />}
-                activeDot={<ChartDot stroke={COLORS[index]} active />}
-                isAnimationActive={false}
-              />
-            );
-          })}
-      </LineChartPrimitive>
-    </ResponsiveContainer>
+                const legendItems = datasets.map((d, idx) => ({
+                  name: d.name,
+                  stroke: COLORS[idx],
+                }));
+
+                return (
+                  <div className="flex translate-y-5 flex-wrap items-center justify-center gap-x-4">
+                    {legendItems.map((a) => (
+                      <button
+                        key={a.name}
+                        className={cn(
+                          "flex items-center gap-x-2 rounded px-2 py-1 text-gray-200 hover:bg-gray-700",
+                          !!selectedDataset && a.name !== selectedDataset && "opacity-50",
+                          !!selectedDataset && a.name === selectedDataset && "bg-gray-800 text-white"
+                        )}
+                        onClick={() => toggleSelectedDataset(a.name)}
+                      >
+                        <div className="h-2 w-2 rounded-full" style={{ background: a.stroke }} />
+                        <span className="text-sm">{a.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              }}
+            />
+          )}
+          {datasets
+            .filter((d) => {
+              return !selectedDataset || selectedDataset === d.name;
+            })
+            .map((d) => {
+              const index = datasets.findIndex((a) => a.name === d.name);
+
+              return (
+                <Line
+                  key={d.name}
+                  data={d.data}
+                  name={d.name}
+                  hide={!!selectedDataset && selectedDataset !== d.name}
+                  type="linear"
+                  dataKey="value"
+                  stroke={COLORS[index]}
+                  strokeWidth="2"
+                  dot={<ChartDot />}
+                  activeDot={<ChartDot stroke={COLORS[index]} active />}
+                  isAnimationActive={false}
+                />
+              );
+            })}
+        </LineChartPrimitive>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
