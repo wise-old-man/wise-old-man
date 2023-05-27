@@ -30,9 +30,11 @@
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
     "date-fns": "^2.29.3",
+    "dayjs": "^1.11.7",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "javascript-time-ago": "^2.5.9",
+    "lodash": "^4.17.21",
     "next": "13.4.3",
     "next-plugin-svgr": "^1.1.4",
     "postcss": "8.4.22",
@@ -47,6 +49,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.195",
     "prettier": "^2.8.7",
     "prettier-plugin-tailwindcss": "^0.2.7"
   }

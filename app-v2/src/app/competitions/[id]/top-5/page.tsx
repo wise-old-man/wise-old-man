@@ -1,21 +1,42 @@
-import { notFound } from "next/navigation";
-import { apiClient } from "~/utils/api";
+import { isMetric } from "@wise-old-man/utils";
+import { fetchCompetition, fetchTop5History } from "~/services/wiseoldman";
+import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
+
+export const runtime = "edge";
 
 interface PageProps {
   params: {
     id: number;
   };
+  searchParams: {
+    preview?: string;
+  };
 }
 
-export default async function Top5Section(props: PageProps) {
+export default async function TopParticipants(props: PageProps) {
   const { id } = props.params;
+  const { preview } = props.searchParams;
 
-  const competition = await apiClient.competitions.getCompetitionDetails(id).catch((e) => {
-    if (e instanceof Error && "statusCode" in e && e.statusCode === 404) {
-      notFound();
-    }
-    throw e;
-  });
+  const previewMetric = preview && isMetric(preview) ? preview : undefined;
 
-  return <>Top 5!</>;
+  const competition = await fetchCompetition(id, previewMetric);
+  const top5Participants = await fetchTop5History(id, previewMetric);
+
+  const metric = previewMetric || competition.metric;
+
+  return (
+    <div className="rounded-xl border border-gray-600">
+      <div className="flex w-full items-center justify-between border-b border-gray-600 px-5 py-4">
+        <div className="flex flex-col">
+          <h3 className="text-h3 font-medium">Top 5 participants</h3>
+          <p className="text-sm text-gray-200">
+            Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
+          </p>
+        </div>
+      </div>
+      <div className="px-4 py-10">
+        <CompetitionTopParticipantsChart metric={metric} data={top5Participants} />
+      </div>
+    </div>
+  );
 }

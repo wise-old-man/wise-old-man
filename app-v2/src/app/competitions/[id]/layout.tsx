@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import {
   CompetitionDetails,
@@ -7,26 +6,27 @@ import {
   CompetitionStatusProps,
   MetricProps,
 } from "@wise-old-man/utils";
-import { cn } from "~/utils/styling";
-import { apiClient } from "~/utils/api";
+import { fetchCompetition, getCompetitionStatus } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
-import { MetricIcon } from "~/components/Icon";
 import { Container } from "~/components/Container";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
-import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
+import { MetricIcon } from "~/components/Icon";
+import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
-import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
-import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
+import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
+import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
+import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
-
+import { cn } from "~/utils/styling";
 import OverflowIcon from "~/assets/overflow.svg";
+
+export const runtime = "edge";
 
 interface PageProps {
   params: {
@@ -41,12 +41,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const competition = await apiClient.competitions.getCompetitionDetails(id).catch((e) => {
-    if (e instanceof Error && "statusCode" in e && e.statusCode === 404) {
-      notFound();
-    }
-    throw e;
-  });
+  const competition = await fetchCompetition(id);
 
   return (
     <Container className="mt-0 pt-0">
@@ -165,18 +160,4 @@ function Header(props: CompetitionDetails) {
       </div>
     </div>
   );
-}
-
-function getCompetitionStatus(competition: CompetitionDetails) {
-  const now = new Date();
-
-  if (competition.endsAt.getTime() < now.getTime()) {
-    return CompetitionStatus.FINISHED;
-  }
-
-  if (competition.startsAt.getTime() < now.getTime()) {
-    return CompetitionStatus.ONGOING;
-  }
-
-  return CompetitionStatus.UPCOMING;
 }

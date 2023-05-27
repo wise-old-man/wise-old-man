@@ -14,8 +14,9 @@ import {
   getSearchParam,
 } from "~/utils/params";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
+import { fetchCompetitions } from "~/services/wiseoldman";
 
-const RESULTS_PER_PAGE = 20;
+export const runtime = "edge";
 
 interface PageProps {
   searchParams: {
@@ -60,12 +61,11 @@ async function CompetitionsPage(props: PageProps) {
   const type = getCompetitionTypeParam(searchParams.type);
   const status = getCompetitionStatusParam(searchParams.status);
 
-  const data = await apiClient.competitions.searchCompetitions(
+  const RESULTS_PER_PAGE = 20;
+
+  const data = await fetchCompetitions(
     { title: search, type, status, metric },
-    {
-      limit: RESULTS_PER_PAGE,
-      offset: (page - 1) * RESULTS_PER_PAGE,
-    }
+    { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
 
   return (

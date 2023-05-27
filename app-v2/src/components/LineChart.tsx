@@ -67,7 +67,7 @@ export default function LineChart(props: LineChartProps) {
 
   return (
     <ResponsiveContainer width="100%" aspect={16 / 9}>
-      <LineChartPrimitive margin={{ bottom: 20 }}>
+      <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5 }}>
         <CartesianGrid vertical={false} style={GRID_STYLE} />
         <XAxis
           dataKey="time"
@@ -112,12 +112,12 @@ export default function LineChart(props: LineChartProps) {
         />
         {showLegend && (
           <Legend
-            content={({ payload }) => {
-              if (!payload || payload.length === 0) return null;
+            content={() => {
+              if (!datasets || datasets.length === 0) return null;
 
-              const legendItems = payload.map((a: any) => ({
-                name: a.payload.name,
-                stroke: a.payload.stroke,
+              const legendItems = datasets.map((d, idx) => ({
+                name: d.name,
+                stroke: COLORS[idx],
               }));
 
               return (
@@ -141,21 +141,29 @@ export default function LineChart(props: LineChartProps) {
             }}
           />
         )}
-        {datasets.map((d, index) => (
-          <Line
-            key={d.name}
-            data={d.data}
-            name={d.name}
-            hide={!!selectedDataset && selectedDataset !== d.name}
-            type="linear"
-            dataKey="value"
-            stroke={COLORS[index]}
-            strokeWidth="2"
-            dot={<ChartDot />}
-            activeDot={<ChartDot stroke={COLORS[index]} active />}
-            isAnimationActive={false}
-          />
-        ))}
+        {datasets
+          .filter((d) => {
+            return !selectedDataset || selectedDataset === d.name;
+          })
+          .map((d) => {
+            const index = datasets.findIndex((a) => a.name === d.name);
+
+            return (
+              <Line
+                key={d.name}
+                data={d.data}
+                name={d.name}
+                hide={!!selectedDataset && selectedDataset !== d.name}
+                type="linear"
+                dataKey="value"
+                stroke={COLORS[index]}
+                strokeWidth="2"
+                dot={<ChartDot />}
+                activeDot={<ChartDot stroke={COLORS[index]} active />}
+                isAnimationActive={false}
+              />
+            );
+          })}
       </LineChartPrimitive>
     </ResponsiveContainer>
   );
