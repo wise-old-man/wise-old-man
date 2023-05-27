@@ -70,7 +70,7 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.push(`${pathname}?${nextParams.toString()}`);
+    router.replace(`${pathname}?${nextParams.toString()}`);
   }
 
   return (

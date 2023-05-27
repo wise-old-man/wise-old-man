@@ -41,7 +41,7 @@ export function NameChangesFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.push(`/names?${nextParams.toString()}`);
+    router.replace(`/names?${nextParams.toString()}`);
   }
 
   function handleStatusChanged(value: string | undefined) {
@@ -56,7 +56,7 @@ export function NameChangesFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.push(`/names?${nextParams.toString()}`);
+    router.replace(`/names?${nextParams.toString()}`);
   }
 
   return (
