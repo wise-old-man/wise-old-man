@@ -9,16 +9,6 @@
   }
 }
 
-html {
-  @apply h-full;
-}
-
-body {
-  @apply h-full;
-  @apply bg-gray-900;
-  @apply text-white;
-}
-
 /* body ::-webkit-scrollbar, */
 .custom-scroll::-webkit-scrollbar {
   @apply w-1.5;
