@@ -39,6 +39,9 @@ import {
   SkillValueWithPlayer
 } from './snapshot.types';
 
+// On this date, the Bounty Hunter was updated and scores were reset.
+const BOUNTY_HUNTER_UPDATE_DATE = new Date('2023-05-24T10:30:00.000Z');
+
 function format(snapshot: Snapshot, efficiencyMap?: EfficiencyMap): FormattedSnapshot {
   if (!snapshot) return null;
 
@@ -170,7 +173,14 @@ function getExcessiveGains(before: Snapshot, after: Snapshot) {
 
 function getNegativeGains(before: Snapshot, after: Snapshot) {
   // LMS scores, PVP ARENA scores, EHP and EHB can fluctuate overtime
-  const metricsToIgnore = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
+  const metricsToIgnore: Metric[] = [Metric.EHP, Metric.EHB, Metric.LAST_MAN_STANDING, Metric.PVP_ARENA];
+
+  // The Bounty Hunter game update on May 24th 2023 reset people's BH scores, so if this game update happened
+  // in between the two snapshots, we should also ignore BH score negative gains.
+  if (before.createdAt < BOUNTY_HUNTER_UPDATE_DATE && after.createdAt > BOUNTY_HUNTER_UPDATE_DATE) {
+    metricsToIgnore.push(Metric.BOUNTY_HUNTER_HUNTER, Metric.BOUNTY_HUNTER_ROGUE);
+  }
+
   const isValidKey = (key: MetricValueKey) => !metricsToIgnore.map(getMetricValueKey).includes(key);
 
   const negativeMetrics = METRICS.filter(metric => {

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ComputedMetric, PlayerType } from '../../../../utils';
+import { ComputedMetric, PlayerStatus, PlayerType } from '../../../../utils';
 import prisma from '../../../../prisma';
 
 const inputSchema = z.object({
@@ -20,7 +20,8 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
     where: {
       id: { not: params.player.id },
       type: params.player.type,
-      [params.metric]: { gte: params.value }
+      [params.metric]: { gte: params.value },
+      status: { not: PlayerStatus.ARCHIVED }
     }
   });
 
@@ -32,7 +33,8 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
   const topPlayers = await prisma.player.findMany({
     where: {
       [params.metric]: { gte: params.value },
-      type: params.player.type
+      type: params.player.type,
+      status: { not: PlayerStatus.ARCHIVED }
     }
   });
 

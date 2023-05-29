@@ -122,7 +122,7 @@ describe('Deltas API', () => {
       expect(secondDeltas.length).toBe(3);
       expect(secondDeltas.filter(d => d.ehp > 0.1).length).toBe(3);
       expect(secondDeltas.filter(d => d.ehb > 0.1).length).toBe(3);
-      expect(secondDeltas.filter(d => d.nex === 44).length).toBe(3); // 53 - 9 (min kc) = 44
+      expect(secondDeltas.filter(d => d.nex === 49).length).toBe(3); // 53 - 4 (min kc is 5) = 49
       expect(secondDeltas.filter(d => d.smithing === 50_000).length).toBe(3);
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('week');
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('month');
@@ -168,7 +168,7 @@ describe('Deltas API', () => {
 
       expect(dayDeltas.nex).toBe(1);
       expect(dayDeltas.tzkal_zuk).toBe(1);
-      expect(dayDeltas.bounty_hunter_hunter).toBe(5);
+      expect(dayDeltas.bounty_hunter_hunter).toBe(4); //  bh went from -1 (unranked) to 5 (min=2), make sure it's 4 gained, not 6
       expect(dayDeltas.soul_wars_zeal).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
       expect(dayDeltas.ehb).toBeLessThan(monthDeltas.ehb); // gained less boss kc, expect ehb gains to be lesser
@@ -252,7 +252,7 @@ describe('Deltas API', () => {
 
       expect(monthNexGains.ehb.gained).toBeGreaterThan(0.1);
       expect(monthEhbGains.value.gained).toBe(monthNexGains.ehb.gained + monthZukGains.ehb.gained);
-      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 45 });
+      expect(monthNexGains.kills).toMatchObject({ start: -1, end: 54, gained: 50 });
       expect(monthLmsGains.score).toMatchObject({ start: 500, end: 450, gained: 0 });
 
       const dayResponse = await api.get(`/players/psikoi/gained`).query({ period: 'day' });
