@@ -1,6 +1,5 @@
 "use client";
 
-import uniqBy from "lodash/uniqBy";
 import {
   Metric,
   MetricProps,
@@ -67,5 +66,17 @@ function convertToDiffTimeseries(metric: Metric, history: Top5ProgressResult[num
     value: p.value - sanitizedPoints[0].value,
   }));
 
-  return [...uniqBy(diffPoints.slice(0, -1), "value"), diffPoints[diffPoints.length - 1]];
+  return [...dedupeByValue(diffPoints.slice(0, -1)), diffPoints[diffPoints.length - 1]];
+}
+
+function dedupeByValue(points: Array<{ value: number; time: number }>) {
+  const map = new Map<number, (typeof points)[number]>();
+
+  points.forEach((p) => {
+    if (!map.has(p.value)) {
+      map.set(p.value, p);
+    }
+  });
+
+  return Array.from(map.values());
 }
