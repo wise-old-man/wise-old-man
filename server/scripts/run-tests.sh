@@ -25,11 +25,15 @@ execute() {
     jest $1 $ARGS;
 }
 
+execute_lite() {
+    jest $1 $ARGS;
+    exit $?;
+}
+
 if [ $1 = "ci" ]; then
     # Skip docker setup for CI runs
     setup;
-    jest $BASE $ARGS;
-    exit $?;
+    execute_lite $BASE;
 fi
 
 if [ $2 ]; then
@@ -44,6 +48,11 @@ if [ $2 ]; then
         fail "'$1' is not a valid test name.";
     fi
 
+    if [ "$TARGET" = "$BASE/$U/$1$S" ]; then
+        # We are only running unit tests - skip db and docker setup
+        execute_lite $TARGET;
+    fi
+
     # Run only the single requested test
     execute $TARGET;
 elif [ $1 ]; then
@@ -54,6 +63,11 @@ elif [ $1 ]; then
     if ! [ -f $TARGET_U ] && ! [ -f $TARGET_I ]; then
         # The requested test is not valid.
         fail "'$1' is not a valid test name.";
+    fi
+
+    if [ -f $TARGET_U ] && ! [ -f $TARGET_I ]; then
+        # There is a unit test but no integration test - skip db and docker setup
+        execute_lite $TARGET_U;
     fi
 
     # Execute both unit and integration tests with the given name
