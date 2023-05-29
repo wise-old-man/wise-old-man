@@ -231,7 +231,10 @@ function average(snapshots: Snapshot[]): Snapshot {
 
 /**
  * Assigns the player property of each metric leader from the given players
- * array using the leader id map to lookup leaders player id
+ * array using the leader id map to lookup leaders player id.
+ *
+ * The player field will be left null, if the leader had a rank of -1.
+ * This indicates there was no actual leader.
  */
 function assignPlayersToMetricLeaders(
   leaders: MetricLeaders,
@@ -241,10 +244,22 @@ function assignPlayersToMetricLeaders(
   const playerMap = new Map<number, Player>();
   players.forEach(p => playerMap.set(p.id, p));
 
-  Object.values(leaders.skills).forEach(s => (s.player = playerMap.get(leaderIdMap.get(s.metric))));
-  Object.values(leaders.bosses).forEach(b => (b.player = playerMap.get(leaderIdMap.get(b.metric))));
-  Object.values(leaders.activities).forEach(a => (a.player = playerMap.get(leaderIdMap.get(a.metric))));
-  Object.values(leaders.computed).forEach(c => (c.player = playerMap.get(leaderIdMap.get(c.metric))));
+  const assignPlayer = (
+    leader:
+      | SkillValueWithPlayer
+      | BossValueWithPlayer
+      | ComputedMetricValueWithPlayer
+      | ActivityValueWithPlayer
+  ) => {
+    if (leader.rank > -1) {
+      leader.player = playerMap.get(leaderIdMap.get(leader.metric));
+    }
+  };
+
+  Object.values(leaders.skills).forEach(assignPlayer);
+  Object.values(leaders.bosses).forEach(assignPlayer);
+  Object.values(leaders.computed).forEach(assignPlayer);
+  Object.values(leaders.activities).forEach(assignPlayer);
 }
 
 /**
@@ -267,7 +282,10 @@ function getMetricLeaders(snapshots: Snapshot[]) {
         const valueKey = getMetricValueKey(s);
         const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
         const experience = snapshot[valueKey];
-        leaderIdMap.set(s, snapshot.playerId);
+
+        if (experience > -1) {
+          leaderIdMap.set(s, snapshot.playerId);
+        }
 
         const value: SkillValueWithPlayer = {
           metric: s,
@@ -285,7 +303,10 @@ function getMetricLeaders(snapshots: Snapshot[]) {
         const valueKey = getMetricValueKey(b);
         const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
         const kills = snapshot[valueKey];
-        leaderIdMap.set(b, snapshot.playerId);
+
+        if (kills > -1) {
+          leaderIdMap.set(b, snapshot.playerId);
+        }
 
         const value: BossValueWithPlayer = {
           metric: b,
@@ -302,7 +323,10 @@ function getMetricLeaders(snapshots: Snapshot[]) {
         const valueKey = getMetricValueKey(a);
         const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
         const score = snapshot[valueKey];
-        leaderIdMap.set(a, snapshot.playerId);
+
+        if (score > -1) {
+          leaderIdMap.set(a, snapshot.playerId);
+        }
 
         const value: ActivityValueWithPlayer = {
           metric: a,
@@ -319,7 +343,10 @@ function getMetricLeaders(snapshots: Snapshot[]) {
         const valueKey = getMetricValueKey(c);
         const snapshot = [...snapshots].sort((x, y) => y[valueKey] - x[valueKey])[0];
         const value = snapshot[valueKey];
-        leaderIdMap.set(c, snapshot.playerId);
+
+        if (value > -1) {
+          leaderIdMap.set(c, snapshot.playerId);
+        }
 
         const metric: ComputedMetricValueWithPlayer = {
           metric: c,
