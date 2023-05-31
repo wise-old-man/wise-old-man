@@ -14,6 +14,7 @@ describe('Util - Strings', () => {
     expect(formatNumber(-1000, true)).toBe('-1,000');
     expect(formatNumber(10_000, true)).toBe('10k');
     expect(formatNumber(12_523, true)).toBe('12.52k');
+    expect(formatNumber(6_673_573, true)).toBe('6674k');
     expect(formatNumber(9_123_000, true)).toBe('9123k');
     expect(formatNumber(10_000_000, true)).toBe('10m');
     expect(formatNumber(-10_500_000, true)).toBe('-10.50m');
@@ -24,7 +25,7 @@ describe('Util - Strings', () => {
     expect(formatNumber(3456, true, 3)).toBe('3,456');
     expect(formatNumber(10_564, true, 3)).toBe('10.564k');
     expect(formatNumber(10_000, true, 3)).toBe('10k');
-    expect(formatNumber(200_453, true, 3)).toBe('200.453k');
+    expect(formatNumber(200_453, true, 3)).toBe('200k');
     expect(formatNumber(10_000_000, true, 3)).toBe('10m');
     expect(formatNumber(12_967_712, true, 3)).toBe('12.968m');
     expect(formatNumber(2_436_267_123, true, 3)).toBe('2.436b');
