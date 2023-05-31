@@ -10,12 +10,17 @@ function formatNumber(num: number, withLetters = false, decimalPrecision = 2) {
     return num.toLocaleString();
   }
 
-  // < 10 million
-  if (num < 10_000_000 && num > -10_000_000) {
+  // < 100k
+  if (num < 100_000 && num > -100_000) {
     // If has no decimals, return as whole number instead (10.00k => 10k)
     if ((num / 1000) % 1 === 0) return `${num / 1000}k`;
 
     return `${(num / 1000).toFixed(decimalPrecision)}k`;
+  }
+
+  // < 10 million
+  if (num < 10_000_000 && num > -10_000_000) {
+    return `${Math.round(num / 1000)}k`;
   }
 
   // < 1 billion
