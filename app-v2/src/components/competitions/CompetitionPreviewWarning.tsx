@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { Metric, MetricProps, isMetric } from "@wise-old-man/utils";
 import { Button } from "../Button";
-import { Alert, AlertTitle, AlertDescription } from "../Alert";
-import { CompetitionDialogLink } from "./CompetitionDialogLink";
+import { QueryLink } from "../QueryLink";
 import { MetricIconSmall } from "../Icon";
+import { Alert, AlertTitle, AlertDescription } from "../Alert";
 
 interface CompetitionPreviewWarningProps {
   trueMetric: Metric;
@@ -34,9 +34,9 @@ export function CompetitionPreviewWarning(props: CompetitionPreviewWarningProps)
         </AlertDescription>
       </div>
       <div className="whitespace-nowrap">
-        <CompetitionDialogLink dialog="preview">
+        <QueryLink query={{ dialog: "preview" }}>
           <Button>Preview another</Button>
-        </CompetitionDialogLink>
+        </QueryLink>
       </div>
     </Alert>
   );

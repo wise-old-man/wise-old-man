@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           </TableBody>
         </Table>
       </TableContainer>
-      {enablePagination && (
+      {enablePagination && table.getPageCount() > 1 && (
         <div className="flex items-center justify-end space-x-3 py-4">
           <span className="mr-3 text-xs text-gray-200">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}

@@ -4,8 +4,10 @@ import {
   CompetitionDetails,
   CompetitionStatus,
   CompetitionStatusProps,
+  CompetitionType,
   MetricProps,
 } from "@wise-old-man/utils";
+import { cn } from "~/utils/styling";
 import { fetchCompetition, getCompetitionStatus } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
@@ -16,14 +18,14 @@ import {
   DropdownMenuTrigger,
 } from "~/components/Dropdown";
 import { MetricIcon } from "~/components/Icon";
+import { QueryLink } from "~/components/QueryLink";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
-import { CompetitionDialogLink } from "~/components/competitions/CompetitionDialogLink";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
-import { cn } from "~/utils/styling";
+
 import OverflowIcon from "~/assets/overflow.svg";
 
 export const runtime = "edge";
@@ -49,7 +51,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
         <Header {...competition} />
       </div>
       <div className="sticky top-56 z-10 pt-3 md:top-40">
-        <Navigation id={id} routeSegment={routeSegment} />
+        <Navigation id={id} routeSegment={routeSegment} competition={competition} />
       </div>
       <CompetitionPreviewWarning trueMetric={competition.metric} />
       {children}
@@ -66,22 +68,38 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
 interface NavigationProps {
   id: number;
   routeSegment: string;
+  competition: CompetitionDetails;
 }
 
 function Navigation(props: NavigationProps) {
-  const { id, routeSegment } = props;
+  const { id, routeSegment, competition } = props;
 
-  // If more tabs are added, this should definitely be made better 🤷‍♂️
-  const selectedSegment = routeSegment === "top-5" ? "top-5" : "overview";
+  let selectedSegment: string | undefined;
+
+  if (routeSegment === "top-5") {
+    selectedSegment = "top-5";
+  } else if (routeSegment === "participants" && competition.type === CompetitionType.TEAM) {
+    selectedSegment = "participants";
+  } else {
+    selectedSegment = "overview";
+  }
 
   return (
     <div className="pointer-events-none relative pb-8">
       <div className="pointer-events-auto bg-gray-900">
         <Tabs defaultValue={selectedSegment}>
           <TabsList aria-label="Competition Navigation">
-            <Link href={`/competitions/${id}`} aria-label="Navigate to competition's participants">
+            <Link href={`/competitions/${id}`} aria-label="Navigate to the competition's overview">
               <TabsTrigger value="overview">Overview</TabsTrigger>
             </Link>
+            {competition.type === CompetitionType.TEAM && (
+              <Link
+                href={`/competitions/${id}/participants`}
+                aria-label="Navigate to the competition's participants"
+              >
+                <TabsTrigger value="participants">Participants</TabsTrigger>
+              </Link>
+            )}
             <Link
               href={`/competitions/${id}/top-5`}
               aria-label="Navigate to competition's top 5 participants chart"
@@ -97,11 +115,9 @@ function Navigation(props: NavigationProps) {
 }
 
 function Header(props: CompetitionDetails) {
-  const { id, metric, title, participantCount, group } = props;
+  const { id, metric, title, type, group } = props;
 
   const status = getCompetitionStatus(props);
-
-  const partipants = participantCount === 1 ? "1 participant" : `${participantCount} participants`;
 
   return (
     <div className="flex flex-col-reverse items-end justify-between gap-x-5 gap-y-7 md:flex-row">
@@ -123,7 +139,7 @@ function Header(props: CompetitionDetails) {
             {" · "}
             {MetricProps[metric].name}
             {" · "}
-            {partipants}
+            {type === CompetitionType.CLASSIC ? getParticipantsLabel(props) : getTeamsLabel(props)}
             {group && (
               <span>
                 {` · Hosted by `}
@@ -140,9 +156,9 @@ function Header(props: CompetitionDetails) {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-x-2">
-        <CompetitionDialogLink dialog="update-all">
+        <QueryLink query={{ dialog: "update-all" }}>
           <Button variant="blue">Update all</Button>
-        </CompetitionDialogLink>
+        </QueryLink>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button iconButton>
@@ -153,15 +169,34 @@ function Header(props: CompetitionDetails) {
             <Link prefetch={false} href={`/competitions/${id}/edit`}>
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </Link>
-            <CompetitionDialogLink dialog="delete">
+            <QueryLink query={{ dialog: "delete" }}>
               <DropdownMenuItem>Delete</DropdownMenuItem>
-            </CompetitionDialogLink>
-            <CompetitionDialogLink dialog="preview">
+            </QueryLink>
+            <QueryLink query={{ dialog: "preview" }}>
               <DropdownMenuItem>Preview as...</DropdownMenuItem>
-            </CompetitionDialogLink>
+            </QueryLink>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
   );
+}
+
+function getParticipantsLabel(competition: CompetitionDetails) {
+  return competition.participantCount === 1
+    ? "1 participant"
+    : `${competition.participantCount} participants`;
+}
+
+function getTeamsLabel(competition: CompetitionDetails) {
+  const teams = new Set<string>();
+
+  competition.participations.forEach((p) => {
+    if (!p.teamName || teams.has(p.teamName)) return;
+    teams.add(p.teamName);
+  });
+
+  if (teams.size === 1) return "1 team";
+
+  return `${teams.size} teams`;
 }

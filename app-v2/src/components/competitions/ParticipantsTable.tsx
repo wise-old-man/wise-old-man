@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
 import {
   CompetitionDetails,
+  CompetitionType,
   Metric,
   MetricProps,
   ParticipationWithPlayerAndProgress,
@@ -20,19 +21,15 @@ import { timeago } from "~/utils/dates";
 import { useToast } from "~/hooks/useToast";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
+import { QueryLink } from "../QueryLink";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { TableSortButton, TableTitle } from "../Table";
-import { CompetitionDialogLink } from "./CompetitionDialogLink";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import CheckIcon from "~/assets/check.svg";
 import ExportIcon from "~/assets/export.svg";
 import LoadingIcon from "~/assets/loading.svg";
-
-interface ColumnMetadata {
-  columnStyle: string;
-}
 
 interface ParticipantsTableProps {
   metric: Metric;
@@ -57,12 +54,12 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
               Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
             </p>
           </div>
-          <CompetitionDialogLink dialog="export">
+          <QueryLink query={{ dialog: "export" }}>
             <Button>
               <ExportIcon className="-ml-1 h-4 w-4" />
               Export table
             </Button>
-          </CompetitionDialogLink>
+          </QueryLink>
         </TableTitle>
       }
     />
@@ -71,7 +68,6 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 
 function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
   const showLevelsGained = isSkill(metric);
-  const hasEnded = competition.endsAt <= new Date();
 
   const columns: ColumnDef<ParticipationWithPlayerAndProgress>[] = [
     {
@@ -91,7 +87,14 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
       cell: ({ row }) => {
         return (
           <div className="pr-5">
-            <PlayerIdentity player={row.original.player} />
+            <PlayerIdentity
+              player={row.original.player}
+              caption={
+                competition.type === CompetitionType.TEAM && !!row.original.teamName
+                  ? row.original.teamName
+                  : undefined
+              }
+            />
           </div>
         );
       },

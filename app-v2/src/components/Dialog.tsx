@@ -29,8 +29,11 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { allowScroll?: boolean }
->(({ className, allowScroll, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    allowScroll?: boolean;
+    hideClose?: boolean;
+  }
+>(({ className, allowScroll, hideClose, children, ...props }, ref) => (
   <DialogPortal>
     {allowScroll ? <div className={OVERLAY_STYLES} /> : <DialogOverlay />}
     <DialogPrimitive.Content
@@ -42,14 +45,24 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-8 transition-opacity hover:opacity-100 focus:outline-none focus:ring-0 focus:ring-offset-0 disabled:pointer-events-none">
-        <CloseIcon className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
+      {!hideClose && (
+        <div className="absolute right-4 top-4">
+          <DialogClose />
+        </div>
+      )}
     </DialogPrimitive.Content>
   </DialogPortal>
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
+
+function DialogClose() {
+  return (
+    <DialogPrimitive.Close className="rounded-sm opacity-70 ring-offset-8 transition-opacity hover:opacity-100 focus:outline-none focus:ring-0 focus:ring-offset-0 disabled:pointer-events-none">
+      <CloseIcon className="h-4 w-4" />
+      <span className="sr-only">Close</span>
+    </DialogPrimitive.Close>
+  );
+}
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col space-y-2.5 text-center sm:text-left", className)} {...props} />
@@ -90,6 +103,7 @@ DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
   Dialog,
+  DialogClose,
   DialogTrigger,
   DialogContent,
   DialogHeader,

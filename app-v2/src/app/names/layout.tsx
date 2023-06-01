@@ -1,8 +1,8 @@
 import { PropsWithChildren } from "react";
 import { Container } from "~/components/Container";
-import { NameChangeSubmissionDialog } from "~/components/names/NameChangeSubmissionDialog";
+import { QueryLink } from "~/components/QueryLink";
 import { NameChangesFilters } from "~/components/names/NameChangesFilters";
-import { NameChangesSubmitLink } from "~/components/names/NameChangesSubmitLink";
+import { NameChangeSubmissionDialog } from "~/components/names/NameChangeSubmissionDialog";
 
 export default function NameChangesLayout(props: PropsWithChildren) {
   const { children } = props;
@@ -16,7 +16,13 @@ export default function NameChangesLayout(props: PropsWithChildren) {
             Consequat qui ea commodo amet quis qui pariatur cillum sint reprehenderit consequat id.
           </p>
         </div>
-        <NameChangesSubmitLink />
+        <QueryLink
+          query={{ dialog: "submit" }}
+          prefetch={false}
+          className="mt-8 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline lg:mt-0"
+        >
+          + Submit new
+        </QueryLink>
       </div>
       <NameChangesFilters />
       <div className="mt-6">{children}</div>

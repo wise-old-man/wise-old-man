@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { CompetitionListItem, CompetitionTypeProps } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
 import { timeago } from "~/utils/dates";
 import { Badge } from "~/components/Badge";
 import { MetricIcon } from "~/components/Icon";
@@ -16,7 +15,7 @@ import {
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { fetchCompetitions } from "~/services/wiseoldman";
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 interface PageProps {
   searchParams: {

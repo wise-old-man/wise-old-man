@@ -23,7 +23,7 @@ interface PlayerIdentityProps {
   renderTooltip?: boolean;
 }
 
-function PlayerIdentity(props: PlayerIdentityProps) {
+export function PlayerIdentity(props: PlayerIdentityProps) {
   const { player, caption, renderTooltip = true } = props;
 
   return (
@@ -73,7 +73,7 @@ function PlayerIdentity(props: PlayerIdentityProps) {
   );
 }
 
-function PlayerIdentityTooltip(props: PropsWithChildren<{ player: Player }>) {
+export function PlayerIdentityTooltip(props: { player: Player }) {
   const { player } = props;
 
   const updatedTimeago = `Updated ${timeago.format(player.updatedAt || new Date())}`;
@@ -136,5 +136,3 @@ function Flag(props: { country: Country; className?: string }) {
     />
   );
 }
-
-export { PlayerIdentity };
