@@ -33,28 +33,32 @@ import LoadingIcon from "~/assets/loading.svg";
 
 interface ParticipantsTableProps {
   metric: Metric;
+  teamName?: string;
   competition: CompetitionDetails;
 }
 
 export function ParticipantsTable(props: ParticipantsTableProps) {
-  const { competition, metric } = props;
+  const { competition, teamName, metric } = props;
 
   const columnDefs = useMemo(() => getColumnDefinitions(metric, competition), [metric, competition]);
+
+  const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
 
   return (
     <DataTable
       columns={columnDefs}
-      data={competition.participations}
+      data={rows}
       enablePagination
+      pageSize={teamName ? 10 : 20}
       headerSlot={
         <TableTitle>
           <div className="flex flex-col">
-            <h3 className="text-h3 font-medium">Participants</h3>
+            <h3 className="text-h3 font-medium text-white">{teamName || "Participants"}</h3>
             <p className="text-sm text-gray-200">
               Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
             </p>
           </div>
-          <QueryLink query={{ dialog: "export" }}>
+          <QueryLink query={{ dialog: "export", team: teamName ? encodeURI(teamName) : undefined }}>
             <Button>
               <ExportIcon className="-ml-1 h-4 w-4" />
               Export table

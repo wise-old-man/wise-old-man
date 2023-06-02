@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Metric, isMetric } from "@wise-old-man/utils";
+import { isMetric } from "@wise-old-man/utils";
 import { Input } from "../Input";
 import { Button } from "../Button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../Accordion";
@@ -14,33 +14,45 @@ interface ExportCompetitionDialogProps {
   competitionId: number;
 }
 
-function buildExportUrl(competitionId: number, preview?: Metric) {
-  const params = new URLSearchParams();
-  params.set("table", "participants"); // TODO: add other options when teams are added
+function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
+  const team = searchParams.get("team");
+  const table = searchParams.get("table");
+  const preview = searchParams.get("preview");
 
-  if (preview) params.set("metric", preview);
+  const params = new URLSearchParams();
+
+  if (table === "teams") {
+    params.set("table", "teams");
+  } else if (team) {
+    params.set("table", "team");
+    params.set("teamName", team || "");
+  } else {
+    params.set("table", "participants");
+  }
+
+  if (!!preview && isMetric(preview)) {
+    params.set("metric", preview);
+  }
 
   return `https://api.wiseoldman.net/v2/competitions/${competitionId}/csv?${params.toString()}`;
 }
 
 export function ExportCompetitionDialog(props: ExportCompetitionDialogProps) {
+  const { competitionId } = props;
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [hasCopied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isOpen = searchParams.get("dialog") === "export";
+  const url = buildExportUrl(competitionId, new URLSearchParams(searchParams));
 
-  const preview = searchParams.get("preview");
-  const isValidMetric = !!preview && isMetric(preview);
-
-  const url = buildExportUrl(props.competitionId, isValidMetric ? preview : undefined);
   const importFormula = `=IMPORTDATA("${url}")`;
 
   return (
     <Dialog
-      open={isOpen}
+      open={searchParams.get("dialog") === "export"}
       onOpenChange={(val) => {
         if (!val) {
           router.back();

@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
   useReactTable,
+  Row,
 } from "@tanstack/react-table";
 import { Button } from "./Button";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "./Table";
@@ -25,6 +26,7 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean;
   headerSlot?: React.ReactNode;
   colGroupSlot?: React.ReactNode;
+  renderSubRow?: (row: Row<TData>) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
@@ -68,13 +70,22 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <React.Fragment key={row.id}>
+                  <TableRow data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {row.getIsExpanded() && props.renderSubRow !== undefined && (
+                    <TableRow>
+                      <TableCell className="m-0 p-0" colSpan={columns.length}>
+                        {props.renderSubRow(row)}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             ) : (
               <TableRow>

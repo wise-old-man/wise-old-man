@@ -45,7 +45,6 @@ export default async function CompetitionOverviewPage(props: PageProps) {
           <ParticipantsTable metric={metric} competition={competition} />
         )}
       </div>
-      <TeamDetailsDialog competition={competition} />
     </>
   );
 }

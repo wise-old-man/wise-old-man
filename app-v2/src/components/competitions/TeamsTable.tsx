@@ -3,49 +3,44 @@
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { CompetitionDetails, Metric, ParticipationWithPlayerAndProgress } from "@wise-old-man/utils";
+import { cn } from "~/utils/styling";
 import { Button } from "../Button";
 import { DataTable } from "../DataTable";
 import { QueryLink } from "../QueryLink";
 import { FormattedNumber } from "../FormattedNumber";
-import { TableSortButton, TableTitle } from "../Table";
+import { TableTitle } from "../Table";
+import { ParticipantsTable } from "./ParticipantsTable";
 import { PlayerIdentityTooltip } from "../PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import ExportIcon from "~/assets/export.svg";
+import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
   {
     id: "rank",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Rank</TableSortButton>;
-    },
+    header: "Rank",
     accessorFn: (_, index) => {
       return index + 1;
     },
   },
   {
     id: "name",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Name</TableSortButton>;
-    },
+    header: "Name",
     accessorFn: (row) => {
       return row.name;
     },
   },
   {
     id: "count",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Players</TableSortButton>;
-    },
+    header: "Players",
     accessorFn: (row) => {
       return row.participations.length;
     },
   },
   {
     id: "total",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Total gained</TableSortButton>;
-    },
+    header: "Total gained",
     accessorFn: (row) => {
       return row.participations.reduce((acc, curr) => acc + curr.progress.gained, 0);
     },
@@ -63,9 +58,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
   },
   {
     id: "average",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Avg. gained</TableSortButton>;
-    },
+    header: "Avg. gained",
     accessorFn: (row) => {
       return (
         row.participations.reduce((acc, curr) => acc + curr.progress.gained, 0) /
@@ -86,9 +79,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
   },
   {
     id: "mvp",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>MVP</TableSortButton>;
-    },
+    header: "MVP",
     accessorFn: (row) => {
       return row.participations[0];
     },
@@ -136,9 +127,14 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex justify-end">
-          <QueryLink query={{ dialog: "team", team: encodeURI(row.original.name) }}>
-            <Button size="sm">Show more</Button>
-          </QueryLink>
+          <Button size="sm" onClick={() => row.toggleExpanded()} className="px-1">
+            <ChevronDownIcon
+              className={cn(
+                "h-4 w-4 transition-transform",
+                row.getIsExpanded() ? "rotate-180" : "rotate-0"
+              )}
+            />
+          </Button>
         </div>
       );
     },
@@ -151,7 +147,7 @@ interface TeamsTableProps {
 }
 
 export function TeamsTable(props: TeamsTableProps) {
-  const { competition } = props;
+  const { metric, competition } = props;
 
   const teams = getTeams(competition);
 
@@ -160,6 +156,9 @@ export function TeamsTable(props: TeamsTableProps) {
       data={teams}
       columns={COLUMN_DEFINITIONS}
       enablePagination
+      renderSubRow={(row) => (
+        <TeamDetails teamName={row.original.name} competition={competition} metric={metric} />
+      )}
       headerSlot={
         <TableTitle>
           <div className="flex flex-col">
@@ -168,7 +167,7 @@ export function TeamsTable(props: TeamsTableProps) {
               Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
             </p>
           </div>
-          <QueryLink query={{ dialog: "export" }}>
+          <QueryLink query={{ dialog: "export", table: "teams" }}>
             <Button>
               <ExportIcon className="-ml-1 h-4 w-4" />
               Export table
@@ -180,10 +179,26 @@ export function TeamsTable(props: TeamsTableProps) {
   );
 }
 
-type Team = {
+interface TeamDetailsProps {
+  metric: Metric;
+  teamName: string;
+  competition: CompetitionDetails;
+}
+
+function TeamDetails(props: TeamDetailsProps) {
+  const { teamName, metric, competition } = props;
+
+  return (
+    <div className="flex flex-col gap-y-4 bg-gray-800 px-5 py-4">
+      <ParticipantsTable metric={metric} competition={competition} teamName={teamName} />
+    </div>
+  );
+}
+
+interface Team {
   name: string;
   participations: ParticipationWithPlayerAndProgress[];
-};
+}
 
 function getTeams(competition: CompetitionDetails): Team[] {
   const teamMap = new Map<string, ParticipationWithPlayerAndProgress[]>();
