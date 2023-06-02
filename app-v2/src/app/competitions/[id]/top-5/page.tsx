@@ -28,12 +28,7 @@ export default async function TopParticipants(props: PageProps) {
   return (
     <div className="rounded-xl border border-gray-600">
       <div className="flex w-full items-center justify-between border-b border-gray-600 px-5 py-4">
-        <div className="flex flex-col">
-          <h3 className="text-h3 font-medium">Top 5 participants</h3>
-          <p className="text-sm text-gray-200">
-            Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
-          </p>
-        </div>
+        <h3 className="text-h3 font-medium">Top 5 participants</h3>
       </div>
       <div className="px-4 py-10">
         <CompetitionTopParticipantsChart metric={metric} data={top5Participants} />

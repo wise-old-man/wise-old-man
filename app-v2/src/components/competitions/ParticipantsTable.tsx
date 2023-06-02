@@ -52,12 +52,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
       pageSize={teamName ? 10 : 20}
       headerSlot={
         <TableTitle>
-          <div className="flex flex-col">
-            <h3 className="text-h3 font-medium text-white">{teamName || "Participants"}</h3>
-            <p className="text-sm text-gray-200">
-              Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
-            </p>
-          </div>
+          <h3 className="text-h3 font-medium text-white">{teamName || "Participants"}</h3>
           <QueryLink query={{ dialog: "export", team: teamName ? encodeURI(teamName) : undefined }}>
             <Button>
               <ExportIcon className="-ml-1 h-4 w-4" />

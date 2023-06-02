@@ -12,12 +12,7 @@ export default function RatesLayout(props: PropsWithChildren) {
 
   return (
     <Container>
-      <div>
-        <h1 className="text-h1 font-bold">Efficiency Rates</h1>
-        <p className="mt-1 text-body text-gray-200">
-          Consequat qui ea commodo amet quis qui pariatur cillum sint reprehenderit consequat id.
-        </p>
-      </div>
+      <h1 className="text-h1 font-bold">Efficiency Rates</h1>
       <div className="sticky top-16 bg-gray-900 pt-8">
         <Tabs defaultValue={routeSegment}>
           <TabsList
