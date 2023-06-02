@@ -21,6 +21,8 @@ import {
 
 const COMBINED_METRIC = "combined";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   searchParams: {
     metric?: string;

@@ -2,10 +2,10 @@ import { CompetitionType, isMetric } from "@wise-old-man/utils";
 import { fetchCompetition } from "~/services/wiseoldman";
 import { TeamsTable } from "~/components/competitions/TeamsTable";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
-import { TeamDetailsDialog } from "~/components/competitions/TeamDetailsDialog";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: {

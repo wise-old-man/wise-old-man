@@ -3,6 +3,7 @@ import { fetchCompetition, fetchTop5History } from "~/services/wiseoldman";
 import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: {

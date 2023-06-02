@@ -15,7 +15,6 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const RESULTS_PER_PAGE = 20;
 
-export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
 interface PageProps {

@@ -9,6 +9,7 @@ const BASE_API_URL = "https://api.wiseoldman.net/v2";
 const RESULTS_PER_PAGE = 15;
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 async function getGroups(search: string | undefined, page: number) {
   const params = new URLSearchParams();
