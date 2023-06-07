@@ -1,5 +1,7 @@
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
+import { cn } from "~/utils/styling";
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { TooltipProvider } from "~/components/Tooltip";
@@ -26,8 +28,9 @@ function RootLayout(props: PropsWithChildren) {
   const { children } = props;
 
   return (
-    <html lang="en" className={`${inter.variable}`}>
-      <body>
+    <html lang="en" className={cn(inter.variable, "h-full")}>
+      <body className="h-full bg-gray-900 text-white">
+        <NextTopLoader color="#3b82f6" showSpinner={false} />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
             <Navigation>

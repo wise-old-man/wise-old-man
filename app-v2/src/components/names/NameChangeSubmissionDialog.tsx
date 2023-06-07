@@ -52,28 +52,26 @@ function SubmitNameChangeForm() {
     userAgent: "WiseOldMan - App v2 (Client Side)",
   });
 
-  const submitMutation = useMutation(
-    (params: { oldName: string; newName: string }) => {
+  const submitMutation = useMutation({
+    mutationFn: (params: { oldName: string; newName: string }) => {
       return client.nameChanges.submitNameChange(params.oldName, params.newName);
     },
-    {
-      onSuccess: () => {
-        toast.toast({
-          variant: "success",
-          title: "Name change submitted succesfully!",
-          description: `It should be auto-reviewed within the next few minutes.`,
-        });
+    onSuccess: () => {
+      toast.toast({
+        variant: "success",
+        title: "Name change submitted succesfully!",
+        description: `It should be auto-reviewed within the next few minutes.`,
+      });
 
-        router.refresh();
-        router.push("/names");
-      },
-      onError: (error) => {
-        if (error instanceof Error) {
-          toast.toast({ variant: "error", title: error.message });
-        }
-      },
-    }
-  );
+      router.refresh();
+      router.push("/names");
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
 
   const canSubmit = oldName.length > 0 && newName.length > 0 && !oldNameError && !newNameError;
 
@@ -120,9 +118,9 @@ function SubmitNameChangeForm() {
         size="lg"
         variant="blue"
         className="mt-2 justify-center"
-        disabled={!canSubmit || submitMutation.isLoading}
+        disabled={!canSubmit || submitMutation.isPending}
       >
-        {submitMutation.isLoading ? "Submitting..." : "Confirm"}
+        {submitMutation.isPending ? "Submitting..." : "Confirm"}
       </Button>
     </form>
   );

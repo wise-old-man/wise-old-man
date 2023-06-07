@@ -1,5 +1,7 @@
 import { Container } from "~/components/Container";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     username: string;

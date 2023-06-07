@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { CompetitionListItem, CompetitionTypeProps } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
 import { timeago } from "~/utils/dates";
 import { Badge } from "~/components/Badge";
 import { MetricIcon } from "~/components/Icon";
@@ -14,8 +13,10 @@ import {
   getSearchParam,
 } from "~/utils/params";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
+import { fetchCompetitions } from "~/services/wiseoldman";
 
-const RESULTS_PER_PAGE = 20;
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: {
@@ -60,12 +61,11 @@ async function CompetitionsPage(props: PageProps) {
   const type = getCompetitionTypeParam(searchParams.type);
   const status = getCompetitionStatusParam(searchParams.status);
 
-  const data = await apiClient.competitions.searchCompetitions(
+  const RESULTS_PER_PAGE = 20;
+
+  const data = await fetchCompetitions(
     { title: search, type, status, metric },
-    {
-      limit: RESULTS_PER_PAGE,
-      offset: (page - 1) * RESULTS_PER_PAGE,
-    }
+    { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
 
   return (
@@ -88,6 +88,7 @@ async function CompetitionsPage(props: PageProps) {
                     <MetricIcon metric={competition.metric} />
                     <div className="flex flex-col">
                       <Link
+                        prefetch={false}
                         href={`/competitions/${competition.id}`}
                         className="truncate text-base font-medium leading-7 text-white hover:underline"
                       >
@@ -98,6 +99,7 @@ async function CompetitionsPage(props: PageProps) {
                           <>
                             Hosted by&nbsp;
                             <Link
+                              prefetch={false}
                               href={`/groups/${competition.group.id}`}
                               className="font-medium text-blue-400 hover:underline"
                             >

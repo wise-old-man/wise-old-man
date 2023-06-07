@@ -66,7 +66,7 @@ export function CompetitionsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.push(`/competitions?${nextParams.toString()}`);
+    router.replace(`/competitions?${nextParams.toString()}`);
   }
 
   function handleSearchChanged(value: string) {
@@ -81,7 +81,7 @@ export function CompetitionsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.push(`/competitions?${nextParams.toString()}`);
+    router.replace(`/competitions?${nextParams.toString()}`);
   }
 
   return (

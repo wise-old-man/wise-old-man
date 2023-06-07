@@ -12,6 +12,8 @@ import {
   getPlayerTypeParam,
 } from "~/utils/params";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   searchParams: {
     metric?: string;

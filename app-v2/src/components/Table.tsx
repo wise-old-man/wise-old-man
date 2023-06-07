@@ -1,135 +1,135 @@
-import { PropsWithChildren, forwardRef } from "react";
+import {
+  HTMLAttributes,
+  PropsWithChildren,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+  forwardRef,
+} from "react";
+import { Column } from "@tanstack/react-table";
 import { cn } from "~/utils/styling";
 
 import ChevronDownIcon from "~/assets/chevron_down.svg";
-import { TableSortingDirection } from "~/hooks/useTableSorting";
 
-function Table(props: PropsWithChildren) {
+const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
+  ({ className, ...props }, ref) => (
+    <div className="custom-scroll w-full overflow-auto">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-xs font-normal tabular-nums text-gray-200", className)}
+        {...props}
+      />
+    </div>
+  )
+);
+Table.displayName = "Table";
+
+function TableTitle(props: PropsWithChildren) {
   return (
-    <table className="min-w-full divide-y divide-gray-600 rounded-lg border border-l-0 border-r-0 border-gray-500">
+    <div className="flex w-full items-center justify-between border-b border-gray-500 px-5 py-4">
       {props.children}
-    </table>
+    </div>
   );
 }
 
-const TableBody = forwardRef<
-  HTMLTableSectionElement,
-  React.TableHTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => {
-  return (
-    <tbody className={cn("divide-y divide-gray-600", className)} ref={ref} {...props}>
-      {props.children}
-    </tbody>
-  );
-});
+const TableHeader = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
+  ({ className, ...props }, ref) => (
+    <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  )
+);
+TableHeader.displayName = "TableHeader";
+
+const TableBody = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
+  ({ className, ...props }, ref) => (
+    <tbody ref={ref} className={cn("[&_tr:last-child]:border-0", className)} {...props} />
+  )
+);
 TableBody.displayName = "TableBody";
 
-const TableColumns = forwardRef<
-  HTMLTableSectionElement,
-  React.TableHTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => {
-  return (
-    <thead className={cn("divide-y divide-gray-600", className)} ref={ref} {...props}>
-      <TableRow>{props.children}</TableRow>
-    </thead>
-  );
-});
-TableColumns.displayName = "TableColumns";
-
-const TableRow = forwardRef<HTMLTableRowElement, React.TableHTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <tr className={cn("", className)} ref={ref} {...props}>
-        {props.children}
-      </tr>
-    );
-  }
+const TableRow = forwardRef<HTMLTableRowElement, HTMLAttributes<HTMLTableRowElement>>(
+  ({ className, ...props }, ref) => (
+    <tr
+      ref={ref}
+      className={cn(
+        "border-b border-gray-600 transition-colors data-[state=selected]:bg-gray-500",
+        className
+      )}
+      {...props}
+    />
+  )
 );
 TableRow.displayName = "TableRow";
 
-const TableCell = forwardRef<HTMLTableCellElement, React.TableHTMLAttributes<HTMLTableCellElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <td
-        className={cn(
-          "border-gray-500 bg-gray-900 px-5 py-3 text-xs font-normal tabular-nums text-gray-200",
-          className
-        )}
-        ref={ref}
-        {...props}
-      >
-        {props.children}
-      </td>
-    );
-  }
+const TableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTableCellElement>>(
+  ({ className, ...props }, ref) => (
+    <th
+      ref={ref}
+      className={cn(
+        "h-10 px-5 text-left align-middle text-xs font-medium tabular-nums text-gray-200 [&:has([role=checkbox])]:pr-0",
+        className
+      )}
+      {...props}
+    />
+  )
+);
+TableHead.displayName = "TableHead";
+
+const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCellElement>>(
+  ({ className, ...props }, ref) => (
+    <td
+      ref={ref}
+      className={cn("px-5 py-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+      {...props}
+    />
+  )
 );
 TableCell.displayName = "TableCell";
 
-const TableColumn = forwardRef<HTMLTableCellElement, React.TableHTMLAttributes<HTMLTableCellElement>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <th
-        className={cn(
-          "whitespace-nowrap border-gray-500 bg-gray-900 px-5 py-3 text-left text-xs font-medium text-gray-200",
-          className
-        )}
-        ref={ref}
-        {...props}
-      >
-        <div className="flex items-center gap-x-2">{props.children}</div>
-      </th>
-    );
-  }
-);
-TableColumn.displayName = "TableColumn";
-
 function TableContainer(props: PropsWithChildren) {
   return (
-    <div className="inline-block min-w-full">
-      <div className="overflow-hidden rounded-xl border border-gray-500 bg-gray-900">
+    <div className="inline-block w-full">
+      <div className="overflow-hidden rounded-lg border border-gray-500 bg-gray-900">
         {props.children}
       </div>
     </div>
   );
 }
 
-function TableHeader(props: PropsWithChildren) {
-  return <div className="flex w-full items-center justify-between px-5 py-4">{props.children}</div>;
+interface TableSortButtonProps<TData, TValue> extends PropsWithChildren {
+  column: Column<TData, TValue>;
 }
 
-interface TableSortingProps {
-  value: string;
-  sortColumn: (value: string) => void;
-  getDirection: (value: string) => TableSortingDirection | undefined;
-}
+function TableSortButton<TData, TValue>(props: TableSortButtonProps<TData, TValue>) {
+  const { children, column } = props;
 
-function TableSorting(props: TableSortingProps) {
-  const { value, sortColumn, getDirection } = props;
-
-  const direction = getDirection(value);
+  const direction = column.getIsSorted();
 
   let rotation = -90;
   if (direction === "asc") rotation = 180;
-  if (direction === "desc") rotation = 0;
+  else if (direction === "desc") rotation = 0;
+
+  function handleClick() {
+    column.toggleSorting(column.getIsSorted() === "asc");
+  }
 
   return (
-    <button className="rounded hover:bg-gray-700 hover:text-white" onClick={() => sortColumn(value)}>
-      <ChevronDownIcon
-        className={cn("h-4 w-4", direction && "text-white")}
-        style={{ transform: `rotate(${rotation}deg)` }}
-      />
+    <button
+      className={cn("flex items-center gap-x-1 rounded hover:text-white", !!direction && "text-white")}
+      onClick={handleClick}
+    >
+      {children}
+      <ChevronDownIcon className="h-4 w-4" style={{ transform: `rotate(${rotation}deg)` }} />
     </button>
   );
 }
 
 export {
-  TableContainer,
   Table,
+  TableTitle,
+  TableContainer,
   TableHeader,
-  TableColumns,
   TableBody,
+  TableHead,
   TableRow,
   TableCell,
-  TableColumn,
-  TableSorting,
+  TableSortButton,
 };

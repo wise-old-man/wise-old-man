@@ -30,7 +30,7 @@ export function GroupsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.push(`/groups?${nextParams.toString()}`);
+    router.replace(`/groups?${nextParams.toString()}`);
   }
 
   return (
