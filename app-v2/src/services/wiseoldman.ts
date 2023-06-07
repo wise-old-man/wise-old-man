@@ -5,6 +5,7 @@ import {
   Top5ProgressResult,
   CompetitionListItem,
   CompetitionsSearchFilter,
+  GroupListItem,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -14,6 +15,21 @@ const BASE_API_URL = "https://api.wiseoldman.net/v2";
 interface PaginationOptions {
   limit?: number;
   offset?: number;
+}
+
+export async function fetchGroups(search: string, pagination: PaginationOptions) {
+  const params = new URLSearchParams();
+  params.set("search", search);
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups?${params.toString()}`);
+    return transformDates(await res.json()) as GroupListItem[];
+  } catch (error) {
+    notFound();
+  }
 }
 
 export async function fetchCompetitions(

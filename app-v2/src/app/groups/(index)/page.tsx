@@ -1,25 +1,13 @@
 import { Suspense } from "react";
-import { GroupListItem } from "@wise-old-man/utils";
 import { Pagination } from "~/components/Pagination";
 import { GroupCard } from "~/components/groups/GroupCard";
+import { fetchGroups } from "~/services/wiseoldman";
 import { getPageParam, getSearchParam } from "~/utils/params";
-
-const BASE_API_URL = "https://api.wiseoldman.net/v2";
 
 const RESULTS_PER_PAGE = 15;
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
-
-async function getGroups(search: string | undefined, page: number) {
-  const params = new URLSearchParams();
-  params.set("search", search || "");
-  params.set("limit", RESULTS_PER_PAGE.toString());
-  params.set("offset", ((page - 1) * RESULTS_PER_PAGE).toString());
-
-  const res = await fetch(`${BASE_API_URL}/groups?${params.toString()}`);
-  return (await res.json()) as GroupListItem[];
-}
 
 interface PageProps {
   searchParams: {
@@ -58,7 +46,10 @@ async function GroupsPage(props: PageProps) {
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
 
-  const data = await getGroups(search, page);
+  const data = await fetchGroups(search || "", {
+    limit: RESULTS_PER_PAGE,
+    offset: (page - 1) * RESULTS_PER_PAGE,
+  });
 
   return (
     <>
