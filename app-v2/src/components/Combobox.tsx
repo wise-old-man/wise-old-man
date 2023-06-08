@@ -8,6 +8,7 @@ import { Button } from "./Button";
 
 import CheckIcon from "~/assets/check.svg";
 import SearchIcon from "~/assets/search.svg";
+import LoadingIcon from "~/assets/loading.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 const Popover = PopoverPrimitive.Root;
@@ -210,14 +211,26 @@ export function ComboboxContent(props: PropsWithChildren & PopoverPrimitive.Popo
   );
 }
 
-export function ComboboxButton(props: { className?: string } & PropsWithChildren) {
+interface ComboboxButtonProps {
+  className?: string;
+  isPending?: boolean;
+}
+
+export function ComboboxButton(props: PropsWithChildren<ComboboxButtonProps>) {
+  const { className, isPending, children } = props;
+
   return (
     <ComboboxTrigger asChild>
       <Button
-        className={cn("flex w-auto justify-between px-3 font-normal text-gray-100", props.className)}
+        disabled={isPending}
+        className={cn("flex w-auto justify-between px-3 font-normal text-gray-100", className)}
       >
-        {props.children}
-        <ChevronDownIcon className="ml-5 h-4 w-4" />
+        {children}
+        {isPending ? (
+          <LoadingIcon className="ml-5 h-4 w-4 animate-spin" />
+        ) : (
+          <ChevronDownIcon className="ml-5 h-4 w-4" />
+        )}
       </Button>
     </ComboboxTrigger>
   );
