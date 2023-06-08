@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "~/utils/styling";
 import {
@@ -44,6 +44,7 @@ import SearchIcon from "~/assets/search.svg";
 export function CompetitionsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const search = getSearchParam(searchParams.get("search"));
   const metric = getMetricParam(searchParams.get("metric"));
@@ -66,7 +67,9 @@ export function CompetitionsFilters() {
     // Reset pagination if params change
     nextParams.delete("page");
 
-    router.replace(`/competitions?${nextParams.toString()}`);
+    startTransition(() => {
+      router.replace(`/competitions?${nextParams.toString()}`);
+    });
   }
 
   function handleSearchChanged(value: string) {
@@ -100,6 +103,7 @@ export function CompetitionsFilters() {
       <MetricSelect
         metric={metric}
         onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
+        isPending={isPending}
       />
       <StatusSelect
         status={status}
@@ -111,12 +115,13 @@ export function CompetitionsFilters() {
 }
 
 interface MetricSelectProps {
+  isPending: boolean;
   metric: Metric | undefined;
   onMetricSelected: (metric: Metric | undefined) => void;
 }
 
 function MetricSelect(props: MetricSelectProps) {
-  const { metric, onMetricSelected } = props;
+  const { isPending, metric, onMetricSelected } = props;
 
   return (
     <Combobox
@@ -127,7 +132,7 @@ function MetricSelect(props: MetricSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="py-5">
+      <ComboboxButton className="py-5" isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !metric && "text-gray-300")}>
           {metric && <MetricIconSmall metric={metric} />}
           <span className="line-clamp-1 text-left">{metric ? MetricProps[metric].name : "Metric"} </span>
