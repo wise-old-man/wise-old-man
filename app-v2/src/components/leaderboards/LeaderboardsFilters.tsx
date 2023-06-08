@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
@@ -77,29 +78,24 @@ export function LeaderboardsFilters() {
     <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
       {isEfficiencyLeaderboard ? (
         <ComputedMetricSelect
-          key={computedMetric}
           metric={computedMetric}
           onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
         />
       ) : (
         <MetricSelect
-          key={metric}
           metric={metric}
           onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
         />
       )}
       <PlayerTypeSelect
-        key={playerType}
         playerType={playerType}
         onPlayerTypeSelected={(newPlayerType) => handleParamChanged("playerType", newPlayerType)}
       />
       <PlayerBuildSelect
-        key={playerBuild}
         playerBuild={playerBuild}
         onPlayerBuildSelected={(newPlayerBuild) => handleParamChanged("playerBuild", newPlayerBuild)}
       />
       <CountrySelect
-        key={country}
         country={country}
         onCountrySelected={(newCountry) => handleParamChanged("country", newCountry)}
       />
@@ -115,18 +111,22 @@ interface ComputedMetricSelectProps {
 function ComputedMetricSelect(props: ComputedMetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={metric}
       onValueChanged={(val) => {
-        if (val === undefined) {
-          onMetricSelected(Metric.EHP);
-        } else if (val === "combined" || isComputedMetric(val)) {
-          onMetricSelected(val);
-        }
+        startTransition(() => {
+          if (val === undefined) {
+            onMetricSelected(Metric.EHP);
+          } else if (val === "combined" || isComputedMetric(val)) {
+            onMetricSelected(val);
+          }
+        });
       }}
     >
-      <ComboboxButton className="w-full">
+      <ComboboxButton className="w-full" isPending={isPending}>
         <div className="flex items-center gap-x-2">
           {metric === "combined" ? (
             <>
@@ -169,18 +169,22 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={metric}
       onValueChanged={(val) => {
-        if (val === undefined) {
-          onMetricSelected(Metric.OVERALL);
-        } else if (isMetric(val)) {
-          onMetricSelected(val);
-        }
+        startTransition(() => {
+          if (val === undefined) {
+            onMetricSelected(Metric.OVERALL);
+          } else if (isMetric(val)) {
+            onMetricSelected(val);
+          }
+        });
       }}
     >
-      <ComboboxButton>
+      <ComboboxButton isPending={isPending}>
         <div className="flex items-center gap-x-2">
           <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -238,16 +242,20 @@ interface PlayerTypeSelectProps {
 function PlayerTypeSelect(props: PlayerTypeSelectProps) {
   const { playerType, onPlayerTypeSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={playerType}
       onValueChanged={(val) => {
         if (val === undefined || isPlayerType(val)) {
-          onPlayerTypeSelected(val);
+          startTransition(() => {
+            onPlayerTypeSelected(val);
+          });
         }
       }}
     >
-      <ComboboxButton className="w-full">
+      <ComboboxButton className="w-full" isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-300")}>
           {playerType && <PlayerTypeIcon playerType={playerType} />}
           {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
@@ -277,16 +285,20 @@ interface PlayerBuildSelectProps {
 function PlayerBuildSelect(props: PlayerBuildSelectProps) {
   const { playerBuild, onPlayerBuildSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={playerBuild}
       onValueChanged={(val) => {
         if (val === undefined || isPlayerBuild(val)) {
-          onPlayerBuildSelected(val);
+          startTransition(() => {
+            onPlayerBuildSelected(val);
+          });
         }
       }}
     >
-      <ComboboxButton className="w-full">
+      <ComboboxButton className="w-full" isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !playerBuild && "text-gray-300")}>
           {playerBuild ? PlayerBuildProps[playerBuild].name : "Player Build"}
         </div>
@@ -315,17 +327,21 @@ interface CountrySelectProps {
 function CountrySelect(props: CountrySelectProps) {
   const { country, onCountrySelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={country}
       onValueChanged={(val) => {
-        if (!val) return onCountrySelected(undefined);
+        startTransition(() => {
+          if (!val) return onCountrySelected(undefined);
 
-        const [code] = val.split("_");
-        if (code && isCountry(code)) onCountrySelected(code);
+          const [code] = val.split("_");
+          if (code && isCountry(code)) onCountrySelected(code);
+        });
       }}
     >
-      <ComboboxButton>
+      <ComboboxButton isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !country && "text-gray-300")}>
           {country && <CountryIcon country={country} />}
           <span className="line-clamp-1 text-left">
