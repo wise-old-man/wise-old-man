@@ -40,23 +40,22 @@ import {
 import { MetricIconSmall } from "../Icon";
 
 import SearchIcon from "~/assets/search.svg";
+import LoadingIcon from "~/assets/loading.svg";
 
 export function CompetitionsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
 
   const search = getSearchParam(searchParams.get("search"));
   const metric = getMetricParam(searchParams.get("metric"));
   const type = getCompetitionTypeParam(searchParams.get("type"));
   const status = getCompetitionStatusParam(searchParams.get("status"));
 
-  const [searchInput, setSearchInput] = useState(search);
-
-  const debouncedUrlUpdate = useDebounceCallback(handleSearchChanged, 500);
-
   function handleParamChanged(paramName: string, paramValue: string | undefined) {
     const nextParams = new URLSearchParams(searchParams);
+
+    // Reset pagination if params change
+    nextParams.delete("page");
 
     if (paramValue) {
       nextParams.set(paramName, paramValue);
@@ -64,16 +63,14 @@ export function CompetitionsFilters() {
       nextParams.delete(paramName);
     }
 
-    // Reset pagination if params change
-    nextParams.delete("page");
-
-    startTransition(() => {
-      router.replace(`/competitions?${nextParams.toString()}`);
-    });
+    router.replace(`/competitions?${nextParams.toString()}`);
   }
 
   function handleSearchChanged(value: string) {
     const nextParams = new URLSearchParams(searchParams);
+
+    // Reset pagination if params change
+    nextParams.delete("page");
 
     if (value.trim().length > 0) {
       nextParams.set("search", value);
@@ -81,29 +78,15 @@ export function CompetitionsFilters() {
       nextParams.delete("search");
     }
 
-    // Reset pagination if params change
-    nextParams.delete("page");
-
     router.replace(`/competitions?${nextParams.toString()}`);
   }
 
   return (
     <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
-      <Input
-        value={searchInput}
-        placeholder="Search competitions..."
-        className="border-gray-600"
-        containerClassName="md:max-w-xs w-full"
-        leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
-        onChange={(e) => {
-          setSearchInput(e.target.value);
-          debouncedUrlUpdate(e.target.value);
-        }}
-      />
+      <SearchInput search={search} onSearchChanged={handleSearchChanged} />
       <MetricSelect
         metric={metric}
         onMetricSelected={(newMetric) => handleParamChanged("metric", newMetric)}
-        isPending={isPending}
       />
       <StatusSelect
         status={status}
@@ -114,21 +97,59 @@ export function CompetitionsFilters() {
   );
 }
 
+interface SearchInputProps {
+  search?: string;
+  onSearchChanged: (search: string) => void;
+}
+
+function SearchInput(props: SearchInputProps) {
+  const { search, onSearchChanged } = props;
+
+  const [isPending, startTransition] = useTransition();
+  const [searchInput, setSearchInput] = useState(search);
+
+  const debouncedUrlUpdate = useDebounceCallback((val) => {
+    startTransition(() => {
+      onSearchChanged(val);
+    });
+  }, 500);
+
+  return (
+    <Input
+      value={searchInput}
+      placeholder="Search competitions..."
+      className="border-gray-600"
+      containerClassName="md:max-w-xs w-full"
+      leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
+      rightElement={
+        isPending ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
+      }
+      onChange={(e) => {
+        setSearchInput(e.target.value);
+        debouncedUrlUpdate(e.target.value);
+      }}
+    />
+  );
+}
+
 interface MetricSelectProps {
-  isPending: boolean;
   metric: Metric | undefined;
   onMetricSelected: (metric: Metric | undefined) => void;
 }
 
 function MetricSelect(props: MetricSelectProps) {
-  const { isPending, metric, onMetricSelected } = props;
+  const { metric, onMetricSelected } = props;
+
+  const [isPending, startTransition] = useTransition();
 
   return (
     <Combobox
       value={metric}
       onValueChanged={(val) => {
         if (val === undefined || isMetric(val)) {
-          onMetricSelected(val);
+          startTransition(() => {
+            onMetricSelected(val);
+          });
         }
       }}
     >
@@ -190,16 +211,20 @@ interface StatusSelectProps {
 function StatusSelect(props: StatusSelectProps) {
   const { status, onStatusSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={status}
       onValueChanged={(val) => {
         if (val === undefined || isCompetitionStatus(val)) {
-          onStatusSelected(val);
+          startTransition(() => {
+            onStatusSelected(val);
+          });
         }
       }}
     >
-      <ComboboxButton className="py-5">
+      <ComboboxButton className="py-5" isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !status && "text-gray-300")}>
           {status && (
             <div
@@ -243,16 +268,20 @@ interface TypeSelectProps {
 function TypeSelect(props: TypeSelectProps) {
   const { type, onTypeSelected } = props;
 
+  const [isPending, startTransition] = useTransition();
+
   return (
     <Combobox
       value={type}
       onValueChanged={(val) => {
         if (val === undefined || isCompetitionType(val)) {
-          onTypeSelected(val);
+          startTransition(() => {
+            onTypeSelected(val);
+          });
         }
       }}
     >
-      <ComboboxButton className="py-5">
+      <ComboboxButton className="py-5" isPending={isPending}>
         <div className={cn("flex items-center gap-x-2", !type && "text-gray-300")}>
           {type ? CompetitionTypeProps[type].name : "Competition type"}
         </div>
