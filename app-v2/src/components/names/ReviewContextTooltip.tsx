@@ -115,7 +115,7 @@ function ReviewContextContent(props: NameChange) {
 
     return (
       <>
-        This name change has been denied because it there are negative gains between the two names.
+        This name change has been denied because there are negative gains between the two names.
         <span className="mt-4 block font-medium text-gray-100">Negative gains:</span>
         <ul className="mt-1">
           {Object.keys(negativeGains)
