@@ -1,6 +1,6 @@
 import { JobsOptions as BullJobOptions, RateLimiterOptions } from 'bullmq';
 import { AssertPlayerTypePayload } from './instances/AssertPlayerTypeJob';
-import { CheckPlayerRankingPayload } from './instances/CheckPlayerRankingJob';
+import { CheckPlayerRankedPayload } from './instances/CheckPlayerRankedJob';
 import { InvalidatePeriodDeltasPayload } from './instances/InvalidatePeriodDeltasJob';
 import { ReviewNameChangePayload } from './instances/ReviewNameChangeJob';
 import { UpdateCompetitionScorePayload } from './instances/UpdateCompetitionScoreJob';
@@ -9,7 +9,7 @@ import { UpdatePlayerJobPayload } from './instances/UpdatePlayerJob';
 
 export enum JobType {
   ASSERT_PLAYER_TYPE = 'ASSERT_PLAYER_TYPE',
-  CHECK_PLAYER_RANKING = 'CHECK_PLAYER_RANKING',
+  CHECK_PLAYER_RANKED = 'CHECK_PLAYER_RANKED',
   INVALIDATE_PERIOD_DELTAS = 'INVALIDATE_PERIOD_DELTAS',
   REFRESH_API_KEYS = 'REFRESH_API_KEYS',
   REVIEW_NAME_CHANGE = 'REVIEW_NAME_CHANGE',
@@ -26,7 +26,7 @@ export enum JobType {
 
 export type JobPayload = {
   [JobType.ASSERT_PLAYER_TYPE]: AssertPlayerTypePayload;
-  [JobType.CHECK_PLAYER_RANKING]: CheckPlayerRankingPayload;
+  [JobType.CHECK_PLAYER_RANKED]: CheckPlayerRankedPayload;
   [JobType.INVALIDATE_PERIOD_DELTAS]: InvalidatePeriodDeltasPayload;
   [JobType.REVIEW_NAME_CHANGE]: ReviewNameChangePayload;
   [JobType.UPDATE_COMPETITION_SCORE]: UpdateCompetitionScorePayload;

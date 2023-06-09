@@ -77,7 +77,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
       // we should start a background job to check (a few times) if they're really unranked
       if (player.status !== PlayerStatus.UNRANKED) {
         jobManager.add({
-          type: JobType.CHECK_PLAYER_RANKING,
+          type: JobType.CHECK_PLAYER_RANKED,
           payload: { username: player.username }
         });
       }

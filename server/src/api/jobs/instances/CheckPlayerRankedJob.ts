@@ -4,16 +4,16 @@ import { BadRequestError } from '../../errors';
 import * as jagexService from '../../services/external/jagex.service';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
-export interface CheckPlayerRankingPayload {
+export interface CheckPlayerRankedPayload {
   username: string;
 }
 
-class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> {
+class CheckPlayerRankedJob implements JobDefinition<CheckPlayerRankedPayload> {
   type: JobType;
   options: JobOptions;
 
   constructor() {
-    this.type = JobType.CHECK_PLAYER_RANKING;
+    this.type = JobType.CHECK_PLAYER_RANKED;
 
     this.options = {
       rateLimiter: { max: 1, duration: 5_000 },
@@ -24,7 +24,7 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     };
   }
 
-  async execute(data: CheckPlayerRankingPayload) {
+  async execute(data: CheckPlayerRankedPayload) {
     const { username } = data;
 
     // Since the hiscores are unstable, we can't assume that a 404 error from them is 100% accurate.
@@ -38,7 +38,7 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     await jagexService.fetchHiscoresData(username);
   }
 
-  async onFailedAllAttempts(data: CheckPlayerRankingPayload, error: Error) {
+  async onFailedAllAttempts(data: CheckPlayerRankedPayload, error: Error) {
     // If it fails every attempt with the "Failed to load hiscores" (404) error message,
     // then we can be pretty sure that the player is unranked.
     if (!(error instanceof BadRequestError) || !error.message.includes('Failed to load hiscores')) return;
@@ -50,4 +50,4 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
   }
 }
 
-export default new CheckPlayerRankingJob();
+export default new CheckPlayerRankedJob();
