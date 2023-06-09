@@ -35,18 +35,18 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     // meaning that it will retry a few times, with a longer delay between each attempt.
 
     // Try to fetch stats for this player, let it throw an error if it fails.
-    await jagexService.getHiscoresData(username);
+    await jagexService.fetchHiscoresData(username);
   }
 
   async onFailedAllAttempts(data: CheckPlayerRankingPayload, error: Error) {
     // If it fails every attempt with the "Failed to load hiscores" (404) error message,
-    // then yea, we can be pretty sure that the player is unranked.
-    if (error instanceof BadRequestError && error.message.includes('Failed to load hiscores')) {
-      await prisma.player.update({
-        where: { username: data.username },
-        data: { status: PlayerStatus.UNRANKED }
-      });
-    }
+    // then we can be pretty sure that the player is unranked.
+    if (!(error instanceof BadRequestError) || !error.message.includes('Failed to load hiscores')) return;
+
+    await prisma.player.update({
+      where: { username: data.username },
+      data: { status: PlayerStatus.UNRANKED }
+    });
   }
 }
 

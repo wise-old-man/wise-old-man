@@ -46,7 +46,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
   }
 
   try {
-    oldHiscores = await jagexService.getHiscoresData(nameChange.oldName);
+    oldHiscores = await jagexService.fetchHiscoresData(nameChange.oldName);
   } catch (e) {
     // If te hiscores failed to load, abort mission
     if (e instanceof ServerError) throw e;
@@ -139,14 +139,14 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
 async function fetchHiscoresWithFallback(username: string) {
   // Try fetching from the regular hiscores
   try {
-    return await jagexService.getHiscoresData(username);
+    return await jagexService.fetchHiscoresData(username);
   } catch (error) {
     if (error instanceof ServerError) throw error;
   }
 
   // If the regular hiscores failed, try the ironman hiscores
   try {
-    return await jagexService.getHiscoresData(username, PlayerType.IRONMAN);
+    return await jagexService.fetchHiscoresData(username, PlayerType.IRONMAN);
   } catch (error) {
     if (error instanceof ServerError) throw error;
   }
