@@ -1,6 +1,7 @@
 import prisma from '../../../prisma';
 import { PlayerStatus } from '../../../utils';
 import { checkIsBanned } from '../../services/external/jagex.service';
+import * as playerServices from '../../modules/players/player.services';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
 export interface CheckPlayerBannedPayload {
@@ -19,10 +20,20 @@ class CheckPlayerBannedJob implements JobDefinition<CheckPlayerBannedPayload> {
   async execute(data: CheckPlayerBannedPayload) {
     const { username } = data;
 
-    if (await checkIsBanned(username)) {
+    const [player] = await playerServices.findPlayer({ username });
+    if (!player) return;
+
+    const isBanned = await checkIsBanned(username);
+
+    if (player.status === PlayerStatus.UNRANKED && isBanned) {
       await prisma.player.update({
         where: { username: data.username },
         data: { status: PlayerStatus.BANNED }
+      });
+    } else if (player.status === PlayerStatus.BANNED && !isBanned) {
+      await prisma.player.update({
+        where: { username: data.username },
+        data: { status: PlayerStatus.UNRANKED }
       });
     }
   }
