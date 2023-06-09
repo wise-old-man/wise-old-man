@@ -319,7 +319,7 @@ model Record {
 
   // Indices
   @@index([playerId], map: "records_player_id")
-  @@index([metric, period], map: "records_metric_period")
+  @@index([metric, period, value(sort: Desc)], map: "records_metric_period_value")
   // Map
   @@map("records")
 }
