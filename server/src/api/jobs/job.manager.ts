@@ -17,11 +17,13 @@ import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJ
 import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
+import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
 import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
+  CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,

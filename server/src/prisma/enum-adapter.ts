@@ -202,7 +202,8 @@ export const PlayerStatus = {
   ACTIVE: 'active',
   UNRANKED: 'unranked',
   FLAGGED: 'flagged',
-  ARCHIVED: 'archived'
+  ARCHIVED: 'archived',
+  BANNED: 'banned'
 } as const;
 
 export type PlayerStatus = typeof PlayerStatus[keyof typeof PlayerStatus];
