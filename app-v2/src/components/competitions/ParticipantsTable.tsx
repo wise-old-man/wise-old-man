@@ -34,8 +34,8 @@ import LoadingIcon from "~/assets/loading.svg";
 
 interface ParticipantsTableProps {
   metric: Metric;
-  teamName?: string;
   competition: CompetitionDetails;
+  teamName?: string;
   filter?: string;
 }
 
@@ -45,6 +45,8 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
   const columnDefs = useMemo(() => getColumnDefinitions(metric, competition), [metric, competition]);
 
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
+
+  const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
 
   const outdatedParticipants = rows.filter(
     (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt
@@ -83,7 +85,7 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
             </div>
           ) : (
             <>
-              {outdatedParticipants && outdatedParticipants.length > 0 && (
+              {isOngoing && outdatedParticipants && outdatedParticipants.length > 0 && (
                 <div className="flex w-full border-t border-gray-500 px-5 py-3">
                   <QueryLink
                     query={{ filter: "outdated" }}
