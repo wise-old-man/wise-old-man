@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Country,
   CountryProps,
@@ -9,13 +10,11 @@ import {
 } from "@wise-old-man/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { PropsWithChildren } from "react";
 import { timeago } from "~/utils/dates";
-import { cn } from "~/utils/styling";
 import { PlayerTypeIcon } from "./Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
-import WarningIcon from "~/assets/warning.svg";
+import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PlayerIdentityProps {
   player: Player;
@@ -26,16 +25,24 @@ interface PlayerIdentityProps {
 export function PlayerIdentity(props: PlayerIdentityProps) {
   const { player, caption, renderTooltip = true } = props;
 
+  let icon: React.ReactNode;
+
+  // TODO: Add "banned" status
+  if (player.status === PlayerStatus.ARCHIVED) {
+    icon = <WarningFilledIcon className="h-4 w-4 text-red-500" />;
+  } else if (player.status === PlayerStatus.UNRANKED) {
+    icon = <WarningFilledIcon className="h-4 w-4 text-yellow-500" />;
+  } else if (player.status === PlayerStatus.FLAGGED) {
+    icon = <WarningFilledIcon className="h-4 w-4 text-orange-500" />;
+  } else {
+    icon = <PlayerTypeIcon playerType={player.type} />;
+  }
+
   return (
     <Tooltip delayDuration={700}>
       <div className="flex items-center text-sm text-white">
         <TooltipTrigger asChild>
-          <div
-            className={cn(
-              "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50",
-              player.status === PlayerStatus.ARCHIVED && "border-red-500"
-            )}
-          >
+          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
             {player.country && (
               <div className="absolute -right-1 bottom-0">
                 <Flag
@@ -44,11 +51,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
                 />
               </div>
             )}
-            {player.status === PlayerStatus.ARCHIVED ? (
-              <WarningIcon className="h-3 w-3 text-red-500" />
-            ) : (
-              <PlayerTypeIcon playerType={player.type} />
-            )}
+            {icon}
           </div>
         </TooltipTrigger>
         <div className="ml-2 flex flex-col">
@@ -84,8 +87,18 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
         <span>{player.displayName}</span>
         <span className="text-xs text-gray-200">{updatedTimeago}</span>
         {player.status === PlayerStatus.ARCHIVED && (
-          <span className="mt-4 text-xs text-red-300">
-            This player is archived. Visit their profile for more information.
+          <span className="mt-4 text-xs text-red-400">
+            This player has been archived. Visit their profile for more information.
+          </span>
+        )}
+        {player.status === PlayerStatus.FLAGGED && (
+          <span className="mt-4 text-xs text-orange-400">
+            This player is flagged. Visit their profile for more information.
+          </span>
+        )}
+        {player.status === PlayerStatus.UNRANKED && player.updatedAt && (
+          <span className="mt-4 text-xs text-gray-200">
+            This player is unranked. They could not be found on the hiscores.
           </span>
         )}
       </div>
