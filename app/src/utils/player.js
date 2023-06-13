@@ -25,6 +25,10 @@ export function getPlayerTooltip(type, status) {
     return 'This player is flagged. Likely caused by an unregistered name change. Visit their profile for more information.';
   }
 
+  if (status === 'banned') {
+    return 'This player is banned.';
+  }
+
   // Unknown player types happen when the first tracking attempt fails,
   // so re-tracking should fix it.
   if (type === 'unknown') {

@@ -14,7 +14,7 @@ function PlayerTag({ name, type, country, status }) {
     icon = ARCHIVED_ICON;
   } else if (status === 'flagged') {
     icon = FLAGGED_ICON;
-  } else if (status === 'unranked') {
+  } else if (status === 'unranked' || status === 'banned') {
     icon = UNRANKED_ICON;
   } else {
     icon = getPlayerTypeIcon(type);

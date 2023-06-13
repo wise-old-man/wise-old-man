@@ -31,6 +31,7 @@ function Header(props) {
       {player.status === 'flagged' && <FlaggedWarning {...player} />}
       {player.status === 'unranked' && <UnrankedWarning {...player} />}
       {player.status === 'archived' && <ArchivedWarning {...player} />}
+      {player.status === 'banned' && <BannedWarning {...player} />}
       <PageHeader
         title={player.displayName}
         icon={getPlayerTypeIcon(player.type)}
@@ -85,6 +86,26 @@ function ArchivedWarning() {
   );
 }
 
+function BannedWarning(player) {
+  const { updatedAt } = player;
+
+  return (
+    <div className="warning">
+      <img src="/img/runescape/icons_small/unranked.png" alt="" />
+      <span>
+        <b>This player is banned.</b>
+        <br />
+        <br />
+        This player could not be found on the hiscores as of{' '}
+        {formatDate(updatedAt, 'DD MMM YYYY, HH:mm')}. It was then confirmed to be banned via
+        RuneMetrics.
+        <br />
+        You can update to re-check this status, it may take a few minutes to complete.
+      </span>
+    </div>
+  );
+}
+
 function UnrankedWarning(player) {
   const { displayName, updatedAt } = player;
 
@@ -119,7 +140,6 @@ function UnrankedWarning(player) {
 }
 
 function FlaggedWarning({ displayName }) {
-  // eslint-disable-next-line no-unused-vars
   const nameChangeURL = `/names/submit/${displayName}`;
 
   return (
