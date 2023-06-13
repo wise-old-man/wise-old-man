@@ -75,9 +75,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
       // If it failed to load their stats, and the player isn't unranked,
       // we should start a background job to check (a few times) if they're really unranked
-      if (player.status !== PlayerStatus.UNRANKED) {
+      if (player.status !== PlayerStatus.UNRANKED && player.status !== PlayerStatus.BANNED) {
         jobManager.add({
-          type: JobType.CHECK_PLAYER_RANKING,
+          type: JobType.CHECK_PLAYER_RANKED,
           payload: { username: player.username }
         });
       }
@@ -204,7 +204,7 @@ async function reviewType(player: Player) {
 
 async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
   // Load data from OSRS hiscores
-  const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+  const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance
   const newSnapshot = await snapshotServices.buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });

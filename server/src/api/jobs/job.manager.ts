@@ -17,12 +17,15 @@ import ScheduleGroupScoreUpdatesJob from './instances/ScheduleGroupScoreUpdatesJ
 import UpdateCompetitionScoreJob from './instances/UpdateCompetitionScoreJob';
 import UpdateGroupScoreJob from './instances/UpdateGroupScoreJob';
 import UpdatePlayerJob from './instances/UpdatePlayerJob';
-import CheckPlayerRankingJob from './instances/CheckPlayerRankingJob';
+import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
+import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
+import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
-  CheckPlayerRankingJob,
+  CheckPlayerBannedJob,
+  CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,
   ReviewNameChangeJob,
@@ -32,6 +35,7 @@ const JOBS: JobDefinition<unknown>[] = [
   ScheduleFlaggedPlayerReview,
   ScheduleGroupScoreUpdatesJob,
   ScheduleNameChangeReviewsJob,
+  SchedulePlayerBannedChecks,
   UpdateCompetitionScoreJob,
   UpdateGroupScoreJob,
   UpdatePlayerJob
@@ -64,6 +68,10 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SCHEDULE_NAME_CHANGE_REVIEWS,
+    interval: '0 8 * * *' // everyday at 8AM
+  },
+  {
+    type: JobType.SCHEDULE_BANNED_PLAYER_CHECKS,
     interval: '0 8 * * *' // everyday at 8AM
   }
 ];

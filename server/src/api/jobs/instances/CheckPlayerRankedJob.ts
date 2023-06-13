@@ -2,18 +2,19 @@ import prisma from '../../../prisma';
 import { PlayerStatus } from '../../../utils';
 import { BadRequestError } from '../../errors';
 import * as jagexService from '../../services/external/jagex.service';
+import jobManager from '../job.manager';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
 
-export interface CheckPlayerRankingPayload {
+export interface CheckPlayerRankedPayload {
   username: string;
 }
 
-class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> {
+class CheckPlayerRankedJob implements JobDefinition<CheckPlayerRankedPayload> {
   type: JobType;
   options: JobOptions;
 
   constructor() {
-    this.type = JobType.CHECK_PLAYER_RANKING;
+    this.type = JobType.CHECK_PLAYER_RANKED;
 
     this.options = {
       rateLimiter: { max: 1, duration: 5_000 },
@@ -24,7 +25,7 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     };
   }
 
-  async execute(data: CheckPlayerRankingPayload) {
+  async execute(data: CheckPlayerRankedPayload) {
     const { username } = data;
 
     // Since the hiscores are unstable, we can't assume that a 404 error from them is 100% accurate.
@@ -35,19 +36,26 @@ class CheckPlayerRankingJob implements JobDefinition<CheckPlayerRankingPayload> 
     // meaning that it will retry a few times, with a longer delay between each attempt.
 
     // Try to fetch stats for this player, let it throw an error if it fails.
-    await jagexService.getHiscoresData(username);
+    await jagexService.fetchHiscoresData(username);
   }
 
-  async onFailedAllAttempts(data: CheckPlayerRankingPayload, error: Error) {
+  async onFailedAllAttempts(data: CheckPlayerRankedPayload, error: Error) {
     // If it fails every attempt with the "Failed to load hiscores" (404) error message,
-    // then yea, we can be pretty sure that the player is unranked.
-    if (error instanceof BadRequestError && error.message.includes('Failed to load hiscores')) {
-      await prisma.player.update({
-        where: { username: data.username },
-        data: { status: PlayerStatus.UNRANKED }
-      });
-    }
+    // then we can be pretty sure that the player is unranked.
+    if (!(error instanceof BadRequestError) || !error.message.includes('Failed to load hiscores')) return;
+
+    await prisma.player.update({
+      where: { username: data.username },
+      data: { status: PlayerStatus.UNRANKED }
+    });
+
+    // Being unranked could also mean a player is banned, so if we determine
+    // that they're not on the hiscores, check if they're banned on RuneMetrics.
+    jobManager.add({
+      type: JobType.CHECK_PLAYER_BANNED,
+      payload: { username: data.username }
+    });
   }
 }
 
-export default new CheckPlayerRankingJob();
+export default new CheckPlayerRankedJob();

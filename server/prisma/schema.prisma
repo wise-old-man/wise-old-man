@@ -564,6 +564,7 @@ enum PlayerStatus {
   unranked
   flagged
   archived
+  banned
 
   @@map("player_status")
 }

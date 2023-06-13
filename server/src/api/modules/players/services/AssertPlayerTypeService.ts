@@ -66,7 +66,7 @@ async function getType(player: Pick<Player, 'username' | 'type'>): Promise<Playe
 async function getOverallExperience(player: Pick<Player, 'username' | 'type'>, type: PlayerType) {
   try {
     // Load data from OSRS hiscores
-    const hiscoresCSV = await jagexService.getHiscoresData(player.username, type || player.type);
+    const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
     // Convert the csv data to a Snapshot instance
     // The playerId doesn't matter here, this snapshot won't be saved to this id

@@ -22,7 +22,8 @@ const PlayerStatusProps: MapOf<PlayerStatus, { name: string }> = {
   [PlayerStatus.ACTIVE]: { name: 'Active' },
   [PlayerStatus.UNRANKED]: { name: 'Unranked' },
   [PlayerStatus.FLAGGED]: { name: 'Flagged' },
-  [PlayerStatus.ARCHIVED]: { name: 'Archived' }
+  [PlayerStatus.ARCHIVED]: { name: 'Archived' },
+  [PlayerStatus.BANNED]: { name: 'Banned' }
 };
 
 const PLAYER_TYPES = Object.values(PlayerType);
