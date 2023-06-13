@@ -6,6 +6,7 @@ import {
   PlayerBuild,
   PlayerBuildProps,
   PlayerStatus,
+  PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
 import Image from "next/image";
@@ -99,6 +100,11 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
         {player.status === PlayerStatus.UNRANKED && player.updatedAt && (
           <span className="mt-4 text-xs text-gray-200">
             This player is unranked. They could not be found on the hiscores.
+          </span>
+        )}
+        {player.type === PlayerType.UNKNOWN && (
+          <span className="mt-4 text-xs text-gray-200">
+            This player is could not be found on the hiscores.
           </span>
         )}
       </div>
