@@ -25,11 +25,13 @@ export function EndingCompetitionWarning() {
         </AccordionItem>
         <AccordionItem value="auto" className="border-0">
           <AccordionTrigger className="border border-t-0 border-gray-500 p-3 text-sm text-gray-100">
-            Why can&apos; WOM auto-update everyone before the competition ends?
+            Why can&apos;t WOM auto-update everyone before the competition ends?
           </AccordionTrigger>
           <AccordionContent className="border-x border-b border-gray-500 p-3 text-gray-200">
-            Group updates aren&apos;t instant, so it would take some time for it to complete. If we did
-            it a few hours early, it could mean we end up
+            Group updates aren&apos;t instant, so it would take some time for it to go through all the
+            participants. If we auto-update everyone a few hours too early, we could miss some later
+            gains. If we did it right before the competition ends, it could either not finish updating
+            everyone in time, or prevent people from updating in last few minutes.
           </AccordionContent>
         </AccordionItem>
       </Accordion>
