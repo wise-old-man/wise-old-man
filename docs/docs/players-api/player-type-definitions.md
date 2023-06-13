@@ -26,7 +26,7 @@ sidebar_position: 1
 ### `(Enum)` Player Status
 
 ```bash
-'active', 'unranked', 'flagged', 'archived'
+'active', 'unranked', 'flagged', 'archived', 'banned'
 ```
 
 <br />
