@@ -70,8 +70,8 @@ export function CompetitionStatusWarning(props: CompetitionStatusWarningProps) {
           </AccordionTrigger>
           <AccordionContent className="border border-t-0 border-gray-500 p-5 text-gray-200">
             {FAQ[status].map((faq) => (
-              <div key={faq.question} className="mb-5 last:mb-0">
-                <h4 className="mb-1 text-base font-medium text-white">{faq.question}</h4>
+              <div key={faq.question} className="mb-7 last:mb-0">
+                <h4 className="mb-2 text-base font-medium text-white">{faq.question}</h4>
                 <p className="text-sm">{faq.answer}</p>
               </div>
             ))}
