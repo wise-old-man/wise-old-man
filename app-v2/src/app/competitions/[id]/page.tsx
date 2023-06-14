@@ -3,8 +3,7 @@ import { fetchCompetition } from "~/services/wiseoldman";
 import { TeamsTable } from "~/components/competitions/TeamsTable";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
-import { EndingCompetitionWarning } from "~/components/competitions/EndingCompetitionWarning";
-import { StartingCompetitionWarning } from "~/components/competitions/StartingCompetitionWarning";
+import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -49,17 +48,16 @@ export default async function CompetitionOverviewPage(props: PageProps) {
     competition.endsAt.getTime() < Date.now() + 1000 * 60 * 60 * 3;
 
   return (
-    <>
-      {isEndingSoon && <EndingCompetitionWarning />}
-      {isStartingSoon && <StartingCompetitionWarning />}
+    <div className="flex flex-col gap-y-10">
+      {isEndingSoon && <CompetitionStatusWarning status="ending" />}
+      {isStartingSoon && <CompetitionStatusWarning status="starting" />}
       <CompetitionWidgets metric={metric} competition={competition} />
-      <div className="mt-10">
-        {competition.type === CompetitionType.TEAM ? (
-          <TeamsTable metric={metric} competition={competition} />
-        ) : (
-          <ParticipantsTable metric={metric} competition={competition} filter={filter} />
-        )}
-      </div>
-    </>
+
+      {competition.type === CompetitionType.TEAM ? (
+        <TeamsTable metric={metric} competition={competition} />
+      ) : (
+        <ParticipantsTable metric={metric} competition={competition} filter={filter} />
+      )}
+    </div>
   );
 }
