@@ -23,9 +23,14 @@ const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
 );
 Table.displayName = "Table";
 
-function TableTitle(props: PropsWithChildren) {
+function TableTitle(props: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className="flex w-full items-center justify-between border-b border-gray-500 px-5 py-4">
+    <div
+      className={cn(
+        "flex w-full items-center justify-between border-b border-gray-500 px-5 py-4",
+        props.className
+      )}
+    >
       {props.children}
     </div>
   );

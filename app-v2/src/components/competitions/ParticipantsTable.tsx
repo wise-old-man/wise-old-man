@@ -10,6 +10,7 @@ import {
   MetricProps,
   ParticipationWithPlayerAndProgress,
   Player,
+  PlayerStatus,
   WOMClient,
   getLevel,
   isActivity,
@@ -33,32 +34,69 @@ import LoadingIcon from "~/assets/loading.svg";
 
 interface ParticipantsTableProps {
   metric: Metric;
-  teamName?: string;
   competition: CompetitionDetails;
+  teamName?: string;
+  filter?: string;
 }
 
 export function ParticipantsTable(props: ParticipantsTableProps) {
-  const { competition, teamName, metric } = props;
+  const { competition, teamName, metric, filter } = props;
 
   const columnDefs = useMemo(() => getColumnDefinitions(metric, competition), [metric, competition]);
 
   const rows = competition.participations.filter((p) => !teamName || p.teamName === teamName);
 
+  const isOngoing = competition.startsAt <= new Date() && competition.endsAt >= new Date();
+
+  const outdatedParticipants = rows.filter(
+    (p) => !p.player.updatedAt || p.player.updatedAt < competition.startsAt
+  );
+
+  const showOnlyOutdated = filter === "outdated";
+
   return (
     <DataTable
       columns={columnDefs}
-      data={rows}
+      data={showOnlyOutdated ? outdatedParticipants : rows}
       enablePagination
       pageSize={teamName ? 10 : 20}
       headerSlot={
-        <TableTitle>
-          <h3 className="text-h3 font-medium text-white">{teamName || "Participants"}</h3>
-          <QueryLink query={{ dialog: "export", team: teamName ? encodeURI(teamName) : undefined }}>
-            <Button>
-              <ExportIcon className="-ml-1 h-4 w-4" />
-              Export table
-            </Button>
-          </QueryLink>
+        <TableTitle className="flex-col p-0">
+          <div className="flex w-full items-center justify-between px-5 py-4">
+            <h3 className="text-h3 font-medium text-white">{teamName || "Participants"}</h3>
+            <QueryLink query={{ dialog: "export", team: teamName ? encodeURI(teamName) : undefined }}>
+              <Button>
+                <ExportIcon className="-ml-1 h-4 w-4" />
+                Export table
+              </Button>
+            </QueryLink>
+          </div>
+          {showOnlyOutdated ? (
+            <div className="flex w-full gap-x-1 border-t border-gray-500 px-5 py-3">
+              <span className="text-xs text-gray-200">
+                Showing only outdated or invalid participants.
+              </span>
+              <QueryLink
+                query={{ filter: null }}
+                className="text-xs font-medium text-white hover:underline"
+              >
+                Show all
+              </QueryLink>
+            </div>
+          ) : (
+            <>
+              {isOngoing && outdatedParticipants && outdatedParticipants.length > 0 && (
+                <div className="flex w-full border-t border-gray-500 px-5 py-3">
+                  <QueryLink
+                    query={{ filter: "outdated" }}
+                    className="text-xs font-medium text-gray-200 hover:underline"
+                  >
+                    {outdatedParticipants.length} outdated or invalid participants.
+                  </QueryLink>
+                </div>
+              )}
+            </>
+          )}
         </TableTitle>
       }
     />
@@ -395,7 +433,7 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
       ) : (
         <>
           {player.updatedAt ? timeago.format(player.updatedAt) : "---"}
-          {!hasEnded && (
+          {!hasEnded && player.status !== PlayerStatus.ARCHIVED && (
             <Button size="sm" disabled={isUpdating} onClick={() => updateMutation.mutate()}>
               {isUpdating && <LoadingIcon className="h-3 w-3 animate-spin" />}
               {isUpdating ? "Updating..." : "Update"}
