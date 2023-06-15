@@ -5,7 +5,7 @@ import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculateMetricDelta } from '../delta.utils';
-import { DeltaLeaderboardEntry } from '../delta.types';
+import { DeltaGroupLeaderboardEntry } from '../delta.types';
 
 const inputSchema = z
   .object({
@@ -27,7 +27,7 @@ const inputSchema = z
 
 type FindGroupDeltasParams = z.infer<typeof inputSchema>;
 
-async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaLeaderboardEntry[]> {
+async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGroupLeaderboardEntry[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
@@ -67,14 +67,13 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaLea
 
       return {
         player,
-        playerId: Number(playerId),
         startDate: startSnapshot.createdAt as Date,
         endDate: endSnapshot.createdAt as Date,
-        gained: calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot).gained
+        data: calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot)
       };
     })
     .filter(r => r !== null)
-    .sort((a, b) => b.gained - a.gained)
+    .sort((a, b) => b.data.gained - a.data.gained)
     .slice(params.offset, params.offset + params.limit);
 
   return results;

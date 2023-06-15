@@ -354,12 +354,12 @@ describe('Deltas API', () => {
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
-        gained: 50_000
+        data: { gained: 50_000 }
       });
 
       expect(directResponse[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        gained: 0
+        data: { gained: 0 }
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
@@ -375,12 +375,12 @@ describe('Deltas API', () => {
 
       expect(directResponse[0]).toMatchObject({
         player: { username: 'psikoi' },
-        gained: 50_000
+        data: { gained: 50_000 }
       });
 
       expect(directResponse[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        gained: 0
+        data: { gained: 0 }
       });
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
@@ -417,12 +417,12 @@ describe('Deltas API', () => {
 
       expect(recentGains[0]).toMatchObject({
         player: { username: 'psikoi' },
-        gained: 50_000
+        data: { gained: 50_000 }
       });
 
       expect(recentGains[1]).toMatchObject({
         player: { username: 'hydrox6' },
-        gained: 0
+        data: { gained: 0 }
       });
 
       expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
@@ -473,7 +473,7 @@ describe('Deltas API', () => {
 
       expect(result[0]).toMatchObject({
         player: { username: 'hydrox6' },
-        gained: 0
+        data: { gained: 0 }
       });
     });
   });
