@@ -14,6 +14,8 @@ import { timeago } from "~/utils/dates";
 import { fetchGroupCompetitions, getCompetitionStatus } from "~/services/wiseoldman";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { Label } from "../Label";
+import { Badge } from "../Badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 interface GroupWidgetsProps {
   group: GroupDetails;
@@ -29,36 +31,71 @@ export function GroupWidgets(props: GroupWidgetsProps) {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-5">
       <div className="col-span-1 md:col-span-2">
-        <Label className="mb-2 block text-xs text-gray-300">Featured competition</Label>
         <Suspense fallback={<FeaturedCompetitionWidgetSkeleton />}>
           {/* @ts-expect-error - Server Component  */}
           <FeaturedCompetitionWidget groupId={group.id} />
         </Suspense>
       </div>
-      <div>
-        <Label className="mb-2 block text-xs text-gray-300">Total experience</Label>
-        <GroupTotalWidget
-          metric={Metric.OVERALL}
-          value={totalExp}
-          avg={Math.round(totalExp / group.memberships.length)}
-        />
-      </div>
-      <div>
-        <Label className="mb-2 block text-xs text-gray-300">Total EHP</Label>
-        <GroupTotalWidget
-          metric={Metric.EHP}
-          value={Math.round(totalEHP)}
-          avg={Math.round(totalEHP / group.memberships.length)}
-        />
-      </div>
-      <div>
-        <Label className="mb-2 block text-xs text-gray-300">Total EHB</Label>
-        <GroupTotalWidget
-          metric={Metric.EHB}
-          value={Math.round(totalEHB)}
-          avg={Math.round(totalEHB / group.memberships.length)}
-        />
-      </div>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">
+            <div className="flex items-center gap-x-1">
+              <MetricIconSmall metric={Metric.OVERALL} />
+              <Label className="text-xs text-gray-200">Total Experience</Label>
+            </div>
+            <div className="flex items-end gap-x-2">
+              <span className="line-clamp-1 text-lg leading-5 text-white">
+                {formatNumber(totalExp, true)}
+              </span>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          {formatNumber(totalExp, false)} Total experience. (
+          {formatNumber(Math.round(totalExp / group.memberships.length), false)} avg.)
+        </TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">
+            <div className="flex items-center gap-x-1">
+              <MetricIconSmall metric={Metric.EHP} />
+              <Label className="text-xs text-gray-200">Total EHP</Label>
+            </div>
+            <div className="flex items-end gap-x-2">
+              <span className="line-clamp-1 text-lg leading-5 text-white">
+                {formatNumber(totalEHP, true)}
+              </span>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          {formatNumber(totalEHP, false)} Total Efficient Hours Played. (
+          {formatNumber(Math.round(totalEHP / group.memberships.length), false)} avg.)
+        </TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">
+            <div className="flex items-center gap-x-1">
+              <MetricIconSmall metric={Metric.EHB} />
+              <Label className="text-xs text-gray-200">Total EHB</Label>
+            </div>
+            <div className="flex items-end gap-x-2">
+              <span className="line-clamp-1 text-lg leading-5 text-white">
+                {formatNumber(totalEHB, true)}
+              </span>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          {formatNumber(totalEHB, false)} Total Efficient Hours Bossed. (
+          {formatNumber(Math.round(totalEHB / group.memberships.length), false)} avg.)
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }
@@ -125,6 +162,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
             {CompetitionStatusProps[status].name} · {timeagoLabel}
           </span>
         </div>
+        <Badge className="absolute bottom-3 right-3 border border-gray-400 bg-black/20">Featured</Badge>
       </div>
     </Link>
   );
