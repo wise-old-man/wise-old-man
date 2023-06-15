@@ -55,7 +55,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
             {icon}
           </div>
         </TooltipTrigger>
-        <div className="ml-2 flex flex-col">
+        <div className="ml-3 flex flex-col">
           <TooltipTrigger asChild>
             <Link
               prefetch={false}

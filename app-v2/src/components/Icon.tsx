@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Metric, PlayerType } from "@wise-old-man/utils";
+import { GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
 
 export function MetricIcon(props: { metric: Metric }) {
   const { metric } = props;
@@ -29,6 +29,19 @@ export function PlayerTypeIcon(props: { playerType: PlayerType }) {
       height={13}
       alt={playerType}
       src={`/img/player_types/${playerType}.png`}
+      className="shrink-0"
+    />
+  );
+}
+
+export function GroupRoleIcon(props: { role: GroupRole }) {
+  const { role } = props;
+  return (
+    <Image
+      width={13}
+      height={13}
+      alt={role}
+      src={`/img/group_roles/${role.replaceAll("_", " ")}.png`}
       className="shrink-0"
     />
   );

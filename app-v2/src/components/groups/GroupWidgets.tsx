@@ -82,7 +82,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
 
   if (!featured) {
     return (
-      <div className="flex h-24 w-full items-center justify-center rounded-lg border border-gray-600 px-6">
+      <div className="flex h-[5rem] w-full items-center justify-center rounded-lg border border-gray-600 px-6">
         <span className="text-gray-400">No featured competitions</span>
       </div>
     );
@@ -102,7 +102,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
 
   return (
     <Link href={`/competitions/${featured.id}`}>
-      <div className="group relative flex h-24 w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400">
+      <div className="group relative flex h-[5rem] w-full items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 px-6 hover:border-gray-400">
         <Image
           alt={featured.metric}
           fill
@@ -132,7 +132,7 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
 
 function FeaturedCompetitionWidgetSkeleton() {
   return (
-    <div className="relative flex h-24 w-full animate-pulse items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 bg-gray-800 px-6">
+    <div className="relative flex h-[5rem] w-full animate-pulse items-center gap-x-4 overflow-hidden rounded-lg border border-gray-600 bg-gray-800 px-6">
       <div className="z-1 relative h-7 w-7 shrink-0 animate-pulse rounded-full bg-gray-500" />
       <div className="z-1 relative flex w-full flex-col gap-y-2">
         <div className="h-4 w-56 animate-pulse rounded-lg bg-gray-400" />
@@ -152,7 +152,7 @@ function GroupTotalWidget(props: GroupTotalWidgetProps) {
   const { metric, value, avg } = props;
 
   return (
-    <div className="flex h-24 w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-600 px-6">
+    <div className="flex h-[5rem] w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-600 px-6">
       <div className="flex items-center gap-x-2">
         <MetricIconSmall metric={metric} />
         <h3 className="text-lg">{formatNumber(value, true)}</h3>
