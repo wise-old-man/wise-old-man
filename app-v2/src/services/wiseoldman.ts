@@ -58,6 +58,17 @@ export async function fetchCompetitions(
   }
 }
 
+export async function fetchGroupCompetitions(groupId: number) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/competitions`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as CompetitionListItem[];
+  } catch (error) {
+    notFound();
+  }
+}
+
 export async function fetchGroup(id: number) {
   try {
     const res = await fetch(`${BASE_API_URL}/groups/${id}`);
@@ -97,7 +108,7 @@ export async function fetchTop5History(id: number, preview?: Metric) {
   }
 }
 
-export function getCompetitionStatus(competition: CompetitionDetails) {
+export function getCompetitionStatus(competition: CompetitionDetails | CompetitionListItem) {
   const now = new Date();
 
   if (competition.endsAt.getTime() < now.getTime()) {

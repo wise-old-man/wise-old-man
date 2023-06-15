@@ -73,35 +73,29 @@ function Navigation(props: NavigationProps) {
   }
 
   return (
-    <div className="pointer-events-none relative pb-8">
-      <div className="pointer-events-auto bg-gray-900">
-        <Tabs defaultValue={selectedSegment}>
-          <TabsList aria-label="Competition Navigation">
-            <Link href={`/groups/${id}`} aria-label="Navigate to the groups's overview">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-            </Link>
-            <Link
-              href={`/groups/${id}/competitions`}
-              aria-label="Navigate to groups's competitions list"
-            >
-              <TabsTrigger value="competitions">Competitions</TabsTrigger>
-            </Link>
-            <Link href={`/groups/${id}/leaderboards`} aria-label="Navigate to groups's leaderboards">
-              <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
-            </Link>
-            <Link href={`/groups/${id}/achievements`} aria-label="Navigate to groups's achievements">
-              <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            </Link>
-            <Link href={`/groups/${id}/name-changes`} aria-label="Navigate to groups's name changes">
-              <TabsTrigger value="name-changes">Name changes</TabsTrigger>
-            </Link>
-            <Link href={`/groups/${id}/statistics`} aria-label="Navigate to groups's statistics">
-              <TabsTrigger value="statistics">Statistics</TabsTrigger>
-            </Link>
-          </TabsList>
-        </Tabs>
-      </div>
-      <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
+    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900 pb-2">
+      <Tabs defaultValue={selectedSegment}>
+        <TabsList aria-label="Competition Navigation">
+          <Link href={`/groups/${id}`} aria-label="Navigate to the groups's overview">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+          </Link>
+          <Link href={`/groups/${id}/competitions`} aria-label="Navigate to groups's competitions list">
+            <TabsTrigger value="competitions">Competitions</TabsTrigger>
+          </Link>
+          <Link href={`/groups/${id}/leaderboards`} aria-label="Navigate to groups's leaderboards">
+            <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
+          </Link>
+          <Link href={`/groups/${id}/achievements`} aria-label="Navigate to groups's achievements">
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          </Link>
+          <Link href={`/groups/${id}/name-changes`} aria-label="Navigate to groups's name changes">
+            <TabsTrigger value="name-changes">Name changes</TabsTrigger>
+          </Link>
+          <Link href={`/groups/${id}/statistics`} aria-label="Navigate to groups's statistics">
+            <TabsTrigger value="statistics">Statistics</TabsTrigger>
+          </Link>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }
