@@ -65,11 +65,15 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
       const { player, startSnapshot, endSnapshot } = playerMap[playerId];
       if (!player || !startSnapshot || !endSnapshot) return null;
 
+      const data = calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot);
+
       return {
         player,
         startDate: startSnapshot.createdAt as Date,
         endDate: endSnapshot.createdAt as Date,
-        data: calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot)
+        data,
+        gained: data.gained, // TODO: delete this soon
+        playerId: Number(player.id) // TODO: delete this soon
       };
     })
     .filter(r => r !== null)
