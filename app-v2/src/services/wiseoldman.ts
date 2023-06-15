@@ -7,6 +7,7 @@ import {
   CompetitionsSearchFilter,
   GroupListItem,
   GroupDetails,
+  GroupHiscoresEntry,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -53,6 +54,27 @@ export async function fetchCompetitions(
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as CompetitionListItem[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchGroupHiscores(
+  groupId: number,
+  metric: Metric,
+  pagination: PaginationOptions
+) {
+  const params = new URLSearchParams();
+  if (metric) params.set("metric", metric);
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/hiscores?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as GroupHiscoresEntry[];
   } catch (error) {
     notFound();
   }

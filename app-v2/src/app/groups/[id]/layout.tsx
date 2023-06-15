@@ -83,7 +83,7 @@ function Navigation(props: NavigationProps) {
           <Link href={`/groups/${id}/competitions`} aria-label="Navigate to groups's competitions list">
             <TabsTrigger value="competitions">Competitions</TabsTrigger>
           </Link>
-          <Link href={`/groups/${id}/leaderboards`} aria-label="Navigate to groups's leaderboards">
+          <Link href={`/groups/${id}/hiscores`} aria-label="Navigate to groups's leaderboards">
             <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
           </Link>
           <Link href={`/groups/${id}/achievements`} aria-label="Navigate to groups's achievements">
