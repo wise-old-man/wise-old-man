@@ -16,6 +16,17 @@ interface PageProps {
   };
 }
 
+export async function generateMetadata(props: PageProps) {
+  const { id } = props.params;
+
+  const group = await fetchGroup(id);
+
+  return {
+    title: `Hiscores: ${group.name}`,
+    description: group.description,
+  };
+}
+
 export default async function GroupHiscoresPage(props: PageProps) {
   const { id } = props.params;
   const { searchParams } = props;

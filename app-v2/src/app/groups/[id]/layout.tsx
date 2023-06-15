@@ -69,6 +69,8 @@ function Navigation(props: NavigationProps) {
 
   if (validTabs.includes(routeSegment)) {
     selectedSegment = routeSegment;
+  } else if (routeSegment === "hiscores" || routeSegment === "gained" || routeSegment === "records") {
+    selectedSegment = "leaderboards";
   } else {
     selectedSegment = "overview";
   }

@@ -8,6 +8,8 @@ import {
   GroupListItem,
   GroupDetails,
   GroupHiscoresEntry,
+  Period,
+  DeltaLeaderboardEntry,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -65,7 +67,7 @@ export async function fetchGroupHiscores(
   pagination: PaginationOptions
 ) {
   const params = new URLSearchParams();
-  if (metric) params.set("metric", metric);
+  params.set("metric", metric);
 
   if (pagination.limit) params.set("limit", pagination.limit.toString());
   if (pagination.offset) params.set("offset", pagination.offset.toString());
@@ -75,6 +77,29 @@ export async function fetchGroupHiscores(
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as GroupHiscoresEntry[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchGroupGained(
+  groupId: number,
+  metric: Metric,
+  period: Period,
+  pagination: PaginationOptions
+) {
+  const params = new URLSearchParams();
+  params.set("metric", metric);
+  params.set("period", period);
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/gained?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as DeltaLeaderboardEntry[];
   } catch (error) {
     notFound();
   }
