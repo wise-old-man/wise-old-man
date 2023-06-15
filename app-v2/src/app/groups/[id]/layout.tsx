@@ -6,6 +6,7 @@ import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -136,21 +137,36 @@ function Header(props: GroupDetails) {
       </div>
       <div className="mt-5 flex items-center gap-x-7">
         {clanChat && (
-          <div className="flex items-center">
-            <ChatIcon className="mr-2 h-5 w-5 text-gray-200" />
-            <span className="text-xs text-gray-200">{clanChat}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <ChatIcon className="mr-2 h-5 w-5 text-gray-200" />
+                <span className="text-xs text-gray-200">{clanChat}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Clan Chat: {clanChat}</TooltipContent>
+          </Tooltip>
         )}
         {homeworld && (
-          <div className="flex items-center">
-            <GlobeIcon className="mr-2 h-5 w-5 text-gray-200" />
-            <span className="text-xs text-gray-200">{homeworld}</span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <GlobeIcon className="mr-2 h-5 w-5 text-gray-200" />
+                <span className="text-xs text-gray-200">{homeworld}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Home world: {homeworld}</TooltipContent>
+          </Tooltip>
         )}
-        <div className="flex items-center">
-          <PeopleIcon className="mr-2 h-5 w-5 text-gray-200" />
-          <span className="text-xs text-gray-200">{memberCount}</span>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <PeopleIcon className="mr-2 h-5 w-5 text-gray-200" />
+              <span className="text-xs text-gray-200">{memberCount}</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>{memberCount} members</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
