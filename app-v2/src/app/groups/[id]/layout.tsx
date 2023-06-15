@@ -109,7 +109,7 @@ function Header(props: GroupDetails) {
       <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
         <div className="flex flex-col">
           <h1 className="text-3xl font-bold">{name}</h1>
-          <p className="mt-1 text-body text-gray-200">{description}</p>
+          {description && <p className="mt-1 text-body text-gray-200">{description}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-x-2">
           <QueryLink query={{ dialog: "update-all" }}>
