@@ -9,8 +9,8 @@ import {
   GroupDetails,
   GroupHiscoresEntry,
   Period,
-  DeltaLeaderboardEntry,
   DeltaGroupLeaderboardEntry,
+  RecordLeaderboardEntry,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -101,6 +101,29 @@ export async function fetchGroupGained(
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as DeltaGroupLeaderboardEntry[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchGroupRecords(
+  groupId: number,
+  metric: Metric,
+  period: Period,
+  pagination: PaginationOptions
+) {
+  const params = new URLSearchParams();
+  params.set("metric", metric);
+  params.set("period", period);
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/records?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as RecordLeaderboardEntry[];
   } catch (error) {
     notFound();
   }

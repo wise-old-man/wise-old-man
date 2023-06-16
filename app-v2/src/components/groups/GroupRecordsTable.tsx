@@ -7,20 +7,17 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  DeltaGroupLeaderboardEntry,
   GroupDetails,
   Metric,
   MetricProps,
   PERIODS,
   Period,
   PeriodProps,
+  RecordLeaderboardEntry,
   SKILLS,
-  isActivity,
-  isBoss,
   isMetric,
   isPeriod,
 } from "@wise-old-man/utils";
-import { Badge } from "../Badge";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
@@ -41,17 +38,15 @@ import {
   ComboboxSeparator,
 } from "../Combobox";
 
-import ArrowUpIcon from "~/assets/arrow_up.svg";
-
-interface GroupGainedTableProps {
+interface GroupRecordsTableProps {
   metric: Metric;
   period: Period;
   group: GroupDetails;
-  gains: DeltaGroupLeaderboardEntry[];
+  records: RecordLeaderboardEntry[];
 }
 
-export function GroupGainedTable(props: GroupGainedTableProps) {
-  const { group, metric, period, gains } = props;
+export function GroupRecordsTable(props: GroupRecordsTableProps) {
+  const { group, metric, period, records } = props;
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -71,7 +66,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
       nextParams.delete("metric");
     }
 
-    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`);
   }
 
   function handlePeriodChanged(period: Period) {
@@ -86,21 +81,21 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
       nextParams.delete("period");
     }
 
-    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`);
   }
 
   return (
     <DataTable
       columns={columnDefs}
-      data={gains}
+      data={records}
       enablePagination
       headerSlot={
         <TableTitle>
           <div>
-            <h3 className="text-h3 font-medium text-white">Gained</h3>
+            <h3 className="text-h3 font-medium text-white">Records</h3>
             <p className="text-body text-gray-200">
-              Most {MetricProps[metric].name} {MetricProps[metric].measure} gained in the past {period}
-              &nbsp;
+              All-time most {MetricProps[metric].name} {MetricProps[metric].measure} gained in a{" "}
+              {PeriodProps[period].name.toLowerCase()} period &nbsp;
               {page > 1 ? `(page ${page})` : ""}
             </p>
           </div>
@@ -115,7 +110,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 }
 
 function getColumnDefinitions(page: number, metric: Metric) {
-  const columns: ColumnDef<DeltaGroupLeaderboardEntry>[] = [
+  const columns: ColumnDef<RecordLeaderboardEntry>[] = [
     {
       id: "rank",
       header: "Rank",
@@ -142,52 +137,30 @@ function getColumnDefinitions(page: number, metric: Metric) {
       },
     },
     {
-      accessorKey: "start",
-      header: "Start",
+      accessorKey: "date",
+      header: "Date",
       cell: ({ row }) => {
-        return <MetricValueCell value={row.original.data.start} metric={metric} />;
+        return (
+          <Tooltip>
+            <TooltipTrigger>{timeago.format(row.original.updatedAt)}</TooltipTrigger>
+            <TooltipContent>{formatRecordDate(row.original.updatedAt)}</TooltipContent>
+          </Tooltip>
+        );
       },
     },
     {
-      accessorKey: "end",
-      header: "End",
-      cell: ({ row }) => {
-        return <MetricValueCell value={row.original.data.end} metric={metric} />;
-      },
-    },
-    {
-      accessorKey: "gained",
+      accessorKey: "value",
       header: "Gained",
       cell: ({ row }) => {
-        if (row.original.data.gained <= 0) {
-          return <MetricValueCell value={row.original.data.gained} metric={metric} />;
+        if (row.original.value <= 0) {
+          return row.original.value;
         }
 
         return (
           <span className="text-green-500">
             +
-            <FormattedNumber value={row.original.data.gained} />
+            <FormattedNumber value={row.original.value} />
           </span>
-        );
-      },
-    },
-    {
-      accessorKey: "gained_percent",
-      header: "% Gained",
-      cell: ({ row }) => {
-        const { start, end, gained } = row.original.data;
-
-        const percent = getPercentGained(metric, start, end, gained);
-
-        if (percent <= 0) {
-          return "0%";
-        }
-
-        return (
-          <Badge variant="success">
-            <ArrowUpIcon className="-ml-1 h-5 w-5" />
-            {Math.round(percent * 1000) / 10}%
-          </Badge>
         );
       },
     },
@@ -310,65 +283,12 @@ function PeriodSelect(props: PeriodSelectProps) {
   );
 }
 
-function MetricValueCell(props: { metric: Metric; value: number }) {
-  const { metric, value } = props;
-
-  if (isBoss(metric) && MetricProps[metric].minimumValue > value) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} kills at {minimumValue} kc.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (isActivity(metric) && MetricProps[metric].minimumValue > value) {
-    const { name, minimumValue } = MetricProps[metric];
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>&lt; {minimumValue}</span>
-        </TooltipTrigger>
-        <TooltipContent>
-          The Hiscores only start showing {name} after {minimumValue} score.
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (value === -1) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>---</span>
-        </TooltipTrigger>
-        <TooltipContent>This player is unranked in {MetricProps[metric].name}.</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (value === 0) {
-    return <span>{value}</span>;
-  }
-
-  return <FormattedNumber value={value} />;
-}
-
-function getPercentGained(metric: Metric, start: number, end: number, gained: number) {
-  if (gained === 0) return 0;
-
-  let minimum = 0;
-  if (isBoss(metric) || isActivity(metric)) minimum = MetricProps[metric].minimumValue - 1;
-
-  const startVal = Math.max(minimum, start);
-  if (startVal === 0) return 1;
-
-  return (end - startVal) / startVal;
+function formatRecordDate(date: Date) {
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
 }
