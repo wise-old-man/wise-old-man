@@ -135,6 +135,27 @@ Used as an input for group modification endpoints (create, edit, add members, et
 
 <br />
 
+### `(Object)` Group Delta Progress
+
+| Field  | Type    | Description                                   |
+| :----- | :------ | :-------------------------------------------- |
+| start  | integer | A player's start value for some time period.  |
+| end    | integer | A player's end value for some time period.    |
+| gained | integer | A player's gained value for some time period. |
+
+<br />
+
+### `(Object)` Delta Group Leaderboard Entry
+
+| Field     | Type                                                                                   | Description                                |
+| :-------- | :------------------------------------------------------------------------------------- | :----------------------------------------- |
+| player    | [Player](/players-api/player-type-definitions#object-player)                           | The delta's parent player object.          |
+| data      | [Group Delta Progress](/groups-api/group-type-definitions#object-group-delta-progress) | The delta's progress.                      |
+| startDate | date                                                                                   | The starting date of the delta's timespan. |
+| endDate   | date                                                                                   | The ending date of the delta's timespan.   |
+
+<br />
+
 ### `(Object)` Group Statistics
 
 | Field            | Type                                                                       | Description                                                     |

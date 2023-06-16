@@ -159,7 +159,18 @@ function getTableConfig(metric, period) {
         )
       },
       {
+        key: 'start',
+        get: row => row.data.start,
+        transform: val => <NumberLabel value={val} />
+      },
+      {
+        key: 'end',
+        get: row => row.data.end,
+        transform: val => <NumberLabel value={val} />
+      },
+      {
         key: 'gained',
+        get: row => row.data.gained,
         transform: val => <NumberLabel value={val} isColored isSigned />
       },
       {

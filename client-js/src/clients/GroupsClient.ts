@@ -8,8 +8,8 @@ import {
   NameChange,
   GroupStatistics,
   RecordLeaderboardEntry,
-  DeltaLeaderboardEntry,
-  ExtendedAchievementWithPlayer
+  ExtendedAchievementWithPlayer,
+  DeltaGroupLeaderboardEntry
 } from '../../../server/src/utils';
 import type {
   CreateGroupPayload,
@@ -121,7 +121,10 @@ export default class GroupsClient extends BaseAPIClient {
   }
 
   getGroupGains(id: number, filter: GetGroupGainsFilter, pagination?: PaginationOptions) {
-    return this.getRequest<DeltaLeaderboardEntry[]>(`/groups/${id}/gained`, { ...pagination, ...filter });
+    return this.getRequest<DeltaGroupLeaderboardEntry[]>(`/groups/${id}/gained`, {
+      ...pagination,
+      ...filter
+    });
   }
 
   /**

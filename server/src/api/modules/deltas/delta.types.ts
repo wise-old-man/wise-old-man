@@ -54,3 +54,14 @@ export interface DeltaLeaderboardEntry {
   endDate: Date;
   gained: number;
 }
+
+export interface DeltaGroupLeaderboardEntry {
+  player: Player;
+  startDate: Date;
+  endDate: Date;
+  data: {
+    start: number;
+    end: number;
+    gained: number;
+  };
+}
