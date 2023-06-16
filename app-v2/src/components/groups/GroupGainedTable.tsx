@@ -7,7 +7,7 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  DeltaLeaderboardEntry,
+  DeltaGroupLeaderboardEntry,
   GroupDetails,
   Metric,
   MetricProps,
@@ -19,8 +19,8 @@ import {
   isBoss,
   isMetric,
   isPeriod,
-  isSkill,
 } from "@wise-old-man/utils";
+import { Badge } from "../Badge";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
@@ -41,11 +41,13 @@ import {
   ComboboxSeparator,
 } from "../Combobox";
 
+import ArrowUpIcon from "~/assets/arrow_up.svg";
+
 interface GroupGainedTableProps {
   metric: Metric;
   period: Period;
   group: GroupDetails;
-  gains: DeltaLeaderboardEntry[];
+  gains: DeltaGroupLeaderboardEntry[];
 }
 
 export function GroupGainedTable(props: GroupGainedTableProps) {
@@ -113,7 +115,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
 }
 
 function getColumnDefinitions(page: number, metric: Metric) {
-  const columns: ColumnDef<DeltaLeaderboardEntry>[] = [
+  const columns: ColumnDef<DeltaGroupLeaderboardEntry>[] = [
     {
       id: "rank",
       header: "Rank",
@@ -140,15 +142,53 @@ function getColumnDefinitions(page: number, metric: Metric) {
       },
     },
     {
-      accessorKey: "value",
-      header: () => {
-        if (isSkill(metric)) return "Experience";
-        if (isBoss(metric)) return "Kills";
-        if (isActivity(metric)) return "Score";
-        return "Value";
-      },
+      accessorKey: "start",
+      header: "Start",
       cell: ({ row }) => {
-        return <StartCell value={row.original.gained} metric={metric} />;
+        return <MetricValueCell value={row.original.data.start} metric={metric} />;
+      },
+    },
+    {
+      accessorKey: "end",
+      header: "End",
+      cell: ({ row }) => {
+        return <MetricValueCell value={row.original.data.end} metric={metric} />;
+      },
+    },
+    {
+      accessorKey: "gained",
+      header: "Gained",
+      cell: ({ row }) => {
+        if (row.original.data.gained <= 0) {
+          return <MetricValueCell value={row.original.data.gained} metric={metric} />;
+        }
+
+        return (
+          <span className="text-green-500">
+            +
+            <FormattedNumber value={row.original.data.gained} />
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "gained_percent",
+      header: "% Gained",
+      cell: ({ row }) => {
+        const { start, end, gained } = row.original.data;
+
+        const percent = getPercentGained(metric, start, end, gained);
+
+        if (percent <= 0) {
+          return "0%";
+        }
+
+        return (
+          <Badge variant="success">
+            <ArrowUpIcon className="-ml-1 h-5 w-5" />
+            {Math.round(percent * 1000) / 10}%
+          </Badge>
+        );
       },
     },
   ];
@@ -270,7 +310,7 @@ function PeriodSelect(props: PeriodSelectProps) {
   );
 }
 
-function StartCell(props: { metric: Metric; value: number }) {
+function MetricValueCell(props: { metric: Metric; value: number }) {
   const { metric, value } = props;
 
   if (isBoss(metric) && MetricProps[metric].minimumValue > value) {
@@ -315,12 +355,20 @@ function StartCell(props: { metric: Metric; value: number }) {
   }
 
   if (value === 0) {
-    return <span>value</span>;
+    return <span>{value}</span>;
   }
 
-  return (
-    <span className="text-green-500">
-      +<FormattedNumber value={value} />
-    </span>
-  );
+  return <FormattedNumber value={value} />;
+}
+
+function getPercentGained(metric: Metric, start: number, end: number, gained: number) {
+  if (gained === 0) return 0;
+
+  let minimum = 0;
+  if (isBoss(metric) || isActivity(metric)) minimum = MetricProps[metric].minimumValue - 1;
+
+  const startVal = Math.max(minimum, start);
+  if (startVal === 0) return 1;
+
+  return (end - startVal) / startVal;
 }

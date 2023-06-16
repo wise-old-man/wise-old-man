@@ -10,6 +10,7 @@ import {
   GroupHiscoresEntry,
   Period,
   DeltaLeaderboardEntry,
+  DeltaGroupLeaderboardEntry,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -99,7 +100,7 @@ export async function fetchGroupGained(
     const res = await fetch(`${BASE_API_URL}/groups/${groupId}/gained?${params.toString()}`);
     if (!res.ok) throw new Error();
 
-    return transformDates(await res.json()) as DeltaLeaderboardEntry[];
+    return transformDates(await res.json()) as DeltaGroupLeaderboardEntry[];
   } catch (error) {
     notFound();
   }
