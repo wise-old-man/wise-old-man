@@ -27,7 +27,7 @@ interface PaginationOptions {
 
 export async function fetchGroups(search: string, pagination: PaginationOptions) {
   const params = new URLSearchParams();
-  params.set("search", search);
+  params.set("name", search);
 
   if (pagination.limit) params.set("limit", pagination.limit.toString());
   if (pagination.offset) params.set("offset", pagination.offset.toString());

@@ -6,7 +6,9 @@ import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { DeleteGroupDialog } from "~/components/groups/DeleteGroupDialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { UpdateAllMembersDialog } from "~/components/groups/UpdateAllMembersDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +46,10 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
         <Navigation id={id} routeSegment={routeSegment} />
       </div>
       {children}
+
+      {/* Dialogs */}
+      <DeleteGroupDialog groupId={id} />
+      <UpdateAllMembersDialog groupId={id} />
     </Container>
   );
 }
