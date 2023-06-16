@@ -12,6 +12,8 @@ import {
   DeltaGroupLeaderboardEntry,
   RecordLeaderboardEntry,
   ExtendedAchievementWithPlayer,
+  NameChange,
+  Player,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -125,6 +127,22 @@ export async function fetchGroupRecords(
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as RecordLeaderboardEntry[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchGroupNameChanges(groupId: number, pagination: PaginationOptions) {
+  const params = new URLSearchParams();
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/name-changes?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as Array<NameChange & { player: Player }>;
   } catch (error) {
     notFound();
   }
