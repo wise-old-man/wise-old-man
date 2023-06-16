@@ -3,7 +3,9 @@ import { Boss } from '../../../../../utils';
 export default [
   { boss: Boss.ABYSSAL_SIRE, rate: 45 },
   { boss: Boss.ALCHEMICAL_HYDRA, rate: 33 },
+  { boss: Boss.ARTIO, rate: 65 },
   { boss: Boss.CALLISTO, rate: 50 },
+  { boss: Boss.CALVARION, rate: 55 },
   { boss: Boss.CERBERUS, rate: 61 },
   { boss: Boss.CHAMBERS_OF_XERIC_CM, rate: 2.4 },
   { boss: Boss.CHAMBERS_OF_XERIC, rate: 3 },
@@ -29,6 +31,7 @@ export default [
   { boss: Boss.SARACHNIS, rate: 80 },
   { boss: Boss.SCORPIA, rate: 130 },
   { boss: Boss.SKOTIZO, rate: 45 },
+  { boss: Boss.SPINDEL, rate: 55 },
   { boss: Boss.THE_CORRUPTED_GAUNTLET, rate: 7 },
   { boss: Boss.THE_GAUNTLET, rate: 10 },
   { boss: Boss.THEATRE_OF_BLOOD_HARD_MODE, rate: 3 },
