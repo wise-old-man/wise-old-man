@@ -8,6 +8,7 @@ import {
   EfficiencyAlgorithmType,
   isCompetitionStatus,
   isCompetitionType,
+  isPeriod,
 } from "@wise-old-man/utils";
 
 export function getMetricParam(param: string | undefined | null) {
@@ -22,6 +23,11 @@ export function getPlayerTypeParam(param: string | undefined | null) {
 
 export function getPlayerBuildParam(param: string | undefined | null) {
   if (!param || !isPlayerBuild(param)) return undefined;
+  return param;
+}
+
+export function getPeriodParam(param: string | undefined | null) {
+  if (!param || !isPeriod(param)) return undefined;
   return param;
 }
 
