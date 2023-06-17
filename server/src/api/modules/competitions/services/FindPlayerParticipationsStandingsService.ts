@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { omit } from 'lodash';
 import { CompetitionStatus } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import { findPlayerParticipations } from './FindPlayerParticipationsService';
 import { ParticipationWithCompetitionAndStandings } from '../competition.types';
 import { calculateParticipantsStandings } from './FetchCompetitionDetailsService';
@@ -41,7 +41,7 @@ async function findPlayerParticipationsStandings(
     const participation = c.participants[playerIndex];
 
     return {
-      ...omit(participation, ['player']),
+      ...omit(participation, 'player'),
       competition: c.competition,
       rank: playerIndex + 1,
       progress: participation.progress

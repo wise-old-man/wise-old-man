@@ -1,5 +1,5 @@
-import { mapValues } from 'lodash';
 import { Skill, Boss, Activity, ComputedMetric, Metric } from '../prisma/enum-adapter';
+import { mapValues } from '../api/util/objects';
 import { MapOf } from './types';
 
 enum MetricType {

@@ -1,6 +1,6 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { modifyPlayer, modifySnapshot } from '../../../../prisma';
+import { omit } from '../../../util/objects';
 import { getMetricValueKey, isComputedMetric, Metric } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
@@ -41,7 +41,7 @@ async function fetchCompetitionDetails(payload: FetchCompetitionDetailsParams): 
   const participants = await calculateParticipantsStandings(params.id, params.metric || competition.metric);
 
   return {
-    ...omit(competition, ['verificationHash']),
+    ...omit(competition, 'verificationHash'),
     group: competition.group
       ? {
           ...omit(competition.group, '_count', 'verificationHash'),
@@ -81,7 +81,7 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
       );
 
       return {
-        ...omit(p, ['startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot']),
+        ...omit(p, 'startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot'),
         player: modifiedPlayer,
         progress: diff
       };

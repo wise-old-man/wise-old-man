@@ -1,7 +1,7 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
 import { Metric, CompetitionStatus, CompetitionType } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { CompetitionListItem } from '../competition.types';
 
@@ -63,7 +63,7 @@ async function searchCompetitions(payload: SearchCompetitionsParams): Promise<Co
 
   return competitions.map(g => {
     return {
-      ...omit(g, ['_count', 'verificationHash']),
+      ...omit(g, '_count', 'verificationHash'),
       group: g.group
         ? {
             ...omit(g.group, '_count', 'verificationHash'),

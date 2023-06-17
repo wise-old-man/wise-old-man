@@ -8,6 +8,7 @@ import prisma, {
   modifyPlayer
 } from '../../../../prisma';
 import logger from '../../../util/logging';
+import { omit } from '../../../util/objects';
 import * as playerServices from '../../players/player.services';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
@@ -19,7 +20,6 @@ import {
   sanitizeTitle
 } from '../competition.utils';
 import { standardize } from '../../players/player.utils';
-import { omit } from 'lodash';
 import { CompetitionWithParticipations } from '../competition.types';
 
 const INVALID_TYPE_ERROR =

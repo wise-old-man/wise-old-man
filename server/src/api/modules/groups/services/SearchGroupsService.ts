@@ -1,6 +1,6 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
+import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { GroupListItem } from '../group.types';
 
@@ -36,7 +36,7 @@ async function searchGroups(payload: SearchGroupsParams): Promise<GroupListItem[
 
   return groups.map(g => {
     return {
-      ...omit(g, ['_count', 'verificationHash']),
+      ...omit(g, '_count', 'verificationHash'),
       memberCount: g._count.memberships
     };
   });
