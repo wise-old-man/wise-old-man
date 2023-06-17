@@ -14,6 +14,7 @@ import {
   ExtendedAchievementWithPlayer,
   NameChange,
   Player,
+  GroupStatistics,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -143,6 +144,17 @@ export async function fetchGroupNameChanges(groupId: number, pagination: Paginat
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as Array<NameChange & { player: Player }>;
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchGroupStatistics(groupId: number) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/groups/${groupId}/statistics`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as GroupStatistics;
   } catch (error) {
     notFound();
   }

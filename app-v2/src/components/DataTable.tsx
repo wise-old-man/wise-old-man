@@ -47,7 +47,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
   });
 
   return (
-    <>
+    <div>
       <TableContainer>
         {headerSlot}
         <Table>
@@ -136,6 +136,6 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }

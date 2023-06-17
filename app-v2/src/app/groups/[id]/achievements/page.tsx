@@ -23,7 +23,7 @@ export async function generateMetadata(props: PageProps) {
   };
 }
 
-export default async function GroupRecordsPage(props: PageProps) {
+export default async function GroupAchievementsPage(props: PageProps) {
   const { id } = props.params;
   const { searchParams } = props;
 

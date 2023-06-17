@@ -41,7 +41,7 @@ export function GroupRoleIcon(props: { role: GroupRole }) {
       width={13}
       height={13}
       alt={role}
-      src={`/img/group_roles/${role === GroupRole.MEMBER ? "minion" : role.replaceAll("_", " ")}.png`}
+      src={`/img/group_roles/${role === GroupRole.MEMBER ? "minion" : role}.png`}
       className="shrink-0"
     />
   );
