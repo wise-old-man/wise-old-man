@@ -1,4 +1,3 @@
-import { mapValues } from 'lodash';
 import { Player, Snapshot } from '../../../prisma';
 import {
   round,
@@ -16,6 +15,7 @@ import {
   REAL_SKILLS,
   MapOf
 } from '../../../utils';
+import { mapValues } from '../../util/objects';
 import {
   AlgorithmCache,
   Bonus,

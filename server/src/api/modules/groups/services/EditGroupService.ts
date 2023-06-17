@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { omit } from 'lodash';
 import prisma, {
   Membership,
   modifyPlayer,
@@ -10,6 +9,7 @@ import prisma, {
 } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import logger from '../../../util/logging';
+import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
@@ -115,7 +115,7 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
     .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
 
   return {
-    ...omit(updatedGroup, ['verificationHash']),
+    ...omit(updatedGroup, 'verificationHash'),
     memberCount: sortedMemberships.length,
     memberships: sortedMemberships
   };

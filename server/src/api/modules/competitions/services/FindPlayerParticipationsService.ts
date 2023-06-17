@@ -1,6 +1,6 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { PrismaTypes } from '../../../../prisma';
+import { omit } from '../../../util/objects';
 import { CompetitionStatus } from '../../../../utils';
 // import { PAGINATION_SCHEMA } from '../../../util/validation';  // disable pagination for now
 import { ParticipationWithCompetition } from '../competition.types';
@@ -65,9 +65,9 @@ async function findPlayerParticipations(
 
   return participations.map(participation => {
     return {
-      ...omit(participation, ['startSnapshotId', 'endSnapshotId']),
+      ...omit(participation, 'startSnapshotId', 'endSnapshotId'),
       competition: {
-        ...omit(participation.competition, ['_count', 'verificationHash']),
+        ...omit(participation.competition, '_count', 'verificationHash'),
         group: participation.competition.group
           ? {
               ...omit(participation.competition.group, '_count', 'verificationHash'),

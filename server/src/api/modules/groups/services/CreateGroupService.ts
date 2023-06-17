@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import * as cryptService from '../../../services/external/crypt.service';
 import { BadRequestError, ServerError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
-import { omit } from 'lodash';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -106,7 +106,7 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
 
   return {
     group: {
-      ...omit(createdGroup, ['verificationHash']),
+      ...omit(createdGroup, 'verificationHash'),
       memberCount: sortedMemberships.length,
       memberships: sortedMemberships
     },
