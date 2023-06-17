@@ -39,9 +39,9 @@ export function getPlayerTooltip(type, status) {
 }
 
 export function getRoleTypeIcon(role) {
-  if (role === 'member') return '/img/runescape/roles/Minion.png';
+  if (role === 'member') return '/img/runescape/group_roles/minion.png';
 
-  return `/img/runescape/roles/${capitalize(role.replace(/_/g, ' '))}.png`;
+  return `/img/runescape/group_roles/${role}.png`;
 }
 
 export function getOfficialHiscoresUrl(player) {
