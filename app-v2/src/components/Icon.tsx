@@ -8,7 +8,7 @@ export function MetricIcon(props: { metric: Metric }) {
   );
 }
 
-export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" }) {
+export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }) {
   const { metric } = props;
   return (
     <Image
