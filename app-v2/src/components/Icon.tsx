@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
 
-export function MetricIcon(props: { metric: Metric }) {
+export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
   const { metric } = props;
   return (
     <Image height={24} width={24} alt={metric} src={`/img/metrics/${metric}.png`} className="shrink-0" />

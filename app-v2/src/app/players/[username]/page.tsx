@@ -39,7 +39,7 @@ export default async function PlayerPage(props: PageProps) {
   return (
     <div>
       <PlayerWidgets {...player} />
-      <div className="mt-4 grid grid-cols-12 gap-x-5">
+      <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-4 flex flex-col gap-y-3">
           <PlayerOverviewCompetition username={username} participations={participations} />
           <PlayerOverviewMemberships username={username} memberships={memberships} />

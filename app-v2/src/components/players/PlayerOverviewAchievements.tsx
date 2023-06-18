@@ -37,10 +37,9 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
           <div className="mt-3 flex justify-end">
             <Link
               href={`/players/${username}/achievements`}
-              className="flex items-center text-xs font-medium text-gray-200 hover:underline"
+              className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
-              <ArrowRightIcon className="ml-1 mt-px h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -56,10 +55,9 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
           <div className="mt-3 flex justify-end">
             <Link
               href={`/players/${username}/achievements`}
-              className="flex items-center text-xs font-medium text-gray-200 hover:underline"
+              className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
-              <ArrowRightIcon className="ml-1 mt-px h-4 w-4" />
             </Link>
           </div>
         </div>

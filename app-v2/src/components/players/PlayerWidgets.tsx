@@ -57,12 +57,10 @@ function Stat(props: StatProps) {
   }
 
   return (
-    <div className="group flex h-[4.5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-4">
-      <div className="flex items-center gap-x-1">
-        {(isMetric(metric) || metric === "combat") && <MetricIconSmall metric={metric} />}
-        <Label className="line-clamp-1 text-xs text-gray-200">{label}</Label>
-      </div>
+    <div className="group flex h-[4rem] w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-600 px-4">
+      <Label className="line-clamp-1 text-xs text-gray-200">{label}</Label>
       <div className="flex items-end gap-x-2">
+        {(isMetric(metric) || metric === "combat") && <MetricIconSmall metric={metric} />}
         <span className="line-clamp-1 text-base leading-5 text-white">{valueElement}</span>
       </div>
     </div>

@@ -12,8 +12,6 @@ import { getCompetitionStatus } from "~/services/wiseoldman";
 import { Label } from "../Label";
 import { MetricIcon } from "../Icon";
 
-import ArrowRightIcon from "~/assets/arrow_right.svg";
-
 interface PlayerOverviewCompetitionProps {
   username: string;
   participations: ParticipationWithCompetition[];
@@ -53,10 +51,9 @@ export function PlayerOverviewCompetition(props: PlayerOverviewCompetitionProps)
       <div className="mt-3 flex justify-end">
         <Link
           href={`/players/${username}/competitions`}
-          className="flex items-center text-xs font-medium text-gray-200 hover:underline"
+          className="text-xs font-medium text-gray-200 hover:underline"
         >
           View all
-          <ArrowRightIcon className="ml-1 mt-px h-4 w-4" />
         </Link>
       </div>
     </div>
