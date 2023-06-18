@@ -58,7 +58,7 @@ function SideNavigation(props: SideNavigationProps) {
 
   return (
     <>
-      <div className="z-1 fixed bottom-0 left-0 top-[4.5rem] hidden w-64 lg:flex">
+      <div className="z-1 fixed bottom-0 left-0 top-[4rem] hidden w-64 lg:flex">
         <SideBar currentRouteHref={currentRoute?.href} onRouteSelected={onSidebarClosed} />
       </div>
       <Transition.Root show={isSidebarOpen} as={Fragment}>

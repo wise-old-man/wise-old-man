@@ -1,5 +1,5 @@
 import { Achievement } from "@wise-old-man/utils";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
 import { cn } from "~/utils/styling";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
@@ -48,7 +48,7 @@ function AchievementAccuracyTooltip(props: { date: Date; accuracy: number | null
     <div className="flex flex-col gap-y-5 pt-4">
       <div className="px-5">
         <div className="mb-1 text-gray-200">Achieved on:</div>
-        <div className="text-white">{formatDate(date)}</div>
+        <div className="text-white">{formatDatetime(date)}</div>
       </div>
       <div className="px-5">
         <div className="mb-1 text-gray-200">Achievement date accuracy:&nbsp;</div>
@@ -112,14 +112,4 @@ function getAccuracyLevel(accuracy: number | null) {
 
   // If accuracy is > 7 days, it's not too accurate, level 1
   return 1;
-}
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
 }

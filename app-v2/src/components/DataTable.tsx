@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     onSortingChange: setSorting,
     state: { sorting },
-    initialState: { pagination: { pageIndex: 0, pageSize } },
+    initialState: { pagination: { pageIndex: 0, pageSize: enablePagination ? pageSize : 10_000 } },
   });
 
   return (

@@ -15,6 +15,7 @@ import {
   NameChange,
   Player,
   GroupStatistics,
+  PlayerDetails,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -24,6 +25,17 @@ const BASE_API_URL = "https://api.wiseoldman.net/v2";
 interface PaginationOptions {
   limit?: number;
   offset?: number;
+}
+
+export async function fetchPlayer(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as PlayerDetails;
+  } catch (error) {
+    notFound();
+  }
 }
 
 export async function fetchGroups(search: string, pagination: PaginationOptions) {

@@ -13,7 +13,7 @@ function Navigation(props: PropsWithChildren) {
     <div className="relative">
       <TopNavigation onMenuToggled={setSidebarOpen} />
       <SideNavigation isSidebarOpen={isSidebarOpen} onSidebarClosed={() => setSidebarOpen(false)} />
-      <main className="mt-[4.5rem] lg:ml-64">{children}</main>
+      <main className="mt-[4rem] lg:ml-64">{children}</main>
     </div>
   );
 }

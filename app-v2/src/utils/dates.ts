@@ -7,9 +7,9 @@ import customParseFormatPlugin from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormatPlugin);
 Timeago.addDefaultLocale(en);
 
-const timeago = new Timeago("en-US");
+export const timeago = new Timeago("en-US");
 
-function durationBetween(start: Date, end: Date) {
+export function durationBetween(start: Date, end: Date) {
   let msLeft = end.getTime() - start.getTime();
 
   if (msLeft <= 0) {
@@ -36,8 +36,27 @@ function durationBetween(start: Date, end: Date) {
   };
 }
 
-function convertToUTC(date: Date) {
+export function convertToUTC(date: Date) {
   return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+}
+
+export function formatDatetime(date: Date) {
+  return date.toLocaleString(undefined, {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function formatDate(date: Date) {
+  return date.toLocaleString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function isValidISODate(input: unknown) {
@@ -68,5 +87,3 @@ function traverseTransform(input: unknown, transformation: (i: unknown) => unkno
 export function transformDates(input: unknown) {
   return traverseTransform(input, (val) => (isValidISODate(val) ? new Date(val as string) : val));
 }
-
-export { timeago, durationBetween, convertToUTC };

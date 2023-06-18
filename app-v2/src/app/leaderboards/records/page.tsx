@@ -11,6 +11,7 @@ import {
   getPlayerBuildParam,
   getPlayerTypeParam,
 } from "~/utils/params";
+import { formatDate } from "~/utils/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +95,7 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
             <ListTableRow key={row.player.username}>
               <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
               <ListTableCell>
-                <PlayerIdentity player={row.player} caption={formatRecordDate(row.updatedAt)} />
+                <PlayerIdentity player={row.player} caption={formatDate(row.updatedAt)} />
               </ListTableCell>
               <ListTableCell className="w-5 text-right font-medium text-green-400">
                 +<FormattedNumber value={row.value} />
@@ -115,12 +116,4 @@ function LoadingState() {
       <LeaderboardSkeleton period={Period.MONTH} hasCaption />
     </>
   );
-}
-
-function formatRecordDate(date: Date) {
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
