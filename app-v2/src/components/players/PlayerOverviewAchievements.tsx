@@ -1,14 +1,18 @@
+import Link from "next/link";
 import { AchievementProgress, SKILL_EXP_AT_99, formatNumber, isSkill } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { MetricIcon } from "../Icon";
 import { AchievementDate } from "../AchievementDate";
 
+import ArrowRightIcon from "~/assets/arrow_right.svg";
+
 interface PlayerOverviewAchievementsProps {
+  username: string;
   achievementsProgress: AchievementProgress[];
 }
 
 export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProps) {
-  const { achievementsProgress } = props;
+  const { username, achievementsProgress } = props;
 
   const nearest99s = achievementsProgress
     .filter((a) => isSkill(a.metric) && a.threshold === SKILL_EXP_AT_99 && !a.createdAt)
@@ -21,7 +25,7 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
     .slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-y-7">
+    <div className="flex flex-col gap-y-3">
       {nearest99s.length > 0 && (
         <div>
           <Label className="text-xs leading-4 text-gray-200">Nearest 99s</Label>
@@ -29,6 +33,15 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
             {nearest99s.map((a) => (
               <AchievementListItem {...a} key={a.name} />
             ))}
+          </div>
+          <div className="mt-3 flex justify-end">
+            <Link
+              href={`/players/${username}/achievements`}
+              className="flex items-center text-xs font-medium text-gray-200 hover:underline"
+            >
+              View all
+              <ArrowRightIcon className="ml-1 mt-px h-4 w-4" />
+            </Link>
           </div>
         </div>
       )}
@@ -39,6 +52,15 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
             {recentAchievements.map((a) => (
               <AchievementListItem {...a} key={a.name} />
             ))}
+          </div>
+          <div className="mt-3 flex justify-end">
+            <Link
+              href={`/players/${username}/achievements`}
+              className="flex items-center text-xs font-medium text-gray-200 hover:underline"
+            >
+              View all
+              <ArrowRightIcon className="ml-1 mt-px h-4 w-4" />
+            </Link>
           </div>
         </div>
       )}
@@ -56,7 +78,7 @@ function AchievementListItem(props: AchievementProgress) {
           {props.createdAt ? (
             <AchievementDate {...props} />
           ) : (
-            <>{formatNumber(props.currentValue, true)} left</>
+            <>{formatNumber(props.threshold - Math.max(0, props.currentValue), true)} left</>
           )}
         </span>
       </div>

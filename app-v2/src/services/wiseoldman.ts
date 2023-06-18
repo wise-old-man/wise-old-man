@@ -17,6 +17,8 @@ import {
   GroupStatistics,
   PlayerDetails,
   AchievementProgress,
+  MembershipWithGroup,
+  ParticipationWithCompetition,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -34,6 +36,28 @@ export async function fetchPlayer(username: string) {
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as PlayerDetails;
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerParticipations(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/competitions`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as ParticipationWithCompetition[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerMemberships(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/groups`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as MembershipWithGroup[];
   } catch (error) {
     notFound();
   }

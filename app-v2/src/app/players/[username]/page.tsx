@@ -1,8 +1,15 @@
 import { MetricType } from "@wise-old-man/utils";
-import { fetchPlayer, fetchPlayerAchievementProgress } from "~/services/wiseoldman";
+import {
+  fetchPlayer,
+  fetchPlayerAchievementProgress,
+  fetchPlayerMemberships,
+  fetchPlayerParticipations,
+} from "~/services/wiseoldman";
 import { PlayerWidgets } from "~/components/players/PlayerWidgets";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewAchievements";
+import { PlayerOverviewMemberships } from "~/components/players/PlayerOverviewGroups";
+import { PlayerOverviewCompetition } from "~/components/players/PlayerOverviewCompetition";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +24,15 @@ interface PageProps {
 }
 
 export default async function PlayerPage(props: PageProps) {
-  const username = decodeURI(props.params.username);
-  const metricType = convertMetricType(props.searchParams.view);
-  const showVirtualLevels = props.searchParams.levels === "virtual";
+  const { params, searchParams } = props;
 
-  const [player, achievementsProgress] = await Promise.all([
+  const username = decodeURI(params.username);
+  const metricType = convertMetricType(searchParams.view);
+
+  const [player, memberships, participations, achievementsProgress] = await Promise.all([
     fetchPlayer(username),
+    fetchPlayerMemberships(username),
+    fetchPlayerParticipations(username),
     fetchPlayerAchievementProgress(username),
   ]);
 
@@ -30,14 +40,19 @@ export default async function PlayerPage(props: PageProps) {
     <div>
       <PlayerWidgets {...player} />
       <div className="mt-4 grid grid-cols-12 gap-x-5">
-        <div className="col-span-4">
-          <PlayerOverviewAchievements achievementsProgress={achievementsProgress} />
+        <div className="col-span-4 flex flex-col gap-y-3">
+          <PlayerOverviewCompetition username={username} participations={participations} />
+          <PlayerOverviewMemberships username={username} memberships={memberships} />
+          <PlayerOverviewAchievements
+            username={player.username}
+            achievementsProgress={achievementsProgress}
+          />
         </div>
         <div className="col-span-8 mt-8">
           <PlayerStatsTable
             player={player}
             metricType={metricType}
-            showVirtualLevels={showVirtualLevels}
+            showVirtualLevels={searchParams.levels === "virtual"}
           />
         </div>
       </div>
