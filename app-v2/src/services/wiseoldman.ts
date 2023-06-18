@@ -16,6 +16,7 @@ import {
   Player,
   GroupStatistics,
   PlayerDetails,
+  AchievementProgress,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -33,6 +34,17 @@ export async function fetchPlayer(username: string) {
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as PlayerDetails;
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerAchievementProgress(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/achievements/progress`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as AchievementProgress[];
   } catch (error) {
     notFound();
   }

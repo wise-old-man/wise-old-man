@@ -1,7 +1,8 @@
 import { MetricType } from "@wise-old-man/utils";
-import { fetchPlayer } from "~/services/wiseoldman";
-import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
+import { fetchPlayer, fetchPlayerAchievementProgress } from "~/services/wiseoldman";
 import { PlayerWidgets } from "~/components/players/PlayerWidgets";
+import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
+import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewAchievements";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +21,19 @@ export default async function PlayerPage(props: PageProps) {
   const metricType = convertMetricType(props.searchParams.view);
   const showVirtualLevels = props.searchParams.levels === "virtual";
 
-  const player = await fetchPlayer(username);
+  const [player, achievementsProgress] = await Promise.all([
+    fetchPlayer(username),
+    fetchPlayerAchievementProgress(username),
+  ]);
 
   return (
     <div>
       <PlayerWidgets {...player} />
-      <div className="mt-7 grid grid-cols-12 gap-x-5">
-        <div className="h-50 col-span-4 rounded-lg border border-gray-500 p-5">dd</div>
-        <div className="col-span-8">
+      <div className="mt-4 grid grid-cols-12 gap-x-5">
+        <div className="col-span-4">
+          <PlayerOverviewAchievements achievementsProgress={achievementsProgress} />
+        </div>
+        <div className="col-span-8 mt-8">
           <PlayerStatsTable
             player={player}
             metricType={metricType}

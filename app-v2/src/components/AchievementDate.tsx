@@ -21,7 +21,7 @@ export function AchievementDate(props: Achievement) {
         <div className="w-32 overflow-hidden">
           <div className="flex items-center gap-x-2">
             <AccuracyMeter accuracyLevel={accuracyLevel} />
-            {timeago.format(createdAt)}
+            <span className="mt-0.5 inline-block">{timeago.format(createdAt)}</span>
           </div>
         </div>
       </TooltipTrigger>
@@ -98,7 +98,7 @@ function AccuracyMeter(props: { accuracyLevel: number }) {
 }
 
 function getAccuracyLevel(accuracy: number | null) {
-  if (!accuracy) return 0;
+  if (!accuracy || accuracy === -1) return 0;
 
   // If accuracy is < 24 hours, it's decently accurate, level 3
   if (accuracy < 1000 * 60 * 60 * 24) {
