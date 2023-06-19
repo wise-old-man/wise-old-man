@@ -79,32 +79,34 @@ interface TopLeaderboardProps {
 async function TopLeaderboard(props: TopLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
+  // const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
 
-  return (
-    <div>
-      <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
-      {data.length === 0 ? (
-        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
-          No results were found
-        </div>
-      ) : (
-        <ListTable>
-          {data.map((row, index) => (
-            <ListTableRow key={row.player.username}>
-              <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-              <ListTableCell>
-                <PlayerIdentity player={row.player} />
-              </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium text-green-400">
-                +<FormattedNumber value={row.gained} />
-              </ListTableCell>
-            </ListTableRow>
-          ))}
-        </ListTable>
-      )}
-    </div>
-  );
+  // return (
+  //   <div>
+  //     <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
+  //     {data.length === 0 ? (
+  //       <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
+  //         No results were found
+  //       </div>
+  //     ) : (
+  //       <ListTable>
+  //         {data.map((row, index) => (
+  //           <ListTableRow key={row.player.username}>
+  //             <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
+  //             <ListTableCell>
+  //               <PlayerIdentity player={row.player} />
+  //             </ListTableCell>
+  //             <ListTableCell className="w-5 text-right font-medium text-green-400">
+  //               +<FormattedNumber value={row.gained} />
+  //             </ListTableCell>
+  //           </ListTableRow>
+  //         ))}
+  //       </ListTable>
+  //     )}
+  //   </div>
+  // );
+
+  return null;
 }
 
 function LoadingState() {

@@ -58,7 +58,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
 function QuickLinksPanel(props: { skills: Skill[] }) {
   return (
     <div className="h-100 hidden w-full max-w-[12rem] lg:block">
-      <ul className="custom-scroll sticky top-[11rem] mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
+      <ul className="custom-scroll sticky top-[6rem] mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
         <Label className="pb-2 text-white">Quick links</Label>
         {props.skills.map((skill) => (
           <li key={skill}>
