@@ -182,3 +182,12 @@ Although this type mostly extends from [Achievement](/players-api/player-type-de
 | relativeProgress | float   | The player's current progress (0-1, with 1 being 100%) towards an achievement, starting from the previous achievement for that metric and measure. <br /> <br /> Example: At 30M agility exp, you'd be (**absolutely**) 60% of the way to the 50M agility achievement, but since the previous achievement is 13M (99) agility, you're (**relatively**) at 46% between 99 agility and 50M agility.) |
 
 <br />
+
+### `(Object)` Timeline Datapoint
+
+| Field | Type   | Description                                                            |
+| :---- | :----- | :--------------------------------------------------------------------- |
+| value | number | The player's value for a specific metric, at a specific point in time. |
+| date  | date   | The date at which the datapoint was recorded.                          |
+
+<br />
