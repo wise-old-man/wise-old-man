@@ -23,6 +23,14 @@ interface PageProps {
   };
 }
 
+export async function generateMetadata(props: PageProps) {
+  const player = await fetchPlayer(decodeURI(props.params.username));
+
+  return {
+    title: player.displayName,
+  };
+}
+
 export default async function PlayerPage(props: PageProps) {
   const { params, searchParams } = props;
 

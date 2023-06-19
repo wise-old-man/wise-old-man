@@ -88,13 +88,17 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
     <div>
       <h3 className="text-h3 font-medium text-white">Current stats</h3>
       <p className="text-body text-gray-200">
-        {player.displayName} stats as of&nbsp;
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>{timeago.format(player.latestSnapshot.createdAt)}</span>
-          </TooltipTrigger>
-          <TooltipContent>{formatDatetime(player.latestSnapshot.createdAt)}</TooltipContent>
-        </Tooltip>
+        Last changed
+        {player.lastChangedAt ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span> {timeago.format(player.lastChangedAt)}</span>
+            </TooltipTrigger>
+            <TooltipContent>{formatDatetime(player.lastChangedAt)}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <span>: unknown</span>
+        )}
       </p>
     </div>
   );
