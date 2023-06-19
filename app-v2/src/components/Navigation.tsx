@@ -13,10 +13,10 @@ function Navigation(props: PropsWithChildren) {
     <div className="relative flex flex-col">
       <TopNavigation onMenuToggled={setSidebarOpen} />
       <div className="flex">
-        <div className="grow">
+        <div className="shrink-0">
           <SideNavigation isSidebarOpen={isSidebarOpen} onSidebarClosed={() => setSidebarOpen(false)} />
         </div>
-        <main className="overflow-x-clip">{children}</main>
+        <main className="grow overflow-x-clip">{children}</main>
       </div>
     </div>
   );
