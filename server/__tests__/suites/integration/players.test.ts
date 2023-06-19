@@ -897,6 +897,22 @@ describe('Player API', () => {
         ).length
       ).toBe(0); // there should be no imported snapshots from AFTER May 10th 2020
 
+      const snapshotsTimelineResponse = await api.get(`/players/psikoi/snapshots/timeline`).query({
+        metric: 'magic',
+        startDate: new Date('2010-01-01'),
+        endDate: new Date('2030-01-01')
+      });
+
+      expect(snapshotsTimelineResponse.status).toBe(200);
+      expect(snapshotsTimelineResponse.body.length).toBe(222); // 219 imported, 3 tracked (during this test session)
+
+      for (let i = 0; i < snapshotsTimelineResponse.body.length; i++) {
+        expect(snapshotsTimelineResponse.body[i].value).toBe(
+          snapshotsResponse.body[i].data.skills.magic.experience
+        );
+        expect(snapshotsTimelineResponse.body[i].date).toBe(snapshotsResponse.body[i].createdAt);
+      }
+
       // Mock the history fetch from CML
       registerCMLMock(axiosMock, 404);
     }, 10000); // Set the timeout to 10 seconds for this long running test

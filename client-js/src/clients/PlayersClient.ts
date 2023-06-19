@@ -17,7 +17,8 @@ import {
   ParticipationWithCompetition,
   FormattedSnapshot,
   MembershipWithGroup,
-  ParticipationWithCompetitionAndStandings
+  ParticipationWithCompetitionAndStandings,
+  Metric
 } from '../../../server/src/utils';
 import { PaginationOptions } from '../utils';
 import BaseAPIClient from './BaseAPIClient';
@@ -142,6 +143,17 @@ export default class PlayersClient extends BaseAPIClient {
    */
   getPlayerSnapshots(username: string, options?: TimeRangeFilter) {
     return this.getRequest<FormattedSnapshot[]>(`/players/${username}/snapshots`, options);
+  }
+
+  /**
+   * Fetches all of the player's past snapshots' timeline.
+   * @returns A list of timeseries data (value, date)
+   */
+  getPlayerSnapshotTimeline(username: string, metric: Metric, options?: TimeRangeFilter) {
+    return this.getRequest<{ value: number; date: Date }[]>(`/players/${username}/snapshots/timeline`, {
+      ...options,
+      metric
+    });
   }
 
   /**

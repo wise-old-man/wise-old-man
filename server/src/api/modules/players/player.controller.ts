@@ -227,6 +227,24 @@ async function snapshots(req: Request): Promise<ControllerResponse> {
   };
 }
 
+// GET /players/:username/snapshots/timeline
+async function timeline(req: Request): Promise<ControllerResponse> {
+  const player = await playerUtils.resolvePlayer(getString(req.params.username));
+
+  const results = await snapshotServices.findPlayerSnapshotTimeline({
+    id: player.id,
+    metric: getEnum(req.query.metric),
+    period: getEnum(req.query.period),
+    minDate: getDate(req.query.startDate),
+    maxDate: getDate(req.query.endDate)
+  });
+
+  return {
+    statusCode: 200,
+    response: results
+  };
+}
+
 // GET /players/:username/names
 async function names(req: Request): Promise<ControllerResponse> {
   const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
@@ -330,6 +348,7 @@ export {
   groups,
   gained,
   records,
+  timeline,
   snapshots,
   names,
   changeCountry,

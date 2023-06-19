@@ -1262,6 +1262,80 @@ const snapshots = await client.players.getPlayerSnapshots('zezima', { period: Pe
 
 ---
 
+## Get Player Snapshots Timeline
+
+<Endpoint verb="GET" path="/players/:username/snapshots/timeline" />
+<br />
+
+Fetches all of the player's past snapshots (as a value/date timeseries array). Returns an array of [Timeline Datapoints](/players-api/player-type-definitions#object-timeline-datapoint) objects.
+
+**Request Params**
+
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| username | string | `true`   | The player's username. |
+
+<br />
+
+**Request Params**
+
+| Field     | Type                                           | Required | Description                            |
+| --------- | ---------------------------------------------- | -------- | -------------------------------------- |
+| metric    | [Metric](/global-type-definitions#enum-metric) | `true`   | The record's metric.                   |
+| period    | [Period](/global-type-definitions#enum-period) | `false`  | The period to filter the snapshots by. |
+| startDate | date                                           | `false`  | The minimum date for the snapshots.    |
+| endDate   | date                                           | `false`  | The maximum date for the snapshots.    |
+
+:::info
+This endpoint accepts either `period` or `startDate` + `endDate`.
+:::
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/players/zezima/snapshots/timeline?metric=magic&period=week \
+  -H "Content-Type: application/json"
+```
+
+```javascript
+const { WOMClient, Period, Metric } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const snapshots = await client.players.getPlayerSnapshotTimeline('zezima', Metric.MAGIC, {
+  period: Period.WEEK
+});
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "value": 19314798,
+    "date": "2023-06-15T06:45:08.867Z"
+  },
+  {
+    "value": 19221704,
+    "date": "2023-06-14T11:13:36.000Z"
+  },
+  {
+    "value": 19219580,
+    "date": "2023-06-13T23:58:48.000Z"
+  }
+]
+```
+
+---
+
 ## Get Player Name Changes
 
 <Endpoint verb="GET" path="/players/:username/names" />

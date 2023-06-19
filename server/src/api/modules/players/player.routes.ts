@@ -12,6 +12,7 @@ api.get('/:username/groups', setupController(controller.groups));
 api.get('/:username/gained', setupController(controller.gained));
 api.get('/:username/records', setupController(controller.records));
 api.get('/:username/snapshots', setupController(controller.snapshots));
+api.get('/:username/snapshots/timeline', setupController(controller.timeline));
 api.get('/:username/achievements', setupController(controller.achievements));
 api.get('/:username/achievements/progress', setupController(controller.achievementsProgress));
 api.get('/:username/competitions', setupController(controller.competitions));
