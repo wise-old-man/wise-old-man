@@ -111,4 +111,27 @@ function calculatePastDates(pastSnapshots: Snapshot[], definitions: AchievementD
   return dateMap;
 }
 
-export { extend, calculatePastDates, getAchievementDefinitions };
+function calculatePastAccuracy(pastSnapshots: Snapshot[], achievements: Achievement[]) {
+  // The player must have atleast 2 snapshots to find a achievement date
+  if (!pastSnapshots || pastSnapshots.length < 2) return {};
+
+  const accuracyMap: Record<string, number> = {};
+
+  for (let i = 0; i < pastSnapshots.length - 2; i++) {
+    const prev = pastSnapshots[i];
+    const next = pastSnapshots[i + 1];
+
+    // Find any achievements that were achieved in between these two dates, apply the gap as the accuracy
+    achievements
+      .filter(a => a.createdAt.getTime() === next.createdAt.getTime())
+      .forEach(v => {
+        if (!(v.name in accuracyMap)) {
+          accuracyMap[v.name] = next.createdAt.getTime() - prev.createdAt.getTime();
+        }
+      });
+  }
+
+  return accuracyMap;
+}
+
+export { extend, calculatePastDates, calculatePastAccuracy, getAchievementDefinitions };
