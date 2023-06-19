@@ -10,10 +10,14 @@ function Navigation(props: PropsWithChildren) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col">
       <TopNavigation onMenuToggled={setSidebarOpen} />
-      <SideNavigation isSidebarOpen={isSidebarOpen} onSidebarClosed={() => setSidebarOpen(false)} />
-      <main className="mt-[4rem] lg:ml-64">{children}</main>
+      <div className="flex">
+        <div className="grow">
+          <SideNavigation isSidebarOpen={isSidebarOpen} onSidebarClosed={() => setSidebarOpen(false)} />
+        </div>
+        <main>{children}</main>
+      </div>
     </div>
   );
 }

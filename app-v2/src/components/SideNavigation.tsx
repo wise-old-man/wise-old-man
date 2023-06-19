@@ -58,8 +58,11 @@ function SideNavigation(props: SideNavigationProps) {
 
   return (
     <>
-      <div className="z-1 fixed bottom-0 left-0 top-[4rem] hidden w-64 lg:flex">
+      <div className="z-1 sticky bottom-0 left-0 top-0 hidden h-screen w-64 lg:flex">
         <SideBar currentRouteHref={currentRoute?.href} onRouteSelected={onSidebarClosed} />
+      </div>
+      <div className="fixed bottom-0 z-10 hidden w-64 lg:block">
+        <SocialLinks />
       </div>
       <Transition.Root show={isSidebarOpen} as={Fragment}>
         <HeadlessDialog onClose={() => onSidebarClosed()} className="relative z-50 lg:hidden">
@@ -164,27 +167,35 @@ function SideBar(props: SideBarProps) {
           </li>
         ))}
       </ul>
-      <ul className="mx-5 mb-5 mt-auto flex justify-between pt-10">
-        {SOCIAL_LINKS.map((link) => (
-          <li key={link.href}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  aria-label={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
-                >
-                  <link.icon alt={link.label} className="h-5 w-5" />
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>{link.label}</TooltipContent>
-            </Tooltip>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-auto block lg:hidden">
+        <SocialLinks />
+      </div>
     </nav>
+  );
+}
+
+function SocialLinks() {
+  return (
+    <ul className="mx-5 mb-5 flex justify-between pt-10">
+      {SOCIAL_LINKS.map((link) => (
+        <li key={link.href}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                aria-label={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-lg bg-gray-700 p-3 shadow-inner-border hover:bg-gray-600"
+              >
+                <link.icon alt={link.label} className="h-5 w-5" />
+              </a>
+            </TooltipTrigger>
+            <TooltipContent>{link.label}</TooltipContent>
+          </Tooltip>
+        </li>
+      ))}
+    </ul>
   );
 }
 

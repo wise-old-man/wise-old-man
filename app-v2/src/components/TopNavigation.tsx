@@ -16,12 +16,7 @@ export function TopNavigation(props: TopNavigationProps) {
   const { onMenuToggled } = props;
 
   return (
-    <nav
-      className={cn(
-        "fixed left-0 right-0 top-0 z-50 flex h-[4rem] items-center justify-between border-b border-gray-700 bg-gray-800 px-7 shadow-lg",
-        RemoveScroll.classNames.fullWidth
-      )}
-    >
+    <nav className="z-50 flex h-[4rem] items-center justify-between border-b border-gray-700 bg-gray-800 px-7 shadow-lg">
       <Link
         href="/"
         aria-label="Home"
