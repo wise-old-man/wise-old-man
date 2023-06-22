@@ -67,6 +67,27 @@ async function onCompetitionStarting(competition: Competition, period: EventPeri
 }
 
 async function onCompetitionEnding(competition: Competition, period: EventPeriodDelay) {
+  if (period.hours === 2) {
+    // 2 hours before a competition ends, update any players that are actually competing in the competition,
+    // this is just a precaution in case the competition manager forgets to update people before the end.
+    // With this, we can ensure that any serious competitors will at least be updated once 2 hours before it ends.
+    // Note: We're doing this 2 hours before, because that'll still allow "update all" to update these players in the final hour.
+    const competitionDetails = await competitionServices.fetchCompetitionDetails({
+      id: competition.id
+    });
+
+    competitionDetails.participations
+      .filter(p => p.progress.gained > 0)
+      .forEach(p => {
+        jobManager.add({
+          type: JobType.UPDATE_PLAYER,
+          payload: { username: p.player.username }
+        });
+      });
+
+    return;
+  }
+
   // Dispatch a competition ending event to our discord bot API.
   await metrics.trackEffect(discordService.dispatchCompetitionEnding, competition, period);
 }

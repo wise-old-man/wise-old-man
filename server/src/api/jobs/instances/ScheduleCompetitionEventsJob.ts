@@ -13,8 +13,8 @@ const EXECUTION_FREQUENCY = 60_000;
 // 6h, 5min, now
 const START_TIME_INTERVALS = [360, 5, 0];
 
-// 12h, 30min, now
-const END_TIME_INTERVALS = [720, 30, 0];
+// 12h, 2h, 30min, now
+const END_TIME_INTERVALS = [720, 120, 30, 0];
 
 class ScheduleCompetitionEventsJob implements JobDefinition<unknown> {
   type: JobType;
