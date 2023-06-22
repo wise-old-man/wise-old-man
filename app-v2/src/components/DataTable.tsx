@@ -11,6 +11,7 @@ import {
   useReactTable,
   Row,
 } from "@tanstack/react-table";
+import { cn } from "~/utils/styling";
 import { Button } from "./Button";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "./Table";
 
@@ -26,6 +27,8 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean;
   headerSlot?: React.ReactNode;
   colGroupSlot?: React.ReactNode;
+  selectedRowId?: string | null;
+  onRowClick?: (row: Row<TData>) => void;
   renderSubRow?: (row: Row<TData>) => React.ReactNode;
 }
 
@@ -71,9 +74,21 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <React.Fragment key={row.id}>
-                  <TableRow data-state={row.getIsSelected() && "selected"}>
-                    {row.getVisibleCells().map((cell) => (
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    onClick={() => {
+                      if (props.onRowClick) props.onRowClick(row);
+                    }}
+                    className={cn(
+                      props.onRowClick && "relative cursor-pointer hover:bg-gray-800",
+                      props.selectedRowId === row.id && "bg-gray-800"
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell, idx) => (
                       <TableCell key={cell.id}>
+                        {row.id === props.selectedRowId && idx === 0 && (
+                          <div className="absolute bottom-0 left-0 top-0 h-full w-0.5 bg-blue-500" />
+                        )}
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
