@@ -30,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   selectedRowId?: string | null;
   onRowClick?: (row: Row<TData>) => void;
   renderSubRow?: (row: Row<TData>) => React.ReactNode;
+  containerClassName?: string;
 }
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
@@ -51,7 +52,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
 
   return (
     <div>
-      <TableContainer>
+      <TableContainer className={props.containerClassName}>
         {headerSlot}
         <Table>
           {colGroupSlot}
@@ -81,7 +82,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                     }}
                     className={cn(
                       props.onRowClick && "relative cursor-pointer hover:bg-gray-800",
-                      props.selectedRowId === row.id && "bg-gray-800"
+                      props.selectedRowId === row.id && "bg-gray-800 text-white"
                     )}
                   >
                     {row.getVisibleCells().map((cell, idx) => (

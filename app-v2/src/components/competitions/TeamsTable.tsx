@@ -48,12 +48,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
       const total = Number(row.getValue("total"));
       if (total <= 0) return "0";
 
-      return (
-        <span className="text-green-500">
-          +
-          <FormattedNumber value={total} />
-        </span>
-      );
+      return <FormattedNumber value={total} colored />;
     },
   },
   {
@@ -69,12 +64,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
       const avg = parseInt(row.getValue("average"));
       if (avg <= 0) return "0";
 
-      return (
-        <span className="text-green-500">
-          +
-          <FormattedNumber value={avg} />
-        </span>
-      );
+      return <FormattedNumber value={avg} colored />;
     },
   },
   {
@@ -107,16 +97,7 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
               <PlayerIdentityTooltip player={mvp.player} />
             </TooltipContent>
           </Tooltip>
-          (
-          {mvp.progress.gained <= 0 ? (
-            <>0</>
-          ) : (
-            <span className="text-green-500">
-              +
-              <FormattedNumber value={mvp.progress.gained} />
-            </span>
-          )}
-          )
+          (<FormattedNumber value={mvp.progress.gained} colored />)
         </span>
       );
     },

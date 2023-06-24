@@ -163,16 +163,11 @@ function getColumnDefinitions(page: number, metric: Metric) {
           return <MetricValueCell value={row.original.data.gained} metric={metric} />;
         }
 
-        return (
-          <span className="text-green-500">
-            +
-            <FormattedNumber value={row.original.data.gained} />
-          </span>
-        );
+        return <FormattedNumber value={row.original.data.gained} colored />;
       },
     },
     {
-      accessorKey: "gained_percent",
+      accessorKey: "percent",
       header: "% Gained",
       cell: ({ row }) => {
         const { start, end, gained } = row.original.data;

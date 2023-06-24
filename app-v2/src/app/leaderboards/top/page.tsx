@@ -96,8 +96,8 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
               <ListTableCell>
                 <PlayerIdentity player={row.player} />
               </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium text-green-400">
-                +<FormattedNumber value={row.gained} />
+              <ListTableCell className="w-5 text-right font-medium">
+                <FormattedNumber value={row.gained} colored />
               </ListTableCell>
             </ListTableRow>
           ))}

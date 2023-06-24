@@ -152,16 +152,8 @@ function getColumnDefinitions(page: number, metric: Metric) {
       accessorKey: "value",
       header: "Gained",
       cell: ({ row }) => {
-        if (row.original.value <= 0) {
-          return row.original.value;
-        }
-
-        return (
-          <span className="text-green-500">
-            +
-            <FormattedNumber value={row.original.value} />
-          </span>
-        );
+        if (row.original.value <= 0) return row.original.value;
+        return <FormattedNumber value={row.original.value} colored />;
       },
     },
   ];

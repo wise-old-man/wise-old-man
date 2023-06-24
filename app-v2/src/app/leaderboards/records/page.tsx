@@ -97,8 +97,8 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
               <ListTableCell>
                 <PlayerIdentity player={row.player} caption={formatDate(row.updatedAt)} />
               </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium text-green-400">
-                +<FormattedNumber value={row.value} />
+              <ListTableCell className="w-5 text-right font-medium">
+                <FormattedNumber value={row.value} colored />
               </ListTableCell>
             </ListTableRow>
           ))}

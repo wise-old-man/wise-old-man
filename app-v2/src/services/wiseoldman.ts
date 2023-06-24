@@ -19,6 +19,8 @@ import {
   AchievementProgress,
   MembershipWithGroup,
   ParticipationWithCompetition,
+  GetPlayerGainsResponse,
+  PlayerDeltasMap,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -36,6 +38,37 @@ export async function fetchPlayer(username: string) {
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as PlayerDetails;
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerGains(username: string, period: Period) {
+  const params = new URLSearchParams();
+  params.set("period", period);
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/gained?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as GetPlayerGainsResponse<PlayerDeltasMap>;
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerTimeline(username: string, period: Period, metric: Metric) {
+  const params = new URLSearchParams();
+  params.set("period", period);
+  params.set("metric", metric);
+
+  try {
+    const res = await fetch(
+      `${BASE_API_URL}/players/${username}/snapshots/timeline?${params.toString()}`
+    );
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as Array<{ value: number; date: Date }>;
   } catch (error) {
     notFound();
   }
