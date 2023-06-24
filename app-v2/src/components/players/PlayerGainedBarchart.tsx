@@ -4,15 +4,15 @@ import { fetchPlayerTimeline } from "~/services/wiseoldman";
 
 const BarChartSSR = dynamic(() => import("../BarChart"), {
   ssr: false,
-  loading: () => <PlayerDailyBarchartSkeleton />,
+  loading: () => <PlayerGainedBarchartSkeleton />,
 });
 
-interface PlayerDailyBarchartProps {
+interface PlayerGainedBarchartProps {
   username: string;
   metric: Metric;
 }
 
-export async function PlayerDailyBarchart(props: PlayerDailyBarchartProps) {
+export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   const { username, metric } = props;
 
   const { name, measure } = MetricProps[metric];
@@ -87,7 +87,7 @@ function calculateGainBuckets(data: Array<{ value: number; date: Date }>) {
   return results.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
-export function PlayerDailyBarchartSkeleton() {
+export function PlayerGainedBarchartSkeleton() {
   return (
     <div className="flex aspect-video w-full items-center justify-center bg-transparent text-gray-200">
       Loading...

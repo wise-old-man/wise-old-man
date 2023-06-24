@@ -5,8 +5,8 @@ import {
   fetchPlayerMemberships,
   fetchPlayerParticipations,
 } from "~/services/wiseoldman";
-import { PlayerWidgets } from "~/components/players/PlayerWidgets";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
+import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
 import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewAchievements";
 import { PlayerOverviewMemberships } from "~/components/players/PlayerOverviewGroups";
 import { PlayerOverviewCompetition } from "~/components/players/PlayerOverviewCompetition";
@@ -44,7 +44,7 @@ export default async function PlayerPage(props: PageProps) {
 
   return (
     <div>
-      <PlayerWidgets {...player} />
+      <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-4 flex flex-col gap-y-3">
           <PlayerOverviewCompetition username={username} participations={participations} />

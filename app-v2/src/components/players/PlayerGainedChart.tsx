@@ -4,16 +4,16 @@ import { fetchPlayerTimeline } from "~/services/wiseoldman";
 
 const LineChartSSR = dynamic(() => import("../LineChart"), {
   ssr: false,
-  loading: () => <PlayerTimelineChartSkeleton />,
+  loading: () => <PlayerGainedChartSkeleton />,
 });
 
-interface PlayerTimelineChartProps {
+interface PlayerGainedChartProps {
   username: string;
   period: Period;
   metric: Metric;
 }
 
-export async function PlayerTimelineChart(props: PlayerTimelineChartProps) {
+export async function PlayerGainedChart(props: PlayerGainedChartProps) {
   const { username, period, metric } = props;
 
   const { name, measure } = MetricProps[metric];
@@ -39,9 +39,7 @@ export async function PlayerTimelineChart(props: PlayerTimelineChartProps) {
   );
 }
 
-
-
-export function PlayerTimelineChartSkeleton() {
+export function PlayerGainedChartSkeleton() {
   return (
     <div className="flex aspect-video w-full items-center justify-center bg-transparent text-gray-200">
       Loading...
