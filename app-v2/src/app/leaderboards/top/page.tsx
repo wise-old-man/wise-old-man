@@ -94,7 +94,10 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
             <ListTableRow key={row.player.username}>
               <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
               <ListTableCell>
-                <PlayerIdentity player={row.player} />
+                <PlayerIdentity
+                  player={row.player}
+                  href={`/players/${row.player.username}/gained?metric=${filters.metric}&period=${period}`}
+                />
               </ListTableCell>
               <ListTableCell className="w-5 text-right font-medium">
                 <FormattedNumber value={row.gained} colored />

@@ -95,7 +95,11 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
             <ListTableRow key={row.player.username}>
               <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
               <ListTableCell>
-                <PlayerIdentity player={row.player} caption={formatDate(row.updatedAt)} />
+                <PlayerIdentity
+                  player={row.player}
+                  caption={formatDate(row.updatedAt)}
+                  href={`/players/${row.player.username}/records`}
+                />
               </ListTableCell>
               <ListTableCell className="w-5 text-right font-medium">
                 <FormattedNumber value={row.value} colored />

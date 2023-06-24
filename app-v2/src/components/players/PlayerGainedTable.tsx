@@ -187,7 +187,7 @@ const SKILL_COLUMN_DEFS: ColumnDef<SkillDelta>[] = [
     id: "experience",
     accessorFn: (row) => row.experience.gained,
     header: ({ column }) => {
-      return <TableSortButton column={column}>Experience</TableSortButton>;
+      return <TableSortButton column={column}>Exp.</TableSortButton>;
     },
     cell: ({ row }) => {
       return <FormattedNumber value={row.original.experience.gained} lowThreshold={10_000} colored />;

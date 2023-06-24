@@ -19,10 +19,11 @@ interface PlayerIdentityProps {
   player: Player;
   caption?: string;
   renderTooltip?: boolean;
+  href?: string;
 }
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption, renderTooltip = true } = props;
+  const { player, caption, href, renderTooltip = true } = props;
 
   let icon: React.ReactNode;
 
@@ -58,7 +59,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
           <TooltipTrigger asChild>
             <Link
               prefetch={false}
-              href={`/players/${player.username}`}
+              href={href || `/players/${player.username}`}
               className="line-clamp-1 text-sm font-medium hover:underline"
             >
               {player.displayName}
