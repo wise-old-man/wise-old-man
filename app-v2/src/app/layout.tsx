@@ -30,6 +30,11 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={cn(inter.variable, "h-full")}>
       <body className="h-full bg-gray-900 text-white">
+        {process.env.NODE_ENV !== "development" && (
+          <div className="fixed left-0 right-0 top-0 z-[100] bg-red-900 p-3 text-center xl:hidden">
+            This website is under construction and is not yet optimized for mobile browsing.
+          </div>
+        )}
         <NextTopLoader color="#3b82f6" showSpinner={false} />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
