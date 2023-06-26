@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
-import { Metric, MetricProps, Period } from "@wise-old-man/utils";
-import { fetchPlayerTimeline } from "~/services/wiseoldman";
+import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
+import { TimeRangeFilter, fetchPlayerTimeline } from "~/services/wiseoldman";
 
 const LineChartSSR = dynamic(() => import("../LineChart"), {
   ssr: false,
@@ -9,15 +9,16 @@ const LineChartSSR = dynamic(() => import("../LineChart"), {
 
 interface PlayerGainedChartProps {
   username: string;
-  period: Period;
+  timeRange: TimeRangeFilter;
   metric: Metric;
 }
 
 export async function PlayerGainedChart(props: PlayerGainedChartProps) {
-  const { username, period, metric } = props;
+  const { username, timeRange, metric } = props;
 
   const { name, measure } = MetricProps[metric];
-  const timelineData = await fetchPlayerTimeline(username, period, metric);
+
+  const timelineData = await fetchPlayerTimeline(username, timeRange, metric);
 
   if (timelineData.length < 2 || timelineData.every((d) => d.value === -1)) {
     return (
@@ -27,6 +28,13 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
     );
   }
 
+  const minDate =
+    "period" in timeRange
+      ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
+      : timeRange.startDate;
+
+  const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
+
   return (
     <LineChartSSR
       datasets={[
@@ -35,6 +43,8 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
           data: timelineData.map((d) => ({ value: d.value, time: d.date.getTime() })),
         },
       ]}
+      minDate={minDate}
+      maxDate={maxDate}
     />
   );
 }

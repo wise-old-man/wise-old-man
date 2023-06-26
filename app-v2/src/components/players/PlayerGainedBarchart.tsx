@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
-import { Metric, MetricProps, Period } from "@wise-old-man/utils";
-import { fetchPlayerTimeline } from "~/services/wiseoldman";
+import { Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
+import { TimeRangeFilter, fetchPlayerTimeline } from "~/services/wiseoldman";
 
 const BarChartSSR = dynamic(() => import("../BarChart"), {
   ssr: false,
@@ -10,19 +10,27 @@ const BarChartSSR = dynamic(() => import("../BarChart"), {
 interface PlayerGainedBarchartProps {
   username: string;
   metric: Metric;
+  timeRange: TimeRangeFilter;
 }
 
 export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
-  const { username, metric } = props;
+  const { username, metric, timeRange } = props;
 
   const { name, measure } = MetricProps[metric];
-  const timelineData = await fetchPlayerTimeline(username, Period.WEEK, metric);
+  const timelineData = await fetchPlayerTimeline(username, timeRange, metric);
+
+  const minDate =
+    "period" in timeRange
+      ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
+      : timeRange.startDate;
+
+  const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
 
   // Convert the timeseries data into daily (bucket) gains
-  const bucketedData = calculateGainBuckets([...timelineData].reverse());
+  const bucketedData = calculateGainBuckets([...timelineData].reverse(), minDate, maxDate);
 
   // If has more than 3 "0 snapshot" days during the week
-  if (bucketedData.filter((b) => b.count !== 0).length < 4) {
+  if (bucketedData.filter((b) => b.count !== 0).length / bucketedData.length < 0.5) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-md border border-gray-600 text-gray-200">
         Not enough data
@@ -47,7 +55,7 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   );
 }
 
-function calculateGainBuckets(data: Array<{ value: number; date: Date }>) {
+function calculateGainBuckets(data: Array<{ value: number; date: Date }>, minDate: Date, maxDate: Date) {
   const normalizeDate = (date: Date) => {
     const copy = new Date(date.getTime());
     copy.setHours(0, 0, 0, 0);
@@ -76,6 +84,15 @@ function calculateGainBuckets(data: Array<{ value: number; date: Date }>) {
     } else {
       map.set(currentDay.getTime(), { count: 1, gained });
     }
+  }
+
+  // go between min and max date and fill in missing days
+  let current = normalizeDate(minDate);
+  while (current.getTime() <= maxDate.getTime()) {
+    if (!map.has(current.getTime())) {
+      map.set(current.getTime(), { count: 0, gained: 0 });
+    }
+    current = normalizeDate(new Date(current.getTime() + PeriodProps[Period.DAY].milliseconds));
   }
 
   const results: { date: Date; count: number; gained: number }[] = [];

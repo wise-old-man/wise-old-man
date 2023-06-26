@@ -201,7 +201,7 @@ function ChartDot(props: ChartDotProps) {
     );
   }
 
-  return <circle cx={cx} cy={cy} r={4} fill={active ? "red" : stroke} />;
+  return <circle cx={cx} cy={cy} r={3} fill={active ? "red" : stroke} />;
 }
 
 interface ChartTooltipProps {

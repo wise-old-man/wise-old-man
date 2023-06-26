@@ -16,6 +16,7 @@ import { Container } from "~/components/Container";
 import { Flag, PlayerTypeIcon } from "~/components/Icon";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,9 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
         <Navigation username={username} routeSegment={routeSegment} />
       </div>
       {children}
+
+      {/* Dialogs */}
+      <PlayerCustomPeriodDialog username={username} />
     </Container>
   );
 }

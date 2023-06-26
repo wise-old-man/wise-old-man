@@ -87,3 +87,7 @@ function traverseTransform(input: unknown, transformation: (i: unknown) => unkno
 export function transformDates(input: unknown) {
   return traverseTransform(input, (val) => (isValidISODate(val) ? new Date(val as string) : val));
 }
+
+export function isValidDate(dateString: string) {
+  return !Number.isNaN(new Date(dateString).getTime());
+}

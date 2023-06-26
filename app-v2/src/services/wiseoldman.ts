@@ -27,6 +27,15 @@ import { transformDates } from "~/utils/dates";
 
 const BASE_API_URL = "https://api.wiseoldman.net/v2";
 
+export type TimeRangeFilter =
+  | {
+      period: Period;
+    }
+  | {
+      startDate: Date;
+      endDate: Date;
+    };
+
 interface PaginationOptions {
   limit?: number;
   offset?: number;
@@ -43,9 +52,15 @@ export async function fetchPlayer(username: string) {
   }
 }
 
-export async function fetchPlayerGains(username: string, period: Period) {
+export async function fetchPlayerGains(username: string, timeRangeFilter: TimeRangeFilter) {
   const params = new URLSearchParams();
-  params.set("period", period);
+
+  if ("startDate" in timeRangeFilter && "endDate" in timeRangeFilter) {
+    params.set("startDate", timeRangeFilter.startDate.toISOString());
+    params.set("endDate", timeRangeFilter.endDate.toISOString());
+  } else {
+    params.set("period", timeRangeFilter.period);
+  }
 
   try {
     const res = await fetch(`${BASE_API_URL}/players/${username}/gained?${params.toString()}`);
@@ -57,10 +72,20 @@ export async function fetchPlayerGains(username: string, period: Period) {
   }
 }
 
-export async function fetchPlayerTimeline(username: string, period: Period, metric: Metric) {
+export async function fetchPlayerTimeline(
+  username: string,
+  timeRangeFilter: TimeRangeFilter,
+  metric: Metric
+) {
   const params = new URLSearchParams();
-  params.set("period", period);
   params.set("metric", metric);
+
+  if ("startDate" in timeRangeFilter && "endDate" in timeRangeFilter) {
+    params.set("startDate", timeRangeFilter.startDate.toISOString());
+    params.set("endDate", timeRangeFilter.endDate.toISOString());
+  } else {
+    params.set("period", timeRangeFilter.period);
+  }
 
   try {
     const res = await fetch(
