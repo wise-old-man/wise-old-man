@@ -72,6 +72,28 @@ export async function fetchPlayerGains(username: string, timeRangeFilter: TimeRa
   }
 }
 
+export async function fetchPlayerCompetitions(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/competitions`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as ParticipationWithCompetition[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerGroups(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/groups`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as MembershipWithGroup[];
+  } catch (error) {
+    notFound();
+  }
+}
+
 export async function fetchPlayerTimeline(
   username: string,
   timeRangeFilter: TimeRangeFilter,

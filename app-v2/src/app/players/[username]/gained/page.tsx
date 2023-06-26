@@ -34,6 +34,14 @@ interface PageProps {
   };
 }
 
+export async function generateMetadata(props: PageProps) {
+  const player = await fetchPlayer(decodeURI(props.params.username));
+
+  return {
+    title: `Gained: ${player.displayName}`,
+  };
+}
+
 export default async function PlayerGainedPage(props: PageProps) {
   const { params, searchParams } = props;
 
