@@ -122,6 +122,11 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
         return <TableSortButton column={column}>Player</TableSortButton>;
       },
       cell: ({ row }) => {
+        const params = new URLSearchParams();
+        params.set("metric", metric);
+        params.set("startDate", competition.startsAt.toISOString());
+        params.set("endDate", competition.endsAt.toISOString());
+
         return (
           <div className="pr-5">
             <PlayerIdentity
@@ -131,6 +136,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
                   ? row.original.teamName
                   : undefined
               }
+              href={`/players/${row.original.player.username}/gained?${params.toString()}`}
             />
           </div>
         );
