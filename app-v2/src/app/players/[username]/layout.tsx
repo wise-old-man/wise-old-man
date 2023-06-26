@@ -16,6 +16,7 @@ import { Container } from "~/components/Container";
 import { Flag, PlayerTypeIcon } from "~/components/Icon";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
+import { UpdatePlayerButton } from "~/components/players/UpdatePlayerButton";
 import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
 import {
   DropdownMenu,
@@ -179,9 +180,7 @@ function Header(props: PlayerDetails) {
       </div>
       <div>
         <div className="flex shrink-0 items-center gap-x-2">
-          <QueryLink query={{ dialog: "update-all" }}>
-            <Button variant="blue">Update</Button>
-          </QueryLink>
+          <UpdatePlayerButton player={props} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button iconButton>
