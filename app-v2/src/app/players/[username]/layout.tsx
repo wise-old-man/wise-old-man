@@ -26,6 +26,7 @@ import {
 } from "~/components/Dropdown";
 
 import OverflowIcon from "~/assets/overflow.svg";
+import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PageProps {
@@ -188,6 +189,15 @@ function Header(props: PlayerDetails) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
+              >
+                <DropdownMenuItem>
+                  Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
+                </DropdownMenuItem>
+              </a>
               <QueryLink query={{ dialog: "delete" }}>
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               </QueryLink>
