@@ -29,7 +29,7 @@ interface PageProps {
 export function generateMetadata(props: PageProps) {
   const { searchParams } = props;
 
-  if (searchParams.dialog === "submit") {
+  if (searchParams.dialog === "submit-name") {
     return { title: "Submit New Name Change" };
   }
 

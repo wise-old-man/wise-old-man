@@ -8,7 +8,7 @@ import { Button } from "../Button";
 
 import LoadingIcon from "~/assets/loading.svg";
 
-export function UpdatePlayerButton(props: { player: Player }) {
+export function UpdatePlayerForm(props: { player: Player }) {
   const { player } = props;
 
   const toast = useToast();

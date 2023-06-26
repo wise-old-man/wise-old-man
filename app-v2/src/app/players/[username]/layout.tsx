@@ -16,7 +16,7 @@ import { Container } from "~/components/Container";
 import { Flag, PlayerTypeIcon } from "~/components/Icon";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
-import { UpdatePlayerButton } from "~/components/players/UpdatePlayerButton";
+import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
 import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
 import {
   DropdownMenu,
@@ -28,6 +28,8 @@ import {
 import OverflowIcon from "~/assets/overflow.svg";
 import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
+import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
+import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
 
 interface PageProps {
   params: {
@@ -54,6 +56,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 
       {/* Dialogs */}
       <PlayerCustomPeriodDialog username={username} />
+      <NameChangeSubmissionDialog oldName={player.displayName} />
     </Container>
   );
 }
@@ -181,7 +184,7 @@ function Header(props: PlayerDetails) {
       </div>
       <div>
         <div className="flex shrink-0 items-center gap-x-2">
-          <UpdatePlayerButton player={props} />
+          <UpdatePlayerForm player={props} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button iconButton>
@@ -198,9 +201,10 @@ function Header(props: PlayerDetails) {
                   Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
                 </DropdownMenuItem>
               </a>
-              <QueryLink query={{ dialog: "delete" }}>
-                <DropdownMenuItem>Delete</DropdownMenuItem>
+              <QueryLink query={{ dialog: "submit-name" }}>
+                <DropdownMenuItem>Submit name change</DropdownMenuItem>
               </QueryLink>
+              <AssertPlayerTypeForm player={props} />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

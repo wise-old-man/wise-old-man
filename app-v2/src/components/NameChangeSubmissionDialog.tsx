@@ -6,16 +6,20 @@ import { useMutation } from "@tanstack/react-query";
 import { WOMClient } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { cn } from "~/utils/styling";
-import { Input } from "../Input";
-import { Label } from "../Label";
-import { Button } from "../Button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../Dialog";
+import { Input } from "./Input";
+import { Label } from "./Label";
+import { Button } from "./Button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./Dialog";
 
-export function NameChangeSubmissionDialog() {
+interface NameChangeSubmissionDialogProps {
+  oldName?: string;
+}
+
+export function NameChangeSubmissionDialog(props: NameChangeSubmissionDialogProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const isOpen = searchParams.get("dialog") === "submit";
+  const isOpen = searchParams.get("dialog") === "submit-name";
 
   return (
     <Dialog
@@ -28,21 +32,30 @@ export function NameChangeSubmissionDialog() {
         <DialogHeader>
           <DialogTitle>Submit new name change</DialogTitle>
           <DialogDescription>
-            Esse in amet ad minim cupidatat non tempor proident cupidatat nulla elit cillum. Voluptate
-            ullamco pariatur elit id adipisicing.
+            Most name changes are usually auto-reviewed within the first two minutes. If yours
+            doesn&apos;t, you can contact us on&nbsp;
+            <a
+              href="https://wiseoldman.net/discord"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-white hover:underline"
+            >
+              Discord
+            </a>
+            &nbsp;for help.
           </DialogDescription>
         </DialogHeader>
-        <SubmitNameChangeForm />
+        <SubmitNameChangeForm {...props} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function SubmitNameChangeForm() {
+function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   const toast = useToast();
   const router = useRouter();
 
-  const [oldName, setOldName] = useState("");
+  const [oldName, setOldName] = useState(props.oldName || "");
   const [newName, setNewName] = useState("");
 
   const oldNameError = validate(oldName);
@@ -107,6 +120,7 @@ function SubmitNameChangeForm() {
         <Input
           placeholder="Ex: Lynx Titan"
           name="newName"
+          autoFocus={!!props.oldName}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className={cn(newNameError && "border-red-400")}
