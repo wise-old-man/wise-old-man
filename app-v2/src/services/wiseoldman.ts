@@ -14,6 +14,7 @@ import {
   ExtendedAchievementWithPlayer,
   NameChange,
   Player,
+  Record,
   GroupStatistics,
   PlayerDetails,
   AchievementProgress,
@@ -78,6 +79,17 @@ export async function fetchPlayerCompetitions(username: string) {
     if (!res.ok) throw new Error();
 
     return transformDates(await res.json()) as ParticipationWithCompetition[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchPlayerRecords(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/records`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as Record[];
   } catch (error) {
     notFound();
   }
