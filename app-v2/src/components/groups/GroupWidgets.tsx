@@ -17,6 +17,9 @@ import { Label } from "../Label";
 import { Badge } from "../Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface GroupWidgetsProps {
   group: GroupDetails;
 }

@@ -22,6 +22,9 @@ import {
   PlayerGainedBarchartSkeleton,
 } from "~/components/players/PlayerGainedBarchart";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     username: string;

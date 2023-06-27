@@ -1,11 +1,14 @@
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
 import { TimeRangeFilter, fetchPlayerTimeline } from "~/services/wiseoldman";
 
-const BarChartSSR = dynamic(() => import("../BarChart"), {
+const BarChartSSR = dynamicImport(() => import("../BarChart"), {
   ssr: false,
   loading: () => <PlayerGainedBarchartSkeleton />,
 });
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PlayerGainedBarchartProps {
   username: string;

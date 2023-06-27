@@ -11,6 +11,9 @@ import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewA
 import { PlayerOverviewMemberships } from "~/components/players/PlayerOverviewGroups";
 import { PlayerOverviewCompetition } from "~/components/players/PlayerOverviewCompetition";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     username: string;

@@ -3,6 +3,9 @@ import { Pagination } from "~/components/Pagination";
 import { fetchGroup, fetchGroupAchievements } from "~/services/wiseoldman";
 import { GroupAchievementsTable } from "~/components/groups/GroupAchievementsTable";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     id: number;

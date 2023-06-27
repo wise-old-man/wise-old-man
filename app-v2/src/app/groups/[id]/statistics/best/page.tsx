@@ -1,6 +1,9 @@
 import { GroupBestPlayersTable } from "~/components/groups/GroupBestPlayersTable";
 import { fetchGroup, fetchGroupStatistics } from "~/services/wiseoldman";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     id: number;

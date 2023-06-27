@@ -10,12 +10,13 @@ import { formatDatetime, timeago } from "~/utils/dates";
 import { fetchNameChanges } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 import InfoIcon from "~/assets/info.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const RESULTS_PER_PAGE = 20;
-
-export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: {

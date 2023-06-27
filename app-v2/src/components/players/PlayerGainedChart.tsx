@@ -1,11 +1,14 @@
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
 import { TimeRangeFilter, fetchPlayerTimeline } from "~/services/wiseoldman";
 
-const LineChartSSR = dynamic(() => import("../LineChart"), {
+const LineChartSSR = dynamicImport(() => import("../LineChart"), {
   ssr: false,
   loading: () => <PlayerGainedChartSkeleton />,
 });
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PlayerGainedChartProps {
   username: string;

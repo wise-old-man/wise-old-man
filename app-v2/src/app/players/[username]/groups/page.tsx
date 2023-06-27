@@ -6,6 +6,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 
 import VerifiedIcon from "~/assets/verified.svg";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     username: string;

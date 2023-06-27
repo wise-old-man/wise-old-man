@@ -29,7 +29,7 @@ import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAll
 import OverflowIcon from "~/assets/overflow.svg";
 
 export const runtime = "edge";
-// export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: {

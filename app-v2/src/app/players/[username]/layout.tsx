@@ -17,6 +17,8 @@ import { Flag, PlayerTypeIcon } from "~/components/Icon";
 import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
+import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
 import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
 import {
   DropdownMenu,
@@ -28,8 +30,9 @@ import {
 import OverflowIcon from "~/assets/overflow.svg";
 import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
-import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
-import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: {
