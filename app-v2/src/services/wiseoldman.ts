@@ -22,6 +22,14 @@ import {
   ParticipationWithCompetition,
   GetPlayerGainsResponse,
   PlayerDeltasMap,
+  EfficiencyAlgorithmTypeUnion,
+  SkillMetaConfig,
+  BossMetaConfig,
+  EfficiencyLeaderboardsFilter,
+  RecordLeaderboardFilter,
+  DeltaLeaderboardFilter,
+  DeltaLeaderboardEntry,
+  NameChangesSearchFilter,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
@@ -40,6 +48,103 @@ export type TimeRangeFilter =
 interface PaginationOptions {
   limit?: number;
   offset?: number;
+}
+
+export async function fetchNameChanges(filter: NameChangesSearchFilter, pagination: PaginationOptions) {
+  const params = new URLSearchParams();
+
+  if (filter.status) params.set("status", filter.status);
+  if (filter.username) params.set("username", filter.username);
+
+  if (pagination.limit) params.set("limit", pagination.limit.toString());
+  if (pagination.offset) params.set("offset", pagination.offset.toString());
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/names?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as NameChange[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchDeltasLeaderboards(filter: DeltaLeaderboardFilter) {
+  const params = new URLSearchParams();
+  params.set("metric", filter.metric);
+  params.set("period", filter.period);
+
+  if (filter.country) params.set("country", filter.country);
+  if (filter.playerType) params.set("playerType", filter.playerType);
+  if (filter.playerBuild) params.set("playerBuild", filter.playerBuild);
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/deltas/leaderboard?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as DeltaLeaderboardEntry[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchRecordLeaderboards(filter: RecordLeaderboardFilter) {
+  const params = new URLSearchParams();
+  params.set("metric", filter.metric);
+  params.set("period", filter.period);
+
+  if (filter.country) params.set("country", filter.country);
+  if (filter.playerType) params.set("playerType", filter.playerType);
+  if (filter.playerBuild) params.set("playerBuild", filter.playerBuild);
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/records/leaderboard?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as RecordLeaderboardEntry[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter) {
+  const params = new URLSearchParams();
+  params.set("metric", filter.metric);
+
+  if (filter.country) params.set("country", filter.country);
+  if (filter.playerType) params.set("playerType", filter.playerType);
+  if (filter.playerBuild) params.set("playerBuild", filter.playerBuild);
+
+  try {
+    const res = await fetch(`${BASE_API_URL}/efficiency/leaderboard?${params.toString()}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as Player[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchEHPRates(type: EfficiencyAlgorithmTypeUnion) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/efficiency/rates?metric=ehp&type=${type}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as SkillMetaConfig[];
+  } catch (error) {
+    notFound();
+  }
+}
+
+export async function fetchEHBRates(type: EfficiencyAlgorithmTypeUnion) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/efficiency/rates?metric=ehb&type=${type}`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as BossMetaConfig[];
+  } catch (error) {
+    notFound();
+  }
 }
 
 export async function fetchPlayer(username: string) {

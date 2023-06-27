@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
+import { fetchRecordLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
@@ -80,7 +80,7 @@ interface RecordLeaderboardProps {
 async function RecordLeaderboard(props: RecordLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await apiClient.records.getRecordLeaderboard({ period, ...filters });
+  const data = await fetchRecordLeaderboards({ period, ...filters });
 
   return (
     <div>

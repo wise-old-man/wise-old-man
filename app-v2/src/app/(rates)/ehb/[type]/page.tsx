@@ -1,6 +1,6 @@
 import { EfficiencyAlgorithmType, EfficiencyAlgorithmTypeUnion, MetricProps } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
 import { MetricIcon } from "~/components/Icon";
+import { fetchEHBRates } from "~/services/wiseoldman";
 
 interface PageProps {
   params: {
@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 }
 
 export default async function EHBRatesPage({ params }: PageProps) {
-  const data = await apiClient.efficiency.getEHBRates(params.type);
+  const data = await fetchEHBRates(params.type);
 
   return (
     <ul className="mt-6 flex flex-col gap-y-3">

@@ -5,9 +5,9 @@ import { Pagination } from "~/components/Pagination";
 import { ReviewContextTooltip } from "~/components/names/ReviewContextTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { apiClient } from "~/utils/api";
 import { capitalize } from "~/utils/strings";
 import { formatDatetime, timeago } from "~/utils/dates";
+import { fetchNameChanges } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
 import InfoIcon from "~/assets/info.svg";
@@ -65,7 +65,7 @@ async function NameChangesPage(props: PageProps) {
   const search = getSearchParam(searchParams.search);
   const status = getNameChangeStatusParam(searchParams.status);
 
-  const data = await apiClient.nameChanges.searchNameChanges(
+  const data = await fetchNameChanges(
     { username: search, status },
     { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
