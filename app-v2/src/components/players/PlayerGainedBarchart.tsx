@@ -67,25 +67,27 @@ function calculateGainBuckets(data: Array<{ value: number; date: Date }>, minDat
 
   const map = new Map<number, { count: number; gained: number }>();
 
-  let previousLastValue = data[0].value;
-  let currentDay = normalizeDate(data[0].date);
+  if (data.length > 0) {
+    let previousLastValue = data[0].value;
+    let currentDay = normalizeDate(data[0].date);
 
-  for (let i = 1; i < data.length; i++) {
-    const normalized = normalizeDate(data[i].date);
+    for (let i = 1; i < data.length; i++) {
+      const normalized = normalizeDate(data[i].date);
 
-    if (currentDay.getTime() !== normalized.getTime()) {
-      previousLastValue = data[i - 1].value;
-      currentDay = normalized;
-    }
+      if (currentDay.getTime() !== normalized.getTime()) {
+        previousLastValue = data[i - 1].value;
+        currentDay = normalized;
+      }
 
-    const entry = map.get(currentDay.getTime());
-    const gained = data[i].value - previousLastValue;
+      const entry = map.get(currentDay.getTime());
+      const gained = data[i].value - previousLastValue;
 
-    if (entry) {
-      entry.count++;
-      entry.gained = gained;
-    } else {
-      map.set(currentDay.getTime(), { count: 1, gained });
+      if (entry) {
+        entry.count++;
+        entry.gained = gained;
+      } else {
+        map.set(currentDay.getTime(), { count: 1, gained });
+      }
     }
   }
 

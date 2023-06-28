@@ -121,7 +121,19 @@ interface BucketedDailyGainsPanelProps {
 }
 
 function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
-  const { metric, timeRange } = props;
+  const { metric } = props;
+
+  let timeRange = { ...props.timeRange };
+
+  // Any periods below a week are can't really be bucketed by day, and usually players don't update
+  // often enough for us to have enough temporal resolution to bucket by hour or minute.
+  // So, just default to week for those periods
+  if (
+    "period" in timeRange &&
+    (timeRange.period === Period.DAY || timeRange.period === Period.FIVE_MIN)
+  ) {
+    timeRange.period = Period.WEEK;
+  }
 
   return (
     <div className="p-5">
@@ -131,7 +143,8 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
           {"period" in timeRange ? (
             <>
               {MetricProps[metric].name} {MetricProps[metric].measure} gains over the past&nbsp;
-              {PeriodProps[timeRange.period].name.toLowerCase()}, bucketed by day
+              <span className="text-white">{PeriodProps[timeRange.period].name.toLowerCase()}</span>,
+              bucketed by day
             </>
           ) : (
             <>

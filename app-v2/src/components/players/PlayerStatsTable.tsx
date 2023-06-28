@@ -69,7 +69,7 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
       nextParams.delete("view");
     }
 
-    router.replace(`/players/${player.displayName}?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}?${nextParams.toString()}`);
   }
 
   function handleShowVirtualLevelsChanged(value: boolean) {
@@ -81,7 +81,7 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
       nextParams.delete("levels");
     }
 
-    router.replace(`/players/${player.displayName}?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}?${nextParams.toString()}`);
   }
 
   const tableHeaderElement = (

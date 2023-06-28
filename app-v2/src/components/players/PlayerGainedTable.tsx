@@ -70,7 +70,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       nextParams.set("metric", newMetric);
     }
 
-    router.replace(`/players/${player.displayName}/gained?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`);
   }
 
   function handlePeriodSelected(newPeriod: Period | "custom") {
@@ -88,7 +88,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       nextParams.delete("endDate");
     }
 
-    router.replace(`/players/${player.displayName}/gained?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`);
   }
 
   return (
