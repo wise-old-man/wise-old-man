@@ -1,10 +1,7 @@
+import { AchievementProgress, SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
 import Link from "next/link";
-import { AchievementProgress, SKILL_EXP_AT_99, formatNumber, isSkill } from "@wise-old-man/utils";
 import { Label } from "../Label";
-import { MetricIcon } from "../Icon";
-import { AchievementDate } from "../AchievementDate";
-
-import ArrowRightIcon from "~/assets/arrow_right.svg";
+import { AchievementListItem } from "../AchievementListItem";
 
 interface PlayerOverviewAchievementsProps {
   username: string;
@@ -62,24 +59,6 @@ export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProp
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function AchievementListItem(props: AchievementProgress) {
-  return (
-    <div className="flex items-center gap-x-4 rounded-lg border border-gray-600 px-4 py-3">
-      <MetricIcon metric={props.metric} />
-      <div className="flex flex-col gap-y-1">
-        <span className="text-sm font-medium">{props.name}</span>
-        <span className="text-xs text-gray-200">
-          {props.createdAt ? (
-            <AchievementDate {...props} />
-          ) : (
-            <>{formatNumber(props.threshold - Math.max(0, props.currentValue), true)} left</>
-          )}
-        </span>
-      </div>
     </div>
   );
 }
