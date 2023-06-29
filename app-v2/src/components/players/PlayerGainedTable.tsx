@@ -93,7 +93,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
 
   return (
     <div className="flex flex-col">
-      <div className="flex w-full items-center justify-between rounded-lg rounded-b-none border border-b-0 border-gray-500 px-5 py-4">
+      <div className="flex w-full flex-col justify-between gap-y-3 rounded-lg rounded-b-none border border-b-0 border-gray-500 px-5 py-4 md:flex-row md:items-center">
         <div>
           <h3 className="text-h3 font-medium text-white">Gained</h3>
           <p className="text-body text-gray-200">
@@ -127,11 +127,13 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
           <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
         </div>
       </div>
-      <div className="grid grid-cols-12">
-        <div className="col-span-6">
+      <div className="grid grid-cols-12 gap-y-5">
+        <div className="col-span-12 xl:col-span-6">
           <PlayerGainsTable gains={gains} onRowSelected={handleMetricSelected} selectedMetric={metric} />
         </div>
-        <div className="col-span-6 -ml-px mb-1.5 rounded-b-lg border border-gray-500">{children}</div>
+        <div className="col-span-12 -ml-px mb-1.5 rounded-xl border border-gray-500 xl:col-span-6 xl:rounded-t-none">
+          {children}
+        </div>
       </div>
     </div>
   );

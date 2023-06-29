@@ -60,9 +60,9 @@ interface InfoPanelProps {
 function InfoPanel(props: InfoPanelProps) {
   return (
     <div className="flex flex-col items-start gap-y-1 rounded-lg border border-gray-600 p-4">
-      <span className="text-xs text-gray-200">{props.label}</span>
+      <span className="line-clamp-1 text-xs text-gray-200">{props.label}</span>
       {props.stringValue ? (
-        <span className="text-xs text-white">{props.stringValue}</span>
+        <span className="line-clamp-1 text-xs text-white">{props.stringValue}</span>
       ) : (
         <>
           {!props.date ? (
@@ -70,7 +70,7 @@ function InfoPanel(props: InfoPanelProps) {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-xs text-white">{timeago.format(props.date)}</span>
+                <span className="line-clamp-1 text-xs text-white">{timeago.format(props.date)}</span>
               </TooltipTrigger>
               <TooltipContent>{formatDatetime(props.date)}</TooltipContent>
             </Tooltip>

@@ -12,7 +12,9 @@ export function AchievementListItem(props: AchievementProgress) {
           {props.createdAt ? (
             <AchievementDate {...props} />
           ) : (
-            <>{formatNumber(props.threshold - Math.max(0, props.currentValue), true)} left</>
+            <span className="leading-[1.125rem]">
+              {formatNumber(props.threshold - Math.max(0, props.currentValue), true)} left
+            </span>
           )}
         </span>
       </div>

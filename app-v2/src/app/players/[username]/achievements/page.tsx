@@ -56,7 +56,7 @@ export default async function PlayerAchievements(props: PageProps) {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-x-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <QueryLink query={{ view: null }}>
           <Tab
             label="Skill achievements"
@@ -79,12 +79,12 @@ export default async function PlayerAchievements(props: PageProps) {
           />
         </QueryLink>
       </div>
-      <div className="mt-7 grid grid-cols-12 gap-x-4">
-        <div className="col-span-4 flex flex-col gap-y-7">
+      <div className="mt-7 grid grid-cols-12 gap-4">
+        <div className="col-span-12 grid grid-cols-2 flex-col gap-x-4 gap-y-7 xl:col-span-4 xl:flex">
           <RecentAchievements achievements={completedAchievements} metricType={metricType} />
           <NearestAchievements achievements={achievements} metricType={metricType} />
         </div>
-        <div className="col-span-8">
+        <div className="col-span-12 xl:col-span-8">
           <ProgressTable achievements={achievements} metricType={metricType} />
         </div>
       </div>
@@ -128,14 +128,14 @@ function ProgressTableRow(props: ProgressTableRowProps) {
   const isFullyComplete = achievements.every((a) => !!a.createdAt);
 
   return (
-    <div className="flex justify-between gap-x-3 rounded-lg border border-gray-600 px-4 py-2">
-      <div className="flex items-center">
+    <div className="flex flex-col justify-between gap-3 rounded-lg border border-gray-600 px-4 py-4 md:flex-row md:py-2">
+      <div className="flex items-center border-b border-gray-600 pb-4 md:border-b-0 md:pb-0">
         <MetricIcon metric={metric} />
         <span className="ml-2 block text-sm text-white">
           {measure === "levels" ? "Base Stats" : MetricProps[metric].name}
         </span>
       </div>
-      <div className="flex max-w-md grow">
+      <div className="flex grow md:max-w-md lg:max-w-lg xl:max-w-md">
         <div className="z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md shadow-black/50">
           0
         </div>
@@ -270,7 +270,7 @@ function Tab(props: TabProps) {
       )}
     >
       <span className="text-xl text-white">{props.count}</span>
-      <span className="text-sm text-gray-200">{props.label}</span>
+      <span className="line-clamp-1 text-sm text-gray-200">{props.label}</span>
     </div>
   );
 }

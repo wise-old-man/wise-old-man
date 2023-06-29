@@ -49,7 +49,7 @@ export default async function PlayerPage(props: PageProps) {
     <div>
       <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
-        <div className="col-span-4 flex flex-col gap-y-3">
+        <div className="col-span-12 flex flex-col gap-y-3 lg:col-span-4">
           <PlayerOverviewCompetition username={username} participations={participations} />
           <PlayerOverviewMemberships username={username} memberships={memberships} />
           <PlayerOverviewAchievements
@@ -57,7 +57,7 @@ export default async function PlayerPage(props: PageProps) {
             achievementsProgress={achievementsProgress}
           />
         </div>
-        <div className="col-span-8 mt-8">
+        <div className="col-span-12 mt-8 lg:col-span-8">
           <PlayerStatsTable
             player={player}
             metricType={metricType}

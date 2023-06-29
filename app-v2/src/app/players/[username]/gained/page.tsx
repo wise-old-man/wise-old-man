@@ -61,7 +61,7 @@ export default async function PlayerGainedPage(props: PageProps) {
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-x-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <PlayerGainedTimeCards player={player} timeRange={timeRange} earliestDataDate={gains.startsAt} />
       </div>
       <div className="mt-5">

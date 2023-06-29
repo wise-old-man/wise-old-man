@@ -50,7 +50,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   const player = await fetchPlayer(username);
 
   return (
-    <Container>
+    <Container className="relative">
       <Header {...player} />
       <div className="mt-7">
         <Navigation username={username} routeSegment={routeSegment} />
@@ -146,9 +146,40 @@ function Header(props: PlayerDetails) {
     icon = <PlayerTypeIcon playerType={type} size="lg" />;
   }
 
+  const actionsElement = (
+    <div className="flex shrink-0 items-center gap-x-2">
+      <UpdatePlayerForm player={props} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button iconButton>
+            <OverflowIcon className="h-5 w-5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
+          >
+            <DropdownMenuItem>
+              Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
+            </DropdownMenuItem>
+          </a>
+          <QueryLink query={{ dialog: "submit-name" }}>
+            <DropdownMenuItem>Submit name change</DropdownMenuItem>
+          </QueryLink>
+          <AssertPlayerTypeForm player={props} />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+
   return (
     <div className="flex items-end justify-between">
-      <div className="flex items-center gap-x-5">
+      <div className="absolute left-0 right-0 top-0 flex justify-end border-b border-gray-700 bg-gray-900 px-7 py-4 md:hidden">
+        {actionsElement}
+      </div>
+      <div className="mt-12 flex items-center gap-x-5 md:mt-0">
         <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
           {country && (
             <div className="absolute -right-1 bottom-1">
@@ -185,33 +216,7 @@ function Header(props: PlayerDetails) {
           </p>
         </div>
       </div>
-      <div>
-        <div className="flex shrink-0 items-center gap-x-2">
-          <UpdatePlayerForm player={props} />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button iconButton>
-                <OverflowIcon className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
-              >
-                <DropdownMenuItem>
-                  Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
-                </DropdownMenuItem>
-              </a>
-              <QueryLink query={{ dialog: "submit-name" }}>
-                <DropdownMenuItem>Submit name change</DropdownMenuItem>
-              </QueryLink>
-              <AssertPlayerTypeForm player={props} />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+      <div className="hidden md:block">{actionsElement}</div>
     </div>
   );
 }

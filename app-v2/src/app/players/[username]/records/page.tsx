@@ -71,7 +71,7 @@ export default async function PlayerRecordsPage(props: PageProps) {
           </QueryLink>
         </ToggleTabsList>
       </ToggleTabs>
-      <div className="mt-10 grid grid-cols-3 gap-x-5 gap-y-10">
+      <div className="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
         {Array.from(aggregated.keys())
           .sort((a, b) => METRICS.indexOf(a) - METRICS.indexOf(b))
           .map((key) => {
