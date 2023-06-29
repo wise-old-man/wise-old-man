@@ -1,7 +1,8 @@
+import { Fragment } from "react";
 import { fetchPlayer, fetchPlayerNameChanges } from "~/services/wiseoldman";
+import { timeago } from "~/utils/dates";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
-import { timeago } from "~/utils/dates";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -44,23 +45,23 @@ export default async function PlayerNameChangesPage(props: PageProps) {
         <h3 className="text-h3 font-medium text-white">Name change history</h3>
         <p className="text-body text-gray-200">Previous usernames this account used to hold.</p>
       </div>
-
       <div className="mt-5">
-        {nameChanges.map((nameChange, idx) => (
-          <div key={nameChange.id}>
-            {idx > 0 && (
-              <div className="my-4 ml-4 flex items-center text-gray-200">
-                <ArrowRightIcon className="h-5 w-5 -rotate-90" />
-                <span className="ml-2 mt-px text-xs">
-                  {timeago.format(nameChange.resolvedAt || new Date())}
-                </span>
-              </div>
-            )}
-            <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">
-              {nameChange.newName}
-              {idx === 0 && <span className="ml-2 text-xs text-gray-200">(current)</span>}
+        <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">
+          {player.displayName}
+          <span className="ml-2 text-xs text-gray-200">(current)</span>
+        </div>
+        {nameChanges.map((nameChange) => (
+          <Fragment key={nameChange.id}>
+            <div className="my-4 ml-4 flex items-center text-gray-200">
+              <ArrowRightIcon className="h-5 w-5 -rotate-90" />
+              <span className="ml-2 mt-px text-xs">
+                {timeago.format(nameChange.resolvedAt || new Date())}
+              </span>
             </div>
-          </div>
+            <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">
+              {nameChange.oldName}
+            </div>
+          </Fragment>
         ))}
       </div>
     </>
