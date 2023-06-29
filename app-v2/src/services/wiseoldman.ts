@@ -189,6 +189,17 @@ export async function fetchPlayerCompetitions(username: string) {
   }
 }
 
+export async function fetchPlayerNameChanges(username: string) {
+  try {
+    const res = await fetch(`${BASE_API_URL}/players/${username}/names`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as NameChange[];
+  } catch (error) {
+    notFound();
+  }
+}
+
 export async function fetchPlayerRecords(username: string) {
   try {
     const res = await fetch(`${BASE_API_URL}/players/${username}/records`);
