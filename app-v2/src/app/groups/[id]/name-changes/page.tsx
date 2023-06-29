@@ -3,6 +3,9 @@ import { Pagination } from "~/components/Pagination";
 import { fetchGroup, fetchGroupNameChanges } from "~/services/wiseoldman";
 import { GroupNameChangesTable } from "~/components/groups/GroupNameChangesTable";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     id: number;

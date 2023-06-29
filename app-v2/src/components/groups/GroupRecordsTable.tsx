@@ -24,7 +24,7 @@ import { MetricIconSmall } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
 import { getPageParam } from "~/utils/params";
 import {
   Combobox,
@@ -143,7 +143,7 @@ function getColumnDefinitions(page: number, metric: Metric) {
         return (
           <Tooltip>
             <TooltipTrigger>{timeago.format(row.original.updatedAt)}</TooltipTrigger>
-            <TooltipContent>{formatRecordDate(row.original.updatedAt)}</TooltipContent>
+            <TooltipContent>{formatDatetime(row.original.updatedAt)}</TooltipContent>
           </Tooltip>
         );
       },
@@ -152,16 +152,8 @@ function getColumnDefinitions(page: number, metric: Metric) {
       accessorKey: "value",
       header: "Gained",
       cell: ({ row }) => {
-        if (row.original.value <= 0) {
-          return row.original.value;
-        }
-
-        return (
-          <span className="text-green-500">
-            +
-            <FormattedNumber value={row.original.value} />
-          </span>
-        );
+        if (row.original.value <= 0) return row.original.value;
+        return <FormattedNumber value={row.original.value} colored />;
       },
     },
   ];
@@ -281,14 +273,4 @@ function PeriodSelect(props: PeriodSelectProps) {
       </ComboboxContent>
     </Combobox>
   );
-}
-
-function formatRecordDate(date: Date) {
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
 }

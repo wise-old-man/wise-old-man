@@ -68,7 +68,7 @@ export default function LineChart(props: LineChartProps) {
   return (
     <div className="aspect-video w-full">
       <ResponsiveContainer width="100%" aspect={16 / 9}>
-        <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5 }}>
+        <LineChartPrimitive margin={{ bottom: 20, left: 5, right: 5, top: 5 }}>
           <CartesianGrid vertical={false} style={GRID_STYLE} />
           <XAxis
             dataKey="time"
@@ -85,8 +85,9 @@ export default function LineChart(props: LineChartProps) {
             dataKey="value"
             axisLine={false}
             tickLine={false}
-            tick={AXIS_TICK_STYLE}
+            tick={<LeftAlignedYTick tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter} />}
             tickMargin={10}
+            domain={["dataMin", "dataMax"]}
             tickFormatter={yAxisValueFormatter || defaultYAxisValueFormatter}
           />
           <Tooltip
@@ -171,6 +172,19 @@ export default function LineChart(props: LineChartProps) {
   );
 }
 
+const LeftAlignedYTick = (props: { tickFormatter: (value: number, index: number) => string }) => {
+  const { y, payload, index } = props as any;
+  const formattedValue = props.tickFormatter(payload.value, index);
+
+  return (
+    <g transform={`translate(${0},${y})`}>
+      <text x={0} y={0} textAnchor="start" fontSize="0.75rem" fill="#6b7280">
+        {formattedValue}
+      </text>
+    </g>
+  );
+};
+
 interface ChartDotProps extends React.SVGProps<SVGCircleElement> {
   active?: boolean;
 }
@@ -187,7 +201,7 @@ function ChartDot(props: ChartDotProps) {
     );
   }
 
-  return <circle cx={cx} cy={cy} r={4} fill={active ? "red" : stroke} />;
+  return <circle cx={cx} cy={cy} r={3} fill={active ? "red" : stroke} />;
 }
 
 interface ChartTooltipProps {

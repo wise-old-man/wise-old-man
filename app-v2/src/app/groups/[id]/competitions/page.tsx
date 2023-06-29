@@ -3,6 +3,9 @@ import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import { fetchGroup, fetchGroupCompetitions, getCompetitionStatus } from "~/services/wiseoldman";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     id: number;

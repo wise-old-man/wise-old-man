@@ -47,11 +47,9 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   const competition = await fetchCompetition(id);
 
   return (
-    <Container className="mt-0 pt-0">
-      <div className="sticky top-12 z-10 bg-gray-900 pb-5 pt-12">
-        <Header {...competition} />
-      </div>
-      <div className="sticky top-56 z-10 pt-3 md:top-40">
+    <Container>
+      <Header {...competition} />
+      <div className="mt-7">
         <Navigation id={id} routeSegment={routeSegment} competition={competition} />
       </div>
       <CompetitionPreviewWarning trueMetric={competition.metric} />

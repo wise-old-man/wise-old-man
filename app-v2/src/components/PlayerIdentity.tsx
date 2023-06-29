@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Country,
   CountryProps,
   Player,
   PlayerBuild,
@@ -9,10 +8,9 @@ import {
   PlayerType,
   PlayerTypeProps,
 } from "@wise-old-man/utils";
-import Image from "next/image";
 import Link from "next/link";
 import { timeago } from "~/utils/dates";
-import { PlayerTypeIcon } from "./Icon";
+import { Flag, PlayerTypeIcon } from "./Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import WarningFilledIcon from "~/assets/warning_filled.svg";
@@ -21,10 +19,11 @@ interface PlayerIdentityProps {
   player: Player;
   caption?: string;
   renderTooltip?: boolean;
+  href?: string;
 }
 
 export function PlayerIdentity(props: PlayerIdentityProps) {
-  const { player, caption, renderTooltip = true } = props;
+  const { player, caption, href, renderTooltip = true } = props;
 
   let icon: React.ReactNode;
 
@@ -47,6 +46,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
             {player.country && (
               <div className="absolute -right-1 bottom-0">
                 <Flag
+                  size="sm"
                   country={player.country}
                   className="h-3.5 w-3.5 rounded-full border-2 border-gray-900"
                 />
@@ -59,7 +59,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
           <TooltipTrigger asChild>
             <Link
               prefetch={false}
-              href={`/players/${player.username}`}
+              href={href || `/players/${player.username}`}
               className="line-clamp-1 text-sm font-medium hover:underline"
             >
               {player.displayName}
@@ -132,26 +132,12 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Flag country={player.country} className="h-3 w-3" />
+              <Flag size="sm" country={player.country} className="h-3 w-3" />
               <span className="line-clamp-1">{CountryProps[player.country].name}</span>
             </a>
           </div>
         )}
       </div>
     </>
-  );
-}
-
-function Flag(props: { country: Country; className?: string }) {
-  const { code, name } = CountryProps[props.country];
-
-  return (
-    <Image
-      width={14}
-      height={14}
-      alt={`${name} (${code} Flag)`}
-      src={`/img/flags/${code}.svg`}
-      className={props.className}
-    />
   );
 }

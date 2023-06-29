@@ -7,7 +7,7 @@ import {
   PlayerBuildProps,
   formatNumber,
 } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
+import { fetchEfficiencyLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -21,6 +21,7 @@ import {
 
 const COMBINED_METRIC = "combined";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -86,7 +87,7 @@ interface EfficiencyLeaderboardProps {
 async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
   const { metric, ...filters } = props.filters;
 
-  const data = await apiClient.efficiency.getEfficiencyLeaderboards({
+  const data = await fetchEfficiencyLeaderboards({
     metric: metric === COMBINED_METRIC ? "ehp+ehb" : metric,
     ...filters,
   });

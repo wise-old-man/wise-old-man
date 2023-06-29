@@ -17,6 +17,9 @@ import { Label } from "../Label";
 import { Badge } from "../Badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface GroupWidgetsProps {
   group: GroupDetails;
 }
@@ -36,7 +39,6 @@ export function GroupWidgets(props: GroupWidgetsProps) {
           <FeaturedCompetitionWidget groupId={group.id} />
         </Suspense>
       </div>
-
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">
@@ -56,7 +58,6 @@ export function GroupWidgets(props: GroupWidgetsProps) {
           {formatNumber(Math.round(totalExp / group.memberships.length), false)} avg.)
         </TooltipContent>
       </Tooltip>
-
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">

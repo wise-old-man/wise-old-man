@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Player, NameChange } from "@wise-old-man/utils";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
 import { TableTitle } from "../Table";
 import { DataTable } from "../DataTable";
 import { PlayerIdentity } from "../PlayerIdentity";
@@ -54,20 +54,9 @@ const COLUMN_DEFS: ColumnDef<NameChange & { player: Player }>[] = [
       return (
         <Tooltip>
           <TooltipTrigger>{timeago.format(row.original.resolvedAt)}</TooltipTrigger>
-          <TooltipContent>{formatDate(row.original.resolvedAt)}</TooltipContent>
+          <TooltipContent>{formatDatetime(row.original.resolvedAt)}</TooltipContent>
         </Tooltip>
       );
     },
   },
 ];
-
-function formatDate(date: Date) {
-  return date.toLocaleString(undefined, {
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}

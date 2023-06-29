@@ -12,8 +12,8 @@ export default function RatesLayout(props: PropsWithChildren) {
 
   return (
     <Container>
-      <h1 className="text-h1 font-bold">Efficiency Rates</h1>
-      <div className="sticky top-16 bg-gray-900 pt-8">
+      <h1 className="pb-4 text-h1 font-bold">Efficiency Rates</h1>
+      <div className="sticky top-0 bg-gray-900 pt-4">
         <Tabs defaultValue={routeSegment}>
           <TabsList
             aria-label="Efficiency Rates Navigation"

@@ -89,10 +89,12 @@ const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCel
 );
 TableCell.displayName = "TableCell";
 
-function TableContainer(props: PropsWithChildren) {
+function TableContainer(props: PropsWithChildren<{ className?: string }>) {
   return (
     <div className="inline-block w-full">
-      <div className="overflow-hidden rounded-lg border border-gray-500 bg-gray-900">
+      <div
+        className={cn("overflow-hidden rounded-lg border border-gray-500 bg-gray-900", props.className)}
+      >
         {props.children}
       </div>
     </div>

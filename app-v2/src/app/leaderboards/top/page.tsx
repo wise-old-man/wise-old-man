@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { DeltaLeaderboardFilter, Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
+import { fetchDeltasLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -12,6 +12,7 @@ import {
   getPlayerBuildParam,
 } from "~/utils/params";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -79,7 +80,7 @@ interface TopLeaderboardProps {
 async function TopLeaderboard(props: TopLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
+  const data = await fetchDeltasLeaderboards({ period, ...filters });
 
   return (
     <div>
@@ -94,10 +95,13 @@ async function TopLeaderboard(props: TopLeaderboardProps) {
             <ListTableRow key={row.player.username}>
               <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
               <ListTableCell>
-                <PlayerIdentity player={row.player} />
+                <PlayerIdentity
+                  player={row.player}
+                  href={`/players/${row.player.username}/gained?metric=${filters.metric}&period=${period}`}
+                />
               </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium text-green-400">
-                +<FormattedNumber value={row.gained} />
+              <ListTableCell className="w-5 text-right font-medium">
+                <FormattedNumber value={row.gained} colored />
               </ListTableCell>
             </ListTableRow>
           ))}

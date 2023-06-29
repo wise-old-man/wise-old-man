@@ -2,6 +2,9 @@ import { fetchGroup } from "~/services/wiseoldman";
 import { GroupWidgets } from "~/components/groups/GroupWidgets";
 import { MembersTable } from "~/components/groups/MembersTable";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: {
     id: number;

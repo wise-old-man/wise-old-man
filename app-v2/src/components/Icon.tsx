@@ -1,14 +1,14 @@
 import Image from "next/image";
-import { GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
+import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
 
-export function MetricIcon(props: { metric: Metric }) {
+export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
   const { metric } = props;
   return (
     <Image height={24} width={24} alt={metric} src={`/img/metrics/${metric}.png`} className="shrink-0" />
   );
 }
 
-export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" }) {
+export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }) {
   const { metric } = props;
   return (
     <Image
@@ -21,15 +21,16 @@ export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" }) {
   );
 }
 
-export function PlayerTypeIcon(props: { playerType: PlayerType }) {
-  const { playerType } = props;
+export function PlayerTypeIcon(props: { playerType: PlayerType; size?: "sm" | "lg" }) {
+  const { playerType, size } = props;
   return (
     <Image
-      width={10}
-      height={13}
+      width={size === "lg" ? 20 : 10}
+      height={size === "lg" ? 26 : 13}
       alt={playerType}
       src={`/img/player_types/${playerType}.png`}
       className="shrink-0"
+      style={{ imageRendering: "pixelated" }}
     />
   );
 }
@@ -43,6 +44,20 @@ export function GroupRoleIcon(props: { role: GroupRole }) {
       alt={role}
       src={`/img/group_roles/${role === GroupRole.MEMBER ? "minion" : role}.png`}
       className="shrink-0"
+    />
+  );
+}
+
+export function Flag(props: { country: Country; className?: string; size: "sm" | "lg" }) {
+  const { code, name } = CountryProps[props.country];
+
+  return (
+    <Image
+      width={props.size === "sm" ? 14 : 20}
+      height={props.size === "sm" ? 14 : 20}
+      alt={`${name} (${code} Flag)`}
+      src={`/img/flags/${code}.svg`}
+      className={props.className}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
+import { fetchRecordLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
@@ -11,7 +11,9 @@ import {
   getPlayerBuildParam,
   getPlayerTypeParam,
 } from "~/utils/params";
+import { formatDate } from "~/utils/dates";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -79,7 +81,7 @@ interface RecordLeaderboardProps {
 async function RecordLeaderboard(props: RecordLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await apiClient.records.getRecordLeaderboard({ period, ...filters });
+  const data = await fetchRecordLeaderboards({ period, ...filters });
 
   return (
     <div>
@@ -94,10 +96,14 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
             <ListTableRow key={row.player.username}>
               <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
               <ListTableCell>
-                <PlayerIdentity player={row.player} caption={formatRecordDate(row.updatedAt)} />
+                <PlayerIdentity
+                  player={row.player}
+                  caption={formatDate(row.updatedAt)}
+                  href={`/players/${row.player.username}/records`}
+                />
               </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium text-green-400">
-                +<FormattedNumber value={row.value} />
+              <ListTableCell className="w-5 text-right font-medium">
+                <FormattedNumber value={row.value} colored />
               </ListTableCell>
             </ListTableRow>
           ))}
@@ -115,12 +121,4 @@ function LoadingState() {
       <LeaderboardSkeleton period={Period.MONTH} hasCaption />
     </>
   );
-}
-
-function formatRecordDate(date: Date) {
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }

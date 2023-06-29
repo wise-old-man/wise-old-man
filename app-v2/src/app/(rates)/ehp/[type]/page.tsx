@@ -4,7 +4,7 @@ import {
   MetricProps,
   Skill,
 } from "@wise-old-man/utils";
-import { apiClient } from "~/utils/api";
+import { fetchEHPRates } from "~/services/wiseoldman";
 import { Label } from "~/components/Label";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { ExpRatesTable } from "~/components/rates/ExperienceRatesTable";
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 }
 
 export default async function EHPRatesPage({ params }: PageProps) {
-  const data = await apiClient.efficiency.getEHPRates(params.type);
+  const data = await fetchEHPRates(params.type);
 
   return (
     <div className="mt-10 flex gap-x-12">
@@ -58,7 +58,7 @@ export default async function EHPRatesPage({ params }: PageProps) {
 function QuickLinksPanel(props: { skills: Skill[] }) {
   return (
     <div className="h-100 hidden w-full max-w-[12rem] lg:block">
-      <ul className="custom-scroll sticky top-[11rem] mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
+      <ul className="custom-scroll sticky top-[6rem] mt-[3.25rem] flex max-h-[calc(100vh-8rem)] w-full flex-col gap-y-2.5 overflow-y-auto rounded-lg border border-gray-500 p-5">
         <Label className="pb-2 text-white">Quick links</Label>
         {props.skills.map((skill) => (
           <li key={skill}>

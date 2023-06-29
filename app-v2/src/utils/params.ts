@@ -9,7 +9,10 @@ import {
   isCompetitionStatus,
   isCompetitionType,
   isPeriod,
+  Period,
 } from "@wise-old-man/utils";
+import { TimeRangeFilter } from "~/services/wiseoldman";
+import { isValidDate } from "./dates";
 
 export function getMetricParam(param: string | undefined | null) {
   if (!param || !isMetric(param)) return undefined;
@@ -29,6 +32,20 @@ export function getPlayerBuildParam(param: string | undefined | null) {
 export function getPeriodParam(param: string | undefined | null) {
   if (!param || !isPeriod(param)) return undefined;
   return param;
+}
+
+export function getTimeRangeFilterParams(params: URLSearchParams): TimeRangeFilter {
+  const startDate = decodeURIComponent(params.get("startDate") || "");
+  const endDate = decodeURIComponent(params.get("endDate") || "");
+
+  if (!!startDate && !!endDate && isValidDate(startDate) && isValidDate(endDate)) {
+    return {
+      startDate: new Date(startDate as string),
+      endDate: new Date(endDate as string),
+    };
+  }
+
+  return { period: getPeriodParam(params.get("period")) || Period.WEEK };
 }
 
 export function getCountryParam(param: string | undefined | null) {

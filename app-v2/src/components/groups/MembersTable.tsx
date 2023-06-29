@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { GroupDetails, GroupRoleProps, MembershipWithPlayer, PlayerStatus } from "@wise-old-man/utils";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
 import { DataTable } from "../DataTable";
 import { MembersFilter } from "./MembersFilter";
@@ -95,7 +95,7 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
       return (
         <Tooltip>
           <TooltipTrigger>{timeago.format(row.original.player.lastChangedAt)}</TooltipTrigger>
-          <TooltipContent>{formatDate(row.original.player.lastChangedAt)}</TooltipContent>
+          <TooltipContent>{formatDatetime(row.original.player.lastChangedAt)}</TooltipContent>
         </Tooltip>
       );
     },
@@ -112,23 +112,12 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
       return (
         <Tooltip>
           <TooltipTrigger>{timeago.format(row.original.player.updatedAt)}</TooltipTrigger>
-          <TooltipContent>{formatDate(row.original.player.updatedAt)}</TooltipContent>
+          <TooltipContent>{formatDatetime(row.original.player.updatedAt)}</TooltipContent>
         </Tooltip>
       );
     },
   },
 ];
-
-function formatDate(date: Date) {
-  return date.toLocaleString(undefined, {
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function getCaptionLabel(groupName: string, rowCount: number, filter?: string) {
   if (filter === "invalid_or_outdated") {

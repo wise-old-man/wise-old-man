@@ -5,17 +5,18 @@ import { Pagination } from "~/components/Pagination";
 import { ReviewContextTooltip } from "~/components/names/ReviewContextTooltip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { apiClient } from "~/utils/api";
-import { timeago } from "~/utils/dates";
-import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 import { capitalize } from "~/utils/strings";
+import { formatDatetime, timeago } from "~/utils/dates";
+import { fetchNameChanges } from "~/services/wiseoldman";
+import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 import InfoIcon from "~/assets/info.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const RESULTS_PER_PAGE = 20;
-
-export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: {
@@ -29,7 +30,7 @@ interface PageProps {
 export function generateMetadata(props: PageProps) {
   const { searchParams } = props;
 
-  if (searchParams.dialog === "submit") {
+  if (searchParams.dialog === "submit-name") {
     return { title: "Submit New Name Change" };
   }
 
@@ -65,7 +66,7 @@ async function NameChangesPage(props: PageProps) {
   const search = getSearchParam(searchParams.search);
   const status = getNameChangeStatusParam(searchParams.status);
 
-  const data = await apiClient.nameChanges.searchNameChanges(
+  const data = await fetchNameChanges(
     { username: search, status },
     { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
@@ -94,20 +95,20 @@ async function NameChangesPage(props: PageProps) {
                 <ListTableCell>
                   <Tooltip>
                     <TooltipTrigger>Submitted {timeago.format(nameChange.createdAt)}</TooltipTrigger>
-                    <TooltipContent>{formatDate(nameChange.createdAt)}</TooltipContent>
+                    <TooltipContent>{formatDatetime(nameChange.createdAt)}</TooltipContent>
                   </Tooltip>
                 </ListTableCell>
                 <ListTableCell>
                   {nameChange.resolvedAt && (
                     <Tooltip>
                       <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
-                      <TooltipContent>{formatDate(nameChange.resolvedAt)}</TooltipContent>
+                      <TooltipContent>{formatDatetime(nameChange.resolvedAt)}</TooltipContent>
                     </Tooltip>
                   )}
                   {!nameChange.resolvedAt && nameChange.reviewContext && (
                     <Tooltip>
                       <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
-                      <TooltipContent>{formatDate(nameChange.updatedAt)}</TooltipContent>
+                      <TooltipContent>{formatDatetime(nameChange.updatedAt)}</TooltipContent>
                     </Tooltip>
                   )}
                 </ListTableCell>
@@ -192,15 +193,4 @@ function getResolvedTimeago(nameChange: NameChange) {
   }
 
   return "";
-}
-
-function formatDate(date: Date) {
-  return date.toLocaleString(undefined, {
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }

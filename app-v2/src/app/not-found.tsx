@@ -19,6 +19,7 @@ export default function NotFound() {
         <div className="relative w-full overflow-hidden rounded-xl border border-gray-500 bg-black px-12 py-10 shadow-lg md:py-12">
           <Image
             fill
+            placeholder="blur"
             alt="404 Page - In-game Trollheim Background"
             className="z-0 opacity-40"
             src={BackgroundImage}
