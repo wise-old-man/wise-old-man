@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   METRICS,
   Metric,
@@ -77,7 +78,7 @@ export default async function PlayerRecordsPage(props: PageProps) {
           .map((key) => {
             const records = aggregated.get(key);
             if (!records) return null;
-            return <MetricRecords key={key} metric={key} records={records} />;
+            return <MetricRecords key={key} metric={key} records={records} username={username} />;
           })}
       </div>
     </>
@@ -87,10 +88,11 @@ export default async function PlayerRecordsPage(props: PageProps) {
 interface MetricRecordsProps {
   metric: Metric;
   records: Record[];
+  username: string;
 }
 
 function MetricRecords(props: MetricRecordsProps) {
-  const { metric, records } = props;
+  const { metric, records, username } = props;
 
   const map = new Map<Period, Record>();
 
@@ -120,7 +122,13 @@ function MetricRecords(props: MetricRecordsProps) {
               {!!record ? (
                 <div className="flex flex-col items-end">
                   <span className="mb-1 text-sm">
-                    <FormattedNumber value={record.value} colored />
+                    <Link
+                      href={`/players/${username}/gained/?startDate=${new Date(
+                        record.updatedAt.getTime() - PeriodProps[period].milliseconds
+                      ).toISOString()}&endDate=${record.updatedAt.toISOString()}`}
+                    >
+                      <FormattedNumber value={record.value} colored />
+                    </Link>
                   </span>
                   <Tooltip>
                     <TooltipTrigger asChild>
