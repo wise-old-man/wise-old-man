@@ -45,6 +45,13 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // Find the existing cached delta for this period
     const currentDelta = playerDeltasMap.get(period);
 
+    // If has no gains in any metric, delete this delta from the database,
+    // as it will never be used in leaderboards
+    if (!METRICS.some(metric => newDelta[metric] > 0)) {
+      await prisma.delta.delete({ where: { id: currentDelta.id } });
+      return;
+    }
+
     // if any metric has improved since the last delta sync, it is a potential record
     // and we should also check for new records in this period
     let hasImprovements = false;

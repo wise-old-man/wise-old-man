@@ -61,6 +61,39 @@ afterAll(async () => {
 
 describe('Deltas API', () => {
   describe('1 - Syncing Player Deltas', () => {
+    it('should not sync player deltas on (0 gains)', async () => {
+      const firstTrackResponse = await api.post(`/players/jonxslays`);
+      expect(firstTrackResponse.status).toBe(201);
+
+      // Wait for the deltas to update
+      await sleep(500);
+
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+
+      const firstDeltas = await prisma.delta.findMany({
+        where: { playerId: firstTrackResponse.body.id }
+      });
+
+      // Player was only updated once, shouldn't have enough data to calculate deltas yet
+      expect(firstDeltas.length).toBe(0);
+
+      const secondTrackResponse = await api.post(`/players/jonxslays`);
+      expect(secondTrackResponse.status).toBe(200);
+
+      // Wait for the deltas to update
+      await sleep(500);
+
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+
+      const secondDeltas = await prisma.delta.findMany({
+        where: { playerId: secondTrackResponse.body.id }
+      });
+
+      // Player now has enough snapshots, but no gains in between them, so delta calcs get skipped
+      expect(secondDeltas.length).toBe(0);
+      expect(onDeltaUpdatedEvent).not.toHaveBeenCalled();
+    });
+
     it('should sync player deltas', async () => {
       // Fake the current date to be 3 days ago
       jest.useFakeTimers('modern').setSystemTime(new Date(Date.now() - 86_400_000 * 3));
