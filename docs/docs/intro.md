@@ -118,6 +118,11 @@ Error Statuses:
 
 Some API endpoints support pagination in the form of `limit` and `offset` query parameters. This will be indicated in the endpoint description.
 
+| Field  | Default | Max |
+| ------ | ------- | --- |
+| limit  | 20      | 50  |
+| offset | 0       | --- |
+
 Examples
 
 **Using pagination in cURL request**
