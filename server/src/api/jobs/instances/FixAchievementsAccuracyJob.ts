@@ -3,7 +3,7 @@ import { fixAchievementsAccuracy } from '../../modules/achievements/achievement.
 import { JobType, JobDefinition } from '../job.types';
 import logger from '../../util/logging';
 
-const CHECKS_PER_MINUTE = 5;
+const CHECKS_PER_MINUTE = 20;
 
 class FixAchievementsAccuracyJob implements JobDefinition<unknown> {
   type: JobType;
