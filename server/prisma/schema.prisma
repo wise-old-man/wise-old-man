@@ -167,8 +167,7 @@ model Delta {
   // Constraints
   @@id([playerId, period])
   // Indices
-  @@index([period], map: "deltas_period")
-  @@index([playerId], map: "deltas_playerId")
+  @@index([period, overall(sort: Desc)], map: "deltas_period_overall")
   // Map
   @@map("deltas")
 }
