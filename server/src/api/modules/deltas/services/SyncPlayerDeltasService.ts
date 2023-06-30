@@ -8,7 +8,7 @@ import {
   COMPUTED_METRICS,
   METRICS
 } from '../../../../utils';
-import prisma, { Delta, modifyDelta, modifyDeltas, Player, PrismaDelta, Snapshot } from '../../../../prisma';
+import prisma, { Delta, modifyDelta, modifyDeltas, Player, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as deltaUtils from '../delta.utils';
 import * as deltaEvents from '../delta.events';
@@ -48,7 +48,9 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
     // If has no gains in any metric, delete this delta from the database,
     // as it will never be used in leaderboards
     if (!METRICS.some(metric => newDelta[metric] > 0)) {
-      await prisma.delta.delete({ where: { id: currentDelta.id } });
+      await prisma.delta.delete({
+        where: { playerId_period: { playerId: player.id, period } }
+      });
       return;
     }
 
@@ -62,15 +64,13 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       }
     });
 
-    // TODO: after fixing the unique values for deltas, turn this into an upsert, get rid of currentDelta
+    const updatedDelta = await prisma.delta.upsert({
+      where: { playerId_period: { playerId: player.id, period } },
+      update: newDelta,
+      create: newDelta
+    });
 
-    if (currentDelta) {
-      await prisma.delta.update({ data: newDelta, where: { id: currentDelta.id } });
-    } else {
-      await prisma.delta.create({ data: newDelta });
-    }
-
-    deltaEvents.onDeltaUpdated(modifyDelta(newDelta as PrismaDelta), !currentDelta || hasImprovements);
+    deltaEvents.onDeltaUpdated(modifyDelta(updatedDelta), !currentDelta || hasImprovements);
   }
 
   // Execute all update promises, sequentially
