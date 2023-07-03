@@ -99,7 +99,11 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
                 <PlayerIdentity
                   player={row.player}
                   caption={formatDate(row.updatedAt)}
-                  href={`/players/${row.player.username}/records`}
+                  href={`/players/${row.player.username}/gained/?metric=${
+                    row.metric
+                  }&startDate=${new Date(
+                    row.updatedAt.getTime() - PeriodProps[period].milliseconds
+                  ).toISOString()}&endDate=${row.updatedAt.toISOString()}`}
                 />
               </ListTableCell>
               <ListTableCell className="w-5 text-right font-medium">

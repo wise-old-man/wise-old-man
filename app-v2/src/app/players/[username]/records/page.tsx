@@ -112,38 +112,41 @@ function MetricRecords(props: MetricRecordsProps) {
           const record = map.get(period);
 
           return (
-            <div
+            <Link
               key={`${metric}_${period}`}
-              className="flex items-center justify-between rounded-lg border border-gray-600 px-5 py-3"
+              href={
+                record
+                  ? `/players/${username}/gained/?metric=${metric}&startDate=${new Date(
+                      record.updatedAt.getTime() - PeriodProps[period].milliseconds
+                    ).toISOString()}&endDate=${record.updatedAt.toISOString()}`
+                  : `/players/${username}/gained`
+              }
+              className="hover:bg-gray-800"
             >
-              <span className={cn("text-sm text-gray-200", !!record && "font-medium text-white")}>
-                {PeriodProps[period].name}
-              </span>
-              {!!record ? (
-                <div className="flex flex-col items-end">
-                  <span className="mb-1 text-sm">
-                    <Link
-                      href={`/players/${username}/gained/?startDate=${new Date(
-                        record.updatedAt.getTime() - PeriodProps[period].milliseconds
-                      ).toISOString()}&endDate=${record.updatedAt.toISOString()}`}
-                    >
+              <div className="flex items-center justify-between rounded-lg border border-gray-600 px-5 py-3">
+                <span className={cn("text-sm text-gray-200", !!record && "font-medium text-white")}>
+                  {PeriodProps[period].name}
+                </span>
+                {!!record ? (
+                  <div className="flex flex-col items-end">
+                    <span className="mb-1 text-sm">
                       <FormattedNumber value={record.value} colored />
-                    </Link>
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="text-xs text-gray-200">{timeago.format(record.updatedAt)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
-                  </Tooltip>
-                </div>
-              ) : (
-                <div className="flex flex-col items-end text-gray-200">
-                  <span className="mb-1 text-sm">N/A</span>
-                  <span className="text-xs">Not set</span>
-                </div>
-              )}
-            </div>
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs text-gray-200">{timeago.format(record.updatedAt)}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-end text-gray-200">
+                    <span className="mb-1 text-sm">N/A</span>
+                    <span className="text-xs">Not set</span>
+                  </div>
+                )}
+              </div>
+            </Link>
           );
         })}
       </div>
