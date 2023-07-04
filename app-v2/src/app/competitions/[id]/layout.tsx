@@ -142,11 +142,7 @@ function Header(props: CompetitionDetails) {
             {group && (
               <span>
                 {` · Hosted by `}
-                <Link
-                  prefetch={false}
-                  href={`/groups/${group.id}`}
-                  className="font-medium text-blue-400 hover:underline"
-                >
+                <Link href={`/groups/${group.id}`} className="font-medium text-blue-400 hover:underline">
                   {group.name}
                 </Link>
               </span>

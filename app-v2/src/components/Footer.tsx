@@ -74,11 +74,7 @@ export function Footer() {
               <ul role="list" className="mt-6 space-y-4">
                 {navigation.features.map((item) => (
                   <li key={item.name}>
-                    <Link
-                      prefetch={false}
-                      href={item.href}
-                      className="text-sm leading-6 text-gray-300 hover:text-white"
-                    >
+                    <Link href={item.href} className="text-sm leading-6 text-gray-300 hover:text-white">
                       {item.name}
                     </Link>
                   </li>
