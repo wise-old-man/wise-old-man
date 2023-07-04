@@ -13,7 +13,7 @@ fail() {
 
 setup() {
     # Reset the test database
-    export CORE_DATABASE=wise-old-man-test;
+    export CORE_DATABASE=wise-old-man_TEST;
     export NODE_ENV=test TZ=UTC;
     prisma migrate reset --force;
 }
