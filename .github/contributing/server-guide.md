@@ -74,7 +74,7 @@ cp .env.example .env
 By default the example files contain the following example snippets
 
 ```
-CORE_DATABASE=wise-old-man
+CORE_DATABASE=wise-old-man_LOCAL
 
 DB_HOST=localhost
 
