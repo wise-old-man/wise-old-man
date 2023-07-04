@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   METRICS,
   Metric,
@@ -77,7 +78,7 @@ export default async function PlayerRecordsPage(props: PageProps) {
           .map((key) => {
             const records = aggregated.get(key);
             if (!records) return null;
-            return <MetricRecords key={key} metric={key} records={records} />;
+            return <MetricRecords key={key} metric={key} records={records} username={username} />;
           })}
       </div>
     </>
@@ -87,10 +88,11 @@ export default async function PlayerRecordsPage(props: PageProps) {
 interface MetricRecordsProps {
   metric: Metric;
   records: Record[];
+  username: string;
 }
 
 function MetricRecords(props: MetricRecordsProps) {
-  const { metric, records } = props;
+  const { metric, records, username } = props;
 
   const map = new Map<Period, Record>();
 
@@ -110,32 +112,41 @@ function MetricRecords(props: MetricRecordsProps) {
           const record = map.get(period);
 
           return (
-            <div
+            <Link
               key={`${metric}_${period}`}
-              className="flex items-center justify-between rounded-lg border border-gray-600 px-5 py-3"
+              href={
+                record
+                  ? `/players/${username}/gained/?metric=${metric}&startDate=${new Date(
+                      record.updatedAt.getTime() - PeriodProps[period].milliseconds
+                    ).toISOString()}&endDate=${record.updatedAt.toISOString()}`
+                  : `/players/${username}/gained`
+              }
+              className="hover:bg-gray-800"
             >
-              <span className={cn("text-sm text-gray-200", !!record && "font-medium text-white")}>
-                {PeriodProps[period].name}
-              </span>
-              {!!record ? (
-                <div className="flex flex-col items-end">
-                  <span className="mb-1 text-sm">
-                    <FormattedNumber value={record.value} colored />
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="text-xs text-gray-200">{timeago.format(record.updatedAt)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
-                  </Tooltip>
-                </div>
-              ) : (
-                <div className="flex flex-col items-end text-gray-200">
-                  <span className="mb-1 text-sm">N/A</span>
-                  <span className="text-xs">Not set</span>
-                </div>
-              )}
-            </div>
+              <div className="flex items-center justify-between rounded-lg border border-gray-600 px-5 py-3">
+                <span className={cn("text-sm text-gray-200", !!record && "font-medium text-white")}>
+                  {PeriodProps[period].name}
+                </span>
+                {!!record ? (
+                  <div className="flex flex-col items-end">
+                    <span className="mb-1 text-sm">
+                      <FormattedNumber value={record.value} colored />
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs text-gray-200">{timeago.format(record.updatedAt)}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-end text-gray-200">
+                    <span className="mb-1 text-sm">N/A</span>
+                    <span className="text-xs">Not set</span>
+                  </div>
+                )}
+              </div>
+            </Link>
           );
         })}
       </div>
