@@ -3315,7 +3315,7 @@ describe('Competition API', () => {
       expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
     });
 
-    it('should not reset code (invalid admin password)', async () => {
+    it('should not reset code (incorrect admin password)', async () => {
       const response = await api.put(`/competitions/100000/reset-code`).send({
         adminPassword: 'abcdef'
       });

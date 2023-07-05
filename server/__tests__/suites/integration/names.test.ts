@@ -848,6 +848,22 @@ describe('Names API', () => {
   });
 
   describe('9 - Clear History', () => {
+    it('should not clear history (invalid admin password)', async () => {
+      const response = await api.post(`/names/walter/clear-history`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Required parameter 'adminPassword' is undefined.");
+    });
+
+    it('should not clear history (incorrect admin password)', async () => {
+      const response = await api.post(`/names/walter/clear-history`).send({
+        adminPassword: 'abcdef'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect admin password.');
+    });
+
     it('should not clear history (player not found)', async () => {
       const response = await api
         .post(`/names/walter/clear-history`)
