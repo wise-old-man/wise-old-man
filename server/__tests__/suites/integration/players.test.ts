@@ -874,7 +874,7 @@ describe('Player API', () => {
       expect(importResponse.status).toBe(200);
       expect(importResponse.body).toMatchObject({
         count: 219,
-        message: 'Sucessfully imported 219 snapshots from CML.'
+        message: 'Successfully imported 219 snapshots from CML.'
       });
 
       expect(onPlayerImportedEvent).toHaveBeenCalled();

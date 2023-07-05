@@ -846,6 +846,40 @@ describe('Names API', () => {
       expect(response.body.message).toMatch('Successfully submitted 2/3 name changes.');
     });
   });
+
+  describe('9 - Clear History', () => {
+    it('should not clear history (player not found)', async () => {
+      const response = await api
+        .post(`/names/walter/clear-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toMatch('Player not found.');
+    });
+
+    it('should not clear history (no name changes)', async () => {
+      const response = await api
+        .post(`/names/zezima/clear-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toMatch('No name changes were found for this player.');
+    });
+
+    it('should clear history', async () => {
+      const response = await api
+        .post(`/names/usbc/clear-history`)
+        .send({ adminPassword: env.ADMIN_PASSWORD });
+
+      expect(response.status).toBe(200);
+      expect(response.body.count).toBe(4);
+      expect(response.body.message).toMatch('Successfully deleted 4 name changes.');
+
+      const fetchResponse = await api.get(`/players/usbc/names`);
+      expect(fetchResponse.status).toBe(200);
+      expect(fetchResponse.body.length).toBe(0);
+    });
+  });
 });
 
 async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
