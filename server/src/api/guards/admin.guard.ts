@@ -3,13 +3,13 @@ import env from '../../env';
 import { BadRequestError } from '../errors';
 
 function checkAdminPermissions(req: Request) {
-  const passwordInput = req.body.adminPassword;
+  const { adminPassword } = req.body;
 
-  if (!passwordInput) {
+  if (!adminPassword) {
     throw new BadRequestError("Required parameter 'adminPassword' is undefined.");
   }
 
-  return String(passwordInput) === env.ADMIN_PASSWORD;
+  return String(adminPassword) === env.ADMIN_PASSWORD;
 }
 
 export { checkAdminPermissions };

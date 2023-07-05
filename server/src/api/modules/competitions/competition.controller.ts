@@ -91,10 +91,12 @@ async function edit(req: Request): Promise<ControllerResponse> {
 
 // DELETE /competitions/:id
 async function remove(req: Request): Promise<ControllerResponse> {
-  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
+  if (!('adminPassword' in req.body) || !adminGuard.checkAdminPermissions(req)) {
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-  if (!isVerifiedCode) {
-    throw new ForbiddenError('Incorrect verification code.');
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
   }
 
   const deletedCompetition = await competitionServices.deleteCompetition({
@@ -141,10 +143,12 @@ async function addParticipants(req: Request): Promise<ControllerResponse> {
 
 // DELETE /competitions/:id/participants
 async function removeParticipants(req: Request): Promise<ControllerResponse> {
-  const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
+  if (!('adminPassword' in req.body) || !adminGuard.checkAdminPermissions(req)) {
+    const isVerifiedCode = await verificationGuard.verifyCompetitionCode(req);
 
-  if (!isVerifiedCode) {
-    throw new ForbiddenError('Incorrect verification code.');
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
   }
 
   const result = await competitionServices.removeParticipants({

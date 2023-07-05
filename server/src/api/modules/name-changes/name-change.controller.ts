@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { ForbiddenError } from '../../errors';
 import * as nameChangeServices from './name-change.services';
+import * as playerUtils from '../players/player.utils';
 import * as adminGuard from '../../guards/admin.guard';
 import { getNumber, getString, getEnum } from '../../util/validation';
 import { ControllerResponse } from '../../util/routing';
@@ -68,4 +69,20 @@ async function deny(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: result };
 }
 
-export { index, submit, bulkSubmit, details, approve, deny };
+// POST /names/:username/clear-history
+// REQUIRES ADMIN PASSWORD
+async function clearHistory(req: Request): Promise<ControllerResponse> {
+  if (!adminGuard.checkAdminPermissions(req)) {
+    throw new ForbiddenError('Incorrect admin password.');
+  }
+
+  const playerId = await playerUtils.resolvePlayerId(getString(req.params.username));
+  const { count } = await nameChangeServices.clearNameChangeHistory({ playerId });
+
+  return {
+    statusCode: 200,
+    response: { count, message: `Successfully deleted ${count} name changes.` }
+  };
+}
+
+export { index, submit, bulkSubmit, details, approve, deny, clearHistory };
