@@ -1228,6 +1228,25 @@ describe('Group API', () => {
       expect(response.body.message).toBe('Incorrect verification code.');
     });
 
+    it('should not delete, incorrect admin override (invalid verification code)', async () => {
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}`).send({
+        adminPassword: 'xxx-xxx-xxx'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+    });
+
+    it('should not delete, incorrect admin override (incorrect verification code)', async () => {
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}`).send({
+        adminPassword: 'xxx-xxx-xxx',
+        verificationCode: 'xxx-xxx-xxx'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+    });
+
     it('should delete', async () => {
       const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode
@@ -1239,6 +1258,27 @@ describe('Group API', () => {
       const fetchConfirmResponse = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(fetchConfirmResponse.status).toBe(404);
       expect(fetchConfirmResponse.body.message).toBe('Group not found.');
+    });
+
+    it('should delete (admin override)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: 'Delete soon',
+        members: [{ username: 'harry', role: 'owner' }]
+      });
+      expect(createResponse.status).toBe(201);
+
+      const before = await api.get(`/groups/${createResponse.body.group.id}`);
+      expect(before.status).toBe(200);
+
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        adminPassword: env.ADMIN_PASSWORD
+      });
+
+      expect(deleteResponse.status).toBe(200);
+      expect(deleteResponse.body).toMatchObject({ message: 'Successfully deleted group: Delete soon' });
+
+      const after = await api.get(`/groups/${createResponse.body.group.id}`);
+      expect(after.status).toBe(404);
     });
   });
 

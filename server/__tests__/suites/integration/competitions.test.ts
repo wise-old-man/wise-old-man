@@ -3400,6 +3400,25 @@ describe('Competition API', () => {
       expect(response.body.message).toBe('Incorrect verification code.');
     });
 
+    it('should not delete, incorrect admin override (invalid verification code)', async () => {
+      const response = await api.delete(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
+        adminPassword: 'xxx-xxx-xxx'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+    });
+
+    it('should not delete, incorrect admin override (incorrect verification code)', async () => {
+      const response = await api.delete(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
+        adminPassword: 'xxx-xxx-xxx',
+        verificationCode: 'xxx-xxx-xxx'
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+    });
+
     it('should delete', async () => {
       const response = await api.delete(`/competitions/${globalData.testCompetitionOngoing.id}`).send({
         verificationCode: globalData.testCompetitionOngoing.verificationCode
@@ -3425,6 +3444,30 @@ describe('Competition API', () => {
 
       expect(fetchConfirmResponse.status).toBe(404);
       expect(fetchConfirmResponse.body.message).toBe('Competition not found.');
+    });
+
+    it('should delete (admin override)', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Delete soon',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        endsAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        participants: ['harry']
+      });
+      expect(createResponse.status).toBe(201);
+
+      const before = await api.get(`/competitions/${createResponse.body.competition.id}`);
+      expect(before.status).toBe(200);
+
+      const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
+        adminPassword: env.ADMIN_PASSWORD
+      });
+
+      expect(deleteResponse.status).toBe(200);
+      expect(deleteResponse.body).toMatchObject({ message: 'Successfully deleted competition: Delete soon' });
+
+      const after = await api.get(`/competitions/${createResponse.body.competition.id}`);
+      expect(after.status).toBe(404);
     });
   });
 
