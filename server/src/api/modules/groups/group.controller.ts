@@ -164,10 +164,12 @@ async function addMembers(req: Request): Promise<ControllerResponse> {
 
 // DELETE /groups/:id/members
 async function removeMembers(req: Request): Promise<ControllerResponse> {
-  const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
+  if (!('adminPassword' in req.body) || !adminGuard.checkAdminPermissions(req)) {
+    const isVerifiedCode = await verificationGuard.verifyGroupCode(req);
 
-  if (!isVerifiedCode) {
-    throw new ForbiddenError('Incorrect verification code.');
+    if (!isVerifiedCode) {
+      throw new ForbiddenError('Incorrect verification code.');
+    }
   }
 
   const result = await groupServices.removeMembers({

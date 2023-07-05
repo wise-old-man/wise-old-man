@@ -1056,6 +1056,31 @@ describe('Group API', () => {
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
 
+    it('should not remove members, incorrect admin override (invalid verification code)', async () => {
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
+        adminPassword: 'xxx-xxx-xxx',
+        members: ['sethmare']
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+    });
+
+    it('should not remove members, incorrect admin override (incorrect verification code)', async () => {
+      const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
+        adminPassword: 'xxx-xxx-xxx',
+        verificationCode: 'xxx-xxx-xxx',
+        members: ['sethmare']
+      });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+    });
+
     it('should not remove members (invalid members list)', async () => {
       const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
@@ -1132,6 +1157,48 @@ describe('Group API', () => {
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
+    });
+
+    it('should remove members (admin override)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: 'Delete soon',
+        members: [{ username: 'harry', role: 'owner' }]
+      });
+      expect(createResponse.status).toBe(201);
+
+      const before = await api.get(`/groups/${createResponse.body.group.id}`);
+      expect(before.status).toBe(200);
+
+      const removeResponse = await api.delete(`/groups/${createResponse.body.group.id}/members`).send({
+        adminPassword: env.ADMIN_PASSWORD,
+        members: ['harry']
+      });
+
+      expect(removeResponse.status).toBe(200);
+      expect(removeResponse.body).toMatchObject({
+        count: 1,
+        message: 'Successfully removed 1 members.'
+      });
+
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(
+        createResponse.body.group.id,
+        expect.objectContaining({ length: 1 })
+      );
+
+      const after = await api.get(`/groups/${createResponse.body.group.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.memberCount).toBe(0); // had 1 previously
+
+      // ensure group.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
+      );
+
+      // TODO: could use the admin override here
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
     });
   });
 

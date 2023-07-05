@@ -1760,6 +1760,24 @@ describe('Competition API', () => {
       expect(response.body.message).toMatch('Incorrect verification code.');
     });
 
+    it('should not remove participants, incorrect admin override (invalid verification code)', async () => {
+      const response = await api
+        .delete(`/competitions/${globalData.testCompetitionStarting.id}/participants`)
+        .send({ adminPassword: 'xxx-xxx-xxx', participants: ['psikoi'] });
+
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+    });
+
+    it('should not remove participants, incorrect admin override (incorrect verification code)', async () => {
+      const response = await api
+        .delete(`/competitions/${globalData.testCompetitionStarting.id}/participants`)
+        .send({ adminPassword: 'xxx-xxx-xxx', verificationCode: 'xxx-xxx-xxx', members: ['psikoi'] });
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Incorrect verification code.');
+    });
+
     it('should not remove participants (undefined participant list)', async () => {
       const response = await api
         .delete(`/competitions/${globalData.testCompetitionStarting.id}/participants`)
@@ -1856,6 +1874,45 @@ describe('Competition API', () => {
       expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
         new Date(before.body.updatedAt).getTime()
       );
+    });
+
+    it('should remove participants (admin override)', async () => {
+      const createResponse = await api.post('/competitions').send({
+        title: 'Delete soon',
+        metric: 'smithing',
+        startsAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        endsAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        participants: ['harry']
+      });
+      expect(createResponse.status).toBe(201);
+
+      const before = await api.get(`/competitions/${createResponse.body.competition.id}`);
+      expect(before.status).toBe(200);
+
+      const removeResponse = await api
+        .delete(`/competitions/${createResponse.body.competition.id}/participants`)
+        .send({ adminPassword: env.ADMIN_PASSWORD, participants: ['harry'] });
+
+      expect(removeResponse.status).toBe(200);
+      expect(removeResponse.body).toMatchObject({
+        count: 1,
+        message: 'Successfully removed 1 participants.'
+      });
+
+      const after = await api.get(`/competitions/${createResponse.body.competition.id}`);
+      expect(after.status).toBe(200);
+      expect(after.body.participantCount).toBe(0); // had 1 previously
+
+      // ensure competition.updatedAt has been updated
+      expect(new Date(after.body.updatedAt).getTime()).toBeGreaterThan(
+        new Date(before.body.updatedAt).getTime()
+      );
+
+      // TODO: could use the admin override here
+      const deleteResponse = await api.delete(`/competitions/${createResponse.body.competition.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
     });
   });
 
