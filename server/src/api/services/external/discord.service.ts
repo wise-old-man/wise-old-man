@@ -41,7 +41,7 @@ function dispatch(type: string, payload: unknown) {
   }
 
   axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
-    logger.error(e);
+    logger.error('Error sending discord event.', e);
   });
 }
 

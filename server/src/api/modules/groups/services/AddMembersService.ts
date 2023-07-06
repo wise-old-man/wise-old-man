@@ -38,67 +38,69 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
     );
   }
 
-  // Find all existing members' ids
-  const existingIds = (
-    await prisma.membership.findMany({
-      where: { groupId: params.id },
-      select: { playerId: true }
+  const count = await prisma
+    .$transaction(async transaction => {
+      // Find all existing members' ids
+      const existingIds = (
+        await transaction.membership.findMany({
+          where: { groupId: params.id },
+          select: { playerId: true }
+        })
+      ).map(p => p.playerId);
+
+      // Find or create all players with the given usernames
+      const players = await playerServices.findPlayers({
+        usernames: params.members.map(m => m.username),
+        createIfNotFound: true
+      });
+
+      // Filter out any already existing usersnames to find the new unique usernames
+      const newPlayers =
+        existingIds.length === 0 ? players : players.filter(p => !existingIds.includes(p.id));
+
+      if (!newPlayers || newPlayers.length === 0) {
+        throw new BadRequestError('All players given are already members.');
+      }
+
+      const newMemberships = newPlayers.map(player => {
+        const role = params.members.find(m => standardize(m.username) === player.username)?.role;
+
+        if (!role) return;
+
+        return { groupId: params.id, playerId: player.id, role };
+      });
+
+      const { count } = await transaction.membership.createMany({
+        data: newMemberships
+      });
+
+      await transaction.group.update({
+        where: { id: params.id },
+        data: { updatedAt: new Date() }
+      });
+
+      const newActivites = newMemberships.map(membership => {
+        return {
+          groupId: membership.groupId,
+          playerId: membership.playerId,
+          type: ActivityType.JOINED
+        };
+      });
+
+      await transaction.memberActivity
+        .createMany({ data: newActivites })
+        .then(() => groupEvents.onMembersJoined(newMemberships));
+
+      logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
+
+      return count;
     })
-  ).map(p => p.playerId);
-
-  // Find or create all players with the given usernames
-  const players = await playerServices.findPlayers({
-    usernames: params.members.map(m => m.username),
-    createIfNotFound: true
-  });
-
-  // Filter out any already existing usersnames to find the new unique usernames
-  const newPlayers = existingIds.length === 0 ? players : players.filter(p => !existingIds.includes(p.id));
-
-  if (!newPlayers || newPlayers.length === 0) {
-    throw new BadRequestError('All players given are already members.');
-  }
-
-  const newMemberships = newPlayers.map(player => {
-    const role = params.members.find(m => standardize(m.username) === player.username)?.role;
-
-    if (!role) return;
-
-    return { groupId: params.id, playerId: player.id, role };
-  });
-
-  const { count } = await prisma.membership.createMany({
-    data: newMemberships
-  });
-
-  try {
-    await prisma.group.update({
-      where: { id: params.id },
-      data: { updatedAt: new Date() }
+    .catch(error => {
+      logger.error('Failed to add memers', error);
+      throw new ServerError('Failed to add members.');
     });
-  } catch (error) {
-    throw new ServerError('Failed to add members.');
-  }
 
-  const newActivites = newMemberships.map(membership => {
-    return {
-      groupId: membership.groupId,
-      playerId: membership.playerId,
-      type: ActivityType.JOINED
-    };
-  });
-
-  try {
-    await prisma.memberActivity
-      .createMany({ data: newActivites })
-      .then(async () => await groupEvents.onMembersJoined(newMemberships));
-  } catch (error) {
-    throw new ServerError('Failed to create join member activities');
-  }
-
-  logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
-
-  return { count };
+  return { count: count };
 }
 
 export { addMembers };
