@@ -3,13 +3,14 @@ import { WebhookClient } from 'discord.js';
 import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
 import { FlaggedPlayerReviewContext } from '../../../utils';
-import prisma, { Achievement, Player, Competition } from '../../../prisma';
+import prisma, { Achievement, Player, Competition, MemberActivity } from '../../../prisma';
 import logger from '../../util/logging';
 import {
   CompetitionDetails,
   CompetitionWithParticipations
 } from '../../modules/competitions/competition.types';
 import * as playerServices from '../../modules/players/player.services';
+import { ActivityType, GroupRole } from '../../../prisma/enum-adapter';
 
 export interface EventPeriodDelay {
   hours?: number;
@@ -40,7 +41,7 @@ function dispatch(type: string, payload: unknown) {
   }
 
   axios.post(env.DISCORD_BOT_API_URL, { type, data: payload }).catch(e => {
-    logger.error('Error sending discord event.', e);
+    logger.error(e);
   });
 }
 
@@ -111,6 +112,10 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
   memberships.forEach(({ groupId }) => {
     dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
   });
+}
+
+async function dispatchMemberRoleChanged(memberActivity: MemberActivity, previousRole: GroupRole) {
+  dispatch(ActivityType.CHANGED_ROLE, { memberActivity, previousRole });
 }
 
 /**
@@ -217,5 +222,6 @@ export {
   dispatchCompetitionStarted,
   dispatchCompetitionEnded,
   dispatchCompetitionStarting,
-  dispatchCompetitionEnding
+  dispatchCompetitionEnding,
+  dispatchMemberRoleChanged
 };

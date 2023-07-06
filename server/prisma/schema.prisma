@@ -540,9 +540,9 @@ model Snapshot {
 model MemberActivity {
   groupId   Int
   playerId  Int
-  type      AchievementType
+  type      ActivityType
   role      GroupRole?
-  createdAt DateTime
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
 
   // Constraints
   @@id([groupId, playerId, createdAt])
@@ -1235,10 +1235,10 @@ enum Metric {
   @@map("metric")
 }
 
-enum AchievementType {
+enum ActivityType {
   joined
   left
   changed_role
 
-  @@map("achievement_type")
+  @@map("activity_type")
 }

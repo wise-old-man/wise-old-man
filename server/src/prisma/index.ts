@@ -12,7 +12,8 @@ import {
   Group,
   Membership,
   Prisma,
-  Country
+  Country,
+  MemberActivity
 } from '@prisma/client';
 import { DenyContext, SkipContext, isComputedMetric } from '../utils';
 import { NameChangeStatus } from './enum-adapter';
@@ -127,6 +128,7 @@ export {
   Record,
   Snapshot,
   Achievement,
+  MemberActivity,
   // Enums
   Country,
   NameChangeStatus,

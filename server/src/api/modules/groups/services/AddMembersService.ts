@@ -4,7 +4,9 @@ import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
+import { ActivityType } from '../../../../prisma/enum-adapter';
 import * as playerServices from '../../players/player.services';
+import * as groupEvents from '../group.events';
 
 const MEMBER_INPUT_SCHEMA = z.object(
   {
@@ -76,6 +78,22 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
     });
   } catch (error) {
     throw new ServerError('Failed to add members.');
+  }
+
+  const newActivites = newMemberships.map(membership => {
+    return {
+      groupId: membership.groupId,
+      playerId: membership.playerId,
+      type: ActivityType.JOINED
+    };
+  });
+
+  try {
+    await prisma.memberActivity
+      .createMany({ data: newActivites })
+      .then(async () => await groupEvents.onMembersJoined(newMemberships));
+  } catch (error) {
+    throw new ServerError('Failed to create join member activities');
   }
 
   logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);

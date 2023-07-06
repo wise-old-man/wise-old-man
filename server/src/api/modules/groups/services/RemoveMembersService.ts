@@ -2,7 +2,9 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { ServerError, BadRequestError } from '../../../errors';
 import logger from '../../../util/logging';
+import { ActivityType } from '../../../../prisma/enum-adapter';
 import * as playerServices from '../../players/player.services';
+import * as groupEvents from '../group.events';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -42,6 +44,26 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
     });
   } catch (error) {
     throw new ServerError('Failed to remove members.');
+  }
+
+  const newActivites = playersToRemove.map(player => {
+    return {
+      groupId: params.id,
+      playerId: player.id,
+      type: ActivityType.LEFT
+    };
+  });
+
+  try {
+    await prisma.memberActivity.createMany({ data: newActivites }).then(
+      async () =>
+        await groupEvents.onMembersLeft(
+          params.id,
+          playersToRemove.map(p => p.id)
+        )
+    );
+  } catch (error) {
+    throw new ServerError('Failed to create left member activities');
   }
 
   logger.moderation(`[Group:${params.id}] (${playersToRemove.map(p => p.id)}) removed`);

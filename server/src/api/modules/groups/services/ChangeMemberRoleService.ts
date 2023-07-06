@@ -4,6 +4,8 @@ import { GroupRole } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
 import { MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
+import { ActivityType } from '../../../../prisma/enum-adapter';
+import * as groupEvents from '../group.events';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -59,7 +61,28 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
     }
   });
 
-  return { ...updatedMembership, player: modifyPlayer(updatedMembership.player) };
+  try {
+    await prisma.memberActivity
+      .create({
+        data: {
+          groupId: membership.groupId,
+          playerId: membership.playerId,
+          type: ActivityType.CHANGED_ROLE,
+          role: params.role,
+          createdAt: new Date()
+        }
+      })
+      .then(async newMemberActivity => {
+        await groupEvents.onMemberRoleChanged(newMemberActivity, membership.role);
+      });
+  } catch (error) {
+    throw new ServerError('Failed to create changed_role member activity');
+  }
+
+  return {
+    ...updatedMembership,
+    player: modifyPlayer(updatedMembership.player)
+  };
 }
 
 export { changeMemberRole };

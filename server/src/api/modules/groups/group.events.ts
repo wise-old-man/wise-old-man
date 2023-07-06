@@ -1,11 +1,16 @@
-import { Membership, PlayerType } from '../../../utils';
+import { GroupRole, Membership, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
+import { MemberActivity } from '../../../prisma';
 import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
-async function onMembersJoined(memberships: Membership[]) {
+async function onMemberRoleChanged(memberActivity: MemberActivity, previousRole: GroupRole) {
+  await metrics.trackEffect(discordService.dispatchMemberRoleChanged, memberActivity, previousRole);
+}
+
+async function onMembersJoined(memberships: Omit<Membership, 'createdAt' | 'updatedAt'>[]) {
   const groupId = memberships[0].groupId;
   const playerIds = memberships.map(m => m.playerId);
 
@@ -36,4 +41,4 @@ async function onMembersLeft(groupId: number, playerIds: number[]) {
   await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);
 }
 
-export { onMembersJoined, onMembersLeft };
+export { onMembersJoined, onMembersLeft, onMemberRoleChanged };
