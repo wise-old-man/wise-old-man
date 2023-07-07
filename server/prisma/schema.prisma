@@ -548,7 +548,7 @@ model MemberActivity {
   @@id([groupId, playerId, createdAt])
   // Indices
   @@index([groupId, createdAt(sort: Desc)], map: "member_activity_group_id_created_at")
-  //Map
+  // Map
   @@map("member_activity")
 }
 

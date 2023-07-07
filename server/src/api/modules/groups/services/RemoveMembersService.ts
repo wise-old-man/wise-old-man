@@ -73,7 +73,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
       throw new ServerError('Failed to remove members');
     });
 
-  return { count: count };
+  return { count };
 }
 
 export { removeMembers };

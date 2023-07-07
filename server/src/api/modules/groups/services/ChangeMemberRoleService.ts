@@ -19,31 +19,31 @@ type ChangeMemberRoleService = z.infer<typeof inputSchema>;
 async function changeMemberRole(payload: ChangeMemberRoleService): Promise<MembershipWithPlayer> {
   const params = inputSchema.parse(payload);
 
+  const membership = await prisma.membership.findFirst({
+    where: {
+      groupId: params.id,
+      player: { username: standardize(params.username) }
+    }
+  });
+
+  if (!membership) {
+    const group = await prisma.group.findFirst({
+      where: { id: params.id }
+    });
+
+    if (group) {
+      throw new BadRequestError(`${params.username} is not a member of ${group.name}.`);
+    } else {
+      throw new ServerError('Failed to change member role.');
+    }
+  }
+
+  if (membership.role === params.role) {
+    throw new BadRequestError(`${params.username} is already a ${membership.role}.`);
+  }
+
   const result = await prisma
     .$transaction(async transaction => {
-      const membership = await transaction.membership.findFirst({
-        where: {
-          groupId: params.id,
-          player: { username: standardize(params.username) }
-        }
-      });
-
-      if (!membership) {
-        const group = await transaction.group.findFirst({
-          where: { id: params.id }
-        });
-
-        if (group) {
-          throw new BadRequestError(`${params.username} is not a member of ${group.name}.`);
-        } else {
-          throw new ServerError('Failed to change member role.');
-        }
-      }
-
-      if (membership.role === params.role) {
-        throw new BadRequestError(`${params.username} is already a ${membership.role}.`);
-      }
-
       const updatedMembership = await transaction.membership.update({
         where: {
           playerId_groupId: {
@@ -85,8 +85,9 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
     })
     .catch(error => {
       logger.error('Failed to change member role', error);
-      throw error;
+      throw new ServerError('Failed to change member role.');
     });
+
   return result;
 }
 
