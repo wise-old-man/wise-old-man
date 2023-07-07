@@ -5,6 +5,7 @@ import logger from '../../../util/logging';
 import { ActivityType } from '../../../../prisma/enum-adapter';
 import * as playerServices from '../../players/player.services';
 import * as groupEvents from '../group.events';
+import { fetchGroupDetails } from './FetchGroupDetailsService';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -18,14 +19,15 @@ type RemoveMembersService = z.infer<typeof inputSchema>;
 async function removeMembers(payload: RemoveMembersService): Promise<{ count: number }> {
   const params = inputSchema.parse(payload);
 
-  /*
-    TODO: Compare these players to players in the group
-    Right now it just assumes these players are members of the group
-    which leads to false member left activities
-  */
-  const playersToRemove = await playerServices.findPlayers({
-    usernames: params.usernames
-  });
+  const groupMembers = (await fetchGroupDetails({ id: params.id })).memberships.map(
+    membership => membership.player.id
+  );
+
+  const playersToRemove = (
+    await playerServices.findPlayers({
+      usernames: params.usernames
+    })
+  ).filter(player => groupMembers.includes(player.id));
 
   if (!playersToRemove || !playersToRemove.length) {
     throw new BadRequestError('No valid tracked players were given.');
