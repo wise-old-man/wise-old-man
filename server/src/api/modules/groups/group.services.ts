@@ -13,3 +13,4 @@ export * from './services/ResetGroupCodeService';
 export * from './services/SearchGroupsService';
 export * from './services/UpdateAllMembersService';
 export * from './services/VerifyGroupService';
+export * from './services/FetchGroupActivityService';

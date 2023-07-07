@@ -192,6 +192,17 @@ async function competitions(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
+// GET /groups/:id/activity
+async function activity(req: Request): Promise<ControllerResponse> {
+  const results = await groupServices.fetchGroupActivities({
+    groupId: getNumber(req.params.id),
+    limit: getNumber(req.query.limit),
+    offset: getNumber(req.query.offset)
+  });
+
+  return { statusCode: 200, response: results };
+}
+
 // GET /groups/:id/gained
 async function gained(req: Request): Promise<ControllerResponse> {
   const results = await deltaServices.findGroupDeltas({
@@ -298,6 +309,7 @@ export {
   nameChanges,
   statistics,
   competitions,
+  activity,
   addMembers,
   removeMembers,
   migrateTemple,

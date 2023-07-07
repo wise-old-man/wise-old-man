@@ -15,6 +15,14 @@ sidebar_position: 1
 
 <br />
 
+### (`Enum`) Activity Type
+
+```bash
+'joined', 'left', 'changed_role'
+```
+
+<br />
+
 ### `(Object)` Group
 
 | Field       | Type    | Description                              |
@@ -264,5 +272,14 @@ Used as an input for group modification endpoints (create, edit, add members, et
   }
 }
 ```
+
+### `(Object)` Group Activity
+
+| Field     | Type                                                                  | Description                              |
+| :-------- | :-------------------------------------------------------------------- | :--------------------------------------- |
+| player    | [Player](/players-api/player-type-definitions#object-player)          | The activity entry's parent player ID.   |
+| type      | [ActivityType](/groups-api/group-type-definitions#enum-activity-type) | The type of activity                     |
+| role      | [GroupRole](/groups-api/group-type-definitions#enum-group-role)?      | The player's role (rank) in the group.   |
+| createdAt | date                                                                  | The date at which the activity happened. |
 
 <br />

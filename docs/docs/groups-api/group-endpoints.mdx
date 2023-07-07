@@ -1766,3 +1766,103 @@ const statistics = await client.groups.getGroupStatistics(123);
   }
 }
 ```
+
+## Get Group Activity
+
+<Endpoint verb="GET" path="/groups/:id/activity" />
+<br />
+
+Fetches a group's activity. Returns an array of [GroupActivity](/groups-api/group-type-definitions#object-group-activity) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/activity?limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const activity = await client.groups.getGroupActivity(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "player": {
+      "id": 4156,
+      "username": "rro",
+      "displayName": "Rro",
+      "type": "regular",
+      "build": "main",
+      "status": "active",
+      "country": null,
+      "exp": 694156199,
+      "ehp": 1635.832120000001,
+      "ehb": 1160.30569,
+      "ttm": 0,
+      "tt200m": 11177.97617,
+      "registeredAt": "2023-07-03T21:54:22.107Z",
+      "updatedAt": "2023-07-06T11:24:30.890Z",
+      "lastChangedAt": "2023-07-06T11:24:30.890Z",
+      "lastImportedAt": "2023-07-03T21:54:26.329Z"
+    },
+    "type": "changed_role",
+    "role": "gnome_child",
+    "createdAt": "2023-07-07T19:53:32.162Z"
+  },
+  {
+    "player": {
+      "id": 4156,
+      "username": "rro",
+      "displayName": "Rro",
+      "type": "regular",
+      "build": "main",
+      "status": "active",
+      "country": null,
+      "exp": 694156199,
+      "ehp": 1635.832120000001,
+      "ehb": 1160.30569,
+      "ttm": 0,
+      "tt200m": 11177.97617,
+      "registeredAt": "2023-07-03T21:54:22.107Z",
+      "updatedAt": "2023-07-06T11:24:30.890Z",
+      "lastChangedAt": "2023-07-06T11:24:30.890Z",
+      "lastImportedAt": "2023-07-03T21:54:26.329Z"
+    },
+    "type": "joined",
+    "role": null,
+    "createdAt": "2023-07-07T18:33:12.029Z"
+  }
+]
+```

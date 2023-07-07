@@ -1,6 +1,7 @@
 import { GroupRole } from '../../../utils';
 import { Group, Membership, Player } from '../../../prisma';
 import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
+import { ActivityType } from '../../../prisma/enum-adapter';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
@@ -51,6 +52,13 @@ export interface GroupHiscoresEntry {
     | GroupHiscoresBossItem
     | GroupHiscoresActivityItem
     | GroupHiscoresComputedMetricItem;
+}
+
+export interface GroupActivitiesEntry {
+  player: Player;
+  type: ActivityType;
+  role?: GroupRole;
+  createdAt: Date;
 }
 
 export interface GroupStatistics {
