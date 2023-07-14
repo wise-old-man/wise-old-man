@@ -22,6 +22,7 @@ const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const onMembersLeftEvent = jest.spyOn(groupEvents, 'onMembersLeft');
 const onMembersJoinedEvent = jest.spyOn(groupEvents, 'onMembersJoined');
+const onMemberRoleChangedEvent = jest.spyOn(groupEvents, 'onMemberRoleChanged');
 
 const P_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/psikoi_hiscores.txt`;
 const LT_HISCORES_FILE_PATH = `${__dirname}/../../data/hiscores/lynx_titan_hiscores.txt`;
@@ -823,6 +824,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.message).toBe('Group not found.');
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (invalid verification code)', async () => {
@@ -833,6 +836,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'verificationCode' is required.");
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (incorrect verification code)', async () => {
@@ -844,6 +849,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(403);
       expect(response.body.message).toBe('Incorrect verification code.');
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (undefined username)', async () => {
@@ -853,6 +860,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Parameter 'username' is undefined.");
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (undefined role)', async () => {
@@ -862,6 +871,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'role'.");
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (empty role)', async () => {
@@ -873,6 +884,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'role'.");
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (invalid role)', async () => {
@@ -884,6 +897,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Invalid enum value for 'role'.");
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (not a member)', async () => {
@@ -895,6 +910,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(`usbc is not a member of ${globalData.testGroupNoLeaders.name}.`);
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should not change role (already has role)', async () => {
@@ -906,6 +923,8 @@ describe('Group API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('sethmare is already a magician.');
+
+      expect(onMemberRoleChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should change role', async () => {
@@ -923,6 +942,18 @@ describe('Group API', () => {
         role: 'dragon',
         player: { username: 'sethmare' }
       });
+
+      const playerId = (await prisma.player.findFirst({ where: { username: 'sethmare' } })).id;
+
+      expect(onMemberRoleChangedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          role: 'dragon',
+          type: 'changed_role',
+          playerId,
+          groupId: globalData.testGroupNoLeaders.id
+        }),
+        'magician'
+      );
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
