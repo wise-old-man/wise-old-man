@@ -803,6 +803,25 @@ describe('Group API', () => {
 
       expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
 
+      const latestActivities = await prisma.memberActivity.findMany({
+        where: { groupId: globalData.testGroupNoLeaders.id },
+        orderBy: { createdAt: 'desc' },
+        take: 3
+      });
+
+      const playerIds = (
+        await prisma.player.findMany({
+          where: { username: { in: ['sethmare', 'rro', 'lynx titan'] } },
+          select: { id: true }
+        })
+      ).map(p => p.id);
+
+      expect(latestActivities.map(a => a.type)).toEqual(['joined', 'joined', 'joined']);
+
+      playerIds.forEach(playerId => {
+        expect(latestActivities.map(a => a.playerId)).toContain(playerId);
+      });
+
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
       expect(after.body.memberCount).toBe(8); // had 5 previously
@@ -954,6 +973,15 @@ describe('Group API', () => {
         }),
         'magician'
       );
+
+      const latestActivity = await prisma.memberActivity.findFirst({
+        where: { groupId: globalData.testGroupNoLeaders.id },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      expect(latestActivity.type).toBe('changed_role');
+      expect(latestActivity.role).toBe('dragon');
+      expect(latestActivity.playerId).toBe(playerId);
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
@@ -1181,6 +1209,25 @@ describe('Group API', () => {
         globalData.testGroupNoLeaders.id,
         expect.objectContaining({ length: 2 })
       );
+
+      const latestActivities = await prisma.memberActivity.findMany({
+        where: { groupId: globalData.testGroupNoLeaders.id },
+        orderBy: { createdAt: 'desc' },
+        take: 2
+      });
+
+      const playerIds = (
+        await prisma.player.findMany({
+          where: { username: { in: ['sethmare', 'zezima'] } },
+          select: { id: true }
+        })
+      ).map(p => p.id);
+
+      expect(latestActivities.map(a => a.type)).toEqual(['left', 'left']);
+
+      playerIds.forEach(playerId => {
+        expect(latestActivities.map(a => a.playerId)).toContain(playerId);
+      });
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);
