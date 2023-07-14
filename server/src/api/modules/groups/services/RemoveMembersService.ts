@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { ServerError, BadRequestError } from '../../../errors';
+import { BadRequestError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
+import * as groupEvents from '../group.events';
+import { ActivityType } from '../group.types';
 import { fetchGroupDetails } from './FetchGroupDetailsService';
 
 const inputSchema = z.object({
@@ -29,29 +31,48 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
     throw new BadRequestError('None of the players given were members of that group.');
   }
 
-  const { count } = await prisma.membership.deleteMany({
-    where: {
+  const newActivites = toRemovePlayerIds.map(playerId => {
+    return {
+      playerId,
       groupId: params.id,
-      playerId: { in: toRemovePlayerIds }
-    }
+      type: ActivityType.LEFT
+    };
   });
 
-  if (!count) {
-    throw new BadRequestError('None of the players given were members of that group.');
-  }
+  const removedCount = await prisma
+    .$transaction(async transaction => {
+      const { count } = await transaction.membership.deleteMany({
+        where: {
+          groupId: params.id,
+          playerId: { in: toRemovePlayerIds }
+        }
+      });
 
-  try {
-    await prisma.group.update({
-      where: { id: params.id },
-      data: { updatedAt: new Date() }
+      // This shouldn't ever happen since these get validated before entering the transaction,
+      // but on the off chance that they do, throw a generic error to be caught by the catch block.
+      if (count === 0) {
+        throw new Error();
+      }
+
+      await transaction.group.update({
+        where: { id: params.id },
+        data: { updatedAt: new Date() }
+      });
+
+      await transaction.memberActivity.createMany({ data: newActivites });
+
+      return count;
+    })
+    .catch(error => {
+      logger.error('Failed to remove members', error);
+      throw new ServerError('Failed to remove members');
     });
-  } catch (error) {
-    throw new ServerError('Failed to remove members.');
-  }
+
+  groupEvents.onMembersLeft(params.id, toRemovePlayerIds);
 
   logger.moderation(`[Group:${params.id}] (${toRemovePlayerIds}) removed`);
 
-  return { count };
+  return { count: removedCount };
 }
 
 export { removeMembers };

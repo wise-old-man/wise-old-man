@@ -5,7 +5,7 @@ import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
-async function onMembersJoined(memberships: Membership[]) {
+async function onMembersJoined(memberships: Pick<Membership, 'playerId' | 'groupId' | 'role'>[]) {
   const groupId = memberships[0].groupId;
   const playerIds = memberships.map(m => m.playerId);
 

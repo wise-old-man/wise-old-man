@@ -18,26 +18,6 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     return;
   }
 
-  if (params.model === 'Membership') {
-    if (params.action === 'createMany') {
-      const newMemberships = params.args.data;
-
-      if (newMemberships?.length > 0) {
-        groupEvents.onMembersJoined(newMemberships);
-      }
-      return;
-    }
-
-    if (params.action === 'deleteMany' && params.args?.where) {
-      const removedPlayerIds = params.args.where.playerId.in;
-
-      if (removedPlayerIds?.length > 0 && result?.count > 0) {
-        groupEvents.onMembersLeft(params.args.where.groupId, removedPlayerIds);
-      }
-      return;
-    }
-  }
-
   if (params.model === 'Group' && params.action === 'create') {
     const newMemberships = result?.memberships;
 

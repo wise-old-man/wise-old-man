@@ -549,6 +549,21 @@ model Snapshot {
   @@map("snapshots")
 }
 
+model MemberActivity {
+  groupId   Int
+  playerId  Int
+  type      ActivityType
+  role      GroupRole?
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+
+  // Constraints
+  @@id([groupId, playerId, createdAt])
+  // Indices
+  @@index([groupId, createdAt(sort: Desc)], map: "member_activity_group_id_created_at")
+  // Map
+  @@map("member_activity")
+}
+
 enum NameChangeStatus {
   pending
   denied
@@ -1235,4 +1250,12 @@ enum Metric {
   guardians_of_the_rift
 
   @@map("metric")
+}
+
+enum ActivityType {
+  joined
+  left
+  changed_role
+
+  @@map("activity_type")
 }
