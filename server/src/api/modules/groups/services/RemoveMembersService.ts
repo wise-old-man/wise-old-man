@@ -3,6 +3,7 @@ import prisma from '../../../../prisma';
 import { ServerError, BadRequestError } from '../../../errors';
 import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
+import { fetchGroupDetails } from './FetchGroupDetailsService';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -16,18 +17,22 @@ type RemoveMembersService = z.infer<typeof inputSchema>;
 async function removeMembers(payload: RemoveMembersService): Promise<{ count: number }> {
   const params = inputSchema.parse(payload);
 
-  const playersToRemove = await playerServices.findPlayers({
-    usernames: params.usernames
-  });
+  const groupMemberIds = (await fetchGroupDetails({ id: params.id })).memberships.map(
+    membership => membership.player.id
+  );
 
-  if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid tracked players were given.');
+  const toRemovePlayerIds = (await playerServices.findPlayers({ usernames: params.usernames }))
+    .map(p => p.id)
+    .filter(id => groupMemberIds.includes(id));
+
+  if (!toRemovePlayerIds || !toRemovePlayerIds.length) {
+    throw new BadRequestError('None of the players given were members of that group.');
   }
 
   const { count } = await prisma.membership.deleteMany({
     where: {
       groupId: params.id,
-      playerId: { in: playersToRemove.map(p => p.id) }
+      playerId: { in: toRemovePlayerIds }
     }
   });
 
@@ -44,7 +49,7 @@ async function removeMembers(payload: RemoveMembersService): Promise<{ count: nu
     throw new ServerError('Failed to remove members.');
   }
 
-  logger.moderation(`[Group:${params.id}] (${playersToRemove.map(p => p.id)}) removed`);
+  logger.moderation(`[Group:${params.id}] (${toRemovePlayerIds}) removed`);
 
   return { count };
 }

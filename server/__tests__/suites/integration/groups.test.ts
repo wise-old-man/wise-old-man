@@ -1108,11 +1108,11 @@ describe('Group API', () => {
     it('should not remove members (no valid players found)', async () => {
       const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
-        members: ['boom_']
+        members: ['boom_'] // does not exist on WOM
       });
 
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe('No valid tracked players were given.');
+      expect(response.body.message).toBe('None of the players given were members of that group.');
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
     });
@@ -1120,7 +1120,7 @@ describe('Group API', () => {
     it('should not remove members (not members)', async () => {
       const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
-        members: ['swampletics']
+        members: ['swampletics'] // exists on WOM, but not a member of the group
       });
 
       expect(response.status).toBe(400);
@@ -1135,7 +1135,9 @@ describe('Group API', () => {
 
       const response = await api.delete(`/groups/${globalData.testGroupNoLeaders.id}/members`).send({
         verificationCode: globalData.testGroupNoLeaders.verificationCode,
-        members: ['SETHmare  ', 'ZEZIMA', '__BOOM'] // boom should get ignored
+        members: ['SETHmare  ', 'ZEZIMA', '__BOOM', 'psikoi']
+        // "boom" should get ignored because it's not tracked yet
+        // "psikoi" should get ignored because it's not a member
       });
 
       expect(response.status).toBe(200);
