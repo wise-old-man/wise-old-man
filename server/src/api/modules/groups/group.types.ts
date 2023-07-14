@@ -1,5 +1,5 @@
 import { GroupRole } from '../../../utils';
-import { Group, Membership, Player } from '../../../prisma';
+import { Group, Membership, Player, MemberActivity } from '../../../prisma';
 import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export { ActivityType } from '../../../prisma/enum-adapter';
@@ -79,4 +79,4 @@ export interface TempleGroupData {
   leaders: string[];
 }
 
-export { Group, Membership };
+export { Group, Membership, MemberActivity };
