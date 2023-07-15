@@ -2,6 +2,7 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
 import logger from '../../../util/logging';
+import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
 import { ActivityType, MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
@@ -72,7 +73,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
         }
       });
 
-      groupEvents.onMembersRolesChanged([{ ...activity, previousRole: membership.role }]);
+      groupEvents.onMembersRolesChanged([omit({ ...activity, previousRole: membership.role }, 'createdAt')]);
 
       return updatedMembership;
     })
