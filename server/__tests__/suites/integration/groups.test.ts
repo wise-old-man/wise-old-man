@@ -563,6 +563,63 @@ describe('Group API', () => {
         previousRole: 'member',
         type: 'changed_role'
       });
+
+      const latestActivities = await prisma.memberActivity.findMany({
+        where: { groupId: globalData.testGroupOneLeader.id },
+        orderBy: { createdAt: 'desc' },
+        take: 6
+      });
+
+      expect(latestActivities.map(a => a.type)).toEqual([
+        'left',
+        'left',
+        'joined',
+        'joined',
+        'joined',
+        'changed_role'
+      ]);
+
+      expect(latestActivities[0]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: before.body.memberships.find(m => m.player.username === 'test player').playerId,
+        role: null,
+        type: 'left'
+      });
+
+      expect(latestActivities[1]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: before.body.memberships.find(m => m.player.username === 'alt player').playerId,
+        role: null,
+        type: 'left'
+      });
+
+      expect(latestActivities[2]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: response.body.memberships.find(m => m.player.username === 'psikoi').playerId,
+        role: null,
+        type: 'joined'
+      });
+
+      expect(latestActivities[3]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: response.body.memberships.find(m => m.player.username === 'alexsuperfly').playerId,
+        role: null,
+        type: 'joined'
+      });
+
+      expect(latestActivities[4]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: response.body.memberships.find(m => m.player.username === 'rorro').playerId,
+        role: null,
+        type: 'joined'
+      });
+
+      expect(latestActivities[5]).toMatchObject({
+        groupId: globalData.testGroupOneLeader.id,
+        playerId: response.body.memberships.find(m => m.player.username === 'zezima').playerId,
+        role: 'firemaker',
+        type: 'changed_role'
+      });
     });
 
     it('should edit name', async () => {
