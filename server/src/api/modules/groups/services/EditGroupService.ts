@@ -175,77 +175,84 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
   const joinedEvents: MemberJoinedEvent[] = [];
   const changedRoleEvents: MemberRoleChangeEvent[] = [];
 
-  await prisma.$transaction(async transaction => {
-    // Remove any players that are no longer members
-    const removedPlayerIds = await removeExcessMemberships(
-      transaction as unknown as PrismaTypes.TransactionClient,
-      params.id,
-      memberships,
-      nextUsernames
-    );
+  await prisma
+    .$transaction(async transaction => {
+      // Remove any players that are no longer members
+      const removedPlayerIds = await removeExcessMemberships(
+        transaction as unknown as PrismaTypes.TransactionClient,
+        params.id,
+        memberships,
+        nextUsernames
+      );
 
-    // Register "player left" events
-    leftEvents.push(
-      ...removedPlayerIds.map(id => ({ playerId: id, groupId: params.id, type: ActivityType.LEFT }))
-    );
+      // Register "player left" events
+      leftEvents.push(
+        ...removedPlayerIds.map(id => ({ playerId: id, groupId: params.id, type: ActivityType.LEFT }))
+      );
 
-    // Add any missing memberships
-    const addedPlayerIds = await addMissingMemberships(
-      transaction as unknown as PrismaTypes.TransactionClient,
-      params.id,
-      missingPlayers,
-      params.members
-    );
+      // Add any missing memberships
+      const addedPlayerIds = await addMissingMemberships(
+        transaction as unknown as PrismaTypes.TransactionClient,
+        params.id,
+        missingPlayers,
+        params.members
+      );
 
-    // Register "player joined" events
-    joinedEvents.push(...addedPlayerIds.map(m => ({ ...m, type: ActivityType.JOINED })));
+      // Register "player joined" events
+      joinedEvents.push(...addedPlayerIds.map(m => ({ ...m, type: ActivityType.JOINED })));
 
-    const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, params.members);
+      const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, params.members);
 
-    const currentRoleMap = new Map<number, GroupRole>(Array.from(memberships).map(m => [m.playerId, m.role]));
+      const currentRoleMap = new Map<number, GroupRole>(
+        Array.from(memberships).map(m => [m.playerId, m.role])
+      );
 
-    for (const role of roleUpdatesMap.keys()) {
-      // Update all memberships with the new role
-      await transaction.membership.updateMany({
-        where: {
-          groupId: params.id,
-          playerId: { in: roleUpdatesMap.get(role) }
-        },
-        data: {
-          role
-        }
+      for (const role of roleUpdatesMap.keys()) {
+        // Update all memberships with the new role
+        await transaction.membership.updateMany({
+          where: {
+            groupId: params.id,
+            playerId: { in: roleUpdatesMap.get(role) }
+          },
+          data: {
+            role
+          }
+        });
+
+        // Register "player role changed" events
+        changedRoleEvents.push(
+          ...roleUpdatesMap.get(role).map(id => ({
+            playerId: id,
+            groupId: params.id,
+            role,
+            type: ActivityType.CHANGED_ROLE,
+            previousRole: currentRoleMap.get(id)
+          }))
+        );
+      }
+
+      await transaction.memberActivity.createMany({
+        data: [
+          ...leftEvents,
+          ...joinedEvents.map(a => ({ ...a, role: null })),
+          ...changedRoleEvents.map(p => omit(p, 'previousRole'))
+        ]
       });
 
-      // Register "player role changed" events
-      changedRoleEvents.push(
-        ...roleUpdatesMap.get(role).map(id => ({
-          playerId: id,
-          groupId: params.id,
-          role,
-          type: ActivityType.CHANGED_ROLE,
-          previousRole: currentRoleMap.get(id)
-        }))
-      );
-    }
-
-    await transaction.memberActivity.createMany({
-      data: [
-        ...leftEvents,
-        ...joinedEvents.map(a => ({ ...a, role: null })),
-        ...changedRoleEvents.map(p => omit(p, 'previousRole'))
-      ]
+      await transaction.group.update({
+        where: {
+          id: params.id
+        },
+        data: {
+          ...updatedGroupFields,
+          updatedAt: new Date() // Force update the "updatedAt" field
+        }
+      });
+    })
+    .catch(error => {
+      logger.error('Failed to edit group', error);
+      throw new ServerError('Failed to edit group');
     });
-
-    await transaction.group.update({
-      where: {
-        id: params.id
-      },
-      data: {
-        ...updatedGroupFields,
-        updatedAt: new Date() // Force update the "updatedAt" field
-      }
-    });
-  });
 
   // If no error was thrown by this point, dispatch all events
   onMembersLeft(leftEvents);
