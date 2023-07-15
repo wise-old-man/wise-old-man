@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import env, { isTesting } from '../../../env';
-import { ActivityType, FlaggedPlayerReviewContext, GroupRole } from '../../../utils';
-import prisma, { Achievement, Competition, MemberActivity, Player } from '../../../prisma';
+import prisma, { Achievement, Competition, Player } from '../../../prisma';
+import { FlaggedPlayerReviewContext, MemberRoleChangeEvent } from '../../../utils';
 import { omit } from '../../util/objects';
 import logger from '../../util/logging';
 import {
@@ -44,8 +44,8 @@ function dispatch(type: string, payload: unknown) {
   });
 }
 
-async function dispatchMemberRoleChanged(memberActivity: MemberActivity, previousRole: GroupRole) {
-  dispatch(ActivityType.CHANGED_ROLE, { memberActivity, previousRole });
+async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
+  dispatch('GROUP_MEMBERS_CHANGED_ROLES', { events });
 }
 
 /**
@@ -224,5 +224,5 @@ export {
   dispatchCompetitionEnded,
   dispatchCompetitionStarting,
   dispatchCompetitionEnding,
-  dispatchMemberRoleChanged
+  dispatchMembersRolesChanged
 };

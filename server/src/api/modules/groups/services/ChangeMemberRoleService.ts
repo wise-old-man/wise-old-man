@@ -72,7 +72,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
         }
       });
 
-      groupEvents.onMemberRoleChanged(activity, membership.role);
+      groupEvents.onMembersRolesChanged([{ ...activity, previousRole: membership.role }]);
 
       return updatedMembership;
     })

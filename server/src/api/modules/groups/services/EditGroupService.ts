@@ -1,13 +1,14 @@
 import { z } from 'zod';
-import prisma, { Membership, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
+import prisma, { Membership, PrismaTypes, Player } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
-import { GroupDetails } from '../group.types';
+import { ActivityType, GroupDetails, MemberRoleChangeEvent } from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
+import { onMembersRolesChanged, onMembersJoined, onMembersLeft } from '../group.events';
 
 const MIN_NAME_ERROR = 'Group name must have at least one character.';
 
@@ -93,7 +94,16 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
     updatedGroupFields.homeworld = params.homeworld;
   }
 
-  const updatedGroup = await executeUpdate(params, updatedGroupFields);
+  await executeUpdate(params, updatedGroupFields);
+
+  const updatedGroup = await prisma.group.findFirst({
+    where: { id: params.id },
+    include: {
+      memberships: {
+        include: { player: true }
+      }
+    }
+  });
 
   if (!updatedGroup) {
     throw new ServerError('Failed to edit group. (EditGroupService)');
@@ -115,85 +125,166 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 }
 
 async function executeUpdate(params: EditGroupParams, updatedGroupFields: PrismaTypes.GroupUpdateInput) {
-  // This action updates the group's fields and returns all the new data + memberships,
-  // If ran inside a transaction, it should be the last thing to run, to ensure it returns updated data
-  const groupUpdatePromise = prisma.group.update({
-    where: {
-      id: params.id
-    },
-    data: {
-      ...updatedGroupFields,
-      updatedAt: new Date() // Force update the "updatedAt" field
-    },
-    include: {
-      memberships: { include: { player: true } }
-    }
-  });
-
-  if (params.members) {
-    const memberships = await prisma.membership.findMany({
-      where: { groupId: params.id },
-      include: { player: true }
+  if (!params.members) {
+    await prisma.group.update({
+      where: {
+        id: params.id
+      },
+      data: {
+        ...updatedGroupFields,
+        updatedAt: new Date() // Force update the "updatedAt" field
+      }
     });
 
-    // The usernames of all current (pre-edit) members
-    const currentUsernames = memberships.map(m => m.player.username);
-
-    // The usernames of all future (post-edit) members
-    const nextUsernames = params.members.map(m => standardize(m.username));
-
-    // These players should be added to the group
-    const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
-
-    // These players should remain in the group
-    const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
-
-    // Find or create all players with the given usernames
-    const nextPlayers = await playerServices.findPlayers({
-      usernames: nextUsernames,
-      createIfNotFound: true
-    });
-
-    const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
-    const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
-
-    const results = await prisma.$transaction([
-      // Remove any players that are no longer members
-      removeExcessMemberships(params.id, memberships, nextUsernames),
-      // Add any missing memberships
-      addMissingMemberships(params.id, missingPlayers, params.members),
-      // Update any role changes
-      ...updateExistingRoles(params.id, keptPlayers, memberships, params.members),
-      // Update the group
-      groupUpdatePromise
-    ]);
-
-    return results[results.length - 1] as Awaited<typeof groupUpdatePromise>;
+    return;
   }
 
-  return await groupUpdatePromise;
+  const memberships = await prisma.membership.findMany({
+    where: { groupId: params.id },
+    include: { player: true }
+  });
+
+  // The usernames of all current (pre-edit) members
+  const currentUsernames = memberships.map(m => m.player.username);
+
+  // The usernames of all future (post-edit) members
+  const nextUsernames = params.members.map(m => standardize(m.username));
+
+  // These players should be added to the group
+  const missingUsernames = nextUsernames.filter(u => !currentUsernames.includes(u));
+
+  // These players should remain in the group
+  const keptUsernames = nextUsernames.filter(u => currentUsernames.includes(u));
+
+  // Find or create all players with the given usernames
+  const nextPlayers = await playerServices.findPlayers({
+    usernames: nextUsernames,
+    createIfNotFound: true
+  });
+
+  const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
+  const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
+
+  const leftActivities: Array<{ playerId: number }> = [];
+  const joinedActivities: Array<{ playerId: number; role: GroupRole }> = [];
+  const changedRoleEvents: MemberRoleChangeEvent[] = [];
+
+  await prisma.$transaction(async transaction => {
+    // Remove any players that are no longer members
+    const removedPlayerIds = await removeExcessMemberships(
+      transaction as unknown as PrismaTypes.TransactionClient,
+      params.id,
+      memberships,
+      nextUsernames
+    );
+
+    // Register "player left" actions
+    leftActivities.push(...removedPlayerIds.map(id => ({ playerId: id })));
+
+    // Add any missing memberships
+    const addedPlayerIds = await addMissingMemberships(
+      transaction as unknown as PrismaTypes.TransactionClient,
+      params.id,
+      missingPlayers,
+      params.members
+    );
+
+    // Register "player joined" actions
+    joinedActivities.push(...addedPlayerIds.map(m => ({ playerId: m.playerId, role: m.role })));
+
+    const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, params.members);
+
+    const currentRoleMap = new Map<number, GroupRole>(Array.from(memberships).map(m => [m.playerId, m.role]));
+
+    for (const role of roleUpdatesMap.keys()) {
+      // Update all memberships with the new role
+      await transaction.membership.updateMany({
+        where: {
+          groupId: params.id,
+          playerId: { in: roleUpdatesMap.get(role) }
+        },
+        data: {
+          role
+        }
+      });
+
+      // Register "player role changed" events
+      changedRoleEvents.push(
+        ...roleUpdatesMap.get(role).map(id => ({
+          playerId: id,
+          groupId: params.id,
+          role,
+          type: ActivityType.CHANGED_ROLE,
+          previousRole: currentRoleMap.get(id)
+        }))
+      );
+    }
+
+    await transaction.memberActivity.createMany({
+      data: [
+        ...leftActivities.map(p => ({
+          groupId: params.id,
+          playerId: p.playerId,
+          type: ActivityType.LEFT
+        })),
+        ...joinedActivities.map(p => ({
+          groupId: params.id,
+          playerId: p.playerId,
+          type: ActivityType.JOINED
+        })),
+        ...changedRoleEvents.map(p => omit(p, 'previousRole'))
+      ]
+    });
+
+    await transaction.group.update({
+      where: {
+        id: params.id
+      },
+      data: {
+        ...updatedGroupFields,
+        updatedAt: new Date() // Force update the "updatedAt" field
+      }
+    });
+  });
+
+  // If no error was thrown by this point, dispatch all events
+
+  onMembersLeft(
+    params.id,
+    leftActivities.map(a => a.playerId)
+  );
+
+  onMembersJoined(joinedActivities.map(a => ({ groupId: params.id, playerId: a.playerId, role: a.role })));
+
+  onMembersRolesChanged(changedRoleEvents);
 }
 
-function removeExcessMemberships(
+async function removeExcessMemberships(
+  transaction: PrismaTypes.TransactionClient,
   groupId: number,
   currentMemberships: (Membership & { player: Player })[],
   nextUsernames: string[]
-): PrismaPromise<PrismaTypes.BatchPayload> {
-  const excessMembers = currentMemberships.filter(m => !nextUsernames.includes(m.player.username));
+) {
+  const excessMemberIds = currentMemberships
+    .filter(m => !nextUsernames.includes(m.player.username))
+    .map(m => m.playerId);
 
-  return prisma.membership.deleteMany({
+  await transaction.membership.deleteMany({
     where: {
       groupId,
-      playerId: { in: excessMembers.map(m => m.playerId) }
+      playerId: { in: excessMemberIds }
     }
   });
+
+  return excessMemberIds;
 }
 
-function addMissingMemberships(
+async function addMissingMemberships(
+  transaction: PrismaTypes.TransactionClient,
   groupId: number,
   missingPlayers: Player[],
   memberInputs: EditGroupParams['members']
-): PrismaPromise<PrismaTypes.BatchPayload> {
+) {
   const roleMap: { [playerId: number]: GroupRole } = {};
 
   missingPlayers.forEach(player => {
@@ -207,18 +298,25 @@ function addMissingMemberships(
     throw new ServerError('Failed to construct roleMap (EditGroupService: addMissingMemberships)');
   }
 
-  return prisma.membership.createMany({
-    data: missingPlayers.map(p => ({ playerId: p.id, groupId, role: roleMap[p.id] })),
+  const payload = missingPlayers.map(p => ({
+    playerId: p.id,
+    groupId,
+    role: roleMap[p.id]
+  }));
+
+  await transaction.membership.createMany({
+    data: payload,
     skipDuplicates: true
   });
+
+  return payload;
 }
 
-function updateExistingRoles(
-  groupId: number,
+function calculateRoleChangeMaps(
   keptPlayers: Player[],
   currentMemberships: (Membership & { player: Player })[],
   memberInputs: EditGroupParams['members']
-): PrismaPromise<PrismaTypes.BatchPayload>[] {
+) {
   // Note: reversing the array here to find the role that was last declared for a given username
   const reversedInputs = memberInputs.reverse();
 
@@ -255,17 +353,7 @@ function updateExistingRoles(
     }
   });
 
-  return [...newRoleMap.keys()].map(role => {
-    return prisma.membership.updateMany({
-      where: {
-        groupId,
-        playerId: { in: newRoleMap.get(role) }
-      },
-      data: {
-        role
-      }
-    });
-  });
+  return newRoleMap;
 }
 
 export { editGroup };
