@@ -92,9 +92,9 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
         data: { updatedAt: new Date() }
       });
 
-      await transaction.memberActivity
-        .createMany({ data: newActivites })
-        .then(() => groupEvents.onMembersJoined(newMemberships));
+      await transaction.memberActivity.createMany({ data: newActivites });
+
+      groupEvents.onMembersJoined(newMemberships.map(m => ({ ...m, type: ActivityType.JOINED })));
 
       return count;
     })

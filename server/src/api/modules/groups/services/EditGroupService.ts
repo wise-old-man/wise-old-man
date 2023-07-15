@@ -4,7 +4,13 @@ import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
-import { ActivityType, GroupDetails, MemberRoleChangeEvent } from '../group.types';
+import {
+  ActivityType,
+  GroupDetails,
+  MemberJoinedEvent,
+  MemberLeftEvent,
+  MemberRoleChangeEvent
+} from '../group.types';
 import { isValidUsername, sanitize, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
 import { sanitizeName } from '../group.utils';
@@ -165,8 +171,8 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
   const keptPlayers = nextPlayers.filter(p => keptUsernames.includes(p.username));
   const missingPlayers = nextPlayers.filter(p => missingUsernames.includes(p.username));
 
-  const leftActivities: Array<{ playerId: number }> = [];
-  const joinedActivities: Array<{ playerId: number; role: GroupRole }> = [];
+  const leftEvents: MemberLeftEvent[] = [];
+  const joinedEvents: MemberJoinedEvent[] = [];
   const changedRoleEvents: MemberRoleChangeEvent[] = [];
 
   await prisma.$transaction(async transaction => {
@@ -178,8 +184,10 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
       nextUsernames
     );
 
-    // Register "player left" actions
-    leftActivities.push(...removedPlayerIds.map(id => ({ playerId: id })));
+    // Register "player left" events
+    leftEvents.push(
+      ...removedPlayerIds.map(id => ({ playerId: id, groupId: params.id, type: ActivityType.LEFT }))
+    );
 
     // Add any missing memberships
     const addedPlayerIds = await addMissingMemberships(
@@ -189,8 +197,8 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
       params.members
     );
 
-    // Register "player joined" actions
-    joinedActivities.push(...addedPlayerIds.map(m => ({ playerId: m.playerId, role: m.role })));
+    // Register "player joined" events
+    joinedEvents.push(...addedPlayerIds.map(m => ({ ...m, type: ActivityType.JOINED })));
 
     const roleUpdatesMap = calculateRoleChangeMaps(keptPlayers, memberships, params.members);
 
@@ -222,16 +230,8 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
 
     await transaction.memberActivity.createMany({
       data: [
-        ...leftActivities.map(p => ({
-          groupId: params.id,
-          playerId: p.playerId,
-          type: ActivityType.LEFT
-        })),
-        ...joinedActivities.map(p => ({
-          groupId: params.id,
-          playerId: p.playerId,
-          type: ActivityType.JOINED
-        })),
+        ...leftEvents,
+        ...joinedEvents.map(a => ({ ...a, role: null })),
         ...changedRoleEvents.map(p => omit(p, 'previousRole'))
       ]
     });
@@ -248,14 +248,8 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
   });
 
   // If no error was thrown by this point, dispatch all events
-
-  onMembersLeft(
-    params.id,
-    leftActivities.map(a => a.playerId)
-  );
-
-  onMembersJoined(joinedActivities.map(a => ({ groupId: params.id, playerId: a.playerId, role: a.role })));
-
+  onMembersLeft(leftEvents);
+  onMembersJoined(joinedEvents);
   onMembersRolesChanged(changedRoleEvents);
 }
 

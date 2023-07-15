@@ -1,4 +1,4 @@
-import { MemberRoleChangeEvent, Membership, PlayerType } from '../../../utils';
+import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
 import * as discordService from '../../services/external/discord.service';
@@ -10,9 +10,9 @@ async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
   console.log(events);
 }
 
-async function onMembersJoined(memberships: Pick<Membership, 'playerId' | 'groupId' | 'role'>[]) {
-  const groupId = memberships[0].groupId;
-  const playerIds = memberships.map(m => m.playerId);
+async function onMembersJoined(events: MemberJoinedEvent[]) {
+  const groupId = events[0].groupId;
+  const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
   await metrics.trackEffect(competitionServices.addToGroupCompetitions, { groupId, playerIds });
@@ -33,7 +33,10 @@ async function onMembersJoined(memberships: Pick<Membership, 'playerId' | 'group
   });
 }
 
-async function onMembersLeft(groupId: number, playerIds: number[]) {
+async function onMembersLeft(events: MemberLeftEvent[]) {
+  const groupId = events[0].groupId;
+  const playerIds = events.map(m => m.playerId);
+
   // Remove these players from ongoing/upcoming group competitions
   await metrics.trackEffect(competitionServices.removeFromGroupCompetitions, { groupId, playerIds });
 

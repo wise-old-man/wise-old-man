@@ -83,4 +83,8 @@ export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'> & {
   previousRole: GroupRole;
 };
 
+export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt'>;
+
+export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'role'>;
+
 export { Group, Membership, MemberActivity };

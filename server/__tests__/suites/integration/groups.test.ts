@@ -503,10 +503,8 @@ describe('Group API', () => {
       expect(response.body.memberships.filter(m => m.role === 'leader').length).toBe(1);
 
       // 2 players removed
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(
-        globalData.testGroupOneLeader.id,
-        expect.objectContaining({ length: 2 })
-      );
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 2 }));
+
       // 3 new players added
       expect(onMembersJoinedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 3 }));
     });
@@ -1205,10 +1203,7 @@ describe('Group API', () => {
         message: 'Successfully removed 2 members.'
       });
 
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(
-        globalData.testGroupNoLeaders.id,
-        expect.objectContaining({ length: 2 })
-      );
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 2 }));
 
       const latestActivities = await prisma.memberActivity.findMany({
         where: { groupId: globalData.testGroupNoLeaders.id },
@@ -1260,10 +1255,7 @@ describe('Group API', () => {
         message: 'Successfully removed 1 members.'
       });
 
-      expect(onMembersLeftEvent).toHaveBeenCalledWith(
-        createResponse.body.group.id,
-        expect.objectContaining({ length: 1 })
-      );
+      expect(onMembersLeftEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
 
       const after = await api.get(`/groups/${createResponse.body.group.id}`);
       expect(after.status).toBe(200);
