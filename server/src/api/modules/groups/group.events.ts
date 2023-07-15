@@ -6,8 +6,7 @@ import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
 async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  // await metrics.trackEffect(discordService.dispatchMemberRoleChanged, memberActivity, previousRole);
-  console.log(events);
+  await metrics.trackEffect(discordService.dispatchMembersRolesChanged, events);
 }
 
 async function onMembersJoined(events: MemberJoinedEvent[]) {

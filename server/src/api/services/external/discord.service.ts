@@ -44,10 +44,6 @@ function dispatch(type: string, payload: unknown) {
   });
 }
 
-async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  dispatch('GROUP_MEMBERS_CHANGED_ROLES', { events });
-}
-
 /**
  * Select all new achievements and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
@@ -117,6 +113,10 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
   memberships.forEach(({ groupId }) => {
     dispatch('MEMBER_NAME_CHANGED', { groupId, player, previousName: previousDisplayName });
   });
+}
+
+async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
+  dispatch('GROUP_MEMBERS_CHANGED_ROLES', events);
 }
 
 /**
