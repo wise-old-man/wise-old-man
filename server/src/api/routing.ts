@@ -76,12 +76,12 @@ class RoutingHandler {
     this.router.use((error, req, res, _) => {
       const { method, query, params, body, originalUrl } = req;
 
-      const message = error.message || 'Unknown server error.';
+      const message = error.statusCode ? error.message : 'Unknown server error.';
       const statusCode = error.statusCode || 500;
 
       const requestDuration = Date.now() - res.locals.requestStartTime;
 
-      logger.error(`${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${message})`, {
+      logger.error(`${statusCode} ${method} ${originalUrl} (${requestDuration} ms) - (${error.message})`, {
         error: error.data,
         query,
         params,
