@@ -7,6 +7,7 @@ import logger from './util/logging';
 import { metricAbbreviation } from './util/middlewares';
 import competitionRoutes from './modules/competitions/competition.routes';
 import deltaRoutes from './modules/deltas/delta.routes';
+import generalRoutes from './modules/general/general.routes';
 import efficiencyRoutes from './modules/efficiency/efficiency.routes';
 import groupRoutes from './modules/groups/group.routes';
 import nameRoutes from './modules/name-changes/name-change.routes';
@@ -39,6 +40,7 @@ class RoutingHandler {
     this.router.get('/', (req, res) => res.json(true));
 
     // Register all the modules to the router
+    this.router.use('/', generalRoutes);
     this.router.use('/players', playerRoutes);
     this.router.use('/deltas', deltaRoutes);
     this.router.use('/records', recordRoutes);
