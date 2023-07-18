@@ -1,6 +1,6 @@
 {
   "name": "wise-old-man-server",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "description": "",
   "author": "Psikoi",
   "license": "ISC",
@@ -18,6 +18,7 @@
     "test": "cross-env ./scripts/run-tests.sh"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.1",
     "@prisma/client": "^4.2.1",
     "@sentry/node": "^7.15.0",
     "@sentry/tracing": "^7.15.0",
