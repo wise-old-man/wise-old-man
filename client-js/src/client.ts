@@ -7,6 +7,7 @@ import RecordsClient from './clients/RecordsClient';
 import EfficiencyClient from './clients/EfficiencyClient';
 import NameChangesClient from './clients/NameChangesClient';
 import CompetitionsClient from './clients/CompetitionsClient';
+import BaseAPIClient from './clients/BaseAPIClient';
 
 interface WOMClientOptions {
   apiKey?: string;
@@ -14,7 +15,7 @@ interface WOMClientOptions {
   baseAPIUrl?: string;
 }
 
-export default class WOMClient {
+export default class WOMClient extends BaseAPIClient {
   public deltas: DeltasClient;
   public groups: GroupsClient;
   public players: PlayersClient;
@@ -36,6 +37,8 @@ export default class WOMClient {
       baseURL: options?.baseAPIUrl || config.baseAPIUrl,
       headers
     });
+
+    super(axiosInstance);
 
     this.deltas = new DeltasClient(axiosInstance);
     this.groups = new GroupsClient(axiosInstance);
