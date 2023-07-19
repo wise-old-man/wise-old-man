@@ -18,7 +18,7 @@ async function readFile(path: string) {
 }
 
 async function resetDatabase() {
-  const modelNames = Object.keys(prisma).filter(k => !k.startsWith('_'));
+  const modelNames = Object.keys(prisma).filter(k => !['_', '$'].includes(k[0]));
 
   for (const model of modelNames) {
     await prisma[model].deleteMany();
