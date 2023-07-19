@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { Period, Metric, PlayerType, PlayerBuild, Country, DeltaLeaderboardEntry } from '../../../../utils';
-import prisma, { PrismaTypes, modifyDeltas, Delta, PrismaPlayer, modifyPlayer } from '../../../../prisma';
+import prisma, {
+  PrismaTypes,
+  modifyDeltas,
+  Delta,
+  PrismaPlayer,
+  modifyPlayer,
+  PrismaDelta
+} from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
@@ -46,7 +53,7 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
       orderBy: [{ [params.metric]: 'desc' }],
       take: MAX_RESULTS
     })
-    .then(modifyDeltas);
+    .then(d => modifyDeltas(d as unknown as PrismaDelta[]));
 
   // Transform the database objects into the tighter result response objects
   const results = deltas.map((d: Delta & { player: PrismaPlayer }) => ({
