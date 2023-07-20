@@ -81,6 +81,7 @@ export interface TempleGroupData {
 
 export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'> & {
   previousRole: GroupRole;
+  displayName: string;
 };
 
 export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt'>;
