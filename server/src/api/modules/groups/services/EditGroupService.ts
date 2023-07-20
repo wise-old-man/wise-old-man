@@ -255,9 +255,9 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
     });
 
   // If no error was thrown by this point, dispatch all events
-  onMembersLeft(leftEvents);
-  onMembersJoined(joinedEvents);
-  onMembersRolesChanged(changedRoleEvents);
+  if (leftEvents.length > 0) onMembersLeft(leftEvents);
+  if (joinedEvents.length > 0) onMembersJoined(joinedEvents);
+  if (changedRoleEvents.length > 0) onMembersRolesChanged(changedRoleEvents);
 }
 
 async function removeExcessMemberships(

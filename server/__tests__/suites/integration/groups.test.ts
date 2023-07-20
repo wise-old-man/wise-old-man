@@ -475,6 +475,7 @@ describe('Group API', () => {
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit members list', async () => {
@@ -635,6 +636,7 @@ describe('Group API', () => {
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
 
       globalData.testGroupOneLeader.name = response.body.name;
     });
@@ -658,6 +660,7 @@ describe('Group API', () => {
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
     });
 
     it('should edit name (capitalization)', async () => {
@@ -671,6 +674,171 @@ describe('Group API', () => {
 
       expect(onMembersLeftEvent).not.toHaveBeenCalled();
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+    });
+
+    it('should edit (only add players)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: `Delete soon ${Date.now()}`,
+        members: [{ username: 'psikoi', role: 'magician' }]
+      });
+      expect(createResponse.status).toBe(201);
+
+      jest.resetAllMocks();
+
+      const editResponse = await api.put(`/groups/${createResponse.body.group.id}`).send({
+        members: [
+          { username: 'psikoi', role: 'magician' },
+          { username: 'cookmeplox', role: 'cook' },
+          { username: 'riblet', role: 'deputy_owner' }
+        ], // adding cookmeplox and riblet
+        verificationCode: createResponse.body.verificationCode
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body).toMatchObject({ memberCount: 3 });
+
+      expect(editResponse.body.memberships.length).toBe(3);
+      expect(editResponse.body.memberships[0].player.username).toBe('riblet');
+      expect(editResponse.body.memberships[1].player.username).toBe('cookmeplox');
+      expect(editResponse.body.memberships[2].player.username).toBe('psikoi');
+
+      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      expect(joinedEvents.length).toBe(2);
+
+      const { id, memberships } = editResponse.body;
+
+      expect(joinedEvents[0]).toEqual({
+        groupId: id,
+        role: 'cook',
+        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
+        type: 'joined'
+      });
+
+      expect(joinedEvents[1]).toEqual({
+        groupId: id,
+        role: 'deputy_owner',
+        playerId: memberships.find(m => m.player.username === 'riblet').playerId,
+        type: 'joined'
+      });
+
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should edit (only remove players)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: `Delete soon ${Date.now()}`,
+        members: [
+          { username: 'cookmeplox', role: 'cook' },
+          { username: 'riblet', role: 'deputy_owner' },
+          { username: 'psikoi', role: 'magician' }
+        ]
+      });
+      expect(createResponse.status).toBe(201);
+
+      jest.resetAllMocks();
+
+      const editResponse = await api.put(`/groups/${createResponse.body.group.id}`).send({
+        members: [{ username: 'psikoi', role: 'magician' }], // removing cookmeplox and riblet
+        verificationCode: createResponse.body.verificationCode
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body).toMatchObject({ memberCount: 1 });
+
+      expect(editResponse.body.memberships.length).toBe(1);
+      expect(editResponse.body.memberships[0].player.username).toBe('psikoi');
+
+      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      expect(leftEvents.length).toBe(2);
+
+      const { id, memberships } = createResponse.body.group;
+
+      expect(leftEvents[0]).toEqual({
+        groupId: id,
+        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
+        type: 'left'
+      });
+
+      expect(leftEvents[1]).toEqual({
+        groupId: id,
+        playerId: memberships.find(m => m.player.username === 'riblet').playerId,
+        type: 'left'
+      });
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersRolesChangedEvent).not.toHaveBeenCalled();
+
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
+    });
+
+    it('should edit (only change roles)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: `Delete soon ${Date.now()}`,
+        members: [
+          { username: 'psikoi', role: 'member' },
+          { username: 'cookmeplox', role: 'owner' },
+          { username: 'riblet', role: 'deputy_owner' }
+        ]
+      });
+      expect(createResponse.status).toBe(201);
+
+      jest.resetAllMocks();
+
+      const editResponse = await api.put(`/groups/${createResponse.body.group.id}`).send({
+        members: [
+          { username: 'psikoi', role: 'owner' },
+          { username: 'cookmeplox', role: 'cook' },
+          { username: 'riblet', role: 'deputy_owner' }
+        ], // changing roles for psikoi and cookmeplox
+        verificationCode: createResponse.body.verificationCode
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body).toMatchObject({ memberCount: 3 });
+
+      expect(editResponse.body.memberships.length).toBe(3);
+      expect(editResponse.body.memberships[0].player.username).toBe('riblet');
+      expect(editResponse.body.memberships[1].player.username).toBe('psikoi');
+      expect(editResponse.body.memberships[2].player.username).toBe('cookmeplox');
+
+      const changedRoleEvents = onMembersRolesChangedEvent.mock.calls[0][0];
+      expect(changedRoleEvents.length).toBe(2);
+
+      const { id, memberships } = editResponse.body;
+
+      expect(changedRoleEvents[0]).toEqual({
+        groupId: id,
+        role: 'owner',
+        previousRole: 'member',
+        playerId: memberships.find(m => m.player.username === 'psikoi').playerId,
+        type: 'changed_role'
+      });
+
+      expect(changedRoleEvents[1]).toEqual({
+        groupId: id,
+        role: 'cook',
+        previousRole: 'owner',
+        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
+        type: 'changed_role'
+      });
+
+      expect(onMembersJoinedEvent).not.toHaveBeenCalled();
+      expect(onMembersLeftEvent).not.toHaveBeenCalled();
+
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
     });
   });
 
