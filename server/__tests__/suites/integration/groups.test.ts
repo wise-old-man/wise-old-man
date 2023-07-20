@@ -556,13 +556,15 @@ describe('Group API', () => {
       expect(onMembersRolesChangedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
 
       const roleChangeEvent = onMembersRolesChangedEvent.mock.calls[0][0][0];
+      const player = response.body.memberships.find(m => m.player.username === 'zezima');
 
       expect(roleChangeEvent).toEqual({
         groupId: globalData.testGroupOneLeader.id,
-        playerId: response.body.memberships.find(m => m.player.username === 'zezima').playerId,
+        playerId: player.playerId,
         role: 'firemaker',
         previousRole: 'member',
-        type: 'changed_role'
+        type: 'changed_role',
+        displayName: player.displayName
       });
 
       const latestActivities = await prisma.memberActivity.findMany({
@@ -615,11 +617,13 @@ describe('Group API', () => {
         type: 'joined'
       });
 
+      const playerZezima = response.body.memberships.find(m => m.player.username === 'zezima');
       expect(latestActivities[5]).toMatchObject({
         groupId: globalData.testGroupOneLeader.id,
-        playerId: response.body.memberships.find(m => m.player.username === 'zezima').playerId,
+        playerId: playerZezima.playerId,
         role: 'firemaker',
-        type: 'changed_role'
+        type: 'changed_role',
+        displayName: playerZezima.displayName
       });
     });
 
@@ -816,20 +820,24 @@ describe('Group API', () => {
 
       const { id, memberships } = editResponse.body;
 
+      const playerPsikoi = memberships.find(m => m.player.username === 'psikoi');
       expect(changedRoleEvents[0]).toEqual({
         groupId: id,
         role: 'owner',
         previousRole: 'member',
-        playerId: memberships.find(m => m.player.username === 'psikoi').playerId,
-        type: 'changed_role'
+        playerId: playerPsikoi.playerId,
+        type: 'changed_role',
+        displayName: playerPsikoi.displayName
       });
 
+      const playerCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
       expect(changedRoleEvents[1]).toEqual({
         groupId: id,
         role: 'cook',
         previousRole: 'owner',
-        playerId: memberships.find(m => m.player.username === 'cookmeplox').playerId,
-        type: 'changed_role'
+        playerId: playerCookmeplox.playerId,
+        type: 'changed_role',
+        displayName: playerCookmeplox.displayName
       });
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1265,17 +1273,18 @@ describe('Group API', () => {
         player: { username: 'sethmare' }
       });
 
-      const playerId = (await prisma.player.findFirst({ where: { username: 'sethmare' } })).id;
+      const playerSethmare = await prisma.player.findFirst({ where: { username: 'sethmare' } });
 
       expect(onMembersRolesChangedEvent).toHaveBeenCalledWith(expect.objectContaining({ length: 1 }));
       const event = onMembersRolesChangedEvent.mock.calls[0][0][0];
 
       expect(event).toEqual({
         groupId: globalData.testGroupNoLeaders.id,
-        playerId,
+        playerId: playerSethmare.id,
         type: 'changed_role',
         role: 'dragon',
-        previousRole: 'magician'
+        previousRole: 'magician',
+        displayName: playerSethmare.displayName
       });
 
       const latestActivity = await prisma.memberActivity.findFirst({
@@ -1285,7 +1294,7 @@ describe('Group API', () => {
 
       expect(latestActivity.type).toBe('changed_role');
       expect(latestActivity.role).toBe('dragon');
-      expect(latestActivity.playerId).toBe(playerId);
+      expect(latestActivity.playerId).toBe(playerSethmare.id);
 
       const after = await api.get(`/groups/${globalData.testGroupNoLeaders.id}`);
       expect(after.status).toBe(200);

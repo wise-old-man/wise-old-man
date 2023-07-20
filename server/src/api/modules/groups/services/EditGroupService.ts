@@ -227,7 +227,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
             role,
             type: ActivityType.CHANGED_ROLE,
             previousRole: currentRoleMap.get(id),
-            displayName: keptPlayers.filter(p => p.id === id)[0].displayName
+            displayName: keptPlayers.find(p => p.id === id).displayName
           }))
         );
       }
