@@ -7,7 +7,7 @@ export default [
     output: {
       dir: 'dist',
       format: 'cjs',
-      external: ['axios', 'dayjs', 'lodash'],
+      external: ['axios', 'dayjs'],
       sourcemap: false
     },
     plugins: [
