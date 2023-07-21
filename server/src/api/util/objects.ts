@@ -2,7 +2,7 @@ export function omit<T extends object, K extends keyof T>(
   object: T,
   ...fields: K[]
 ): Pick<T, Exclude<keyof T, K>> {
-  const clone = structuredClone(object);
+  const clone = { ...object };
 
   fields.forEach(f => {
     delete clone[f as keyof object];
