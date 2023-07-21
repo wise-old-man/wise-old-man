@@ -34,7 +34,7 @@ import {
 import { notFound } from "next/navigation";
 import { transformDates } from "~/utils/dates";
 
-const BASE_API_URL = "https://api.wiseoldman.net/v2";
+const BASE_API_URL = process.env.BASE_API_URL ?? "https://api.wiseoldman.net/v2";
 
 export type TimeRangeFilter =
   | {

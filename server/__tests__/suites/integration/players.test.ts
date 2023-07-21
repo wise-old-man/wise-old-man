@@ -1023,7 +1023,7 @@ describe('Player API', () => {
       expect(byUsernameResponse.status).toBe(404);
       expect(byUsernameResponse.body.message).toMatch('Player not found.');
 
-      const byIdResponse = await api.get('/players/id/4847847474');
+      const byIdResponse = await api.get('/players/id/48478474');
 
       expect(byIdResponse.status).toBe(404);
       expect(byIdResponse.body.message).toMatch('Player not found.');

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { WebhookClient } from 'discord.js';
-import { omit } from 'lodash';
 import env, { isTesting } from '../../../env';
 import { FlaggedPlayerReviewContext } from '../../../utils';
 import prisma, { Achievement, Player, Competition } from '../../../prisma';
+import { omit } from '../../util/objects';
 import logger from '../../util/logging';
 import {
   CompetitionDetails,

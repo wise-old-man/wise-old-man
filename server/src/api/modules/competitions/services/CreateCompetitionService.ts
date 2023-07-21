@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { omit } from 'lodash';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
 import * as playerServices from '../../players/player.services';
 import * as cryptService from '../../../services/external/crypt.service';

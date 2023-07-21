@@ -8,36 +8,21 @@ const fs = require('fs');
 
 const PRIVATE_MODEL_NAMES = ['Achievement', 'Record', 'Delta', 'Snapshot', 'Player', 'NameChange'];
 
-const START_TOKEN = 'export type Achievement';
-const END_TOKEN = ' * Enums';
-
-const PRISMA_DECLARATION_FILE_PATH = '../server/node_modules/.prisma/client/index.d.ts';
+const PRISMA_TYPES_DECLARATION_FILE_PATH = './prisma-models.d.ts';
 const BUILD_DECLARATION_FILE_PATH = './dist/index.d.ts';
 
-const buildContent = fs.readFileSync(BUILD_DECLARATION_FILE_PATH, { encoding: 'utf8' });
-const parsedBuildContent = buildContent.split('\n').splice(2).join('\n');
+const prismaTypesContent = fs.readFileSync(PRISMA_TYPES_DECLARATION_FILE_PATH, { encoding: 'utf8' });
 
-const prismaContent = fs.readFileSync(PRISMA_DECLARATION_FILE_PATH, { encoding: 'utf8' });
-const parsedPrismaContent = prismaContent
-  .substring(prismaContent.indexOf(START_TOKEN), prismaContent.indexOf(END_TOKEN))
-  .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
-  .replace('/**', '')
+let clientTypesContent = fs
+  .readFileSync(BUILD_DECLARATION_FILE_PATH, { encoding: 'utf8' })
   .split('\n')
-  .map(line => {
-    const privateModelMatch = PRIVATE_MODEL_NAMES.find(model => line.includes(`export type ${model} =`));
-
-    if (privateModelMatch) return line.replace(privateModelMatch, `${privateModelMatch}$1`);
-    return line;
-  })
+  .splice(2)
   .join('\n');
 
-let finalContent = `${parsedPrismaContent}\n${parsedBuildContent}`;
-
 PRIVATE_MODEL_NAMES.forEach(model => {
-  finalContent = finalContent.replaceAll(`${model}$1`, `Prisma_Base_${model}`);
+  clientTypesContent = clientTypesContent.replaceAll(`${model}$1`, `Prisma_Base_${model}`);
 });
 
-finalContent = finalContent.replaceAll('Prisma.JsonValue', 'unknown');
-finalContent = finalContent.replaceAll('export type Prisma_Base_', 'type Prisma_Base_');
+const finalContent = prismaTypesContent + '\n' + clientTypesContent;
 
 fs.writeFileSync(BUILD_DECLARATION_FILE_PATH, finalContent);

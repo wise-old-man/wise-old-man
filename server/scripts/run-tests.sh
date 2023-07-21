@@ -30,7 +30,7 @@ execute_lite() {
     exit $?;
 }
 
-if [ $1 = "ci" ]; then
+if [ "$1" = "ci" ]; then
     # Skip docker setup for CI runs
     setup;
     execute_lite $BASE;

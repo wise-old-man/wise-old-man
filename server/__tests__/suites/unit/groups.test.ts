@@ -4,6 +4,9 @@ describe('Util - Groups', () => {
   test('Props', () => {
     expect(GROUP_ROLES.some(t => !(t in GroupRoleProps))).toBe(false);
     expect(Object.keys(GroupRole).length).toBe(Object.keys(GroupRoleProps).length);
+
+    expect(GroupRoleProps[GroupRole.ARTISAN].name).toBe('Artisan');
+    expect(GroupRoleProps[GroupRole.LEADER].isPriveleged).toBe(true);
   });
 
   test('findGroupRole', () => {

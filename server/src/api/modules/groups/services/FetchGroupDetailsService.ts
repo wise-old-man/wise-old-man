@@ -1,7 +1,7 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma, { modifyPlayer } from '../../../../prisma';
 import { PRIVELEGED_GROUP_ROLES } from '../../../..//utils';
+import { omit } from '../../../util/objects';
 import { NotFoundError } from '../../../errors';
 import { GroupDetails } from '../group.types';
 
@@ -30,7 +30,7 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
   return {
-    ...omit(group, ['verificationHash']),
+    ...omit(group, 'verificationHash'),
     memberCount: group.memberships.length,
     // Sort the members list by role
     memberships: group.memberships

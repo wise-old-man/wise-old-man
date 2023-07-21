@@ -1,6 +1,6 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
+import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { MembershipWithGroup } from '../group.types';
 
@@ -37,7 +37,7 @@ async function findPlayerMemberships(payload: FindPlayerMembershipsParams): Prom
     return {
       ...membership,
       group: {
-        ...omit(membership.group, ['_count', 'verificationHash']),
+        ...omit(membership.group, '_count', 'verificationHash'),
         memberCount: membership.group._count.memberships
       }
     };

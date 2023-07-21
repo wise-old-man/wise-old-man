@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifySnapshots, PrismaTypes } from '../../../../prisma';
+import prisma, { modifySnapshots, PrismaSnapshot, PrismaTypes } from '../../../../prisma';
 import { Metric, getMetricValueKey, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
@@ -38,7 +38,7 @@ async function findPlayerSnapshotTimeline(
       orderBy: { createdAt: 'desc' },
       take: params.limit
     })
-    .then(modifySnapshots);
+    .then(s => modifySnapshots(s as unknown as PrismaSnapshot[]));
 
   const history = snapshots.map(snapshot => {
     return {

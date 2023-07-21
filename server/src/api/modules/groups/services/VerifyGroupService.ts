@@ -1,7 +1,7 @@
-import { omit } from 'lodash';
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
+import { omit } from '../../../util/objects';
 import logger from '../../../util/logging';
 import { GroupListItem } from '../group.types';
 
@@ -30,7 +30,7 @@ async function verifyGroup(payload: VerifyGroupService): Promise<GroupListItem> 
     logger.moderation(`[Group:${params.id}] Verified`);
 
     return {
-      ...omit(updatedGroup, ['_count', 'verificationHash']),
+      ...omit(updatedGroup, '_count', 'verificationHash'),
       memberCount: updatedGroup._count.memberships
     };
   } catch (error) {
