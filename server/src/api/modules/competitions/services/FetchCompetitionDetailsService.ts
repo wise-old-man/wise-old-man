@@ -5,7 +5,6 @@ import { getMetricValueKey, isComputedMetric, Metric } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
 import { CompetitionDetails } from '../competition.types';
 import * as deltaUtils from '../../deltas/delta.utils';
-import { Snapshot } from '@prisma/client';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -76,7 +75,7 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
       const diff = deltaUtils.calculateMetricDelta(
         modifiedPlayer,
         metric,
-        modifySnapshot(startSnapshot as Snapshot),
+        modifySnapshot(startSnapshot),
         modifySnapshot(endSnapshot)
       );
 
