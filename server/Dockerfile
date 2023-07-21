@@ -1,4 +1,4 @@
-FROM node:18.16.0
+FROM node:18-bullseye
 
 WORKDIR /wise-old-man/server
 
