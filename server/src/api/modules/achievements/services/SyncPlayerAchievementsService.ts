@@ -27,7 +27,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
     // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
     const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(latestSnapshots[0])).map(
       ({ name, metric, threshold }) => {
-        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE, accuracy: -1 };
+        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE, accuracy: null };
       }
     );
 
@@ -73,7 +73,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
       name,
       metric,
       threshold,
-      accuracy: missingAchievementData?.accuracy || -1,
+      accuracy: missingAchievementData?.accuracy || null,
       createdAt: missingAchievementData?.date || UNKNOWN_DATE
     };
   });

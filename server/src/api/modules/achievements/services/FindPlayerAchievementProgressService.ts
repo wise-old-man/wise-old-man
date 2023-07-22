@@ -45,7 +45,7 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
       ...d,
       playerId: params.id,
       createdAt: existingAchievement?.createdAt || null,
-      accuracy: existingAchievement?.accuracy || -1,
+      accuracy: existingAchievement?.accuracy || null,
       currentValue,
       absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
       relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold))
