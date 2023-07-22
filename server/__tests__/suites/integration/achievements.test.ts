@@ -8,7 +8,6 @@ import apiServer from '../../../src/api';
 import { Achievement, Metric, PlayerType } from '../../../src/utils';
 import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
-import { fixAchievementsAccuracy } from '../../../src/api/modules/achievements/achievement.services';
 import {
   registerCMLMock,
   registerHiscoresMock,
@@ -113,7 +112,7 @@ describe('Achievements API', () => {
 
       expect(fetchResponse.status).toBe(200);
       expect(fetchResponse.body.length).toBe(37);
-      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
+      expect(fetchResponse.body.filter(a => a.accuracy === null).length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
@@ -157,7 +156,7 @@ describe('Achievements API', () => {
         expect(fetchResponse.body.map(a => a.name).includes(ea.name)).toBe(true);
       });
 
-      expect(fetchResponse.body.filter(a => a.accuracy === -1).length).toBe(37);
+      expect(fetchResponse.body.filter(a => a.accuracy === null).length).toBe(37);
       expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(37);
     });
 
@@ -195,31 +194,14 @@ describe('Achievements API', () => {
       // Make sure all achievements have correct dates
       checkAchievementMatch(fetchResponse.body);
 
-      // reset all the achievement's accuracies to null
-      await prisma.achievement.updateMany({
-        data: { accuracy: null }
-      });
-
-      // recalculate all achievement's accuracies by iterating through historical data
-      await fixAchievementsAccuracy({ id: fetchResponse.body[0].playerId });
-
-      // Check their achievements again
-      const fetchResponseAgain = await api.get(`/players/psikoi/achievements`);
-
-      expect(fetchResponseAgain.status).toBe(200);
-      expect(fetchResponseAgain.body.length).toBe(37);
-
-      // Make sure all achievements have correct dates (again)
-      checkAchievementMatch(fetchResponseAgain.body, true);
-
       // All "dated" achievements should also have an accuracy value
-      expect(fetchResponseAgain.body.filter(a => new Date(a.createdAt).getTime() > 0).length).toBe(
-        fetchResponseAgain.body.filter(a => a.accuracy !== -1).length
+      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() > 0).length).toBe(
+        fetchResponse.body.filter(a => a.accuracy !== null).length
       );
 
-      // All non-"dated" achievements should have -1 accuracy
-      expect(fetchResponseAgain.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(
-        fetchResponseAgain.body.filter(a => a.accuracy === -1).length
+      // All non-"dated" achievements should have null accuracy
+      expect(fetchResponse.body.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(
+        fetchResponse.body.filter(a => a.accuracy === null).length
       );
     }, 30_000);
 
@@ -251,7 +233,7 @@ describe('Achievements API', () => {
       expect(progressMap['99 Defence'].createdAt).toBe('2016-09-17T10:00:24.000Z');
       expect(progressMap['99 Slayer'].createdAt).toBe('2018-08-03T18:33:56.000Z');
 
-      expect(progressMap['10k Barrows Chests'].accuracy).toBe(-1);
+      expect(progressMap['10k Barrows Chests'].accuracy).toBe(null);
       expect(progressMap['10k Barrows Chests'].createdAt).toBe(null);
 
       expect(progressMap['1k Barrows Chests']).toMatchObject({
@@ -413,9 +395,9 @@ describe('Achievements API', () => {
   });
 });
 
-function checkAchievementMatch(achievements: Achievement[], ignoreMagicAccuracy = false) {
+function checkAchievementMatch(achievements: Achievement[]) {
   // 17 out of the 37 achievements have now been back-dated
-  expect(achievements.filter(a => a.accuracy === -1).length).toBe(20);
+  expect(achievements.filter(a => a.accuracy === null).length).toBe(20);
   expect(achievements.filter(a => new Date(a.createdAt).getTime() === 0).length).toBe(20);
 
   // Check if all previously dated achievements have been correctly dated
@@ -453,11 +435,7 @@ function checkAchievementMatch(achievements: Achievement[], ignoreMagicAccuracy 
   expect(achievementMap['99 Hitpoints'].accuracy).toBe(14126316000);
 
   expect(achievementMap['99 Magic'].createdAt).toBe('2017-12-01T00:00:00.000Z');
-  if (ignoreMagicAccuracy) {
-    expect(achievementMap['99 Magic'].accuracy).toBe(-2);
-  } else {
-    expect(achievementMap['99 Magic'].accuracy).toBe(24039888000);
-  }
+  expect(achievementMap['99 Magic'].accuracy).toBe(24039888000);
 
   expect(achievementMap['99 Ranged'].createdAt).toBe('2016-09-17T10:00:24.000Z');
   expect(achievementMap['99 Ranged'].accuracy).toBe(24039888000);

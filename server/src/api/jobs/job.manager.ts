@@ -21,13 +21,11 @@ import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
 import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
 import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
-import FixAchievementsAccuracyJob from './instances/FixAchievementsAccuracyJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
-  FixAchievementsAccuracyJob,
   InvalidatePeriodDeltasJob,
   RefreshApiKeysJob,
   ReviewNameChangeJob,
@@ -50,10 +48,6 @@ const CRON_JOBS = [
   },
   {
     type: JobType.REFRESH_API_KEYS,
-    interval: '* * * * *' // every 1 min
-  },
-  {
-    type: JobType.FIX_ACHIEVEMENTS_ACCURACY,
     interval: '* * * * *' // every 1 min
   },
   {

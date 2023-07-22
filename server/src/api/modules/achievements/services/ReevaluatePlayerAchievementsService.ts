@@ -34,7 +34,7 @@ async function reevaluatePlayerAchievements(payload: ReevaluatePlayerAchievement
 
       return {
         ...a,
-        accuracy: unknownAchievementData?.accuracy || -1,
+        accuracy: unknownAchievementData?.accuracy || null,
         createdAt: unknownAchievementData?.date || UNKNOWN_DATE
       };
     })
