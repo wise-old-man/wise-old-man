@@ -175,11 +175,15 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
   const joinedEvents: MemberJoinedEvent[] = [];
   const changedRoleEvents: MemberRoleChangeEvent[] = [];
 
-  const nameChanges = await prisma.nameChange.findMany({
+  // If any new group members are included in a name change request that is still pending
+  // it will be included here to be checked if the old name of the name change
+  // matches any players that left the group. If they match it means that it's
+  // likely it's not two different players who joined and left but the same
+  // player that just name changed.
+  const pendingNameChanges = await prisma.nameChange.findMany({
     where: {
       OR: missingPlayers.map(p => {
-        const equals = p.username;
-        return { newName: { equals, mode: 'insensitive' } };
+        return { newName: { equals: p.username, mode: 'insensitive' } };
       }),
       status: NameChangeStatus.PENDING
     },
@@ -195,18 +199,21 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
         nextUsernames
       );
 
-      const removeFromAdd: number[] = [];
-      const removeFromExcess: number[] = [];
+      const ignoreFromJoined: number[] = [];
+      const ignoreFromLeft: number[] = [];
 
-      for (const nameChange of nameChanges) {
+      for (const nameChange of pendingNameChanges) {
         const { oldName, newName } = nameChange;
 
         for (const player of missingPlayers) {
-          const excess = excessMemberships.find(m => m.player.username === oldName.toLowerCase());
+          // This matches a player who left the group with the old name of a name change.
+          // And if it's not undefined it means we found a name change that includes
+          // both a player who joined the group and a player who left the group.
+          const match = excessMemberships.find(m => m.player.username === standardize(oldName));
 
-          if (player.username === newName.toLowerCase() && excess !== undefined) {
-            removeFromAdd.push(player.id);
-            removeFromExcess.push(excess.playerId);
+          if (player.username === standardize(newName) && match !== undefined) {
+            ignoreFromJoined.push(player.id);
+            ignoreFromLeft.push(match.playerId);
           }
         }
       }
@@ -214,7 +221,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
       // Register "player left" events
       leftEvents.push(
         ...excessMemberships
-          .filter(m => !removeFromExcess.includes(m.playerId))
+          .filter(m => !ignoreFromLeft.includes(m.playerId))
           .map(m => ({ playerId: m.playerId, groupId: m.groupId, type: ActivityType.LEFT }))
       );
 
@@ -229,7 +236,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
       // Register "player joined" events
       joinedEvents.push(
         ...addedPlayerIds
-          .filter(id => !removeFromAdd.includes(id.playerId))
+          .filter(id => !ignoreFromJoined.includes(id.playerId))
           .map(pId => ({ ...pId, type: ActivityType.JOINED }))
       );
 
