@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma, { Membership, PrismaTypes, Player } from '../../../../prisma';
-import { GroupRole, NameChange, NameChangeStatus, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
+import { GroupRole, NameChangeStatus, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
@@ -175,16 +175,16 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
   const joinedEvents: MemberJoinedEvent[] = [];
   const changedRoleEvents: MemberRoleChangeEvent[] = [];
 
-  const nameChanges = (await prisma.nameChange.findMany({
+  const nameChanges = await prisma.nameChange.findMany({
     where: {
       OR: missingPlayers.map(p => {
-        const startsWith = p.username;
-        return { newName: { startsWith, mode: 'insensitive' } };
+        const equals = p.username;
+        return { newName: { equals, mode: 'insensitive' } };
       }),
       status: NameChangeStatus.PENDING
     },
     orderBy: { createdAt: 'desc' }
-  })) as NameChange[];
+  });
 
   await prisma
     .$transaction(async transaction => {
@@ -267,8 +267,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
             groupId: params.id,
             role,
             type: ActivityType.CHANGED_ROLE,
-            previousRole: currentRoleMap.get(id),
-            displayName: keptPlayers.find(p => p.id === id).displayName
+            previousRole: currentRoleMap.get(id)
           }))
         );
       }
@@ -277,7 +276,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
         data: [
           ...leftEvents,
           ...joinedEvents.map(a => ({ ...a, role: null })),
-          ...changedRoleEvents.map(p => omit(p, 'previousRole', 'displayName'))
+          ...changedRoleEvents.map(p => omit(p, 'previousRole'))
         ]
       });
 
@@ -307,7 +306,7 @@ async function removeExcessMemberships(
   groupId: number,
   currentMemberships: (Membership & { player: Player })[],
   nextUsernames: string[]
-): Promise<(Membership & { player: Player })[]> {
+) {
   const excessMemberships = currentMemberships.filter(m => !nextUsernames.includes(m.player.username));
 
   await transaction.membership.deleteMany({
