@@ -238,6 +238,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [500, 1000, 5000, 10_000]
   },
   {
+    name: '{threshold} Duke Sucellus kills',
+    metric: Metric.DUKE_SUCELLUS,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} General Graardor kills',
     metric: Metric.GENERAL_GRAARDOR,
     thresholds: [500, 1000, 5000, 10_000]
@@ -348,6 +353,16 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     thresholds: [100, 200, 1000, 2000]
   },
   {
+    name: '{threshold} The Leviathan kills',
+    metric: Metric.THE_LEVIATHAN,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
+    name: '{threshold} The Whisperer kills',
+    metric: Metric.THE_WHISPERER,
+    thresholds: [500, 1000, 5000, 10_000]
+  },
+  {
     name: '{threshold} Theatre Of Blood kills',
     metric: Metric.THEATRE_OF_BLOOD,
     thresholds: [100, 500, 1000, 5000]
@@ -381,6 +396,11 @@ export const ACHIEVEMENT_TEMPLATES: AchievementTemplate[] = [
     name: '{threshold} TzTok-Jad kills',
     metric: Metric.TZTOK_JAD,
     thresholds: [50, 100, 500, 1000]
+  },
+  {
+    name: '{threshold} Vardorvis kills',
+    metric: Metric.VARDORVIS,
+    thresholds: [500, 1000, 5000, 10_000]
   },
   {
     name: '{threshold} Venenatis kills',
