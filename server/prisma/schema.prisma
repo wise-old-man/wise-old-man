@@ -108,6 +108,7 @@ model Delta {
   dagannoth_rex                    Int       @default(0)
   dagannoth_supreme                Int       @default(0)
   deranged_archaeologist           Int       @default(0)
+  duke_sucellus                    Int       @default(0)
   general_graardor                 Int       @default(0)
   giant_mole                       Int       @default(0)
   grotesque_guardians              Int       @default(0)
@@ -130,6 +131,8 @@ model Delta {
   tempoross                        Int       @default(0)
   the_gauntlet                     Int       @default(0)
   the_corrupted_gauntlet           Int       @default(0)
+  the_leviathan                    Int       @default(0)
+  the_whisperer                    Int       @default(0)
   theatre_of_blood                 Int       @default(0)
   theatre_of_blood_hard_mode       Int       @default(0)
   thermonuclear_smoke_devil        Int       @default(0)
@@ -137,6 +140,7 @@ model Delta {
   tombs_of_amascut_expert          Int       @default(0)
   tzkal_zuk                        Int       @default(0)
   tztok_jad                        Int       @default(0)
+  vardorvis                        Int       @default(0)
   venenatis                        Int       @default(0)
   vetion                           Int       @default(0)
   vorkath                          Int       @default(0)
@@ -445,6 +449,8 @@ model Snapshot {
   dagannoth_supremeKills                Int       @default(-1)
   deranged_archaeologistRank            Int       @default(-1)
   deranged_archaeologistKills           Int       @default(-1)
+  duke_sucellusRank                     Int       @default(-1)
+  duke_sucellusKills                    Int       @default(-1)
   general_graardorRank                  Int       @default(-1)
   general_graardorKills                 Int       @default(-1)
   giant_moleRank                        Int       @default(-1)
@@ -483,6 +489,10 @@ model Snapshot {
   the_gauntletKills                     Int       @default(-1)
   the_corrupted_gauntletKills           Int       @default(-1)
   the_corrupted_gauntletRank            Int       @default(-1)
+  the_leviathanRank                     Int       @default(-1)
+  the_leviathanKills                    Int       @default(-1)
+  the_whispererRank                     Int       @default(-1)
+  the_whispererKills                    Int       @default(-1)
   theatre_of_bloodRank                  Int       @default(-1)
   theatre_of_bloodKills                 Int       @default(-1)
   thermonuclear_smoke_devilRank         Int       @default(-1)
@@ -495,6 +505,8 @@ model Snapshot {
   tzkal_zukKills                        Int       @default(-1)
   tztok_jadRank                         Int       @default(-1)
   tztok_jadKills                        Int       @default(-1)
+  vardorvisRank                         Int       @default(-1)
+  vardorvisKills                        Int       @default(-1)
   venenatisRank                         Int       @default(-1)
   venenatisKills                        Int       @default(-1)
   vetionRank                            Int       @default(-1)
@@ -1176,6 +1188,7 @@ enum Metric {
   dagannoth_rex
   dagannoth_supreme
   deranged_archaeologist
+  duke_sucellus
   general_graardor
   giant_mole
   grotesque_guardians
@@ -1196,12 +1209,15 @@ enum Metric {
   spindel
   the_gauntlet
   the_corrupted_gauntlet
+  the_leviathan
+  the_whisperer
   theatre_of_blood
   thermonuclear_smoke_devil
   tombs_of_amascut
   tombs_of_amascut_expert
   tzkal_zuk
   tztok_jad
+  vardorvis
   venenatis
   vetion
   vorkath
