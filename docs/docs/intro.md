@@ -37,9 +37,9 @@ This documentation website will provide examples for each request using **cURL**
 
 ### 3rd party libraries
 
-| Library  | Language | Maintainer        | Links                                                                                            |
-| -------- | -------- | ----------------- | ------------------------------------------------------------------------------------------------ |
-| `wom.py` | Python3  | `@Jonxslays#0666` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
+| Library  | Language | Maintainer   | Links                                                                                            |
+| -------- | -------- | ------------ | ------------------------------------------------------------------------------------------------ |
+| `wom.py` | Python3  | `@jonxslays` | [Docs](https://jonxslays.github.io/wom.py/stable) \| [Repo](https://github.com/jonxslays/wom.py) |
 
 :::caution
 **Little to no support** may be provided for 3rd party libraries in the Wise Old Man discord server.
