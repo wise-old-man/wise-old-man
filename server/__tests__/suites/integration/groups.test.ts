@@ -846,6 +846,82 @@ describe('Group API', () => {
       });
       expect(deleteResponse.status).toBe(200);
     });
+
+    it('should edit members (with pending name changes)', async () => {
+      const createResponse = await api.post('/groups').send({
+        name: `Delete soon ${Date.now()}`,
+        members: [{ username: 'A' }, { username: 'K' }, { username: 'X' }, { username: 'Z' }]
+      });
+      expect(createResponse.status).toBe(201);
+
+      jest.resetAllMocks();
+
+      const trackResponse = await api.post(`/players/T`);
+      expect(trackResponse.status).toBe(201);
+
+      const bulkSubmitResponse = await api.post('/names/bulk').send([
+        { oldName: 'A', newName: 'B' },
+        { oldName: 'X', newName: 'Y' },
+        { oldName: 'T', newName: 'H' }
+      ]);
+
+      expect(bulkSubmitResponse.status).toBe(201);
+      expect(bulkSubmitResponse.body.nameChangesSubmitted).toBe(3);
+      expect(bulkSubmitResponse.body.message).toMatch('Successfully submitted 3/3 name changes.');
+
+      const editResponse = await api.put(`/groups/${createResponse.body.group.id}`).send({
+        members: [
+          { username: 'Z' },
+          { username: 'B' },
+          { username: 'Y' },
+          { username: 'H' },
+          { username: 'T' }
+        ],
+        verificationCode: createResponse.body.verificationCode
+      });
+
+      expect(editResponse.status).toBe(200);
+      expect(editResponse.body).toMatchObject({ memberCount: 5 });
+      expect(editResponse.body.memberships.length).toBe(5);
+      expect(editResponse.body.memberships[0].player.username).toBe('z');
+      expect(editResponse.body.memberships[1].player.username).toBe('b');
+      expect(editResponse.body.memberships[2].player.username).toBe('y');
+      expect(editResponse.body.memberships[3].player.username).toBe('h');
+      expect(editResponse.body.memberships[4].player.username).toBe('t');
+
+      const { id, memberships } = editResponse.body;
+
+      const joinedEvents = onMembersJoinedEvent.mock.calls[0][0];
+      expect(joinedEvents.length).toBe(2);
+
+      expect(joinedEvents[0]).toEqual({
+        groupId: id,
+        role: 'member',
+        playerId: memberships.find(m => m.player.username === 'h').playerId,
+        type: 'joined'
+      });
+
+      expect(joinedEvents[1]).toEqual({
+        groupId: id,
+        role: 'member',
+        playerId: memberships.find(m => m.player.username === 't').playerId,
+        type: 'joined'
+      });
+
+      const leftEvents = onMembersLeftEvent.mock.calls[0][0];
+      expect(leftEvents.length).toBe(1);
+
+      expect(leftEvents[0]).toEqual({
+        groupId: id,
+        playerId: createResponse.body.group.memberships.find(m => m.player.username === 'k').playerId,
+        type: 'left'
+      });
+
+      const deleteResponse = await api.delete(`/groups/${createResponse.body.group.id}`).send({
+        verificationCode: createResponse.body.verificationCode
+      });
+      expect(deleteResponse.status).toBe(200);
+    });
   });
 
   describe('3 - Search Groups', () => {
