@@ -4,9 +4,13 @@ import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import redisService from '../../../src/api/services/external/redis.service';
-import { sleep } from '../../utils';
+import { resetDatabase, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
+
+beforeAll(async () => {
+  await resetDatabase();
+});
 
 afterAll(async () => {
   jest.useRealTimers();
@@ -83,8 +87,8 @@ describe('General API', () => {
     it('should create API key', async () => {
       const player = await prisma.player.create({
         data: {
-          username: 'psikoi',
-          displayName: 'Psikoi'
+          username: 'test9876',
+          displayName: 'test9876'
         }
       });
 
