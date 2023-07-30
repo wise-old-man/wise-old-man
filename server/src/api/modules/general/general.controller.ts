@@ -19,4 +19,11 @@ async function createApiKey(req: Request): Promise<ControllerResponse> {
   return { statusCode: 201, response: key };
 }
 
-export { createApiKey };
+// GET /stats
+async function stats(): Promise<ControllerResponse> {
+  const stats = await generalServices.fetchTableCounts();
+
+  return { statusCode: 200, response: stats };
+}
+
+export { createApiKey, stats };

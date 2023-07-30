@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import { isCuid } from '@paralleldrive/cuid2';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
+import prisma from '../../../src/prisma';
 import redisService from '../../../src/api/services/external/redis.service';
 import { sleep } from '../../utils';
 
@@ -75,6 +76,52 @@ describe('General API', () => {
 
       // Make sure it's been stored in redis memory
       expect(await redisService.getValue('api-key', response.body.id)).toBe('true');
+    });
+  });
+
+  describe('Fetch global stats', () => {
+    it('should create API key', async () => {
+      const player = await prisma.player.create({
+        data: {
+          username: 'psikoi',
+          displayName: 'Psikoi'
+        }
+      });
+
+      await prisma.snapshot.createMany({
+        data: Array.from(Array(100).keys()).map(i => ({ playerId: player.id, overallExperience: i }))
+      });
+
+      await prisma.player.createMany({
+        data: Array.from(Array(50).keys()).map(i => ({ username: String(i), displayName: String(i) }))
+      });
+
+      await prisma.group.createMany({
+        data: Array.from(Array(15).keys()).map(i => ({ name: String(i), verificationHash: String(i) }))
+      });
+
+      await prisma.competition.createMany({
+        data: Array.from(Array(30).keys()).map(i => ({
+          title: String(i),
+          verificationHash: String(i),
+          metric: 'magic',
+          startsAt: new Date(),
+          endsAt: new Date()
+        }))
+      });
+
+      // Run postgres analyze to update table statistics
+      await prisma.$queryRaw`ANALYZE`;
+
+      const response = await api.get(`/stats`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        players: 51,
+        snapshots: 100,
+        groups: 15,
+        competitions: 30
+      });
     });
   });
 });
