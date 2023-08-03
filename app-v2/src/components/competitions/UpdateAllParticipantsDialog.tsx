@@ -106,8 +106,10 @@ function UpdateAllParticipantsForm(props: UpdateAllParticipantsDialogProps) {
         <div className="mb-2 flex items-center">
           <Label className="text-xs font-normal text-gray-200">Verification code</Label>
           <Tooltip>
-            <TooltipTrigger>
-              <InfoIcon className="ml-1 h-3 w-3 text-gray-200" />
+            <TooltipTrigger asChild>
+              <span>
+                <InfoIcon className="ml-1 h-3 w-3 text-gray-200" />
+              </span>
             </TooltipTrigger>
             <TooltipContent align="center" className="text-gray-100">
               Lost or forgot your code?
