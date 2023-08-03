@@ -20,7 +20,7 @@ export function AccountTypeSelector() {
   const pathname = usePathname();
 
   const metric = pathname.includes("ehp") ? Metric.EHP : Metric.EHB;
-  const type = getAlgorithmTypeParam(params.type) || EfficiencyAlgorithmType.MAIN;
+  const type = getAlgorithmTypeParam(String(params.type)) || EfficiencyAlgorithmType.MAIN;
 
   function handleTypeChanged(value: string) {
     router.replace(`/${metric}/${value}`);
