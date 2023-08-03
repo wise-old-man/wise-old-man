@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
@@ -46,6 +47,7 @@ function RootLayout(props: PropsWithChildren) {
         </TooltipProvider>
         <TailwindIndicator />
         <ToastManager />
+        <Analytics />
       </body>
     </html>
   );
