@@ -55,20 +55,20 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
       {ongoing.length + upcoming.length > 0 && ongoing.length + upcoming.length < 2 ? (
         <div>
           <Label className="text-xs text-gray-200">Featured competitions</Label>
-          <CompetitionsList data={[...ongoing, ...upcoming]} />
+          <CompetitionsList data={[...ongoing, ...upcoming]} showHost />
         </div>
       ) : (
         <>
           {ongoing.length > 0 && (
             <div>
               <Label className="text-xs text-gray-200">Ongoing competitions</Label>
-              <CompetitionsList data={ongoing} />
+              <CompetitionsList data={ongoing} showHost />
             </div>
           )}
           {upcoming.length > 0 && (
             <div>
               <Label className="text-xs text-gray-200">Upcoming competitions</Label>
-              <CompetitionsList data={upcoming} />
+              <CompetitionsList data={upcoming} showHost />
             </div>
           )}
         </>
@@ -76,7 +76,7 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
       {finished.length > 0 && (
         <div>
           <Label className="text-xs text-gray-200">Past competitions</Label>
-          <CompetitionsList data={finished} />
+          <CompetitionsList data={finished} showHost />
         </div>
       )}
     </div>

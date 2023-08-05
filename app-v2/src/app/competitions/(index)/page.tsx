@@ -72,7 +72,7 @@ async function CompetitionsPage(props: PageProps) {
         </div>
       ) : (
         <div className="custom-scroll overflow-x-auto">
-          <CompetitionsList data={data} />
+          <CompetitionsList data={data} showHost />
         </div>
       )}
       <div className="mt-4">
