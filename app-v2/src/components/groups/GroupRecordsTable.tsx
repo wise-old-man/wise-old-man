@@ -142,7 +142,9 @@ function getColumnDefinitions(page: number, metric: Metric) {
       cell: ({ row }) => {
         return (
           <Tooltip>
-            <TooltipTrigger>{timeago.format(row.original.updatedAt)}</TooltipTrigger>
+            <TooltipTrigger asChild>
+              <span>{timeago.format(row.original.updatedAt)}</span>
+            </TooltipTrigger>
             <TooltipContent>{formatDatetime(row.original.updatedAt)}</TooltipContent>
           </Tooltip>
         );

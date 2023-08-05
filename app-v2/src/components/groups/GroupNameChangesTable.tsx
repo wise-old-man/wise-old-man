@@ -53,7 +53,9 @@ const COLUMN_DEFS: ColumnDef<NameChange & { player: Player }>[] = [
 
       return (
         <Tooltip>
-          <TooltipTrigger>{timeago.format(row.original.resolvedAt)}</TooltipTrigger>
+          <TooltipTrigger asChild>
+            <span>{timeago.format(row.original.resolvedAt)}</span>
+          </TooltipTrigger>
           <TooltipContent>{formatDatetime(row.original.resolvedAt)}</TooltipContent>
         </Tooltip>
       );

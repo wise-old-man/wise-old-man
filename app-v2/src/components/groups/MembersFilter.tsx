@@ -12,26 +12,25 @@ import {
 import { useTransition } from "react";
 
 const FILTERS = [
-  { value: "all", dropdownLabel: "All members", buttonLabel: "All members" },
+  {
+    value: "all",
+    label: "All members",
+  },
   {
     value: "invalid_or_outdated",
-    dropdownLabel: "Invalid / outdated members",
-    buttonLabel: "Invalid / outdated",
+    label: "Invalid / outdated",
   },
   {
     value: "inactive_7_days",
-    dropdownLabel: "Last progressed > 7 days",
-    buttonLabel: "Inactive > 7 days",
+    label: "Inactive > 7 days",
   },
   {
     value: "inactive_30_days",
-    dropdownLabel: "Last progressed > 30 days",
-    buttonLabel: "Inactive > 30 days",
+    label: "Inactive > 30 days",
   },
   {
     value: "inactive_90_days",
-    dropdownLabel: "Last progressed > 90 days",
-    buttonLabel: "Inactive > 90 days",
+    label: "Inactive > 90 days",
   },
 ];
 
@@ -72,7 +71,7 @@ export function MembersFilter(props: MembersFilterProps) {
     >
       <ComboboxButton className="w-full bg-gray-800 sm:w-48" isPending={isPending}>
         <div className="flex items-center gap-x-2">
-          {FILTERS.find((f) => f.value === filter)?.buttonLabel || FILTERS[0].buttonLabel}
+          {FILTERS.find((f) => f.value === filter)?.label || FILTERS[0].label}
         </div>
       </ComboboxButton>
       <ComboboxContent className="w-[16rem]" align="end">
@@ -80,7 +79,7 @@ export function MembersFilter(props: MembersFilterProps) {
           <ComboboxItemGroup label="Status">
             {FILTERS.map((f) => (
               <ComboboxItem value={f.value} key={f.value}>
-                {f.dropdownLabel}
+                {f.label}
               </ComboboxItem>
             ))}
           </ComboboxItemGroup>

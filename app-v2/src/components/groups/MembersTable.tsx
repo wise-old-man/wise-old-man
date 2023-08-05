@@ -94,7 +94,9 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
 
       return (
         <Tooltip>
-          <TooltipTrigger>{timeago.format(row.original.player.lastChangedAt)}</TooltipTrigger>
+          <TooltipTrigger asChild>
+            <span>{timeago.format(row.original.player.lastChangedAt)}</span>
+          </TooltipTrigger>
           <TooltipContent>{formatDatetime(row.original.player.lastChangedAt)}</TooltipContent>
         </Tooltip>
       );
@@ -111,7 +113,9 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
 
       return (
         <Tooltip>
-          <TooltipTrigger>{timeago.format(row.original.player.updatedAt)}</TooltipTrigger>
+          <TooltipTrigger asChild>
+            <span>{timeago.format(row.original.player.updatedAt)}</span>
+          </TooltipTrigger>
           <TooltipContent>{formatDatetime(row.original.player.updatedAt)}</TooltipContent>
         </Tooltip>
       );

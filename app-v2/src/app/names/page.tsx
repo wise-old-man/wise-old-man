@@ -94,20 +94,26 @@ async function NameChangesPage(props: PageProps) {
                 </ListTableCell>
                 <ListTableCell>
                   <Tooltip>
-                    <TooltipTrigger>Submitted {timeago.format(nameChange.createdAt)}</TooltipTrigger>
+                    <TooltipTrigger asChild>
+                      <span>Submitted {timeago.format(nameChange.createdAt)}</span>
+                    </TooltipTrigger>
                     <TooltipContent>{formatDatetime(nameChange.createdAt)}</TooltipContent>
                   </Tooltip>
                 </ListTableCell>
                 <ListTableCell>
                   {nameChange.resolvedAt && (
                     <Tooltip>
-                      <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
+                      <TooltipTrigger asChild>
+                        <span>{getResolvedTimeago(nameChange)}</span>
+                      </TooltipTrigger>
                       <TooltipContent>{formatDatetime(nameChange.resolvedAt)}</TooltipContent>
                     </Tooltip>
                   )}
                   {!nameChange.resolvedAt && nameChange.reviewContext && (
                     <Tooltip>
-                      <TooltipTrigger>{getResolvedTimeago(nameChange)}</TooltipTrigger>
+                      <TooltipTrigger asChild>
+                        <span>{getResolvedTimeago(nameChange)}</span>
+                      </TooltipTrigger>
                       <TooltipContent>{formatDatetime(nameChange.updatedAt)}</TooltipContent>
                     </Tooltip>
                   )}

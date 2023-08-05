@@ -6,6 +6,7 @@ import { ListTable, ListTableCell, ListTableRow } from "../ListTable";
 import { timeago } from "~/utils/dates";
 
 interface CompetitionsListProps {
+  showHost?: boolean;
   data: CompetitionListItem[];
 }
 
@@ -30,7 +31,7 @@ export function CompetitionsList(props: CompetitionsListProps) {
                   {competition.title}
                 </Link>
                 <span className="truncate text-xs">
-                  {competition.group ? (
+                  {competition.group && props.showHost ? (
                     <>
                       Hosted by&nbsp;
                       <Link
@@ -79,7 +80,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
     return (
       <div className="flex items-center gap-x-2">
         <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-        Ongoing · Ends in {timeago.format(endsAt, { future: true, round: "floor" })}
+        Ongoing · Ends {timeago.format(endsAt, { future: true, round: "floor" })}
       </div>
     );
   }
@@ -87,7 +88,7 @@ function CompetitionTime(props: Pick<CompetitionListItem, "startsAt" | "endsAt">
   return (
     <div className="flex items-center gap-x-2">
       <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
-      Upcoming · Starts in {timeago.format(startsAt, { future: true, round: "floor" })}
+      Upcoming · Starts {timeago.format(startsAt, { future: true, round: "floor" })}
     </div>
   );
 }
