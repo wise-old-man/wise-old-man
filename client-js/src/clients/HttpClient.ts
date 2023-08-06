@@ -11,10 +11,11 @@ export default class HttpClient {
 
   private buildParams({ ...params }) {
     const query = Object.keys(params)
+      .filter(k => params[k] !== undefined)
       .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
       .join('&');
 
-    return `?${query}`;
+    return query ? `?${query}` : '';
   }
 
   private async request<T>({
