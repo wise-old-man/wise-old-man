@@ -43,7 +43,7 @@ export default class HttpClient {
     const res = await fetch(this.baseUrl + path + query, req);
     const data = await res.json();
 
-    if (res?.ok) {
+    if (res.ok) {
       return transformDates(data) as T;
     }
 
