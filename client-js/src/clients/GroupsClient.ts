@@ -31,7 +31,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of groups.
    */
   searchGroups(name: string, pagination?: PaginationOptions) {
-    return this.getRequest<GroupListItem[]>('/groups', { name, ...pagination });
+    return this.http.getRequest<GroupListItem[]>('/groups', { name, ...pagination });
   }
 
   /**
@@ -39,7 +39,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A group details object.
    */
   getGroupDetails(id: number) {
-    return this.getRequest<GroupDetails>(`/groups/${id}`);
+    return this.http.getRequest<GroupDetails>(`/groups/${id}`);
   }
 
   /**
@@ -47,7 +47,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The newly created group, and the verification code that authorizes future changes to it.
    */
   createGroup(payload: CreateGroupPayload) {
-    return this.postRequest<CreateGroupResponse>('/groups', payload);
+    return this.http.postRequest<CreateGroupResponse>('/groups', payload);
   }
 
   /**
@@ -55,7 +55,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The updated group.
    */
   editGroup(id: number, payload: EditGroupPayload, verificationCode: string) {
-    return this.putRequest<GroupDetails>(`/groups/${id}`, {
+    return this.http.putRequest<GroupDetails>(`/groups/${id}`, {
       ...payload,
       verificationCode
     });
@@ -66,7 +66,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A confirmation message.
    */
   deleteGroup(id: number, verificationCode: string) {
-    return this.deleteRequest<GenericMessageResponse>(`/groups/${id}`, { verificationCode });
+    return this.http.deleteRequest<GenericMessageResponse>(`/groups/${id}`, { verificationCode });
   }
 
   /**
@@ -74,7 +74,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The number of members added and a confirmation message.
    */
   addMembers(id: number, members: GroupMemberFragment[], verificationCode: string) {
-    return this.postRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
+    return this.http.postRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
       verificationCode,
       members
     });
@@ -85,7 +85,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The number of members removed and a confirmation message.
    */
   removeMembers(id: number, usernames: string[], verificationCode: string) {
-    return this.deleteRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
+    return this.http.deleteRequest<GenericCountMessageResponse>(`/groups/${id}/members`, {
       verificationCode,
       members: usernames
     });
@@ -96,7 +96,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The updated membership, with player included.
    */
   changeRole(id: number, payload: ChangeMemberRolePayload, verificationCode: string) {
-    return this.putRequest<MembershipWithPlayer>(`/groups/${id}/role`, {
+    return this.http.putRequest<MembershipWithPlayer>(`/groups/${id}/role`, {
       ...payload,
       verificationCode
     });
@@ -107,7 +107,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns The number of players to be updated and a confirmation message.
    */
   updateAll(id: number, verificationCode: string) {
-    return this.postRequest<GenericCountMessageResponse>(`/groups/${id}/update-all`, {
+    return this.http.postRequest<GenericCountMessageResponse>(`/groups/${id}/update-all`, {
       verificationCode
     });
   }
@@ -117,11 +117,11 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of competitions.
    */
   getGroupCompetitions(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<CompetitionListItem[]>(`/groups/${id}/competitions`, { ...pagination });
+    return this.http.getRequest<CompetitionListItem[]>(`/groups/${id}/competitions`, { ...pagination });
   }
 
   getGroupGains(id: number, filter: GetGroupGainsFilter, pagination?: PaginationOptions) {
-    return this.getRequest<DeltaGroupLeaderboardEntry[]>(`/groups/${id}/gained`, {
+    return this.http.getRequest<DeltaGroupLeaderboardEntry[]>(`/groups/${id}/gained`, {
       ...pagination,
       ...filter
     });
@@ -132,7 +132,9 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of achievements.
    */
   getGroupAchievements(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<ExtendedAchievementWithPlayer[]>(`/groups/${id}/achievements`, { ...pagination });
+    return this.http.getRequest<ExtendedAchievementWithPlayer[]>(`/groups/${id}/achievements`, {
+      ...pagination
+    });
   }
 
   /**
@@ -140,7 +142,10 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of records, including their respective players.
    */
   getGroupRecords(id: number, filter: GroupRecordsFilter, pagination?: PaginationOptions) {
-    return this.getRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, { ...pagination, ...filter });
+    return this.http.getRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, {
+      ...pagination,
+      ...filter
+    });
   }
 
   /**
@@ -148,7 +153,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of hiscores entries (value, rank), including their respective players.
    */
   getGroupHiscores(id: number, metric: Metric, pagination?: PaginationOptions) {
-    return this.getRequest<GroupHiscoresEntry[]>(`/groups/${id}/hiscores`, { ...pagination, metric });
+    return this.http.getRequest<GroupHiscoresEntry[]>(`/groups/${id}/hiscores`, { ...pagination, metric });
   }
 
   /**
@@ -156,7 +161,7 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of name change (approved) requests.
    */
   getGroupNameChanges(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<NameChange[]>(`/groups/${id}/name-changes`, { ...pagination });
+    return this.http.getRequest<NameChange[]>(`/groups/${id}/name-changes`, { ...pagination });
   }
 
   /**
@@ -164,6 +169,6 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns An object with a few statistic values and an average stats snapshot.
    */
   getGroupStatistics(id: number) {
-    return this.getRequest<GroupStatistics>(`/groups/${id}/statistics`);
+    return this.http.getRequest<GroupStatistics>(`/groups/${id}/statistics`);
   }
 }

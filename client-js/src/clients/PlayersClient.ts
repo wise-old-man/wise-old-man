@@ -29,7 +29,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of players.
    */
   searchPlayers(partialUsername: string, pagination?: PaginationOptions) {
-    return this.getRequest<Player[]>('/players/search', { username: partialUsername, ...pagination });
+    return this.http.getRequest<Player[]>('/players/search', { username: partialUsername, ...pagination });
   }
 
   /**
@@ -37,7 +37,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns The player's new details, including the latest snapshot.
    */
   updatePlayer(username: string) {
-    return this.postRequest<PlayerDetails>(`/players/${username}`);
+    return this.http.postRequest<PlayerDetails>(`/players/${username}`);
   }
 
   /**
@@ -45,7 +45,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns The updated player, and an indication of whether the type was changed.
    */
   assertPlayerType(username: string) {
-    return this.postRequest<AssertPlayerTypeResponse>(`/players/${username}/assert-type`);
+    return this.http.postRequest<AssertPlayerTypeResponse>(`/players/${username}/assert-type`);
   }
 
   /**
@@ -53,7 +53,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns The player's details, including the latest snapshot.
    */
   getPlayerDetails(username: string) {
-    return this.getRequest<PlayerDetails>(`/players/${username}`);
+    return this.http.getRequest<PlayerDetails>(`/players/${username}`);
   }
 
   /**
@@ -61,7 +61,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns The player's details, including the latest snapshot.
    */
   getPlayerDetailsById(id: number) {
-    return this.getRequest<PlayerDetails>(`/players/id/${id}`);
+    return this.http.getRequest<PlayerDetails>(`/players/id/${id}`);
   }
 
   /**
@@ -69,7 +69,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of achievements.
    */
   getPlayerAchievements(username: string) {
-    return this.getRequest<ExtendedAchievement[]>(`/players/${username}/achievements`);
+    return this.http.getRequest<ExtendedAchievement[]>(`/players/${username}/achievements`);
   }
 
   /**
@@ -77,7 +77,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of achievements (completed or otherwise), with their respective relative/absolute progress percentage.
    */
   getPlayerAchievementProgress(username: string) {
-    return this.getRequest<AchievementProgress[]>(`/players/${username}/achievements/progress`);
+    return this.http.getRequest<AchievementProgress[]>(`/players/${username}/achievements/progress`);
   }
 
   /**
@@ -85,7 +85,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of participations, with the respective competition included.
    */
   getPlayerCompetitions(username: string, filter?: PlayerCompetitionsFilter, pagination?: PaginationOptions) {
-    return this.getRequest<ParticipationWithCompetition[]>(`/players/${username}/competitions`, {
+    return this.http.getRequest<ParticipationWithCompetition[]>(`/players/${username}/competitions`, {
       ...filter,
       ...pagination
     });
@@ -96,7 +96,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of participations, with the respective competition, rank and progress included.
    */
   getPlayerCompetitionStandings(username: string, filter: PlayerCompetitionsFilter) {
-    return this.getRequest<ParticipationWithCompetitionAndStandings[]>(
+    return this.http.getRequest<ParticipationWithCompetitionAndStandings[]>(
       `/players/${username}/competitions/standings`,
       filter
     );
@@ -107,7 +107,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of memberships, with the respective group included.
    */
   getPlayerGroups(username: string, pagination?: PaginationOptions) {
-    return this.getRequest<MembershipWithGroup[]>(`/players/${username}/groups`, pagination);
+    return this.http.getRequest<MembershipWithGroup[]>(`/players/${username}/groups`, pagination);
   }
 
   /**
@@ -115,7 +115,10 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A map of each metric's gained data.
    */
   getPlayerGains(username: string, options: TimeRangeFilter) {
-    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasMap>>(`/players/${username}/gained`, options);
+    return this.http.getRequest<GetPlayerGainsResponse<PlayerDeltasMap>>(
+      `/players/${username}/gained`,
+      options
+    );
   }
 
   /**
@@ -123,7 +126,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns An array of each metric's gained data.
    */
   getPlayerGainsAsArray(username: string, options: TimeRangeFilter) {
-    return this.getRequest<GetPlayerGainsResponse<PlayerDeltasArray>>(`/players/${username}/gained`, {
+    return this.http.getRequest<GetPlayerGainsResponse<PlayerDeltasArray>>(`/players/${username}/gained`, {
       ...options,
       formatting: 'array'
     });
@@ -134,7 +137,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of records.
    */
   getPlayerRecords(username: string, options?: PlayerRecordsFilter) {
-    return this.getRequest<Record[]>(`/players/${username}/records`, options);
+    return this.http.getRequest<Record[]>(`/players/${username}/records`, options);
   }
 
   /**
@@ -142,7 +145,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of snapshots.
    */
   getPlayerSnapshots(username: string, options?: TimeRangeFilter) {
-    return this.getRequest<FormattedSnapshot[]>(`/players/${username}/snapshots`, options);
+    return this.http.getRequest<FormattedSnapshot[]>(`/players/${username}/snapshots`, options);
   }
 
   /**
@@ -150,7 +153,7 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of timeseries data (value, date)
    */
   getPlayerSnapshotTimeline(username: string, metric: Metric, options?: TimeRangeFilter) {
-    return this.getRequest<{ value: number; date: Date }[]>(`/players/${username}/snapshots/timeline`, {
+    return this.http.getRequest<{ value: number; date: Date }[]>(`/players/${username}/snapshots/timeline`, {
       ...options,
       metric
     });
@@ -161,6 +164,6 @@ export default class PlayersClient extends BaseAPIClient {
    * @returns A list of name changes.
    */
   getPlayerNames(username: string) {
-    return this.getRequest<NameChange[]>(`/players/${username}/names`);
+    return this.http.getRequest<NameChange[]>(`/players/${username}/names`);
   }
 }

@@ -9,7 +9,7 @@ export default class NameChangesClient extends BaseAPIClient {
    * @returns A list of name changes.
    */
   searchNameChanges(filter: NameChangesSearchFilter, pagination?: PaginationOptions) {
-    return this.getRequest<NameChange[]>('/names', { ...filter, ...pagination });
+    return this.http.getRequest<NameChange[]>('/names', { ...filter, ...pagination });
   }
 
   /**
@@ -17,6 +17,6 @@ export default class NameChangesClient extends BaseAPIClient {
    * @returns A pending name change request, to be reviewed and resolved at a later date.
    */
   submitNameChange(oldName: string, newName: string) {
-    return this.postRequest<NameChange>('/names', { oldName, newName });
+    return this.http.postRequest<NameChange>('/names', { oldName, newName });
   }
 }

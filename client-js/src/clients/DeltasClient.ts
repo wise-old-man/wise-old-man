@@ -8,6 +8,6 @@ export default class DeltasClient extends BaseAPIClient {
    * @returns A list of deltas, with their respective players, values and dates included.
    */
   getDeltaLeaderboard(filter: DeltaLeaderboardFilter) {
-    return this.getRequest<DeltaLeaderboardEntry[]>('/deltas/leaderboard', filter);
+    return this.http.getRequest<DeltaLeaderboardEntry[]>('/deltas/leaderboard', filter);
   }
 }
