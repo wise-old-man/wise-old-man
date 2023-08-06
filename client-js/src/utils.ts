@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import customParseFormatPlugin from 'dayjs/plugin/customParseFormat';
 
@@ -40,29 +39,27 @@ export function transformDates(input: unknown) {
   return traverseTransform(input, val => (isValidISODate(val) ? new Date(val as string) : val));
 }
 
-export function handleError(requestURL: string, e: AxiosError) {
-  if (!e.response?.data) return;
+export function handleError(status: number, path: string, data?: APIErrorData) {
+  if (!data) return;
 
-  const data = e.response.data as APIErrorData;
-
-  if (e.response.status === 400) {
-    throw new BadRequestError(requestURL, data.message, data.data);
+  if (status === 400) {
+    throw new BadRequestError(path, data.message, data.data);
   }
 
-  if (e.response.status === 403) {
-    throw new ForbiddenError(requestURL, data.message);
+  if (status === 403) {
+    throw new ForbiddenError(path, data.message);
   }
 
-  if (e.response.status === 404) {
-    throw new NotFoundError(requestURL, data.message);
+  if (status === 404) {
+    throw new NotFoundError(path, data.message);
   }
 
-  if (e.response.status === 429) {
-    throw new RateLimitError(requestURL, data.message);
+  if (status === 429) {
+    throw new RateLimitError(path, data.message);
   }
 
-  if (e.response.status === 500) {
-    throw new InternalServerError(requestURL, data.message);
+  if (status === 500) {
+    throw new InternalServerError(path, data.message);
   }
 }
 
