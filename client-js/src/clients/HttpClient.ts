@@ -59,7 +59,7 @@ export default class HttpClient {
   }
 
   async deleteRequest<T>(path: string, body?: unknown) {
-    return await this.request<T>({ method: 'DELETE', path, body: { data: body } });
+    return await this.request<T>({ method: 'DELETE', path, body: body || {} });
   }
 
   async getRequest<T>(path: string, params?: unknown) {
