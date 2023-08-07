@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { fetchGlobalStats } from "~/services/wiseoldman";
 import { Container } from "~/components/Container";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
 
@@ -18,10 +19,17 @@ import FeaturesDiscordFront from "../../public/img/homepage_features_discord_2.p
 import FeaturesRuneliteBack from "../../public/img/homepage_features_runelite_1.png";
 import FeaturesRuneliteFront from "../../public/img/homepage_features_runelite_2.png";
 
-export default function Home() {
+export default async function Home() {
+  const stats = await fetchGlobalStats();
+
+  const playerCount = `${(stats.players / 1_000_000).toFixed(2)}m`;
+  const snapshotsCount = `${(stats.snapshots / 1_000_000).toFixed(2)}m`;
+  const groupsCount = `${(stats.groups / 1_000).toFixed(1)}k`.replace(".0k", "k");
+  const competitionsCount = `${(stats.competitions / 1_000).toFixed(1)}k`.replace(".0k", "k");
+
   return (
-    <Container className="max-w-none !p-0">
-      <section className="w-full bg-gray-900 bg-gradient-to-b from-[#1C315F]/10 to-transparent pb-20 pt-6">
+    <Container className="relative max-w-none !p-0">
+      <section className="w-full bg-gray-900 bg-gradient-to-b from-[#1C315F]/20 to-transparent pb-20 pt-6">
         {/* Hero */}
         <div className="relative mx-auto max-w-[90vw] pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
           <div className="rounded-2xl border border-gray-700 bg-gradient-to-b from-white/10 to-white/0 p-px">
@@ -62,22 +70,22 @@ export default function Home() {
           <div className="mx-auto rounded-xl bg-gray-900 bg-gradient-to-b from-gray-500 to-gray-900 p-px">
             <div className="mx-auto flex items-center rounded-xl bg-gray-900 py-5">
               <div className="flex flex-col items-center px-8">
-                <span className="text-2xl font-bold">920k</span>
+                <span className="text-2xl font-bold">{playerCount}</span>
                 <span className="mt-1 text-xs text-gray-200">Players</span>
               </div>
               <div className="h-6 w-px bg-gray-500" />
               <div className="flex flex-col items-center px-8">
-                <span className="text-2xl font-bold">90.5m</span>
+                <span className="text-2xl font-bold">{snapshotsCount}</span>
                 <span className="mt-1 text-xs text-gray-200">Snapshots</span>
               </div>
               <div className="h-6 w-px bg-gray-500" />
               <div className="flex flex-col items-center px-8">
-                <span className="text-2xl font-bold">4.6k</span>
+                <span className="text-2xl font-bold">{groupsCount}</span>
                 <span className="mt-1 text-xs text-gray-200">Groups</span>
               </div>
               <div className="h-6 w-px bg-gray-500" />
               <div className="flex flex-col items-center px-8">
-                <span className="text-2xl font-bold">24.6k</span>
+                <span className="text-2xl font-bold">{competitionsCount}</span>
                 <span className="mt-1 text-xs text-gray-200">Competitions</span>
               </div>
             </div>
@@ -85,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative mx-auto max-w-5xl rounded-2xl border border-gray-700 p-16">
+      <section className="relative mx-auto flex max-w-5xl rounded-2xl border border-gray-700 p-16">
         <div className="max-w-md">
           <h2 className="text-3xl font-semibold">Track your hiscores over time</h2>
           <p className="mt-4 text-sm leading-6 text-gray-200">
@@ -112,7 +120,7 @@ export default function Home() {
           alt="Wise Old Man - Player Features"
           className="absolute bottom-0 right-10 w-[365px]"
         />
-        <div className="absolute bottom-0 right-10 top-0 w-[365px] bg-gradient-to-t from-gray-900/80 to-gray-900/0" />
+        <div className="absolute bottom-0 right-10 top-0 w-[365px] bg-gradient-to-t from-gray-900/90 to-gray-900/0" />
         <Image
           src={FeaturesPlayersFront}
           alt="Wise Old Man - Player Features (Overlay)"

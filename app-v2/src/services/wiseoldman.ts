@@ -50,6 +50,22 @@ interface PaginationOptions {
   offset?: number;
 }
 
+export async function fetchGlobalStats() {
+  try {
+    const res = await fetch(`${BASE_API_URL}/stats`);
+    if (!res.ok) throw new Error();
+
+    return transformDates(await res.json()) as {
+      players: number;
+      snapshots: number;
+      groups: number;
+      competitions: number;
+    };
+  } catch (error) {
+    notFound();
+  }
+}
+
 export async function fetchNameChanges(filter: NameChangesSearchFilter, pagination: PaginationOptions) {
   const params = new URLSearchParams();
 
