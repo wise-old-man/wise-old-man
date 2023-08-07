@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { RemoveScroll } from "react-remove-scroll";
-import { cn } from "~/utils/styling";
 import { Search } from "./Search";
 
 import LogoAlt from "~/assets/logo_alt.svg";
