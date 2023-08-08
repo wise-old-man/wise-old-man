@@ -1,7 +1,16 @@
 import Image from "next/image";
 import { fetchGlobalStats } from "~/services/wiseoldman";
 import { Container } from "~/components/Container";
+import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
+
+import GithubIcon from "~/assets/github.svg";
+import PatreonIcon from "~/assets/patreon.svg";
+import DiscordIcon from "~/assets/discord.svg";
+
+import How1 from "../../public/img/how_1.png";
+import How2 from "../../public/img/how_2.png";
+import How3 from "../../public/img/how_3.png";
 
 import WomPhatImage from "../../public/img/wom_phat.png";
 import HeroCharacterImage from "../../public/img/homepage_character.png";
@@ -29,6 +38,11 @@ export default function Home() {
       <GroupsSection />
       <DiscordSection />
       <RuneliteDiscord />
+
+      <HowSection />
+
+      <div className="mx-auto my-32 h-px w-full max-w-5xl shrink-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0" />
+      <CommunitySection />
     </Container>
   );
 }
@@ -111,7 +125,7 @@ async function HeroSection() {
 
 function PlayersSection() {
   return (
-    <section className="relative mx-auto flex max-w-5xl rounded-2xl border border-gray-700 p-16">
+    <section className="relative mx-auto flex max-w-5xl rounded-2xl border border-gray-600 p-16">
       <div className="max-w-md">
         <h2 className="text-3xl font-semibold">Track your hiscores over time</h2>
         <p className="mt-4 text-sm leading-6 text-gray-200">
@@ -150,7 +164,7 @@ function PlayersSection() {
 
 function GroupsSection() {
   return (
-    <section className="relative mx-auto mt-24 flex max-w-5xl justify-end rounded-2xl border border-gray-700 p-16">
+    <section className="relative mx-auto mt-16 flex max-w-5xl justify-end rounded-2xl border border-gray-600 p-16">
       <Image
         src={FeaturesGroupsBack}
         alt="Wise Old Man - Group Features"
@@ -188,7 +202,7 @@ function GroupsSection() {
 
 function DiscordSection() {
   return (
-    <section className="relative mx-auto mt-24 max-w-5xl rounded-2xl border border-gray-700 p-16">
+    <section className="relative mx-auto mt-16 max-w-5xl rounded-2xl border border-gray-600 p-16">
       <div className="max-w-md">
         <h2 className="text-3xl font-semibold">Integrate with Discord</h2>
         <p className="mt-4 max-w-sm text-sm leading-6 text-gray-200">
@@ -230,7 +244,7 @@ function DiscordSection() {
 
 function RuneliteDiscord() {
   return (
-    <section className="relative mx-auto mt-24 flex max-w-5xl justify-end rounded-2xl border border-gray-700 p-16">
+    <section className="relative mx-auto mt-16 flex max-w-5xl justify-end rounded-2xl border border-gray-600 p-16">
       <Image
         src={FeaturesRuneliteBack}
         alt="Wise Old Man - Runelite Features"
@@ -270,6 +284,85 @@ function RuneliteDiscord() {
             <span className="text-sm text-gray-100">Ongoing / upcoming competition timers</span>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function HowSection() {
+  return (
+    <section className="mx-auto mt-32 flex max-w-5xl flex-col items-center">
+      <h2 className="text-3xl font-semibold">How does it work?</h2>
+      <div className="mt-10 w-full rounded-2xl bg-gradient-to-b from-gray-500 to-gray-800 p-px shadow-lg">
+        <div className="flex w-full items-center justify-between rounded-2xl bg-gray-900 py-10">
+          <div className="flex w-[20rem] flex-col items-center px-16">
+            <Image src={How1} className="w-[9rem]" alt="Step 1 - Update" />
+            <p className="mt-6 text-center text-sm leading-6">
+              Periodically request an update to your account.
+            </p>
+          </div>
+          <div className="h-[16rem] w-px shrink-0 bg-gradient-to-b from-white/0 via-white/10 to-white/0" />
+          <div className="flex w-[20rem] flex-col items-center px-10">
+            <Image src={How2} className="w-[9rem]" alt="Step 2 - We check the hiscores" />
+            <p className="mt-6 text-center text-sm leading-6">
+              We&apos;ll check your hiscores and store your current stats on our end.
+            </p>
+          </div>
+          <div className="h-[16rem] w-px shrink-0 bg-gradient-to-b from-white/0 via-white/10 to-white/0" />
+          <div className="flex w-[20rem] flex-col items-center px-10">
+            <Image src={How3} className="w-[9rem]" alt="Step 3 - We calculate gains, records, etc" />
+            <p className="mt-6 text-center text-sm leading-6">
+              Using this historical data, we calculate your gains, records, achievements, etc.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CommunitySection() {
+  return (
+    <section className="mx-auto mb-40 flex max-w-5xl flex-col items-center">
+      <h2 className="text-3xl font-semibold">Community driven</h2>
+      <p className="mb-10 mt-5 max-w-xl text-center leading-7 text-gray-200">
+        Wise Old Man is also a free Open Source project, meaning anyone in the community can contribute
+        code or ideas to add new functionality.
+      </p>
+      <div className="flex gap-x-5">
+        <a
+          aria-label="GitHub"
+          href="https://wiseoldman.net/github"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button>
+            <GithubIcon className="-ml-2 h-4 w-4" />
+            Contribute on GitHub
+          </Button>
+        </a>
+        <a
+          aria-label="Discord"
+          href="https://wiseoldman.net/discord"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button className="bg-discord-blue hover:bg-discord-blue-hover">
+            <DiscordIcon className="-ml-2 h-4 w-4" />
+            Join our Discord
+          </Button>
+        </a>
+        <a
+          aria-label="Patreon"
+          href="https://wiseoldman.net/patreon"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button className="bg-patreon-orange hover:bg-patreon-orange-hover">
+            <PatreonIcon className="-ml-2 h-4 w-4" />
+            See Patreon benefits
+          </Button>
+        </a>
       </div>
     </section>
   );
