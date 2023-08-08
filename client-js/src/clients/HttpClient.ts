@@ -10,11 +10,13 @@ export default class HttpClient {
   }
 
   private buildParams({ ...params }) {
-    const query = Object.keys(params)
-      .filter(k => params[k] !== undefined)
-      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
-      .join('&');
+    const builder = new URLSearchParams();
 
+    Object.keys(params)
+      .filter(k => params[k] !== undefined)
+      .forEach(k => builder.set(k, params[k]));
+
+    const query = builder.toString();
     return query ? `?${query}` : '';
   }
 
