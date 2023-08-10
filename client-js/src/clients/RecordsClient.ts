@@ -8,6 +8,6 @@ export default class RecordsClient extends BaseAPIClient {
    * @returns A list of records, with their respective players, dates and values included.
    */
   getRecordLeaderboard(filter: RecordLeaderboardFilter) {
-    return this.http.getRequest<RecordLeaderboardEntry[]>('/records/leaderboard', filter);
+    return this.getRequest<RecordLeaderboardEntry[]>('/records/leaderboard', filter);
   }
 }

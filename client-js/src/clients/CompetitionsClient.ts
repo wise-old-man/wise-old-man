@@ -23,7 +23,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A list of competitions.
    */
   searchCompetitions(filter: CompetitionsSearchFilter, pagination?: PaginationOptions) {
-    return this.http.getRequest<CompetitionListItem[]>('/competitions', { ...filter, ...pagination });
+    return this.getRequest<CompetitionListItem[]>('/competitions', { ...filter, ...pagination });
   }
 
   /**
@@ -31,7 +31,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A competition with a list of participants.
    */
   getCompetitionDetails(id: number, previewMetric?: Metric) {
-    return this.http.getRequest<CompetitionDetails>(`/competitions/${id}`, { metric: previewMetric });
+    return this.getRequest<CompetitionDetails>(`/competitions/${id}`, { metric: previewMetric });
   }
 
   /**
@@ -40,7 +40,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A list of competition progress objects, including the player and their value history over time.
    */
   getCompetitionTopHistory(id: number, previewMetric?: Metric) {
-    return this.http.getRequest<Top5ProgressResult>(`/competitions/${id}/top-history`, {
+    return this.getRequest<Top5ProgressResult>(`/competitions/${id}/top-history`, {
       metric: previewMetric
     });
   }
@@ -50,7 +50,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The newly created competition, and the verification code that authorizes future changes to it.
    */
   createCompetition(payload: CreateCompetitionPayload) {
-    return this.http.postRequest<CreateCompetitionResponse>('/competitions', payload);
+    return this.postRequest<CreateCompetitionResponse>('/competitions', payload);
   }
 
   /**
@@ -58,7 +58,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The updated competition.
    */
   editCompetition(id: number, payload: EditCompetitionPayload, verificationCode: string) {
-    return this.http.putRequest<CompetitionWithParticipations>(`/competitions/${id}`, {
+    return this.putRequest<CompetitionWithParticipations>(`/competitions/${id}`, {
       ...payload,
       verificationCode
     });
@@ -69,7 +69,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns A confirmation message.
    */
   deleteCompetition(id: number, verificationCode: string) {
-    return this.http.deleteRequest<GenericMessageResponse>(`/competitions/${id}`, { verificationCode });
+    return this.deleteRequest<GenericMessageResponse>(`/competitions/${id}`, { verificationCode });
   }
 
   /**
@@ -77,7 +77,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The number of participants added and a confirmation message.
    */
   addParticipants(id: number, participants: string[], verificationCode: string) {
-    return this.http.postRequest<GenericCountMessageResponse>(`/competitions/${id}/participants`, {
+    return this.postRequest<GenericCountMessageResponse>(`/competitions/${id}/participants`, {
       verificationCode,
       participants
     });
@@ -88,7 +88,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The number of participants removed and a confirmation message.
    */
   removeParticipants(id: number, participants: string[], verificationCode: string) {
-    return this.http.deleteRequest<GenericCountMessageResponse>(`/competitions/${id}/participants`, {
+    return this.deleteRequest<GenericCountMessageResponse>(`/competitions/${id}/participants`, {
       verificationCode,
       participants
     });
@@ -99,7 +99,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The number of participants added and a confirmation message.
    */
   addTeams(id: number, teams: Team[], verificationCode: string) {
-    return this.http.postRequest<GenericCountMessageResponse>(`/competitions/${id}/teams`, {
+    return this.postRequest<GenericCountMessageResponse>(`/competitions/${id}/teams`, {
       verificationCode,
       teams
     });
@@ -110,7 +110,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The number of participants removed and a confirmation message.
    */
   removeTeams(id: number, teamNames: string[], verificationCode: string) {
-    return this.http.deleteRequest<GenericCountMessageResponse>(`/competitions/${id}/teams`, {
+    return this.deleteRequest<GenericCountMessageResponse>(`/competitions/${id}/teams`, {
       verificationCode,
       teamNames
     });
@@ -121,7 +121,7 @@ export default class CompetitionsClient extends BaseAPIClient {
    * @returns The number of players to be updated and a confirmation message.
    */
   updateAll(id: number, verificationCode: string) {
-    return this.http.postRequest<GenericCountMessageResponse>(`/competitions/${id}/update-all`, {
+    return this.postRequest<GenericCountMessageResponse>(`/competitions/${id}/update-all`, {
       verificationCode
     });
   }

@@ -6,7 +6,7 @@ import RecordsClient from './clients/RecordsClient';
 import EfficiencyClient from './clients/EfficiencyClient';
 import NameChangesClient from './clients/NameChangesClient';
 import CompetitionsClient from './clients/CompetitionsClient';
-import HttpClient from './clients/HttpClient';
+import BaseAPIClient from './clients/BaseAPIClient';
 
 interface WOMClientOptions {
   apiKey?: string;
@@ -14,7 +14,7 @@ interface WOMClientOptions {
   baseAPIUrl?: string;
 }
 
-export default class WOMClient {
+export default class WOMClient extends BaseAPIClient {
   public deltas: DeltasClient;
   public groups: GroupsClient;
   public players: PlayersClient;
@@ -24,6 +24,7 @@ export default class WOMClient {
   public competitions: CompetitionsClient;
 
   constructor(options?: WOMClientOptions) {
+    const baseApiUrl = options?.baseAPIUrl || config.baseAPIUrl;
     const headers = {
       'x-user-agent': options?.userAgent || config.defaultUserAgent
     };
@@ -32,14 +33,14 @@ export default class WOMClient {
       headers['x-api-key'] = options.apiKey;
     }
 
-    const http = new HttpClient(headers, options?.baseAPIUrl || config.baseAPIUrl);
+    super(headers, baseApiUrl);
 
-    this.deltas = new DeltasClient(http);
-    this.groups = new GroupsClient(http);
-    this.players = new PlayersClient(http);
-    this.records = new RecordsClient(http);
-    this.efficiency = new EfficiencyClient(http);
-    this.nameChanges = new NameChangesClient(http);
-    this.competitions = new CompetitionsClient(http);
+    this.deltas = new DeltasClient(headers, baseApiUrl);
+    this.groups = new GroupsClient(headers, baseApiUrl);
+    this.players = new PlayersClient(headers, baseApiUrl);
+    this.records = new RecordsClient(headers, baseApiUrl);
+    this.efficiency = new EfficiencyClient(headers, baseApiUrl);
+    this.nameChanges = new NameChangesClient(headers, baseApiUrl);
+    this.competitions = new CompetitionsClient(headers, baseApiUrl);
   }
 }

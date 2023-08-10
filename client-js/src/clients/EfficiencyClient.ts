@@ -9,7 +9,7 @@ export default class EfficiencyClient extends BaseAPIClient {
    * @returns A list of players.
    */
   getEfficiencyLeaderboards(filter: EfficiencyLeaderboardsFilter, pagination?: PaginationOptions) {
-    return this.http.getRequest<Player[]>('/efficiency/leaderboard', { ...filter, ...pagination });
+    return this.getRequest<Player[]>('/efficiency/leaderboard', { ...filter, ...pagination });
   }
 
   /**
@@ -17,7 +17,7 @@ export default class EfficiencyClient extends BaseAPIClient {
    * @returns A list of skilling methods and their bonus exp ratios.
    */
   getEHPRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
-    return this.http.getRequest<SkillMetaConfig[]>('/efficiency/rates', {
+    return this.getRequest<SkillMetaConfig[]>('/efficiency/rates', {
       metric: Metric.EHP,
       type: algorithmType
     });
@@ -28,7 +28,7 @@ export default class EfficiencyClient extends BaseAPIClient {
    * @returns A list of bosses and their respective "per-hour" kill rates.
    */
   getEHBRates(algorithmType: EfficiencyAlgorithmTypeUnion) {
-    return this.http.getRequest<BossMetaConfig[]>('/efficiency/rates', {
+    return this.getRequest<BossMetaConfig[]>('/efficiency/rates', {
       metric: Metric.EHB,
       type: algorithmType
     });
