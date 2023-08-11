@@ -11,6 +11,9 @@ const nextConfig = withBundleAnalyzer(
     images: {
       domains: ["wiseoldman.net"],
     },
+    experimental: {
+      serverActions: true,
+    },
     async redirects() {
       return [
         {

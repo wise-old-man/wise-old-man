@@ -25,6 +25,10 @@ module.exports = {
         "gray-300": "hsl(215 10% 43%)",
         "gray-200": "hsl(215 10% 64%)",
         "gray-100": "hsl(215 10% 83%)",
+        "discord-blue": "#5865F2",
+        "discord-blue-hover": "#4853cf",
+        "patreon-orange": "#F96855",
+        "patreon-orange-hover": "#c95040",
       },
       fontSize: {
         h1: ["2.25rem", "2.5rem"],
