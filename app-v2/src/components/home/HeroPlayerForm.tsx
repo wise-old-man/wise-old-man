@@ -1,25 +1,38 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
+import { useToast } from "~/hooks/useToast";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";
+import { updatePlayer } from "~/actions/updatePlayer";
 
-import ArrowRight from "~/assets/arrow_right.svg";
+import LoadingIcon from "~/assets/loading.svg";
+import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 export function HeroPlayerForm() {
+  const toast = useToast();
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
 
-  function handleFormSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function update(formData: FormData) {
+    try {
+      const player = await updatePlayer(formData);
 
-    if (username.length === 0) return;
+      router.push(`/players/${player.username}`);
 
-    console.log("update player and then redirect");
+      toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
+    } catch (_) {
+      toast.toast({ variant: "error", title: "Failed to update player." });
+    }
   }
 
   return (
-    <form className="mt-5" onSubmit={handleFormSubmit}>
+    <form className="mt-5" action={update}>
       <Input
+        name="username"
         value={username}
         maxLength={12}
         placeholder="Enter your username"
@@ -28,13 +41,23 @@ export function HeroPlayerForm() {
           setUsername(e.currentTarget.value);
         }}
         rightElementClickable
-        rightElement={
-          <Button className="-mr-1 h-8" disabled={username.length === 0} variant="blue">
-            Track
-            <ArrowRight className="-mr-2 h-4 w-4" />
-          </Button>
-        }
+        rightElement={<SubmitButton disabled={username.length === 0} />}
       />
     </form>
+  );
+}
+
+function SubmitButton(props: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button className="-mr-1 h-8" disabled={pending || props.disabled} variant="blue">
+      Track
+      {pending ? (
+        <LoadingIcon className="-mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <ArrowRightIcon className="-mr-2 h-4 w-4" />
+      )}
+    </Button>
   );
 }
