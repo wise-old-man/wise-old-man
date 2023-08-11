@@ -56,7 +56,13 @@ async function HeroSection() {
   const competitionsCount = `${(stats.competitions / 1_000).toFixed(1)}k`.replace(".0k", "k");
 
   return (
-    <section className="relative w-full bg-gray-900 bg-gradient-to-b from-[#1C315F]/20 to-transparent to-80% pb-20 pt-10">
+    <section className="relative w-full bg-gray-900 bg-gradient-to-b from-[#1C315F]/20 to-transparent to-80% pb-20 pt-32 md:pt-10">
+      <Image
+        id="wom"
+        src={HeroCharacterImage}
+        alt="Wise Old Man - In-game NPC"
+        className="absolute left-[calc(50vw-98px)] top-5 block w-[196px] md:hidden"
+      />
       {/* Hero */}
       <div className="relative mx-auto max-w-[90vw] pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
         <div className="rounded-2xl border border-gray-700 bg-gradient-to-b from-white/10 to-white/0 p-px">
@@ -68,7 +74,7 @@ async function HeroSection() {
               className="absolute bottom-0 right-0 h-full object-cover opacity-50 lg:max-w-[60%]"
             />
 
-            <div className="flex w-auto flex-col items-start">
+            <div className="flex w-auto flex-col items-center  md:items-start">
               <div className="z-10 flex flex-col px-14 pb-12 pt-14">
                 <span className="bg-gradient-to-t from-blue-700 to-blue-500 bg-clip-text text-[2.75rem] font-bold uppercase leading-[3.5rem] text-transparent">
                   Wise Old Man
@@ -89,31 +95,31 @@ async function HeroSection() {
           id="wom"
           src={HeroCharacterImage}
           alt="Wise Old Man - In-game NPC"
-          className="absolute -bottom-5 right-[7%] hidden w-[292px] sm:block"
+          className="absolute -bottom-5 right-[7%] hidden w-[292px] md:block"
         />
       </div>
 
       {/* Stats */}
-      <div className="relative z-20 -mt-5 hidden w-full items-center md:flex">
+      <div className="relative z-20 -mt-5 flex w-full items-center">
         <div className="mx-auto rounded-xl bg-gray-900 bg-gradient-to-b from-gray-500 to-gray-900 p-px">
           <div className="mx-auto flex items-center rounded-xl bg-gray-900 py-5">
-            <div className="flex flex-col items-center px-8">
-              <span className="text-2xl font-bold">{playerCount}</span>
+            <div className="flex flex-col items-center px-6 sm:px-8">
+              <span className="text-base font-bold sm:text-2xl">{playerCount}</span>
               <span className="mt-1 text-xs text-gray-200">Players</span>
             </div>
             <div className="h-6 w-px bg-gray-500" />
-            <div className="flex flex-col items-center px-8">
-              <span className="text-2xl font-bold">{snapshotsCount}</span>
+            <div className="flex flex-col items-center px-6 sm:px-8">
+              <span className="text-base font-bold sm:text-2xl">{snapshotsCount}</span>
               <span className="mt-1 text-xs text-gray-200">Snapshots</span>
             </div>
             <div className="h-6 w-px bg-gray-500" />
-            <div className="flex flex-col items-center px-8">
-              <span className="text-2xl font-bold">{groupsCount}</span>
+            <div className="flex flex-col items-center px-6 sm:px-8">
+              <span className="text-base font-bold sm:text-2xl">{groupsCount}</span>
               <span className="mt-1 text-xs text-gray-200">Groups</span>
             </div>
             <div className="h-6 w-px bg-gray-500" />
-            <div className="flex flex-col items-center px-8">
-              <span className="text-2xl font-bold">{competitionsCount}</span>
+            <div className="flex flex-col items-center px-6 sm:px-8">
+              <span className="text-base font-bold sm:text-2xl">{competitionsCount}</span>
               <span className="mt-1 text-xs text-gray-200">Competitions</span>
             </div>
           </div>
@@ -125,7 +131,7 @@ async function HeroSection() {
 
 function PlayersSection() {
   return (
-    <section className="relative mx-auto flex max-w-5xl rounded-2xl border border-gray-600 p-16">
+    <section className="relative mx-auto flex max-w-[90vw] rounded-2xl border border-gray-600 p-16 pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
       <div className="max-w-md">
         <h2 className="text-3xl font-semibold">Track your hiscores over time</h2>
         <p className="mt-4 text-sm leading-6 text-gray-200">
@@ -147,35 +153,39 @@ function PlayersSection() {
           </div>
         </div>
       </div>
-      <Image
-        src={FeaturesPlayersBack}
-        alt="Wise Old Man - Player Features"
-        className="absolute bottom-0 right-10 w-[365px]"
-      />
-      <div className="absolute bottom-0 right-10 top-0 w-[365px] bg-gradient-to-t from-gray-900/90 to-gray-900/0" />
-      <Image
-        src={FeaturesPlayersFront}
-        alt="Wise Old Man - Player Features (Overlay)"
-        className="absolute -right-11 bottom-[5.5rem] w-[178px]"
-      />
+      <div className="hidden xl:block">
+        <Image
+          src={FeaturesPlayersBack}
+          alt="Wise Old Man - Player Features"
+          className="absolute bottom-0 right-10 w-[365px]"
+        />
+        <div className="absolute bottom-0 right-10 top-0 w-[365px] bg-gradient-to-t from-gray-900/90 to-gray-900/0" />
+        <Image
+          src={FeaturesPlayersFront}
+          alt="Wise Old Man - Player Features (Overlay)"
+          className="absolute -right-11 bottom-[5.5rem] w-[178px]"
+        />
+      </div>
     </section>
   );
 }
 
 function GroupsSection() {
   return (
-    <section className="relative mx-auto mt-16 flex max-w-5xl justify-end rounded-2xl border border-gray-600 p-16">
-      <Image
-        src={FeaturesGroupsBack}
-        alt="Wise Old Man - Group Features"
-        className="absolute bottom-0 left-10 w-[347px]"
-      />
-      <div className="absolute bottom-0 left-10 top-0 w-[347px] bg-gradient-to-t from-gray-900/90 to-gray-900/0" />
-      <Image
-        src={FeaturesGroupsFront}
-        alt="Wise Old Man - Group Features (Overlay)"
-        className="bottom-30 absolute left-44 w-[307px]"
-      />
+    <section className="relative mx-auto mt-16 flex max-w-[90vw] rounded-2xl border border-gray-600 p-16 pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl xl:justify-end">
+      <div className="hidden xl:block">
+        <Image
+          src={FeaturesGroupsBack}
+          alt="Wise Old Man - Group Features"
+          className="absolute bottom-0 left-10 w-[347px]"
+        />
+        <div className="absolute bottom-0 left-10 top-0 w-[347px] bg-gradient-to-t from-gray-900/90 to-gray-900/0" />
+        <Image
+          src={FeaturesGroupsFront}
+          alt="Wise Old Man - Group Features (Overlay)"
+          className="bottom-30 absolute left-44 w-[307px]"
+        />
+      </div>
       <div className="max-w-md">
         <h2 className="text-3xl font-semibold">Track your clan&apos;s progress</h2>
         <p className="mt-4 max-w-sm text-sm leading-6 text-gray-200">
@@ -202,7 +212,7 @@ function GroupsSection() {
 
 function DiscordSection() {
   return (
-    <section className="relative mx-auto mt-16 max-w-5xl rounded-2xl border border-gray-600 p-16">
+    <section className="relative mx-auto mt-16 max-w-[90vw] rounded-2xl border border-gray-600 p-16 pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
       <div className="max-w-md">
         <h2 className="text-3xl font-semibold">Integrate with Discord</h2>
         <p className="mt-4 max-w-sm text-sm leading-6 text-gray-200">
@@ -227,35 +237,39 @@ function DiscordSection() {
           </div>
         </div>
       </div>
-      <Image
-        src={FeaturesDiscordBack}
-        alt="Wise Old Man - Discord Features"
-        className="absolute bottom-0 right-16 w-[388px]"
-      />
-      <div className="absolute bottom-0 right-16 top-0 w-[388px] bg-gradient-to-t from-gray-900 to-gray-900/0" />
-      <Image
-        src={FeaturesDiscordFront}
-        alt="Wise Old Man - Discord Features (Overlay)"
-        className="absolute -right-11 bottom-28 w-[243px]"
-      />
+      <div className="hidden xl:block">
+        <Image
+          src={FeaturesDiscordBack}
+          alt="Wise Old Man - Discord Features"
+          className="absolute bottom-0 right-16 w-[388px]"
+        />
+        <div className="absolute bottom-0 right-16 top-0 w-[388px] bg-gradient-to-t from-gray-900 to-gray-900/0" />
+        <Image
+          src={FeaturesDiscordFront}
+          alt="Wise Old Man - Discord Features (Overlay)"
+          className="absolute -right-11 bottom-28 w-[243px]"
+        />
+      </div>
     </section>
   );
 }
 
 function RuneliteDiscord() {
   return (
-    <section className="relative mx-auto mt-16 flex max-w-5xl justify-end rounded-2xl border border-gray-600 p-16">
-      <Image
-        src={FeaturesRuneliteBack}
-        alt="Wise Old Man - Runelite Features"
-        className="absolute bottom-0 left-10 w-[368px]"
-      />
-      <div className="absolute bottom-0 left-10 top-0 w-[368px] bg-gradient-to-t from-gray-900 to-gray-900/0" />
-      <Image
-        src={FeaturesRuneliteFront}
-        alt="Wise Old Man - Runelite Features (Overlay)"
-        className="absolute bottom-4 left-8 w-[441px]"
-      />
+    <section className="relative mx-auto mt-16 flex max-w-[90vw] rounded-2xl border border-gray-600 p-16 pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl xl:justify-end">
+      <div className="hidden xl:block">
+        <Image
+          src={FeaturesRuneliteBack}
+          alt="Wise Old Man - Runelite Features"
+          className="absolute bottom-0 left-10 w-[368px]"
+        />
+        <div className="absolute bottom-0 left-10 top-0 w-[368px] bg-gradient-to-t from-gray-900 to-gray-900/0" />
+        <Image
+          src={FeaturesRuneliteFront}
+          alt="Wise Old Man - Runelite Features (Overlay)"
+          className="absolute bottom-4 left-8 w-[441px]"
+        />
+      </div>
       <div className="max-w-lg">
         <h2 className="text-3xl font-semibold">Integrate with RuneLite</h2>
         <p className="mt-4 max-w-sm text-sm leading-6 text-gray-200">
@@ -291,24 +305,24 @@ function RuneliteDiscord() {
 
 function HowSection() {
   return (
-    <section className="mx-auto mt-32 flex max-w-5xl flex-col items-center">
+    <section className="mx-auto mt-32 flex max-w-[90vw] flex-col items-center pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
       <h2 className="text-3xl font-semibold">How does it work?</h2>
       <div className="mt-10 w-full rounded-2xl bg-gradient-to-b from-gray-500 to-gray-800 p-px shadow-lg">
-        <div className="flex w-full items-center justify-between rounded-2xl bg-gray-900 py-10">
+        <div className="flex w-full flex-col items-center justify-between gap-y-16 rounded-2xl bg-gray-900 py-10 xl:flex-row">
           <div className="flex w-[20rem] flex-col items-center px-16">
             <Image src={How1} className="w-[9rem]" alt="Step 1 - Update" />
             <p className="mt-6 text-center text-sm leading-6">
               Periodically request an update to your account.
             </p>
           </div>
-          <div className="h-[16rem] w-px shrink-0 bg-gradient-to-b from-white/0 via-white/10 to-white/0" />
+          <div className="h-px w-full shrink-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 xl:h-[16rem] xl:w-px xl:bg-gradient-to-b" />
           <div className="flex w-[20rem] flex-col items-center px-10">
             <Image src={How2} className="w-[9rem]" alt="Step 2 - We check the hiscores" />
             <p className="mt-6 text-center text-sm leading-6">
               We&apos;ll check your hiscores and store your current stats on our end.
             </p>
           </div>
-          <div className="h-[16rem] w-px shrink-0 bg-gradient-to-b from-white/0 via-white/10 to-white/0" />
+          <div className="h-px w-full shrink-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 xl:h-[16rem] xl:w-px xl:bg-gradient-to-b" />
           <div className="flex w-[20rem] flex-col items-center px-10">
             <Image src={How3} className="w-[9rem]" alt="Step 3 - We calculate gains, records, etc" />
             <p className="mt-6 text-center text-sm leading-6">
@@ -323,13 +337,13 @@ function HowSection() {
 
 function CommunitySection() {
   return (
-    <section className="mx-auto mb-40 flex max-w-5xl flex-col items-center">
+    <section className="mx-auto mb-40 flex max-w-[80vw] flex-col items-center pt-10 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
       <h2 className="text-3xl font-semibold">Community driven</h2>
       <p className="mb-10 mt-5 max-w-xl text-center leading-7 text-gray-200">
         Wise Old Man is also a free Open Source project, meaning anyone in the community can contribute
         code or ideas to add new functionality.
       </p>
-      <div className="flex gap-x-5">
+      <div className="flex flex-col items-center gap-5 md:flex-row">
         <a
           aria-label="GitHub"
           href="https://wiseoldman.net/github"
