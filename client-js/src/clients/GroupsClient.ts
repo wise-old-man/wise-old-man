@@ -132,7 +132,9 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of achievements.
    */
   getGroupAchievements(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<ExtendedAchievementWithPlayer[]>(`/groups/${id}/achievements`, { ...pagination });
+    return this.getRequest<ExtendedAchievementWithPlayer[]>(`/groups/${id}/achievements`, {
+      ...pagination
+    });
   }
 
   /**
@@ -140,7 +142,10 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of records, including their respective players.
    */
   getGroupRecords(id: number, filter: GroupRecordsFilter, pagination?: PaginationOptions) {
-    return this.getRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, { ...pagination, ...filter });
+    return this.getRequest<RecordLeaderboardEntry[]>(`/groups/${id}/records`, {
+      ...pagination,
+      ...filter
+    });
   }
 
   /**
