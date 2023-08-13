@@ -7,7 +7,7 @@ import {
   PlayerBuildProps,
   formatNumber,
 } from "@wise-old-man/utils";
-import { fetchEfficiencyLeaderboards } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -54,7 +54,6 @@ export default async function EfficiencyLeaderboardsPageWrapper(props: PageProps
   // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
   return (
     <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <EfficiencyLeaderboardsPage {...props} />
     </Suspense>
   );
@@ -64,18 +63,13 @@ async function EfficiencyLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
   const filters = {
-    metric: getComputedMetricParam(searchParams.metric) || Metric.EHP,
+    metric: (getComputedMetricParam(searchParams.metric) || Metric.EHP) as ComputedMetric,
     country: getCountryParam(searchParams.country),
     playerType: getPlayerTypeParam(searchParams.playerType),
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
   };
 
-  return (
-    <>
-      {/* @ts-expect-error - Server Component  */}
-      <EfficiencyLeaderboard filters={filters} />
-    </>
-  );
+  return <EfficiencyLeaderboard filters={filters} />;
 }
 
 interface EfficiencyLeaderboardProps {
@@ -87,7 +81,7 @@ interface EfficiencyLeaderboardProps {
 async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
   const { metric, ...filters } = props.filters;
 
-  const data = await fetchEfficiencyLeaderboards({
+  const data = await apiClient.efficiency.getEfficiencyLeaderboards({
     metric: metric === COMBINED_METRIC ? "ehp+ehb" : metric,
     ...filters,
   });

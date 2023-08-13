@@ -11,7 +11,7 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { fetchGroupCompetitions, getCompetitionStatus } from "~/services/wiseoldman";
+import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { Label } from "../Label";
 import { Badge } from "../Badge";
@@ -35,7 +35,6 @@ export function GroupWidgets(props: GroupWidgetsProps) {
     <div className="grid grid-cols-1 gap-5 md:grid-cols-5">
       <div className="col-span-1 md:col-span-2">
         <Suspense fallback={<FeaturedCompetitionWidgetSkeleton />}>
-          {/* @ts-expect-error - Server Component  */}
           <FeaturedCompetitionWidget groupId={group.id} />
         </Suspense>
       </div>
@@ -102,7 +101,7 @@ export function GroupWidgets(props: GroupWidgetsProps) {
 }
 
 async function FeaturedCompetitionWidget(props: { groupId: number }) {
-  const competitions = await fetchGroupCompetitions(props.groupId);
+  const competitions = await apiClient.groups.getGroupCompetitions(props.groupId);
 
   let featured: CompetitionListItem | undefined;
 
@@ -177,26 +176,6 @@ function FeaturedCompetitionWidgetSkeleton() {
         <div className="h-4 w-56 animate-pulse rounded-lg bg-gray-400" />
         <div className="h-3 w-32 animate-pulse rounded-lg bg-gray-500" />
       </div>
-    </div>
-  );
-}
-
-interface GroupTotalWidgetProps {
-  metric: typeof Metric.OVERALL | typeof Metric.EHP | typeof Metric.EHB;
-  value: number;
-  avg: number;
-}
-
-function GroupTotalWidget(props: GroupTotalWidgetProps) {
-  const { metric, value, avg } = props;
-
-  return (
-    <div className="flex h-[5rem] w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-600 px-6">
-      <div className="flex items-center gap-x-2">
-        <MetricIconSmall metric={metric} />
-        <h3 className="text-lg">{formatNumber(value, true)}</h3>
-      </div>
-      <h3 className="line-clamp-1 text-sm text-gray-200">{formatNumber(avg, true)} avg.</h3>
     </div>
   );
 }

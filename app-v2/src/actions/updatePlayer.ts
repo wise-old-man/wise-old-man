@@ -1,7 +1,7 @@
 "use server";
 
-import { WOMClient } from "@wise-old-man/utils";
 import { revalidatePath } from "next/cache";
+import { apiClient } from "~/services/wiseoldman";
 
 export async function updatePlayer(formData: FormData) {
   const username = formData?.get("username");
@@ -10,7 +10,7 @@ export async function updatePlayer(formData: FormData) {
     throw new Error("Invalid form data");
   }
 
-  const result = await new WOMClient().players.updatePlayer(String(username));
+  const result = await apiClient.players.updatePlayer(String(username));
 
   revalidatePath(`/players/${result.username}`);
 

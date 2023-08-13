@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { GroupDetails } from "@wise-old-man/utils";
-import { fetchGroup } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
@@ -37,7 +37,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return (
     <Container>

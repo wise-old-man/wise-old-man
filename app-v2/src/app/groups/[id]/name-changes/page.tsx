@@ -1,7 +1,8 @@
 import { getPageParam } from "~/utils/params";
 import { Pagination } from "~/components/Pagination";
-import { fetchGroup, fetchGroupNameChanges } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { GroupNameChangesTable } from "~/components/groups/GroupNameChangesTable";
+import { NameChange, Player } from "@wise-old-man/utils";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Recent name changes: ${group.name}`,
@@ -34,10 +35,10 @@ export default async function GroupNameChangesOage(props: PageProps) {
 
   const RESULTS_PER_PAGE = 20;
 
-  const nameChanges = await fetchGroupNameChanges(id, {
+  const nameChanges = (await apiClient.groups.getGroupNameChanges(id, {
     limit: RESULTS_PER_PAGE,
     offset: (page - 1) * RESULTS_PER_PAGE,
-  });
+  })) as Array<NameChange & Player>; // TODO: this type should come correct from the API
 
   return (
     <>

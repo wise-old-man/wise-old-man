@@ -1,4 +1,4 @@
-import { fetchGroup } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { GroupWidgets } from "~/components/groups/GroupWidgets";
 import { MembersTable } from "~/components/groups/MembersTable";
 
@@ -17,7 +17,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: group.name,
@@ -29,7 +29,7 @@ export default async function GroupDetailsPage(props: PageProps) {
   const { id } = props.params;
   const { filter } = props.searchParams;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return (
     <div className="flex flex-col gap-y-10">

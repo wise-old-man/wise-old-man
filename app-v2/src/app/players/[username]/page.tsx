@@ -1,10 +1,5 @@
 import { MetricType } from "@wise-old-man/utils";
-import {
-  fetchPlayer,
-  fetchPlayerAchievementProgress,
-  fetchPlayerMemberships,
-  fetchPlayerParticipations,
-} from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
 import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewAchievements";
@@ -25,7 +20,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await fetchPlayer(decodeURI(props.params.username));
+  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: player.displayName,
@@ -39,10 +34,10 @@ export default async function PlayerPage(props: PageProps) {
   const metricType = convertMetricType(searchParams.view);
 
   const [player, memberships, participations, achievementsProgress] = await Promise.all([
-    fetchPlayer(username),
-    fetchPlayerMemberships(username),
-    fetchPlayerParticipations(username),
-    fetchPlayerAchievementProgress(username),
+    apiClient.players.getPlayerDetails(username),
+    apiClient.players.getPlayerGroups(username),
+    apiClient.players.getPlayerCompetitions(username),
+    apiClient.players.getPlayerAchievementProgress(username),
   ]);
 
   return (

@@ -1,5 +1,5 @@
 import { GroupAverageStatsTable } from "~/components/groups/GroupAverageStatsTable";
-import { fetchGroup, fetchGroupStatistics } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Statistics: ${group.name}`,
@@ -24,7 +24,7 @@ export async function generateMetadata(props: PageProps) {
 export default async function GroupStatisticsPage(props: PageProps) {
   const { id } = props.params;
 
-  const statistics = await fetchGroupStatistics(id);
+  const statistics = await apiClient.groups.getGroupStatistics(id);
 
   return <GroupAverageStatsTable statistics={statistics} />;
 }

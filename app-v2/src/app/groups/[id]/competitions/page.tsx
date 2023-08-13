@@ -1,7 +1,7 @@
 import { CompetitionStatus } from "@wise-old-man/utils";
 import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
-import { fetchGroup, fetchGroupCompetitions, getCompetitionStatus } from "~/services/wiseoldman";
+import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Competitions: ${group.name}`,
@@ -26,7 +26,10 @@ export async function generateMetadata(props: PageProps) {
 export default async function GroupCompetitionsPage(props: PageProps) {
   const { id } = props.params;
 
-  const [group, competitions] = await Promise.all([fetchGroup(id), fetchGroupCompetitions(id)]);
+  const [group, competitions] = await Promise.all([
+    apiClient.groups.getGroupDetails(id),
+    apiClient.groups.getGroupCompetitions(id),
+  ]);
 
   if (!competitions || competitions.length === 0) {
     return (

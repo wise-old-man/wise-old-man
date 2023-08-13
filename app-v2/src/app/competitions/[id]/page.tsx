@@ -1,5 +1,5 @@
 import { CompetitionType, isMetric } from "@wise-old-man/utils";
-import { fetchCompetition } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { TeamsTable } from "~/components/competitions/TeamsTable";
 import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
@@ -20,8 +20,11 @@ interface PageProps {
 
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
+  const { preview } = props.searchParams;
 
-  const competition = await fetchCompetition(id);
+  const previewMetric = preview && isMetric(preview) ? preview : undefined;
+
+  const competition = await apiClient.competitions.getCompetitionDetails(id, previewMetric);
 
   return {
     title: competition.title,
@@ -34,7 +37,7 @@ export default async function CompetitionOverviewPage(props: PageProps) {
 
   const previewMetric = preview && isMetric(preview) ? preview : undefined;
 
-  const competition = await fetchCompetition(id, previewMetric);
+  const competition = await apiClient.competitions.getCompetitionDetails(id, previewMetric);
   const metric = previewMetric || competition.metric;
 
   // Starting in less than 3 hours

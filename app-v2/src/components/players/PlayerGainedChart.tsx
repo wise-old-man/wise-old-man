@@ -1,6 +1,6 @@
 import dynamicImport from "next/dynamic";
 import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
-import { TimeRangeFilter, fetchPlayerTimeline } from "~/services/wiseoldman";
+import { TimeRangeFilter, apiClient } from "~/services/wiseoldman";
 
 const LineChartSSR = dynamicImport(() => import("../LineChart"), {
   ssr: false,
@@ -21,7 +21,7 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
 
   const { name, measure } = MetricProps[metric];
 
-  const timelineData = await fetchPlayerTimeline(username, timeRange, metric);
+  const timelineData = await apiClient.players.getPlayerSnapshotTimeline(username, metric, timeRange);
 
   if (timelineData.length < 2 || timelineData.every((d) => d.value === -1)) {
     return (

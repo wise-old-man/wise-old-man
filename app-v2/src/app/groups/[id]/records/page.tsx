@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupRecordsTable } from "~/components/groups/GroupRecordsTable";
-import { fetchGroup, fetchGroupRecords } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
 export const runtime = "edge";
@@ -23,7 +23,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Record Leaderboards: ${group.name}`,
@@ -42,11 +42,12 @@ export default async function GroupRecordsPage(props: PageProps) {
   const RESULTS_PER_PAGE = 20;
 
   const [group, records] = await Promise.all([
-    fetchGroup(id),
-    fetchGroupRecords(id, metric, period, {
-      limit: RESULTS_PER_PAGE,
-      offset: (page - 1) * RESULTS_PER_PAGE,
-    }),
+    apiClient.groups.getGroupDetails(id),
+    apiClient.groups.getGroupRecords(
+      id,
+      { metric, period },
+      { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
+    ),
   ]);
 
   return (
