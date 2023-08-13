@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { MetricType } from "@wise-old-man/utils";
 import { apiClient } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
@@ -33,24 +34,27 @@ export default async function PlayerPage(props: PageProps) {
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const [player, memberships, participations, achievementsProgress] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerGroups(username),
-    apiClient.players.getPlayerCompetitions(username),
-    apiClient.players.getPlayerAchievementProgress(username),
-  ]);
+  const player = await apiClient.players.getPlayerDetails(username);
 
   return (
     <div>
       <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-12 flex flex-col gap-y-3 lg:col-span-4">
-          <PlayerOverviewCompetition username={username} participations={participations} />
-          <PlayerOverviewMemberships username={username} memberships={memberships} />
-          <PlayerOverviewAchievements
-            username={player.username}
-            achievementsProgress={achievementsProgress}
-          />
+          <Suspense
+            fallback={
+              <div>
+                <div className="mb-3 mt-1 h-4 w-20 animate-pulse rounded-full bg-gray-700" />
+                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
+                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
+                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
+              </div>
+            }
+          >
+            <PlayerOverviewCompetition username={username} />
+            <PlayerOverviewMemberships username={username} />
+            <PlayerOverviewAchievements username={player.username} />
+          </Suspense>
         </div>
         <div className="col-span-12 mt-8 lg:col-span-8">
           <PlayerStatsTable

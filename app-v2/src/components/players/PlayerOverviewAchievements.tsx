@@ -1,15 +1,17 @@
-import { AchievementProgress, SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
+import { SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
 import Link from "next/link";
 import { Label } from "../Label";
 import { AchievementListItem } from "../AchievementListItem";
+import { apiClient } from "~/services/wiseoldman";
 
 interface PlayerOverviewAchievementsProps {
   username: string;
-  achievementsProgress: AchievementProgress[];
 }
 
-export function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProps) {
-  const { username, achievementsProgress } = props;
+export async function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProps) {
+  const { username } = props;
+
+  const achievementsProgress = await apiClient.players.getPlayerAchievementProgress(username);
 
   const nearest99s = achievementsProgress
     .filter((a) => isSkill(a.metric) && a.threshold === SKILL_EXP_AT_99 && !a.createdAt)

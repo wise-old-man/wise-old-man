@@ -19,9 +19,9 @@ export function HeroPlayerForm() {
 
   async function update(formData: FormData) {
     try {
-      const player = await updatePlayer(formData);
+      const player = await updatePlayer(formData?.get("username") as string);
 
-      router.push(`/players/${player.username}`);
+      router.push(`/players/${player.displayName}`);
 
       toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
     } catch (_) {

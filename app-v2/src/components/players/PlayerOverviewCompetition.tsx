@@ -1,24 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  CompetitionListItem,
-  CompetitionStatus,
-  CompetitionStatusProps,
-  ParticipationWithCompetition,
-} from "@wise-old-man/utils";
+import { CompetitionListItem, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { getCompetitionStatus } from "~/services/wiseoldman";
+import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
 import { Label } from "../Label";
 import { MetricIcon } from "../Icon";
 
 interface PlayerOverviewCompetitionProps {
   username: string;
-  participations: ParticipationWithCompetition[];
 }
 
-export function PlayerOverviewCompetition(props: PlayerOverviewCompetitionProps) {
-  const { username, participations } = props;
+export async function PlayerOverviewCompetition(props: PlayerOverviewCompetitionProps) {
+  const { username } = props;
+
+  const participations = await apiClient.players.getPlayerCompetitions(username);
 
   let featured: CompetitionListItem | undefined;
 

@@ -1,41 +1,42 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { Player, WOMClient } from "@wise-old-man/utils";
+import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { Player } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { Button } from "../Button";
 
 import LoadingIcon from "~/assets/loading.svg";
+import { updatePlayer } from "~/actions/updatePlayer";
 
 export function UpdatePlayerForm(props: { player: Player }) {
-  const { player } = props;
-
   const toast = useToast();
   const router = useRouter();
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: () => {
-      return client.players.updatePlayer(player.username);
-    },
-    onSuccess: () => {
-      toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
+  async function update() {
+    try {
+      const player = await updatePlayer(props.player.username);
       router.refresh();
-    },
-    onError: (error) => {
-      if (error instanceof Error) {
-        toast.toast({ variant: "error", title: error.message });
-      }
-    },
-  });
+
+      toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
+    } catch (_) {
+      toast.toast({ variant: "error", title: "Failed to update player." });
+    }
+  }
 
   return (
-    <Button variant="blue" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending}>
-      {updateMutation.isPending ? (
+    <form action={update}>
+      <UpdateButton />
+    </form>
+  );
+}
+
+function UpdateButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button variant="blue" disabled={pending}>
+      {pending ? (
         <>
           Updating...
           <LoadingIcon className="-mr-1 ml-1 h-4 w-4 animate-spin text-white" />
