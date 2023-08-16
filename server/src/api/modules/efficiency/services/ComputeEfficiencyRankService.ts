@@ -18,17 +18,15 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
 
   const rank = await prisma.player.count({
     where: {
-      id: { not: params.player.id },
       type: params.player.type,
-      [params.metric]: { gte: params.value },
-      status: { not: PlayerStatus.ARCHIVED }
+      [params.metric]: { gte: params.value }
     }
   });
 
   // If player is not in the top 50, a quick COUNT(*) query gives an acceptable
   // rank approximation, this however won't work for players in the top of the
   // leaderboards, and we'll have to use their registration date as a tie breaker
-  if (rank > 50) return rank + 1;
+  if (rank > 50) return rank;
 
   const topPlayers = await prisma.player.findMany({
     where: {

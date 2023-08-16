@@ -329,7 +329,7 @@ describe('Efficiency API', () => {
         metric: 'ehp'
       });
 
-      expect(result).toBe(60);
+      expect(result).toBe(61);
     });
 
     it('should compute < top 50 rank', async () => {
