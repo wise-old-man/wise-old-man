@@ -293,10 +293,11 @@ model Player {
   archives       PlayerArchive[]
 
   // Indices
-  @@index([type], map: "players_type")
   @@index([build], map: "players_build")
   @@index([country], map: "players_country")
   @@index([latestSnapshotId], map: "players_latest_snapshot_id")
+  @@index([type, ehp(sort: Desc)], map: "players_type_ehp")
+  @@index([type, ehb(sort: Desc)], map: "players_type_ehb")
   // Map
   @@map("players")
 }
