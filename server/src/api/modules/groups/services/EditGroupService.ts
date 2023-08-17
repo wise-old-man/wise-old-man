@@ -1,12 +1,5 @@
 import { z } from 'zod';
-import prisma, {
-  Membership,
-  modifyPlayer,
-  PrismaPlayer,
-  PrismaTypes,
-  PrismaPromise,
-  Player
-} from '../../../../prisma';
+import prisma, { Membership, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
@@ -110,9 +103,9 @@ async function editGroup(payload: EditGroupParams): Promise<GroupDetails> {
 
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
-  const sortedMemberships = updatedGroup.memberships
-    .map(m => ({ ...m, player: modifyPlayer(m.player) }))
-    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
+  const sortedMemberships = updatedGroup.memberships.sort(
+    (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+  );
 
   return {
     ...omit(updatedGroup, 'verificationHash'),
@@ -183,7 +176,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
 
 function removeExcessMemberships(
   groupId: number,
-  currentMemberships: (Membership & { player: PrismaPlayer })[],
+  currentMemberships: (Membership & { player: Player })[],
   nextUsernames: string[]
 ): PrismaPromise<PrismaTypes.BatchPayload> {
   const excessMembers = currentMemberships.filter(m => !nextUsernames.includes(m.player.username));
@@ -223,7 +216,7 @@ function addMissingMemberships(
 function updateExistingRoles(
   groupId: number,
   keptPlayers: Player[],
-  currentMemberships: (Membership & { player: PrismaPlayer })[],
+  currentMemberships: (Membership & { player: Player })[],
   memberInputs: EditGroupParams['members']
 ): PrismaPromise<PrismaTypes.BatchPayload>[] {
   // Note: reversing the array here to find the role that was last declared for a given username

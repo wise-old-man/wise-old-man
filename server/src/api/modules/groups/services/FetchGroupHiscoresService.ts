@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Snapshot } from '../../../../prisma';
+import prisma, { Snapshot } from '../../../../prisma';
 import {
   getMetricMeasure,
   getMetricRankKey,
@@ -63,7 +63,7 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
   return memberships
     .filter(({ playerId }) => valueMap[playerId] && valueMap[playerId].rank > 0)
     .map(m => ({
-      player: modifyPlayer(m.player),
+      player: m.player,
       data: valueMap[m.playerId]
     }))
     .sort((a, b) => b.data[measure] - a.data[measure]);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Period, Metric } from '../../../../utils';
-import prisma, { Record, PrismaTypes, modifyRecords } from '../../../../prisma';
+import prisma, { Record, PrismaTypes } from '../../../../prisma';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -20,12 +20,10 @@ async function findPlayerRecords(payload: FindPlayerRecordParams): Promise<Recor
   if (params.period) query.period = params.period;
   if (params.metric) query.metric = params.metric;
 
-  const records = await prisma.record
-    .findMany({
-      where: { ...query },
-      orderBy: { updatedAt: 'desc' }
-    })
-    .then(modifyRecords);
+  const records = await prisma.record.findMany({
+    where: { ...query },
+    orderBy: { updatedAt: 'desc' }
+  });
 
   return records;
 }

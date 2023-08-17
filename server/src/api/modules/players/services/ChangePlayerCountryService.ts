@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { Country, findCountry } from '../../../../utils';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
@@ -38,12 +38,10 @@ async function changePlayerCountry(payload: ChangePlayerCountryParams): Promise<
   }
 
   try {
-    const updatedPlayer = await prisma.player
-      .update({
-        data: { country: countryCode },
-        where: { id: params.id, username: standardize(params.username) }
-      })
-      .then(modifyPlayer);
+    const updatedPlayer = await prisma.player.update({
+      data: { country: countryCode },
+      where: { id: params.id, username: standardize(params.username) }
+    });
 
     logger.moderation(`[Player:${updatedPlayer.username}] Country updated to ${countryCode}`);
 

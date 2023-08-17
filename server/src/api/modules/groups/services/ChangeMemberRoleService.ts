@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
 import { BadRequestError, ServerError } from '../../../errors';
 import { MembershipWithPlayer } from '../group.types';
@@ -59,7 +59,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
     }
   });
 
-  return { ...updatedMembership, player: modifyPlayer(updatedMembership.player) };
+  return updatedMembership;
 }
 
 export { changeMemberRole };

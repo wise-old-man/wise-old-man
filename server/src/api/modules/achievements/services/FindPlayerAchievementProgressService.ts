@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Metric, MetricMeasure, round } from '../../../../utils';
-import prisma, { Achievement, modifyAchievement } from '../../../../prisma';
+import prisma, { Achievement } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { AchievementProgress, AchievementDefinition } from '../achievement.types';
 import { getAchievementDefinitions } from '../achievement.utils';
@@ -17,9 +17,9 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
   const params = inputSchema.parse(payload);
 
   // Fetch all the player's achievements
-  const achievements = await prisma.achievement
-    .findMany({ where: { playerId: params.id } })
-    .then(a => a.map(modifyAchievement));
+  const achievements = await prisma.achievement.findMany({
+    where: { playerId: params.id }
+  });
 
   // Map achievement names to achievement objects, for O(1) lookups
   const currentAchievementMap = new Map<string, Achievement>();

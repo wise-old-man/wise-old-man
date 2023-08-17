@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player, PrismaTypes } from '../../../../prisma';
+import prisma, { Player, PrismaTypes } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import { sanitize, standardize, validateUsername } from '../player.utils';
 
@@ -24,24 +24,20 @@ async function findPlayer(payload: FindPlayerParams, selectedFields?: PlayerSele
   const params = inputSchema.parse(payload);
 
   if (params.id) {
-    const player = await prisma.player
-      .findFirst({
-        where: { id: params.id },
-        select: mapSelectedFields(selectedFields)
-      })
-      .then(modifyPlayer);
+    const player = (await prisma.player.findFirst({
+      where: { id: params.id },
+      select: mapSelectedFields(selectedFields)
+    })) as Player;
 
     return [player, false];
   }
 
   if (!params.username) return [null, false];
 
-  const player = await prisma.player
-    .findFirst({
-      where: { username: standardize(params.username) },
-      select: mapSelectedFields(selectedFields)
-    })
-    .then(modifyPlayer);
+  const player = (await prisma.player.findFirst({
+    where: { username: standardize(params.username) },
+    select: mapSelectedFields(selectedFields)
+  })) as Player;
 
   if (!player && params.createIfNotFound) {
     const newPlayer = await createPlayer(params.username);
@@ -65,14 +61,12 @@ async function createPlayer(username: string): Promise<Player> {
     throw new BadRequestError(`Validation error: ${validationError.message}`);
   }
 
-  const newPlayer = await prisma.player
-    .create({
-      data: {
-        username: cleanUsername,
-        displayName: sanitize(username)
-      }
-    })
-    .then(modifyPlayer);
+  const newPlayer = (await prisma.player.create({
+    data: {
+      username: cleanUsername,
+      displayName: sanitize(username)
+    }
+  })) as Player;
 
   return newPlayer;
 }

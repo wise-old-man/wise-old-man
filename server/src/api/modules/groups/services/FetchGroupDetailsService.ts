@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { PRIVELEGED_GROUP_ROLES } from '../../../..//utils';
 import { omit } from '../../../util/objects';
 import { NotFoundError } from '../../../errors';
@@ -33,9 +33,9 @@ async function fetchGroupDetails(payload: FetchGroupDetailsParams): Promise<Grou
     ...omit(group, 'verificationHash'),
     memberCount: group.memberships.length,
     // Sort the members list by role
-    memberships: group.memberships
-      .map(m => ({ ...m, player: modifyPlayer(m.player) }))
-      .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role))
+    memberships: group.memberships.sort(
+      (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+    )
   };
 }
 

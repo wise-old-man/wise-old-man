@@ -1,7 +1,7 @@
 import { PlayerStatus } from '../../../../utils';
 import { ServerError } from '../../../../api/errors';
 import logger from '../../../util/logging';
-import prisma, { modifyPlayer, NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
+import prisma, { NameChangeStatus, Player, setHooksEnabled } from '../../../../prisma';
 import * as discordService from '../../../services/external/discord.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as playerUtils from '../player.utils';
@@ -95,12 +95,9 @@ async function archivePlayer(player: Player): Promise<ArchivePlayerResult> {
 
   await playerUtils.setCachedPlayerId(player.username, null);
 
-  playerEvents.onPlayerArchived(modifyPlayer(result.archivedPlayer), player.displayName);
+  playerEvents.onPlayerArchived(result.archivedPlayer, player.displayName);
 
-  return {
-    newPlayer: modifyPlayer(result.newPlayer),
-    archivedPlayer: modifyPlayer(result.archivedPlayer)
-  };
+  return result;
 }
 
 async function findAvailableArchiveUsername() {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Metric, parsePeriodExpression } from '../../../../utils';
-import prisma, { Snapshot, modifyPlayer } from '../../../../prisma';
+import prisma, { Snapshot } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -40,7 +40,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
     throw new NotFoundError('Group not found.');
   }
 
-  const players = groupAndMemberships.memberships.map(m => modifyPlayer(m.player));
+  const players = groupAndMemberships.memberships.map(m => m.player);
 
   // Find the snapshots at the edges of the period/dates (for each player)
   const [startSnapshots, endSnapshots] = await findEdgeSnapshots(

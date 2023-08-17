@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { Snapshot, modifySnapshots } from '../../../../prisma';
+import prisma, { Snapshot } from '../../../../prisma';
 
 const inputSchema = z.object({
   id: z.number().int().positive(),
@@ -22,7 +22,7 @@ async function findPlayerSnapshot(payload: FindPlayerSnapshotParams): Promise<Sn
     }
   });
 
-  return snapshot ? modifySnapshots([snapshot])[0] : null;
+  return snapshot ? snapshot : null;
 }
 
 export { findPlayerSnapshot };

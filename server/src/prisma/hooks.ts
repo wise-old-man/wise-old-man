@@ -3,7 +3,6 @@ import * as groupEvents from '../api/modules/groups/group.events';
 import * as playerUtils from '../api/modules/players/player.utils';
 import * as competitionEvents from '../api/modules/competitions/competition.events';
 import * as achievementEvents from '../api/modules/achievements/achievement.events';
-import { modifyAchievement } from '.';
 
 // Some events need to be dispatched on this hook because (some) bulk creates depend
 // on "skipDuplicates" which can't be easily predicted at the service level.
@@ -13,7 +12,7 @@ export function routeAfterHook(params: Prisma.MiddlewareParams, result: any) {
     const achievements = params.args.data;
 
     if (achievements?.length > 0) {
-      achievementEvents.onAchievementsCreated(achievements.map(modifyAchievement));
+      achievementEvents.onAchievementsCreated(achievements);
     }
 
     return;

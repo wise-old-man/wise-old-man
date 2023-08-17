@@ -8,11 +8,8 @@ import prisma, {
   NameChange,
   NameChangeStatus,
   PrismaTypes,
-  modifyRecords,
   PrismaPromise,
-  modifySnapshots,
-  setHooksEnabled,
-  modifyPlayer
+  setHooksEnabled
 } from '../../../../prisma';
 import { PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
@@ -86,21 +83,19 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
 
   if (newPlayer && oldPlayer.id !== newPlayer.id) {
     // Fetch all of older player's records, to compare to the new ones
-    const oldRecords = await prisma.record
-      .findMany({
-        where: { playerId: oldPlayer.id }
-      })
-      .then(modifyRecords);
+    const oldRecords = await prisma.record.findMany({
+      where: { playerId: oldPlayer.id }
+    });
 
     // Find all of new player's records (post transition date)
-    const newRecords = await prisma.record
-      .findMany({ where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } } })
-      .then(modifyRecords);
+    const newRecords = await prisma.record.findMany({
+      where: { playerId: newPlayer.id, updatedAt: { gte: transitionDate } }
+    });
 
     // Fetch all of new player's snapshots (post transition date)
-    const newSnapshots = await prisma.snapshot
-      .findMany({ where: { playerId: newPlayer.id, createdAt: { gte: transitionDate } } })
-      .then(modifySnapshots);
+    const newSnapshots = await prisma.snapshot.findMany({
+      where: { playerId: newPlayer.id, createdAt: { gte: transitionDate } }
+    });
 
     // Fetch all of new player's memberships (post transition date)
     const newMemberships = await prisma.membership.findMany({
@@ -158,7 +153,7 @@ async function transferPlayerData(oldPlayer: Player, newPlayer: Player, newName:
 
   const updatedPlayer = results[results.length - 1] as Awaited<typeof updatePlayerPromise>;
 
-  playerEvents.onPlayerNameChanged(modifyPlayer(updatedPlayer), oldPlayer.displayName);
+  playerEvents.onPlayerNameChanged(updatedPlayer, oldPlayer.displayName);
 }
 
 function transferRecords(

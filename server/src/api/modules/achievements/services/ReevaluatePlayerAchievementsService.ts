@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyAchievement } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
@@ -16,9 +16,9 @@ async function reevaluatePlayerAchievements(payload: ReevaluatePlayerAchievement
   const params = inputSchema.parse(payload);
 
   // Find all unknown date achievements
-  const unknownAchievements = await prisma.achievement
-    .findMany({ where: { playerId: params.id, createdAt: UNKNOWN_DATE } })
-    .then(a => a.map(modifyAchievement));
+  const unknownAchievements = await prisma.achievement.findMany({
+    where: { playerId: params.id, createdAt: UNKNOWN_DATE }
+  });
 
   const unknownAchievementNames = unknownAchievements.map(u => u.name);
   const unknownDefinitions = ALL_DEFINITIONS.filter(d => unknownAchievementNames.includes(d.name));

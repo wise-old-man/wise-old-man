@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { PlayerType, PlayerBuild, Period, Metric, Country } from '../../../../utils';
-import prisma, { PrismaTypes, modifyRecords } from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { RecordLeaderboardEntry } from '../record.types';
 
 const MAX_RESULTS = 20;
@@ -31,20 +31,18 @@ async function findRecordLeaderboards(
     playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
   }
 
-  const records = await prisma.record
-    .findMany({
-      where: {
-        metric: params.metric,
-        period: params.period,
-        player: { ...playerQuery }
-      },
-      include: { player: true },
-      orderBy: [{ value: 'desc' }],
-      take: MAX_RESULTS
-    })
-    .then(modifyRecords);
+  const records = await prisma.record.findMany({
+    where: {
+      metric: params.metric,
+      period: params.period,
+      player: { ...playerQuery }
+    },
+    include: { player: true },
+    orderBy: [{ value: 'desc' }],
+    take: MAX_RESULTS
+  });
 
-  return records as RecordLeaderboardEntry[];
+  return records;
 }
 
 export { findRecordLeaderboards };

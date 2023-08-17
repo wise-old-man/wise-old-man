@@ -1,5 +1,5 @@
 import { BadRequestError, ServerError } from '../../../errors';
-import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { PlayerType } from '../../../../utils';
 import logger from '../../../util/logging';
 import * as jagexService from '../../../services/external/jagex.service';
@@ -12,12 +12,10 @@ async function assertPlayerType(player: Player, updateIfChanged = false): Promis
   const confirmedType = await getType(player);
 
   if (player.type !== confirmedType && updateIfChanged) {
-    const updatedPlayer = await prisma.player
-      .update({
-        data: { type: confirmedType },
-        where: { id: player.id }
-      })
-      .then(modifyPlayer);
+    const updatedPlayer = await prisma.player.update({
+      data: { type: confirmedType },
+      where: { id: player.id }
+    });
 
     playerEvents.onPlayerTypeChanged(updatedPlayer, player.type);
 
