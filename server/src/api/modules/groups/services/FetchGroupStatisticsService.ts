@@ -2,8 +2,6 @@ import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { PlayerBuild, PlayerType } from '../../../../utils';
 import { NotFoundError, BadRequestError } from '../../../errors';
-import * as playerServices from '../../players/player.services';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 import {
   get200msCount,
@@ -41,20 +39,34 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
     throw new BadRequestError("Couldn't find any stats for this group.");
   }
 
-  const snapshots = await snapshotServices.findGroupSnapshots({
-    playerIds: memberships.map(m => m.playerId),
-    maxDate: new Date()
-  });
+  const players = (
+    await prisma.player.findMany({
+      where: {
+        id: { in: memberships.map(m => m.playerId) }
+      },
+      include: {
+        latestSnapshot: true
+      }
+    })
+  ).filter(p => !!p.latestSnapshot);
 
-  if (!snapshots || snapshots.length === 0) {
+  if (!players || players.length === 0) {
     throw new BadRequestError("Couldn't find any stats for this group.");
   }
 
-  const maxedCombatCount = snapshots.filter(s => getCombatLevelFromSnapshot(s) === 126).length;
-  const maxedTotalCount = snapshots.filter(s => getTotalLevel(s) === 2277).length;
-  const maxed200msCount = snapshots.map(s => get200msCount(s)).reduce((acc, cur) => acc + cur, 0);
+  const maxedCombatCount = players.filter(p => {
+    return getCombatLevelFromSnapshot(p.latestSnapshot) === 126;
+  }).length;
 
-  const averageSnapshot = average(snapshots);
+  const maxedTotalCount = players.filter(p => {
+    return getTotalLevel(p.latestSnapshot) === 2277;
+  }).length;
+
+  const maxed200msCount = players
+    .map(p => get200msCount(p.latestSnapshot))
+    .reduce((acc, cur) => acc + cur, 0);
+
+  const averageSnapshot = average(players.map(p => p.latestSnapshot));
 
   const averageEfficiencyMap = efficiencyUtils.getPlayerEfficiencyMap(averageSnapshot, {
     type: PlayerType.REGULAR,
@@ -63,10 +75,14 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
 
   const averageStats = format(averageSnapshot, averageEfficiencyMap);
 
-  const { metricLeaders, leaderIdMap } = getMetricLeaders(snapshots);
+  const { metricLeaders, leaderIdMap } = getMetricLeaders(players.map(p => p.latestSnapshot));
   const leaderIds = [...new Set(leaderIdMap.values())];
-  const players = await playerServices.findPlayers({ ids: leaderIds });
-  assignPlayersToMetricLeaders(metricLeaders, leaderIdMap, players);
+
+  assignPlayersToMetricLeaders(
+    metricLeaders,
+    leaderIdMap,
+    players.filter(p => leaderIds.includes(p.id))
+  );
 
   return { maxedCombatCount, maxedTotalCount, maxed200msCount, averageStats, metricLeaders };
 }
