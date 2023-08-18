@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { GroupRole, PRIVELEGED_GROUP_ROLES } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import * as cryptService from '../../../services/external/crypt.service';
@@ -100,9 +100,9 @@ async function createGroup(payload: CreateGroupParams): Promise<CreateGroupResul
 
   const priorities = PRIVELEGED_GROUP_ROLES.reverse();
 
-  const sortedMemberships = createdGroup.memberships
-    .map(m => ({ ...m, player: modifyPlayer(m.player) }))
-    .sort((a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role));
+  const sortedMemberships = createdGroup.memberships.sort(
+    (a, b) => priorities.indexOf(b.role) - priorities.indexOf(a.role) || a.role.localeCompare(b.role)
+  );
 
   return {
     group: {

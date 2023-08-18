@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { PrismaTypes, Snapshot, PrismaSnapshot, modifySnapshots } from '../../../../prisma';
+import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 
 const inputSchema = z
@@ -45,15 +45,13 @@ async function findGroupSnapshots(
 
   if (params.includeAllBetween) {
     // Get all snapshots between min and max dates (for each player id)
-    const snapshots = await prisma.snapshot
-      .findMany({
-        where: {
-          playerId: { in: playerIds },
-          createdAt: { gte: params.minDate, lte: params.maxDate }
-        },
-        orderBy: { createdAt: 'asc' }
-      })
-      .then(modifySnapshots);
+    const snapshots = await prisma.snapshot.findMany({
+      where: {
+        playerId: { in: playerIds },
+        createdAt: { gte: params.minDate, lte: params.maxDate }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
 
     return snapshots;
   }
@@ -101,7 +99,7 @@ async function getLastSnapshot(
   const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
   const formattedColumnName = PrismaTypes.raw(queryParams?.sortBy || 'id');
 
-  const snapshots = await prisma.$queryRaw<PrismaSnapshot[]>`
+  const snapshots = await prisma.$queryRaw<Snapshot[]>`
       SELECT s.*, s."playerId", s."createdAt"
       FROM (SELECT q."playerId", MAX(q."createdAt") AS max_date
             FROM public.snapshots q
@@ -115,13 +113,12 @@ async function getLastSnapshot(
       OFFSET ${queryParams?.offset ?? 0}`;
 
   // For some reason, the raw query returns dates as strings
-  const fixedDates = snapshots.map(s => ({
+  return snapshots.map(s => ({
     ...s,
+    overallExperience: Number(s.overallExperience),
     createdAt: new Date(s.createdAt),
     importedAt: s.importedAt ? new Date(s.importedAt) : null
   }));
-
-  return modifySnapshots(fixedDates);
 }
 
 /**
@@ -135,7 +132,7 @@ async function getFirstSnapshot(
   const formattedPlayerIds = PrismaTypes.join(playerIds, ',');
   const formattedColumnName = PrismaTypes.raw(queryParams?.sortBy || 'id');
 
-  const snapshots = await prisma.$queryRaw<PrismaSnapshot[]>`
+  const snapshots = await prisma.$queryRaw<Snapshot[]>`
       SELECT s.*, s."playerId", s."createdAt"
       FROM (SELECT q."playerId", MIN(q."createdAt") AS min_date
             FROM public.snapshots q
@@ -149,13 +146,12 @@ async function getFirstSnapshot(
       OFFSET ${queryParams?.offset ?? 0}`;
 
   // For some reason, the raw query returns dates as strings
-  const fixedDates = snapshots.map(s => ({
+  return snapshots.map(s => ({
     ...s,
+    overallExperience: Number(s.overallExperience),
     createdAt: new Date(s.createdAt),
     importedAt: s.importedAt ? new Date(s.importedAt) : null
   }));
-
-  return modifySnapshots(fixedDates);
 }
 
 export { findGroupSnapshots };

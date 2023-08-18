@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { Snapshot, modifySnapshots, PrismaTypes } from '../../../../prisma';
+import prisma, { Snapshot, PrismaTypes } from '../../../../prisma';
 import { parsePeriodExpression } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
@@ -24,13 +24,11 @@ async function findPlayerSnapshots(payload: FindPlayerSnapshotsParams): Promise<
 
   const filterQuery = buildFilterQuery(params);
 
-  const snapshots = await prisma.snapshot
-    .findMany({
-      where: { playerId: params.id, ...filterQuery },
-      orderBy: { createdAt: 'desc' },
-      take: params.limit
-    })
-    .then(modifySnapshots);
+  const snapshots = await prisma.snapshot.findMany({
+    where: { playerId: params.id, ...filterQuery },
+    orderBy: { createdAt: 'desc' },
+    take: params.limit
+  });
 
   return snapshots;
 }

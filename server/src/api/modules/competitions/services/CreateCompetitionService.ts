@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { CompetitionType, Metric } from '../../../../utils';
 import { omit } from '../../../util/objects';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../errors';
@@ -170,8 +170,7 @@ async function createCompetition(payload: CreateCompetitionParams): Promise<Crea
       : undefined,
     participantCount: createdCompetition.participations.length,
     participations: createdCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId'),
-      player: modifyPlayer(p.player)
+      ...omit(p, 'startSnapshotId', 'endSnapshotId')
     }))
   };
 

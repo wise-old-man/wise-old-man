@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyAchievement, modifyPlayer } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { ExtendedAchievementWithPlayer } from '../achievement.types';
@@ -45,7 +45,7 @@ async function findGroupAchievements(
   });
 
   return achievements.map(a => {
-    return { ...extend(modifyAchievement(a)), player: modifyPlayer(a.player) };
+    return { ...extend(a), player: a.player };
   });
 }
 

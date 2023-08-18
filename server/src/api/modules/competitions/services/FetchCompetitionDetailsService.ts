@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, modifySnapshot } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { omit } from '../../../util/objects';
 import { getMetricValueKey, isComputedMetric, Metric } from '../../../../utils';
 import { NotFoundError } from '../../../errors';
@@ -70,18 +70,11 @@ async function calculateParticipantsStandings(competitionId: number, metric: Met
   return participations
     .map(p => {
       const { player, startSnapshot, endSnapshot } = p;
-      const modifiedPlayer = modifyPlayer(player);
 
-      const diff = deltaUtils.calculateMetricDelta(
-        modifiedPlayer,
-        metric,
-        modifySnapshot(startSnapshot),
-        modifySnapshot(endSnapshot)
-      );
+      const diff = deltaUtils.calculateMetricDelta(player, metric, startSnapshot, endSnapshot);
 
       return {
         ...omit(p, 'startSnapshotId', 'endSnapshotId', 'startSnapshot', 'endSnapshot'),
-        player: modifiedPlayer,
         progress: diff
       };
     })

@@ -1,13 +1,6 @@
 import { z } from 'zod';
 import { Period, Metric, PlayerType, PlayerBuild, Country, DeltaLeaderboardEntry } from '../../../../utils';
-import prisma, {
-  PrismaTypes,
-  modifyDeltas,
-  Delta,
-  PrismaPlayer,
-  modifyPlayer,
-  PrismaDelta
-} from '../../../../prisma';
+import prisma, { PrismaTypes } from '../../../../prisma';
 import { parseNum } from '../delta.utils';
 
 const MAX_RESULTS = 20;
@@ -37,27 +30,25 @@ async function findDeltaLeaderboards(payload: FindDeltaLeaderboardsParams): Prom
   }
 
   // Fetch the top 20 deltas for this period & metric
-  const deltas = await prisma.delta
-    .findMany({
-      where: {
-        period: params.period,
-        player: { ...playerQuery }
-      },
-      select: {
-        [params.metric]: true,
-        playerId: true,
-        startedAt: true,
-        endedAt: true,
-        player: true
-      },
-      orderBy: [{ [params.metric]: 'desc' }],
-      take: MAX_RESULTS
-    })
-    .then(d => modifyDeltas(d as unknown as PrismaDelta[]));
+  const deltas = await prisma.delta.findMany({
+    where: {
+      period: params.period,
+      player: { ...playerQuery }
+    },
+    select: {
+      [params.metric]: true,
+      playerId: true,
+      startedAt: true,
+      endedAt: true,
+      player: true
+    },
+    orderBy: [{ [params.metric]: 'desc' }],
+    take: MAX_RESULTS
+  });
 
   // Transform the database objects into the tighter result response objects
-  const results = deltas.map((d: Delta & { player: PrismaPlayer }) => ({
-    player: modifyPlayer(d.player),
+  const results = deltas.map(d => ({
+    player: d.player,
     playerId: d.playerId,
     startDate: d.startedAt,
     endDate: d.endedAt,

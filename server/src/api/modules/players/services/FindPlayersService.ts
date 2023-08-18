@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { sanitize, standardize } from '../player.utils';
 
 const inputSchema = z
@@ -38,11 +38,9 @@ async function findPlayers(payload: FindPlayersParams): Promise<Player[]> {
 async function findPlayersByUsername(usernames: string[]): Promise<Player[]> {
   const standardizedUsernames = usernames.map(standardize);
 
-  const players = await prisma.player
-    .findMany({
-      where: { username: { in: standardizedUsernames } }
-    })
-    .then(p => p.map(modifyPlayer));
+  const players = await prisma.player.findMany({
+    where: { username: { in: standardizedUsernames } }
+  });
 
   return players.sort(
     (a, b) => standardizedUsernames.indexOf(a.username) - standardizedUsernames.indexOf(b.username)
@@ -63,11 +61,9 @@ async function findOrCreatePlayersByUsername(usernames: string[]): Promise<Playe
   // Add new players
   await prisma.player.createMany({ data: newPlayerInputs, skipDuplicates: true });
 
-  const newPlayers = await prisma.player
-    .findMany({
-      where: { username: { in: newPlayerInputs.map(n => n.username) } }
-    })
-    .then(p => p.map(modifyPlayer));
+  const newPlayers = await prisma.player.findMany({
+    where: { username: { in: newPlayerInputs.map(n => n.username) } }
+  });
 
   // Sort the resulting players list by the order of the input usernames
   const standardizedUsernames = usernames.map(standardize);
@@ -78,11 +74,9 @@ async function findOrCreatePlayersByUsername(usernames: string[]): Promise<Playe
 }
 
 async function findPlayersById(ids: number[]): Promise<Player[]> {
-  const players = await prisma.player
-    .findMany({
-      where: { id: { in: ids } }
-    })
-    .then(p => p.map(modifyPlayer));
+  const players = await prisma.player.findMany({
+    where: { id: { in: ids } }
+  });
 
   return players;
 }

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, modifySnapshot, Player, PrismaTypes, Snapshot } from '../../../../prisma';
+import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
@@ -141,7 +141,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   currentStats.ehbRank = computedMetrics.ehbRank;
 
   // Create (and save) a new snapshot
-  const newSnapshot = await prisma.snapshot.create({ data: currentStats }).then(modifySnapshot);
+  const newSnapshot = await prisma.snapshot.create({
+    data: currentStats
+  });
 
   updatedPlayerFields.latestSnapshotId = newSnapshot.id;
   updatedPlayerFields.updatedAt = newSnapshot.createdAt;
@@ -149,12 +151,10 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   if (hasChanged) updatedPlayerFields.lastChangedAt = newSnapshot.createdAt;
 
   // update player with all this new data
-  const updatedPlayer = await prisma.player
-    .update({
-      data: updatedPlayerFields,
-      where: { id: player.id }
-    })
-    .then(modifyPlayer);
+  const updatedPlayer = await prisma.player.update({
+    data: updatedPlayerFields,
+    where: { id: player.id }
+  });
 
   playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
 

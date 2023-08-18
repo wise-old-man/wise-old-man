@@ -23,6 +23,63 @@ let hooksEnabled = true;
 
 const prisma = new PrismaClient();
 
+const extendedClient = prisma.$extends({
+  result: {
+    record: {
+      value: {
+        needs: { metric: true, value: true },
+        compute({ value, metric }) {
+          return isComputedMetric(metric) ? parseBigInt(value) / 10_000 : parseBigInt(value);
+        }
+      }
+    },
+    achievement: {
+      threshold: {
+        needs: { threshold: true },
+        compute({ threshold }) {
+          return parseBigInt(threshold);
+        }
+      },
+      accuracy: {
+        needs: { accuracy: true },
+        compute({ accuracy }) {
+          return accuracy == null ? null : parseBigInt(accuracy);
+        }
+      }
+    },
+    snapshot: {
+      overallExperience: {
+        needs: { overallExperience: true },
+        compute({ overallExperience }) {
+          return parseBigInt(overallExperience);
+        }
+      }
+    },
+    delta: {
+      overall: {
+        needs: { overall: true },
+        compute({ overall }) {
+          return parseBigInt(overall);
+        }
+      }
+    },
+    player: {
+      exp: {
+        needs: { exp: true },
+        compute({ exp }) {
+          return parseBigInt(exp);
+        }
+      },
+      latestSnapshotId: {
+        meeds: {},
+        compute() {
+          return undefined;
+        }
+      }
+    }
+  }
+});
+
 // Register Hooks
 prisma.$use(async (params, next) => {
   const result = await next(params);
@@ -35,53 +92,6 @@ prisma.$use(async (params, next) => {
 
 function setHooksEnabled(enabled: boolean) {
   hooksEnabled = enabled;
-}
-
-function modifyAchievement(achievement: PrismaAchievement): Achievement {
-  return {
-    ...achievement,
-    threshold: parseBigInt(achievement.threshold),
-    accuracy: achievement.accuracy != null ? parseBigInt(achievement.accuracy) : null
-  };
-}
-
-function modifySnapshots(snapshots: PrismaSnapshot[]): Snapshot[] {
-  return snapshots.map(s => ({ ...s, overallExperience: parseBigInt(s.overallExperience) }));
-}
-
-function modifyDelta(delta: PrismaDelta): Delta {
-  return delta ? { ...delta, overall: parseBigInt(delta.overall) } : null;
-}
-
-function modifyDeltas(deltas: PrismaDelta[]): Delta[] {
-  return deltas.map(d => ({ ...d, overall: parseBigInt(d.overall) }));
-}
-
-function modifyPlayer(player: PrismaPlayer): Player {
-  const modifiedPlayer = player ? { ...player, exp: parseBigInt(player.exp) } : null;
-
-  // TODO: Temporary until latestSnapshotId becomes public
-  if (modifiedPlayer) {
-    delete modifiedPlayer.latestSnapshotId;
-  }
-
-  return modifiedPlayer;
-}
-
-function modifySnapshot(snapshot: PrismaSnapshot): Snapshot {
-  return snapshot ? { ...snapshot, overallExperience: parseBigInt(snapshot.overallExperience) } : null;
-}
-
-function modifyRecords(records: PrismaRecord[]): Record[] {
-  return records.map(a => {
-    // All records' values are stored as an Integer, but EHP/EHB records can have
-    // float values, so they're multiplied by 10,000 when saving to the database.
-    // Inversely, we need to divide any EHP/EHB records by 10,000 when fetching from the database.
-    const isComputed = isComputedMetric(a.metric);
-    const convertedValue = isComputed ? parseBigInt(a.value) / 10_000 : parseBigInt(a.value);
-
-    return { ...a, value: convertedValue };
-  });
 }
 
 type Achievement = Omit<PrismaAchievement, 'threshold' | 'accuracy'> & {
@@ -112,10 +122,6 @@ type NameChange = Omit<PrismaNameChange, 'reviewContext'> & {
 export {
   Prisma as PrismaTypes,
   PrismaPromise,
-  // Original Models
-  PrismaDelta,
-  PrismaPlayer,
-  PrismaSnapshot,
   // Models
   NameChange,
   Group,
@@ -131,14 +137,7 @@ export {
   Country,
   NameChangeStatus,
   // Utils
-  setHooksEnabled,
-  modifyDelta,
-  modifyDeltas,
-  modifyPlayer,
-  modifyRecords,
-  modifySnapshot,
-  modifySnapshots,
-  modifyAchievement
+  setHooksEnabled
 };
 
-export default prisma;
+export default extendedClient;

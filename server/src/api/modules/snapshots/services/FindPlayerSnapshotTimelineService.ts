@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifySnapshots, PrismaSnapshot, PrismaTypes } from '../../../../prisma';
+import prisma, { PrismaTypes, Snapshot } from '../../../../prisma';
 import { Metric, getMetricValueKey, parsePeriodExpression } from '../../../../utils';
 import { BadRequestError } from '../../../errors';
 
@@ -28,17 +28,15 @@ async function findPlayerSnapshotTimeline(
   const filterQuery = buildFilterQuery(params);
   const metricValueKey = getMetricValueKey(params.metric);
 
-  const snapshots = await prisma.snapshot
-    .findMany({
-      select: {
-        [metricValueKey]: true,
-        createdAt: true
-      },
-      where: { playerId: params.id, ...filterQuery },
-      orderBy: { createdAt: 'desc' },
-      take: params.limit
-    })
-    .then(s => modifySnapshots(s as unknown as PrismaSnapshot[]));
+  const snapshots = (await prisma.snapshot.findMany({
+    select: {
+      [metricValueKey]: true,
+      createdAt: true
+    },
+    where: { playerId: params.id, ...filterQuery },
+    orderBy: { createdAt: 'desc' },
+    take: params.limit
+  })) as unknown as Snapshot[];
 
   const history = snapshots.map(snapshot => {
     return {

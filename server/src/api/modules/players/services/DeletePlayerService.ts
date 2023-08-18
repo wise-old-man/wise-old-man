@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import logger from '../../../util/logging';
 import { setCachedPlayerId, standardize } from '../player.utils';
@@ -19,11 +19,9 @@ async function deletePlayer(payload: DeletePlayerParams): Promise<Player> {
   const params = inputSchema.parse(payload);
 
   try {
-    const deletedPlayer = await prisma.player
-      .delete({
-        where: { id: params.id, username: standardize(params.username) }
-      })
-      .then(modifyPlayer);
+    const deletedPlayer = await prisma.player.delete({
+      where: { id: params.id, username: standardize(params.username) }
+    });
 
     // Clear this player's ID cache
     await setCachedPlayerId(deletedPlayer.username, null);

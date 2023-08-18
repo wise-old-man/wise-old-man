@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player, PrismaPlayer, PrismaTypes } from '../../../../prisma';
+import prisma, { Player, PrismaTypes } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
@@ -48,14 +48,12 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     if (params.country) playerQuery.country = params.country;
     if (params.playerBuild) playerQuery.build = params.playerBuild;
 
-    const players = await prisma.player
-      .findMany({
-        where: { ...playerQuery },
-        orderBy: { [params.metric]: 'desc' },
-        take: params.limit,
-        skip: params.offset
-      })
-      .then(p => p.map(modifyPlayer));
+    const players = await prisma.player.findMany({
+      where: { ...playerQuery },
+      orderBy: { [params.metric]: 'desc' },
+      take: params.limit,
+      skip: params.offset
+    });
 
     return players;
   }
@@ -70,7 +68,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   if (params.playerBuild) playerQuery += ` AND "build" = '${params.playerBuild}'`;
 
   // For combined metrics, we need to do raw db queries to be able to sort by combined columns
-  const players = await prisma.$queryRawUnsafe<PrismaPlayer[]>(`
+  const players = await prisma.$queryRawUnsafe<Player[]>(`
     SELECT *, (ehp + ehb) AS "ehp+ehb"
     FROM public.players
     WHERE ${playerQuery}
@@ -82,13 +80,13 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   return players
     .map(p => ({
       ...p,
+      exp: Number(p.exp),
       registeredAt: new Date(p.registeredAt),
       updatedAt: new Date(p.updatedAt),
       lastChangedAt: p.lastChangedAt ? new Date(p.lastChangedAt) : null,
       lastImportedAt: p.lastImportedAt ? new Date(p.lastImportedAt) : null
     }))
-    .filter(p => p.status !== PlayerStatus.ARCHIVED)
-    .map(modifyPlayer);
+    .filter(p => p.status !== PlayerStatus.ARCHIVED);
 }
 
 export { findEfficiencyLeaderboards };

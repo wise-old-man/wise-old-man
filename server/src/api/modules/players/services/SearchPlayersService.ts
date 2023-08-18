@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyPlayer, Player } from '../../../../prisma';
+import prisma, { Player } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const inputSchema = z
@@ -13,18 +13,16 @@ type SearchPlayersParams = z.infer<typeof inputSchema>;
 async function searchPlayers(payload: SearchPlayersParams): Promise<Player[]> {
   const params = inputSchema.parse(payload);
 
-  const players = await prisma.player
-    .findMany({
-      where: {
-        username: { startsWith: params.username.trim(), mode: 'insensitive' }
-      },
-      orderBy: {
-        ehp: 'desc'
-      },
-      take: params.limit,
-      skip: params.offset
-    })
-    .then(p => p.map(modifyPlayer));
+  const players = await prisma.player.findMany({
+    where: {
+      username: { startsWith: params.username.trim(), mode: 'insensitive' }
+    },
+    orderBy: {
+      ehp: 'desc'
+    },
+    take: params.limit,
+    skip: params.offset
+  });
 
   return players;
 }

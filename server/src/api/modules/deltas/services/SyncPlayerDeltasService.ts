@@ -8,14 +8,14 @@ import {
   COMPUTED_METRICS,
   METRICS
 } from '../../../../utils';
-import prisma, { Delta, modifyDelta, modifyDeltas, Player, Snapshot } from '../../../../prisma';
+import prisma, { Delta, Player, Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as deltaUtils from '../delta.utils';
 import * as deltaEvents from '../delta.events';
 
 async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promise<void> {
   // Fetch all deltas for this player, and cache them into a <period, delta> map
-  const playerDeltas = await prisma.delta.findMany({ where: { playerId: player.id } }).then(modifyDeltas);
+  const playerDeltas = await prisma.delta.findMany({ where: { playerId: player.id } });
   const playerDeltasMap: Map<Period, Delta> = new Map(playerDeltas.map(d => [d.period, d]));
 
   // Build the update/create promise for a given period
@@ -70,7 +70,7 @@ async function syncPlayerDeltas(player: Player, latestSnapshot: Snapshot): Promi
       create: newDelta
     });
 
-    deltaEvents.onDeltaUpdated(modifyDelta(updatedDelta), !currentDelta || hasImprovements);
+    deltaEvents.onDeltaUpdated(updatedDelta, !currentDelta || hasImprovements);
   }
 
   // Execute all update promises, sequentially

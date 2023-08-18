@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyAchievement } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { ExtendedAchievement } from '../achievement.types';
 import { extend } from '../achievement.utils';
 
@@ -13,9 +13,9 @@ async function findPlayerAchievements(payload: FindPlayerAchievementsParams): Pr
   const params = inputSchema.parse(payload);
 
   // Query the database for all achievements of "playerId"
-  const achievements = await prisma.achievement
-    .findMany({ where: { playerId: params.id } })
-    .then(a => a.map(modifyAchievement));
+  const achievements = await prisma.achievement.findMany({
+    where: { playerId: params.id }
+  });
 
   // Extend this database model to include the "measure" field
   return achievements.map(extend);

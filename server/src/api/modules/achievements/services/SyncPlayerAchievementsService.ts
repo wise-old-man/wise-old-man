@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { modifyAchievement } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
@@ -40,9 +40,9 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   const [current, previous] = latestSnapshots;
 
   // Find all achievements the player already has
-  const currentAchievements = await prisma.achievement
-    .findMany({ where: { playerId: params.id } })
-    .then(a => a.map(modifyAchievement));
+  const currentAchievements = await prisma.achievement.findMany({
+    where: { playerId: params.id }
+  });
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
   const missingDefinitions = ALL_DEFINITIONS.filter(d => {

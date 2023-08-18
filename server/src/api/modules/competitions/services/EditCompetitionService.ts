@@ -1,12 +1,6 @@
 import { z } from 'zod';
 import { CompetitionType, Metric, Snapshot } from '../../../../utils';
-import prisma, {
-  PrismaPlayer,
-  Participation,
-  PrismaTypes,
-  PrismaPromise,
-  modifyPlayer
-} from '../../../../prisma';
+import prisma, { Participation, PrismaTypes, PrismaPromise, Player } from '../../../../prisma';
 import logger from '../../../util/logging';
 import { omit } from '../../../util/objects';
 import * as playerServices from '../../players/player.services';
@@ -182,8 +176,7 @@ async function editCompetition(payload: EditCompetitionParams): Promise<Competit
       : undefined,
     participantCount: updatedCompetition.participations.length,
     participations: updatedCompetition.participations.map(p => ({
-      ...omit(p, 'startSnapshotId', 'endSnapshotId'),
-      player: modifyPlayer(p.player)
+      ...omit(p, 'startSnapshotId', 'endSnapshotId')
     }))
   };
 }
@@ -372,7 +365,7 @@ function addMissingParticipations(
 function removeExcessParticipations(
   competitionId: number,
   nextUsernames: string[],
-  currentParticipations: (Participation & { player: PrismaPlayer })[]
+  currentParticipations: (Participation & { player: Player })[]
 ): PrismaPromise<PrismaTypes.BatchPayload> {
   const excessParticipants = currentParticipations.filter(p => !nextUsernames.includes(p.player.username));
 

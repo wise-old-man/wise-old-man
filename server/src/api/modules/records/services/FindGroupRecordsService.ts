@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Period, Metric } from '../../../../utils';
-import prisma, { modifyRecords } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { RecordLeaderboardEntry } from '../record.types';
@@ -35,21 +35,19 @@ async function findGroupRecords(payload: FindGroupRecordsParams): Promise<Record
     return [];
   }
 
-  const records = await prisma.record
-    .findMany({
-      where: {
-        playerId: { in: playerIds },
-        period: params.period,
-        metric: params.metric
-      },
-      include: { player: true },
-      orderBy: [{ value: 'desc' }],
-      take: params.limit,
-      skip: params.offset
-    })
-    .then(modifyRecords);
+  const records = await prisma.record.findMany({
+    where: {
+      playerId: { in: playerIds },
+      period: params.period,
+      metric: params.metric
+    },
+    include: { player: true },
+    orderBy: [{ value: 'desc' }],
+    take: params.limit,
+    skip: params.offset
+  });
 
-  return records as RecordLeaderboardEntry[];
+  return records;
 }
 
 export { findGroupRecords };
