@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Metric, parsePeriodExpression } from '../../../../utils';
-import prisma, { Snapshot } from '../../../../prisma';
+import prisma, { Player, Snapshot } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
@@ -33,47 +33,45 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
   // Fetch this group and all of its memberships
   const groupAndMemberships = await prisma.group.findFirst({
     where: { id: params.id },
-    include: { memberships: { select: { player: true } } }
+    include: {
+      memberships: {
+        select: {
+          player: {
+            include: {
+              // If fetching by period (not custom time range), the "end" snapshots will always be
+              // the player's latest snapshots. So it's cheaper to just pull them from the latestSnapshotId relation
+              latestSnapshot: !!params.period
+            }
+          }
+        }
+      }
+    }
   });
 
   if (!groupAndMemberships) {
     throw new NotFoundError('Group not found.');
   }
 
-  const players = groupAndMemberships.memberships.map(m => m.player);
-
-  // Find the snapshots at the edges of the period/dates (for each player)
-  const [startSnapshots, endSnapshots] = await findEdgeSnapshots(
-    params,
-    players.map(p => p.id)
+  const playerSnapshotMap = await buildPlayerSnapshotMap(
+    groupAndMemberships.memberships.map(m => m.player),
+    params
   );
 
-  const playerMap = Object.fromEntries(
-    players.map(p => [p.id, { player: p, startSnapshot: null, endSnapshot: null }])
-  );
-
-  startSnapshots.forEach(s => {
-    if (s.playerId in playerMap) playerMap[s.playerId].startSnapshot = s;
-  });
-
-  endSnapshots.forEach(e => {
-    if (e.playerId in playerMap) playerMap[e.playerId].endSnapshot = e;
-  });
-
-  const results = Object.keys(playerMap)
+  const results = Array.from(playerSnapshotMap.keys())
     .map(playerId => {
-      const { player, startSnapshot, endSnapshot } = playerMap[playerId];
-      if (!player || !startSnapshot || !endSnapshot) return null;
+      const { player, startSnapshot, endSnapshot } = playerSnapshotMap.get(playerId);
+
+      if (!player || !startSnapshot || !endSnapshot) {
+        return null;
+      }
 
       const data = calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot);
 
       return {
         player,
-        startDate: startSnapshot.createdAt as Date,
-        endDate: endSnapshot.createdAt as Date,
         data,
-        gained: data.gained, // TODO: delete this soon
-        playerId: Number(player.id) // TODO: delete this soon
+        startDate: startSnapshot.createdAt,
+        endDate: endSnapshot.createdAt
       };
     })
     .filter(r => r !== null)
@@ -83,29 +81,65 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
   return results;
 }
 
-async function findEdgeSnapshots(params: FindGroupDeltasParams, playerIds: number[]): Promise<Snapshot[][]> {
-  const getEdgeDates = () => {
-    if (params.period) {
-      const parsedPeriod = parsePeriodExpression(params.period);
+type PlayerMapValue = {
+  player: Player;
+  startSnapshot: Snapshot | null;
+  endSnapshot: Snapshot | null;
+};
 
-      if (!parsedPeriod) {
-        throw new BadRequestError(`Invalid period: ${params.period}.`);
-      }
+async function buildPlayerSnapshotMap(
+  players: Array<Player & { latestSnapshot?: Snapshot }>,
+  params: FindGroupDeltasParams
+) {
+  const playerIds = players.map(p => p.id);
 
-      return { startDate: new Date(Date.now() - parsedPeriod.durationMs), endDate: new Date() };
-    }
+  let startSnapshots: Snapshot[];
+  let endSnapshots: Snapshot[];
 
-    if (params.minDate && params.maxDate) {
-      return { startDate: params.minDate, endDate: params.maxDate };
-    }
-  };
+  if (params.period) {
+    startSnapshots = await findStartingSnapshots(playerIds, params.period);
+    endSnapshots = players.map(p => p.latestSnapshot).filter(Boolean);
+  } else {
+    const [start, end] = await findEdgeSnapshots(playerIds, params.minDate, params.maxDate);
+    startSnapshots = start;
+    endSnapshots = end;
+  }
 
-  const { startDate, endDate } = getEdgeDates();
+  const playerMap = new Map<number, PlayerMapValue>(
+    players.map(p => [p.id, { player: p, startSnapshot: null, endSnapshot: null }])
+  );
 
+  startSnapshots.forEach(s => {
+    const current = playerMap.get(s.playerId);
+    if (current) current.startSnapshot = s;
+  });
+
+  endSnapshots.forEach(s => {
+    const current = playerMap.get(s.playerId);
+    if (current) current.endSnapshot = s;
+  });
+
+  return playerMap;
+}
+
+async function findEdgeSnapshots(playerIds: number[], minDate: Date, maxDate: Date) {
   return await Promise.all([
-    snapshotServices.findGroupSnapshots({ playerIds, minDate: startDate }),
-    snapshotServices.findGroupSnapshots({ playerIds, maxDate: endDate })
+    snapshotServices.findGroupSnapshots({ playerIds, minDate }),
+    snapshotServices.findGroupSnapshots({ playerIds, maxDate })
   ]);
+}
+
+async function findStartingSnapshots(playerIds: number[], period: string) {
+  const parsedPeriod = parsePeriodExpression(period);
+
+  if (!parsedPeriod) {
+    throw new BadRequestError(`Invalid period: ${period}.`);
+  }
+
+  return await snapshotServices.findGroupSnapshots({
+    playerIds,
+    minDate: new Date(Date.now() - parsedPeriod.durationMs)
+  });
 }
 
 export { findGroupDeltas };

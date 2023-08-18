@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma, { Snapshot } from '../../../../prisma';
+import prisma from '../../../../prisma';
 import {
   getMetricMeasure,
   getMetricRankKey,
@@ -10,7 +10,6 @@ import {
 } from '../../../../utils';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
-import * as snapshotServices from '../../snapshots/snapshot.services';
 import { GroupHiscoresEntry } from '../group.types';
 import { getTotalLevel } from '../../snapshots/snapshot.utils';
 
@@ -28,7 +27,13 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
 
   const memberships = await prisma.membership.findMany({
     where: { groupId: params.id },
-    include: { player: true }
+    include: {
+      player: {
+        include: {
+          latestSnapshot: true
+        }
+      }
+    }
   });
 
   if (!memberships || memberships.length === 0) {
@@ -44,57 +49,32 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
   }
 
   const measure = getMetricMeasure(params.metric);
+  const rankKey = getMetricRankKey(params.metric);
   const valueKey = getMetricValueKey(params.metric);
 
-  const latestSnapshots = await snapshotServices.findGroupSnapshots(
-    {
-      playerIds: memberships.map(m => m.playerId),
-      maxDate: new Date()
-    },
-    {
-      sortBy: valueKey,
-      limit: params.limit,
-      offset: params.offset
-    }
-  );
-
-  const valueMap = mapSnapshots(latestSnapshots, params.metric, measure);
-
   return memberships
-    .filter(({ playerId }) => valueMap[playerId] && valueMap[playerId].rank > 0)
-    .map(m => ({
-      player: m.player,
-      data: valueMap[m.playerId]
-    }))
-    .sort((a, b) => b.data[measure] - a.data[measure]);
-}
+    .filter(m => !!m.player.latestSnapshot)
+    .map(({ player }) => {
+      let data: GroupHiscoresEntry['data'];
 
-type SnapshotMap = { [id: number]: GroupHiscoresEntry['data'] };
+      const rank = player.latestSnapshot[rankKey];
+      const value = player.latestSnapshot[valueKey];
 
-// Formats the snapshots to a key:value map (playerId:data).
-// Example: { '1623': { rank: 350567, experience: 6412215 } }
-function mapSnapshots(snapshots: Snapshot[], metric: Metric, measure: MetricMeasure): SnapshotMap {
-  const rankKey = getMetricRankKey(metric);
-  const valueKey = getMetricValueKey(metric);
-
-  return Object.fromEntries(
-    snapshots.map(s => {
       if (measure === MetricMeasure.EXPERIENCE) {
-        const level = metric === Metric.OVERALL ? getTotalLevel(s) : getLevel(s[valueKey]);
-        return [s.playerId, { rank: s[rankKey], experience: s[valueKey], level }];
+        const lvl = params.metric === Metric.OVERALL ? getTotalLevel(player.latestSnapshot) : getLevel(value);
+        data = { rank, experience: value, level: lvl };
+      } else if (measure === MetricMeasure.KILLS) {
+        data = { rank, kills: value };
+      } else if (measure === MetricMeasure.SCORE) {
+        data = { rank, score: value };
+      } else {
+        data = { rank, value: value };
       }
 
-      if (measure === MetricMeasure.KILLS) {
-        return [s.playerId, { rank: s[rankKey], kills: s[valueKey] }];
-      }
-
-      if (measure === MetricMeasure.SCORE) {
-        return [s.playerId, { rank: s[rankKey], score: s[valueKey] }];
-      }
-
-      return [s.playerId, { rank: s[rankKey], value: s[valueKey] }];
+      return { player, data };
     })
-  );
+    .sort((a, b) => b.data[measure] - a.data[measure])
+    .slice(params.offset, params.offset + params.limit);
 }
 
 export { fetchGroupHiscores };
