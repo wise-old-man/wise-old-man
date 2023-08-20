@@ -1,11 +1,8 @@
-import { isTesting } from '../../../env';
 import { Period, PeriodProps, PlayerBuild } from '../../../utils';
 import prisma, { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-
-let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
@@ -81,11 +78,6 @@ async function setCachedPlayerId(username: string, id: number | null) {
   }
 }
 
-// For integration testing purposes
-export function setUpdateCooldown(seconds: number) {
-  UPDATE_COOLDOWN = seconds;
-}
-
 /**
  * Format a username into a standardized version,
  * replacing any special characters, and forcing lower case.
@@ -129,18 +121,6 @@ function validateUsername(username: string): Error | null {
 
 function isValidUsername(username: string): boolean {
   return validateUsername(username) === null;
-}
-
-/**
- * Checks if a given player has been updated in the last 60 seconds.
- */
-function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastChangedAt'>): boolean {
-  if (!player.updatedAt) return true;
-
-  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
-  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
-
-  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 /**
@@ -240,7 +220,6 @@ export {
   sanitize,
   validateUsername,
   isValidUsername,
-  shouldUpdate,
   shouldImport,
   getBuild,
   resolvePlayer,

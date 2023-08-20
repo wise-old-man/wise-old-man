@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 import logger from '../../../util/logging';
-import { getBuild, sanitize, shouldUpdate, standardize, validateUsername } from '../player.utils';
+import { getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
@@ -21,6 +22,8 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
   PrismaTypes.PlayerUncheckedUpdateInput
 >;
+
+let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 const inputSchema = z.object({
   username: z.string(),
@@ -54,7 +57,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // Fetch the previous player stats from the database
-  const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
+  const previousStats = player.latestSnapshot;
 
   let currentStats: Snapshot | undefined;
 
@@ -211,7 +214,7 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   return newSnapshot;
 }
 
-async function findOrCreate(username: string) {
+async function findOrCreate(username: string): Promise<[Player & { latestSnapshot?: Snapshot }, boolean]> {
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) },
     include: { latestSnapshot: true }
@@ -224,7 +227,7 @@ async function findOrCreate(username: string) {
       if (latestSnapshot) player.latestSnapshot = latestSnapshot;
     }
 
-    return [player, false] as const;
+    return [player, false];
   }
 
   const cleanUsername = standardize(username);
@@ -241,7 +244,24 @@ async function findOrCreate(username: string) {
     }
   });
 
-  return [newPlayer, true] as const;
+  return [newPlayer, true];
+}
+
+// For integration testing purposes
+export function setUpdateCooldown(seconds: number) {
+  UPDATE_COOLDOWN = seconds;
+}
+
+/**
+ * Checks if a given player has been updated in the last 60 seconds.
+ */
+function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastChangedAt'>): boolean {
+  if (!player.updatedAt) return true;
+
+  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
+  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
+
+  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 export { updatePlayer };

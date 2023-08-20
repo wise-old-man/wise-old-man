@@ -637,14 +637,14 @@ describe('Player API', () => {
 
     it('should not track player (too soon)', async () => {
       // This cooldown is set to 0 during testing by default
-      playerUtils.setUpdateCooldown(60);
+      playerServices.setUpdateCooldown(60);
 
       const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error: enriath has been updated recently.');
 
-      playerUtils.setUpdateCooldown(0);
+      playerServices.setUpdateCooldown(0);
     });
 
     it('should not track player (excessive gains)', async () => {
