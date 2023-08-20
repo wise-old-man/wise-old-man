@@ -5,7 +5,7 @@ import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 import logger from '../../../util/logging';
-import { getBuild, sanitize, standardize, validateUsername } from '../player.utils';
+import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
@@ -14,7 +14,6 @@ import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
 import { assertPlayerType } from './AssertPlayerTypeService';
-import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { archivePlayer } from './ArchivePlayerService';
 
@@ -160,8 +159,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
   playerEvents.onPlayerUpdated(updatedPlayer, previousSnapshot, newSnapshot, hasChanged);
 
-  // TODO: improve here
-  const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
+  const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
 
   return [playerDetails, isNew];
 }
