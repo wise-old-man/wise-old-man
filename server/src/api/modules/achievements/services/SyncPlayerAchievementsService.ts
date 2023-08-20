@@ -1,33 +1,16 @@
-import { z } from 'zod';
-import prisma from '../../../../prisma';
+import prisma, { Snapshot } from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
 import { calculatePastDates, getAchievementDefinitions } from '../achievement.utils';
 
 const ALL_DEFINITIONS = getAchievementDefinitions();
 const UNKNOWN_DATE = new Date(0);
 
-const inputSchema = z.object({
-  id: z.number().int().positive()
-});
-
-type SyncPlayerAchievementsParams = z.infer<typeof inputSchema>;
-
-async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Promise<void> {
-  const params = inputSchema.parse(payload);
-
-  // Fetch the player's latest 2 snapshots
-  const latestSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id, limit: 2 });
-
-  // This shouldn't happen because this function is executed onPlayerUpdated, but oh well
-  if (!latestSnapshots || latestSnapshots.length === 0) {
-    return;
-  }
-
-  if (latestSnapshots.length === 1) {
+async function syncPlayerAchievements(playerId: number, previous: Snapshot | undefined, current: Snapshot) {
+  if (!previous) {
     // If this is the first time player's being updated, find missing achievements and set them to "unknown" date
-    const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(latestSnapshots[0])).map(
+    const missingAchievements = ALL_DEFINITIONS.filter(d => d.validate(current)).map(
       ({ name, metric, threshold }) => {
-        return { playerId: params.id, name, metric, threshold, createdAt: UNKNOWN_DATE, accuracy: null };
+        return { playerId, name, metric, threshold, createdAt: UNKNOWN_DATE, accuracy: null };
       }
     );
 
@@ -37,11 +20,9 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
     return;
   }
 
-  const [current, previous] = latestSnapshots;
-
   // Find all achievements the player already has
   const currentAchievements = await prisma.achievement.findMany({
-    where: { playerId: params.id }
+    where: { playerId }
   });
 
   // Find any missing achievements (by comparing the SHOULD HAVE with the HAS IN DATABASE lists)
@@ -60,7 +41,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   }
 
   // Search dates for missing definitions, based on player history
-  const allSnapshots = await snapshotServices.findPlayerSnapshots({ id: params.id });
+  const allSnapshots = await snapshotServices.findPlayerSnapshots({ id: playerId });
 
   const missingPastDates = calculatePastDates(allSnapshots.reverse(), missingDefinitions);
 
@@ -69,7 +50,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
     const missingAchievementData = missingPastDates[name];
 
     return {
-      playerId: params.id,
+      playerId,
       name,
       metric,
       threshold,
@@ -81,7 +62,7 @@ async function syncPlayerAchievements(payload: SyncPlayerAchievementsParams): Pr
   // Create achievement instances for all the newly achieved definitions
   const newAchievements = newDefinitions.map(({ name, metric, threshold }) => {
     return {
-      playerId: params.id,
+      playerId,
       name,
       metric,
       threshold,

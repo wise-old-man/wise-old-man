@@ -4,11 +4,11 @@ import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError, ServerError } from '../../../errors';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import * as playerServices from '../../players/player.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as efficiencyUtils from '../../efficiency/efficiency.utils';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
 import { NameChange, NameChangeDetails } from '../name-change.types';
+import { standardize } from '../../players/player.utils';
 
 const inputSchema = z.object({
   id: z.number().int().positive()
@@ -25,8 +25,13 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
     throw new NotFoundError('Name change id was not found.');
   }
 
-  const [oldPlayer] = await playerServices.findPlayer({ username: nameChange.oldName });
-  const [newPlayer] = await playerServices.findPlayer({ username: nameChange.newName });
+  const oldPlayer = await prisma.player.findFirst({
+    where: { username: standardize(nameChange.oldName) }
+  });
+
+  const newPlayer = await prisma.player.findFirst({
+    where: { username: standardize(nameChange.newName) }
+  });
 
   if (!oldPlayer || nameChange.status !== NameChangeStatus.PENDING) {
     return { nameChange: nameChange as NameChange };

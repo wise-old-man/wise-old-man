@@ -61,7 +61,9 @@ async function dispatchAchievements(playerId: number, achievements: Achievement[
   // that are group members, so ignore any that aren't
   if (!memberships || memberships.length === 0) return;
 
-  const [player] = await playerServices.findPlayer({ id: playerId });
+  const player = await prisma.player.findFirst({
+    where: { id: playerId }
+  });
 
   memberships.forEach(({ groupId }) => {
     dispatch('MEMBER_ACHIEVEMENTS', { groupId, player, achievements: recent });

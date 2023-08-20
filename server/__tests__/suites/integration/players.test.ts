@@ -342,6 +342,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'psikoi'
         }),
+        undefined, // player is newly tracked, has no previous snapshot
         expect.objectContaining({
           playerId: response.body.id
         }),
@@ -376,6 +377,9 @@ describe('Player API', () => {
         expect.objectContaining({
           playerId: response.body.id
         }),
+        expect.objectContaining({
+          playerId: response.body.id
+        }),
         false
       );
 
@@ -405,6 +409,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'def1'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseDef1.body.id,
           defenceExperience: 0
@@ -432,6 +437,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'zerker'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseZerker.body.id,
           defenceExperience: 61_512
@@ -459,6 +465,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'hp10'
         }),
+        undefined,
         expect.objectContaining({
           playerId: response10HP.body.id,
           hitpointsExperience: 1154
@@ -492,6 +499,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'lvl3'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseLvl3.body.id,
           hitpointsExperience: 1154,
@@ -530,6 +538,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'f2p'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseF2P.body.id,
           bryophytaKills: 10,
@@ -571,6 +580,7 @@ describe('Player API', () => {
           username: 'enriath',
           type: 'ironman'
         }),
+        undefined,
         expect.objectContaining({
           playerId: response.body.id
         }),
@@ -637,14 +647,14 @@ describe('Player API', () => {
 
     it('should not track player (too soon)', async () => {
       // This cooldown is set to 0 during testing by default
-      playerUtils.setUpdateCooldown(60);
+      playerServices.setUpdateCooldown(60);
 
       const response = await api.post(`/players/enriath`);
 
       expect(response.status).toBe(429);
       expect(response.body.message).toMatch('Error: enriath has been updated recently.');
 
-      playerUtils.setUpdateCooldown(0);
+      playerServices.setUpdateCooldown(0);
     });
 
     it('should not track player (excessive gains)', async () => {
@@ -1440,13 +1450,6 @@ describe('Player API', () => {
       expect(oneNewPlayer[1].username).toBe('enriath');
       expect(oneNewPlayer[2].username).toBe('enrique');
       expect(oneNewPlayer[3].username).toBe('zezima');
-
-      const [player, isNew] = await playerServices.findPlayer({ username: 'zezima' });
-
-      expect(isNew).toBe(false);
-      expect(player).not.toBeNull();
-      expect(player.username).toBe('zezima');
-      expect(player.displayName).toBe('Zezima');
     });
   });
 

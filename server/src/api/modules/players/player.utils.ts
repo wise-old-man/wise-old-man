@@ -1,15 +1,23 @@
-import { isTesting } from '../../../env';
-import { Period, PeriodProps, PlayerBuild } from '../../../utils';
+import { Period, PeriodProps, PlayerBuild, PlayerDetails } from '../../../utils';
 import prisma, { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-import { findPlayer } from './services/FindPlayerService';
-
-let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
+import * as efficiencyUtils from '../efficiency/efficiency.utils';
 
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
+
+function formatPlayerDetails(player: Player, snapshot?: Snapshot): PlayerDetails {
+  const efficiency = efficiencyUtils.getPlayerEfficiencyMap(snapshot, player);
+  const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(snapshot);
+
+  return {
+    ...player,
+    combatLevel,
+    latestSnapshot: snapshotUtils.format(snapshot, efficiency)
+  };
+}
 
 async function resolvePlayerId(username: string): Promise<number | null> {
   if (!username || username.length === 0) {
@@ -20,7 +28,10 @@ async function resolvePlayerId(username: string): Promise<number | null> {
   if (cachedId) return cachedId;
 
   // Include username in the selected fields too, so that it can be cached for later
-  const [player] = await findPlayer({ username }, ['id', 'username']);
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) },
+    select: { id: true, username: true }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
@@ -34,21 +45,9 @@ async function resolvePlayer(username: string): Promise<Player | null> {
     throw new BadRequestError('Undefined username.');
   }
 
-  const [player] = await findPlayer({ username });
-
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
-
-  return player;
-}
-
-async function resolvePlayerById(id: number): Promise<Player | null> {
-  if (!id) {
-    throw new BadRequestError('Undefined player ID.');
-  }
-
-  const [player] = await findPlayer({ id });
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
@@ -73,11 +72,6 @@ async function setCachedPlayerId(username: string, id: number | null) {
   } else {
     await redisService.deleteKey(`player:${standardize(username)}`);
   }
-}
-
-// For integration testing purposes
-export function setUpdateCooldown(seconds: number) {
-  UPDATE_COOLDOWN = seconds;
 }
 
 /**
@@ -123,18 +117,6 @@ function validateUsername(username: string): Error | null {
 
 function isValidUsername(username: string): boolean {
   return validateUsername(username) === null;
-}
-
-/**
- * Checks if a given player has been updated in the last 60 seconds.
- */
-function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastChangedAt'>): boolean {
-  if (!player.updatedAt) return true;
-
-  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
-  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
-
-  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 /**
@@ -230,16 +212,15 @@ async function splitArchivalData(playerId: number, lastSnapshotDate: Date) {
 }
 
 export {
+  formatPlayerDetails,
   standardize,
   sanitize,
   validateUsername,
   isValidUsername,
-  shouldUpdate,
   shouldImport,
   getBuild,
   resolvePlayer,
   resolvePlayerId,
-  resolvePlayerById,
   setCachedPlayerId,
   splitArchivalData
 };

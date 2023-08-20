@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { isTesting } from '../../../../env';
 import prisma, { Player, PrismaTypes, Snapshot } from '../../../../prisma';
 import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 import logger from '../../../util/logging';
-import { getBuild, shouldUpdate } from '../player.utils';
+import { formatPlayerDetails, getBuild, sanitize, standardize, validateUsername } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
@@ -12,9 +13,7 @@ import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
-import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
-import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
 import { archivePlayer } from './ArchivePlayerService';
 
@@ -22,6 +21,8 @@ type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
   PrismaTypes.PlayerUncheckedUpdateInput
 >;
+
+let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
 const inputSchema = z.object({
   username: z.string(),
@@ -35,7 +36,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   const { username, skipFlagChecks } = inputSchema.parse(payload);
 
   // Find a player with the given username or create a new one if needed
-  const [player, isNew] = await findPlayer({ username, createIfNotFound: true });
+  const [player, isNew] = await findOrCreate(username);
 
   if (player.status === PlayerStatus.ARCHIVED) {
     throw new BadRequestError('Failed to update: Player is archived.');
@@ -55,7 +56,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // Fetch the previous player stats from the database
-  const previousStats = await snapshotServices.findPlayerSnapshot({ id: player.id });
+  const previousSnapshot = player.latestSnapshot;
 
   let currentStats: Snapshot | undefined;
 
@@ -87,11 +88,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // There has been a significant change in this player's stats, mark it as flagged
-  if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
+  if (!skipFlagChecks && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousStats, currentStats);
+      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) return updatePlayer({ username: player.username });
@@ -101,7 +102,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // The player has gained exp/kc/scores since the last update
-  const hasChanged = snapshotUtils.hasChanged(previousStats, currentStats);
+  const hasChanged = snapshotUtils.hasChanged(previousSnapshot, currentStats);
 
   // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
@@ -156,9 +157,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     where: { id: player.id }
   });
 
-  playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
+  playerEvents.onPlayerUpdated(updatedPlayer, previousSnapshot, newSnapshot, hasChanged);
 
-  const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
+  const playerDetails = formatPlayerDetails(updatedPlayer, newSnapshot);
 
   return [playerDetails, isNew];
 }
@@ -210,6 +211,56 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   const newSnapshot = await snapshotServices.buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });
 
   return newSnapshot;
+}
+
+async function findOrCreate(username: string): Promise<[Player & { latestSnapshot?: Snapshot }, boolean]> {
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) },
+    include: { latestSnapshot: true }
+  });
+
+  if (player) {
+    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    if (!player.latestSnapshot) {
+      const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+      if (latestSnapshot) player.latestSnapshot = latestSnapshot;
+    }
+
+    return [player, false];
+  }
+
+  const cleanUsername = standardize(username);
+  const validationError = validateUsername(cleanUsername);
+
+  if (validationError) {
+    throw new BadRequestError(`Validation error: ${validationError.message}`);
+  }
+
+  const newPlayer = await prisma.player.create({
+    data: {
+      username: cleanUsername,
+      displayName: sanitize(username)
+    }
+  });
+
+  return [newPlayer, true];
+}
+
+// For integration testing purposes
+export function setUpdateCooldown(seconds: number) {
+  UPDATE_COOLDOWN = seconds;
+}
+
+/**
+ * Checks if a given player has been updated in the last 60 seconds.
+ */
+function shouldUpdate(player: Pick<Player, 'updatedAt' | 'registeredAt' | 'lastChangedAt'>): boolean {
+  if (!player.updatedAt) return true;
+
+  const timeSinceLastUpdate = Math.floor((Date.now() - player.updatedAt.getTime()) / 1000);
+  const timeSinceRegistration = Math.floor((Date.now() - player.registeredAt.getTime()) / 1000);
+
+  return timeSinceLastUpdate >= UPDATE_COOLDOWN || (timeSinceRegistration <= 60 && !player.lastChangedAt);
 }
 
 export { updatePlayer };

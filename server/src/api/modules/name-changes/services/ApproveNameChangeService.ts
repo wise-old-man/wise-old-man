@@ -15,7 +15,6 @@ import { PlayerStatus } from '../../../../utils';
 import logger from '../../../util/logging';
 import { BadRequestError, NotFoundError, ServerError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import * as playerServices from '../../players/player.services';
 import * as playerEvents from '../../players/player.events';
 import * as playerUtils from '../../players/player.utils';
 import { prepareRecordValue } from '../../records/record.utils';
@@ -41,8 +40,13 @@ async function approveNameChange(payload: ApproveNameChangeService): Promise<Nam
     throw new BadRequestError('Name change status must be PENDING');
   }
 
-  const [oldPlayer] = await playerServices.findPlayer({ username: nameChange.oldName });
-  const [newPlayer] = await playerServices.findPlayer({ username: nameChange.newName });
+  const oldPlayer = await prisma.player.findFirst({
+    where: { username: playerUtils.standardize(nameChange.oldName) }
+  });
+
+  const newPlayer = await prisma.player.findFirst({
+    where: { username: playerUtils.standardize(nameChange.newName) }
+  });
 
   if (!oldPlayer) {
     throw new ServerError('Old Player cannot be found in the database anymore.');
