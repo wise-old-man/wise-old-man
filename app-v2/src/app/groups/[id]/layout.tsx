@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { GroupDetails } from "@wise-old-man/utils";
-import { fetchGroup } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
@@ -21,7 +21,6 @@ import GlobeIcon from "~/assets/globe.svg";
 import PeopleIcon from "~/assets/people-2.svg";
 import OverflowIcon from "~/assets/overflow.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -37,7 +36,7 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return (
     <Container>
@@ -130,13 +129,13 @@ function Header(props: GroupDetails) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <Link prefetch={false} href={`/groups/${id}/edit`}>
+              <Link href={`/groups/${id}/edit`}>
                 <DropdownMenuItem>Edit</DropdownMenuItem>
               </Link>
               <QueryLink query={{ dialog: "delete" }}>
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               </QueryLink>
-              <Link prefetch={false} href={`/competitions/create?groupId=${id}`}>
+              <Link href={`/competitions/create?groupId=${id}`}>
                 <DropdownMenuItem>Create group competition</DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

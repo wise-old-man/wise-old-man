@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { DeltaLeaderboardFilter, Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
-import { fetchDeltasLeaderboards } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -12,7 +12,6 @@ import {
   getPlayerBuildParam,
 } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -39,7 +38,6 @@ export default async function TopLeaderboardsPageWrapper(props: PageProps) {
   // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
   return (
     <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <TopLeaderboardsPage {...props} />
     </Suspense>
   );
@@ -57,15 +55,12 @@ async function TopLeaderboardsPage(props: PageProps) {
 
   return (
     <>
-      {/* @ts-expect-error - Server Component  */}
       <TopLeaderboard period={Period.DAY} filters={filters} />
       {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
       <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} />}>
-        {/* @ts-expect-error - Server Component  */}
         <TopLeaderboard period={Period.WEEK} filters={filters} />
       </Suspense>
       <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} />}>
-        {/* @ts-expect-error - Server Component  */}
         <TopLeaderboard period={Period.MONTH} filters={filters} />
       </Suspense>
     </>
@@ -80,7 +75,7 @@ interface TopLeaderboardProps {
 async function TopLeaderboard(props: TopLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await fetchDeltasLeaderboards({ period, ...filters });
+  const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
 
   return (
     <div>

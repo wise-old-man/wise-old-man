@@ -8,7 +8,7 @@ import {
   MetricProps,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
-import { fetchCompetition, getCompetitionStatus } from "~/services/wiseoldman";
+import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
 import {
@@ -28,7 +28,6 @@ import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAll
 
 import OverflowIcon from "~/assets/overflow.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -44,7 +43,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const competition = await fetchCompetition(id);
+  const competition = await apiClient.competitions.getCompetitionDetails(id);
 
   return (
     <Container>
@@ -142,11 +141,7 @@ function Header(props: CompetitionDetails) {
             {group && (
               <span>
                 {` · Hosted by `}
-                <Link
-                  prefetch={false}
-                  href={`/groups/${group.id}`}
-                  className="font-medium text-blue-400 hover:underline"
-                >
+                <Link href={`/groups/${group.id}`} className="font-medium text-blue-400 hover:underline">
                   {group.name}
                 </Link>
               </span>
@@ -165,7 +160,7 @@ function Header(props: CompetitionDetails) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <Link prefetch={false} href={`/competitions/${id}/edit`}>
+            <Link href={`/competitions/${id}/edit`}>
               <DropdownMenuItem>Edit</DropdownMenuItem>
             </Link>
             <QueryLink query={{ dialog: "delete" }}>

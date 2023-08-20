@@ -13,7 +13,7 @@ import {
   isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
-import { fetchPlayer, fetchPlayerAchievementProgress } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { AchievementListItem } from "~/components/AchievementListItem";
 import { Label } from "~/components/Label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
@@ -21,7 +21,6 @@ import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -34,7 +33,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await fetchPlayer(decodeURI(props.params.username));
+  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Achievements: ${player.displayName}`,
@@ -47,7 +46,7 @@ export default async function PlayerAchievements(props: PageProps) {
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const achievements = await fetchPlayerAchievementProgress(username);
+  const achievements = await apiClient.players.getPlayerAchievementProgress(username);
   const completedAchievements = achievements.filter((a) => !!a.createdAt);
 
   const skillAchievements = completedAchievements.filter((a) => isSkill(a.metric));

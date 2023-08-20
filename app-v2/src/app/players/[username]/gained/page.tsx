@@ -12,7 +12,7 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
-import { TimeRangeFilter, fetchPlayer, fetchPlayerGains } from "~/services/wiseoldman";
+import { TimeRangeFilter, apiClient } from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
 import { PlayerGainedTimeCards } from "~/components/players/PlayerGainedTimeCards";
@@ -22,7 +22,6 @@ import {
   PlayerGainedBarchartSkeleton,
 } from "~/components/players/PlayerGainedBarchart";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -38,7 +37,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await fetchPlayer(decodeURI(props.params.username));
+  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Gained: ${player.displayName}`,
@@ -55,8 +54,8 @@ export default async function PlayerGainedPage(props: PageProps) {
   const timeRange = getTimeRangeFilterParams(new URLSearchParams(searchParams));
 
   const [player, gains] = await Promise.all([
-    fetchPlayer(username),
-    fetchPlayerGains(username, timeRange),
+    apiClient.players.getPlayerDetails(username),
+    apiClient.players.getPlayerGains(username, timeRange),
   ]);
 
   return (
@@ -107,7 +106,6 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
         </p>
       </div>
       <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedChartSkeleton />}>
-        {/* @ts-expect-error - Server Component  */}
         <PlayerGainedChart {...props} />
       </Suspense>
     </div>
@@ -155,7 +153,6 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
         </p>
       </div>
       <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedBarchartSkeleton />}>
-        {/* @ts-expect-error - Server Component  */}
         <PlayerGainedBarchart {...props} timeRange={timeRange} />
       </Suspense>
     </div>

@@ -4,7 +4,7 @@ import {
   MetricProps,
   Skill,
 } from "@wise-old-man/utils";
-import { fetchEHPRates } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { Label } from "~/components/Label";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { ExpRatesTable } from "~/components/rates/ExperienceRatesTable";
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 }
 
 export default async function EHPRatesPage({ params }: PageProps) {
-  const data = await fetchEHPRates(params.type);
+  const data = await apiClient.efficiency.getEHPRates(params.type);
 
   return (
     <div className="mt-10 flex gap-x-12">

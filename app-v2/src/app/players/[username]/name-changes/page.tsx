@@ -1,10 +1,9 @@
 import { Fragment } from "react";
-import { fetchPlayer, fetchPlayerNameChanges } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { timeago } from "~/utils/dates";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -14,7 +13,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await fetchPlayer(decodeURI(props.params.username));
+  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Name Changes: ${player.displayName}`,
@@ -27,8 +26,8 @@ export default async function PlayerNameChangesPage(props: PageProps) {
   const username = decodeURI(params.username);
 
   const [player, nameChanges] = await Promise.all([
-    fetchPlayer(username),
-    fetchPlayerNameChanges(username),
+    apiClient.players.getPlayerDetails(username),
+    apiClient.players.getPlayerNames(username),
   ]);
 
   if (!nameChanges || nameChanges.length === 0) {

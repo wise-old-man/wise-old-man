@@ -1,12 +1,11 @@
 import { Suspense } from "react";
 import { Pagination } from "~/components/Pagination";
 import { GroupCard } from "~/components/groups/GroupCard";
-import { fetchGroups } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { getPageParam, getSearchParam } from "~/utils/params";
 
 const RESULTS_PER_PAGE = 15;
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -34,7 +33,6 @@ export default async function GroupsPageWrapper(props: PageProps) {
   // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
   return (
     <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <GroupsPage {...props} />
     </Suspense>
   );
@@ -46,7 +44,7 @@ async function GroupsPage(props: PageProps) {
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
 
-  const data = await fetchGroups(search || "", {
+  const data = await apiClient.groups.searchGroups(search || "", {
     limit: RESULTS_PER_PAGE,
     offset: (page - 1) * RESULTS_PER_PAGE,
   });

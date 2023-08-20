@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } from "@wise-old-man/utils";
-import { fetchRecordLeaderboards } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
@@ -13,7 +13,6 @@ import {
 } from "~/utils/params";
 import { formatDate } from "~/utils/dates";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -40,7 +39,6 @@ export default async function RecordsLeaderboardsPageWrapper(props: PageProps) {
   // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
   return (
     <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <RecordsLeaderboardsPage {...props} />
     </Suspense>
   );
@@ -58,15 +56,12 @@ async function RecordsLeaderboardsPage(props: PageProps) {
 
   return (
     <>
-      {/* @ts-expect-error - Server Component  */}
       <RecordLeaderboard period={Period.DAY} filters={filters} />
       {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
       <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} hasCaption />}>
-        {/* @ts-expect-error - Server Component  */}
         <RecordLeaderboard period={Period.WEEK} filters={filters} />
       </Suspense>
       <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} hasCaption />}>
-        {/* @ts-expect-error - Server Component  */}
         <RecordLeaderboard period={Period.MONTH} filters={filters} />
       </Suspense>
     </>
@@ -81,7 +76,7 @@ interface RecordLeaderboardProps {
 async function RecordLeaderboard(props: RecordLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await fetchRecordLeaderboards({ period, ...filters });
+  const data = await apiClient.records.getRecordLeaderboard({ period, ...filters });
 
   return (
     <div>

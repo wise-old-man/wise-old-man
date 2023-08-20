@@ -3,10 +3,9 @@ import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupGainedTable } from "~/components/groups/GroupGainedTable";
-import { fetchGroup, fetchGroupGained } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -23,7 +22,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Gained Leaderboards: ${group.name}`,
@@ -42,11 +41,12 @@ export default async function GroupGainedPage(props: PageProps) {
   const RESULTS_PER_PAGE = 20;
 
   const [group, gains] = await Promise.all([
-    fetchGroup(id),
-    fetchGroupGained(id, metric, period, {
-      limit: RESULTS_PER_PAGE,
-      offset: (page - 1) * RESULTS_PER_PAGE,
-    }),
+    apiClient.groups.getGroupDetails(id),
+    apiClient.groups.getGroupGains(
+      id,
+      { metric, period },
+      { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
+    ),
   ]);
 
   return (

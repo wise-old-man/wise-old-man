@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { fetchCompetitions } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { Pagination } from "~/components/Pagination";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
@@ -11,7 +11,6 @@ import {
   getSearchParam,
 } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -42,7 +41,6 @@ export default async function CompetitionsPageWrapper(props: PageProps) {
   // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
   return (
     <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <CompetitionsPage {...props} />
     </Suspense>
   );
@@ -59,7 +57,7 @@ async function CompetitionsPage(props: PageProps) {
 
   const RESULTS_PER_PAGE = 20;
 
-  const data = await fetchCompetitions(
+  const data = await apiClient.competitions.searchCompetitions(
     { title: search, type, status, metric },
     { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );

@@ -3,10 +3,9 @@ import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupHiscoresTable } from "~/components/groups/GroupHiscoresTable";
-import { fetchGroup, fetchGroupHiscores } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -22,7 +21,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await fetchGroup(id);
+  const group = await apiClient.groups.getGroupDetails(id);
 
   return {
     title: `Hiscores: ${group.name}`,
@@ -40,8 +39,11 @@ export default async function GroupHiscoresPage(props: PageProps) {
   const RESULTS_PER_PAGE = 20;
 
   const [group, hiscores] = await Promise.all([
-    fetchGroup(id),
-    fetchGroupHiscores(id, metric, { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }),
+    apiClient.groups.getGroupDetails(id),
+    apiClient.groups.getGroupHiscores(id, metric, {
+      limit: RESULTS_PER_PAGE,
+      offset: (page - 1) * RESULTS_PER_PAGE,
+    }),
   ]);
 
   return (

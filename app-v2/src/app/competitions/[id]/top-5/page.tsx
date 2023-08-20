@@ -1,8 +1,7 @@
 import { isMetric } from "@wise-old-man/utils";
-import { fetchCompetition, fetchTop5History } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -20,8 +19,8 @@ export default async function TopParticipants(props: PageProps) {
 
   const previewMetric = preview && isMetric(preview) ? preview : undefined;
 
-  const competition = await fetchCompetition(id, previewMetric);
-  const top5Participants = await fetchTop5History(id, previewMetric);
+  const competition = await apiClient.competitions.getCompetitionDetails(id, previewMetric);
+  const top5Participants = await apiClient.competitions.getCompetitionTopHistory(id, previewMetric);
 
   const metric = previewMetric || competition.metric;
 

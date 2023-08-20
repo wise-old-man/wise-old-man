@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { fetchGlobalStats } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { Container } from "~/components/Container";
 import { Button } from "~/components/Button";
 import { HeroPlayerForm } from "~/components/home/HeroPlayerForm";
@@ -31,7 +31,6 @@ import FeaturesRuneliteFront from "../../public/img/homepage_features_runelite_2
 export default function Home() {
   return (
     <Container className="relative max-w-none !p-0">
-      {/* @ts-expect-error - Server Component  */}
       <HeroSection />
 
       <PlayersSection />
@@ -47,8 +46,15 @@ export default function Home() {
   );
 }
 
+interface Stats {
+  players: number;
+  snapshots: number;
+  groups: number;
+  competitions: number;
+}
+
 async function HeroSection() {
-  const stats = await fetchGlobalStats();
+  const stats = (await apiClient.getRequest("/stats")) as Stats;
 
   const playerCount = `${(stats.players / 1_000_000).toFixed(2)}m`;
   const snapshotsCount = `${(stats.snapshots / 1_000_000).toFixed(2)}m`;

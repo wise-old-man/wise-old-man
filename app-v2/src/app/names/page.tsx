@@ -7,10 +7,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { capitalize } from "~/utils/strings";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { fetchNameChanges } from "~/services/wiseoldman";
+import { apiClient } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 import InfoIcon from "~/assets/info.svg";
@@ -53,7 +52,6 @@ export default async function NameChangesPageWrapper(props: PageProps) {
 
   return (
     <Suspense key={key} fallback={<LoadingState />}>
-      {/* @ts-expect-error - Server Component  */}
       <NameChangesPage {...props} />
     </Suspense>
   );
@@ -66,7 +64,7 @@ async function NameChangesPage(props: PageProps) {
   const search = getSearchParam(searchParams.search);
   const status = getNameChangeStatusParam(searchParams.status);
 
-  const data = await fetchNameChanges(
+  const data = await apiClient.nameChanges.searchNameChanges(
     { username: search, status },
     { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
   );
