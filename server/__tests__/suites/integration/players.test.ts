@@ -342,6 +342,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'psikoi'
         }),
+        undefined, // player is newly tracked, has no previous snapshot
         expect.objectContaining({
           playerId: response.body.id
         }),
@@ -376,6 +377,9 @@ describe('Player API', () => {
         expect.objectContaining({
           playerId: response.body.id
         }),
+        expect.objectContaining({
+          playerId: response.body.id
+        }),
         false
       );
 
@@ -405,6 +409,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'def1'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseDef1.body.id,
           defenceExperience: 0
@@ -432,6 +437,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'zerker'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseZerker.body.id,
           defenceExperience: 61_512
@@ -459,6 +465,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'hp10'
         }),
+        undefined,
         expect.objectContaining({
           playerId: response10HP.body.id,
           hitpointsExperience: 1154
@@ -492,6 +499,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'lvl3'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseLvl3.body.id,
           hitpointsExperience: 1154,
@@ -530,6 +538,7 @@ describe('Player API', () => {
         expect.objectContaining({
           username: 'f2p'
         }),
+        undefined,
         expect.objectContaining({
           playerId: responseF2P.body.id,
           bryophytaKills: 10,
@@ -571,6 +580,7 @@ describe('Player API', () => {
           username: 'enriath',
           type: 'ironman'
         }),
+        undefined,
         expect.objectContaining({
           playerId: response.body.id
         }),

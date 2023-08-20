@@ -43,21 +43,23 @@ async function onPlayerNameChanged(player: Player, previousDisplayName: string) 
   });
 }
 
-async function onPlayerUpdated(player: Player, snapshot: Snapshot, hasChanged: boolean) {
+async function onPlayerUpdated(
+  player: Player,
+  previous: Snapshot | undefined,
+  current: Snapshot,
+  hasChanged: boolean
+) {
   // Update this player's competition participations (gains)
-  await metrics.trackEffect(competitionServices.syncParticipations, {
-    playerId: snapshot.playerId,
-    latestSnapshotId: snapshot.id
-  });
+  await metrics.trackEffect(competitionServices.syncParticipations, player.id, current.id);
 
   // Only sync achievements if the player gained any exp/kc this update
   if (hasChanged) {
     // Check for new achievements
-    await metrics.trackEffect(achievementServices.syncPlayerAchievements, { id: snapshot.playerId });
+    await metrics.trackEffect(achievementServices.syncPlayerAchievements, player.id, previous, current);
   }
 
   // Update this player's deltas (gains)
-  await metrics.trackEffect(deltaServices.syncPlayerDeltas, player, snapshot);
+  await metrics.trackEffect(deltaServices.syncPlayerDeltas, player, current);
 
   // Attempt to import this player's history from CML
   await metrics.trackEffect(playerServices.importPlayerHistory, player);

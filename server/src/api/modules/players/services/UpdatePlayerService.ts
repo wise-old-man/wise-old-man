@@ -57,7 +57,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // Fetch the previous player stats from the database
-  const previousStats = player.latestSnapshot;
+  const previousSnapshot = player.latestSnapshot;
 
   let currentStats: Snapshot | undefined;
 
@@ -89,11 +89,11 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // There has been a significant change in this player's stats, mark it as flagged
-  if (!skipFlagChecks && !snapshotUtils.withinRange(previousStats, currentStats)) {
+  if (!skipFlagChecks && !snapshotUtils.withinRange(previousSnapshot, currentStats)) {
     logger.moderation(`[Player:${username}] Flagged`);
 
     if (player.status !== PlayerStatus.FLAGGED) {
-      const handled = await handlePlayerFlagged(player, previousStats, currentStats);
+      const handled = await handlePlayerFlagged(player, previousSnapshot, currentStats);
       // If the flag was properly handled (via a player archive),
       // call this function recursively, so that the new player can be tracked
       if (handled) return updatePlayer({ username: player.username });
@@ -103,7 +103,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   }
 
   // The player has gained exp/kc/scores since the last update
-  const hasChanged = snapshotUtils.hasChanged(previousStats, currentStats);
+  const hasChanged = snapshotUtils.hasChanged(previousSnapshot, currentStats);
 
   // If this player (IM/HCIM/UIM/FSW) hasn't gained exp in a while, we should review their type.
   // This is because when players de-iron, their ironman stats stay frozen, so they don't gain exp.
@@ -158,8 +158,9 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
     where: { id: player.id }
   });
 
-  playerEvents.onPlayerUpdated(updatedPlayer, newSnapshot, hasChanged);
+  playerEvents.onPlayerUpdated(updatedPlayer, previousSnapshot, newSnapshot, hasChanged);
 
+  // TODO: improve here
   const playerDetails = await fetchPlayerDetails(updatedPlayer, newSnapshot);
 
   return [playerDetails, isNew];
