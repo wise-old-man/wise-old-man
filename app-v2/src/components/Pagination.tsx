@@ -45,7 +45,6 @@ export function Pagination(props: PaginationProps) {
         className="flex justify-center -space-x-px rounded-md bg-gray-800 shadow-button"
       >
         <Link
-          prefetch={false}
           aria-disabled={!hasPrevious}
           href={getPaginatedHref(currentPage - 1)}
           className={cn(
@@ -59,7 +58,6 @@ export function Pagination(props: PaginationProps) {
         {currentPage > (PAGES_COUNT - 1) / 2 + 1 && (
           <>
             <Link
-              prefetch={false}
               href={getPaginatedHref(1)}
               className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-200 ring-1 ring-inset ring-gray-500 hover:bg-gray-700 hover:text-white focus:z-20 focus:outline-offset-0 sm:inline-flex"
             >
@@ -73,7 +71,6 @@ export function Pagination(props: PaginationProps) {
         {numbers.map((number) => (
           <Link
             key={`page_${number}`}
-            prefetch={false}
             href={getPaginatedHref(number)}
             aria-current={currentPage === number ? "page" : undefined}
             className={cn(
@@ -85,7 +82,6 @@ export function Pagination(props: PaginationProps) {
           </Link>
         ))}
         <Link
-          prefetch={false}
           aria-disabled={!hasMorePages}
           href={getPaginatedHref(currentPage + 1)}
           className={cn(

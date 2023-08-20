@@ -129,13 +129,13 @@ function Header(props: GroupDetails) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <Link prefetch={false} href={`/groups/${id}/edit`}>
+              <Link href={`/groups/${id}/edit`}>
                 <DropdownMenuItem>Edit</DropdownMenuItem>
               </Link>
               <QueryLink query={{ dialog: "delete" }}>
                 <DropdownMenuItem>Delete</DropdownMenuItem>
               </QueryLink>
-              <Link prefetch={false} href={`/competitions/create?groupId=${id}`}>
+              <Link href={`/competitions/create?groupId=${id}`}>
                 <DropdownMenuItem>Create group competition</DropdownMenuItem>
               </Link>
             </DropdownMenuContent>

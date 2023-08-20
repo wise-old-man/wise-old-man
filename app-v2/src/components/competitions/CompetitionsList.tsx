@@ -24,7 +24,6 @@ export function CompetitionsList(props: CompetitionsListProps) {
               <MetricIcon metric={competition.metric} />
               <div className="flex flex-col">
                 <Link
-                  prefetch={false}
                   href={`/competitions/${competition.id}`}
                   className="truncate text-base font-medium leading-7 text-white hover:underline"
                 >
@@ -35,7 +34,6 @@ export function CompetitionsList(props: CompetitionsListProps) {
                     <>
                       Hosted by&nbsp;
                       <Link
-                        prefetch={false}
                         href={`/groups/${competition.group.id}`}
                         className="font-medium text-blue-400 hover:underline"
                       >
