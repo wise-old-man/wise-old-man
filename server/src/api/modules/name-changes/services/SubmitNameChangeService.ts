@@ -3,7 +3,6 @@ import { PlayerStatus } from '../../../../utils';
 import prisma, { NameChange, NameChangeStatus } from '../../../../prisma';
 import { BadRequestError } from '../../../errors';
 import * as playerUtils from '../../../modules/players/player.utils';
-import * as playerServices from '../../../modules/players/player.services';
 import * as nameChangeEvents from '../name-change.events';
 
 const inputSchema = z
@@ -27,7 +26,9 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   const stNewName = playerUtils.standardize(params.newName);
 
   // Check if a player with the "oldName" username is registered
-  const [oldPlayer] = await playerServices.findPlayer({ username: stOldName });
+  const oldPlayer = await prisma.player.findFirst({
+    where: { username: stOldName }
+  });
 
   if (!oldPlayer) {
     throw new BadRequestError(`Player '${params.oldName}' is not tracked yet.`);
@@ -54,7 +55,9 @@ async function submitNameChange(payload: SubmitNameChangeParams): Promise<NameCh
   // will waste time and resources to process and deny, it's best to check if this
   // exact same name change has been approved.
   if (stOldName !== stNewName) {
-    const [newPlayer] = await playerServices.findPlayer({ username: stNewName });
+    const newPlayer = await prisma.player.findFirst({
+      where: { username: stNewName }
+    });
 
     if (newPlayer) {
       const lastChange = await prisma.nameChange.findFirst({

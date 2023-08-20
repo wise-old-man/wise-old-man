@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import { Snapshot } from '../../../../prisma';
+import prisma, { Snapshot } from '../../../../prisma';
 import { parsePeriodExpression } from '../../../../utils';
 import { BadRequestError, NotFoundError } from '../../../errors';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import * as playerServices from '../../players/player.services';
 import { PlayerDeltasArray, PlayerDeltasMap } from '../delta.types';
 import { calculatePlayerDeltas, emptyPlayerDelta, flattenPlayerDeltas } from '../delta.utils';
 
@@ -35,7 +34,9 @@ export interface FindPlayerDeltasResult {
 async function findPlayerDeltas(payload: FindPlayerDeltasParams): Promise<FindPlayerDeltasResult> {
   const params = inputSchema.parse(payload);
 
-  const [player] = await playerServices.findPlayer({ id: params.id });
+  const player = await prisma.player.findFirst({
+    where: { id: params.id }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');

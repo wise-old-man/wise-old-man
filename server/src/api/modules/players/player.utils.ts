@@ -4,7 +4,6 @@ import prisma, { Player, Snapshot } from '../../../prisma';
 import { BadRequestError, NotFoundError } from '../../errors';
 import redisService from '../../services/external/redis.service';
 import * as snapshotUtils from '../snapshots/snapshot.utils';
-import { findPlayer } from './services/FindPlayerService';
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
@@ -20,7 +19,10 @@ async function resolvePlayerId(username: string): Promise<number | null> {
   if (cachedId) return cachedId;
 
   // Include username in the selected fields too, so that it can be cached for later
-  const [player] = await findPlayer({ username }, ['id', 'username']);
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) },
+    select: { id: true, username: true }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
@@ -34,7 +36,9 @@ async function resolvePlayer(username: string): Promise<Player | null> {
     throw new BadRequestError('Undefined username.');
   }
 
-  const [player] = await findPlayer({ username });
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');
@@ -48,7 +52,9 @@ async function resolvePlayerById(id: number): Promise<Player | null> {
     throw new BadRequestError('Undefined player ID.');
   }
 
-  const [player] = await findPlayer({ id });
+  const player = await prisma.player.findFirst({
+    where: { id }
+  });
 
   if (!player) {
     throw new NotFoundError('Player not found.');

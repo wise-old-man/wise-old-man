@@ -1,3 +1,4 @@
+import prisma from '../../../prisma';
 import * as playerServices from '../../modules/players/player.services';
 import { NotFoundError } from '../../errors';
 import { JobType, JobDefinition, JobOptions } from '../job.types';
@@ -20,7 +21,9 @@ class AssertPlayerTypeJob implements JobDefinition<AssertPlayerTypePayload> {
   }
 
   async execute(data: AssertPlayerTypePayload) {
-    const [player] = await playerServices.findPlayer({ id: data.playerId });
+    const player = await prisma.player.findFirst({
+      where: { id: data.playerId }
+    });
 
     if (!player) {
       throw new NotFoundError('Player not found.');

@@ -1440,13 +1440,6 @@ describe('Player API', () => {
       expect(oneNewPlayer[1].username).toBe('enriath');
       expect(oneNewPlayer[2].username).toBe('enrique');
       expect(oneNewPlayer[3].username).toBe('zezima');
-
-      const [player, isNew] = await playerServices.findPlayer({ username: 'zezima' });
-
-      expect(isNew).toBe(false);
-      expect(player).not.toBeNull();
-      expect(player.username).toBe('zezima');
-      expect(player.displayName).toBe('Zezima');
     });
   });
 
