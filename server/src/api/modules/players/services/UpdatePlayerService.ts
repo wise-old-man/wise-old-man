@@ -4,7 +4,7 @@ import { PlayerType, PlayerBuild, PlayerStatus } from '../../../../utils';
 import { BadRequestError, RateLimitError, ServerError } from '../../../errors';
 import { jobManager, JobType } from '../../../jobs';
 import logger from '../../../util/logging';
-import { getBuild, shouldUpdate } from '../player.utils';
+import { getBuild, sanitize, shouldUpdate, standardize, validateUsername } from '../player.utils';
 import redisService from '../../../services/external/redis.service';
 import * as jagexService from '../../../services/external/jagex.service';
 import * as efficiencyServices from '../../efficiency/efficiency.services';
@@ -12,7 +12,6 @@ import * as snapshotServices from '../../snapshots/snapshot.services';
 import * as snapshotUtils from '../../snapshots/snapshot.utils';
 import * as playerEvents from '../player.events';
 import { PlayerDetails } from '../player.types';
-import { findPlayer } from './FindPlayerService';
 import { assertPlayerType } from './AssertPlayerTypeService';
 import { fetchPlayerDetails } from './FetchPlayerDetailsService';
 import { reviewFlaggedPlayer } from './ReviewFlaggedPlayerService';
@@ -35,7 +34,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
   const { username, skipFlagChecks } = inputSchema.parse(payload);
 
   // Find a player with the given username or create a new one if needed
-  const [player, isNew] = await findPlayer({ username, createIfNotFound: true });
+  const [player, isNew] = await findOrCreate(username);
 
   if (player.status === PlayerStatus.ARCHIVED) {
     throw new BadRequestError('Failed to update: Player is archived.');
@@ -210,6 +209,39 @@ async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> 
   const newSnapshot = await snapshotServices.buildSnapshot({ playerId: player.id, rawCSV: hiscoresCSV });
 
   return newSnapshot;
+}
+
+async function findOrCreate(username: string) {
+  const player = await prisma.player.findFirst({
+    where: { username: standardize(username) },
+    include: { latestSnapshot: true }
+  });
+
+  if (player) {
+    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    if (!player.latestSnapshot) {
+      const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+      if (latestSnapshot) player.latestSnapshot = latestSnapshot;
+    }
+
+    return [player, false] as const;
+  }
+
+  const cleanUsername = standardize(username);
+  const validationError = validateUsername(cleanUsername);
+
+  if (validationError) {
+    throw new BadRequestError(`Validation error: ${validationError.message}`);
+  }
+
+  const newPlayer = await prisma.player.create({
+    data: {
+      username: cleanUsername,
+      displayName: sanitize(username)
+    }
+  });
+
+  return [newPlayer, true] as const;
 }
 
 export { updatePlayer };
