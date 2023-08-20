@@ -73,11 +73,6 @@ const COLUMN_DEFINITIONS: ColumnDef<Team>[] = [
     accessorFn: (row) => {
       return row.participations[0];
     },
-    sortingFn: (rowA, rowB) => {
-      return (
-        rowA.original.participations[0].progress.gained - rowB.original.participations[1].progress.gained
-      );
-    },
     cell: ({ row }) => {
       const mvp = row.getValue("mvp") as ParticipationWithPlayerAndProgress;
 
@@ -195,8 +190,12 @@ function getTeams(competition: CompetitionDetails): Team[] {
     }
   });
 
-  return Array.from(teamMap.entries()).map(([name, participations]) => ({
-    name,
-    participations,
-  }));
+  return Array.from(teamMap.entries())
+    .map(([name, participations]) => ({ name, participations }))
+    .sort((a, b) => {
+      return (
+        b.participations.reduce((acc, curr) => acc + curr.progress.gained, 0) -
+        a.participations.reduce((acc, curr) => acc + curr.progress.gained, 0)
+      );
+    });
 }
