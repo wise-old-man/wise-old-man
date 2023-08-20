@@ -8,7 +8,7 @@ import * as efficiencyUtils from '../efficiency/efficiency.utils';
 const YEAR_IN_SECONDS = PeriodProps[Period.YEAR].milliseconds / 1000;
 const DECADE_IN_SECONDS = YEAR_IN_SECONDS * 10;
 
-function formatPlayerDetails(player: Player, snapshot: Snapshot): PlayerDetails {
+function formatPlayerDetails(player: Player, snapshot?: Snapshot): PlayerDetails {
   const efficiency = efficiencyUtils.getPlayerEfficiencyMap(snapshot, player);
   const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(snapshot);
 
@@ -47,22 +47,6 @@ async function resolvePlayer(username: string): Promise<Player | null> {
 
   const player = await prisma.player.findFirst({
     where: { username: standardize(username) }
-  });
-
-  if (!player) {
-    throw new NotFoundError('Player not found.');
-  }
-
-  return player;
-}
-
-async function resolvePlayerById(id: number): Promise<Player | null> {
-  if (!id) {
-    throw new BadRequestError('Undefined player ID.');
-  }
-
-  const player = await prisma.player.findFirst({
-    where: { id }
   });
 
   if (!player) {
@@ -237,7 +221,6 @@ export {
   getBuild,
   resolvePlayer,
   resolvePlayerId,
-  resolvePlayerById,
   setCachedPlayerId,
   splitArchivalData
 };

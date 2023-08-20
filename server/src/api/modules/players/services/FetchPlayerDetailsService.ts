@@ -1,21 +1,41 @@
-import { Snapshot, Player } from '../../../../prisma';
+import { z } from 'zod';
+
+import prisma from '../../../../prisma';
 import * as snapshotServices from '../../snapshots/snapshot.services';
-import * as snapshotUtils from '../../snapshots/snapshot.utils';
-import * as efficiencyUtils from '../../efficiency/efficiency.utils';
+import { NotFoundError } from '../../../errors';
 import { PlayerDetails } from '../player.types';
+import { formatPlayerDetails, standardize } from '../player.utils';
 
-async function fetchPlayerDetails(player: Player, latestSnapshot?: Snapshot): Promise<PlayerDetails> {
-  // Fetch the player's latest snapshot, if not supplied yet
-  const stats = latestSnapshot || (await snapshotServices.findPlayerSnapshot({ id: player.id }));
+const inputSchema = z
+  .object({
+    id: z.number().positive().optional(),
+    username: z.string().optional()
+  })
+  .refine(s => s.id || s.username, {
+    message: 'Undefined id and username.'
+  });
 
-  const efficiency = stats && efficiencyUtils.getPlayerEfficiencyMap(stats, player);
-  const combatLevel = snapshotUtils.getCombatLevelFromSnapshot(stats);
+type FetchPlayerParams = z.infer<typeof inputSchema>;
 
-  return {
-    ...player,
-    combatLevel,
-    latestSnapshot: snapshotUtils.format(stats, efficiency)
-  };
+async function fetchPlayerDetails(payload: FetchPlayerParams): Promise<PlayerDetails> {
+  const params = inputSchema.parse(payload);
+
+  const player = await prisma.player.findFirst({
+    where: params.id ? { id: params.id } : { username: standardize(params.username) },
+    include: { latestSnapshot: true }
+  });
+
+  if (!player) {
+    throw new NotFoundError('Player not found.');
+  }
+
+  if (!player.latestSnapshot) {
+    // If this player's "latestSnapshotId" isn't populated, fetch the latest snapshot from the DB
+    const latestSnapshot = await snapshotServices.findPlayerSnapshot({ id: player.id });
+    if (latestSnapshot) player.latestSnapshot = latestSnapshot;
+  }
+
+  return formatPlayerDetails(player, player.latestSnapshot);
 }
 
 export { fetchPlayerDetails };
