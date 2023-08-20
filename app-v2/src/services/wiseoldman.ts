@@ -8,6 +8,7 @@ import {
 
 export const apiClient = new WOMClient({
   userAgent: "Wise Old Man App (v2)",
+  apiKey: process.env.APP_API_KEY,
 });
 
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
