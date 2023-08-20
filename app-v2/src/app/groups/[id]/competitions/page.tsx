@@ -3,7 +3,6 @@ import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

@@ -4,7 +4,6 @@ import { Label } from "~/components/Label";
 import { apiClient } from "~/services/wiseoldman";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

@@ -31,7 +31,6 @@ import OverflowIcon from "~/assets/overflow.svg";
 import ExternalIcon from "~/assets/external.svg";
 import WarningFilledIcon from "~/assets/warning_filled.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

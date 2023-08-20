@@ -21,7 +21,6 @@ import GlobeIcon from "~/assets/globe.svg";
 import PeopleIcon from "~/assets/people-2.svg";
 import OverflowIcon from "~/assets/overflow.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

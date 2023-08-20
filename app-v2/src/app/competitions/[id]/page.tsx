@@ -5,7 +5,6 @@ import { ParticipantsTable } from "~/components/competitions/ParticipantsTable";
 import { CompetitionWidgets } from "~/components/competitions/CompetitionWidgets";
 import { CompetitionStatusWarning } from "~/components/competitions/CompetitionStatusWarning";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

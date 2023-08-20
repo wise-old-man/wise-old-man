@@ -6,7 +6,6 @@ import { GroupRecordsTable } from "~/components/groups/GroupRecordsTable";
 import { apiClient } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

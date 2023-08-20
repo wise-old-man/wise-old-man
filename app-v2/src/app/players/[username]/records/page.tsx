@@ -18,7 +18,6 @@ import { FormattedNumber } from "~/components/FormattedNumber";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

@@ -7,9 +7,6 @@ const BarChartSSR = dynamicImport(() => import("../BarChart"), {
   loading: () => <PlayerGainedBarchartSkeleton />,
 });
 
-export const runtime = "edge";
-export const dynamic = "force-dynamic";
-
 interface PlayerGainedBarchartProps {
   username: string;
   metric: Metric;

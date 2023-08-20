@@ -13,7 +13,6 @@ import {
 } from "~/utils/params";
 import { formatDate } from "~/utils/dates";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

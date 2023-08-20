@@ -6,7 +6,6 @@ import { GroupHiscoresTable } from "~/components/groups/GroupHiscoresTable";
 import { apiClient } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

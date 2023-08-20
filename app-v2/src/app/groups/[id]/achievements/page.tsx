@@ -3,7 +3,6 @@ import { Pagination } from "~/components/Pagination";
 import { apiClient } from "~/services/wiseoldman";
 import { GroupAchievementsTable } from "~/components/groups/GroupAchievementsTable";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

@@ -2,7 +2,6 @@ import { isMetric } from "@wise-old-man/utils";
 import { apiClient } from "~/services/wiseoldman";
 import { CompetitionTopParticipantsChart } from "~/components/competitions/CompetitionTopParticipantsChart";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

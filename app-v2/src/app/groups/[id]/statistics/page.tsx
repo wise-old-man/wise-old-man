@@ -1,7 +1,6 @@
 import { GroupAverageStatsTable } from "~/components/groups/GroupAverageStatsTable";
 import { apiClient } from "~/services/wiseoldman";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

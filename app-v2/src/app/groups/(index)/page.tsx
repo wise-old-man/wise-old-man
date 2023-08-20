@@ -6,7 +6,6 @@ import { getPageParam, getSearchParam } from "~/utils/params";
 
 const RESULTS_PER_PAGE = 15;
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

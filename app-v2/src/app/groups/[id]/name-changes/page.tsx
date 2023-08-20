@@ -4,7 +4,6 @@ import { apiClient } from "~/services/wiseoldman";
 import { GroupNameChangesTable } from "~/components/groups/GroupNameChangesTable";
 import { NameChange, Player } from "@wise-old-man/utils";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

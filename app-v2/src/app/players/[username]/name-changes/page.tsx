@@ -4,7 +4,6 @@ import { timeago } from "~/utils/dates";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

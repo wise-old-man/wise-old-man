@@ -7,9 +7,6 @@ const LineChartSSR = dynamicImport(() => import("../LineChart"), {
   loading: () => <PlayerGainedChartSkeleton />,
 });
 
-export const runtime = "edge";
-export const dynamic = "force-dynamic";
-
 interface PlayerGainedChartProps {
   username: string;
   timeRange: TimeRangeFilter;

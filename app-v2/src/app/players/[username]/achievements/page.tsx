@@ -21,7 +21,6 @@ import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 interface PageProps {

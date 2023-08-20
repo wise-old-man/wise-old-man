@@ -10,7 +10,6 @@ import { formatDatetime, timeago } from "~/utils/dates";
 import { apiClient } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 import InfoIcon from "~/assets/info.svg";
