@@ -5,8 +5,8 @@ import { Snapshot } from '../../../../prisma';
 import { ServerError } from '../../../errors';
 import { SnapshotDataSource } from '../snapshot.types';
 
-// Legacy bounty hunter (hunter/rogue)
-export const SKIPPED_ACTIVITY_INDICES = [3, 4];
+// Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
+export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
 
 const inputSchema = z.object({
   playerId: z.number().int().positive(),
