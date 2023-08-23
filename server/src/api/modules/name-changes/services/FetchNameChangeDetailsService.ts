@@ -66,9 +66,7 @@ async function fetchNameChangeDetails(payload: FetchDetailsParams): Promise<Name
 
   // Fetch either the first snapshot of the new name, or the current hiscores stats
   // Note: this playerId isn't needed, and won't be used or exposed to the user
-  let newStats = newHiscores
-    ? await snapshotServices.buildSnapshot({ playerId: 1, rawCSV: newHiscores })
-    : null;
+  let newStats = newHiscores ? await snapshotUtils.parseHiscoresSnapshot(1, newHiscores) : null;
 
   if (newPlayer) {
     // If the new name is already a tracked player and was tracked

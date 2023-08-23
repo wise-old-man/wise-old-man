@@ -3,8 +3,8 @@ import MockAdapter from 'axios-mock-adapter/types';
 import prisma from '../src/prisma';
 import redisService from '../src/api/services/external/redis.service';
 import { OSRS_HISCORES_URLS } from '../src/api/services/external/jagex.service';
+import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.utils';
 import { PlayerType, METRICS, Metric, SKILLS } from '../src/utils';
-import { SKIPPED_ACTIVITY_INDICES } from '../src/api/modules/snapshots/snapshot.services';
 
 type HiscoresMockConfig = {
   [playerType in PlayerType]?: {

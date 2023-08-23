@@ -5,7 +5,7 @@ import { getMetricValueKey, getMetricRankKey, METRICS, PlayerType } from '../../
 import env from '../../../src/env';
 import prisma, { setHooksEnabled } from '../../../src/prisma';
 import apiServer from '../../../src/api';
-import * as snapshotServices from '../../../src/api/modules/snapshots/snapshot.services';
+import * as snapshotUtils from '../../../src/api/modules/snapshots/snapshot.utils';
 import * as nameChangeEvents from '../../../src/api/modules/name-changes/name-change.events';
 import * as playerEvents from '../../../src/api/modules/players/player.events';
 import * as groupEvents from '../../../src/api/modules/groups/group.events';
@@ -914,10 +914,7 @@ async function seedPreTransitionData(oldPlayerId: number, newPlayerId: number) {
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
-    playerId: oldPlayerId,
-    rawCSV: globalData.hiscoresRawData
-  });
+  const snapshotData = await snapshotUtils.parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];
@@ -970,10 +967,7 @@ async function seedPostTransitionData(oldPlayerId: number, newPlayerId: number) 
 
   const filteredSnapshotData = {};
 
-  const snapshotData = await snapshotServices.buildSnapshot({
-    playerId: oldPlayerId,
-    rawCSV: globalData.hiscoresRawData
-  });
+  const snapshotData = await snapshotUtils.parseHiscoresSnapshot(oldPlayerId, globalData.hiscoresRawData);
 
   METRICS.forEach(m => {
     filteredSnapshotData[getMetricValueKey(m)] = snapshotData[getMetricValueKey(m)];

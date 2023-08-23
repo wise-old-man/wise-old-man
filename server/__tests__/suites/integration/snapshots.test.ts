@@ -15,7 +15,6 @@ import {
   sleep,
   modifyRawHiscoresData
 } from '../../utils';
-import { SnapshotDataSource } from '../../../src/api/modules/snapshots/snapshot.types';
 
 const api = supertest(apiServer.express);
 const axiosMock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
@@ -71,7 +70,7 @@ afterAll(async () => {
 describe('Snapshots API', () => {
   describe('1 - Creating from OSRS Hiscores', () => {
     it('should not create snapshot (invalid input)', async () => {
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: null })).rejects.toThrow();
+      await expect(utils.parseHiscoresSnapshot(1, null)).rejects.toThrow();
     });
 
     it('should not create snapshot (hiscores change)', async () => {
@@ -79,17 +78,17 @@ describe('Snapshots API', () => {
       const rawDataMinusOneLine = rest.join('\n');
       const rawDataPlusOneLine = `${globalData.hiscoresRawDataLT}\n${firstLine}`;
 
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: rawDataMinusOneLine })).rejects.toThrow(
+      await expect(utils.parseHiscoresSnapshot(1, rawDataMinusOneLine)).rejects.toThrow(
         'The OSRS Hiscores were updated. Please wait for a fix.'
       );
 
-      await expect(services.buildSnapshot({ playerId: 1, rawCSV: rawDataPlusOneLine })).rejects.toThrow(
+      await expect(utils.parseHiscoresSnapshot(1, rawDataPlusOneLine)).rejects.toThrow(
         'The OSRS Hiscores were updated. Please wait for a fix.'
       );
     });
 
     it('should create snapshot (Lynx Titan)', async () => {
-      const snapshot = await services.buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataLT });
+      const snapshot = await utils.parseHiscoresSnapshot(1, globalData.hiscoresRawDataLT);
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
@@ -112,7 +111,7 @@ describe('Snapshots API', () => {
     });
 
     it('should create snapshot (Psikoi)', async () => {
-      const snapshot = await services.buildSnapshot({ playerId: 1, rawCSV: globalData.hiscoresRawDataP });
+      const snapshot = await utils.parseHiscoresSnapshot(1, globalData.hiscoresRawDataP);
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).toBeUndefined();
@@ -145,7 +144,7 @@ describe('Snapshots API', () => {
         { metric: Metric.BOUNTY_HUNTER_ROGUE, value: 45 }
       ]);
 
-      const newSnapshot = await services.buildSnapshot({ playerId: 1, rawCSV: modifiedRawData });
+      const newSnapshot = await utils.parseHiscoresSnapshot(1, modifiedRawData);
 
       // Now these shouldn't be unranked
       expect(newSnapshot.bounty_hunter_rogueScore).toBe(45);
@@ -155,13 +154,7 @@ describe('Snapshots API', () => {
 
   describe('2 - Creating from CrystalMathLabs', () => {
     it('should not create snapshot (invalid input)', async () => {
-      await expect(
-        services.buildSnapshot({
-          playerId: 1,
-          rawCSV: null,
-          source: SnapshotDataSource.CRYSTAL_MATH_LABS
-        })
-      ).rejects.toThrow();
+      await expect(utils.parseCMLSnapshot(1, null)).rejects.toThrow();
     });
 
     it('should not create snapshot (CML changed)', async () => {
@@ -170,33 +163,21 @@ describe('Snapshots API', () => {
         .filter(r => r.length)[0]
         .slice(0, -5);
 
-      await expect(
-        services.buildSnapshot({
-          playerId: 1,
-          rawCSV: missingData,
-          source: SnapshotDataSource.CRYSTAL_MATH_LABS
-        })
-      ).rejects.toThrow('The CML API was updated. Please wait for a fix.');
+      await expect(utils.parseCMLSnapshot(1, missingData)).rejects.toThrow(
+        'The CML API was updated. Please wait for a fix.'
+      );
 
       const excessiveData = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0] + ',1';
 
-      await expect(
-        services.buildSnapshot({
-          playerId: 1,
-          rawCSV: excessiveData,
-          source: SnapshotDataSource.CRYSTAL_MATH_LABS
-        })
-      ).rejects.toThrow('The CML API was updated. Please wait for a fix.');
+      await expect(utils.parseCMLSnapshot(1, excessiveData)).rejects.toThrow(
+        'The CML API was updated. Please wait for a fix.'
+      );
     });
 
     it('should create snapshot (Lynx Titan)', async () => {
       const data = globalData.cmlRawDataLT.split('\n').filter(r => r.length)[0];
 
-      const snapshot = await services.buildSnapshot({
-        playerId: 1,
-        rawCSV: data,
-        source: SnapshotDataSource.CRYSTAL_MATH_LABS
-      });
+      const snapshot = await utils.parseCMLSnapshot(1, data);
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.importedAt).not.toBeUndefined();
@@ -215,11 +196,7 @@ describe('Snapshots API', () => {
     it('should create snapshot (Psikoi)', async () => {
       const data = globalData.cmlRawDataP.split('\n').filter(r => r.length)[0];
 
-      const snapshot = await services.buildSnapshot({
-        playerId: 1,
-        rawCSV: data,
-        source: SnapshotDataSource.CRYSTAL_MATH_LABS
-      });
+      const snapshot = await utils.parseCMLSnapshot(1, data);
 
       expect(snapshot.playerId).toBe(1);
       expect(snapshot.createdAt.getTime()).toBe(1588939931000);
@@ -245,13 +222,7 @@ describe('Snapshots API', () => {
       const cml = globalData.cmlRawDataP.split('\n').filter(r => r.length);
 
       const snapshots = await Promise.all(
-        cml.map(row => {
-          return services.buildSnapshot({
-            playerId: globalData.testPlayerId,
-            rawCSV: row,
-            source: SnapshotDataSource.CRYSTAL_MATH_LABS
-          });
-        })
+        cml.map(row => utils.parseCMLSnapshot(globalData.testPlayerId, row))
       );
 
       const { count } = await playerServices.saveAllSnapshots(snapshots);
