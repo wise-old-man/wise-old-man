@@ -6,7 +6,7 @@ import { ServerError } from '../../../errors';
 import { SnapshotDataSource } from '../snapshot.types';
 
 // Legacy bounty hunter (hunter/rogue)
-export const SKIPPED_ACTIVITY_INDICES = [1, 3, 4];
+export const SKIPPED_ACTIVITY_INDICES = [3, 4];
 
 const inputSchema = z.object({
   playerId: z.number().int().positive(),
