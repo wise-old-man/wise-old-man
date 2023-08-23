@@ -42,6 +42,8 @@ async function buildFromRS(playerId: number, rawCSV: string) {
     createdAt: new Date()
   };
 
+  let totalExp = 0;
+
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
@@ -49,7 +51,15 @@ async function buildFromRS(playerId: number, rawCSV: string) {
 
     snapshotFields[getMetricRankKey(s)] = parseInt(rank);
     snapshotFields[getMetricValueKey(s)] = s === Metric.OVERALL && expNum === 0 ? -1 : expNum;
+
+    if (s !== Metric.OVERALL) totalExp += Math.max(0, expNum);
   });
+
+  // If this player is unranked in overall exp, we should set their overall exp to the total exp of all skills
+  // since that's at least closer to the real number than -1
+  if (snapshotFields[getMetricValueKey(Metric.OVERALL)] === -1 && totalExp > 0) {
+    snapshotFields[getMetricValueKey(Metric.OVERALL)] = totalExp;
+  }
 
   // Populate the activities' values with the values from the csv
   for (let i = 0; i < ACTIVITIES.length + SKIPPED_ACTIVITY_INDICES.length; i++) {

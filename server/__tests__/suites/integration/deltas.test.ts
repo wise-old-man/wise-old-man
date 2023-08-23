@@ -101,6 +101,7 @@ describe('Deltas API', () => {
       const firstTrackResponse = await api.post(`/players/psikoi`);
       expect(firstTrackResponse.status).toBe(201);
       expect(firstTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(6_177_978);
+      expect(firstTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(300_192_115);
 
       globalData.testPlayerId = firstTrackResponse.body.id;
 
@@ -134,6 +135,14 @@ describe('Deltas API', () => {
       const secondTrackResponse = await api.post(`/players/psikoi`);
       expect(secondTrackResponse.status).toBe(200);
 
+      expect(secondTrackResponse.body.latestSnapshot.data.skills.smithing.experience).toBe(
+        6_177_978 + 50_000
+      );
+
+      expect(secondTrackResponse.body.latestSnapshot.data.skills.overall.experience).toBe(
+        300_192_115 + 50_000
+      ); // mocked as -1 overall, had to sum all skills' exp to use as the fallback
+
       // Wait for the deltas to update
       await sleep(500);
 
@@ -160,11 +169,16 @@ describe('Deltas API', () => {
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('week');
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('month');
       expect(secondDeltas.filter(d => d.smithing === 50_000).map(d => d.period)).toContain('year');
+      expect(secondDeltas.filter(d => d.overall === 50_000).length).toBe(3);
+      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('week');
+      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('month');
+      expect(secondDeltas.filter(d => d.overall === 50_000).map(d => d.period)).toContain('year');
 
       // All deltas' end snapshot is the latest one
       expect(secondDeltas.filter(d => Date.now() - d.endedAt.getTime() > 10_000).length).toBe(0);
 
       modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.OVERALL, value: 300_192_115 + 50_000 },
         { metric: Metric.SMITHING, value: 6_177_978 + 50_000 },
         { metric: Metric.LAST_MAN_STANDING, value: 450 },
         { metric: Metric.NEX, value: 54 },
@@ -205,7 +219,6 @@ describe('Deltas API', () => {
       expect(dayDeltas.soul_wars_zeal).toBe(4); // soul wars went from -1 (unranked) to 203 (min=200), make sure it's 4 gained, not 204
       expect(dayDeltas.last_man_standing).toBe(0); // LMS went DOWN from 500 to 450, don't show negative gains
       expect(dayDeltas.ehb).toBeLessThan(monthDeltas.ehb); // gained less boss kc, expect ehb gains to be lesser
-      expect(parseInt(dayDeltas.overall.toString())).toBe(0); // overall went from -1 to 300m, show 0 gains
 
       const fourthTrackResponse = await api.post(`/players/psikoi`);
       expect(fourthTrackResponse.status).toBe(200);
@@ -294,7 +307,7 @@ describe('Deltas API', () => {
 
       const dayOverallGains = dayResponse.body.data.skills.overall;
 
-      expect(dayOverallGains.experience).toMatchObject({ start: -1, end: 300192115, gained: 0 });
+      expect(dayOverallGains.experience).toMatchObject({ start: 300242115, end: 300242115, gained: 0 });
     });
 
     it('should fetch (custom period + array formatting)', async () => {
