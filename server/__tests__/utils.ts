@@ -60,15 +60,18 @@ function modifyRawHiscoresData(rawData: string, modifications: { metric: Metric;
       let modifiedRow;
 
       modifications.forEach(m => {
-        const metricIndex = METRICS.indexOf(m.metric);
+        let metricIndex = METRICS.indexOf(m.metric);
 
         // Account for skipped metrics
-        const adjustedIndex =
-          metricIndex <= SKILLS.length + SKIPPED_ACTIVITY_INDICES.length
-            ? metricIndex
-            : metricIndex + SKIPPED_ACTIVITY_INDICES.filter(x => x < index).length;
+        if (metricIndex >= SKILLS.length + SKIPPED_ACTIVITY_INDICES.length) {
+          // after the last skipped index, just add the total number of skips
+          metricIndex += SKIPPED_ACTIVITY_INDICES.length;
+        } else {
+          // within the skipped indices range, add the number of skips before the current index
+          metricIndex += SKIPPED_ACTIVITY_INDICES.filter(i => i + SKILLS.length < index).length;
+        }
 
-        if (adjustedIndex === index) {
+        if (metricIndex === index) {
           const bits = row.split(',');
           bits[bits.length - 1] = m.value.toString();
           modifiedRow = bits.join(',');
