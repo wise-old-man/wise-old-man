@@ -20,7 +20,7 @@ import { archivePlayer } from './ArchivePlayerService';
 type UpdatablePlayerFields = PrismaTypes.XOR<
   PrismaTypes.PlayerUpdateInput,
   PrismaTypes.PlayerUncheckedUpdateInput
->;
+> & { type?: PlayerType };
 
 let UPDATE_COOLDOWN = isTesting() ? 0 : 60;
 
@@ -62,7 +62,7 @@ async function updatePlayer(payload: UpdatePlayerParams): Promise<UpdatePlayerRe
 
   // Fetch the new player stats from the hiscores API
   try {
-    currentStats = await fetchStats(player, updatedPlayerFields.type as PlayerType);
+    currentStats = await fetchStats(player, updatedPlayerFields.type, previousSnapshot);
   } catch (error) {
     if (error.statusCode === 400) {
       // If failed to load this player's stats from the hiscores, and they're not "regular" or "unknown"
@@ -203,12 +203,12 @@ async function reviewType(player: Player) {
   return changed;
 }
 
-async function fetchStats(player: Player, type?: PlayerType): Promise<Snapshot> {
+async function fetchStats(player: Player, type?: PlayerType, currentStats?: Snapshot): Promise<Snapshot> {
   // Load data from OSRS hiscores
   const hiscoresCSV = await jagexService.fetchHiscoresData(player.username, type || player.type);
 
   // Convert the csv data to a Snapshot instance
-  const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(player.id, hiscoresCSV);
+  const newSnapshot = await snapshotUtils.parseHiscoresSnapshot(player.id, hiscoresCSV, currentStats);
 
   return newSnapshot;
 }

@@ -43,7 +43,7 @@ import {
 // Skip Deadman Points and Legacy Bounty Hunter (hunter/rogue)
 export const SKIPPED_ACTIVITY_INDICES = [1, 4, 5];
 
-async function parseHiscoresSnapshot(playerId: number, rawCSV: string) {
+async function parseHiscoresSnapshot(playerId: number, rawCSV: string, previous?: Snapshot) {
   // Convert the CSV text into an array of values
   // Ex: for skills, each row is [rank, level, experience]
   const rows = await csv({ noheader: true, output: 'csv' }).fromString(rawCSV);
@@ -64,17 +64,25 @@ async function parseHiscoresSnapshot(playerId: number, rawCSV: string) {
   // Populate the skills' values with the values from the csv
   SKILLS.forEach((s, i) => {
     const [rank, , experience] = rows[i];
-    const expNum = parseInt(experience);
+    let expNum = parseInt(experience);
+
+    if (s === Metric.OVERALL && expNum === 0) {
+      // Sometimes the hiscores return 0 as unranked, but we want to be consistent and keep -1 as the "unranked" value
+      expNum = -1;
+    } else if (expNum === -1 && previous && previous[getMetricValueKey(s)] > -1) {
+      // If the player was previously ranked in this skill, and then somehow became unranked, just fallback to the previous value
+      expNum = previous[getMetricValueKey(s)];
+    }
 
     snapshotFields[getMetricRankKey(s)] = parseInt(rank);
-    snapshotFields[getMetricValueKey(s)] = s === Metric.OVERALL && expNum === 0 ? -1 : expNum;
+    snapshotFields[getMetricValueKey(s)] = expNum;
 
     if (s !== Metric.OVERALL) totalExp += Math.max(0, expNum);
   });
 
   // If this player is unranked in overall exp, we should set their overall exp to the total exp of all skills
   // since that's at least closer to the real number than -1
-  if (snapshotFields[getMetricValueKey(Metric.OVERALL)] === -1 && totalExp > 0) {
+  if (snapshotFields[getMetricValueKey(Metric.OVERALL)] < totalExp && totalExp > 0) {
     snapshotFields[getMetricValueKey(Metric.OVERALL)] = totalExp;
   }
 

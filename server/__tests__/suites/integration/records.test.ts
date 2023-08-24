@@ -80,8 +80,9 @@ describe('Records API', () => {
 
       const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.length).toBe(6);
-      expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(3);
+      expect(recordsResponse.body.length).toBe(9); // 3 each from smithing, overall and ehp
+      expect(recordsResponse.body.filter(r => r.value === 50_000).length).toBe(6); // 3 each from smithing and overall
+      expect(recordsResponse.body.filter(r => r.metric === Metric.OVERALL).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.metric === Metric.SMITHING).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.metric === Metric.EHP).length).toBe(3);
       expect(recordsResponse.body.filter(r => r.metric === Metric.EHP)[0].value).toBeLessThan(1);
@@ -107,9 +108,9 @@ describe('Records API', () => {
 
       const recordsResponse = await api.get(`/players/psikoi/records`);
       expect(recordsResponse.status).toBe(200);
-      expect(recordsResponse.body.length).toBe(10);
-      expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(3);
-      expect(recordsResponse.body.filter(r => r.value === 20_000).length).toBe(2);
+      expect(recordsResponse.body.length).toBe(15); // 5 each from smithing, overall and ehp
+      expect(recordsResponse.body.filter(r => r.value === 70_000).length).toBe(6); // 3 each from smithing and overall
+      expect(recordsResponse.body.filter(r => r.value === 20_000).length).toBe(4); // 2 each from smithing and overall
       expect(recordsResponse.body.filter(r => r.value < 1 && r.metric === Metric.EHP).length).toBe(5);
       expect(recordsResponse.body.filter(r => r.metric === Metric.SMITHING).length).toBe(5);
       expect(recordsResponse.body.map(r => r.period)).toContain('day');
@@ -186,7 +187,8 @@ describe('Records API', () => {
       const response = await api.get(`/players/psikoi/records`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(10);
+      expect(response.body.length).toBe(15);
+      expect(response.body.map(r => r.metric)).toContain(Metric.OVERALL);
       expect(response.body.map(r => r.metric)).toContain(Metric.SMITHING);
       expect(response.body.map(r => r.metric)).toContain(Metric.EHP);
     });
