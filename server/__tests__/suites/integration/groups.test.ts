@@ -1451,6 +1451,11 @@ describe('Group API', () => {
         }
       });
 
+      // Make sure latestSnapshot isn't leaking
+      expect(skillHiscoresResponse.body[0].player.latestSnapshot).not.toBeDefined();
+      expect(skillHiscoresResponse.body[1].player.latestSnapshot).not.toBeDefined();
+      expect(skillHiscoresResponse.body[2].player.latestSnapshot).not.toBeDefined();
+
       const activityHiscoresResponse = await api
         .get(`/groups/${globalData.testGroupOneLeader.id}/hiscores`)
         .query({ metric: 'clue_scrolls_all' });
@@ -1484,6 +1489,9 @@ describe('Group API', () => {
           kills: 100
         }
       });
+
+      // Make sure latestSnapshot isn't leaking
+      expect(response.body[0].player.latestSnapshot).not.toBeDefined();
     });
 
     it('should not view hiscores (negative offset)', async () => {
@@ -1533,7 +1541,7 @@ describe('Group API', () => {
       const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/statistics`);
 
       expect(response.status).toBe(200);
-      expect(new Date(response.body.averageStats.createdAt).getMonth()).toEqual(new Date().getMonth());
+
       expect(response.body).toMatchObject({
         maxedCombatCount: 1,
         maxedTotalCount: 1,
@@ -1588,6 +1596,21 @@ describe('Group API', () => {
           }
         }
       });
+
+      expect(new Date(response.body.averageStats.createdAt).getMonth()).toEqual(new Date().getMonth());
+
+      const metricLeaderPlayers = [
+        ...Object.values(response.body.metricLeaders.skills),
+        ...Object.values(response.body.metricLeaders.bosses),
+        ...Object.values(response.body.metricLeaders.activities),
+        ...Object.values(response.body.metricLeaders.computed)
+      ].map(m => m['player']);
+
+      for (let i = 0; i < metricLeaderPlayers.length; i++) {
+        if (metricLeaderPlayers[i]) {
+          expect(metricLeaderPlayers[i]['latestSnapshot']).not.toBeDefined();
+        }
+      }
     });
   });
 

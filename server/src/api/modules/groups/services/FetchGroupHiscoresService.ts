@@ -8,6 +8,7 @@ import {
   MetricMeasure,
   getLevel
 } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 import { NotFoundError } from '../../../errors';
 import { GroupHiscoresEntry } from '../group.types';
@@ -71,7 +72,10 @@ async function fetchGroupHiscores(payload: FetchGroupHiscoresParams): Promise<Gr
         data = { rank, value: value };
       }
 
-      return { player, data };
+      return {
+        player: omit(player, 'latestSnapshot'),
+        data
+      };
     })
     .sort((a, b) => b.data[measure] - a.data[measure])
     .slice(params.offset, params.offset + params.limit);
