@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { omit } from '../../../util/objects';
 import { Metric, parsePeriodExpression } from '../../../../utils';
 import prisma, { Player, Snapshot } from '../../../../prisma';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
@@ -68,7 +69,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
       const data = calculateMetricDelta(player, params.metric, startSnapshot, endSnapshot);
 
       return {
-        player,
+        player: omit(player, 'latestSnapshot'),
         data,
         startDate: startSnapshot.createdAt,
         endDate: endSnapshot.createdAt
@@ -82,7 +83,7 @@ async function findGroupDeltas(payload: FindGroupDeltasParams): Promise<DeltaGro
 }
 
 type PlayerMapValue = {
-  player: Player;
+  player: Player & { latestSnapshot?: Snapshot };
   startSnapshot: Snapshot | null;
   endSnapshot: Snapshot | null;
 };

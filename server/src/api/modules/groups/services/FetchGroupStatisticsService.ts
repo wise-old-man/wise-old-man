@@ -78,6 +78,9 @@ async function fetchGroupStatistics(payload: FetchGroupStatisticsParams): Promis
   const { metricLeaders, leaderIdMap } = getMetricLeaders(players.map(p => p.latestSnapshot));
   const leaderIds = [...new Set(leaderIdMap.values())];
 
+  // Remove latestSnapshot from the player object to prevent them leaking in the API response
+  players.forEach(p => delete p.latestSnapshot);
+
   assignPlayersToMetricLeaders(
     metricLeaders,
     leaderIdMap,

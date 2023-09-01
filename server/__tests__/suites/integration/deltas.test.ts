@@ -395,6 +395,10 @@ describe('Deltas API', () => {
         data: { gained: 0 }
       });
 
+      // Make sure latestSnapshot isn't leaking
+      expect(directResponse[0].player['latestSnapshot']).not.toBeDefined();
+      expect(directResponse[1].player['latestSnapshot']).not.toBeDefined();
+
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(604_800_000);
       expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
     });
@@ -415,6 +419,10 @@ describe('Deltas API', () => {
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
+
+      // Make sure latestSnapshot isn't leaking
+      expect(directResponse[0].player['latestSnapshot']).not.toBeDefined();
+      expect(directResponse[1].player['latestSnapshot']).not.toBeDefined();
 
       expect(Date.now() - directResponse[0].startDate.getTime()).toBeLessThan(280_800_000);
       expect(Date.now() - directResponse[0].endDate.getTime()).toBeLessThan(10_000);
@@ -458,6 +466,10 @@ describe('Deltas API', () => {
         data: { gained: 0 }
       });
 
+      // Make sure latestSnapshot isn't leaking
+      expect(recentGains[0].player['latestSnapshot']).not.toBeDefined();
+      expect(recentGains[1].player['latestSnapshot']).not.toBeDefined();
+
       expect(recentGains[0].startDate.getTime()).toBeGreaterThan(
         new Date('2021-12-14T04:15:36.000Z').getTime()
       );
@@ -472,6 +484,10 @@ describe('Deltas API', () => {
 
       expect(apiResponse.status).toBe(200);
       expect(JSON.stringify(apiResponse.body)).toEqual(JSON.stringify(recentGains));
+
+      // Make sure latestSnapshot isn't leaking
+      expect(apiResponse.body[0].player['latestSnapshot']).not.toBeDefined();
+      expect(apiResponse.body[1].player['latestSnapshot']).not.toBeDefined();
     });
 
     it('should not fetch group deltas (negative offset)', async () => {
@@ -508,6 +524,9 @@ describe('Deltas API', () => {
         player: { username: 'hydrox6' },
         data: { gained: 0 }
       });
+
+      // Make sure latestSnapshot isn't leaking
+      expect(result[0].player['latestSnapshot']).not.toBeDefined();
     });
   });
 
