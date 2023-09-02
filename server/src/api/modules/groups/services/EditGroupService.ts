@@ -275,7 +275,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
         data: [
           ...leftEvents,
           ...joinedEvents.map(a => ({ ...a, role: null })),
-          ...changedRoleEvents.map(p => omit(p, 'previousRole'))
+          ...changedRoleEvents.map(p => omit(p, 'previousRole', 'displayName'))
         ]
       });
 
