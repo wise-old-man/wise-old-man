@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "./Search";
+import { PlayerSearch } from "./PlayerSearch";
 
 import LogoAlt from "~/assets/logo_alt.svg";
 import MenuIcon from "~/assets/menu.svg";
@@ -28,7 +28,9 @@ export function TopNavigation(props: TopNavigationProps) {
       </button>
       <div className="absolute left-20 right-0 lg:left-64">
         <div className="mx-auto mt-0.5 flex w-full max-w-7xl justify-end px-8 md:px-12">
-          <Search />
+          <div className="w-80">
+            <PlayerSearch mode="navigate" />
+          </div>
         </div>
       </div>
     </nav>
