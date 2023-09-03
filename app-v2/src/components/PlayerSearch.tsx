@@ -29,8 +29,6 @@ interface PlayerSearchProps {
 export function PlayerSearch(props: PlayerSearchProps) {
   const { mode, onPlayerSelected } = props;
 
-  const router = useRouter();
-
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -81,10 +79,8 @@ export function PlayerSearch(props: PlayerSearchProps) {
       inputRef.current?.blur();
     }, 1);
 
-    if (onPlayerSelected) onPlayerSelected(username);
-
-    if (mode === "navigate") {
-      router.push(`/players/${username}`);
+    if (onPlayerSelected) {
+      onPlayerSelected(username);
     }
   }
 
