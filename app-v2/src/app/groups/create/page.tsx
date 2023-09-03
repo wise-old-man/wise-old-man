@@ -1,25 +1,20 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import {
   CreateGroupPayload,
   GROUP_ROLES,
   GroupMemberFragment,
   GroupRole,
   GroupRoleProps,
+  WOMClient,
 } from "@wise-old-man/utils";
 import Link from "next/link";
+import { useToast } from "~/hooks/useToast";
 import { createContext, useContext, useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { standardizeUsername } from "~/utils/strings";
-import { Label } from "~/components/Label";
 import { Button } from "~/components/Button";
-import { GroupRoleIcon } from "~/components/Icon";
-import { Container } from "~/components/Container";
-import { DataTable } from "~/components/DataTable";
-import { PlayerSearch } from "~/components/PlayerSearch";
-import { GroupInformationForm } from "~/components/groups/GroupInformationForm";
-import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
-import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
 import {
   Combobox,
   ComboboxContent,
@@ -30,10 +25,21 @@ import {
   ComboboxItemsContainer,
   ComboboxTrigger,
 } from "~/components/Combobox";
+import { Container } from "~/components/Container";
+import { DataTable } from "~/components/DataTable";
+import { GroupRoleIcon } from "~/components/Icon";
+import { Label } from "~/components/Label";
+import { PlayerSearch } from "~/components/PlayerSearch";
+import { GroupInformationForm } from "~/components/groups/GroupInformationForm";
+import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
+import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
+import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
+import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
+import { SaveVerificationCodeDialog } from "~/components/groups/SaveVerificationCodeDialog";
+import { standardizeUsername } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
-import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
 
 type FormStep = "info" | "import" | "members";
 type ImportSource = "none" | "cml" | "templeosrs" | "file";
@@ -48,18 +54,46 @@ const CreateGroupContext = createContext({
 });
 
 export default function CreateGroupPage() {
+  const toast = useToast();
+  const router = useRouter();
+
   const [step, setStep] = useState<FormStep>("info");
-  const [showingImportDialog, setShowingImportDialog] = useState(false);
   const [importSource, setImportSource] = useState<ImportSource | undefined>();
+
+  const [showingImportDialog, setShowingImportDialog] = useState(false);
+  const [showingEmptyGroupDialog, setShowingEmptyGroupDialog] = useState(false);
 
   const [group, setGroup] = useState<CreateGroupPayload>({ name: "", members: [] });
 
-  function handleSubmit(members: GroupMemberFragment[]) {
+  const createMutation = useMutation({
+    mutationFn: (group: CreateGroupPayload) => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
+      return client.groups.createGroup(group);
+    },
+    onSuccess: (data) => {
+      router.prefetch(`/groups/${data.group.id}`);
+      toast.toast({ variant: "success", title: "Group created successfully!" });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  function handleSubmitMembers(members: GroupMemberFragment[]) {
     const newGroup = { ...group, members };
     setGroup(newGroup);
 
-    // TODO: Submit to API
-    console.log("submit", newGroup);
+    if (newGroup.members.length === 0) {
+      setShowingEmptyGroupDialog(true);
+      return;
+    }
+
+    createMutation.mutate(newGroup);
   }
 
   return (
@@ -76,9 +110,13 @@ export default function CreateGroupPage() {
       <Container className="mt-8 max-w-2xl">
         <h1 className="text-3xl font-bold">Create a new group</h1>
         <h2 className="mt-1 text-base text-gray-200">
-          {step === "info" && "1. Basic information"}
-          {step === "import" && "2. Select group import method"}
-          {step === "members" && "3. Select group members"}
+          {
+            {
+              info: "1. Basic information",
+              import: "2. Select group import method",
+              members: "3. Select group members",
+            }[step]
+          }
         </h2>
         <div className="mt-10">
           {step === "info" && (
@@ -115,10 +153,33 @@ export default function CreateGroupPage() {
                   </Button>
                 </div>
               </div>
-              <GroupMembersForm onSubmit={handleSubmit} />
+              <GroupMembersForm onSubmit={handleSubmitMembers} />
             </>
           )}
         </div>
+
+        {!!createMutation.data && <div>final!</div>}
+
+        <SaveVerificationCodeDialog
+          isOpen={!!createMutation.data}
+          verificationCode={createMutation.data?.verificationCode || ""}
+          onClose={() => {
+            if (!createMutation.data) return;
+
+            router.push(`/groups/${createMutation.data?.group.id}`);
+          }}
+        />
+
+        <EmptyGroupDialog
+          isOpen={showingEmptyGroupDialog}
+          onClose={() => {
+            setShowingEmptyGroupDialog(false);
+          }}
+          onConfirm={() => {
+            createMutation.mutate(group);
+            setShowingEmptyGroupDialog(false);
+          }}
+        />
       </Container>
     </CreateGroupContext.Provider>
   );
