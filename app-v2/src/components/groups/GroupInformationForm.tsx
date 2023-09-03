@@ -1,11 +1,13 @@
 "use client";
 
+import type { CreateGroupPayload } from "@wise-old-man/utils";
 import { useState } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { TextArea } from "../TextArea";
 import { Button } from "../Button";
-import { CreateGroupPayload } from "@wise-old-man/utils";
+
+import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 const MAX_NAME_LENGTH = 30;
 const MAX_CLAN_CHAT_LENGTH = 12;
@@ -119,6 +121,7 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
       <div className="flex justify-end">
         <Button variant="blue" disabled={!canContinue}>
           Next
+          <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
         </Button>
       </div>
     </form>
