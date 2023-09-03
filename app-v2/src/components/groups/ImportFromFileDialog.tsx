@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GroupMemberFragment, GroupRole } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
+import { standardizeUsername } from "~/utils/strings";
 import { Label } from "../Label";
 import { Button } from "../Button";
 import { TextArea } from "../TextArea";
@@ -65,7 +66,9 @@ function ImportFromFileForm(props: ImportFromFileDialogProps) {
   const [input, setInput] = useState("");
   const [delimiter, setDelimiter] = useState<string>(DELIMITER_OPTIONS[0].value);
 
-  const usernames = input.split(delimiter);
+  const usernames = input
+    .split(delimiter)
+    .filter((username) => standardizeUsername(username).length > 0);
 
   function handleSubmit() {
     onSubmit(usernames.map((username) => ({ username, role: GroupRole.MEMBER })));
