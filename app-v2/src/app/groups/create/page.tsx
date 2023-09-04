@@ -65,6 +65,12 @@ export default function CreateGroupPage() {
 
   const [group, setGroup] = useState<CreateGroupPayload>({ name: "", members: [] });
 
+  const stepLabel = {
+    info: "1. Basic information",
+    import: "2. Select group import method",
+    members: "3. Select group members",
+  }[step];
+
   const createMutation = useMutation({
     mutationFn: (group: CreateGroupPayload) => {
       const client = new WOMClient({
@@ -109,15 +115,7 @@ export default function CreateGroupPage() {
     >
       <Container className="mt-8 max-w-2xl">
         <h1 className="text-3xl font-bold">Create a new group</h1>
-        <h2 className="mt-1 text-base text-gray-200">
-          {
-            {
-              info: "1. Basic information",
-              import: "2. Select group import method",
-              members: "3. Select group members",
-            }[step]
-          }
-        </h2>
+        <h2 className="mt-1 text-base text-gray-200">{stepLabel}</h2>
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
@@ -157,19 +155,14 @@ export default function CreateGroupPage() {
             </>
           )}
         </div>
-
-        {!!createMutation.data && <div>final!</div>}
-
         <SaveVerificationCodeDialog
           isOpen={!!createMutation.data}
           verificationCode={createMutation.data?.verificationCode || ""}
           onClose={() => {
             if (!createMutation.data) return;
-
             router.push(`/groups/${createMutation.data?.group.id}`);
           }}
         />
-
         <EmptyGroupDialog
           isOpen={showingEmptyGroupDialog}
           onClose={() => {
