@@ -74,8 +74,8 @@ export function SaveVerificationCodeDialog(props: SaveVerificationCodeDialogProp
           </Button>
         </div>
         <p className="text-center text-body text-gray-200">
-          Please save this code somewhere, without it you won&apos;t be able to edit or delete this
-          competition in the future.
+          Please save this code somewhere, without it you won&apos;t be able to edit or delete this group
+          in the future.
         </p>
         <Button
           size="lg"
