@@ -39,13 +39,13 @@ export function UpdateAllMembersDialog(props: UpdateAllMembersDialogProps) {
             &nbsp;members. This might take a few minutes to complete.
           </DialogDescription>
         </DialogHeader>
-        <UpdateAllMembersorm groupId={props.groupId} />
+        <UpdateAllMembersForm groupId={props.groupId} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function UpdateAllMembersorm(props: UpdateAllMembersDialogProps) {
+function UpdateAllMembersForm(props: UpdateAllMembersDialogProps) {
   const { groupId } = props;
 
   const toast = useToast();

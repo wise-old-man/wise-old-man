@@ -1,13 +1,13 @@
 "use client";
 
-import type { CreateGroupPayload } from "@wise-old-man/utils";
+import type { Group } from "@wise-old-man/utils";
 import { useState } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { TextArea } from "../TextArea";
 import { Button } from "../Button";
 
-import ArrowRightIcon from "~/assets/arrow_right.svg";
+import WarningIcon from "~/assets/warning.svg";
 
 const MAX_NAME_LENGTH = 30;
 const MAX_CLAN_CHAT_LENGTH = 12;
@@ -15,12 +15,16 @@ const MAX_HOMEWORLD_LENGTH = 3;
 const MAX_DESCRIPTION_LENGTH = 100;
 
 interface GroupInformationFormProps {
-  group: CreateGroupPayload;
+  group: Pick<Group, "name" | "clanChat" | "homeworld" | "description">;
   onSubmit: (name: string, clanChat: string, homeworld: number, description: string) => void;
+
+  ctaContent: React.ReactNode;
+  ctaDisabled?: boolean;
+  showUnsavedChangesWarning?: boolean;
 }
 
 export function GroupInformationForm(props: GroupInformationFormProps) {
-  const { group } = props;
+  const { group, showUnsavedChangesWarning, onSubmit, ctaContent, ctaDisabled } = props;
 
   const [name, setName] = useState(group.name);
   const [clanChat, setClanChat] = useState(group.clanChat || "");
@@ -33,8 +37,14 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
   function handleSubmit() {
     if (!canContinue) return;
 
-    props.onSubmit(name, clanChat, Number(homeworld), description);
+    onSubmit(name, clanChat, Number(homeworld), description);
   }
+
+  const hasUnsavedChanges =
+    name !== group.name ||
+    clanChat !== group.clanChat ||
+    homeworld !== group.homeworld?.toString() ||
+    description !== group.description;
 
   return (
     <form
@@ -118,11 +128,21 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
           }
         />
       </div>
-      <div className="flex justify-end">
-        <Button variant="blue" disabled={!canContinue}>
-          Next
-          <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
-        </Button>
+      <div className="flex">
+        {hasUnsavedChanges && showUnsavedChangesWarning && (
+          <div className="flex items-center justify-center text-center text-xs text-gray-200">
+            <WarningIcon className="mr-1 h-4 w-4" />
+            You have unsaved changes
+          </div>
+        )}
+        <div className="flex grow justify-end">
+          <Button
+            variant="blue"
+            disabled={!canContinue || (showUnsavedChangesWarning && !hasUnsavedChanges) || ctaDisabled}
+          >
+            {ctaContent}
+          </Button>
+        </div>
       </div>
     </form>
   );
