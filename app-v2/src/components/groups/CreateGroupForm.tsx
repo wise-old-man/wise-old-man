@@ -12,6 +12,7 @@ import {
   WOMClient,
 } from "@wise-old-man/utils";
 import Link from "next/link";
+import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
 import { createContext, useContext, useState } from "react";
 import { Button } from "~/components/Button";
@@ -115,7 +116,22 @@ export function CreateGroupForm() {
     >
       <Container className="mt-8 max-w-2xl">
         <h1 className="text-3xl font-bold">Create a new group</h1>
-        <h2 className="mt-1 text-base text-gray-200">{stepLabel}</h2>
+        <div className="mt-5 flex gap-x-2">
+          <div className="h-1 w-12 rounded-full bg-blue-500" />
+          <div
+            className={cn(
+              "h-1 w-12 rounded-full transition-colors duration-300",
+              step === "info" ? "bg-gray-500" : "bg-blue-500"
+            )}
+          />
+          <div
+            className={cn(
+              "h-1 w-12 rounded-full transition-colors duration-300",
+              step !== "members" ? "bg-gray-500" : "bg-blue-500"
+            )}
+          />
+        </div>
+        <h2 className="mt-3 text-sm text-white">{stepLabel}</h2>
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
