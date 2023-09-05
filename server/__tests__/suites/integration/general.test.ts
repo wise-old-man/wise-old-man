@@ -75,12 +75,12 @@ describe('General API', () => {
       expect(response.body).toMatchObject({
         application: 'Some Website',
         developer: 'aluminoti',
-        active: true
+        master: false
       });
       expect(isCuid(response.body.id)).toBe(true);
 
       // Make sure it's been stored in redis memory
-      expect(await redisService.getValue('api-key', response.body.id)).toBe('true');
+      expect(await redisService.getValue('api-key', response.body.id)).toBe('false');
     });
   });
 
@@ -149,6 +149,45 @@ describe('General API', () => {
 
       expect(successCount).toBe(500);
       expect(rateLimitedCount).toBe(50);
+    });
+
+    it('should allow more than 500 requests (with master API key)', async () => {
+      // Flush redis to reset rate limits
+      await resetRedis();
+
+      // Create new API key
+      const apiKeyResponse = await api.post(`/api-key`).send({
+        application: 'xyzxyz',
+        developer: 'Rorro',
+        adminPassword: env.ADMIN_PASSWORD
+      });
+      expect(apiKeyResponse.status).toBe(201);
+
+      // Manually set this to a master key
+      const updatedKey = await prisma.apiKey.update({
+        where: { id: apiKeyResponse.body.id },
+        data: { master: true }
+      });
+      await redisService.setValue('api-key', updatedKey.id, String(updatedKey.master));
+
+      let successCount = 0;
+      let rateLimitedCount = 0;
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const i of Array.from(Array(1000).keys())) {
+        const response = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+
+        if (response.status === 200) successCount++;
+        else if (response.status === 429) rateLimitedCount++;
+      }
+
+      process.env.NODE_ENV = 'test';
+
+      expect(successCount).toBe(1000);
+      expect(rateLimitedCount).toBe(0);
     });
   });
 

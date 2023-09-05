@@ -64,6 +64,7 @@ class API {
 
       const apiKey = req.headers['x-api-key']?.toString();
 
+      let isMasterKey = false;
       let isTrustedOrigin = false;
 
       if (apiKey) {
@@ -75,10 +76,8 @@ class API {
           });
         }
 
-        if (activeKey === 'false') {
-          return res.status(403).json({
-            message: 'Unauthorized API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
-          });
+        if (activeKey === 'true') {
+          isMasterKey = true;
         }
 
         res.locals.apiKey = apiKey;
@@ -86,7 +85,7 @@ class API {
       }
 
       rateLimiter
-        .consume(apiKey ?? req.ip, isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
+        .consume(apiKey ?? req.ip, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
         .then(() => next())
         .catch(() =>
           res.status(429).json({

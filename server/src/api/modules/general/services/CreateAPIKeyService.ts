@@ -16,13 +16,13 @@ async function createAPIKey(payload: CreateAPIKeyParams) {
   const key = await prisma.apiKey.create({
     data: {
       id: createId(),
-      active: true,
+      master: false,
       application: params.application,
       developer: params.developer
     }
   });
 
-  await redisService.setValue('api-key', key.id, String(key.active));
+  await redisService.setValue('api-key', key.id, String(key.master));
 
   return key;
 }
