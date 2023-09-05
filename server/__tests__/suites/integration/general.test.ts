@@ -85,23 +85,38 @@ describe('General API', () => {
   });
 
   describe('API Rate Limits', () => {
+    it('should not allow an invalid API key', async () => {
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      const response = await api.get('/').set({ 'x-api-key': 'abcdef' });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toMatch('Invalid API Key.');
+
+      process.env.NODE_ENV = 'test';
+    });
+
     it('should not allow more than 100 requests (no API key)', async () => {
       // Flush redis to reset rate limits
       await resetRedis();
 
-      let count = 0;
+      let successCount = 0;
+      let rateLimitedCount = 0;
 
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
       process.env.NODE_ENV = 'production';
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const i of Array.from(Array(150).keys())) {
         const response = await api.get('/');
-        if (response.status === 200) count++;
+        if (response.status === 200) successCount++;
+        else if (response.status === 429) rateLimitedCount++;
       }
 
       process.env.NODE_ENV = 'test';
 
-      expect(count).toBe(100);
+      expect(successCount).toBe(100);
+      expect(rateLimitedCount).toBe(50);
     });
 
     it('should not allow more than 500 requests (with API key)', async () => {
@@ -116,7 +131,8 @@ describe('General API', () => {
       });
       expect(apiKeyResponse.status).toBe(201);
 
-      let count = 0;
+      let successCount = 0;
+      let rateLimitedCount = 0;
 
       // Rate limits are disabled in testing mode, so simulate production mode for a sec
       process.env.NODE_ENV = 'production';
@@ -125,12 +141,14 @@ describe('General API', () => {
       for (const i of Array.from(Array(550).keys())) {
         const response = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
 
-        if (response.status === 200) count++;
+        if (response.status === 200) successCount++;
+        else if (response.status === 429) rateLimitedCount++;
       }
 
       process.env.NODE_ENV = 'test';
 
-      expect(count).toBe(500);
+      expect(successCount).toBe(500);
+      expect(rateLimitedCount).toBe(50);
     });
   });
 
