@@ -14,7 +14,7 @@ class RefreshApiKeysJob implements JobDefinition<unknown> {
 
     // Cache all these api keys in Redis, so that they can be quickly accessed on every API request
     for (const key of apiKeys) {
-      await redisService.setValue('api-key', key.id, String(key.active));
+      await redisService.setValue('api-key', key.id, String(key.master));
     }
   }
 }

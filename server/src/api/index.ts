@@ -54,42 +54,45 @@ class API {
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cors());
 
-    if (!isTesting()) {
-      // Check the API key or IP of the request origin, and consume rate limit points accordingly
-      this.express.use(async (req, res, next) => {
-        const apiKey = req.headers['x-api-key']?.toString();
+    // Check the API key or IP of the request origin, and consume rate limit points accordingly
+    this.express.use(async (req, res, next) => {
+      // Ignore rate limits while running tests
+      if (isTesting()) {
+        next();
+        return;
+      }
 
-        let isTrustedOrigin = false;
+      const apiKey = req.headers['x-api-key']?.toString();
 
-        if (apiKey) {
-          const activeKey = await redisService.getValue('api-key', apiKey);
+      let isMasterKey = false;
+      let isTrustedOrigin = false;
 
-          if (activeKey === null) {
-            return res.status(403).json({
-              message: 'Invalid API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
-            });
-          }
+      if (apiKey) {
+        const activeKey = await redisService.getValue('api-key', apiKey);
 
-          if (activeKey === 'false') {
-            return res.status(403).json({
-              message: 'Unauthorized API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
-            });
-          }
-
-          res.locals.apiKey = apiKey;
-          isTrustedOrigin = true;
+        if (activeKey === null) {
+          return res.status(403).json({
+            message: 'Invalid API Key. Please check https://docs.wiseoldman.net/#rate-limits--api-keys'
+          });
         }
 
-        rateLimiter
-          .consume(apiKey ?? req.ip, isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
-          .then(() => next())
-          .catch(() =>
-            res.status(429).json({
-              message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys. '
-            })
-          );
-      });
-    }
+        if (activeKey === 'true') {
+          isMasterKey = true;
+        }
+
+        res.locals.apiKey = apiKey;
+        isTrustedOrigin = true;
+      }
+
+      rateLimiter
+        .consume(apiKey ?? req.ip, isMasterKey ? 0 : isTrustedOrigin ? 1 : RATE_LIMIT_TRUSTED_RATIO)
+        .then(() => next())
+        .catch(() =>
+          res.status(429).json({
+            message: 'Too Many Requests. Please check https://docs.wiseoldman.net/#rate-limits--api-keys. '
+          })
+        );
+    });
 
     // Register each http request for metrics processing
     this.express.use((req, res, next) => {
