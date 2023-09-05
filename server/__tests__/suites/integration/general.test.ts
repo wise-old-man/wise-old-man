@@ -4,11 +4,12 @@ import env from '../../../src/env';
 import apiServer from '../../../src/api';
 import prisma from '../../../src/prisma';
 import redisService from '../../../src/api/services/external/redis.service';
-import { resetDatabase, sleep } from '../../utils';
+import { resetDatabase, resetRedis, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
 
 beforeAll(async () => {
+  await resetRedis();
   await resetDatabase();
 });
 
@@ -80,6 +81,56 @@ describe('General API', () => {
 
       // Make sure it's been stored in redis memory
       expect(await redisService.getValue('api-key', response.body.id)).toBe('true');
+    });
+  });
+
+  describe('API Rate Limits', () => {
+    it('should not allow more than 100 requests (no API key)', async () => {
+      // Flush redis to reset rate limits
+      await resetRedis();
+
+      let count = 0;
+
+      process.env.NODE_ENV = 'production';
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const i of Array.from(Array(150).keys())) {
+        const response = await api.get('/');
+        if (response.status === 200) count++;
+      }
+
+      process.env.NODE_ENV = 'test';
+
+      expect(count).toBe(100);
+    });
+
+    it('should not allow more than 500 requests (with API key)', async () => {
+      // Flush redis to reset rate limits
+      await resetRedis();
+
+      // Create new API key
+      const apiKeyResponse = await api.post(`/api-key`).send({
+        application: '123456',
+        developer: 'psikoi',
+        adminPassword: env.ADMIN_PASSWORD
+      });
+      expect(apiKeyResponse.status).toBe(201);
+
+      let count = 0;
+
+      // Rate limits are disabled in testing mode, so simulate production mode for a sec
+      process.env.NODE_ENV = 'production';
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const i of Array.from(Array(550).keys())) {
+        const response = await api.get('/').set({ 'x-api-key': apiKeyResponse.body.id });
+
+        if (response.status === 200) count++;
+      }
+
+      process.env.NODE_ENV = 'test';
+
+      expect(count).toBe(500);
     });
   });
 
