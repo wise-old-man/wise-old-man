@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupHiscoresTable } from "~/components/groups/GroupHiscoresTable";
-import { apiClient } from "~/services/wiseoldman";
+import { getGroupDetails, getGroupHiscores } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await apiClient.groups.getGroupDetails(id);
+  const group = await getGroupDetails(id);
 
   return {
     title: `Hiscores: ${group.name}`,
@@ -39,11 +39,8 @@ export default async function GroupHiscoresPage(props: PageProps) {
   const RESULTS_PER_PAGE = 20;
 
   const [group, hiscores] = await Promise.all([
-    apiClient.groups.getGroupDetails(id),
-    apiClient.groups.getGroupHiscores(id, metric, {
-      limit: RESULTS_PER_PAGE,
-      offset: (page - 1) * RESULTS_PER_PAGE,
-    }),
+    getGroupDetails(id),
+    getGroupHiscores(id, metric, RESULTS_PER_PAGE, (page - 1) * RESULTS_PER_PAGE),
   ]);
 
   return (

@@ -1,7 +1,7 @@
 import { CompetitionStatus } from "@wise-old-man/utils";
 import { Label } from "~/components/Label";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
-import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
+import { getCompetitionStatus, getPlayerCompetitions, getPlayerDetails } from "~/services/wiseoldman";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Competitions: ${player.displayName}`,
@@ -25,8 +25,8 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
   const username = decodeURI(params.username);
 
   const [player, competitions] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerCompetitions(username),
+    getPlayerDetails(username),
+    getPlayerCompetitions(username),
   ]);
 
   if (!competitions || competitions.length === 0) {

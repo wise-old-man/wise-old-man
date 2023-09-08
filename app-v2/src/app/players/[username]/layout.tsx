@@ -9,7 +9,7 @@ import {
   PlayerTypeProps,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
@@ -46,7 +46,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const player = await apiClient.players.getPlayerDetails(username);
+  const player = await getPlayerDetails(username);
 
   return (
     <Container className="relative">

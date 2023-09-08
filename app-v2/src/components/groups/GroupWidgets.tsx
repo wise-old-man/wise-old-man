@@ -11,7 +11,7 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
+import { getCompetitionStatus, getGroupCompetitions } from "~/services/wiseoldman";
 import { MetricIcon, MetricIconSmall } from "~/components/Icon";
 import { Label } from "../Label";
 import { Badge } from "../Badge";
@@ -98,7 +98,7 @@ export function GroupWidgets(props: GroupWidgetsProps) {
 }
 
 async function FeaturedCompetitionWidget(props: { groupId: number }) {
-  const competitions = await apiClient.groups.getGroupCompetitions(props.groupId);
+  const competitions = await getGroupCompetitions(props.groupId);
 
   let featured: CompetitionListItem | undefined;
 

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { MetricType } from "@wise-old-man/utils";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerDetails } from "~/services/wiseoldman";
 import { PlayerStatsTable } from "~/components/players/PlayerStatsTable";
 import { PlayerOverviewWidgets } from "~/components/players/PlayerOverviewWidgets";
 import { PlayerOverviewAchievements } from "~/components/players/PlayerOverviewAchievements";
@@ -20,7 +20,9 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const { params } = props;
+
+  const player = await getPlayerDetails(decodeURI(params.username));
 
   return {
     title: player.displayName,
@@ -33,7 +35,7 @@ export default async function PlayerPage(props: PageProps) {
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const player = await apiClient.players.getPlayerDetails(username);
+  const player = await getPlayerDetails(decodeURI(params.username));
 
   return (
     <div>

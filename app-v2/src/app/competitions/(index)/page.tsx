@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { apiClient } from "~/services/wiseoldman";
+import { searchCompetitions } from "~/services/wiseoldman";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { Pagination } from "~/components/Pagination";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
@@ -57,9 +57,13 @@ async function CompetitionsPage(props: PageProps) {
 
   const RESULTS_PER_PAGE = 20;
 
-  const data = await apiClient.competitions.searchCompetitions(
-    { title: search, type, status, metric },
-    { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
+  const data = await searchCompetitions(
+    search,
+    metric,
+    type,
+    status,
+    RESULTS_PER_PAGE,
+    (page - 1) * RESULTS_PER_PAGE
   );
 
   return (

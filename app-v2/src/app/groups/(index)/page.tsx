@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Pagination } from "~/components/Pagination";
 import { GroupCard } from "~/components/groups/GroupCard";
-import { apiClient } from "~/services/wiseoldman";
+import { searchGroups } from "~/services/wiseoldman";
 import { getPageParam, getSearchParam } from "~/utils/params";
 
 const RESULTS_PER_PAGE = 15;
@@ -44,10 +44,7 @@ async function GroupsPage(props: PageProps) {
   const page = getPageParam(searchParams.page) || 1;
   const search = getSearchParam(searchParams.search);
 
-  const data = await apiClient.groups.searchGroups(search || "", {
-    limit: RESULTS_PER_PAGE,
-    offset: (page - 1) * RESULTS_PER_PAGE,
-  });
+  const data = await searchGroups(search || "", RESULTS_PER_PAGE, (page - 1) * RESULTS_PER_PAGE);
 
   return (
     <>

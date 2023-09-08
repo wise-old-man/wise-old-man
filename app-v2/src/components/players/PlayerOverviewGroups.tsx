@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { GroupRoleProps, MembershipWithGroup } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerGroups } from "~/services/wiseoldman";
 import { Label } from "../Label";
 import { GroupRoleIcon } from "../Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
@@ -15,7 +15,7 @@ interface PlayerOverviewMembershipsProps {
 export async function PlayerOverviewMemberships(props: PlayerOverviewMembershipsProps) {
   const { username } = props;
 
-  const memberships = await apiClient.players.getPlayerGroups(username);
+  const memberships = await getPlayerGroups(username);
 
   const highlighted = memberships.sort((a, b) => b.group.score - a.group.score).slice(0, 3);
 

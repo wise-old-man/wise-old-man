@@ -8,7 +8,7 @@ import {
   MetricProps,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
-import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
+import { getCompetitionDetails, getCompetitionStatus } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { Container } from "~/components/Container";
 import {
@@ -43,7 +43,7 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const competition = await apiClient.competitions.getCompetitionDetails(id);
+  const competition = await getCompetitionDetails(id);
 
   return (
     <Container>
