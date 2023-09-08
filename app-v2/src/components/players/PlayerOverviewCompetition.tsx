@@ -3,7 +3,7 @@ import Image from "next/image";
 import { CompetitionListItem, CompetitionStatus, CompetitionStatusProps } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { timeago } from "~/utils/dates";
-import { apiClient, getCompetitionStatus } from "~/services/wiseoldman";
+import { getCompetitionStatus, getPlayerCompetitions } from "~/services/wiseoldman";
 import { Label } from "../Label";
 import { MetricIcon } from "../Icon";
 
@@ -14,7 +14,7 @@ interface PlayerOverviewCompetitionProps {
 export async function PlayerOverviewCompetition(props: PlayerOverviewCompetitionProps) {
   const { username } = props;
 
-  const participations = await apiClient.players.getPlayerCompetitions(username);
+  const participations = await getPlayerCompetitions(username);
 
   let featured: CompetitionListItem | undefined;
 

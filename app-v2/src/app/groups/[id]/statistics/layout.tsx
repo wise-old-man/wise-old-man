@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { Label } from "~/components/Label";
-import { apiClient } from "~/services/wiseoldman";
+import { getGroupStatistics } from "~/services/wiseoldman";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ export default async function GroupStatisticsLayout(props: PropsWithChildren<Pag
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = props.children.props.childProp.segment;
 
-  const statistics = await apiClient.groups.getGroupStatistics(id);
+  const statistics = await getGroupStatistics(id);
 
   return (
     <div className="mt-7 grid grid-cols-12 gap-x-4">

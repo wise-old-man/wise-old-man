@@ -7,7 +7,7 @@ import {
   PlayerBuildProps,
   formatNumber,
 } from "@wise-old-man/utils";
-import { apiClient } from "~/services/wiseoldman";
+import { getEfficiencyLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -80,10 +80,12 @@ interface EfficiencyLeaderboardProps {
 async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
   const { metric, ...filters } = props.filters;
 
-  const data = await apiClient.efficiency.getEfficiencyLeaderboards({
-    metric: metric === COMBINED_METRIC ? "ehp+ehb" : metric,
-    ...filters,
-  });
+  const data = await getEfficiencyLeaderboards(
+    metric === COMBINED_METRIC ? "ehp+ehb" : metric,
+    filters.country,
+    filters.playerType,
+    filters.playerBuild
+  );
 
   return (
     <div className="col-span-3 mx-auto w-full max-w-lg">

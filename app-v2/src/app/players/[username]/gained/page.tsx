@@ -12,7 +12,7 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
-import { TimeRangeFilter, apiClient } from "~/services/wiseoldman";
+import { TimeRangeFilter, getPlayerDetails, getPlayerGains } from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
 import { PlayerGainedTimeCards } from "~/components/players/PlayerGainedTimeCards";
@@ -37,7 +37,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Gained: ${player.displayName}`,
@@ -54,8 +54,10 @@ export default async function PlayerGainedPage(props: PageProps) {
   const timeRange = getTimeRangeFilterParams(new URLSearchParams(searchParams));
 
   const [player, gains] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerGains(username, timeRange),
+    getPlayerDetails(username),
+    "period" in timeRange
+      ? getPlayerGains(username, timeRange.period, undefined, undefined)
+      : getPlayerGains(username, undefined, timeRange.startDate, timeRange.endDate),
   ]);
 
   return (

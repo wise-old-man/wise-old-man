@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { capitalize } from "~/utils/strings";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { apiClient } from "~/services/wiseoldman";
+import { searchNameChanges } from "~/services/wiseoldman";
 import { getNameChangeStatusParam, getPageParam, getSearchParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
@@ -64,9 +64,11 @@ async function NameChangesPage(props: PageProps) {
   const search = getSearchParam(searchParams.search);
   const status = getNameChangeStatusParam(searchParams.status);
 
-  const data = await apiClient.nameChanges.searchNameChanges(
-    { username: search, status },
-    { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
+  const data = await searchNameChanges(
+    search || "",
+    status,
+    RESULTS_PER_PAGE,
+    (page - 1) * RESULTS_PER_PAGE
   );
 
   return (

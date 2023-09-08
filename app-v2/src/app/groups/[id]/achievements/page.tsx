@@ -1,6 +1,6 @@
 import { getPageParam } from "~/utils/params";
 import { Pagination } from "~/components/Pagination";
-import { apiClient } from "~/services/wiseoldman";
+import { getGroupAchievements, getGroupDetails } from "~/services/wiseoldman";
 import { GroupAchievementsTable } from "~/components/groups/GroupAchievementsTable";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await apiClient.groups.getGroupDetails(id);
+  const group = await getGroupDetails(id);
 
   return {
     title: `Recent achievements: ${group.name}`,
@@ -33,10 +33,7 @@ export default async function GroupAchievementsPage(props: PageProps) {
 
   const RESULTS_PER_PAGE = 20;
 
-  const achievements = await apiClient.groups.getGroupAchievements(id, {
-    limit: RESULTS_PER_PAGE,
-    offset: (page - 1) * RESULTS_PER_PAGE,
-  });
+  const achievements = await getGroupAchievements(id, RESULTS_PER_PAGE, (page - 1) * RESULTS_PER_PAGE);
 
   return (
     <>

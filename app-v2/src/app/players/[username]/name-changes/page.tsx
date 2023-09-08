@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
 import { timeago } from "~/utils/dates";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Name Changes: ${player.displayName}`,
@@ -26,8 +26,8 @@ export default async function PlayerNameChangesPage(props: PageProps) {
   const username = decodeURI(params.username);
 
   const [player, nameChanges] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerNames(username),
+    getPlayerDetails(username),
+    getPlayerNames(username),
   ]);
 
   if (!nameChanges || nameChanges.length === 0) {

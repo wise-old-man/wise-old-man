@@ -11,7 +11,7 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { formatDatetime, timeago } from "~/utils/dates";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerDetails, getPlayerRecords } from "~/services/wiseoldman";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { FormattedNumber } from "~/components/FormattedNumber";
@@ -30,7 +30,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Records: ${player.displayName}`,
@@ -43,10 +43,7 @@ export default async function PlayerRecordsPage(props: PageProps) {
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const [player, records] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerRecords(username),
-  ]);
+  const [player, records] = await Promise.all([getPlayerDetails(username), getPlayerRecords(username)]);
 
   if (!records || records.length === 0) {
     return (

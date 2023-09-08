@@ -1,6 +1,6 @@
 import dynamicImport from "next/dynamic";
 import { Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
-import { TimeRangeFilter, apiClient } from "~/services/wiseoldman";
+import { TimeRangeFilter, getPlayerSnapshotTimeline } from "~/services/wiseoldman";
 
 const BarChartSSR = dynamicImport(() => import("../BarChart"), {
   ssr: false,
@@ -18,7 +18,16 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
 
   const { name, measure } = MetricProps[metric];
 
-  const timelineData = await apiClient.players.getPlayerSnapshotTimeline(username, metric, timeRange);
+  const timelineData =
+    "period" in timeRange
+      ? await getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
+      : await getPlayerSnapshotTimeline(
+          username,
+          metric,
+          undefined,
+          timeRange.startDate,
+          timeRange.endDate
+        );
 
   const minDate =
     "period" in timeRange

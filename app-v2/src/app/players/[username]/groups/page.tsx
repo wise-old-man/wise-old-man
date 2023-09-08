@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { GroupRoleProps, MembershipWithGroup } from "@wise-old-man/utils";
-import { apiClient } from "~/services/wiseoldman";
+import { getPlayerDetails, getPlayerGroups } from "~/services/wiseoldman";
 import { GroupRoleIcon } from "~/components/Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 
@@ -15,7 +15,7 @@ interface PageProps {
 }
 
 export async function generateMetadata(props: PageProps) {
-  const player = await apiClient.players.getPlayerDetails(decodeURI(props.params.username));
+  const player = await getPlayerDetails(decodeURI(props.params.username));
 
   return {
     title: `Groups: ${player.displayName}`,
@@ -27,10 +27,7 @@ export default async function PlayerGroupsPage(props: PageProps) {
 
   const username = decodeURI(params.username);
 
-  const [player, groups] = await Promise.all([
-    apiClient.players.getPlayerDetails(username),
-    apiClient.players.getPlayerGroups(username),
-  ]);
+  const [player, groups] = await Promise.all([getPlayerDetails(username), getPlayerGroups(username)]);
 
   if (!groups || groups.length === 0) {
     return (

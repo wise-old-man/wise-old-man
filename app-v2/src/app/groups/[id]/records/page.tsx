@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
 import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupRecordsTable } from "~/components/groups/GroupRecordsTable";
-import { apiClient } from "~/services/wiseoldman";
+import { getGroupDetails, getGroupRecords } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
 
-  const group = await apiClient.groups.getGroupDetails(id);
+  const group = await getGroupDetails(id);
 
   return {
     title: `Record Leaderboards: ${group.name}`,
@@ -41,12 +41,8 @@ export default async function GroupRecordsPage(props: PageProps) {
   const RESULTS_PER_PAGE = 20;
 
   const [group, records] = await Promise.all([
-    apiClient.groups.getGroupDetails(id),
-    apiClient.groups.getGroupRecords(
-      id,
-      { metric, period },
-      { limit: RESULTS_PER_PAGE, offset: (page - 1) * RESULTS_PER_PAGE }
-    ),
+    getGroupDetails(id),
+    getGroupRecords(id, metric, period, RESULTS_PER_PAGE, (page - 1) * RESULTS_PER_PAGE),
   ]);
 
   return (

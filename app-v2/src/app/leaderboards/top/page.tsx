@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { DeltaLeaderboardFilter, Metric, MetricProps, Period, PeriodProps } from "@wise-old-man/utils";
-import { apiClient } from "~/services/wiseoldman";
+import { getDeltaLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
@@ -75,7 +75,13 @@ interface TopLeaderboardProps {
 async function TopLeaderboard(props: TopLeaderboardProps) {
   const { period, filters } = props;
 
-  const data = await apiClient.deltas.getDeltaLeaderboard({ period, ...filters });
+  const data = await getDeltaLeaderboard(
+    filters.metric,
+    period,
+    filters.country,
+    filters.playerType,
+    filters.playerBuild
+  );
 
   return (
     <div>
