@@ -9,6 +9,7 @@ import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
+import { Button } from "~/components/Button";
 import "../globals.css";
 
 const inter = Inter({
@@ -31,11 +32,17 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={cn(inter.variable, "h-full")}>
       <body className="h-full bg-gray-900 text-white">
-        {process.env.NODE_ENV !== "development" && (
-          <div className="fixed left-0 right-0 top-0 z-[100] bg-red-900 p-3 text-center xl:hidden">
-            This website is under construction and is not yet optimized for mobile browsing.
-          </div>
-        )}
+        <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
+          <span className="text-sm">
+            This a beta version of the website is still under construction. We&apos;d appreciate your
+            ideas, bug reports and feedback!
+          </span>
+          <a href="https://discord.gg/QbGaWrDc" target="_blank" rel="noopener noreferrer">
+            <Button size="sm" variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+              Share feedback
+            </Button>
+          </a>
+        </div>
         <NextTopLoader color="#3b82f6" showSpinner={false} />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
