@@ -1,5 +1,3 @@
-import { capitalize } from './strings';
-
 export function standardize(username) {
   return sanitize(username).toLowerCase();
 }

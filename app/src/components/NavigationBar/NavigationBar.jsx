@@ -123,6 +123,11 @@ function NavigationBar() {
 
   return (
     <nav className="nav-bar">
+      <div className="beta-warning">
+        A new beta version of the website is now available. It is still under construction but we invite
+        you to try it and share feedback.
+        <a href="https://beta.wiseoldman.net">Try the beta</a>
+      </div>
       <div className="nav-bar__wrapper">
         <Link className="nav-brand col-md-3 col-8" to="/" onClick={closeMenu}>
           <img className="nav-logo-img" src="/img/logo.png" alt="" />
