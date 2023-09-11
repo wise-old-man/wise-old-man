@@ -31,7 +31,11 @@ const ROUTES = [
 
 const EXTERNAL_LINKS = [
   { label: "Discord Bot", href: "https://bot.wiseoldman.net/", icon: DiscordIcon },
-  { label: "RuneLite Plugin", href: "https://wiseoldman.net/runelite-plugin", icon: RuneliteIcon },
+  {
+    label: "RuneLite Plugin",
+    href: "https://runelite.net/plugin-hub/show/wom-utils",
+    icon: RuneliteIcon,
+  },
   { label: "API Documentation", href: "https://docs.wiseoldman.net/", icon: CodeIcon },
 ];
 

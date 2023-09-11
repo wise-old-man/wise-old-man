@@ -34,7 +34,7 @@ function RootLayout(props: PropsWithChildren) {
       <body className="h-full bg-gray-900 text-white">
         <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
           <span className="text-sm">
-            This a beta version of the website is still under construction. We&apos;d appreciate your
+            This beta version of the website is still under construction. We&apos;d appreciate your
             ideas, bug reports and feedback!
           </span>
           <a href="https://discord.gg/QbGaWrDc" target="_blank" rel="noopener noreferrer">
