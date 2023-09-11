@@ -6,12 +6,32 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 72px;
   background: #1e1e1e;
   z-index: 500;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
+
+  .beta-warning {
+    background: $brand-color;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    a {
+      background: white;
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: $brand-color;
+      text-align: center;
+      flex-shrink: 0;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
 
   &__wrapper {
     display: flex;
