@@ -53,7 +53,7 @@ function SearchInput(props: SearchInputProps) {
   return (
     <Input
       value={searchInput}
-      placeholder="Search competitions..."
+      placeholder="Search groups..."
       className="border-gray-600"
       containerClassName="md:max-w-xs w-full"
       leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
