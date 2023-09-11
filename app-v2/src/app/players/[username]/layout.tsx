@@ -1,5 +1,4 @@
 import React, { PropsWithChildren } from "react";
-import Link from "next/link";
 import {
   CountryProps,
   PlayerBuild,
@@ -14,7 +13,7 @@ import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
 import { Flag, PlayerTypeIcon } from "~/components/Icon";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
+import { PlayerNavigation } from "~/components/players/PlayerNavigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
 import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
@@ -43,16 +42,13 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   const { children, params } = props;
   const username = decodeURI(params.username);
 
-  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
-  const routeSegment = children.props.childProp.segment;
-
   const player = await getPlayerDetails(username);
 
   return (
     <Container className="relative">
       <Header {...player} />
       <div className="mt-7">
-        <Navigation username={username} routeSegment={routeSegment} />
+        <PlayerNavigation username={username} />
       </div>
       {children}
 
@@ -60,72 +56,6 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
       <PlayerCustomPeriodDialog username={username} />
       <NameChangeSubmissionDialog oldName={player.displayName} />
     </Container>
-  );
-}
-
-interface NavigationProps {
-  username: string;
-  routeSegment: string;
-}
-
-function Navigation(props: NavigationProps) {
-  const { username, routeSegment } = props;
-
-  const validTabs = [
-    "overview",
-    "gained",
-    "competitions",
-    "groups",
-    "records",
-    "achievements",
-    "name-changes",
-  ];
-
-  let selectedSegment: string | undefined;
-
-  if (validTabs.includes(routeSegment)) {
-    selectedSegment = routeSegment;
-  } else {
-    selectedSegment = "overview";
-  }
-
-  return (
-    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900 pb-2">
-      <Tabs defaultValue={selectedSegment}>
-        <TabsList aria-label="Competition Navigation">
-          <Link href={`/players/${username}`} aria-label="Navigate to the player's overview">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-          </Link>
-          <Link href={`/players/${username}/gained`} aria-label="Navigate to the player's gains">
-            <TabsTrigger value="gained">Gained</TabsTrigger>
-          </Link>
-          <Link
-            href={`/players/${username}/competitions`}
-            aria-label="Navigate to the player's competitions"
-          >
-            <TabsTrigger value="competitions">Competitions</TabsTrigger>
-          </Link>
-          <Link href={`/players/${username}/groups`} aria-label="Navigate to the player's groups">
-            <TabsTrigger value="groups">Groups</TabsTrigger>
-          </Link>
-          <Link href={`/players/${username}/records`} aria-label="Navigate to the player's records">
-            <TabsTrigger value="records">Records</TabsTrigger>
-          </Link>
-          <Link
-            href={`/players/${username}/achievements`}
-            aria-label="Navigate to the player's achievements"
-          >
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          </Link>
-          <Link
-            href={`/players/${username}/name-changes`}
-            aria-label="Navigate to the player's name changes"
-          >
-            <TabsTrigger value="name-changes">Name changes</TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
-    </div>
   );
 }
 

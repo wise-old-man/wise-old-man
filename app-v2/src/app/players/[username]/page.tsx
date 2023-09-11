@@ -42,16 +42,7 @@ export default async function PlayerPage(props: PageProps) {
       <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-12 flex flex-col gap-y-3 lg:col-span-4">
-          <Suspense
-            fallback={
-              <div>
-                <div className="mb-3 mt-1 h-4 w-20 animate-pulse rounded-full bg-gray-700" />
-                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
-                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
-                <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
-              </div>
-            }
-          >
+          <Suspense fallback={<LoadingSkeleton />}>
             <PlayerOverviewCompetition username={username} />
             <PlayerOverviewMemberships username={username} />
             <PlayerOverviewAchievements username={player.username} />
@@ -65,6 +56,17 @@ export default async function PlayerPage(props: PageProps) {
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div>
+      <div className="mb-3 mt-1 h-4 w-20 animate-pulse rounded-full bg-gray-700" />
+      <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
+      <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
+      <div className="mb-3 h-16 animate-pulse rounded-lg border border-gray-700 bg-gray-800" />
     </div>
   );
 }
