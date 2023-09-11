@@ -28,7 +28,6 @@
     "class-variance-authority": "^0.5.2",
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
-    "date-fns": "^2.29.3",
     "dayjs": "^1.11.7",
     "javascript-time-ago": "^2.5.9",
     "next": "13.4.19",
