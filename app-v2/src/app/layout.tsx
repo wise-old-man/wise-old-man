@@ -1,7 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
-import NextTopLoader from "nextjs-toploader";
 import { cn } from "~/utils/styling";
 import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
@@ -9,6 +8,7 @@ import { TooltipProvider } from "~/components/Tooltip";
 import { ToastManager } from "~/components/ToastManager";
 import { TailwindIndicator } from "~/components/TailwindIndicator";
 import { ReactQueryProvider } from "~/components/ReactQueryProvider";
+import { NavigationLoadingBar } from "~/components/NavigationLoadingBar";
 import { Button } from "~/components/Button";
 import "../globals.css";
 
@@ -43,7 +43,7 @@ function RootLayout(props: PropsWithChildren) {
             </Button>
           </a>
         </div>
-        <NextTopLoader color="#3b82f6" showSpinner={false} />
+        <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
             <Navigation>
