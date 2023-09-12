@@ -6,9 +6,9 @@ import {
   Period,
   PeriodProps,
   PlayerDeltasMap,
-  Skill,
   isActivity,
   isBoss,
+  isSkill,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
@@ -177,8 +177,10 @@ function GainedHeader(props: GainedHeaderProps) {
     values = gains.bosses[metric].kills;
   } else if (isActivity(metric)) {
     values = gains.activities[metric].score;
+  } else if (isSkill(metric)) {
+    values = gains.skills[metric].experience;
   } else {
-    values = gains.skills[metric as Skill].experience;
+    values = gains.computed[metric].value;
   }
 
   const { gained, start, end } = values;

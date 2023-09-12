@@ -124,7 +124,11 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
             period={"period" in timeRange ? timeRange.period : undefined}
             onPeriodSelected={handlePeriodSelected}
           />
-          <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+          <MetricTypeSelect
+            metric={metric}
+            metricType={metricType}
+            onMetricTypeSelected={handleMetricTypeChanged}
+          />
         </div>
       </div>
       <div className="grid grid-cols-12 gap-y-5">
@@ -153,8 +157,18 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
     onRowSelected(row.original.metric);
   }
 
-  if (metricType === MetricType.BOSS) {
-    const rows = Object.values(gains.bosses);
+  if (metricType === MetricType.BOSS || selectedMetric === Metric.EHB) {
+    // Force-add the EHB row
+    const rows = [
+      ...Object.values(gains.bosses),
+      {
+        metric: Metric.EHB,
+        ehb: gains.computed.ehb.value,
+        rank: gains.computed.ehb.rank,
+        kills: 0,
+      } as unknown as BossDelta,
+    ];
+
     const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
 
     return (
@@ -183,7 +197,18 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
     );
   }
 
-  const rows = Object.values(gains.skills);
+  // Force-add the EHP row
+  const rows = [
+    ...Object.values(gains.skills),
+    {
+      metric: Metric.EHP,
+      ehp: gains.computed.ehp.value,
+      rank: gains.computed.ehp.rank,
+      experience: 0,
+      level: 0,
+    } as unknown as SkillDelta,
+  ];
+
   const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
 
   return (
@@ -222,6 +247,7 @@ const SKILL_COLUMN_DEFS: ColumnDef<SkillDelta>[] = [
       return <TableSortButton column={column}>Exp.</TableSortButton>;
     },
     cell: ({ row }) => {
+      if ((row.original.metric as unknown) === Metric.EHP) return null;
       return <FormattedNumber value={row.original.experience.gained} lowThreshold={10_000} colored />;
     },
   },
@@ -232,6 +258,7 @@ const SKILL_COLUMN_DEFS: ColumnDef<SkillDelta>[] = [
       return <TableSortButton column={column}>Levels</TableSortButton>;
     },
     cell: ({ row }) => {
+      if ((row.original.metric as unknown) === Metric.EHP) return null;
       return <FormattedNumber value={row.original.level.gained} colored />;
     },
   },
@@ -286,6 +313,7 @@ const BOSS_COLUMN_DEFS: ColumnDef<BossDelta>[] = [
       return <TableSortButton column={column}>Kills</TableSortButton>;
     },
     cell: ({ row }) => {
+      if ((row.original.metric as unknown) === Metric.EHB) return null;
       return <FormattedNumber value={row.original.kills.gained} lowThreshold={20} colored />;
     },
   },
@@ -356,12 +384,13 @@ const ACTIVITY_COLUMN_DEFS: ColumnDef<ActivityDelta>[] = [
 ];
 
 interface MetricTypeSelectProps {
+  metric: Metric;
   metricType: MetricType;
   onMetricTypeSelected: (metricType: MetricType) => void;
 }
 
 function MetricTypeSelect(props: MetricTypeSelectProps) {
-  const { metricType, onMetricTypeSelected } = props;
+  const { metric, metricType, onMetricTypeSelected } = props;
 
   const [isPending, startTransition] = useTransition();
 
@@ -380,8 +409,8 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
     >
       <ComboboxButton className="w-32" isPending={isPending}>
         <div className="flex items-center gap-x-2">
-          {metricType === MetricType.SKILL && "Skills"}
-          {metricType === MetricType.BOSS && "Bosses"}
+          {(metricType === MetricType.SKILL || metric === Metric.EHP) && "Skills"}
+          {(metricType === MetricType.BOSS || metric === Metric.EHB) && "Bosses"}
           {metricType === MetricType.ACTIVITY && "Activities"}
         </div>
       </ComboboxButton>
