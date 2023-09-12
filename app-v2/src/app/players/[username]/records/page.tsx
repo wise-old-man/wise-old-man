@@ -8,6 +8,7 @@ import {
   Period,
   PeriodProps,
   Record,
+  isComputedMetric,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { formatDatetime, timeago } from "~/utils/dates";
@@ -53,7 +54,14 @@ export default async function PlayerRecordsPage(props: PageProps) {
     );
   }
 
-  const filteredRecords = records.filter((r) => MetricProps[r.metric].type === metricType);
+  const filteredRecords = records.filter((r) => {
+    return (
+      MetricProps[r.metric].type === metricType ||
+      (metricType === MetricType.SKILL && r.metric === Metric.EHP) ||
+      (metricType === MetricType.BOSS && r.metric === Metric.EHB)
+    );
+  });
+
   const aggregated = aggregateRecordsPerMetric(filteredRecords);
 
   return (
@@ -73,7 +81,9 @@ export default async function PlayerRecordsPage(props: PageProps) {
       </ToggleTabs>
       <div className="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
         {Array.from(aggregated.keys())
-          .sort((a, b) => METRICS.indexOf(a) - METRICS.indexOf(b))
+          .sort((a, b) => {
+            return isComputedMetric(b) ? 1 : METRICS.indexOf(a) - METRICS.indexOf(b);
+          })
           .map((key) => {
             const records = aggregated.get(key);
             if (!records) return null;
