@@ -24,7 +24,7 @@ export const apiClient = new WOMClient({
 
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
 
-async function handleNotFound(promise: Promise<any>) {
+async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
   try {
     return await promise;
   } catch (e: any) {
