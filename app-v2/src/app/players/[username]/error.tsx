@@ -5,12 +5,16 @@ import { WOMClient } from "@wise-old-man/utils";
 import { useParams } from "next/navigation";
 import { useToast } from "~/hooks/useToast";
 import { Button } from "~/components/Button";
-import { ErrorBoundary } from "~/components/ErrorBoundary";
+import { ErrorState } from "~/components/ErrorState";
 
 import LoadingIcon from "~/assets/loading.svg";
 
-export default function PlayerErrorBoundary(props: { error: Error }) {
-  return props.error.message === "Player not found." ? <NotFound /> : <ErrorBoundary />;
+export default function PlayerErrorState(props: { error: Error }) {
+  return props.error.message === "Player not found." ? (
+    <NotFound />
+  ) : (
+    <ErrorState tag="player" {...props} />
+  );
 }
 
 function NotFound() {
