@@ -39,7 +39,6 @@ export default async function PlayerPage(props: PageProps) {
 
   return (
     <div>
-      <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-12 flex flex-col gap-y-3 lg:col-span-4">
           <Suspense fallback={<LoadingSkeleton />}>
@@ -48,7 +47,8 @@ export default async function PlayerPage(props: PageProps) {
             <PlayerOverviewAchievements username={player.username} />
           </Suspense>
         </div>
-        <div className="col-span-12 mt-8 lg:col-span-8">
+        <div className="col-span-12 mt-8 flex flex-col gap-y-4 lg:col-span-8">
+          <PlayerOverviewWidgets {...player} />
           {player.latestSnapshot ? (
             <PlayerStatsTable
               player={player}

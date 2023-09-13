@@ -63,7 +63,7 @@ function Stat(props: StatProps) {
       <Label className="line-clamp-1 text-xs text-gray-200">{label}</Label>
       <div className="flex items-end gap-x-2">
         {(isMetric(metric) || metric === "combat") && <MetricIconSmall metric={metric} />}
-        <span className="line-clamp-1 text-base leading-5 text-white">{valueElement}</span>
+        <span className="line-clamp-1 text-sm leading-5 text-white">{valueElement}</span>
       </div>
     </div>
   );
