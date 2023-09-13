@@ -40,14 +40,14 @@ export function Footer() {
         <div className="border-t border-gray-700 pt-12 xl:grid xl:grid-cols-2 xl:gap-16">
           <div className="space-y-8 pr-8">
             <LogoAlt alt="Wise Old Man Logo" className="w-32" />
-            <p className="text-sm leading-6 text-gray-300">
+            <p className="text-sm leading-6 text-gray-200">
               Made with care by community volunteers. Please consider contributing to the development and
               maintenance of the project on{" "}
               <a
                 href="https://wiseoldman.net/patreon"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-200 hover:underline"
+                className="font-medium text-white hover:underline"
               >
                 Patreon
               </a>
@@ -60,7 +60,7 @@ export function Footer() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-gray-200"
+                  className="text-gray-200 hover:text-gray-100"
                 >
                   <span className="sr-only">{item.label}</span>
                   <item.icon className="h-5 w-5" aria-hidden="true" />
@@ -74,7 +74,10 @@ export function Footer() {
               <ul role="list" className="mt-6 space-y-4">
                 {navigation.features.map((item) => (
                   <li key={item.name}>
-                    <Link href={item.href} className="text-sm leading-6 text-gray-300 hover:text-white">
+                    <Link
+                      href={item.href}
+                      className="text-sm leading-6 text-gray-200 hover:text-gray-100"
+                    >
                       {item.name}
                     </Link>
                   </li>
@@ -90,7 +93,7 @@ export function Footer() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm leading-6 text-gray-300 hover:text-white"
+                      className="text-sm leading-6 text-gray-200 hover:text-gray-100"
                     >
                       {item.name}
                     </a>
