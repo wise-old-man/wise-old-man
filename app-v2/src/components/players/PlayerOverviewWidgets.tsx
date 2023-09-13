@@ -5,6 +5,8 @@ import { MetricIconSmall } from "../Icon";
 import CheckIcon from "~/assets/check.svg";
 
 export function PlayerOverviewWidgets(props: PlayerDetails) {
+  if (!props.latestSnapshot) return null;
+
   const { data } = props.latestSnapshot;
 
   return (
