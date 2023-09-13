@@ -39,7 +39,6 @@ export default async function PlayerPage(props: PageProps) {
 
   return (
     <div>
-      <PlayerOverviewWidgets {...player} />
       <div className="mt-6 grid grid-cols-12 gap-x-5">
         <div className="col-span-12 flex flex-col gap-y-3 lg:col-span-4">
           <Suspense fallback={<LoadingSkeleton />}>
@@ -48,12 +47,23 @@ export default async function PlayerPage(props: PageProps) {
             <PlayerOverviewAchievements username={player.username} />
           </Suspense>
         </div>
-        <div className="col-span-12 mt-8 lg:col-span-8">
-          <PlayerStatsTable
-            player={player}
-            metricType={metricType}
-            showVirtualLevels={searchParams.levels === "virtual"}
-          />
+        <div className="col-span-12 mt-8 flex flex-col gap-y-4 lg:col-span-8">
+          <PlayerOverviewWidgets {...player} />
+          {player.latestSnapshot ? (
+            <PlayerStatsTable
+              player={player}
+              metricType={metricType}
+              showVirtualLevels={searchParams.levels === "virtual"}
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center rounded-lg border border-gray-500 p-20">
+              <p className="text-center text-body text-gray-200">
+                Last time we checked, this player could not be found on the hiscores. This could either
+                be because that username is incorrect, or because the player is not yet ranked on any
+                skill on the hiscores.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
+import { notFound } from "next/navigation";
 import { GroupDetails } from "@wise-old-man/utils";
 import { getGroupDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
@@ -36,7 +37,10 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const group = await getGroupDetails(id);
+  const group = await getGroupDetails(id).catch((e) => {
+    if (e.message === "Group not found.") notFound();
+    throw e;
+  });
 
   return (
     <Container>

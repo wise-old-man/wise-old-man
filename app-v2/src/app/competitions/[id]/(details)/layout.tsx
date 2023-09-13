@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PropsWithChildren } from "react";
+import { notFound } from "next/navigation";
 import {
   CompetitionDetails,
   CompetitionStatus,
@@ -43,7 +44,10 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
   const routeSegment = children.props.childProp.segment;
 
-  const competition = await getCompetitionDetails(id);
+  const competition = await getCompetitionDetails(id).catch((e) => {
+    if (e.message === "Competition not found.") notFound();
+    throw e;
+  });
 
   return (
     <Container>

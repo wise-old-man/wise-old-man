@@ -42,7 +42,13 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   const { children, params } = props;
   const username = decodeURI(params.username);
 
-  const player = await getPlayerDetails(username);
+  const player = await getPlayerDetails(username).catch(() => null);
+
+  if (!player) {
+    // If it fails to fetch this player, fallback to only rendering the child node.
+    // This child will be the Error boundary defined in error.tsx.
+    return <Container>{children}</Container>;
+  }
 
   return (
     <Container className="relative">
@@ -171,14 +177,16 @@ function PlayerAttributes(props: PlayerDetails) {
     elements.push(<span>{PlayerBuildProps[build].name}</span>);
   }
 
-  elements.push(
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span>Last updated {timeago.format(latestSnapshot.createdAt)}</span>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{formatDatetime(latestSnapshot.createdAt)}</TooltipContent>
-    </Tooltip>
-  );
+  if (latestSnapshot) {
+    elements.push(
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span>Last updated {timeago.format(latestSnapshot.createdAt)}</span>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{formatDatetime(latestSnapshot.createdAt)}</TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <>

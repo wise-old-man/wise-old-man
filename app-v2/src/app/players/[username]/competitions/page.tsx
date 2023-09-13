@@ -31,7 +31,7 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
 
   if (!competitions || competitions.length === 0) {
     return (
-      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-400">
+      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-300">
         {player.displayName} has no competitions.
       </div>
     );
