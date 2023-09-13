@@ -22,7 +22,8 @@ interface PageProps {
 export async function generateMetadata(props: PageProps) {
   const { params } = props;
 
-  const player = await getPlayerDetails(decodeURI(params.username));
+  const username = decodeURI(params.username);
+  const player = await getPlayerDetails(username);
 
   return {
     title: player.displayName,
@@ -35,7 +36,7 @@ export default async function PlayerPage(props: PageProps) {
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const player = await getPlayerDetails(decodeURI(params.username));
+  const player = await getPlayerDetails(username);
 
   return (
     <div>

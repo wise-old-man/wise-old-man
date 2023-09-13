@@ -15,6 +15,7 @@ import {
   CompetitionType,
   NameChangeStatus,
 } from "@wise-old-man/utils";
+import { notFound } from "next/navigation";
 
 export const apiClient = new WOMClient({
   userAgent: "Wise Old Man App (v2)",
@@ -22,6 +23,15 @@ export const apiClient = new WOMClient({
 });
 
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
+
+async function handleNotFound(promise: Promise<any>) {
+  try {
+    return await promise;
+  } catch (e: any) {
+    if ("statusCode" in e && e.statusCode === 404) notFound();
+    throw e;
+  }
+}
 
 export function getCompetitionStatus(competition: CompetitionDetails | CompetitionListItem) {
   const now = new Date();
@@ -40,11 +50,11 @@ export function getCompetitionStatus(competition: CompetitionDetails | Competiti
 // Cached functions
 
 export const getCompetitionDetails = cache((id: number, previewMetric?: Metric) => {
-  return apiClient.competitions.getCompetitionDetails(id, previewMetric);
+  return handleNotFound(apiClient.competitions.getCompetitionDetails(id, previewMetric));
 });
 
 export const getCompetitionTopHistory = cache((id: number, previewMetric?: Metric) => {
-  return apiClient.competitions.getCompetitionTopHistory(id, previewMetric);
+  return handleNotFound(apiClient.competitions.getCompetitionTopHistory(id, previewMetric));
 });
 
 export const getDeltaLeaderboard = cache(
@@ -71,53 +81,55 @@ export const getEfficiencyLeaderboards = cache(
 );
 
 export const getGroupAchievements = cache((id: number, limit: number, offset: number) => {
-  return apiClient.groups.getGroupAchievements(id, { limit, offset });
+  return handleNotFound(apiClient.groups.getGroupAchievements(id, { limit, offset }));
 });
 
 export const getGroupCompetitions = cache((id: number, limit?: number, offset?: number) => {
-  return apiClient.groups.getGroupCompetitions(id, { limit, offset });
+  return handleNotFound(apiClient.groups.getGroupCompetitions(id, { limit, offset }));
 });
 
 export const getGroupDetails = cache((id: number) => {
-  return apiClient.groups.getGroupDetails(id);
+  return handleNotFound(apiClient.groups.getGroupDetails(id));
 });
 
 export const getGroupGains = cache(
   (id: number, period: Period, metric: Metric, limit: number, offset: number) => {
-    return apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset });
+    return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
   }
 );
 
 export const getGroupHiscores = cache((id: number, metric: Metric, limit: number, offset: number) => {
-  return apiClient.groups.getGroupHiscores(id, metric, { limit, offset });
+  return handleNotFound(apiClient.groups.getGroupHiscores(id, metric, { limit, offset }));
 });
 
 export const getGroupNameChanges = cache((id: number, limit: number, offset: number) => {
-  return apiClient.groups.getGroupNameChanges(id, { limit, offset }) as Promise<
-    Array<NameChange & Player> // TODO: this type should come correct from the API
-  >;
+  return handleNotFound(
+    apiClient.groups.getGroupNameChanges(id, { limit, offset }) as Promise<
+      Array<NameChange & Player> // TODO: this type should come correct from the API
+    >
+  );
 });
 
 export const getGroupRecords = cache(
   (id: number, metric: Metric, period: Period, limit: number, offset: number) => {
-    return apiClient.groups.getGroupRecords(id, { metric, period }, { limit, offset });
+    return handleNotFound(apiClient.groups.getGroupRecords(id, { metric, period }, { limit, offset }));
   }
 );
 
 export const getGroupStatistics = cache((id: number) => {
-  return apiClient.groups.getGroupStatistics(id);
+  return handleNotFound(apiClient.groups.getGroupStatistics(id));
 });
 
 export const getPlayerAchievementProgress = cache((username: string) => {
-  return apiClient.players.getPlayerAchievementProgress(username);
+  return handleNotFound(apiClient.players.getPlayerAchievementProgress(username));
 });
 
 export const getPlayerCompetitions = cache((username: string) => {
-  return apiClient.players.getPlayerCompetitions(username);
+  return handleNotFound(apiClient.players.getPlayerCompetitions(username));
 });
 
 export const getPlayerDetails = cache((usernane: string) => {
-  return apiClient.players.getPlayerDetails(usernane);
+  return handleNotFound(apiClient.players.getPlayerDetails(usernane));
 });
 
 export const getPlayerGains = cache(
@@ -128,27 +140,27 @@ export const getPlayerGains = cache(
     endDate: Date | undefined
   ) => {
     if (period) {
-      return apiClient.players.getPlayerGains(username, { period });
+      return handleNotFound(apiClient.players.getPlayerGains(username, { period }));
     }
 
     if (!startDate || !endDate) {
       throw new Error("Bad Request: Missing startDate or endDate");
     }
 
-    return apiClient.players.getPlayerGains(username, { startDate, endDate });
+    return handleNotFound(apiClient.players.getPlayerGains(username, { startDate, endDate }));
   }
 );
 
 export const getPlayerGroups = cache((username: string, limit?: number, offset?: number) => {
-  return apiClient.players.getPlayerGroups(username, { limit, offset });
+  return handleNotFound(apiClient.players.getPlayerGroups(username, { limit, offset }));
 });
 
 export const getPlayerNames = cache((username: string) => {
-  return apiClient.players.getPlayerNames(username);
+  return handleNotFound(apiClient.players.getPlayerNames(username));
 });
 
 export const getPlayerRecords = cache((username: string) => {
-  return apiClient.players.getPlayerRecords(username);
+  return handleNotFound(apiClient.players.getPlayerRecords(username));
 });
 
 export const getPlayerSnapshotTimeline = cache(
@@ -160,14 +172,16 @@ export const getPlayerSnapshotTimeline = cache(
     endDate: Date | undefined
   ) => {
     if (period) {
-      return apiClient.players.getPlayerSnapshotTimeline(username, metric, { period });
+      return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
     }
 
     if (!startDate || !endDate) {
       throw new Error("Bad Request: Missing startDate or endDate");
     }
 
-    return apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate });
+    return handleNotFound(
+      apiClient.players.getPlayerSnapshotTimeline(username, metric, { startDate, endDate })
+    );
   }
 );
 

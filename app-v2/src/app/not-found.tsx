@@ -5,7 +5,7 @@ import TrollImage from "../../public/img/404_troll.png";
 
 export default function NotFound() {
   return (
-    <Container className="flex flex-col items-center justify-center py-20">
+    <Container className="flex flex-col items-center justify-center py-[5vh]">
       <Image
         src={TrollImage}
         alt="404 Page - In-game Troll holding a sad sign"

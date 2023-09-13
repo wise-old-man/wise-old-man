@@ -17,11 +17,15 @@ interface PageProps {
   };
 }
 
+function getPreviewMetric(previewParam: string | undefined) {
+  return previewParam && isMetric(previewParam) ? previewParam : undefined;
+}
+
 export async function generateMetadata(props: PageProps) {
   const { id } = props.params;
   const { preview } = props.searchParams;
 
-  const previewMetric = preview && isMetric(preview) ? preview : undefined;
+  const previewMetric = getPreviewMetric(preview);
 
   const competition = await getCompetitionDetails(id, previewMetric);
 
@@ -34,7 +38,7 @@ export default async function CompetitionOverviewPage(props: PageProps) {
   const { id } = props.params;
   const { preview, filter } = props.searchParams;
 
-  const previewMetric = preview && isMetric(preview) ? preview : undefined;
+  const previewMetric = getPreviewMetric(preview);
 
   const competition = await getCompetitionDetails(id, previewMetric);
   const metric = previewMetric || competition.metric;
