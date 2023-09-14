@@ -32,7 +32,7 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
     icon = <WarningFilledIcon className="h-4 w-4 text-red-500" />;
   } else if (player.status === PlayerStatus.UNRANKED) {
     icon = <WarningFilledIcon className="h-4 w-4 text-yellow-500" />;
-  } else if (player.status === PlayerStatus.FLAGGED) {
+  } else if (player.status === PlayerStatus.FLAGGED || player.status === PlayerStatus.BANNED) {
     icon = <WarningFilledIcon className="h-4 w-4 text-orange-500" />;
   } else {
     icon = <PlayerTypeIcon playerType={player.type} />;
@@ -94,6 +94,11 @@ export function PlayerIdentityTooltip(props: { player: Player }) {
         {player.status === PlayerStatus.FLAGGED && (
           <span className="mt-4 text-xs text-orange-400">
             This player is flagged. Visit their profile for more information.
+          </span>
+        )}
+        {player.status === PlayerStatus.BANNED && (
+          <span className="mt-4 text-xs text-orange-400">
+            This player is banned. Visit their profile for more information.
           </span>
         )}
         {player.status === PlayerStatus.UNRANKED && player.updatedAt && (

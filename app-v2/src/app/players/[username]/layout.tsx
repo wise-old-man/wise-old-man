@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import {
   CountryProps,
+  Player,
   PlayerBuild,
   PlayerBuildProps,
   PlayerDetails,
@@ -16,6 +17,7 @@ import { Flag, PlayerTypeIcon } from "~/components/Icon";
 import { PlayerNavigation } from "~/components/players/PlayerNavigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
+import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
 import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
 import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
@@ -52,6 +54,11 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
 
   return (
     <Container className="relative">
+      {player.status !== PlayerStatus.ACTIVE && (
+        <div className="mt-12 md:mb-10 md:mt-0">
+          <PlayerStatusAlert player={player} />
+        </div>
+      )}
       <Header {...player} />
       <div className="mt-7">
         <PlayerNavigation username={username} />
@@ -70,13 +77,12 @@ function Header(props: PlayerDetails) {
 
   let icon: React.ReactNode;
 
-  // TODO: Add "banned" status
   if (status === PlayerStatus.ARCHIVED) {
     icon = <WarningFilledIcon className="h-8 w-8 text-red-500" />;
+  } else if (status === PlayerStatus.FLAGGED || status === PlayerStatus.BANNED) {
+    icon = <WarningFilledIcon className="h-8 w-8 text-orange-500" />;
   } else if (status === PlayerStatus.UNRANKED) {
     icon = <WarningFilledIcon className="h-8 w-8 text-yellow-500" />;
-  } else if (status === PlayerStatus.FLAGGED) {
-    icon = <WarningFilledIcon className="h-8 w-8 text-orange-500" />;
   } else {
     icon = <PlayerTypeIcon playerType={type} size="lg" />;
   }
@@ -156,6 +162,103 @@ function Header(props: PlayerDetails) {
   );
 }
 
+function PlayerStatusAlert(props: { player: Player }) {
+  const { status } = props.player;
+
+  if (status === PlayerStatus.ARCHIVED) {
+    return (
+      <Alert variant="error">
+        <div>
+          <AlertTitle>This player is archived</AlertTitle>
+          <AlertDescription>
+            {`Their previous username has been taken by another player. If you know this account's new
+            username, you can `}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              contact us on Discord
+            </a>
+            {` to transfer their old data to their current username.`}
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
+  if (status === PlayerStatus.BANNED) {
+    return (
+      <Alert variant="error" className="border-orange-700 bg-orange-900/10">
+        <div>
+          <AlertTitle>This player is banned</AlertTitle>
+          <AlertDescription>
+            This player could not be found on the hiscores last time we checked. It was then confirmed to
+            be banned via RuneMetrics. You can update to re-check this status, it may take a few minutes
+            to complete.
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
+  if (status === PlayerStatus.FLAGGED) {
+    return (
+      <Alert variant="error" className="border-orange-700 bg-orange-900/10">
+        <div>
+          <AlertTitle>This player is flagged</AlertTitle>
+          <AlertDescription>
+            {`This is often caused by an unregistered name change, a de-iron or a hiscores rollback. Our
+            team has been notified of this and will review you profile ASAP. Please check again in a few
+            hours. You can also `}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              contact us on Discord
+            </a>
+            {` for more information.`}
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert variant="error" className="border-yellow-700 bg-yellow-900/10">
+      <div>
+        <AlertTitle>This player is unranked</AlertTitle>
+        <AlertDescription>
+          <p>
+            {`This player could not be found on the hiscores last time we checked. This can either mean
+              they&apos;ve changed their name, they&apos;re banned or they have dropped out of the hiscores
+              due to low levels.`}
+          </p>
+          <p className="mt-5">
+            {`Do you know this player's new username? `}
+            <QueryLink className="text-white underline" query={{ dialog: "submit-name" }}>
+              submit a name change
+            </QueryLink>
+            {` or `}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://wiseoldman.net/discord"
+              className="text-white underline"
+            >
+              contact us on Discord
+            </a>
+            {` for more information.`}
+          </p>
+        </AlertDescription>
+      </div>
+    </Alert>
+  );
+}
+
 function PlayerAttributes(props: PlayerDetails) {
   const { status, type, build, latestSnapshot } = props;
 
@@ -166,7 +269,7 @@ function PlayerAttributes(props: PlayerDetails) {
   } else if (status === PlayerStatus.UNRANKED) {
     elements.push(<span className="text-yellow-400">Unranked</span>);
   } else if (status === PlayerStatus.BANNED) {
-    elements.push(<span className="text-yellow-400">Banned</span>);
+    elements.push(<span className="text-orange-400">Banned</span>);
   } else if (status === PlayerStatus.ARCHIVED) {
     elements.push(<span className="text-red-400">Archived</span>);
   }

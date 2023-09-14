@@ -138,9 +138,6 @@ export function TeamsTable(props: TeamsTableProps) {
         <TableTitle>
           <div className="flex flex-col">
             <h3 className="text-h3 font-medium">Teams</h3>
-            <p className="text-sm text-gray-200">
-              Nisi ipsum aliqua velit labore culpa minim consectetur elit nulla.
-            </p>
           </div>
           <QueryLink query={{ dialog: "export", table: "teams" }}>
             <Button>
