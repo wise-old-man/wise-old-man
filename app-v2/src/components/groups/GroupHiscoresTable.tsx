@@ -68,7 +68,7 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
       nextParams.delete("metric");
     }
 
-    router.replace(`/groups/${group.id}/hiscores?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/hiscores?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

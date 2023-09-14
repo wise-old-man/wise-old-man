@@ -39,7 +39,7 @@ export function NameChangesFilters() {
       nextParams.delete("search");
     }
 
-    router.replace(`/names?${nextParams.toString()}`);
+    router.replace(`/names?${nextParams.toString()}`, { scroll: false });
   }
 
   function handleStatusChanged(value: string | undefined) {
@@ -54,7 +54,7 @@ export function NameChangesFilters() {
       nextParams.delete("status");
     }
 
-    router.replace(`/names?${nextParams.toString()}`);
+    router.replace(`/names?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

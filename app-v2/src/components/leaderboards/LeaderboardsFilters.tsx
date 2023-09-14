@@ -71,7 +71,7 @@ export function LeaderboardsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.replace(`${pathname}?${nextParams.toString()}`);
+    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

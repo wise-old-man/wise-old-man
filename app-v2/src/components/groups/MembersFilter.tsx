@@ -57,7 +57,7 @@ export function MembersFilter(props: MembersFilterProps) {
     }
 
     startTransition(() => {
-      router.replace(`/groups/${groupId}?${nextParams.toString()}`);
+      router.replace(`/groups/${groupId}?${nextParams.toString()}`, { scroll: false });
     });
   }
 

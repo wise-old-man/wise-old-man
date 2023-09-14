@@ -66,7 +66,7 @@ export function GroupRecordsTable(props: GroupRecordsTableProps) {
       nextParams.delete("metric");
     }
 
-    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`, { scroll: false });
   }
 
   function handlePeriodChanged(period: Period) {
@@ -81,7 +81,7 @@ export function GroupRecordsTable(props: GroupRecordsTableProps) {
       nextParams.delete("period");
     }
 
-    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/records?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

@@ -88,7 +88,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       nextParams.delete("endDate");
     }
 
-    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
   return (
