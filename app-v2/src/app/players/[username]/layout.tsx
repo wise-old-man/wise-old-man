@@ -171,17 +171,17 @@ function PlayerStatusAlert(props: { player: Player }) {
         <div>
           <AlertTitle>This player is archived</AlertTitle>
           <AlertDescription>
-            Their previous username has been taken by another player. If you know this account&apos;s new
-            username, you can
+            {`Their previous username has been taken by another player. If you know this account's new
+            username, you can `}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="https://wiseoldman.net/discord"
               className="text-white underline"
             >
-              {" contact us on Discord "}
+              contact us on Discord
             </a>
-            to transfer their old data to their current username.
+            {` to transfer their old data to their current username.`}
           </AlertDescription>
         </div>
       </Alert>
@@ -209,18 +209,18 @@ function PlayerStatusAlert(props: { player: Player }) {
         <div>
           <AlertTitle>This player is flagged</AlertTitle>
           <AlertDescription>
-            This is often caused by an unregistered name change, a de-iron or a hiscores rollback. Our
+            {`This is often caused by an unregistered name change, a de-iron or a hiscores rollback. Our
             team has been notified of this and will review you profile ASAP. Please check again in a few
-            hours. You can also{" "}
+            hours. You can also `}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="https://wiseoldman.net/discord"
               className="text-white underline"
             >
-              {" contact us on Discord "}
+              contact us on Discord
             </a>
-            for more information.
+            {` for more information.`}
           </AlertDescription>
         </div>
       </Alert>
@@ -233,25 +233,25 @@ function PlayerStatusAlert(props: { player: Player }) {
         <AlertTitle>This player is unranked</AlertTitle>
         <AlertDescription>
           <p>
-            This player could not be found on the hiscores last time we checked. This can either mean
-            they&apos;ve changed their name, they&apos;re banned or they have dropped out of the hiscores
-            due to low levels.
+            {`This player could not be found on the hiscores last time we checked. This can either mean
+              they&apos;ve changed their name, they&apos;re banned or they have dropped out of the hiscores
+              due to low levels.`}
           </p>
           <p className="mt-5">
-            Do you know this player&apos;s new username?
+            {`Do you know this player's new username? `}
             <QueryLink className="text-white underline" query={{ dialog: "submit-name" }}>
-              {" submit a name change "}
+              submit a name change
             </QueryLink>
-            or
+            {` or `}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="https://wiseoldman.net/discord"
               className="text-white underline"
             >
-              {" contact us on Discord "}
+              contact us on Discord
             </a>
-            for more information.
+            {` for more information.`}
           </p>
         </AlertDescription>
       </div>
