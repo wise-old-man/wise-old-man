@@ -53,11 +53,11 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
 
   function handleMetricTypeChanged(newMetricType: MetricType) {
     if (newMetricType === MetricType.BOSS) {
-      handleMetricSelected(BOSSES[0]);
+      handleMetricSelected(Metric.EHB);
     } else if (newMetricType === MetricType.ACTIVITY) {
       handleMetricSelected(ACTIVITIES[0]);
     } else {
-      handleMetricSelected(SKILLS[0]);
+      handleMetricSelected(Metric.EHP);
     }
   }
 
@@ -70,7 +70,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       nextParams.set("metric", newMetric);
     }
 
-    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
   function handlePeriodSelected(newPeriod: Period | "custom") {
@@ -160,13 +160,13 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
   if (metricType === MetricType.BOSS || selectedMetric === Metric.EHB) {
     // Force-add the EHB row
     const rows = [
-      ...Object.values(gains.bosses),
       {
         metric: Metric.EHB,
         ehb: gains.computed.ehb.value,
         rank: gains.computed.ehb.rank,
         kills: 0,
       } as unknown as BossDelta,
+      ...Object.values(gains.bosses),
     ];
 
     const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
@@ -199,7 +199,6 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
 
   // Force-add the EHP row
   const rows = [
-    ...Object.values(gains.skills),
     {
       metric: Metric.EHP,
       ehp: gains.computed.ehp.value,
@@ -207,6 +206,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
       experience: 0,
       level: 0,
     } as unknown as SkillDelta,
+    ...Object.values(gains.skills),
   ];
 
   const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
