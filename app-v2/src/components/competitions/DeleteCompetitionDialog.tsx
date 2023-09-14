@@ -30,7 +30,7 @@ export function DeleteCompetitionDialog(props: DeleteCompetitionDialogProps) {
         if (!val) router.back();
       }}
     >
-      <DialogContent>
+      <DialogContent className="w-[28rem]">
         <DialogHeader>
           <DialogTitle>Are you sure?</DialogTitle>
           <DialogDescription>
