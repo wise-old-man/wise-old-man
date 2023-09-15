@@ -1,8 +1,7 @@
 import { Metric, Period } from "@wise-old-man/utils";
-import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
-import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupGainedTable } from "~/components/groups/GroupGainedTable";
+import { GroupLeaderboardsNavigation } from "~/components/groups/GroupLeaderboardsNavigation";
 import { getGroupDetails, getGroupGains } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam, getPeriodParam } from "~/utils/params";
 
@@ -47,17 +46,7 @@ export default async function GroupGainedPage(props: PageProps) {
 
   return (
     <>
-      <ToggleTabs value="gained">
-        <ToggleTabsList>
-          <Link href={`/groups/${id}/hiscores`} className="border-r border-gray-400">
-            <ToggleTabsTrigger value="hiscores">Hiscores</ToggleTabsTrigger>
-          </Link>
-          <ToggleTabsTrigger value="gained">Gained</ToggleTabsTrigger>
-          <Link href={`/groups/${id}/records`}>
-            <ToggleTabsTrigger value="records">Records</ToggleTabsTrigger>
-          </Link>
-        </ToggleTabsList>
-      </ToggleTabs>
+      <GroupLeaderboardsNavigation />
       <div className="mt-10">
         <GroupGainedTable group={group} metric={metric} period={period} gains={gains} />
         <div className="mt-4">

@@ -27,7 +27,7 @@ export function GroupsFilters() {
       nextParams.delete("search");
     }
 
-    router.replace(`/groups?${nextParams.toString()}`);
+    router.replace(`/groups?${nextParams.toString()}`, { scroll: false });
   }
 
   return <SearchInput search={search} onSearchChanged={handleSearchChanged} />;

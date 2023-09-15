@@ -63,7 +63,7 @@ export function CompetitionsFilters() {
       nextParams.delete(paramName);
     }
 
-    router.replace(`/competitions?${nextParams.toString()}`);
+    router.replace(`/competitions?${nextParams.toString()}`, { scroll: false });
   }
 
   function handleSearchChanged(value: string) {
@@ -78,7 +78,7 @@ export function CompetitionsFilters() {
       nextParams.delete("search");
     }
 
-    router.replace(`/competitions?${nextParams.toString()}`);
+    router.replace(`/competitions?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

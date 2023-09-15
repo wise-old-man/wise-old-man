@@ -76,21 +76,26 @@ const COLUMN_DEFS: ColumnDef<
     accessorKey: "value",
     header: "Value",
     cell: ({ row }) => {
+      let value = -1;
+
       if (isSkill(row.original.metric)) {
-        return <FormattedNumber value={(row.original as SkillValue).experience} />;
+        value = (row.original as SkillValue).experience;
       } else if (isBoss(row.original.metric)) {
-        return <FormattedNumber value={(row.original as BossValue).kills} />;
+        value = (row.original as BossValue).kills;
       } else if (isActivity(row.original.metric)) {
-        return <FormattedNumber value={(row.original as ActivityValue).score} />;
+        value = (row.original as ActivityValue).score;
+      } else {
+        value = (row.original as ComputedMetricValue).value;
       }
 
-      return <FormattedNumber value={(row.original as ComputedMetricValue).value} />;
+      return value === -1 ? "---" : <FormattedNumber value={value} />;
     },
   },
   {
     accessorKey: "rank",
     header: "Global Rank",
     cell: ({ row }) => {
+      if (row.original.rank === -1) return "---";
       return <FormattedNumber value={row.original.rank} />;
     },
   },

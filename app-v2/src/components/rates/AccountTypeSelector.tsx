@@ -23,7 +23,7 @@ export function AccountTypeSelector() {
   const type = getAlgorithmTypeParam(String(params.type)) || EfficiencyAlgorithmType.MAIN;
 
   function handleTypeChanged(value: string) {
-    router.replace(`/${metric}/${value}`);
+    router.push(`/${metric}/${value}`);
   }
 
   function handlePrefetch() {

@@ -69,7 +69,7 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
       nextParams.delete("view");
     }
 
-    router.replace(`/players/${player.username}?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}?${nextParams.toString()}`, { scroll: false });
   }
 
   function handleShowVirtualLevelsChanged(value: boolean) {
@@ -81,7 +81,7 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
       nextParams.delete("levels");
     }
 
-    router.replace(`/players/${player.username}?${nextParams.toString()}`);
+    router.replace(`/players/${player.username}?${nextParams.toString()}`, { scroll: false });
   }
 
   const tableHeaderElement = (
@@ -145,7 +145,6 @@ function PlayerSkillsTable(
   const { children, player, showVirtualLevels } = props;
 
   const rows = [
-    ...Object.values(player.latestSnapshot.data.skills),
     {
       metric: Metric.EHP as Skill,
       experience: -1,
@@ -153,6 +152,7 @@ function PlayerSkillsTable(
       ehp: player.latestSnapshot.data.computed.ehp.value,
       rank: player.latestSnapshot.data.computed.ehp.rank,
     },
+    ...Object.values(player.latestSnapshot.data.skills),
   ];
 
   const columnDefs = useMemo(() => getSkillColumnDefinitions(showVirtualLevels), [showVirtualLevels]);
@@ -285,13 +285,13 @@ function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) 
   const { children, player } = props;
 
   const rows = [
-    ...Object.values(player.latestSnapshot.data.bosses),
     {
       metric: Metric.EHB as Boss,
       kills: -1,
       ehb: player.latestSnapshot.data.computed.ehb.value,
       rank: player.latestSnapshot.data.computed.ehb.rank,
     },
+    ...Object.values(player.latestSnapshot.data.bosses),
   ];
 
   return (

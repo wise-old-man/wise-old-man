@@ -71,7 +71,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
       nextParams.delete("metric");
     }
 
-    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
   function handlePeriodChanged(period: Period) {
@@ -86,7 +86,7 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
       nextParams.delete("period");
     }
 
-    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`);
+    router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
   return (

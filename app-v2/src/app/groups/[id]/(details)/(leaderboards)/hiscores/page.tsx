@@ -1,8 +1,7 @@
 import { Metric } from "@wise-old-man/utils";
-import Link from "next/link";
 import { Pagination } from "~/components/Pagination";
-import { ToggleTabs, ToggleTabsList, ToggleTabsTrigger } from "~/components/ToggleTabs";
 import { GroupHiscoresTable } from "~/components/groups/GroupHiscoresTable";
+import { GroupLeaderboardsNavigation } from "~/components/groups/GroupLeaderboardsNavigation";
 import { getGroupDetails, getGroupHiscores } from "~/services/wiseoldman";
 import { getMetricParam, getPageParam } from "~/utils/params";
 
@@ -45,17 +44,7 @@ export default async function GroupHiscoresPage(props: PageProps) {
 
   return (
     <>
-      <ToggleTabs value="hiscores">
-        <ToggleTabsList>
-          <ToggleTabsTrigger value="hiscores">Hiscores</ToggleTabsTrigger>
-          <Link href={`/groups/${id}/gained`} className="border-r border-gray-400">
-            <ToggleTabsTrigger value="gained">Gained</ToggleTabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/records`}>
-            <ToggleTabsTrigger value="records">Records</ToggleTabsTrigger>
-          </Link>
-        </ToggleTabsList>
-      </ToggleTabs>
+      <GroupLeaderboardsNavigation />
       <div className="mt-10">
         <GroupHiscoresTable group={group} metric={metric} hiscores={hiscores} />
         <div className="mt-4">
