@@ -33,6 +33,7 @@ export function PlayerSearch(props: PlayerSearchProps) {
   const [open, setOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const focusParentRef = useRef<HTMLDivElement>(null);
 
   const debouncedSearchQuery = useDebouncedValue(query, 250);
 
@@ -76,7 +77,12 @@ export function PlayerSearch(props: PlayerSearchProps) {
     }
 
     setTimeout(() => {
-      inputRef.current?.blur();
+      if (mode === "navigate") {
+        inputRef.current?.blur();
+      } else {
+        focusParentRef.current?.focus();
+        setOpen(false);
+      }
     }, 1);
 
     if (onPlayerSelected) {
@@ -87,10 +93,18 @@ export function PlayerSearch(props: PlayerSearchProps) {
   return (
     <HeadlessCombobox value={query} onChange={handlePlayerSelected}>
       {({ activeOption }) => (
-        <div className="relative w-full" onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}>
+        <div
+          ref={focusParentRef}
+          className="relative w-full"
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+        >
           <SearchInput
             ref={inputRef}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!open) setOpen(true);
+            }}
             renderHotkey={mode === "navigate"}
           />
           <Transition
@@ -280,7 +294,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
         ref={ref}
         autoComplete="off"
         placeholder="Search players..."
-        onChange={(event) => onChange(event)}
+        onChange={onChange}
         className={cn(
           "flex h-10 w-full items-center rounded-md border border-gray-600 bg-gray-950 px-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-300",
           "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0"
