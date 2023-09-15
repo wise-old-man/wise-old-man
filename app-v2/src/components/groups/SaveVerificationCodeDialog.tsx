@@ -49,20 +49,20 @@ export function SaveVerificationCodeDialog(props: SaveVerificationCodeDialogProp
             Your group&apos;s verification code is:
           </span>
         </DialogHeader>
-        <div className="flex items-center gap-x-2">
+        <div className="relative flex items-center gap-x-2">
           <Input
             ref={inputRef}
             readOnly
             autoFocus={false}
             value={verificationCode}
             containerClassName="grow"
-            className="text-center font-mono text-xl"
+            className="h-[3.25rem] text-center font-mono text-xl"
           />
-
           <Button
             autoFocus
             variant="outline"
             iconButton
+            className="absolute right-2 top-2 bg-white/5"
             onClick={() => {
               if (inputRef.current) inputRef.current.select();
               navigator.clipboard.writeText(verificationCode);
