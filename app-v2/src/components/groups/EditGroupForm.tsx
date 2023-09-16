@@ -231,7 +231,7 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         <>
           <Label className="mb-3 mt-10 block text-xs text-gray-200">Members</Label>
           <DataTable
-            data={members}
+            data={[...members].reverse()}
             enablePagination
             columns={getMembersColumnDefinitions(handleRemovePlayer, handleRoleChanged)}
           />
