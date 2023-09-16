@@ -400,7 +400,7 @@ function getColumnDefinitions(
             }}
           >
             <ComboboxTrigger className="w-full sm:w-48">
-              <div className="flex items-center justify-between gap-x-3 rounded border border-gray-600 px-3 py-2 text-left text-sm transition-colors hover:border-gray-400">
+              <div className="flex items-center justify-between gap-x-3 rounded-md border border-gray-400 px-3 py-2 text-left text-sm transition-colors hover:border-gray-400">
                 <div className="flex items-center gap-x-2">
                   <GroupRoleIcon role={row.original.role || GroupRole.MEMBER} />
                   {GroupRoleProps[row.original.role || GroupRole.MEMBER].name}
