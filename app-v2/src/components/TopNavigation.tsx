@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "./Search";
+import { useRouter } from "next/navigation";
+import { PlayerSearch } from "./PlayerSearch";
 
 import LogoAlt from "~/assets/logo_alt.svg";
 import MenuIcon from "~/assets/menu.svg";
@@ -12,6 +13,8 @@ interface TopNavigationProps {
 
 export function TopNavigation(props: TopNavigationProps) {
   const { onMenuToggled } = props;
+
+  const router = useRouter();
 
   return (
     <nav className="z-50 flex h-[4rem] items-center justify-between border-b border-gray-700 bg-gray-800 px-7 shadow-lg">
@@ -28,7 +31,14 @@ export function TopNavigation(props: TopNavigationProps) {
       </button>
       <div className="absolute left-20 right-0 lg:left-64">
         <div className="mx-auto mt-0.5 flex w-full max-w-7xl justify-end px-8 md:px-12">
-          <Search />
+          <div className="w-80">
+            <PlayerSearch
+              mode="navigate"
+              onPlayerSelected={(username) => {
+                router.push(`/players/${username}`);
+              }}
+            />
+          </div>
         </div>
       </div>
     </nav>
