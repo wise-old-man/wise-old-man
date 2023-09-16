@@ -6,6 +6,7 @@ import { Input } from "../Input";
 import { Label } from "../Label";
 import { TextArea } from "../TextArea";
 import { Button } from "../Button";
+import { Alert, AlertDescription } from "../Alert";
 
 import WarningIcon from "~/assets/warning.svg";
 
@@ -15,16 +16,16 @@ const MAX_HOMEWORLD_LENGTH = 3;
 const MAX_DESCRIPTION_LENGTH = 100;
 
 interface GroupInformationFormProps {
+  isEditing: boolean;
   group: Pick<Group, "name" | "clanChat" | "homeworld" | "description">;
   onSubmit: (name: string, clanChat: string, homeworld: number, description: string) => void;
-
   ctaContent: React.ReactNode;
   ctaDisabled?: boolean;
   showUnsavedChangesWarning?: boolean;
 }
 
 export function GroupInformationForm(props: GroupInformationFormProps) {
-  const { group, showUnsavedChangesWarning, onSubmit, ctaContent, ctaDisabled } = props;
+  const { group, isEditing, showUnsavedChangesWarning, onSubmit, ctaContent, ctaDisabled } = props;
 
   const [name, setName] = useState(group.name);
   const [clanChat, setClanChat] = useState(group.clanChat || "");
@@ -40,11 +41,20 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
     onSubmit(name, clanChat, Number(homeworld), description);
   }
 
+  const missingOptionals = [];
+  if (!group.clanChat) missingOptionals.push("Clan chat");
+  if (!group.homeworld) missingOptionals.push("Homeworld");
+  if (!group.description) missingOptionals.push("Description");
+
+  const hasEditedName = name !== group.name;
+  const hasEditedClanChat = group.clanChat ? clanChat !== group.clanChat : clanChat !== "";
+  const hasEditedHomeworld = group.homeworld ? Number(homeworld) !== group.homeworld : homeworld !== "";
+  const hasEditedDescription = group.description
+    ? description !== group.description
+    : description !== "";
+
   const hasUnsavedChanges =
-    name !== group.name ||
-    clanChat !== group.clanChat ||
-    homeworld !== group.homeworld?.toString() ||
-    description !== group.description;
+    hasEditedName || hasEditedClanChat || hasEditedHomeworld || hasEditedDescription;
 
   return (
     <form
@@ -54,6 +64,20 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
         handleSubmit();
       }}
     >
+      {isEditing && missingOptionals.length > 0 && (
+        <Alert variant="warn">
+          <AlertDescription className="text-gray-100">
+            Please note have recently made all group fields required. To proceed, fill out the missing
+            fields:
+            <ul className="mt-3 flex flex-col gap-y-1">
+              {missingOptionals.map((field) => (
+                <li key={field}>- {field}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div>
         <Label htmlFor="name" className="mb-2 block text-xs text-gray-200">
           Name

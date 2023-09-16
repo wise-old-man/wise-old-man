@@ -64,7 +64,7 @@ export function CreateGroupForm() {
   const [showingImportDialog, setShowingImportDialog] = useState(false);
   const [showingEmptyGroupDialog, setShowingEmptyGroupDialog] = useState(false);
 
-  const [group, setGroup] = useState<CreateGroupPayload>({ name: "", members: [] });
+  const [payload, setPayload] = useState<CreateGroupPayload>({ name: "", members: [] });
 
   const stepLabel = {
     info: "1. Basic information",
@@ -92,15 +92,15 @@ export function CreateGroupForm() {
   });
 
   function handleSubmitMembers(members: GroupMemberFragment[]) {
-    const newGroup = { ...group, members };
-    setGroup(newGroup);
+    const newPayload = { ...payload, members };
+    setPayload(newPayload);
 
-    if (newGroup.members.length === 0) {
+    if (newPayload.members.length === 0) {
       setShowingEmptyGroupDialog(true);
       return;
     }
 
-    createMutation.mutate(newGroup);
+    createMutation.mutate(newPayload);
   }
 
   return (
@@ -135,14 +135,15 @@ export function CreateGroupForm() {
         <div className="mt-10">
           {step === "info" && (
             <GroupInformationForm
+              isEditing={false}
               group={{
-                name: group.name,
-                clanChat: group.clanChat ?? null,
-                homeworld: group.homeworld ?? null,
-                description: group.description ?? null,
+                name: payload.name,
+                clanChat: payload.clanChat ?? null,
+                homeworld: payload.homeworld ?? null,
+                description: payload.description ?? null,
               }}
               onSubmit={(name, clanChat, homeworld, description) => {
-                setGroup({ ...group, name, clanChat, homeworld, description });
+                setPayload({ ...payload, name, clanChat, homeworld, description });
                 setStep("import");
               }}
               ctaContent={
@@ -178,7 +179,13 @@ export function CreateGroupForm() {
                   </Button>
                 </div>
               </div>
-              <GroupMembersForm onSubmit={handleSubmitMembers} />
+              <GroupMembersForm
+                payload={payload}
+                onSubmit={handleSubmitMembers}
+                onSave={(members: GroupMemberFragment[]) => {
+                  setPayload({ ...payload, members });
+                }}
+              />
             </>
           )}
         </div>
@@ -196,7 +203,7 @@ export function CreateGroupForm() {
             setShowingEmptyGroupDialog(false);
           }}
           onConfirm={() => {
-            createMutation.mutate(group);
+            createMutation.mutate(payload);
             setShowingEmptyGroupDialog(false);
           }}
         />
@@ -239,16 +246,18 @@ function GroupImportOptions() {
 }
 
 interface GroupMembersFormProps {
+  payload: CreateGroupPayload;
+  onSave: (members: GroupMemberFragment[]) => void;
   onSubmit: (members: GroupMemberFragment[]) => void;
 }
 
 function GroupMembersForm(props: GroupMembersFormProps) {
-  const { onSubmit } = props;
+  const { payload, onSubmit, onSave } = props;
 
   const { importSource, showingImportDialog, setShowingImportDialog, setStep, setImportSource } =
     useContext(CreateGroupContext);
 
-  const [members, setMembers] = useState<GroupMemberFragment[]>([]);
+  const [members, setMembers] = useState<GroupMemberFragment[]>(payload?.members || []);
 
   function handleAddPlayers(usernames: string) {
     // Handle comma separated usernames
@@ -304,7 +313,13 @@ function GroupMembersForm(props: GroupMembersFormProps) {
           />
         )}
         <div className="mt-10 flex justify-between gap-x-3">
-          <Button variant="outline" onClick={() => setStep("import")}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setStep("import");
+              onSave(members);
+            }}
+          >
             <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
             Previous
           </Button>

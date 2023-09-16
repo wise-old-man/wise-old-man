@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { useToast } from "~/hooks/useToast";
 import { useTicker } from "~/hooks/useTicker";
@@ -24,6 +24,7 @@ export function SaveVerificationCodeDialog(props: SaveVerificationCodeDialogProp
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [isPending, startTransition] = useTransition();
   const [openedTimestamp, setOpenedTimestamp] = useState<number | null>(null);
 
   useTicker(500, isOpen);
@@ -81,11 +82,21 @@ export function SaveVerificationCodeDialog(props: SaveVerificationCodeDialogProp
           size="lg"
           variant="blue"
           className="mt-4 justify-center tabular-nums"
-          disabled={!hasWaited}
-          onClick={() => onClose()}
+          disabled={!hasWaited || isPending}
+          onClick={() => {
+            startTransition(() => {
+              onClose();
+            });
+          }}
         >
-          {hasWaited ? "Ok, I got it" : "Please read above"}{" "}
-          {!hasWaited && `(${MIN_WAIT_PERIOD_SECONDS - timeEllapsed}s)`}
+          {isPending ? (
+            "Redirecting..."
+          ) : (
+            <>
+              {hasWaited ? "Ok, I got it" : "Please read above"}{" "}
+              {!hasWaited && `(${MIN_WAIT_PERIOD_SECONDS - timeEllapsed}s)`}
+            </>
+          )}
         </Button>
       </DialogContent>
     </Dialog>
