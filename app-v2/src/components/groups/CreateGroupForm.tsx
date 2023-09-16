@@ -393,36 +393,10 @@ function getColumnDefinitions(
       header: "Role",
       cell: ({ row }) => {
         return (
-          <Combobox
-            value={row.original.role}
-            onValueChanged={(val) => {
-              onRoleChanged(row.original.username, val as GroupRole);
-            }}
-          >
-            <ComboboxTrigger className="w-full sm:w-48">
-              <div className="flex items-center justify-between gap-x-3 rounded-md border border-gray-400 px-3 py-2 text-left text-sm transition-colors hover:border-gray-400">
-                <div className="flex items-center gap-x-2">
-                  <GroupRoleIcon role={row.original.role || GroupRole.MEMBER} />
-                  {GroupRoleProps[row.original.role || GroupRole.MEMBER].name}
-                </div>
-                <ChevronDownIcon className="mt-px h-5 w-5" />
-              </div>
-            </ComboboxTrigger>
-            <ComboboxContent>
-              <ComboboxInput placeholder="Search roles..." />
-              <ComboboxEmpty>No results were found</ComboboxEmpty>
-              <ComboboxItemsContainer>
-                <ComboboxItemGroup label="Role">
-                  {GROUP_ROLES.map((role) => (
-                    <ComboboxItem key={role} value={role}>
-                      <GroupRoleIcon role={role} />
-                      {GroupRoleProps[role].name}
-                    </ComboboxItem>
-                  ))}
-                </ComboboxItemGroup>
-              </ComboboxItemsContainer>
-            </ComboboxContent>
-          </Combobox>
+          <GroupRoleSelect
+            role={row.original.role}
+            onRoleChanged={(role) => onRoleChanged(row.original.username, role)}
+          />
         );
       },
     },
@@ -441,4 +415,36 @@ function getColumnDefinitions(
   ];
 
   return MEMBERS_COLUMN_DEFS;
+}
+
+function GroupRoleSelect(props: { role?: GroupRole; onRoleChanged: (role: GroupRole) => void }) {
+  const { role, onRoleChanged } = props;
+
+  return (
+    <Combobox value={role} onValueChanged={(val) => onRoleChanged(val as GroupRole)}>
+      <ComboboxTrigger className="w-full sm:w-48">
+        <div className="flex items-center justify-between gap-x-3 rounded-md border border-gray-400 px-3 py-2 text-left text-sm transition-colors hover:border-gray-400">
+          <div className="flex items-center gap-x-2">
+            <GroupRoleIcon role={role || GroupRole.MEMBER} />
+            {GroupRoleProps[role || GroupRole.MEMBER].name}
+          </div>
+          <ChevronDownIcon className="mt-px h-5 w-5" />
+        </div>
+      </ComboboxTrigger>
+      <ComboboxContent>
+        <ComboboxInput placeholder="Search roles..." />
+        <ComboboxEmpty>No results were found</ComboboxEmpty>
+        <ComboboxItemsContainer>
+          <ComboboxItemGroup label="Role">
+            {GROUP_ROLES.map((role) => (
+              <ComboboxItem key={role} value={role}>
+                <GroupRoleIcon role={role} />
+                {GroupRoleProps[role].name}
+              </ComboboxItem>
+            ))}
+          </ComboboxItemGroup>
+        </ComboboxItemsContainer>
+      </ComboboxContent>
+    </Combobox>
+  );
 }
