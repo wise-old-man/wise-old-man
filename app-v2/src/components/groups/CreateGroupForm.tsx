@@ -226,7 +226,7 @@ function GroupImportOptions() {
       <Label className="text-sm font-normal text-gray-200">
         You can import an existing members list from...
       </Label>
-      <div className="mt-4 flex items-center gap-x-4">
+      <div className="mt-4 flex flex-wrap items-center gap-4">
         <Button onClick={() => handleSelectImportSource("templeosrs")}>TempleOSRS</Button>
         <Button onClick={() => handleSelectImportSource("cml")}>CrystalMathLabs</Button>
         <Button onClick={() => handleSelectImportSource("file")}>Copy / paste a text file</Button>
