@@ -316,7 +316,16 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
         editGeneralMutation.mutate({ name, clanChat, homeworld, description })
       }
       ctaDisabled={editGeneralMutation.isPending}
-      ctaContent={<>{editGeneralMutation.isPending ? "Saving..." : "Save"}</>}
+      ctaContent={
+        editGeneralMutation.isPending ? (
+          <>
+            <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>Save</>
+        )
+      }
       showUnsavedChangesWarning
     />
   );
