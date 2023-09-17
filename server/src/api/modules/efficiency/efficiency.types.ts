@@ -15,7 +15,8 @@ export enum EfficiencyAlgorithmType {
   IRONMAN = 'ironman',
   ULTIMATE = 'ultimate',
   LVL3 = 'lvl3',
-  F2P = 'f2p'
+  F2P = 'f2p',
+  F2P_LVL3 = 'f2p_lvl3'
 }
 
 export interface SkillMetaMethod {

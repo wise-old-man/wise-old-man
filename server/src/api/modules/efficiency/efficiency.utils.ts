@@ -35,6 +35,7 @@ import ironmanBossingMetas from './configs/ehb/ironman.ehb';
 import ironmanSkillingMetas from './configs/ehp/ironman.ehp';
 import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
+import f2plvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
 
 const ZERO_STATS = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
@@ -45,7 +46,8 @@ export const ALGORITHMS: AlgorithmCache = {
   [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
   [EfficiencyAlgorithmType.ULTIMATE]: buildAlgorithmCache(ultimateSkillingMetas, ironmanBossingMetas),
   [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas),
-  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas)
+  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas),
+  [EfficiencyAlgorithmType.F2P_LVL3]: buildAlgorithmCache(f2plvl3SkillingMetas)
 };
 
 /**
@@ -115,6 +117,8 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   }
 
   switch (build) {
+    case PlayerBuild.F2P_LVL3:
+      return ALGORITHMS[EfficiencyAlgorithmType.F2P_LVL3];
     case PlayerBuild.F2P:
       return ALGORITHMS[EfficiencyAlgorithmType.F2P];
     case PlayerBuild.LVL3:
