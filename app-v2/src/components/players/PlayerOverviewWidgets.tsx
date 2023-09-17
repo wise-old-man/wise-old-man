@@ -10,7 +10,7 @@ export function PlayerOverviewWidgets(props: PlayerDetails) {
   const { data } = props.latestSnapshot;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
       <Stat metric="combat" label="Combat Lvl." value={props.combatLevel} />
       <Stat metric={Metric.OVERALL} label="Overall exp." value={data.skills.overall.experience} />
       <Stat metric={Metric.EHP} label="EHP" value={data.computed.ehp.value || 0} />
