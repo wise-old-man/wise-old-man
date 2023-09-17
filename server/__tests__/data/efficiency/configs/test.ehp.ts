@@ -1,6 +1,148 @@
-import { Skill } from '../../../../../src/utils';
+import { Skill } from '../../../../src/utils';
 
 export default [
+  {
+    skill: Skill.ATTACK,
+    methods: [
+      {
+        startExp: 0,
+        rate: 15_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 37_224,
+        rate: 38_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 100_000,
+        rate: 55_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 1_000_000,
+        rate: 65_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 1_210_421,
+        rate: 315_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 440_000,
+        description: 'Bonus XP from Slayer'
+      }
+    ],
+    bonuses: []
+  },
+  {
+    skill: Skill.DEFENCE,
+    methods: [
+      {
+        startExp: 0,
+        rate: 406_000,
+        description: "Chinning in Kruk's Dungeon"
+      }
+    ],
+    bonuses: [
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.RANGED,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 1.2094
+      },
+      {
+        originSkill: Skill.DEFENCE,
+        bonusSkill: Skill.PRAYER,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.09399465048
+      }
+    ]
+  },
+  {
+    skill: Skill.STRENGTH,
+    methods: [
+      {
+        startExp: 0,
+        rate: 15_000,
+        description: 'Questing XP'
+      },
+      {
+        startExp: 37_224,
+        rate: 38_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 61_512,
+        rate: 145_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 449_428,
+        rate: 245_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 1_986_068,
+        rate: 300_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 6_517_253,
+        rate: 335_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 390_000,
+        description: 'Bonus XP from Slayer'
+      }
+    ],
+    bonuses: []
+  },
+  {
+    skill: Skill.RANGED,
+    methods: [
+      {
+        startExp: 0,
+        rate: 250_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 6_517_253,
+        rate: 330_000,
+        description: 'Bonus XP from Slayer'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 1_154_000,
+        description: "Chinning in Kruk's Dungeon"
+      }
+    ],
+    bonuses: []
+  },
+  {
+    skill: Skill.PRAYER,
+    methods: [
+      {
+        startExp: 0,
+        rate: 860_000,
+        description: 'Dragon bones at Chaos Altar'
+      },
+      {
+        startExp: 737_627,
+        rate: 1_800_000,
+        description: 'Superior dragon bones at Chaos Altar'
+      }
+    ],
+    bonuses: []
+  },
   {
     skill: Skill.COOKING,
     methods: [
@@ -72,42 +214,42 @@ export default [
       },
       {
         startExp: 22_406,
-        rate: 87_750,
+        rate: 89_733,
         description: '1.5t Teaks'
       },
       {
         startExp: 41_171,
-        rate: 108_161,
+        rate: 110_833,
         description: '1.5t Teaks'
       },
       {
         startExp: 111_945,
-        rate: 119_224,
+        rate: 122_170,
         description: '1.5t Teaks'
       },
       {
         startExp: 302_288,
-        rate: 148_471,
+        rate: 152_139,
         description: '1.5t Teaks'
       },
       {
         startExp: 737_627,
-        rate: 158_861,
+        rate: 162_786,
         description: '1.5t Teaks'
       },
       {
         startExp: 1_986_068,
-        rate: 171_832,
+        rate: 176_077,
         description: '1.5t Teaks'
       },
       {
         startExp: 5_346_332,
-        rate: 183_623,
+        rate: 188_160,
         description: '1.5t Teaks'
       },
       {
         startExp: 13_034_431,
-        rate: 195_178,
+        rate: 200_000,
         description: '1.5t Teaks'
       }
     ],
@@ -137,33 +279,18 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 82_355,
-        description: 'Fly fishing (Trout & Salmon)'
+        rate: 94_364,
+        description: '2t Swordfish'
       },
       {
         startExp: 273_742,
-        rate: 97_862,
-        description: 'Fly fishing (Trout & Salmon)'
+        rate: 113_709,
+        description: '2t Swordfish'
       },
       {
         startExp: 737_627,
-        rate: 124_127,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 128_908,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 131_109,
-        description: 'Fly fishing (Trout & Salmon)'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 95_000,
-        description: 'Fly fishing (Trout & Salmon)'
+        rate: 132_000,
+        description: '2t Swordfish'
       }
     ],
     bonuses: []
@@ -268,24 +395,9 @@ export default [
         description: 'Questing XP'
       },
       {
-        startExp: 14_833,
-        rate: 104_000,
-        description: 'Iron platebodies'
-      },
-      {
-        startExp: 83_014,
-        rate: 156_000,
-        description: 'Steel platebodies'
-      },
-      {
-        startExp: 605_032,
-        rate: 208_000,
-        description: 'Mithril platebodies'
-      },
-      {
-        startExp: 4_385_776,
-        rate: 260_000,
-        description: 'Adamant platebodies'
+        startExp: 37_224,
+        rate: 380_000,
+        description: 'Blast Furnace Gold'
       },
       {
         startExp: 13_034_431,
@@ -300,37 +412,37 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 30_000,
+        rate: 8_000,
         description: 'Questing XP'
       },
       {
         startExp: 13_363,
-        rate: 53_780,
+        rate: 59_158,
         description: '3t Iron'
       },
       {
         startExp: 61_512,
-        rate: 77_727,
+        rate: 85_500,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 101_333,
-        rate: 81_046,
+        rate: 89_151,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 302_288,
-        rate: 88_350,
+        rate: 97_923,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 737_627,
-        rate: 93_609,
+        rate: 103_751,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 1_986_068,
-        rate: 98_474,
+        rate: 109_143,
         description: '3t4g at Desert Quarry'
       },
       {
@@ -339,18 +451,18 @@ export default [
         description: 'Motherlode Mine for Prospector kit'
       },
       {
-        startExp: 3_693_744,
-        rate: 103_620,
+        startExp: 3_548_694,
+        rate: 113_287,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 5_346_332,
-        rate: 105_125,
+        rate: 115_638,
         description: '3t4g at Desert Quarry'
       },
       {
         startExp: 13_034_431,
-        rate: 114_130,
+        rate: 125_000,
         description: '3t4g at Desert Quarry'
       }
     ],
@@ -370,13 +482,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6_000,
+        rate: 60_000,
         description: 'Questing XP'
-      },
-      {
-        startExp: 3_000,
-        rate: 125_000,
-        description: 'Strength potions'
       },
       {
         startExp: 30_408,
@@ -411,51 +518,55 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 6_000,
+        rate: 8_000,
         description: 'Gnome Stronghold Agility Course'
       },
       {
-        startExp: 1_154,
-        rate: 9_000,
-        description: 'Draynor Agility Course'
-      },
-      {
         startExp: 13_363,
-        rate: 13_000,
-        description: 'Varrock Agility Course'
+        rate: 20_000,
+        description: 'Penguin Agility Course'
       },
       {
-        startExp: 75_127,
-        rate: 42_000,
-        description: 'Wilderness Agility Course'
+        startExp: 83_014,
+        rate: 44_000,
+        description: 'Ape Atoll Agility Course'
       },
       {
-        startExp: 273_742,
+        startExp: 123_660,
         rate: 45_000,
-        description: "Seers' Village Agility Course"
+        description: 'Floor 1 of The Hallowed Sepulchre'
       },
       {
-        startExp: 737_627,
-        rate: 49_000,
-        description: 'Pollnivneach Agility Course'
+        startExp: 333_804,
+        rate: 57_000,
+        description: 'Floors 1-2 of The Hallowed Sepulchre'
       },
       {
-        startExp: 1_986_086,
-        rate: 52_000,
-        description: 'Rellekka Agility Course'
+        startExp: 899_257,
+        rate: 67_750,
+        description: 'Floors 1-3 of The Hallowed Sepulchre'
       },
       {
-        startExp: 3_972_294,
-        rate: 59_000,
-        description: 'Ardougne Agility Course'
+        startExp: 2_421_087,
+        rate: 73_500,
+        description: 'Floors 1-4 of The Hallowed Sepulchre'
       },
       {
-        startExp: 9_684_577,
-        rate: 62_300,
-        description: 'Swimming'
+        startExp: 6_517_253,
+        rate: 98_500,
+        description: 'Floors 1-5 of The Hallowed Sepulchre'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.AGILITY,
+        bonusSkill: Skill.THIEVING,
+        startExp: 6_517_253,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.017
+      }
+    ]
   },
   {
     skill: Skill.THIEVING,
@@ -466,50 +577,202 @@ export default [
         description: 'Questing XP'
       },
       {
-        startExp: 2_500,
-        rate: 28_800,
-        description: 'Bakery Stall'
-      },
-      {
-        startExp: 7_842,
-        rate: 39_000,
-        description: 'Fruit Stall'
-      },
-      {
         startExp: 61_512,
-        rate: 55_000,
+        rate: 60_000,
         description: 'Blackjacking'
       },
       {
         startExp: 166_636,
-        rate: 90_000,
+        rate: 100_000,
         description: 'Blackjacking'
       },
       {
         startExp: 449_428,
-        rate: 215_000,
+        rate: 220_000,
         description: 'Blackjacking'
       },
       {
         startExp: 5_902_831,
-        rate: 250_000,
+        rate: 255_000,
         description: 'Pyramid Plunder'
       },
       {
         startExp: 13_034_431,
-        rate: 260_000,
-        realRate: 139_062,
-        description: 'Swimming'
+        rate: 280_000,
+        description: 'Pyramid Plunder'
+      }
+    ],
+    bonuses: []
+  },
+  {
+    skill: Skill.SLAYER,
+    methods: [
+      {
+        startExp: 0,
+        rate: 5_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 37_224,
+        rate: 12_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 100_000,
+        rate: 40_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 449_428,
+        rate: 74_250,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 1_986_068,
+        rate: 79_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 3_258_594,
+        rate: 86_500,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 5_346_332,
+        rate: 87_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 7_195_629,
+        rate: 93_000,
+        description: 'Efficient Slayer'
+      },
+      {
+        startExp: 13_034_431,
+        rate: 99_000,
+        description: 'Efficient Slayer'
       }
     ],
     bonuses: [
       {
-        originSkill: Skill.THIEVING,
-        bonusSkill: Skill.AGILITY,
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.ATTACK,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 1
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.STRENGTH,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 1
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.DEFENCE,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.427844
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 0,
+        endExp: 1_986_068,
+        end: false,
+        ratio: 0.3299
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 1_986_068,
+        endExp: 3_258_594,
+        end: false,
+        ratio: 0.2494
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 3_258_594,
+        endExp: 5_346_332,
+        end: false,
+        ratio: 0.1896
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 5_346_332,
+        endExp: 7_195_629,
+        end: false,
+        ratio: 0.174
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
+        startExp: 7_195_629,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.1521
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.RANGED,
         startExp: 13_034_431,
         endExp: 200_000_000,
-        end: true,
-        ratio: 0.2727272727
+        end: false,
+        ratio: 0.1728
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 0,
+        endExp: 1_986_068,
+        end: false,
+        ratio: 0.0673
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 1_986_068,
+        endExp: 3_258_594,
+        end: false,
+        ratio: 0.0824
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 3_258_594,
+        endExp: 5_346_332,
+        end: false,
+        ratio: 0.11917
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 5_346_332,
+        endExp: 7_195_629,
+        end: false,
+        ratio: 0.21689
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 7_195_629,
+        endExp: 13_034_431,
+        end: false,
+        ratio: 0.18914
+      },
+      {
+        originSkill: Skill.SLAYER,
+        bonusSkill: Skill.PRAYER,
+        startExp: 13_034_431,
+        endExp: 200_000_000,
+        end: false,
+        ratio: 0.21605
       }
     ]
   },
@@ -555,11 +818,16 @@ export default [
       {
         startExp: 0,
         rate: 8_000,
-        description: 'Questing XP & Earth runes'
+        description: 'Questing XP'
+      },
+      {
+        startExp: 2_106,
+        rate: 20_000,
+        description: 'Questing XP'
       },
       {
         startExp: 6_291,
-        rate: 230_000,
+        rate: 240_000,
         description: '0+4 Lava runes'
       }
     ],
@@ -595,41 +863,26 @@ export default [
       },
       {
         startExp: 101_333,
-        rate: 361_981,
-        description: 'Drift net'
+        rate: 251_565,
+        description: 'Drift Net'
       },
       {
         startExp: 273_742,
-        rate: 427_613,
-        description: 'Drift net'
+        rate: 291_175,
+        description: 'Drift Net'
       },
       {
         startExp: 737_627,
-        rate: 430_165,
-        description: 'Drift net'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 391_950,
-        description: 'Drift net'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 377_338,
-        description: 'Drift net'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 310_000,
+        rate: 255_000,
         realRate: 118_535,
-        description: 'Drift net (Bird house runs)'
+        description: 'Drift Net (Black Chinchompas)'
       }
     ],
     bonuses: [
       {
         originSkill: Skill.HUNTER,
         bonusSkill: Skill.FISHING,
-        startExp: 13_034_431,
+        startExp: 737_627,
         endExp: 200_000_000,
         end: true,
         ratio: 0.7586029443
