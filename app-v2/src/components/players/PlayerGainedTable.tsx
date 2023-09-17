@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ACTIVITIES,
   ActivityDelta,
-  BOSSES,
   BossDelta,
   Metric,
   MetricProps,
@@ -16,7 +15,6 @@ import {
   PeriodProps,
   PlayerDeltasMap,
   PlayerDetails,
-  SKILLS,
   SkillDelta,
   isPeriod,
 } from "@wise-old-man/utils";

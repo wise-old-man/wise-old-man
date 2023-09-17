@@ -34,11 +34,11 @@ export default function CompetitionCountdown(props: CompetitionCountdownProps) {
       </div>
       <div className="flex flex-col items-center">
         <span className="text-2xl font-medium">{padNumber(minutes)}</span>
-        <span className="text-xs text-gray-200">minutes</span>
+        <span className="text-xs text-gray-200">mins</span>
       </div>
       <div className="flex flex-col items-center">
         <span className="text-2xl font-medium">{padNumber(seconds)}</span>
-        <span className="text-xs text-gray-200">seconds</span>
+        <span className="text-xs text-gray-200">secs</span>
       </div>
       {isOngoing && progress > 0 && (
         <div className="absolute bottom-0 left-0 right-0">
