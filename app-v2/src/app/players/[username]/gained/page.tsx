@@ -18,6 +18,10 @@ import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
 import { PlayerGainedTimeCards } from "~/components/players/PlayerGainedTimeCards";
 import { PlayerGainedChart, PlayerGainedChartSkeleton } from "~/components/players/PlayerGainedChart";
 import {
+  PlayerGainedHeatmap,
+  PlayerGainedHeatmapSkeleton,
+} from "~/components/players/PlayerGainedHeatmap";
+import {
   PlayerGainedBarchart,
   PlayerGainedBarchartSkeleton,
 } from "~/components/players/PlayerGainedBarchart";
@@ -71,9 +75,34 @@ export default async function PlayerGainedPage(props: PageProps) {
             <GainedHeader gains={gains.data} metric={metric} />
             <CumulativeGainsPanel username={username} timeRange={timeRange} metric={metric} />
             <BucketedDailyGainsPanel username={username} timeRange={timeRange} metric={metric} />
+            <YearlyHeatmapPanel username={username} metric={metric} />
           </div>
         </PlayerGainedTable>
       </div>
+    </div>
+  );
+}
+
+interface YearlyHeatmapPanelProps {
+  username: string;
+  metric: Metric;
+}
+
+function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
+  const { metric } = props;
+
+  return (
+    <div className="p-5">
+      <div className="mb-5">
+        <h3 className="text-h3 font-medium text-white">Daily {MetricProps[metric].measure} gained</h3>
+        <p className="text-body text-gray-200">
+          A heatmap of the past <span className="text-white">year&apos;s</span>&nbsp;
+          {MetricProps[metric].name} {MetricProps[metric].measure} gains
+        </p>
+      </div>
+      <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedHeatmapSkeleton />}>
+        <PlayerGainedHeatmap {...props} />
+      </Suspense>
     </div>
   );
 }
