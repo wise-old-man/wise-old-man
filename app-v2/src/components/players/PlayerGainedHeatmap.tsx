@@ -46,7 +46,7 @@ export async function PlayerGainedHeatmap(props: PlayerGainedHeatmapProps) {
 
 export function PlayerGainedHeatmapSkeleton() {
   return (
-    <div className="flex aspect-video w-full items-center justify-center bg-transparent text-gray-200">
+    <div className="flex aspect-[5/1] w-full items-center justify-center bg-transparent text-gray-200">
       Loading...
     </div>
   );
