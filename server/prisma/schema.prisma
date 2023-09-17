@@ -570,6 +570,7 @@ enum PlayerType {
 enum PlayerBuild {
   main
   f2p
+  f2p_lvl3
   lvl3
   zerker
   def1

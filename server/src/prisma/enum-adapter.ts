@@ -196,6 +196,7 @@ export type PlayerType = typeof PlayerType[keyof typeof PlayerType];
 export const PlayerBuild = {
   MAIN: prisma.PlayerBuild.main,
   F2P: prisma.PlayerBuild.f2p,
+  F2P_LVL3: prisma.PlayerBuild.f2p_lvl3,
   LVL3: prisma.PlayerBuild.lvl3,
   ZERKER: prisma.PlayerBuild.zerker,
   DEF1: prisma.PlayerBuild.def1,
