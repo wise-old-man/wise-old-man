@@ -39,15 +39,6 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   // Convert the timeseries data into daily (bucket) gains
   const bucketedData = calculateGainBuckets([...timelineData].reverse(), minDate, maxDate);
 
-  // If has more than 3 "0 snapshot" days during the week
-  if (bucketedData.filter((b) => b.count !== 0).length / bucketedData.length < 0.5) {
-    return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-md border border-gray-600 text-gray-200">
-        Not enough data
-      </div>
-    );
-  }
-
   // If has no gains on any of the days of the week
   if (bucketedData.every((b) => b.gained === 0)) {
     return (
