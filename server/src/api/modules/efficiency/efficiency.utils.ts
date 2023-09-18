@@ -37,6 +37,7 @@ import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
 import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
+import f2pLvl3IronmanSkillingMetas from './configs/ehp/f2p_lvl3_ironman.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
 
 const ZERO_STATS = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
@@ -49,7 +50,8 @@ export const ALGORITHMS: AlgorithmCache = {
   [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas),
   [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas),
   [EfficiencyAlgorithmType.F2P_LVL3]: buildAlgorithmCache(f2pLvl3SkillingMetas),
-  [EfficiencyAlgorithmType.F2P_IRONMAN]: buildAlgorithmCache(f2pIronmanSkillingMetas)
+  [EfficiencyAlgorithmType.F2P_IRONMAN]: buildAlgorithmCache(f2pIronmanSkillingMetas),
+  [EfficiencyAlgorithmType.F2P_LVL3_IRONMAN]: buildAlgorithmCache(f2pLvl3IronmanSkillingMetas)
 };
 
 /**
@@ -111,10 +113,17 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
 
   if (
-    (build === PlayerBuild.F2P || build === PlayerBuild.F2P_LVL3) &&
+    build === PlayerBuild.F2P &&
     (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
   ) {
     return ALGORITHMS[EfficiencyAlgorithmType.F2P_IRONMAN];
+  }
+
+  if (
+    build === PlayerBuild.F2P_LVL3 &&
+    (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
+  ) {
+    return ALGORITHMS[EfficiencyAlgorithmType.F2P_LVL3_IRONMAN];
   }
 
   if (type === PlayerType.ULTIMATE) {
