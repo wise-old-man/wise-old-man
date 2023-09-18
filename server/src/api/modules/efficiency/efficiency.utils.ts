@@ -111,7 +111,7 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
 
   if (
-    build === PlayerBuild.F2P &&
+    (build === PlayerBuild.F2P || build === PlayerBuild.F2P_LVL3) &&
     (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
   ) {
     return ALGORITHMS[EfficiencyAlgorithmType.F2P_IRONMAN];
