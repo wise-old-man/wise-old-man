@@ -166,11 +166,9 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[], isStar
 
   bonuses
     .sort((a, b) => {
-      // Sort the bonuses by the number of dependants they have.
-      // This ensures skills with no received bonus exp are applied first. (Slayer -> Defence -> Ranged)
-      return (
-        (dependencyMap.get(b.originSkill)?.length ?? 0) - (dependencyMap.get(a.originSkill)?.length ?? 0)
-      );
+      // Sort the bonuses by the number of dependencies they have.
+      // This ensures skills with no received bonus exp are applied last.
+      return (dependencyMap.get(b.bonusSkill)?.length ?? 0) - (dependencyMap.get(a.bonusSkill)?.length ?? 0);
     })
     .forEach(b => {
       const expCap = Math.min(b.endExp, MAX_SKILL_EXP);
