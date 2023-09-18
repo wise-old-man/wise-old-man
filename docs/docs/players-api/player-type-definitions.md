@@ -18,7 +18,7 @@ sidebar_position: 1
 ### `(Enum)` Player Build
 
 ```bash
-'main', 'f2p', 'lvl3', 'zerker', 'def1', 'hp10'
+'main', 'f2p', 'lvl3', 'zerker', 'def1', 'hp10', 'f2p_lvl3'
 ```
 
 <br />

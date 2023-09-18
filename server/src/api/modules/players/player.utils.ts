@@ -133,7 +133,10 @@ function shouldImport(lastImportedAt: Date | null): [boolean, number] {
 }
 
 function getBuild(snapshot: Snapshot): PlayerBuild {
-  if (snapshotUtils.isF2p(snapshot)) return PlayerBuild.F2P;
+  if (snapshotUtils.isF2p(snapshot)) {
+    return snapshotUtils.isLvl3(snapshot) ? PlayerBuild.F2P_LVL3 : PlayerBuild.F2P;
+  }
+
   if (snapshotUtils.isLvl3(snapshot)) return PlayerBuild.LVL3;
   // This must be above 1def because 10 HP accounts can also have 1 def
   if (snapshotUtils.is10HP(snapshot)) return PlayerBuild.HP10;

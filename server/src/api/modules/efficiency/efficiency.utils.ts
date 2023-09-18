@@ -35,6 +35,8 @@ import ironmanBossingMetas from './configs/ehb/ironman.ehb';
 import ironmanSkillingMetas from './configs/ehp/ironman.ehp';
 import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
+import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
+import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
 
 const ZERO_STATS = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
@@ -45,7 +47,9 @@ export const ALGORITHMS: AlgorithmCache = {
   [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
   [EfficiencyAlgorithmType.ULTIMATE]: buildAlgorithmCache(ultimateSkillingMetas, ironmanBossingMetas),
   [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas),
-  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas)
+  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas),
+  [EfficiencyAlgorithmType.F2P_LVL3]: buildAlgorithmCache(f2pLvl3SkillingMetas),
+  [EfficiencyAlgorithmType.F2P_IRONMAN]: buildAlgorithmCache(f2pIronmanSkillingMetas)
 };
 
 /**
@@ -106,6 +110,13 @@ export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) 
 export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): EfficiencyAlgorithm {
   const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
 
+  if (
+    build === PlayerBuild.F2P &&
+    (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
+  ) {
+    return ALGORITHMS[EfficiencyAlgorithmType.F2P_IRONMAN];
+  }
+
   if (type === PlayerType.ULTIMATE) {
     return ALGORITHMS[EfficiencyAlgorithmType.ULTIMATE];
   }
@@ -115,6 +126,8 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   }
 
   switch (build) {
+    case PlayerBuild.F2P_LVL3:
+      return ALGORITHMS[EfficiencyAlgorithmType.F2P_LVL3];
     case PlayerBuild.F2P:
       return ALGORITHMS[EfficiencyAlgorithmType.F2P];
     case PlayerBuild.LVL3:
@@ -153,11 +166,9 @@ function calculateBonuses(experienceMap: ExperienceMap, bonuses: Bonus[], isStar
 
   bonuses
     .sort((a, b) => {
-      // Sort the bonuses by the number of dependants they have.
-      // This ensures skills with no received bonus exp are applied first. (Slayer -> Defence -> Ranged)
-      return (
-        (dependencyMap.get(b.originSkill)?.length ?? 0) - (dependencyMap.get(a.originSkill)?.length ?? 0)
-      );
+      // Sort the bonuses by the number of dependencies they have.
+      // This ensures skills with no received bonus exp are applied last.
+      return (dependencyMap.get(b.bonusSkill)?.length ?? 0) - (dependencyMap.get(a.bonusSkill)?.length ?? 0);
     })
     .forEach(b => {
       const expCap = Math.min(b.endExp, MAX_SKILL_EXP);

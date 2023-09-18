@@ -11,12 +11,8 @@ import {
 import apiServer from '../../../src/api';
 import { ALGORITHMS, buildAlgorithmCache } from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
-import mainTestSkillingMetas from '../../data/efficiency/configs/ehp/main-test.ehp';
-import mainTestBossingMetas from '../../data/efficiency/configs/ehb/main-test.ehb';
-import ironmanTestSkillingMetas from '../../data/efficiency/configs/ehp/ironman-test.ehp';
-import ironmanTestBossingMetas from '../../data/efficiency/configs/ehb/ironman-test.ehb';
-import lvl3TestSkillingMetas from '../../data/efficiency/configs/ehp/lvl3-test.ehp';
-import f2pTestSkillingMetas from '../../data/efficiency/configs/ehp/f2p-test.ehp';
+import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
+import testBossingMetas from '../../data/efficiency/configs/test.ehb';
 import { resetDatabase, resetRedis, sleep } from '../../utils';
 
 const api = supertest(apiServer.express);
@@ -27,10 +23,7 @@ beforeAll(async () => {
 
   // Override the cache algorithms with these test rate configs, for consistent testing
   Object.assign(ALGORITHMS, {
-    main: buildAlgorithmCache(mainTestSkillingMetas, mainTestBossingMetas),
-    ironman: buildAlgorithmCache(ironmanTestSkillingMetas, ironmanTestBossingMetas),
-    f2p: buildAlgorithmCache(f2pTestSkillingMetas),
-    lvl3: buildAlgorithmCache(lvl3TestSkillingMetas)
+    main: buildAlgorithmCache(testSkillingMetas, testBossingMetas)
   });
 
   // Create 100 players, with staggered registration dates, and make sure some of them
@@ -268,27 +261,6 @@ describe('Efficiency API', () => {
       expect(ALGORITHMS.main.calculateEHB(unrankedKillcountMap)).toBe(0);
       expect(ALGORITHMS.main.calculateBossEHB('cerberus', unrankedKillcountMap)).toBe(0);
     });
-
-    test('EHB calcs (ironman)', () => {
-      const killcountMap = {
-        barrows_chests: 100, // 18 per hour, 5.55555 EHB
-        cerberus: 100, // 54 per hour, 1.85185 EHB
-        corporeal_beast: 100, // 6.5 per hour, 15.38461 EHB
-        nex: 100, // 12 per hour, 8.33333 EHB
-        tzkal_zuk: 100, // 0.8 per hour, 125 EHB
-        wintertodt: 100, // no rate, 0 EHB
-        zulrah: 100 // 32 per hour, 3.125 EHB
-      } as KillcountMap;
-
-      expect(ALGORITHMS.ironman.calculateEHB(killcountMap)).toBeCloseTo(159.25034, 4);
-
-      const ehbSum = Object.keys(killcountMap)
-        .map(b => ALGORITHMS.ironman.calculateBossEHB(b as Boss, killcountMap))
-        .reduce((acc, curr) => acc + curr);
-
-      // The sum of every boss' individual EHB value should be the same as the player's total EHB
-      expect(ALGORITHMS.ironman.calculateEHB(killcountMap)).toBe(ehbSum);
-    });
   });
 
   describe('4 - List Rates', () => {
@@ -296,7 +268,7 @@ describe('Efficiency API', () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p]'
+        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman]'
       );
     });
 

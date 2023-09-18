@@ -548,6 +548,50 @@ describe('Player API', () => {
       );
     });
 
+    it('should track player (f2p & lvl3)', async () => {
+      const dataF2P = modifyRawHiscoresData(globalData.hiscoresRawData, [
+        { metric: Metric.ATTACK, value: 0 },
+        { metric: Metric.STRENGTH, value: 0 },
+        { metric: Metric.DEFENCE, value: 0 },
+        { metric: Metric.HITPOINTS, value: 1154 },
+        { metric: Metric.PRAYER, value: 0 },
+        { metric: Metric.RANGED, value: 0 },
+        { metric: Metric.MAGIC, value: 0 },
+        { metric: Metric.AGILITY, value: 0 },
+        { metric: Metric.CONSTRUCTION, value: 0 },
+        { metric: Metric.FARMING, value: 0 },
+        { metric: Metric.FLETCHING, value: 0 },
+        { metric: Metric.HERBLORE, value: 0 },
+        { metric: Metric.HUNTER, value: 0 },
+        { metric: Metric.THIEVING, value: 0 },
+        { metric: Metric.SLAYER, value: 0 },
+        ...BOSSES.map(b => ({ metric: b, value: 0 })),
+        { metric: Metric.BRYOPHYTA, value: 10 },
+        { metric: Metric.OBOR, value: 10 }
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: dataF2P },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const responseF2PLvl3 = await api.post(`/players/f2p_lvl3`);
+
+      expect(responseF2PLvl3.status).toBe(201);
+      expect(responseF2PLvl3.body.build).toBe('f2p_lvl3');
+
+      expect(onPlayerUpdatedEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'f2p lvl3'
+        }),
+        undefined,
+        expect.objectContaining({
+          playerId: responseF2PLvl3.body.id
+        }),
+        true
+      );
+    });
+
     it('should track player (ironman)', async () => {
       // Mock the hiscores to mark the next tracked player as a regular ironman
       registerHiscoresMock(axiosMock, {

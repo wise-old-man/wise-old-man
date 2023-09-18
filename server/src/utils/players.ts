@@ -12,6 +12,7 @@ const PlayerTypeProps: MapOf<PlayerType, { name: string }> = {
 const PlayerBuildProps: MapOf<PlayerBuild, { name: string }> = {
   [PlayerBuild.MAIN]: { name: 'Main' },
   [PlayerBuild.F2P]: { name: 'F2P' },
+  [PlayerBuild.F2P_LVL3]: { name: 'F2P & Level 3' },
   [PlayerBuild.LVL3]: { name: 'Level 3' },
   [PlayerBuild.ZERKER]: { name: 'Zerker Pure' },
   [PlayerBuild.DEF1]: { name: '1 Defence Pure' },
