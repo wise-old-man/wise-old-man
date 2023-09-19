@@ -2,8 +2,8 @@
 
 import React from "react";
 import SVGTooltip from "@uiw/react-tooltip";
-import { MONTHS, formatDate } from "~/utils/dates";
 import { cn } from "~/utils/styling";
+import { MONTHS, formatDate } from "~/utils/dates";
 import { FormattedNumber } from "./FormattedNumber";
 
 const SIZE = 10;
@@ -22,6 +22,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
   const { data } = props;
 
   const startDate = getMinDate(data);
+  const startingMonth = startDate.getMonth();
 
   const endDate = new Date(startDate);
   endDate.setFullYear(endDate.getFullYear() + 1);
@@ -37,7 +38,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
     if (!map.has(timestamp)) map.set(timestamp, 0);
   }
 
-  const rows: Array<DataPoint | null>[] = [[], [], [], [], [], [], []];
+  const rows: Array<DataPoint>[] = [[], [], [], [], [], [], []];
 
   for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
     for (let i = 0; i <= dayDiff; i += 7) {
@@ -50,18 +51,6 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
       rows[dayIndex].push({ date, value: match });
     }
   }
-
-  let maxWidth = 0;
-  rows.forEach((row) => {
-    if (row.length > maxWidth) maxWidth = row.length;
-  });
-
-  for (let i = 0; i < 7; i++) {
-    if (rows[i].length === 53) continue;
-    rows[i].push(null);
-  }
-
-  const startingMonth = startDate.getMonth();
 
   return (
     <div className="@container">
@@ -86,8 +75,6 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
         {rows.map((column, rowIndex) => (
           <React.Fragment key={rowIndex}>
             {column.map((cell, columnIndex) => {
-              if (!cell) return null;
-
               const x = columnIndex * (SIZE + GAP);
               const y = rowIndex * (SIZE + GAP);
 
