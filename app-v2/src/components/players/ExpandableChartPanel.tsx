@@ -40,7 +40,7 @@ export function ExpandableChartPanel(props: ExpandableChartPanelProps) {
           if (!val) handleClose();
         }}
       >
-        <DialogContent className={cn("p-0", props.className)}>
+        <DialogContent className={cn("bg-gray-800 p-0", props.className)}>
           <ChartPanel {...props} isExpanded={true} />
         </DialogContent>
       </Dialog>
