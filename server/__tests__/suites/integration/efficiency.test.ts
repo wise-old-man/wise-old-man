@@ -344,7 +344,7 @@ describe('Efficiency API', () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman]'
+        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman, f2p_lvl3_ironman]'
       );
     });
 
