@@ -164,11 +164,36 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 60_000,
-        description: 'Wildy triple hop gold'
+        rate: 6_300,
+        description: 'Suicide air tiaras'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.CRAFTING,
+        bonusSkill: Skill.MINING,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.762
+      },
+      {
+        originSkill: Skill.CRAFTING,
+        bonusSkill: Skill.RUNECRAFTING,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.476
+      },
+      {
+        originSkill: Skill.CRAFTING,
+        bonusSkill: Skill.SMITHING,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 0.261
+      }
+    ]
   },
   {
     skill: Skill.SMITHING,
