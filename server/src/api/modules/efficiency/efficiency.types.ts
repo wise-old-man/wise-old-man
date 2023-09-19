@@ -50,6 +50,7 @@ export interface Bonus {
 }
 
 export interface EfficiencyAlgorithm {
+  type: EfficiencyAlgorithmType;
   skillMetas: SkillMetaConfig[];
   bossMetas: BossMetaConfig[];
   maximumEHP: number;
@@ -61,5 +62,3 @@ export interface EfficiencyAlgorithm {
   calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap): number;
   calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }
-
-export type AlgorithmCache = MapOf<EfficiencyAlgorithmType, EfficiencyAlgorithm>;
