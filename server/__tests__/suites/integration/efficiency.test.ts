@@ -141,14 +141,14 @@ describe('Efficiency API', () => {
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP).toBeCloseTo(962.9246300000013, 4);
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maxedEHP).toBeCloseTo(1603.4281499999997, 4);
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maxedEHP).toBeCloseTo(880.0553999999993, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maxedEHP).toBeCloseTo(1578.9323799999984, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maxedEHP).toBeCloseTo(1568.7465499999998, 4);
     });
 
     test('Check maximum TT200m', () => {
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP).toBeCloseTo(12813.80829, 4);
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maximumEHP).toBeCloseTo(20300.84631, 4);
       expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maximumEHP).toBeCloseTo(11796.08924, 4);
-      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP).toBeCloseTo(23319.208, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP).toBeCloseTo(23163.6045, 4);
     });
   });
 
@@ -188,7 +188,7 @@ describe('Efficiency API', () => {
       const adjustedStats = {
         ...maximumStats,
         // 1 hour of woodcutting
-        woodcutting: maximumStats['woodcutting'] - 90_000,
+        woodcutting: maximumStats['woodcutting'] - 100_000,
         // for mains, ironmen and lvl3s, this would be bonus xp (20%) from woodcutting
         // but there's no infernal axe in f2p so this will need to be trained manually
         // which at the rate of 293_625 fm exp per hour, would take an extra 0.0613 hours (3min40s)
