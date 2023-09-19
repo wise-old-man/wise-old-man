@@ -18,12 +18,12 @@ export default [
       {
         startExp: 0,
         rate: 6_500,
-        description: '4t Trees'
+        description: 'Regular Trees'
       },
       {
         startExp: 2_411,
-        rate: 14_000,
-        description: '3t Oak trees'
+        rate: 33_000,
+        description: '2t Oaks (steel axe)'
       },
       {
         startExp: 13_363,

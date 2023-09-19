@@ -283,33 +283,33 @@ export default [
       },
       {
         startExp: 2_411,
-        rate: 30_000,
+        rate: 33_000,
         description: '2t Oaks (steel axe)'
       },
       {
         startExp: 5_018,
-        rate: 40_000,
-        description: '2t oaks (mith axe)'
+        rate: 45_000,
+        description: '2t Oaks (mith axe)'
       },
       {
         startExp: 14_833,
-        rate: 55_000,
-        description: '2t oaks (addy axe)'
+        rate: 63_000,
+        description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 73_500,
-        description: '2t oaks (rune axe)'
+        rate: 82_000,
+        description: '2t Oaks (rune axe)'
       },
       {
         startExp: 101_333,
-        rate: 81_500,
-        description: '2t oaks (rune axe)'
+        rate: 90_000,
+        description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 90_000,
-        description: '2t oaks (100% success)'
+        rate: 100_000,
+        description: '2t Oaks (100% success)'
       }
     ],
     bonuses: [
@@ -359,7 +359,7 @@ export default [
         startExp: 302_288,
         endExp: 200_000_000,
         end: false,
-        ratio: 0.6
+        ratio: 0.54
       }
     ]
   },
@@ -368,13 +368,23 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 14_000,
-        description: 'Best fish'
+        rate: 3_000,
+        description: 'Shrimp'
+      },
+      {
+        startExp: 388,
+        rate: 5_000,
+        description: 'Sardine'
+      },
+      {
+        startExp: 1_154,
+        rate: 12_000,
+        description: 'Sardine & Herring'
       },
       {
         startExp: 4_470,
-        rate: 28_000,
-        description: 'Best fish'
+        rate: 21_000,
+        description: 'Sardine & Herring'
       },
       {
         startExp: 13_363,
