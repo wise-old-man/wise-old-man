@@ -11,7 +11,7 @@ export function calculateGainBuckets(
     return copy;
   };
 
-  const map = new Map<number, { count: number; gained: number }>();
+  const map = new Map<number, { count: number; gained: number | null }>();
 
   if (data.length > 0) {
     let previousLastValue = data[0].value;
@@ -41,12 +41,12 @@ export function calculateGainBuckets(
   let current = normalizeDate(minDate);
   while (current.getTime() <= maxDate.getTime()) {
     if (!map.has(current.getTime())) {
-      map.set(current.getTime(), { count: 0, gained: 0 });
+      map.set(current.getTime(), { count: 0, gained: null });
     }
     current = normalizeDate(new Date(current.getTime() + PeriodProps[Period.DAY].milliseconds));
   }
 
-  const results: { date: Date; count: number; gained: number }[] = [];
+  const results: { date: Date; count: number; gained: number | null }[] = [];
 
   map.forEach((val, key) => {
     results.push({ ...val, date: new Date(key) });

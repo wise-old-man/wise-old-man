@@ -11,7 +11,7 @@ const GAP = 2;
 
 type DataPoint = {
   date: Date;
-  value: number;
+  value: number | null;
 };
 
 interface CalendarHeatmapProps {
@@ -27,11 +27,11 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
   const endDate = new Date(startDate);
   endDate.setFullYear(endDate.getFullYear() + 1);
 
-  const maxValue = getMaxValue(data);
+  const maxValue = getMaxValue(data) || 0;
 
   const dayDiff = (endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60 / 24;
 
-  const map = new Map<number, number>(data.map((d) => [d.date.getTime(), d.value]));
+  const map = new Map<number, number | null>(data.map((d) => [d.date.getTime(), d.value]));
 
   for (let i = 0; i < dayDiff + 1; i++) {
     const timestamp = startDate.getTime() + 1000 * 60 * 60 * 24 * i;
@@ -45,7 +45,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
       const timestamp = startDate.getTime() + 1000 * 60 * 60 * 24 * (i + dayIndex);
       const match = map.get(timestamp);
 
-      if (match == null) continue;
+      if (match === undefined) continue;
 
       const date = new Date(timestamp);
       rows[dayIndex].push({ date, value: match });
@@ -87,13 +87,24 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
                     <div className="flex flex-col p-1">
                       <span className="text-xs text-gray-100">{formatDate(new Date(cell.date))}</span>
                       <span className="text-sm font-medium">
-                        <FormattedNumber colored value={cell.value} />
+                        {cell.value === null ? (
+                          "No data"
+                        ) : (
+                          <FormattedNumber colored value={cell.value} />
+                        )}
                       </span>
                     </div>
                   }
                 >
                   <g>
-                    <rect x={x} y={y} width={SIZE} height={SIZE} rx={1} className="fill-gray-700" />
+                    <rect
+                      x={x}
+                      y={y}
+                      width={SIZE}
+                      height={SIZE}
+                      rx={1}
+                      className={cn(cell.value === null ? "fill-gray-700" : "fill-gray-600")}
+                    />
                     <rect
                       x={x}
                       y={y}
@@ -101,7 +112,7 @@ export function CalendarHeatmap(props: CalendarHeatmapProps) {
                       height={SIZE}
                       rx={1}
                       className="fill-blue-400"
-                      style={{ opacity: cell.value / (maxValue / 3) }}
+                      style={{ opacity: (cell.value || 0) / (maxValue / 3) }}
                     />
                   </g>
                 </SVGTooltip>
@@ -127,11 +138,12 @@ function getMinDate(data: DataPoint[]) {
 }
 
 function getMaxValue(data: DataPoint[]) {
-  let max = data[0].value;
+  let max = data[0].value || 0;
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i].value > max) {
-      max = data[i].value;
+    const val = data[i].value || 0;
+    if (val > max) {
+      max = val;
     }
   }
 

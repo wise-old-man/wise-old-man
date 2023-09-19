@@ -52,7 +52,7 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
   return (
     <BarChartSSR
       name={`${name} ${measure}`}
-      data={bucketedData.map((b) => ({ date: b.date, value: b.gained }))}
+      data={bucketedData.map((b) => ({ date: b.date, value: b.gained || 0 }))}
     />
   );
 }
