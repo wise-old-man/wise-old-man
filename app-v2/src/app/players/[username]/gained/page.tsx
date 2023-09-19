@@ -17,6 +17,11 @@ import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
 import { PlayerGainedTimeCards } from "~/components/players/PlayerGainedTimeCards";
 import { PlayerGainedChart, PlayerGainedChartSkeleton } from "~/components/players/PlayerGainedChart";
+import { ExpandableChartPanel } from "~/components/players/ExpandableChartPanel";
+import {
+  PlayerGainedHeatmap,
+  PlayerGainedHeatmapSkeleton,
+} from "~/components/players/PlayerGainedHeatmap";
 import {
   PlayerGainedBarchart,
   PlayerGainedBarchartSkeleton,
@@ -71,6 +76,7 @@ export default async function PlayerGainedPage(props: PageProps) {
             <GainedHeader gains={gains.data} metric={metric} />
             <CumulativeGainsPanel username={username} timeRange={timeRange} metric={metric} />
             <BucketedDailyGainsPanel username={username} timeRange={timeRange} metric={metric} />
+            <YearlyHeatmapPanel username={username} metric={metric} />
           </div>
         </PlayerGainedTable>
       </div>
@@ -88,12 +94,12 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
   const { timeRange, metric } = props;
 
   return (
-    <div className="p-5">
-      <div className="mb-5">
-        <h3 className="text-h3 font-medium text-white">
-          Cumulative {MetricProps[metric].measure} gained
-        </h3>
-        <p className="text-body text-gray-200">
+    <ExpandableChartPanel
+      id="line-chart"
+      className="w-[56rem] !max-w-[calc(100vw-4rem)]"
+      titleSlot={<>Cumulative {MetricProps[metric].measure} gained</>}
+      descriptionSlot={
+        <>
           {"period" in timeRange ? (
             <>
               A timeline of {MetricProps[metric].name} {MetricProps[metric].measure} over the past&nbsp;
@@ -105,12 +111,13 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
               period
             </>
           )}
-        </p>
-      </div>
+        </>
+      }
+    >
       <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedChartSkeleton />}>
         <PlayerGainedChart {...props} />
       </Suspense>
-    </div>
+    </ExpandableChartPanel>
   );
 }
 
@@ -136,10 +143,12 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
   }
 
   return (
-    <div className="p-5">
-      <div className="mb-5">
-        <h3 className="text-h3 font-medium text-white">Daily {MetricProps[metric].measure} gained</h3>
-        <p className="text-body text-gray-200">
+    <ExpandableChartPanel
+      id="bar-chart"
+      className="w-[56rem] !max-w-[calc(100vw-4rem)]"
+      titleSlot={<>Daily {MetricProps[metric].measure} gained</>}
+      descriptionSlot={
+        <>
           {"period" in timeRange ? (
             <>
               {MetricProps[metric].name} {MetricProps[metric].measure} gains over the past&nbsp;
@@ -152,12 +161,40 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
               bucketed by day
             </>
           )}
-        </p>
-      </div>
+        </>
+      }
+    >
       <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedBarchartSkeleton />}>
         <PlayerGainedBarchart {...props} timeRange={timeRange} />
       </Suspense>
-    </div>
+    </ExpandableChartPanel>
+  );
+}
+
+interface YearlyHeatmapPanelProps {
+  username: string;
+  metric: Metric;
+}
+
+function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
+  const { metric } = props;
+
+  return (
+    <ExpandableChartPanel
+      id="year-heatmap"
+      className="w-[56rem] !max-w-[calc(100vw-4rem)]"
+      titleSlot={<>Gains heatmap</>}
+      descriptionSlot={
+        <>
+          A heatmap of the past <span className="text-white">year&apos;s</span>&nbsp;
+          {MetricProps[metric].name} {MetricProps[metric].measure} gains
+        </>
+      }
+    >
+      <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedHeatmapSkeleton />}>
+        <PlayerGainedHeatmap {...props} />
+      </Suspense>
+    </ExpandableChartPanel>
   );
 }
 

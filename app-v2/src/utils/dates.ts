@@ -5,6 +5,21 @@ Timeago.addDefaultLocale(en);
 
 export const timeago = new Timeago("en-US");
 
+export const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 export function durationBetween(start: Date, end: Date) {
   let msLeft = end.getTime() - start.getTime();
 
