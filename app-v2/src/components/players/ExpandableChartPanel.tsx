@@ -33,7 +33,7 @@ export function ExpandableChartPanel(props: ExpandableChartPanelProps) {
 
   return (
     <>
-      <ChartPanel {...props} showExpand={true} />
+      <ChartPanel {...props} isExpanded={false} />
       <Dialog
         open={isOpen}
         onOpenChange={(val) => {
@@ -41,22 +41,27 @@ export function ExpandableChartPanel(props: ExpandableChartPanelProps) {
         }}
       >
         <DialogContent className={cn("p-0", props.className)}>
-          <ChartPanel {...props} showExpand={false} />
+          <ChartPanel {...props} isExpanded={true} />
         </DialogContent>
       </Dialog>
     </>
   );
 }
 
-function ChartPanel(props: ExpandableChartPanelProps & { showExpand: boolean }) {
+function ChartPanel(props: ExpandableChartPanelProps & { isExpanded: boolean }) {
   return (
     <div className="p-5">
-      <div className="mb-7 flex justify-between">
+      <div
+        className={cn(
+          "mb-7 flex justify-between",
+          props.isExpanded && "-mx-5 border-b border-gray-500 px-5 pb-4"
+        )}
+      >
         <div>
           <h3 className="text-h3 font-medium text-white">{props.titleSlot}</h3>
           <p className="text-body text-gray-200">{props.descriptionSlot}</p>
         </div>
-        {props.showExpand && (
+        {!props.isExpanded && (
           <QueryLink query={{ expand: props.id }} scroll={false}>
             <Tooltip>
               <TooltipTrigger>
