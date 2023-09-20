@@ -56,8 +56,14 @@ export function LeaderboardsFilters() {
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
   const country = getCountryParam(searchParams.get("country"));
-  const playerType = getPlayerTypeParam(searchParams.get("playerType")) || PlayerType.REGULAR;
-  const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild")) || PlayerBuild.MAIN;
+
+  let playerType = getPlayerTypeParam(searchParams.get("playerType"));
+  let playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
+
+  if (isEfficiencyLeaderboard) {
+    if (!playerType) playerType = PlayerType.REGULAR;
+    if (!playerBuild) playerBuild = PlayerBuild.MAIN;
+  }
 
   // For efficiency leaderboards (it only accepts "ehp"/"ehb/"combined")
   const computedMetric = getComputedMetricParam(searchParams.get("metric")) || Metric.EHP;
@@ -306,7 +312,6 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
       <ComboboxContent>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Player Build">
-            <ComboboxItem>Any player Build</ComboboxItem>
             {PLAYER_BUILDS.map((b) => (
               <ComboboxItem key={b} value={b}>
                 {PlayerBuildProps[b].name}
@@ -354,7 +359,6 @@ function CountrySelect(props: CountrySelectProps) {
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Countries">
-            <ComboboxItem>Any country</ComboboxItem>
             {COUNTRY_CODES.map((c) => (
               <ComboboxItem key={c} value={`${c}_${CountryProps[c].name}`}>
                 <CountryIcon country={c} />
