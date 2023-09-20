@@ -394,7 +394,7 @@ function getTotalLevel(snapshot: Snapshot) {
 }
 
 function isF2p(snapshot: Snapshot) {
-  const hasMemberStats = MEMBER_SKILLS.some(s => getLevel(snapshot[getMetricValueKey(s)]) > 1);
+  const hasMemberStats = MEMBER_SKILLS.some(s => snapshot[getMetricValueKey(s)] > 0);
   const hasBossKc = BOSSES.filter(b => !F2P_BOSSES.includes(b)).some(b => snapshot[getMetricValueKey(b)] > 0);
 
   return !hasMemberStats && !hasBossKc;

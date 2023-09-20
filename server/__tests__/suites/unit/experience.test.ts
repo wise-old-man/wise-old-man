@@ -108,6 +108,15 @@ describe('Util - Experience', () => {
 
     expect(
       isF2p({
+        hitpointsExperience: SKILL_EXP_AT_99,
+        attackExperience: SKILL_EXP_AT_99,
+        strengthExperience: SKILL_EXP_AT_99,
+        thievingExperience: 50
+      } as Snapshot)
+    ).toBe(false);
+
+    expect(
+      isF2p({
         attackExperience: 1000,
         woodcuttingExperience: 1000,
         prayerExperience: 1000,
