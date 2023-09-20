@@ -81,8 +81,9 @@ export function PlayerSearch(props: PlayerSearchProps) {
         inputRef.current?.blur();
       } else {
         focusParentRef.current?.focus();
-        setOpen(false);
       }
+
+      setOpen(false);
     }, 1);
 
     if (onPlayerSelected) {
