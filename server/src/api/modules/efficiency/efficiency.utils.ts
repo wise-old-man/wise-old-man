@@ -17,7 +17,6 @@ import {
 } from '../../../utils';
 import { mapValues } from '../../util/objects';
 import {
-  AlgorithmCache,
   Bonus,
   BonusType,
   BossMetaConfig,
@@ -37,25 +36,33 @@ import lvl3SkillingMetas from './configs/ehp/lvl3.ehp';
 import f2pSkillingMetas from './configs/ehp/f2p.ehp';
 import f2pLvl3SkillingMetas from './configs/ehp/f2p_lvl3.ehp';
 import f2pIronmanSkillingMetas from './configs/ehp/f2p_ironman.ehp';
+import f2pLvl3IronmanSkillingMetas from './configs/ehp/f2p_lvl3_ironman.ehp';
 import ultimateSkillingMetas from './configs/ehp/ultimate.ehp';
 
 const ZERO_STATS = Object.fromEntries(SKILLS.map(s => [s, 0])) as ExperienceMap;
 const MAXED_STATS = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
 
-export const ALGORITHMS: AlgorithmCache = {
-  [EfficiencyAlgorithmType.MAIN]: buildAlgorithmCache(mainSkillingMetas, mainBossingMetas),
-  [EfficiencyAlgorithmType.IRONMAN]: buildAlgorithmCache(ironmanSkillingMetas, ironmanBossingMetas),
-  [EfficiencyAlgorithmType.ULTIMATE]: buildAlgorithmCache(ultimateSkillingMetas, ironmanBossingMetas),
-  [EfficiencyAlgorithmType.LVL3]: buildAlgorithmCache(lvl3SkillingMetas),
-  [EfficiencyAlgorithmType.F2P]: buildAlgorithmCache(f2pSkillingMetas),
-  [EfficiencyAlgorithmType.F2P_LVL3]: buildAlgorithmCache(f2pLvl3SkillingMetas),
-  [EfficiencyAlgorithmType.F2P_IRONMAN]: buildAlgorithmCache(f2pIronmanSkillingMetas)
-};
+export const ALGORITHMS = new Map<EfficiencyAlgorithmType, EfficiencyAlgorithm>(
+  [
+    buildAlgorithmCache(EfficiencyAlgorithmType.MAIN, mainSkillingMetas, mainBossingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.IRONMAN, ironmanSkillingMetas, ironmanBossingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.ULTIMATE, ultimateSkillingMetas, ironmanBossingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.LVL3, lvl3SkillingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.F2P, f2pSkillingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.F2P_LVL3, f2pLvl3SkillingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.F2P_IRONMAN, f2pIronmanSkillingMetas),
+    buildAlgorithmCache(EfficiencyAlgorithmType.F2P_LVL3_IRONMAN, f2pLvl3IronmanSkillingMetas)
+  ].map(a => [a.type, a])
+);
 
 /**
  * Builds a cache of the EHP/EHB algorithms for each player type and build.
  */
-export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: BossMetaConfig[] = []) {
+export function buildAlgorithmCache(
+  type: EfficiencyAlgorithmType,
+  skillMetas: SkillMetaConfig[],
+  bossMetas: BossMetaConfig[] = []
+) {
   const maxedEHP = _calculateTT200m(ZERO_STATS) - _calculateTT200m(MAXED_STATS);
   const maximumEHP = _calculateTT200m(ZERO_STATS);
 
@@ -86,6 +93,7 @@ export function buildAlgorithmCache(skillMetas: SkillMetaConfig[], bossMetas: Bo
   }
 
   return {
+    type,
     maxedEHP,
     maximumEHP,
     skillMetas,
@@ -103,7 +111,8 @@ export function getRates(metric: ComputedMetric, type: EfficiencyAlgorithmType) 
   // Wrong algorithm type
   if (!Object.values(EfficiencyAlgorithmType).includes(type)) return null;
 
-  const algorithm = ALGORITHMS[type || 'main'];
+  const algorithm = ALGORITHMS.get(type || EfficiencyAlgorithmType.MAIN);
+
   return metric === Metric.EHB ? algorithm.bossMetas : algorithm.skillMetas;
 }
 
@@ -111,29 +120,36 @@ export function getAlgorithm(player?: Pick<Player, 'type' | 'build'>): Efficienc
   const { type = PlayerType.REGULAR, build = PlayerBuild.MAIN } = player || {};
 
   if (
-    (build === PlayerBuild.F2P || build === PlayerBuild.F2P_LVL3) &&
+    build === PlayerBuild.F2P &&
     (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
   ) {
-    return ALGORITHMS[EfficiencyAlgorithmType.F2P_IRONMAN];
+    return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_IRONMAN);
+  }
+
+  if (
+    build === PlayerBuild.F2P_LVL3 &&
+    (type === PlayerType.ULTIMATE || type === PlayerType.IRONMAN || type === PlayerType.HARDCORE)
+  ) {
+    return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_LVL3_IRONMAN);
   }
 
   if (type === PlayerType.ULTIMATE) {
-    return ALGORITHMS[EfficiencyAlgorithmType.ULTIMATE];
+    return ALGORITHMS.get(EfficiencyAlgorithmType.ULTIMATE);
   }
 
   if (type === PlayerType.IRONMAN || type === PlayerType.HARDCORE) {
-    return ALGORITHMS[EfficiencyAlgorithmType.IRONMAN];
+    return ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN);
   }
 
   switch (build) {
     case PlayerBuild.F2P_LVL3:
-      return ALGORITHMS[EfficiencyAlgorithmType.F2P_LVL3];
+      return ALGORITHMS.get(EfficiencyAlgorithmType.F2P_LVL3);
     case PlayerBuild.F2P:
-      return ALGORITHMS[EfficiencyAlgorithmType.F2P];
+      return ALGORITHMS.get(EfficiencyAlgorithmType.F2P);
     case PlayerBuild.LVL3:
-      return ALGORITHMS[EfficiencyAlgorithmType.LVL3];
+      return ALGORITHMS.get(EfficiencyAlgorithmType.LVL3);
     default:
-      return ALGORITHMS[EfficiencyAlgorithmType.MAIN];
+      return ALGORITHMS.get(EfficiencyAlgorithmType.MAIN);
   }
 }
 

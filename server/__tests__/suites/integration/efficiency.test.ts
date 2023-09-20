@@ -6,10 +6,17 @@ import {
   MAX_SKILL_EXP,
   SKILL_EXP_AT_99,
   ExperienceMap,
-  KillcountMap
+  KillcountMap,
+  EfficiencyAlgorithmType,
+  PlayerType,
+  PlayerBuild
 } from '../../../src/utils';
 import apiServer from '../../../src/api';
-import { ALGORITHMS, buildAlgorithmCache } from '../../../src/api/modules/efficiency/efficiency.utils';
+import {
+  ALGORITHMS,
+  buildAlgorithmCache,
+  getAlgorithm
+} from '../../../src/api/modules/efficiency/efficiency.utils';
 import * as efficiencyServices from '../../../src/api/modules/efficiency/efficiency.services';
 import testSkillingMetas from '../../data/efficiency/configs/test.ehp';
 import testBossingMetas from '../../data/efficiency/configs/test.ehb';
@@ -21,10 +28,12 @@ beforeAll(async () => {
   await resetDatabase();
   await resetRedis();
 
-  // Override the cache algorithms with these test rate configs, for consistent testing
-  Object.assign(ALGORITHMS, {
-    main: buildAlgorithmCache(testSkillingMetas, testBossingMetas)
-  });
+  // Override the cache algorithms for "main" with these test rate configs, so that these tests
+  // don't break when rates are updated in the future, consistent configs = consistent tests
+  ALGORITHMS.set(
+    EfficiencyAlgorithmType.MAIN,
+    buildAlgorithmCache(EfficiencyAlgorithmType.MAIN, testSkillingMetas, testBossingMetas)
+  );
 
   // Create 100 players, with increasing overall ranks, and make sure some of them
   // are tied on EHP, and some players are ironman (to test the ranking calcs)
@@ -129,17 +138,17 @@ afterAll(async () => {
 describe('Efficiency API', () => {
   describe('1 - Maximum TTM and TT200m', () => {
     test('Check maximum TTM', () => {
-      expect(ALGORITHMS.main.maxedEHP).toBeCloseTo(962.9246300000013, 4);
-      expect(ALGORITHMS.ironman.maxedEHP).toBeCloseTo(1603.4281499999997, 4);
-      expect(ALGORITHMS.lvl3.maxedEHP).toBeCloseTo(880.0553999999993, 4);
-      expect(ALGORITHMS.f2p.maxedEHP).toBeCloseTo(1578.9323799999984, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP).toBeCloseTo(962.9246300000013, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maxedEHP).toBeCloseTo(1603.4281499999997, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maxedEHP).toBeCloseTo(880.0553999999993, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maxedEHP).toBeCloseTo(1568.7465499999998, 4);
     });
 
     test('Check maximum TT200m', () => {
-      expect(ALGORITHMS.main.maximumEHP).toBeCloseTo(12813.80829, 4);
-      expect(ALGORITHMS.ironman.maximumEHP).toBeCloseTo(20300.84631, 4);
-      expect(ALGORITHMS.lvl3.maximumEHP).toBeCloseTo(11796.08924, 4);
-      expect(ALGORITHMS.f2p.maximumEHP).toBeCloseTo(23319.208, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP).toBeCloseTo(12813.80829, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.IRONMAN).maximumEHP).toBeCloseTo(20300.84631, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.LVL3).maximumEHP).toBeCloseTo(11796.08924, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP).toBeCloseTo(23163.6045, 4);
     });
   });
 
@@ -147,8 +156,11 @@ describe('Efficiency API', () => {
     test('Maximum EHP calcs (main)', () => {
       const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
-      expect(ALGORITHMS.main.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.main.maximumEHP, 4);
-      expect(ALGORITHMS.main.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(maximumStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
 
       const adjustedStats = {
         ...maximumStats,
@@ -157,20 +169,26 @@ describe('Efficiency API', () => {
         smithing: maximumStats['smithing'] - 10_000 // 0 hours of smithing (bonus exp from mining)
       };
 
-      expect(ALGORITHMS.main.calculateEHP(adjustedStats)).toBeCloseTo(ALGORITHMS.main.maximumEHP - 2, 4);
-      expect(ALGORITHMS.main.calculateTT200m(adjustedStats)).toBeCloseTo(2, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(adjustedStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maximumEHP - 2,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTT200m(adjustedStats)).toBeCloseTo(2, 4);
     });
 
     test('Maximum EHP calcs (f2p)', () => {
       const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
-      expect(ALGORITHMS.f2p.calculateEHP(maximumStats)).toBeCloseTo(ALGORITHMS.f2p.maximumEHP, 4);
-      expect(ALGORITHMS.f2p.calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateEHP(maximumStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateTT200m(maximumStats)).toBeCloseTo(0, 4);
 
       const adjustedStats = {
         ...maximumStats,
         // 1 hour of woodcutting
-        woodcutting: maximumStats['woodcutting'] - 90_000,
+        woodcutting: maximumStats['woodcutting'] - 100_000,
         // for mains, ironmen and lvl3s, this would be bonus xp (20%) from woodcutting
         // but there's no infernal axe in f2p so this will need to be trained manually
         // which at the rate of 293_625 fm exp per hour, would take an extra 0.0613 hours (3min40s)
@@ -179,15 +197,24 @@ describe('Efficiency API', () => {
         prayer: maximumStats['prayer'] - 2250
       };
 
-      expect(ALGORITHMS.f2p.calculateEHP(adjustedStats)).toBeCloseTo(ALGORITHMS.f2p.maximumEHP - 1.0613, 4);
-      expect(ALGORITHMS.f2p.calculateTT200m(adjustedStats)).toBeCloseTo(1.0613, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateEHP(adjustedStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.F2P).maximumEHP - 1.0613,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.F2P).calculateTT200m(adjustedStats)).toBeCloseTo(
+        1.0613,
+        4
+      );
     });
 
     test('Maxed EHP calcs', () => {
       const maxedStats = Object.fromEntries(SKILLS.map(s => [s, SKILL_EXP_AT_99])) as ExperienceMap;
 
-      expect(ALGORITHMS.main.calculateEHP(maxedStats)).toBeCloseTo(ALGORITHMS.main.maxedEHP, 4);
-      expect(ALGORITHMS.main.calculateTTM(maxedStats)).toBeCloseTo(0, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(maxedStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTTM(maxedStats)).toBeCloseTo(0, 4);
 
       const adjustedStats = {
         ...maxedStats,
@@ -195,15 +222,21 @@ describe('Efficiency API', () => {
         prayer: maxedStats['prayer'] - 1_800_000 // 1 hour of prayer
       };
 
-      expect(ALGORITHMS.main.calculateEHP(adjustedStats)).toBeCloseTo(ALGORITHMS.main.maxedEHP - 2, 4);
-      expect(ALGORITHMS.main.calculateTTM(adjustedStats)).toBeCloseTo(2, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(adjustedStats)).toBeCloseTo(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).maxedEHP - 2,
+        4
+      );
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateTTM(adjustedStats)).toBeCloseTo(2, 4);
     });
 
     test('Skill EHP calcs', () => {
       const maximumStats = Object.fromEntries(SKILLS.map(s => [s, MAX_SKILL_EXP])) as ExperienceMap;
 
       expect(
-        ALGORITHMS.main.calculateSkillEHP('woodcutting', { ...maximumStats, woodcutting: 0 })
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', {
+          ...maximumStats,
+          woodcutting: 0
+        })
       ).toBeCloseTo(0, 4);
 
       // Woodcutting WITH bonuses (infernal axe 20%), would have taken 1008.99494 hours
@@ -212,7 +245,7 @@ describe('Efficiency API', () => {
       // so we'd have to manually train another 27.95m cooking exp, adding an extra 29,42913 hours of cooking
 
       expect(
-        ALGORITHMS.main.calculateSkillEHP('woodcutting', {
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', {
           ...maximumStats,
           firemaking: 0,
           cooking: 0
@@ -224,7 +257,9 @@ describe('Efficiency API', () => {
       // and won't shave off any time from their total EHP, so Woodcutting will contribute
       // the full 1008 hours to the player's EHP
 
-      expect(ALGORITHMS.main.calculateSkillEHP('woodcutting', maximumStats)).toBeCloseTo(1008.994948, 4);
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('woodcutting', maximumStats)
+      ).toBeCloseTo(1008.994948, 4);
 
       // Without woodcutting bonuses (infernal axe 20%), firemaking would have taken 399.25525 hours to 200m
       // lvl1 -> lvl15  = 2,411 exp, at 58,960 per hour = 0.04089 EHP
@@ -241,7 +276,10 @@ describe('Efficiency API', () => {
       // meaning firemaking to 200m WITH Woodcutting would take 320.16709 hours.
 
       expect(
-        ALGORITHMS.main.calculateSkillEHP('firemaking', { ...maximumStats, woodcutting: 0 })
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('firemaking', {
+          ...maximumStats,
+          woodcutting: 0
+        })
       ).toBeCloseTo(320.16709, 4);
 
       // In addition, training it manually to 200m (WITHOUT Woodcutting) would have also gotten
@@ -249,7 +287,7 @@ describe('Efficiency API', () => {
       // 147,2937536842 hours of 1t karambwans
 
       expect(
-        ALGORITHMS.main.calculateSkillEHP('firemaking', {
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('firemaking', {
           ...maximumStats,
           cooking: 0
         })
@@ -257,8 +295,8 @@ describe('Efficiency API', () => {
 
       // Make sure unranked skills return 0 EHP (and definitely not negative numbers)
       const unrankedStats = Object.fromEntries(SKILLS.map(s => [s, -1])) as ExperienceMap;
-      expect(ALGORITHMS.main.calculateEHP(unrankedStats)).toBe(0);
-      expect(ALGORITHMS.main.calculateSkillEHP('prayer', unrankedStats)).toBe(0);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHP(unrankedStats)).toBe(0);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateSkillEHP('prayer', unrankedStats)).toBe(0);
     });
   });
 
@@ -274,14 +312,17 @@ describe('Efficiency API', () => {
         zulrah: 100 // 35 per hour, 2.85714 EHB
       } as KillcountMap;
 
-      expect(ALGORITHMS.main.calculateEHB(killcountMap)).toBeCloseTo(139.82981, 4);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(killcountMap)).toBeCloseTo(
+        139.82981,
+        4
+      );
 
       const ehbSum = Object.keys(killcountMap)
-        .map(b => ALGORITHMS.main.calculateBossEHB(b as Boss, killcountMap))
+        .map(b => ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateBossEHB(b as Boss, killcountMap))
         .reduce((acc, curr) => acc + curr);
 
       // The sum of every boss' individual EHB value should be the same as the player's total EHB
-      expect(ALGORITHMS.main.calculateEHB(killcountMap)).toBe(ehbSum);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(killcountMap)).toBe(ehbSum);
 
       const unrankedKillcountMap = {
         cerberus: -1,
@@ -291,8 +332,10 @@ describe('Efficiency API', () => {
       } as KillcountMap;
 
       // Make sure unranked skills return 0 EHB (and definitely not negative numbers)
-      expect(ALGORITHMS.main.calculateEHB(unrankedKillcountMap)).toBe(0);
-      expect(ALGORITHMS.main.calculateBossEHB('cerberus', unrankedKillcountMap)).toBe(0);
+      expect(ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateEHB(unrankedKillcountMap)).toBe(0);
+      expect(
+        ALGORITHMS.get(EfficiencyAlgorithmType.MAIN).calculateBossEHB('cerberus', unrankedKillcountMap)
+      ).toBe(0);
     });
   });
 
@@ -301,7 +344,7 @@ describe('Efficiency API', () => {
       const response = await api.get(`/efficiency/rates`).query({ type: 'zerker' });
       expect(response.status).toBe(400);
       expect(response.body.message).toBe(
-        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman]'
+        'Incorrect type: zerker. Must be one of [main, ironman, ultimate, lvl3, f2p, f2p_lvl3, f2p_ironman, f2p_lvl3_ironman]'
       );
     });
 
@@ -574,6 +617,128 @@ describe('Efficiency API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.length).toBe(5);
+    });
+  });
+
+  describe('7 - Assign Efficiency Algorithm', () => {
+    it("should assign the correct rates for type='regular' players", () => {
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.MAIN }).type).toBe(
+        EfficiencyAlgorithmType.MAIN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.F2P }).type).toBe(
+        EfficiencyAlgorithmType.F2P
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.F2P_LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.F2P_LVL3
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.LVL3
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.ZERKER }).type).toBe(
+        EfficiencyAlgorithmType.MAIN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.DEF1 }).type).toBe(
+        EfficiencyAlgorithmType.MAIN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.REGULAR, build: PlayerBuild.HP10 }).type).toBe(
+        EfficiencyAlgorithmType.MAIN
+      );
+    });
+
+    it("should assign the correct rates for type='ironman' players", () => {
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.MAIN }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.F2P }).type).toBe(
+        EfficiencyAlgorithmType.F2P_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.F2P_LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.F2P_LVL3_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.ZERKER }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.DEF1 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.HP10 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+    });
+
+    it("should assign the correct rates for type='hardcore' players", () => {
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.MAIN }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.F2P }).type).toBe(
+        EfficiencyAlgorithmType.F2P_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.F2P_LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.F2P_LVL3_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.ZERKER }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.DEF1 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.IRONMAN, build: PlayerBuild.HP10 }).type).toBe(
+        EfficiencyAlgorithmType.IRONMAN
+      );
+    });
+
+    it("should assign the correct rates for type='ultimate' players", () => {
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.MAIN }).type).toBe(
+        EfficiencyAlgorithmType.ULTIMATE
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.F2P }).type).toBe(
+        EfficiencyAlgorithmType.F2P_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.F2P_LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.F2P_LVL3_IRONMAN
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.LVL3 }).type).toBe(
+        EfficiencyAlgorithmType.ULTIMATE
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.ZERKER }).type).toBe(
+        EfficiencyAlgorithmType.ULTIMATE
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.DEF1 }).type).toBe(
+        EfficiencyAlgorithmType.ULTIMATE
+      );
+
+      expect(getAlgorithm({ type: PlayerType.ULTIMATE, build: PlayerBuild.HP10 }).type).toBe(
+        EfficiencyAlgorithmType.ULTIMATE
+      );
     });
   });
 });

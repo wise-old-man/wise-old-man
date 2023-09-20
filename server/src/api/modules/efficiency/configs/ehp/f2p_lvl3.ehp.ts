@@ -6,8 +6,8 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 2_052_000,
-        description: '3t Fish + Cook (Erie)'
+        rate: 500_000,
+        description: 'wines'
       }
     ],
     bonuses: []
@@ -21,34 +21,34 @@ export default [
         description: '4t Trees'
       },
       {
+        startExp: 2_411,
+        rate: 33_000,
+        description: '2t Oaks (steel axe)'
+      },
+      {
+        startExp: 5_018,
+        rate: 45_000,
+        description: '2t Oaks (mith axe)'
+      },
+      {
         startExp: 14_833,
-        rate: 42_514,
-        description: '2x Snow Willows'
+        rate: 63_000,
+        description: '2t Oaks (addy axe)'
       },
       {
         startExp: 41_171,
-        rate: 56_500,
-        description: '2x Snow Willows'
+        rate: 82_000,
+        description: '2t Oaks (rune axe)'
+      },
+      {
+        startExp: 101_333,
+        rate: 90_000,
+        description: '2t Oaks (rune axe)'
       },
       {
         startExp: 302_288,
-        rate: 69_400,
-        description: '2x Snow Willows'
-      },
-      {
-        startExp: 1_986_068,
-        rate: 75_600,
-        description: '2x Snow Willows'
-      },
-      {
-        startExp: 5_346_332,
-        rate: 81_300,
-        description: '2x Snow Willows'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 87_500,
-        description: '2x Snow Willows'
+        rate: 100_000,
+        description: '2t Oaks (100% success)'
       }
     ],
     bonuses: []
@@ -58,46 +58,75 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 14_000,
-        description: 'Best Fish'
+        rate: 3_000,
+        description: 'Shrimp'
+      },
+      {
+        startExp: 388,
+        rate: 5_000,
+        description: 'Sardine'
+      },
+      {
+        startExp: 1_154,
+        rate: 12_000,
+        description: 'Sardine & Herring'
       },
       {
         startExp: 4_470,
-        rate: 28_000,
-        description: 'Best Fish'
+        rate: 21_000,
+        description: 'Sardine & Herring'
       },
       {
         startExp: 13_363,
-        rate: 35_250,
-        description: '3t Fish + Cook Method'
+        rate: 41_000,
+        description: '3t fish 0t cook trout+salmon'
+      },
+      {
+        startExp: 37_224,
+        rate: 50_000,
+        description: '3t fish 0t cook trout+salmon'
+      },
+      {
+        startExp: 101_333,
+        rate: 58_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 273_742,
-        rate: 60_350,
-        description: '3t Fish + Cook Method'
+        rate: 65_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 737_627,
         rate: 71_000,
-        description: '3t Fish + Cook Method'
+        description: '3t fish 0t cook trout+salmon'
       },
       {
-        startExp: 2_421_087,
-        rate: 76_250,
-        description: '3t Fish + Cook Method'
+        startExp: 1_986_068,
+        rate: 78_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 5_902_831,
-        rate: 81_000,
-        description: '3t Fish + Cook Method'
+        rate: 84_000,
+        description: '3t fish 0t cook trout+salmon'
       },
       {
         startExp: 13_034_431,
         rate: 90_000,
-        description: '3t Fish + Cook Method'
+        description: '3t fish 0t cook trout+salmon'
       }
     ],
-    bonuses: []
+    bonuses: [
+      {
+        originSkill: Skill.FISHING,
+        bonusSkill: Skill.COOKING,
+        startExp: 0,
+        endExp: 200_000_000,
+        end: true,
+        ratio: 1.15
+      }
+    ]
   },
   {
     skill: Skill.FIREMAKING,

@@ -625,7 +625,7 @@ export default [
     methods: [
       {
         startExp: 0,
-        rate: 8_365,
+        rate: 29_500,
         description: '4t Trees'
       },
       {
@@ -657,11 +657,6 @@ export default [
         startExp: 302_288,
         rate: 100_000,
         description: '2t Oaks (100% success)'
-      },
-      {
-        startExp: 13_034_431,
-        rate: 110_000,
-        description: '2t Oaks (forestry events give more xp at higher lvl)'
       }
     ],
     bonuses: []

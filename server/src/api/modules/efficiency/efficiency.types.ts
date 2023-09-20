@@ -17,7 +17,8 @@ export enum EfficiencyAlgorithmType {
   LVL3 = 'lvl3',
   F2P = 'f2p',
   F2P_LVL3 = 'f2p_lvl3',
-  F2P_IRONMAN = 'f2p_ironman'
+  F2P_IRONMAN = 'f2p_ironman',
+  F2P_LVL3_IRONMAN = 'f2p_lvl3_ironman'
 }
 
 export interface SkillMetaMethod {
@@ -49,6 +50,7 @@ export interface Bonus {
 }
 
 export interface EfficiencyAlgorithm {
+  type: EfficiencyAlgorithmType;
   skillMetas: SkillMetaConfig[];
   bossMetas: BossMetaConfig[];
   maximumEHP: number;
@@ -60,5 +62,3 @@ export interface EfficiencyAlgorithm {
   calculateSkillEHP(skill: Skill, experienceMap: ExperienceMap): number;
   calculateBossEHB(boss: Boss, killcountMap: KillcountMap): number;
 }
-
-export type AlgorithmCache = MapOf<EfficiencyAlgorithmType, EfficiencyAlgorithm>;
