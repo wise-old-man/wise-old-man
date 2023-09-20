@@ -92,8 +92,9 @@ function getTypeOptions() {
     { label: 'Ultimate', value: 'ultimate' },
     { label: 'Level 3', value: 'lvl3' },
     { label: 'F2P', value: 'f2p' },
+    { label: 'F2P Ironman', value: 'f2p_ironman' },
     { label: 'F2P & Lvl3', value: 'f2p_lvl3' },
-    { label: 'F2P Ironman', value: 'f2p_ironman' }
+    { label: 'F2P & Lvl3 Ironman', value: 'f2p_lvl3_ironman' }
   ];
 }
 
