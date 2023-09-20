@@ -43,22 +43,43 @@ beforeAll(async () => {
     })
   );
 
-  // Add one HCIM lvl3 for later filtering checks
+  // Add one HCIM for later filtering checks
   await prisma.player.create({
     data: {
       username: `player hcim`,
       displayName: `player hcim`,
+      type: 'hardcore',
+      build: 'main',
+      ehp: 2
+    }
+  });
+
+  // Add one HCIM lvl3 for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `player hcim2`,
+      displayName: `player hcim2`,
       type: 'hardcore',
       build: 'lvl3',
       ehp: 2
     }
   });
 
-  // Add one Ultimate lvl3 for later filtering checks
+  // Add one Ultimate for later filtering checks
   await prisma.player.create({
     data: {
       username: `player ult`,
       displayName: `player ult`,
+      type: 'ultimate',
+      build: 'main'
+    }
+  });
+
+  // Add one Ultimate lvl3 for later filtering checks
+  await prisma.player.create({
+    data: {
+      username: `player ult2`,
+      displayName: `player ult2`,
       type: 'ultimate',
       build: 'lvl3'
     }
@@ -407,12 +428,17 @@ describe('Efficiency API', () => {
       expect(response.body.length).toBe(12);
 
       const includedPlayerTypes = [...new Set(response.body.map(r => r.type))];
+      const includedPlayerBuilds = [...new Set(response.body.map(r => r.build))];
 
       // Hardcores and Ultimates should be included in the leaderboards for "ironman"
       expect(includedPlayerTypes.length).toBe(3);
       expect(includedPlayerTypes.includes('ironman')).toBe(true);
       expect(includedPlayerTypes.includes('hardcore')).toBe(true);
       expect(includedPlayerTypes.includes('ultimate')).toBe(true);
+
+      // Should only have the "main" player build
+      expect(includedPlayerBuilds.length).toBe(1);
+      expect(includedPlayerBuilds.includes('main')).toBe(true);
 
       // The ironmen were inserted on indices 80-90
       for (let i = 0; i < 10; i++) {
@@ -440,7 +466,7 @@ describe('Efficiency API', () => {
       expect(firstResponse.body.length).toBe(1);
 
       expect(firstResponse.body[0]).toMatchObject({
-        username: 'player hcim',
+        username: 'player hcim2',
         type: 'hardcore',
         build: 'lvl3'
       });
@@ -474,7 +500,7 @@ describe('Efficiency API', () => {
       expect([...new Set(response.body.map(r => r.type))].length).toBe(2);
 
       expect(response.body[0]).toMatchObject({
-        username: 'player hcim',
+        username: 'player hcim2',
         type: 'hardcore',
         ehp: 2
       });

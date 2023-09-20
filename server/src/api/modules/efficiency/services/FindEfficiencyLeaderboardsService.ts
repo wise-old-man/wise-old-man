@@ -10,7 +10,7 @@ const inputSchema = z
     metric: z.enum([Metric.EHP, Metric.EHB, COMBINED_METRIC]),
     country: z.nativeEnum(Country).optional(),
     playerType: z.nativeEnum(PlayerType).optional().default(PlayerType.REGULAR),
-    playerBuild: z.nativeEnum(PlayerBuild).optional()
+    playerBuild: z.nativeEnum(PlayerBuild).optional().default(PlayerBuild.MAIN)
   })
   .merge(PAGINATION_SCHEMA);
 
@@ -37,6 +37,7 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
   if (params.metric !== COMBINED_METRIC) {
     const playerQuery: PrismaTypes.PlayerWhereInput = {
       type: params.playerType,
+      build: params.playerBuild,
       status: { not: PlayerStatus.ARCHIVED }
     };
 
@@ -46,7 +47,6 @@ async function fetchPlayersList(params: FindEfficiencyLeaderboardsParams) {
     }
 
     if (params.country) playerQuery.country = params.country;
-    if (params.playerBuild) playerQuery.build = params.playerBuild;
 
     const players = await prisma.player.findMany({
       where: { ...playerQuery },
