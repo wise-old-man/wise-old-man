@@ -26,22 +26,34 @@ beforeAll(async () => {
     main: buildAlgorithmCache(testSkillingMetas, testBossingMetas)
   });
 
-  // Create 100 players, with staggered registration dates, and make sure some of them
+  // Create 100 players, with increasing overall ranks, and make sure some of them
   // are tied on EHP, and some players are ironman (to test the ranking calcs)
-  await Promise.all(
-    Array.from(Array(100).keys()).map(async i => {
-      await prisma.player.create({
-        data: {
-          username: `player ${i + 1}`,
-          displayName: `player ${i + 1}`,
-          type: i >= 80 && i < 90 ? 'ironman' : 'regular',
-          registeredAt: new Date(Date.now() + i * 10_000),
-          ehp: i < 10 ? 1000 : 1000 - i,
-          ehb: i
-        }
-      });
-    })
-  );
+  // These overall ranks will be the tie breakers for maximum EHP players
+  const indices = Array.from(Array(100).keys());
+
+  for (const i of indices) {
+    const player = await prisma.player.create({
+      data: {
+        username: `player ${i + 1}`,
+        displayName: `player ${i + 1}`,
+        type: i >= 80 && i < 90 ? 'ironman' : 'regular',
+        ehp: i < 10 ? 1000 : 1000 - i,
+        ehb: i
+      }
+    });
+
+    const snapshot = await prisma.snapshot.create({
+      data: {
+        playerId: player.id,
+        overallRank: i + 1
+      }
+    });
+
+    await prisma.player.update({
+      where: { id: player.id },
+      data: { latestSnapshotId: snapshot.id }
+    });
+  }
 
   // Add one HCIM for later filtering checks
   await prisma.player.create({
@@ -390,8 +402,11 @@ describe('Efficiency API', () => {
         ehp: 1000
       });
 
-      // Should only contain "regular" players
+      // Should only contain "regular" type players (it's the default)
       expect([...new Set(response.body.map(r => r.type))].length).toBe(1);
+
+      // Should only contain "main" build players (it's the default)
+      expect([...new Set(response.body.map(r => r.build))].length).toBe(1);
 
       // Ensure the list is sorted by "ehp" descending
       for (let i = 0; i < response.body.length; i++) {

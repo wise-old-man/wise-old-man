@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma, { Player, PrismaTypes } from '../../../../prisma';
 import { PlayerType, PlayerBuild, Metric, Country, PlayerStatus } from '../../../../utils';
+import { omit } from '../../../util/objects';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
 
 const COMBINED_METRIC = 'ehp+ehb';
@@ -19,16 +20,49 @@ type FindEfficiencyLeaderboardsParams = z.infer<typeof inputSchema>;
 async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsParams): Promise<Player[]> {
   const params = inputSchema.parse(payload);
 
-  const players = await fetchPlayersList(params);
+  // For EHP categories with multiple players with 200m all, we can't just sort by EHP,
+  // we need to find a tie breaker, for this, we'll pull snapshots and use their overall rank
+  const requiresSorting =
+    params.offset < 50 && params.metric === Metric.EHP && params.playerBuild === PlayerBuild.MAIN;
 
-  if (params.offset < 50 && params.metric === Metric.EHP && params.playerType === PlayerType.REGULAR) {
-    // This is a bit of an hack, to make sure the max ehp accounts always
-    // retain their maxing order, manually set their registration dates to
-    // ascend and use that to order them.
-    return players.sort((a, b) => {
-      return b.ehp - a.ehp || a.registeredAt.getTime() - b.registeredAt.getTime();
-    });
+  if (requiresSorting) {
+    // Fetch top X players, and include their snapshots
+    const sortedPlayers = (await fetchSortedPlayersList(params)).sort(
+      (a, b) =>
+        (a.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER) -
+        (b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER)
+    );
+
+    // Once we've used their snapshots to sort by rank, we can omit them from the response
+    return sortedPlayers.map(s => omit(s, 'latestSnapshot'));
   }
+
+  return await fetchPlayersList(params);
+}
+
+async function fetchSortedPlayersList(params: FindEfficiencyLeaderboardsParams) {
+  const playerQuery: PrismaTypes.PlayerWhereInput = {
+    type: params.playerType,
+    build: params.playerBuild,
+    status: { not: PlayerStatus.ARCHIVED }
+  };
+
+  // When filtering by player type, the ironman filter should include UIM and HCIM
+  if (playerQuery.type === PlayerType.IRONMAN) {
+    playerQuery.type = { in: [PlayerType.IRONMAN, PlayerType.HARDCORE, PlayerType.ULTIMATE] };
+  }
+
+  if (params.country) playerQuery.country = params.country;
+
+  const players = await prisma.player.findMany({
+    where: { ...playerQuery },
+    orderBy: { [params.metric]: 'desc' },
+    take: params.limit,
+    skip: params.offset,
+    include: {
+      latestSnapshot: true
+    }
+  });
 
   return players;
 }
