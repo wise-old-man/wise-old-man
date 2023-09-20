@@ -1,6 +1,7 @@
 import { Metric, PlayerDetails, formatNumber, isMetric } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { MetricIconSmall } from "../Icon";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import CheckIcon from "~/assets/check.svg";
 
@@ -35,7 +36,7 @@ function Stat(props: StatProps) {
 
   let valueElement: React.ReactNode;
 
-  if (metric === "ttm") {
+  if (metric === "ttm" || metric === "tt200m") {
     if (value <= 0) {
       valueElement = (
         <span className="flex items-center">
@@ -44,21 +45,24 @@ function Stat(props: StatProps) {
         </span>
       );
     } else {
-      valueElement = <span>{formatNumber(Math.round(value), true)} hours</span>;
-    }
-  } else if (metric === "tt200m") {
-    if (value <= 0) {
       valueElement = (
-        <span className="flex items-center">
-          <CheckIcon className="-ml-0.5 mr-1 h-4 w-4 text-green-500" />
-          Maxed
-        </span>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>{formatNumber(Math.round(value), true)} hours</span>
+          </TooltipTrigger>
+          <TooltipContent>{value.toFixed(3)}</TooltipContent>
+        </Tooltip>
       );
-    } else {
-      valueElement = <span>{formatNumber(Math.round(value), true)} hours</span>;
     }
   } else {
-    valueElement = formatNumber(Math.round(value), true);
+    valueElement = (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span>{formatNumber(Math.round(value), true)}</span>
+        </TooltipTrigger>
+        <TooltipContent>{formatNumber(value, false)}</TooltipContent>
+      </Tooltip>
+    );
   }
 
   return (
