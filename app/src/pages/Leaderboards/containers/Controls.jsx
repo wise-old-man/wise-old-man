@@ -20,7 +20,6 @@ const PLAYER_TYPES_OPTIONS = PLAYER_TYPES.filter(type => type !== PlayerType.UNK
 }));
 
 const PLAYER_BUILDS_OPTIONS = [
-  { label: 'All player builds', value: null },
   ...PLAYER_BUILDS.map(type => ({
     label: PlayerBuildProps[type].name,
     value: type

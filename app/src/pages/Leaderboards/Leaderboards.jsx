@@ -109,7 +109,7 @@ function decodeURL(params, query) {
   return {
     metric: isValidMetric ? metric.toLowerCase() : 'ehp',
     type: isValidType ? type.toLowerCase() : 'regular',
-    build: isValidBuild ? build.toLowerCase() : null,
+    build: isValidBuild ? build.toLowerCase() : 'main',
     country: isValidCountry ? country.toUpperCase() : null
   };
 }
