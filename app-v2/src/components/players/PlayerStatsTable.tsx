@@ -10,7 +10,12 @@ import {
   Metric,
   MetricProps,
   MetricType,
+  Player,
+  PlayerBuild,
+  PlayerBuildProps,
   PlayerDetails,
+  PlayerType,
+  PlayerTypeProps,
   Skill,
   SkillValue,
   getLevel,
@@ -155,12 +160,15 @@ function PlayerSkillsTable(
     ...Object.values(player.latestSnapshot.data.skills),
   ];
 
-  const columnDefs = useMemo(() => getSkillColumnDefinitions(showVirtualLevels), [showVirtualLevels]);
+  const columnDefs = useMemo(
+    () => getSkillColumnDefinitions(player, showVirtualLevels),
+    [player, showVirtualLevels]
+  );
 
   return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
 }
 
-function getSkillColumnDefinitions(showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
+function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
   return [
     {
       accessorKey: "skill",
@@ -168,10 +176,20 @@ function getSkillColumnDefinitions(showVirtualLevels: boolean): ColumnDef<SkillV
         return <TableSortButton column={column}>Skill</TableSortButton>;
       },
       cell: ({ row }) => {
+        const isSpecialEHP = player.type !== PlayerType.REGULAR || player.build !== PlayerBuild.MAIN;
+
         return (
           <div className="flex items-center gap-x-2">
             <MetricIconSmall metric={row.original.metric} />
             {MetricProps[row.original.metric].name}
+            {(row.original.metric as Metric) === Metric.EHP && isSpecialEHP && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span>(Special)</span>
+                </TooltipTrigger>
+                <TooltipContent>{getSpecialEHPRatesLabel(player)}</TooltipContent>
+              </Tooltip>
+            )}
           </div>
         );
       },
@@ -294,108 +312,116 @@ function PlayerBossesTable(props: PropsWithChildren<{ player: PlayerDetails }>) 
     ...Object.values(player.latestSnapshot.data.bosses),
   ];
 
-  return (
-    <DataTable
-      columns={BOSS_COLUMN_DEFINITIONS}
-      data={rows}
-      headerSlot={<TableTitle>{children}</TableTitle>}
-    />
-  );
+  const columnDefs = useMemo(() => getBossColumnDefinitions(player), [player]);
+
+  return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
 }
 
-const BOSS_COLUMN_DEFINITIONS: ColumnDef<BossValue>[] = [
-  {
-    accessorKey: "boss",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Boss</TableSortButton>;
-    },
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-x-2">
-          <MetricIconSmall metric={row.original.metric} />
-          {MetricProps[row.original.metric].name}
-        </div>
-      );
-    },
-    sortingFn: (rowA, rowB) => {
-      return rowA.original.metric.localeCompare(rowB.original.metric);
-    },
-  },
-  {
-    accessorKey: "kills",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Kills</TableSortButton>;
-    },
-    cell: ({ row }) => {
-      if ((row.original.metric as Metric) === Metric.EHB) return null;
-
-      if (row.original.kills === -1) {
-        const minimum = MetricProps[row.original.metric].minimumValue;
+function getBossColumnDefinitions(player: Player): ColumnDef<BossValue>[] {
+  return [
+    {
+      accessorKey: "boss",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Boss</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        const isSpecialEHB = player.type !== PlayerType.REGULAR;
 
         return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>&lt; {minimum}</span>
-            </TooltipTrigger>
-            <TooltipContent>
-              This player is unranked in {MetricProps[row.original.metric].name}. The Hiscores only start
-              tracking kills at {minimum} kc.
-            </TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-x-2">
+            <MetricIconSmall metric={row.original.metric} />
+            {MetricProps[row.original.metric].name}
+            {(row.original.metric as Metric) === Metric.EHB && isSpecialEHB && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span>(Special)</span>
+                </TooltipTrigger>
+                <TooltipContent>{PlayerTypeProps[player.type].name}</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         );
-      }
+      },
+      sortingFn: (rowA, rowB) => {
+        return rowA.original.metric.localeCompare(rowB.original.metric);
+      },
+    },
+    {
+      accessorKey: "kills",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Kills</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        if ((row.original.metric as Metric) === Metric.EHB) return null;
 
-      return <FormattedNumber value={row.original.kills} />;
-    },
-  },
-  {
-    accessorKey: "rank",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Rank</TableSortButton>;
-    },
-    cell: ({ row }) => {
-      if (row.original.kills === -1 && (row.original.metric as Metric) !== Metric.EHB) {
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>---</span>
-            </TooltipTrigger>
-            <TooltipContent>
-              This player is unranked in {MetricProps[row.original.metric].name}.
-            </TooltipContent>
-          </Tooltip>
-        );
-      }
+        if (row.original.kills === -1) {
+          const minimum = MetricProps[row.original.metric].minimumValue;
 
-      return <FormattedNumber value={row.original.rank} />;
-    },
-  },
-  {
-    accessorKey: "ehb",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>EHB</TableSortButton>;
-    },
-    cell: ({ row }) => {
-      if (
-        (row.original.kills === -1 && (row.original.metric as Metric) !== Metric.EHB) ||
-        row.original.ehb === undefined
-      ) {
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>---</span>
-            </TooltipTrigger>
-            <TooltipContent>
-              This player is unranked in {MetricProps[row.original.metric].name}.
-            </TooltipContent>
-          </Tooltip>
-        );
-      }
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>&lt; {minimum}</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                This player is unranked in {MetricProps[row.original.metric].name}. The Hiscores only
+                start tracking kills at {minimum} kc.
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
 
-      return row.original.ehb.toFixed(2);
+        return <FormattedNumber value={row.original.kills} />;
+      },
     },
-  },
-];
+    {
+      accessorKey: "rank",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>Rank</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        if (row.original.kills === -1 && (row.original.metric as Metric) !== Metric.EHB) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>---</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                This player is unranked in {MetricProps[row.original.metric].name}.
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
+
+        return <FormattedNumber value={row.original.rank} />;
+      },
+    },
+    {
+      accessorKey: "ehb",
+      header: ({ column }) => {
+        return <TableSortButton column={column}>EHB</TableSortButton>;
+      },
+      cell: ({ row }) => {
+        if (
+          (row.original.kills === -1 && (row.original.metric as Metric) !== Metric.EHB) ||
+          row.original.ehb === undefined
+        ) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>---</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                This player is unranked in {MetricProps[row.original.metric].name}.
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
+
+        return row.original.ehb.toFixed(2);
+      },
+    },
+  ];
+}
 
 function PlayerActivitiesTable(props: PropsWithChildren<{ player: PlayerDetails }>) {
   const { children, player } = props;
@@ -554,4 +580,16 @@ function TableOptionsMenu(props: TableOptionsMenuProps) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+}
+
+function getSpecialEHPRatesLabel(player: Player) {
+  if (player.type === PlayerType.REGULAR) {
+    return PlayerBuildProps[player.build].name;
+  }
+
+  if (player.build === PlayerBuild.MAIN) {
+    return PlayerTypeProps[player.type].name;
+  }
+
+  return `${PlayerTypeProps[player.type].name}  ·  ${PlayerBuildProps[player.build].name}`;
 }

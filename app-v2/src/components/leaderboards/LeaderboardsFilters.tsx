@@ -56,8 +56,8 @@ export function LeaderboardsFilters() {
 
   const metric = getMetricParam(searchParams.get("metric")) || Metric.OVERALL;
   const country = getCountryParam(searchParams.get("country"));
-  const playerType = getPlayerTypeParam(searchParams.get("playerType"));
-  const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild"));
+  const playerType = getPlayerTypeParam(searchParams.get("playerType")) || PlayerType.REGULAR;
+  const playerBuild = getPlayerBuildParam(searchParams.get("playerBuild")) || PlayerBuild.MAIN;
 
   // For efficiency leaderboards (it only accepts "ehp"/"ehb/"combined")
   const computedMetric = getComputedMetricParam(searchParams.get("metric")) || Metric.EHP;
