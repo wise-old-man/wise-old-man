@@ -26,15 +26,15 @@ async function findEfficiencyLeaderboards(payload: FindEfficiencyLeaderboardsPar
     params.offset < 50 && params.metric === Metric.EHP && params.playerBuild === PlayerBuild.MAIN;
 
   if (requiresSorting) {
-    // Fetch top X players, and include their snapshots
-    const sortedPlayers = (await fetchSortedPlayersList(params)).sort(
+    // Fetch top 50 players, and include their snapshots
+    const sortedPlayers = (await fetchSortedPlayersList({ ...params, limit: 50 })).sort(
       (a, b) =>
         (a.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER) -
         (b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER)
     );
 
     // Once we've used their snapshots to sort by rank, we can omit them from the response
-    return sortedPlayers.map(s => omit(s, 'latestSnapshot'));
+    return sortedPlayers.map(s => omit(s, 'latestSnapshot')).slice(0, params.limit);
   }
 
   return await fetchPlayersList(params);
