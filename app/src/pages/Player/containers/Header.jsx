@@ -171,6 +171,8 @@ function getBuildBadge(build) {
       return { text: 'Level 3', hoverText: '' };
     case 'f2p':
       return { text: 'F2P', hoverText: '' };
+    case 'f2p_lvl3':
+      return { text: 'F2P & Level 3', hoverText: '' };
     case 'def1':
       return { text: '1 Def Pure', hoverText: '' };
     case 'hp10':
