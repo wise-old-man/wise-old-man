@@ -1,6 +1,4 @@
-import { Suspense } from "react";
 import { searchCompetitions } from "~/services/wiseoldman";
-import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import { Pagination } from "~/components/Pagination";
 import { CompetitionsList } from "~/components/competitions/CompetitionsList";
 import {
@@ -36,17 +34,7 @@ export function generateMetadata(props: PageProps) {
   return { title: `Competitions (Page ${page})` };
 }
 
-export default async function CompetitionsPageWrapper(props: PageProps) {
-  // As of Next.js 13.4.1, modifying searchParams doesn't trigger the page's file-based suspense boundary to re-fallback.
-  // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
-  return (
-    <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      <CompetitionsPage {...props} />
-    </Suspense>
-  );
-}
-
-async function CompetitionsPage(props: PageProps) {
+export default async function CompetitionsPage(props: PageProps) {
   const { searchParams } = props;
 
   const page = getPageParam(searchParams.page) || 1;
@@ -81,33 +69,5 @@ async function CompetitionsPage(props: PageProps) {
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
       </div>
     </>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="custom-scroll overflow-x-auto">
-      <ListTable className="border-spacing-y-3">
-        {[...Array(20)].map((_, i) => (
-          <ListTableRow key={`competition_skeleton_${i}`}>
-            <ListTableCell className="flex items-center gap-x-3">
-              <div className="h-6 w-6 animate-pulse rounded-full bg-gray-700" />
-              <div className="flex flex-col gap-y-2 py-1">
-                <div className="h-4 w-60 animate-pulse rounded-lg bg-gray-700" />
-                <div className="h-3 w-28 animate-pulse rounded-lg bg-gray-700" />
-              </div>
-            </ListTableCell>
-            <ListTableCell className="w-40 pr-4">
-              <div className="h-3 w-28 animate-pulse rounded-lg bg-gray-700" />
-            </ListTableCell>
-            <ListTableCell className="w-28 pl-0">
-              <div className="flex justify-end">
-                <div className="h-5 w-16 animate-pulse rounded-full bg-gray-700" />
-              </div>
-            </ListTableCell>
-          </ListTableRow>
-        ))}
-      </ListTable>
-    </div>
   );
 }
