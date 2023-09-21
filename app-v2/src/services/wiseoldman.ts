@@ -93,8 +93,26 @@ export const getGroupDetails = cache((id: number) => {
 });
 
 export const getGroupGains = cache(
-  (id: number, period: Period, metric: Metric, limit: number, offset: number) => {
-    return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
+  (
+    id: number,
+    period: Period | undefined,
+    startDate: Date | undefined,
+    endDate: Date | undefined,
+    metric: Metric,
+    limit: number,
+    offset: number
+  ) => {
+    if (period) {
+      return handleNotFound(apiClient.groups.getGroupGains(id, { period, metric }, { limit, offset }));
+    }
+
+    if (!startDate || !endDate) {
+      throw new Error("Bad Request: Missing startDate or endDate");
+    }
+
+    return handleNotFound(
+      apiClient.groups.getGroupGains(id, { metric, startDate, endDate }, { limit, offset })
+    );
   }
 );
 

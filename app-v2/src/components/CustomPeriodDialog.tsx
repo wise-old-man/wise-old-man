@@ -3,22 +3,23 @@
 import { useState } from "react";
 import { Time } from "@internationalized/date";
 import { Period, PeriodProps } from "@wise-old-man/utils";
-import { useRouter, useSearchParams } from "next/navigation";
 import { DateValue, TimeValue } from "@react-aria/datepicker";
-import { Label } from "../Label";
-import { Button } from "../Button";
-import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../Dialog";
+import { Label } from "./Label";
+import { Button } from "./Button";
+import { DateTimePicker, TimeField, toCalendarDate, toDate } from "./DatePicker";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./Dialog";
 
-interface PlayerCustomPeriodDialogProps {
-  username: string;
+import LoadingIcon from "~/assets/loading.svg";
+
+interface CustomPeriodDialogProps {
+  isOpen: boolean;
+  isPending: boolean;
+  onClose: () => void;
+  onSelected: (startDate: Date, endDate: Date) => void;
 }
 
-export function PlayerCustomPeriodDialog(props: PlayerCustomPeriodDialogProps) {
-  const { username } = props;
-
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function CustomPeriodDialog(props: CustomPeriodDialogProps) {
+  const { isOpen, isPending, onSelected, onClose } = props;
 
   const [startTime, setStartTime] = useState<TimeValue>(new Time(12, 0));
   const [endTime, setEndTime] = useState<TimeValue>(new Time(12, 0));
@@ -26,26 +27,21 @@ export function PlayerCustomPeriodDialog(props: PlayerCustomPeriodDialogProps) {
   const [startDate, setStartDate] = useState<DateValue>(
     toCalendarDate(new Date(Date.now() - PeriodProps[Period.WEEK].milliseconds))
   );
+
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(new Date()));
 
   function handleSelection() {
     const startDateTime = toDate(startDate, startTime);
     const endDateTime = toDate(endDate, endTime);
 
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.delete("period");
-    nextParams.delete("dialog");
-    nextParams.set("startDate", startDateTime.toISOString());
-    nextParams.set("endDate", endDateTime.toISOString());
-
-    router.push(`/players/${username}/gained?${nextParams.toString()}`);
+    onSelected(startDateTime, endDateTime);
   }
 
   return (
     <Dialog
-      open={searchParams.get("dialog") === "custom_period"}
+      open={isOpen}
       onOpenChange={(val) => {
-        if (!val) router.back();
+        if (!val) onClose();
       }}
     >
       <DialogContent>
@@ -84,8 +80,15 @@ export function PlayerCustomPeriodDialog(props: PlayerCustomPeriodDialogProps) {
             </div>
           </div>
           <div className="mt-5 w-full grow border-t border-gray-700">
-            <Button type="submit" size="lg" variant="blue" className="mt-5 w-full justify-center">
-              Confirm
+            <Button disabled={isPending} size="lg" variant="blue" className="mt-5 w-full justify-center">
+              {isPending ? (
+                <>
+                  <LoadingIcon className="-ml-2 mr-2 h-5 w-5 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>Confirm</>
+              )}
             </Button>
           </div>
         </form>
