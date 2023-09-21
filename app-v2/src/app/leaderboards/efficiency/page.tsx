@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   ComputedMetric,
   EfficiencyLeaderboardsFilter,
@@ -11,7 +10,6 @@ import { getEfficiencyLeaderboards } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
-import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
 import {
   getPlayerTypeParam,
   getPlayerBuildParam,
@@ -48,17 +46,7 @@ export function generateMetadata(props: PageProps) {
   };
 }
 
-export default async function EfficiencyLeaderboardsPageWrapper(props: PageProps) {
-  // As of Next.js 13.4.1, modifying searchParams doesn't trigger the page's file-based suspense boundary to re-fallback.
-  // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
-  return (
-    <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      <EfficiencyLeaderboardsPage {...props} />
-    </Suspense>
-  );
-}
-
-async function EfficiencyLeaderboardsPage(props: PageProps) {
+export default async function EfficiencyLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
   const filters = {
@@ -121,14 +109,6 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
           ))}
         </ListTable>
       )}
-    </div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="col-span-3 mx-auto w-full max-w-lg">
-      <LeaderboardSkeleton hasCaption />
     </div>
   );
 }

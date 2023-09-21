@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import { Metric, MetricProps, Period, PeriodProps, RecordLeaderboardFilter } from "@wise-old-man/utils";
 import { getRecordLeaderboard } from "~/services/wiseoldman";
 import { PlayerIdentity } from "~/components/PlayerIdentity";
 import { FormattedNumber } from "~/components/FormattedNumber";
-import { LeaderboardSkeleton } from "~/components/leaderboards/LeaderboardSkeleton";
 import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 import {
   getCountryParam,
@@ -34,17 +32,7 @@ export function generateMetadata(props: PageProps) {
   };
 }
 
-export default async function RecordsLeaderboardsPageWrapper(props: PageProps) {
-  // As of Next.js 13.4.1, modifying searchParams doesn't trigger the page's file-based suspense boundary to re-fallback.
-  // So to bypass that until there's a fix, we'll make our manage our own suspense boundary with params as a unique key.
-  return (
-    <Suspense key={JSON.stringify(props.searchParams)} fallback={<LoadingState />}>
-      <RecordsLeaderboardsPage {...props} />
-    </Suspense>
-  );
-}
-
-async function RecordsLeaderboardsPage(props: PageProps) {
+export default async function RecordsLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
   const filters = {
@@ -57,13 +45,8 @@ async function RecordsLeaderboardsPage(props: PageProps) {
   return (
     <>
       <RecordLeaderboard period={Period.DAY} filters={filters} />
-      {/* Wrap these in suspense to allow the UI to be shown as soon as day leaderboards are loaded */}
-      <Suspense fallback={<LeaderboardSkeleton period={Period.WEEK} hasCaption />}>
-        <RecordLeaderboard period={Period.WEEK} filters={filters} />
-      </Suspense>
-      <Suspense fallback={<LeaderboardSkeleton period={Period.MONTH} hasCaption />}>
-        <RecordLeaderboard period={Period.MONTH} filters={filters} />
-      </Suspense>
+      <RecordLeaderboard period={Period.WEEK} filters={filters} />
+      <RecordLeaderboard period={Period.MONTH} filters={filters} />
     </>
   );
 }
@@ -115,15 +98,5 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
         </ListTable>
       )}
     </div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <>
-      <LeaderboardSkeleton period={Period.DAY} hasCaption />
-      <LeaderboardSkeleton period={Period.WEEK} hasCaption />
-      <LeaderboardSkeleton period={Period.MONTH} hasCaption />
-    </>
   );
 }
