@@ -35,12 +35,6 @@ export default async function GroupsPage(props: PageProps) {
 
   const data = await searchGroups(search || "", RESULTS_PER_PAGE, (page - 1) * RESULTS_PER_PAGE);
 
-  function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  await sleep(500);
-
   return (
     <>
       {!data || data.length === 0 ? (
