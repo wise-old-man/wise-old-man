@@ -37,7 +37,7 @@ function RootLayout(props: PropsWithChildren) {
             This beta version of the website is still under construction. We&apos;d appreciate your
             ideas, bug reports and feedback!
           </span>
-          <a href="https://discord.gg/QbGaWrDc" target="_blank" rel="noopener noreferrer">
+          <a href="https://discord.gg/Xhg5cUaWPR" target="_blank" rel="noopener noreferrer">
             <Button size="sm" variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
               Share feedback
             </Button>
