@@ -25,7 +25,7 @@ function buildExportUrl(competitionId: number, searchParams: URLSearchParams) {
     params.set("table", "teams");
   } else if (team) {
     params.set("table", "team");
-    params.set("teamName", team || "");
+    params.set("teamName", decodeURIComponent(team || ""));
   } else {
     params.set("table", "participants");
   }

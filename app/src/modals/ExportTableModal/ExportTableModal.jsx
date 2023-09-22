@@ -45,7 +45,7 @@ function getExportURL(exportConfig) {
 
   nextURL.appendSearchParam('table', type);
 
-  if (teamName) nextURL.appendSearchParam('teamName', teamName);
+  if (teamName) nextURL.appendSearchParam('teamName', encodeURIComponent(teamName));
   if (metric) nextURL.appendSearchParam('metric', metric);
 
   return `=IMPORTDATA("${nextURL.getPath()}")`;
