@@ -448,7 +448,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className={period ? "w-32" : "w-40"} isPending={isPending}>
+      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isPending}>
         <div className="flex items-center gap-x-2">
           {period ? PeriodProps[period].name : "Custom period"}
         </div>

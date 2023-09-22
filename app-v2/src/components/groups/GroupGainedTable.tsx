@@ -27,7 +27,8 @@ import { MetricIconSmall } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
+import { TimeRangeFilter } from "~/services/wiseoldman";
 import { getPageParam } from "~/utils/params";
 import {
   Combobox,
@@ -45,13 +46,13 @@ import ArrowUpIcon from "~/assets/arrow_up.svg";
 
 interface GroupGainedTableProps {
   metric: Metric;
-  period: Period;
+  timeRange: TimeRangeFilter;
   group: GroupDetails;
   gains: DeltaGroupLeaderboardEntry[];
 }
 
 export function GroupGainedTable(props: GroupGainedTableProps) {
-  const { group, metric, period, gains } = props;
+  const { group, metric, timeRange, gains } = props;
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,16 +75,22 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
     router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`, { scroll: false });
   }
 
-  function handlePeriodChanged(period: Period) {
+  function handlePeriodChanged(newPeriod: Period | "custom") {
     const nextParams = new URLSearchParams(searchParams);
 
     // Reset pagination if params change
     nextParams.delete("page");
 
-    if (period) {
-      nextParams.set("period", period);
+    if (newPeriod === "custom") {
+      nextParams.set("dialog", "custom_period");
+    } else if (newPeriod) {
+      nextParams.set("period", newPeriod);
+      nextParams.delete("startDate");
+      nextParams.delete("endDate");
     } else {
       nextParams.delete("period");
+      nextParams.delete("startDate");
+      nextParams.delete("endDate");
     }
 
     router.replace(`/groups/${group.id}/gained?${nextParams.toString()}`, { scroll: false });
@@ -99,13 +106,35 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
           <div>
             <h3 className="text-h3 font-medium text-white">Gained</h3>
             <p className="text-body text-gray-200">
-              Most {MetricProps[metric].name} {MetricProps[metric].measure} gained in the past {period}
+              {"period" in timeRange ? (
+                <>
+                  Most {MetricProps[metric].name} {MetricProps[metric].measure} gained in the past{" "}
+                  {PeriodProps[timeRange.period].name.toLowerCase()}
+                </>
+              ) : (
+                <>
+                  Most {MetricProps[metric].name} {MetricProps[metric].measure} gained during:{" "}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="text-white underline">custom period</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Start: {formatDatetime(timeRange.startDate)}
+                      <br />
+                      End: {formatDatetime(timeRange.endDate)}
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
               &nbsp;
               {page > 1 ? `(page ${page})` : ""}
             </p>
           </div>
           <div className="flex items-center gap-x-3">
-            <PeriodSelect period={period} onPeriodSelected={handlePeriodChanged} />
+            <PeriodSelect
+              period={"period" in timeRange ? timeRange.period : undefined}
+              onPeriodSelected={handlePeriodChanged}
+            />
             <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
           </div>
         </TableTitle>
@@ -265,8 +294,8 @@ function MetricSelect(props: MetricSelectProps) {
 }
 
 interface PeriodSelectProps {
-  period: Period;
-  onPeriodSelected: (period: Period) => void;
+  period?: Period;
+  onPeriodSelected: (period: Period | "custom") => void;
 }
 
 function PeriodSelect(props: PeriodSelectProps) {
@@ -281,14 +310,16 @@ function PeriodSelect(props: PeriodSelectProps) {
         startTransition(() => {
           if (val === undefined) {
             onPeriodSelected(Period.WEEK);
-          } else if (isPeriod(val)) {
+          } else if (isPeriod(val) || val === "custom") {
             onPeriodSelected(val);
           }
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isPending}>
-        <div className="flex items-center gap-x-2">{PeriodProps[period].name}</div>
+      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isPending}>
+        <div className="flex items-center gap-x-2">
+          {period ? PeriodProps[period].name : "Custom period"}
+        </div>
       </ComboboxButton>
       <ComboboxContent>
         <ComboboxItemsContainer>
@@ -298,6 +329,7 @@ function PeriodSelect(props: PeriodSelectProps) {
                 {PeriodProps[period].name}
               </ComboboxItem>
             ))}
+            <ComboboxItem value="custom">Select custom period...</ComboboxItem>
           </ComboboxItemGroup>
         </ComboboxItemsContainer>
       </ComboboxContent>

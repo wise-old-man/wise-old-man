@@ -20,7 +20,7 @@ import { UpdatePlayerForm } from "~/components/players/UpdatePlayerForm";
 import { Alert, AlertDescription, AlertTitle } from "~/components/Alert";
 import { AssertPlayerTypeForm } from "~/components/players/AssertPlayerTypeForm";
 import { NameChangeSubmissionDialog } from "~/components/NameChangeSubmissionDialog";
-import { PlayerCustomPeriodDialog } from "~/components/players/PlayerCustomPeriodDialog";
+import { PlayerGainedCustomPeriodDialog } from "~/components/players/PlayerGainedCustomPeriodDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,7 +66,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
       {children}
 
       {/* Dialogs */}
-      <PlayerCustomPeriodDialog username={username} />
+      <PlayerGainedCustomPeriodDialog username={username} />
       <NameChangeSubmissionDialog oldName={player.displayName} />
     </Container>
   );

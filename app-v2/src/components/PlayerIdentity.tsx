@@ -27,7 +27,6 @@ export function PlayerIdentity(props: PlayerIdentityProps) {
 
   let icon: React.ReactNode;
 
-  // TODO: Add "banned" status
   if (player.status === PlayerStatus.ARCHIVED) {
     icon = <WarningFilledIcon className="h-4 w-4 text-red-500" />;
   } else if (player.status === PlayerStatus.UNRANKED) {
