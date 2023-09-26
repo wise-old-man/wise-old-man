@@ -17,7 +17,6 @@ import {
   getPlayerDetails,
   getPlayerGains,
   getPlayerSnapshotTimeline,
-  getPlayerSnapshotTimelineByPeriod,
 } from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
@@ -218,7 +217,7 @@ interface YearlyHeatmapPanelProps {
 function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
   const { username, metric } = props;
 
-  const promise = getPlayerSnapshotTimelineByPeriod(username, metric, Period.YEAR);
+  const promise = getPlayerSnapshotTimeline(username, metric, Period.YEAR);
 
   return (
     <ExpandableChartPanel

@@ -179,19 +179,13 @@ export const getPlayerRecords = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerRecords(username));
 });
 
-export const getPlayerSnapshotTimelineByPeriod = cache(
-  (username: string, metric: Metric, period: Period) => {
-    return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
-  }
-);
-
 export const getPlayerSnapshotTimeline = cache(
   (
     username: string,
     metric: Metric,
     period: Period | undefined,
-    startDate: Date | undefined,
-    endDate: Date | undefined
+    startDate?: Date | undefined,
+    endDate?: Date | undefined
   ) => {
     if (period) {
       return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
