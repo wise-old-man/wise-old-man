@@ -3,6 +3,7 @@
 import dynamicImport from "next/dynamic";
 import { TimeRangeFilter } from "~/services/wiseoldman";
 import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
+import { formatDate, formatDatetime } from "~/utils/dates";
 
 const LineChartSSR = dynamicImport(() => import("../LineChart"), {
   ssr: false,
@@ -45,6 +46,19 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       ]}
       minDate={minDate}
       maxDate={maxDate}
+      xAxisLabelFormatter={(timestamp) => {
+        // If the timespan is under 3 days long, show hours and minutes too
+        if (maxDate.getTime() - minDate.getTime() < 1000 * 60 * 60 * 24 * 3) {
+          return formatDatetime(new Date(timestamp), {
+            day: "numeric",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+
+        return formatDate(new Date(timestamp), { month: "short", day: "numeric" });
+      }}
     />
   );
 }
