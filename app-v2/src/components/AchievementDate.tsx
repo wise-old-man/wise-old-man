@@ -1,6 +1,7 @@
 import { Achievement, AchievementProgress, formatNumber } from "@wise-old-man/utils";
-import { formatDatetime, timeago } from "~/utils/dates";
+import { formatDatetime } from "~/utils/dates";
 import { cn } from "~/utils/styling";
+import { LocalDate } from "./LocalDate";
 import { MetricIconSmall } from "./Icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
@@ -19,11 +20,15 @@ export function AchievementDate(props: Achievement) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="w-32 overflow-hidden">
+        <div className="overflow-hidden">
           <div className="flex items-center gap-x-2">
             <AccuracyMeter accuracyLevel={accuracyLevel} />
             <span className="mt-0.5 inline-block">
-              {createdAt.getTime() === 0 ? "Unknown date" : timeago.format(createdAt)}
+              {createdAt.getTime() === 0 ? (
+                "Unknown date"
+              ) : (
+                <LocalDate mode="date" isoDate={createdAt.toISOString()} />
+              )}
             </span>
           </div>
         </div>

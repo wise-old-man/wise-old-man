@@ -58,8 +58,8 @@ function MembershipListItem(props: MembershipWithGroup) {
         {group.name}
         {group.verified && (
           <Tooltip>
-            <TooltipTrigger>
-              <VerifiedIcon />
+            <TooltipTrigger asChild>
+              <VerifiedIcon className="mt-1 h-4 w-4" />
             </TooltipTrigger>
             <TooltipContent>This group is verified on our Discord server.</TooltipContent>
           </Tooltip>

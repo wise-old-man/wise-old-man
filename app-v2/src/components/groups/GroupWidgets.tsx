@@ -126,12 +126,10 @@ async function FeaturedCompetitionWidget(props: { groupId: number }) {
 
   let timeagoLabel: string | undefined;
 
-  if (status === CompetitionStatus.FINISHED) {
-    timeagoLabel = timeago.format(featured.endsAt);
+  if (status === CompetitionStatus.UPCOMING) {
+    timeagoLabel = `Starts ${timeago.format(featured.startsAt, { future: true, round: "floor" })}`;
   } else if (status === CompetitionStatus.ONGOING) {
-    timeagoLabel = timeago.format(featured.endsAt, { future: true, round: "floor" });
-  } else {
-    timeagoLabel = timeago.format(featured.startsAt, { future: true, round: "floor" });
+    timeagoLabel = `Ends in ${timeago.format(featured.endsAt, { future: true, round: "floor" })}`;
   }
 
   return (

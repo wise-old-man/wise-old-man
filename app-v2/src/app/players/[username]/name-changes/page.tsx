@@ -1,6 +1,6 @@
 import { Fragment } from "react";
+import { LocalDate } from "~/components/LocalDate";
 import { getPlayerDetails, getPlayerNames } from "~/services/wiseoldman";
-import { timeago } from "~/utils/dates";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 
@@ -54,7 +54,7 @@ export default async function PlayerNameChangesPage(props: PageProps) {
             <div className="my-4 ml-4 flex items-center text-gray-200">
               <ArrowRightIcon className="h-5 w-5 -rotate-90" />
               <span className="ml-2 mt-px text-xs">
-                {timeago.format(nameChange.resolvedAt || new Date())}
+                <LocalDate isoDate={(nameChange.resolvedAt || new Date()).toISOString()} />
               </span>
             </div>
             <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">

@@ -1,7 +1,7 @@
+"use client";
+
 import dynamicImport from "next/dynamic";
-import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
-import { TimeRangeFilter, getPlayerSnapshotTimeline } from "~/services/wiseoldman";
-import { calculateGainBuckets } from "~/utils/calcs";
+import { Metric, MetricProps } from "@wise-old-man/utils";
 
 const BarChartSSR = dynamicImport(() => import("../BarChart"), {
   ssr: false,
@@ -9,39 +9,17 @@ const BarChartSSR = dynamicImport(() => import("../BarChart"), {
 });
 
 interface PlayerGainedBarchartProps {
-  username: string;
   metric: Metric;
-  timeRange: TimeRangeFilter;
+  data: Array<{ date: Date; value: number }>;
 }
 
 export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
-  const { username, metric, timeRange } = props;
+  const { data, metric } = props;
 
   const { name, measure } = MetricProps[metric];
 
-  const timelineData =
-    "period" in timeRange
-      ? await getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : await getPlayerSnapshotTimeline(
-          username,
-          metric,
-          undefined,
-          timeRange.startDate,
-          timeRange.endDate
-        );
-
-  const minDate =
-    "period" in timeRange
-      ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
-      : timeRange.startDate;
-
-  const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
-
-  // Convert the timeseries data into daily (bucket) gains
-  const bucketedData = calculateGainBuckets([...timelineData].reverse(), minDate, maxDate);
-
   // If has no gains on any of the days of the week
-  if (bucketedData.every((b) => b.gained === 0)) {
+  if (data.every((b) => b.value === 0)) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-md border border-gray-600 text-gray-200">
         No gains
@@ -49,12 +27,7 @@ export async function PlayerGainedBarchart(props: PlayerGainedBarchartProps) {
     );
   }
 
-  return (
-    <BarChartSSR
-      name={`${name} ${measure}`}
-      data={bucketedData.map((b) => ({ date: b.date, value: b.gained || 0 }))}
-    />
-  );
+  return <BarChartSSR name={`${name} ${measure}`} data={data} />;
 }
 
 export function PlayerGainedBarchartSkeleton() {

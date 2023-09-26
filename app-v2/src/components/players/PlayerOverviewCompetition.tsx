@@ -61,12 +61,10 @@ function CompetitionCard(props: CompetitionListItem) {
 
   let timeagoLabel: string | undefined;
 
-  if (status === CompetitionStatus.FINISHED) {
-    timeagoLabel = timeago.format(props.endsAt);
+  if (status === CompetitionStatus.UPCOMING) {
+    timeagoLabel = `Starts ${timeago.format(props.startsAt, { future: true, round: "floor" })}`;
   } else if (status === CompetitionStatus.ONGOING) {
-    timeagoLabel = timeago.format(props.endsAt, { future: true, round: "floor" });
-  } else {
-    timeagoLabel = timeago.format(props.startsAt, { future: true, round: "floor" });
+    timeagoLabel = `Ends in ${timeago.format(props.endsAt, { future: true, round: "floor" })}`;
   }
 
   return (

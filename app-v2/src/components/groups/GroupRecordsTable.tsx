@@ -23,8 +23,7 @@ import { DataTable } from "../DataTable";
 import { MetricIconSmall } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
 import { FormattedNumber } from "../FormattedNumber";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { formatDatetime, timeago } from "~/utils/dates";
+import { timeago } from "~/utils/dates";
 import { getPageParam } from "~/utils/params";
 import {
   Combobox,
@@ -37,6 +36,7 @@ import {
   ComboboxItem,
   ComboboxSeparator,
 } from "../Combobox";
+import { LocalDate } from "../LocalDate";
 
 interface GroupRecordsTableProps {
   metric: Metric;
@@ -141,12 +141,9 @@ function getColumnDefinitions(page: number, metric: Metric) {
       header: "Date",
       cell: ({ row }) => {
         return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>{timeago.format(row.original.updatedAt)}</span>
-            </TooltipTrigger>
-            <TooltipContent>{formatDatetime(row.original.updatedAt)}</TooltipContent>
-          </Tooltip>
+          <div className="inline-block min-w-[9rem]">
+            <LocalDate isoDate={row.original.updatedAt.toISOString()} />
+          </div>
         );
       },
     },

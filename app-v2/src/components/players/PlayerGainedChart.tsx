@@ -1,6 +1,9 @@
+"use client";
+
 import dynamicImport from "next/dynamic";
+import { TimeRangeFilter } from "~/services/wiseoldman";
 import { Metric, MetricProps, PeriodProps } from "@wise-old-man/utils";
-import { TimeRangeFilter, getPlayerSnapshotTimeline } from "~/services/wiseoldman";
+import { formatDate, formatDatetime } from "~/utils/dates";
 
 const LineChartSSR = dynamicImport(() => import("../LineChart"), {
   ssr: false,
@@ -8,34 +11,23 @@ const LineChartSSR = dynamicImport(() => import("../LineChart"), {
 });
 
 interface PlayerGainedChartProps {
-  username: string;
-  timeRange: TimeRangeFilter;
   metric: Metric;
+  timeRange: TimeRangeFilter;
+  data: Array<{ date: Date; value: number }>;
 }
 
 export async function PlayerGainedChart(props: PlayerGainedChartProps) {
-  const { username, timeRange, metric } = props;
+  const { data, metric, timeRange } = props;
 
-  const { name, measure } = MetricProps[metric];
-
-  const timelineData =
-    "period" in timeRange
-      ? await getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
-      : await getPlayerSnapshotTimeline(
-          username,
-          metric,
-          undefined,
-          timeRange.startDate,
-          timeRange.endDate
-        );
-
-  if (timelineData.length < 2 || timelineData.every((d) => d.value === -1)) {
+  if (data.length < 2 || data.every((d) => d.value === -1)) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-md border border-gray-600 text-gray-200">
         Not enough data
       </div>
     );
   }
+
+  const { name, measure } = MetricProps[metric];
 
   const minDate =
     "period" in timeRange
@@ -49,11 +41,24 @@ export async function PlayerGainedChart(props: PlayerGainedChartProps) {
       datasets={[
         {
           name: `${name} ${measure}`,
-          data: timelineData.map((d) => ({ value: d.value, time: d.date.getTime() })),
+          data: data.map((d) => ({ value: d.value, time: d.date.getTime() })),
         },
       ]}
       minDate={minDate}
       maxDate={maxDate}
+      xAxisLabelFormatter={(timestamp) => {
+        // If the timespan is under 3 days long, show hours and minutes too
+        if (maxDate.getTime() - minDate.getTime() < 1000 * 60 * 60 * 24 * 3) {
+          return formatDatetime(new Date(timestamp), {
+            day: "numeric",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+
+        return formatDate(new Date(timestamp), { month: "short", day: "numeric" });
+      }}
     />
   );
 }

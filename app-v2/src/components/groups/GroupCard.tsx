@@ -13,8 +13,8 @@ export function GroupCard(props: GroupListItem) {
             <h3 className="mr-2 text-base font-bold leading-5">{props.name}</h3>
             {props.verified && (
               <Tooltip>
-                <TooltipTrigger>
-                  <VerifiedIcon />
+                <TooltipTrigger asChild>
+                  <VerifiedIcon className="h-4 w-4" />
                 </TooltipTrigger>
                 <TooltipContent>This group is verified on our Discord server.</TooltipContent>
               </Tooltip>
