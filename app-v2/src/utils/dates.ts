@@ -51,23 +51,27 @@ export function convertToUTC(date: Date) {
   return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
 }
 
-export function formatDatetime(date: Date) {
-  return date.toLocaleString(undefined, {
+export function formatDatetime(date: Date, options?: Intl.DateTimeFormatOptions) {
+  const defaultOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "numeric",
     second: "numeric",
     day: "numeric",
     month: "short",
     year: "numeric",
-  });
+  };
+
+  return date.toLocaleString(undefined, options || defaultOptions);
 }
 
-export function formatDate(date: Date) {
-  return date.toLocaleString(undefined, {
+export function formatDate(date: Date, options?: Intl.DateTimeFormatOptions) {
+  const defaultOptions: Intl.DateTimeFormatOptions = {
     day: "numeric",
     month: "short",
     year: "numeric",
-  });
+  };
+
+  return date.toLocaleString(undefined, options || defaultOptions);
 }
 
 export function isValidDate(dateString: string) {

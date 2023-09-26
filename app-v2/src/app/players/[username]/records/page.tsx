@@ -11,9 +11,10 @@ import {
   isComputedMetric,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
-import { formatDatetime, timeago } from "~/utils/dates";
+import { formatDatetime } from "~/utils/dates";
 import { getPlayerDetails, getPlayerRecords } from "~/services/wiseoldman";
 import { MetricIcon } from "~/components/Icon";
+import { LocalDate } from "~/components/LocalDate";
 import { QueryLink } from "~/components/QueryLink";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
@@ -143,7 +144,9 @@ function MetricRecords(props: MetricRecordsProps) {
                     </span>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="text-xs text-gray-200">{timeago.format(record.updatedAt)}</span>
+                        <span className="text-xs text-gray-200">
+                          <LocalDate mode="date" isoDate={record.updatedAt.toISOString()} />
+                        </span>
                       </TooltipTrigger>
                       <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
                     </Tooltip>
