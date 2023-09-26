@@ -20,6 +20,7 @@ import ChatIcon from "~/assets/chat.svg";
 import GlobeIcon from "~/assets/globe.svg";
 import PeopleIcon from "~/assets/people-2.svg";
 import OverflowIcon from "~/assets/overflow.svg";
+import VerifiedIcon from "~/assets/verified.svg";
 
 export const dynamic = "force-dynamic";
 
@@ -115,7 +116,17 @@ function Header(props: GroupDetails) {
     <div>
       <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold">{name}</h1>
+          <div className="flex items-center gap-x-3">
+            <h1 className="text-3xl font-bold">{name}</h1>
+            {props.verified && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <VerifiedIcon className="mt-1 h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent>This group is verified on our Discord server.</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           {description && <p className="mt-1 text-body text-gray-200">{description}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-x-2">
