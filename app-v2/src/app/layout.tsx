@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/react";
 import { PropsWithChildren } from "react";
 import { Inter } from "next/font/google";
 import { cn } from "~/utils/styling";
@@ -54,7 +53,6 @@ function RootLayout(props: PropsWithChildren) {
         </TooltipProvider>
         <TailwindIndicator />
         <ToastManager />
-        <Analytics />
       </body>
     </html>
   );
