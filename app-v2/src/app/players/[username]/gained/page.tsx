@@ -12,20 +12,28 @@ import {
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { getMetricParam, getTimeRangeFilterParams } from "~/utils/params";
-import { TimeRangeFilter, getPlayerDetails, getPlayerGains } from "~/services/wiseoldman";
+import {
+  TimeRangeFilter,
+  getPlayerDetails,
+  getPlayerGains,
+  getPlayerSnapshotTimeline,
+  getPlayerSnapshotTimelineByPeriod,
+} from "~/services/wiseoldman";
 import { FormattedNumber } from "~/components/FormattedNumber";
 import { PlayerGainedTable } from "~/components/players/PlayerGainedTable";
 import { PlayerGainedTimeCards } from "~/components/players/PlayerGainedTimeCards";
 import { PlayerGainedChart, PlayerGainedChartSkeleton } from "~/components/players/PlayerGainedChart";
 import { ExpandableChartPanel } from "~/components/players/ExpandableChartPanel";
 import {
-  PlayerGainedHeatmap,
-  PlayerGainedHeatmapSkeleton,
-} from "~/components/players/PlayerGainedHeatmap";
-import {
   PlayerGainedBarchart,
   PlayerGainedBarchartSkeleton,
 } from "~/components/players/PlayerGainedBarchart";
+import {
+  PlayerGainedHeatmap,
+  PlayerGainedHeatmapSkeleton,
+} from "~/components/players/PlayerGainedHeatmap";
+import { Await } from "~/components/Await";
+import { calculateGainBuckets } from "~/utils/calcs";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +99,12 @@ interface CumulativeGainsPanelProps {
 }
 
 function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
-  const { timeRange, metric } = props;
+  const { username, timeRange, metric } = props;
+
+  const promise =
+    "period" in timeRange
+      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
+      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
@@ -114,8 +127,10 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
         </>
       }
     >
-      <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedChartSkeleton />}>
-        <PlayerGainedChart {...props} />
+      <Suspense fallback={<PlayerGainedChartSkeleton />}>
+        <Await promise={promise}>
+          {(data) => <PlayerGainedChart data={data} metric={metric} timeRange={timeRange} />}
+        </Await>
       </Suspense>
     </ExpandableChartPanel>
   );
@@ -123,12 +138,12 @@ function CumulativeGainsPanel(props: CumulativeGainsPanelProps) {
 
 interface BucketedDailyGainsPanelProps {
   username: string;
-  timeRange: TimeRangeFilter;
   metric: Metric;
+  timeRange: TimeRangeFilter;
 }
 
 function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
-  const { metric } = props;
+  const { username, metric } = props;
 
   let timeRange = { ...props.timeRange };
 
@@ -141,6 +156,11 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
   ) {
     timeRange.period = Period.WEEK;
   }
+
+  const promise =
+    "period" in timeRange
+      ? getPlayerSnapshotTimeline(username, metric, timeRange.period, undefined, undefined)
+      : getPlayerSnapshotTimeline(username, metric, undefined, timeRange.startDate, timeRange.endDate);
 
   return (
     <ExpandableChartPanel
@@ -164,8 +184,27 @@ function BucketedDailyGainsPanel(props: BucketedDailyGainsPanelProps) {
         </>
       }
     >
-      <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedBarchartSkeleton />}>
-        <PlayerGainedBarchart {...props} timeRange={timeRange} />
+      <Suspense fallback={<PlayerGainedBarchartSkeleton />}>
+        <Await promise={promise}>
+          {(data) => {
+            const minDate =
+              "period" in timeRange
+                ? new Date(Date.now() - PeriodProps[timeRange.period].milliseconds)
+                : timeRange.startDate;
+
+            const maxDate = "period" in timeRange ? new Date() : timeRange.endDate;
+
+            // Convert the timeseries data into daily (bucket) gains
+            const bucketedData = calculateGainBuckets([...data].reverse(), minDate, maxDate);
+
+            return (
+              <PlayerGainedBarchart
+                metric={metric}
+                data={bucketedData.map((b) => ({ date: b.date, value: b.gained || 0 }))}
+              />
+            );
+          }}
+        </Await>
       </Suspense>
     </ExpandableChartPanel>
   );
@@ -177,7 +216,9 @@ interface YearlyHeatmapPanelProps {
 }
 
 function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
-  const { metric } = props;
+  const { username, metric } = props;
+
+  const promise = getPlayerSnapshotTimelineByPeriod(username, metric, Period.YEAR);
 
   return (
     <ExpandableChartPanel
@@ -191,8 +232,20 @@ function YearlyHeatmapPanel(props: YearlyHeatmapPanelProps) {
         </>
       }
     >
-      <Suspense key={JSON.stringify(props)} fallback={<PlayerGainedHeatmapSkeleton />}>
-        <PlayerGainedHeatmap {...props} />
+      <Suspense fallback={<PlayerGainedHeatmapSkeleton />}>
+        <Await promise={promise}>
+          {(data) => {
+            const minDate = new Date(Date.now() - PeriodProps[Period.YEAR].milliseconds);
+            const maxDate = new Date();
+
+            // Convert the timeseries data into daily (bucket) gains
+            const bucketedData = calculateGainBuckets([...data].reverse(), minDate, maxDate);
+
+            return (
+              <PlayerGainedHeatmap data={bucketedData.map((b) => ({ date: b.date, value: b.gained }))} />
+            );
+          }}
+        </Await>
       </Suspense>
     </ExpandableChartPanel>
   );
