@@ -25,12 +25,10 @@ export const apiClient = new WOMClient({
 export type TimeRangeFilter = { period: Period } | { startDate: Date; endDate: Date };
 
 async function handleNotFound<T>(promise: Promise<T>): Promise<T> {
-  try {
-    return await promise;
-  } catch (e: any) {
+  return promise.catch((e) => {
     if ("statusCode" in e && e.statusCode === 404) notFound();
     throw e;
-  }
+  });
 }
 
 export function getCompetitionStatus(competition: CompetitionDetails | CompetitionListItem) {
@@ -180,6 +178,12 @@ export const getPlayerNames = cache((username: string) => {
 export const getPlayerRecords = cache((username: string) => {
   return handleNotFound(apiClient.players.getPlayerRecords(username));
 });
+
+export const getPlayerSnapshotTimelineByPeriod = cache(
+  (username: string, metric: Metric, period: Period) => {
+    return handleNotFound(apiClient.players.getPlayerSnapshotTimeline(username, metric, { period }));
+  }
+);
 
 export const getPlayerSnapshotTimeline = cache(
   (
