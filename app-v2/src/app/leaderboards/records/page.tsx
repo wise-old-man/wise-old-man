@@ -76,25 +76,32 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
         </div>
       ) : (
         <ListTable>
-          {data.map((row, index) => (
-            <ListTableRow key={row.player.username}>
-              <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
-              <ListTableCell>
-                <PlayerIdentity
-                  player={row.player}
-                  caption={formatDate(row.updatedAt)}
-                  href={`/players/${row.player.username}/gained/?metric=${
-                    row.metric
-                  }&startDate=${new Date(
-                    row.updatedAt.getTime() - PeriodProps[period].milliseconds
-                  ).toISOString()}&endDate=${row.updatedAt.toISOString()}`}
-                />
-              </ListTableCell>
-              <ListTableCell className="w-5 text-right font-medium">
-                <FormattedNumber value={row.value} colored />
-              </ListTableCell>
-            </ListTableRow>
-          ))}
+          {data.map((roww, index) => {
+            const { player, value, updatedAt, metric } = roww;
+            const startDate = new Date(updatedAt.getTime() - PeriodProps[period].milliseconds);
+
+            const params = new URLSearchParams({
+              metric,
+              startDate: startDate.toISOString(),
+              endDate: updatedAt.toISOString(),
+            });
+
+            return (
+              <ListTableRow key={player.username}>
+                <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
+                <ListTableCell>
+                  <PlayerIdentity
+                    player={player}
+                    caption={formatDate(updatedAt)}
+                    href={`/players/${player.displayName}/gained?${params.toString()}`}
+                  />
+                </ListTableCell>
+                <ListTableCell className="w-5 text-right font-medium">
+                  <FormattedNumber value={value} colored />
+                </ListTableCell>
+              </ListTableRow>
+            );
+          })}
         </ListTable>
       )}
     </div>
