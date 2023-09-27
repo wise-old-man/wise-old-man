@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Player } from "@wise-old-man/utils";
 import { Fragment, forwardRef, useEffect, useRef, useState } from "react";
@@ -10,16 +9,12 @@ import { isAppleDevice } from "~/utils/platform";
 import useSearchPlayers from "~/hooks/useSearchPlayers";
 import useDebouncedValue from "~/hooks/useDebouncedValue";
 import useRecentSearches from "~/hooks/useRecentSearches";
+import { ClientOnly } from "./ClientOnly";
 import { PlayerIdentity } from "./PlayerIdentity";
 
 import CloseIcon from "~/assets/close.svg";
 import SearchIcon from "~/assets/search.svg";
 import LoadingIcon from "~/assets/loading.svg";
-
-// Can't be server rendered - requires the browser's navigator to be defined (to determine if it's macOS or not)
-const SearchHotkeys = dynamic(() => import("./SearchHotkeys"), {
-  ssr: false,
-});
 
 interface PlayerSearchProps {
   mode: "navigate" | "select";
@@ -305,11 +300,28 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
       <div className="pointer-events-none absolute bottom-0 left-3 top-0 flex items-center">
         <SearchIcon className="h-5 w-5 text-gray-300" />
       </div>
-      {renderHotkey && <SearchHotkeys />}
+      {renderHotkey && (
+        <ClientOnly>
+          <SearchHotkeys />
+        </ClientOnly>
+      )}
     </div>
   );
 });
 SearchInput.displayName = "SearchInput";
+
+function SearchHotkeys() {
+  return (
+    <div className="pointer-events-none absolute bottom-0 right-3 top-0 hidden items-center font-medium text-gray-400 sm:flex">
+      {isAppleDevice() ? (
+        <kbd className="mr-px pt-px font-mono text-lg font-bold leading-4">⌘</kbd>
+      ) : (
+        <kbd className="font-mono text-xs font-bold">ctrl</kbd>
+      )}
+      <kbd className="ml-1 font-mono text-xs font-black">K</kbd>
+    </div>
+  );
+}
 
 /**
  * HeadlessUI doesn't expose an "onActiveOptionChanged" event, only an "activeOption" render prop.

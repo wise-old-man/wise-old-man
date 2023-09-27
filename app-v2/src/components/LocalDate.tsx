@@ -1,24 +1,40 @@
 "use client";
 
-import { useHasMounted } from "~/hooks/useHasMounted";
 import { cn } from "~/utils/styling";
-import { formatDate, formatDatetime } from "~/utils/dates";
+import { useHasMounted } from "~/hooks/useHasMounted";
 
 interface LocalDateProps {
   isoDate: string;
   mode?: "date" | "datetime";
+  locale?: Intl.LocalesArgument;
   formatOptions?: Intl.DateTimeFormatOptions;
 }
 
-export function LocalDate(props: LocalDateProps) {
-  const { isoDate, mode, formatOptions } = props;
+const DEFAULT_DATE_FORMATTING: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+};
 
+const DEFAULT_DATETIME_FORMATTING: Intl.DateTimeFormatOptions = {
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+};
+
+export function LocalDate(props: LocalDateProps) {
+  const { isoDate, locale, mode, formatOptions } = props;
+
+  const date = new Date(isoDate);
   const hasMounted = useHasMounted();
 
   const formattedDate =
     mode === "date"
-      ? formatDate(new Date(isoDate), formatOptions)
-      : formatDatetime(new Date(isoDate), formatOptions);
+      ? date.toLocaleString(locale, formatOptions || DEFAULT_DATE_FORMATTING)
+      : date.toLocaleString(locale, formatOptions || DEFAULT_DATETIME_FORMATTING);
 
   return (
     <div className="relative inline-block min-w-[10ch]">
