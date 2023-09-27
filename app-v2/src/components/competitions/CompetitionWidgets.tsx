@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import {
   CompetitionDetails,
   MeasuredDeltaProgress,
@@ -13,7 +12,11 @@ import {
   isActivity,
   isBoss,
   isSkill,
+  padNumber,
 } from "@wise-old-man/utils";
+import { useTicker } from "~/hooks/useTicker";
+import { convertToUTC, durationBetween } from "~/utils/dates";
+import { useHasMounted } from "~/hooks/useHasMounted";
 import { cn } from "~/utils/styling";
 import {
   Combobox,
@@ -26,23 +29,12 @@ import {
 import { Label } from "../Label";
 import { Badge } from "../Badge";
 import { MetricIcon } from "../Icon";
+import { LocalDate } from "../LocalDate";
 
 import ArrowUpIcon from "~/assets/arrow_up.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 type TopParticipantSorting = "by_value" | "by_percent";
-
-// Can't be server rendered - requires browser APIs (setInterval)
-const CompetitionCountdown = dynamic(() => import("./CompetitionCountdown"), {
-  loading: () => <PlaceholderWidget />,
-  ssr: false,
-});
-
-// Can't be server rendered - requires the browser's locale to show local time
-const CompetitionDuration = dynamic(() => import("./CompetitionDuration"), {
-  loading: () => <PlaceholderWidget />,
-  ssr: false,
-});
 
 interface CompetitionWidgetsProps {
   metric: Metric;
@@ -85,10 +77,6 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
       </div>
     </div>
   );
-}
-
-function PlaceholderWidget() {
-  return <div className="h-24 w-full overflow-hidden rounded-lg border border-gray-500 px-3" />;
 }
 
 interface TopParticipantWidgetrops {
@@ -158,6 +146,104 @@ function GainedWidget(props: GainedWidgetProps) {
       <div className="z-1 relative flex flex-col gap-y-0.5">
         <span className="text-xs text-gray-100">{MetricProps[metric].name}</span>
         <span className="text-xl font-medium">{formatNumber(value)}</span>
+      </div>
+    </div>
+  );
+}
+
+interface CompetitionCountdownProps {
+  startsAt: Date;
+  endsAt: Date;
+}
+
+function CompetitionCountdown(props: CompetitionCountdownProps) {
+  const { startsAt, endsAt } = props;
+
+  const hasMounted = useHasMounted();
+
+  const now = new Date();
+
+  // Update this component every second (if the competition isn't over)
+  useTicker(1000, hasMounted && endsAt > now);
+
+  const isOngoing = startsAt < now && endsAt > now;
+
+  const progress = getProgress(startsAt, endsAt);
+  const { days, hours, minutes, seconds } = durationBetween(new Date(), isOngoing ? endsAt : startsAt);
+
+  return (
+    <div className="relative flex h-24 w-full items-center justify-around overflow-hidden rounded-lg border border-gray-500 px-3">
+      <div className="flex flex-col items-center">
+        <span className="text-2xl font-medium">{padNumber(days)}</span>
+        <span className="text-xs text-gray-200">days</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-2xl font-medium">{padNumber(hours)}</span>
+        <span className="text-xs text-gray-200">hours</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span suppressHydrationWarning className="text-2xl font-medium">
+          {padNumber(minutes)}
+        </span>
+        <span className="text-xs text-gray-200">mins</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span suppressHydrationWarning className="text-2xl font-medium">
+          {padNumber(seconds)}
+        </span>
+        <span className="text-xs text-gray-200">secs</span>
+      </div>
+      {isOngoing && progress > 0 && (
+        <div className="absolute bottom-0 left-0 right-0">
+          <div className="h-[2px] bg-green-500" style={{ width: `${Math.floor(progress * 100)}%` }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface CompetitionDurationProps {
+  startsAt: Date;
+  endsAt: Date;
+  showUTC: boolean;
+}
+
+function CompetitionDuration(props: CompetitionDurationProps) {
+  const { showUTC } = props;
+
+  const duration = durationBetween(props.startsAt, props.endsAt);
+
+  const durationSegments = [];
+  if (duration.days > 0) durationSegments.push(`${duration.days} days`);
+  if (duration.hours > 0) durationSegments.push(`${duration.hours} hours`);
+  if (duration.minutes > 0) durationSegments.push(`${duration.minutes} minutes`);
+
+  return (
+    <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500">
+      <div className="grid w-full grow grid-cols-2 items-center divide-x divide-gray-500">
+        <div className="flex flex-col py-3 pl-3">
+          <span className="text-xs text-gray-200">Start</span>
+          <span className="line-clamp-1 text-sm">
+            <LocalDate
+              locale="UTC"
+              isoDate={(showUTC ? convertToUTC(props.startsAt) : props.startsAt).toISOString()}
+              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric" }}
+            />
+          </span>
+        </div>
+        <div className="flex flex-col py-3 pl-3">
+          <span className="text-xs text-gray-200">End</span>
+          <span className="line-clamp-1 text-sm">
+            <LocalDate
+              locale="UTC"
+              isoDate={(showUTC ? convertToUTC(props.endsAt) : props.endsAt).toISOString()}
+              formatOptions={{ month: "short", day: "numeric", hour: "numeric", minute: "numeric" }}
+            />
+          </span>
+        </div>
+      </div>
+      <div className="line-clamp-1 w-full overflow-hidden truncate border-t border-gray-500 py-2 pl-3 text-xs text-gray-200">
+        Duration: {durationSegments.join(", ")}
       </div>
     </div>
   );
@@ -284,4 +370,11 @@ function getPercentGained(metric: Metric, progress: MeasuredDeltaProgress) {
   if (start === 0) return 1;
 
   return (progress.end - start) / start;
+}
+
+function getProgress(startsAt: Date, endsAt: Date) {
+  const total = endsAt.getTime() - startsAt.getTime();
+  const elapsed = Date.now() - startsAt.getTime();
+
+  return elapsed / total;
 }
