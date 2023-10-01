@@ -46,3 +46,4 @@ jobs:
             docker image rm wiseoldman/api
             docker-compose pull api
             docker-compose up -d --no-deps --build api
+            docker image prune
