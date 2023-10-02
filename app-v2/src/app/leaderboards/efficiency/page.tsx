@@ -1,6 +1,5 @@
 import {
   ComputedMetric,
-  EfficiencyLeaderboardsFilter,
   Metric,
   MetricProps,
   PlayerBuildProps,
@@ -15,14 +14,18 @@ import {
   getPlayerBuildParam,
   getComputedMetricParam,
   getCountryParam,
+  getPageParam,
 } from "~/utils/params";
+import { Pagination } from "~/components/Pagination";
 
 const COMBINED_METRIC = "combined";
+const RESULTS_PER_PAGE = 20;
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: {
+    page?: string;
     metric?: string;
     playerType?: string;
     playerBuild?: string;
@@ -49,30 +52,16 @@ export function generateMetadata(props: PageProps) {
 export default async function EfficiencyLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
-  const filters = {
-    metric: (getComputedMetricParam(searchParams.metric) || Metric.EHP) as ComputedMetric,
-    country: getCountryParam(searchParams.country),
-    playerType: getPlayerTypeParam(searchParams.playerType),
-    playerBuild: getPlayerBuildParam(searchParams.playerBuild),
-  };
-
-  return <EfficiencyLeaderboard filters={filters} />;
-}
-
-interface EfficiencyLeaderboardProps {
-  filters: {
-    metric: ComputedMetric | typeof COMBINED_METRIC;
-  } & Omit<EfficiencyLeaderboardsFilter, "metric">;
-}
-
-async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
-  const { metric, ...filters } = props.filters;
+  const metric = getComputedMetricParam(searchParams.metric) || Metric.EHP;
+  const page = getPageParam(searchParams.page) || 1;
 
   const data = await getEfficiencyLeaderboards(
     metric === COMBINED_METRIC ? "ehp+ehb" : metric,
-    filters.country,
-    filters.playerType,
-    filters.playerBuild
+    getCountryParam(searchParams.country),
+    getPlayerTypeParam(searchParams.playerType),
+    getPlayerBuildParam(searchParams.playerBuild),
+    RESULTS_PER_PAGE,
+    (page - 1) * RESULTS_PER_PAGE
   );
 
   return (
@@ -85,7 +74,9 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
         <ListTable>
           {data.map((player, index) => (
             <ListTableRow key={player.username}>
-              <ListTableCell className="w-1 pr-1">{index + 1}</ListTableCell>
+              <ListTableCell className="w-1 pr-1">
+                {page == 1 ? index + 1 : index + 1 + (page - 1) * RESULTS_PER_PAGE}
+              </ListTableCell>
               <ListTableCell>
                 <PlayerIdentity player={player} caption={PlayerBuildProps[player.build].name} />
               </ListTableCell>
@@ -109,6 +100,9 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
           ))}
         </ListTable>
       )}
+      <div className="mt-4">
+        <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
+      </div>
     </div>
   );
 }
