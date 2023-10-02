@@ -70,11 +70,11 @@ export const getDeltaLeaderboard = cache(
 export const getEfficiencyLeaderboards = cache(
   (
     metric: EfficiencyLeaderboardsFilter["metric"],
+    country: Country | undefined,
+    playerType: PlayerType | undefined,
+    playerBuild: PlayerBuild | undefined,
     limit: number,
     offset: number,
-    country?: Country,
-    playerType?: PlayerType,
-    playerBuild?: PlayerBuild,
   ) => {
     return apiClient.efficiency.getEfficiencyLeaderboards({ metric, country, playerType, playerBuild }, { limit, offset });
   }

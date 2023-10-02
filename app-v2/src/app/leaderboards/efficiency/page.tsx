@@ -53,12 +53,14 @@ export function generateMetadata(props: PageProps) {
 export default async function EfficiencyLeaderboardsPage(props: PageProps) {
   const { searchParams } = props;
 
+  const pageNumber = getPageParam(searchParams.page) || 1;
+
   const filters = {
     metric: (getComputedMetricParam(searchParams.metric) || Metric.EHP) as ComputedMetric,
     country: getCountryParam(searchParams.country),
     playerType: getPlayerTypeParam(searchParams.playerType),
     playerBuild: getPlayerBuildParam(searchParams.playerBuild),
-    page: getPageParam(searchParams.page) || 1,
+    page: pageNumber.toString(),
   };
 
   return <EfficiencyLeaderboard filters={filters} />;
@@ -78,11 +80,11 @@ async function EfficiencyLeaderboard(props: EfficiencyLeaderboardProps) {
 
   const data = await getEfficiencyLeaderboards(
     metric === COMBINED_METRIC ? "ehp+ehb" : metric,
-    RESULTS_PER_PAGE,
-    (pageNumber - 1) * RESULTS_PER_PAGE,
     filters.country,
     filters.playerType,
     filters.playerBuild,
+    RESULTS_PER_PAGE,
+    (pageNumber - 1) * RESULTS_PER_PAGE,
   );
 
   return (
