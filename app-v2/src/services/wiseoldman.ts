@@ -74,9 +74,12 @@ export const getEfficiencyLeaderboards = cache(
     playerType: PlayerType | undefined,
     playerBuild: PlayerBuild | undefined,
     limit: number,
-    offset: number,
+    offset: number
   ) => {
-    return apiClient.efficiency.getEfficiencyLeaderboards({ metric, country, playerType, playerBuild }, { limit, offset });
+    return apiClient.efficiency.getEfficiencyLeaderboards(
+      { metric, country, playerType, playerBuild },
+      { limit, offset }
+    );
   }
 );
 
