@@ -13,6 +13,10 @@ const nextConfig = withBundleAnalyzer(
     },
     experimental: {
       serverActions: true,
+      logging: {
+        level: "verbose",
+        fullUrl: true,
+      },
     },
     async redirects() {
       return [
