@@ -48,7 +48,7 @@ function Stat(props: { label: string; value: string }) {
   const { label, value } = props;
 
   return (
-    <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-600 px-6">
+    <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
       <div className="flex items-center gap-x-1">
         <Label className="text-xs text-gray-200">{label}</Label>
       </div>

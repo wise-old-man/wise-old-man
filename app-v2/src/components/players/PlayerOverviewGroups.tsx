@@ -49,11 +49,11 @@ function MembershipListItem(props: MembershipWithGroup) {
   const { role, group } = props;
 
   return (
-    <Link
-      href={`/groups/${group.id}`}
-      className="flex flex-col gap-x-4 gap-y-1 rounded-lg border border-gray-600 px-5 py-3 transition-colors hover:bg-gray-800/50"
-    >
-      <span className="flex gap-x-1.5 text-base font-medium">
+    <div className="flex flex-col gap-x-4 gap-y-1 rounded-lg border border-gray-500 bg-gray-800 px-5 py-3 shadow-sm transition-colors">
+      <Link
+        href={`/groups/${group.id}`}
+        className="flex gap-x-1.5 text-base font-medium hover:underline"
+      >
         {group.name}
         {group.verified && (
           <Tooltip>
@@ -63,11 +63,11 @@ function MembershipListItem(props: MembershipWithGroup) {
             <TooltipContent>This group is verified on our Discord server.</TooltipContent>
           </Tooltip>
         )}
-      </span>
+      </Link>
       <span className="flex items-center gap-x-1 text-xs text-gray-200">
         <GroupRoleIcon role={role} />
         {GroupRoleProps[role].name}
       </span>
-    </Link>
+    </div>
   );
 }

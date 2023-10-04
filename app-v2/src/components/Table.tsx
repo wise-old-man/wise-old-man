@@ -15,7 +15,7 @@ const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
     <div className="custom-scroll w-full overflow-auto">
       <table
         ref={ref}
-        className={cn("w-full caption-bottom text-xs font-normal tabular-nums text-gray-200", className)}
+        className={cn("w-full caption-bottom text-xs font-normal tabular-nums text-gray-100", className)}
         {...props}
       />
     </div>
@@ -93,7 +93,7 @@ function TableContainer(props: PropsWithChildren<{ className?: string }>) {
   return (
     <div className="inline-block w-full">
       <div
-        className={cn("overflow-hidden rounded-lg border border-gray-500 bg-gray-900", props.className)}
+        className={cn("overflow-hidden rounded-lg border border-gray-500 bg-gray-800", props.className)}
       >
         {props.children}
       </div>

@@ -67,7 +67,7 @@ export default async function EfficiencyLeaderboardsPage(props: PageProps) {
   return (
     <div className="col-span-3 mx-auto w-full max-w-lg">
       {data.length === 0 ? (
-        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
+        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-200">
           No results were found
         </div>
       ) : (

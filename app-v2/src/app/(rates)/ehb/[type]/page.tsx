@@ -20,7 +20,7 @@ export default async function EHBRatesPage({ params }: PageProps) {
   return (
     <ul className="mt-6 flex flex-col gap-y-3">
       {data.length === 0 ? (
-        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
+        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-200">
           There are no EHB rates for this account type.
         </div>
       ) : (

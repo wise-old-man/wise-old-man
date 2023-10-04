@@ -86,7 +86,7 @@ function ImportFromTempleForm(props: ImportFromTempleDialogProps) {
         value={urlInput}
         onChange={(e) => setUrlInput(e.target.value)}
       />
-      {isLoading && <Label className="text-xs text-gray-300">Loading...</Label>}
+      {isLoading && <Label className="text-xs text-gray-200">Loading...</Label>}
       {!!data && (
         <Label className="text-xs text-green-400">
           Found {data.members.length + (data.leaders?.length || 0)} members

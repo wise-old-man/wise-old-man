@@ -127,7 +127,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
   const isFullyComplete = achievements.every((a) => !!a.createdAt);
 
   return (
-    <div className="flex flex-col justify-between gap-3 rounded-lg border border-gray-600 px-4 py-4 md:flex-row md:py-2">
+    <div className="flex flex-col justify-between gap-3 rounded-lg border border-gray-500 bg-gray-800 px-4 py-4 shadow-sm md:flex-row md:py-2">
       <div className="flex items-center border-b border-gray-600 pb-4 md:border-b-0 md:pb-0">
         <MetricIcon metric={metric} />
         <span className="ml-2 block text-sm text-white">
@@ -135,7 +135,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
         </span>
       </div>
       <div className="flex grow md:max-w-md lg:max-w-lg xl:max-w-md">
-        <div className="z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md shadow-black/50">
+        <div className="z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md">
           0
         </div>
         {achievements.map((a, idx) => {
@@ -154,7 +154,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
             >
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="-mx-1 -mr-1 h-3 w-full min-w-[2rem] border-y border-gray-400 bg-gray-900 shadow-md shadow-black/50">
+                  <div className="-mx-1 -mr-1 h-3 w-full min-w-[2rem] border-y border-gray-400 bg-gray-900 shadow-md">
                     <div
                       className="h-full w-full border-y-4 border-gray-900 bg-green-500"
                       style={{ width: `${Math.floor(a.relativeProgress * 100)}%` }}
@@ -172,7 +172,7 @@ function ProgressTableRow(props: ProgressTableRowProps) {
                 <TooltipTrigger asChild>
                   <div
                     className={cn(
-                      "z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-lg shadow-md shadow-black",
+                      "z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 text-xs text-gray-200 shadow-md",
                       isDone && "border-green-500 text-green-500",
                       isInProgress && "text-white"
                     )}
