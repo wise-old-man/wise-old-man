@@ -49,7 +49,7 @@ export default async function PlayerRecordsPage(props: PageProps) {
 
   if (!records || records.length === 0) {
     return (
-      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-300">
+      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-200">
         {player.displayName} has no records.
       </div>
     );
@@ -121,42 +121,50 @@ function MetricRecords(props: MetricRecordsProps) {
         {PERIODS.map((period) => {
           const record = map.get(period);
 
+          if (!record) {
+            return (
+              <div
+                key={`${metric}_${period}`}
+                className="flex items-center justify-between rounded-lg border border-dashed border-gray-400 px-5 py-3 shadow-sm"
+              >
+                <span className="text-sm text-gray-200">{PeriodProps[period].name}</span>
+                <div className="flex flex-col items-end text-gray-200">
+                  <span className="mb-1 text-sm">N/A</span>
+                  <span className="text-xs">Not set</span>
+                </div>
+              </div>
+            );
+          }
+
+          const startDate = new Date(record.updatedAt.getTime() - PeriodProps[period].milliseconds);
+
+          const params = new URLSearchParams({
+            metric,
+            startDate: startDate.toISOString(),
+            endDate: record.updatedAt.toISOString(),
+          });
+
           return (
             <Link
               key={`${metric}_${period}`}
-              href={
-                record
-                  ? `/players/${username}/gained/?metric=${metric}&startDate=${new Date(
-                      record.updatedAt.getTime() - PeriodProps[period].milliseconds
-                    ).toISOString()}&endDate=${record.updatedAt.toISOString()}`
-                  : `/players/${username}/gained`
-              }
-              className="hover:bg-gray-800"
+              href={`/players/${username}/gained?${params.toString()}`}
+              className="group flex items-center justify-between rounded-lg border border-gray-500 bg-gray-800 px-5 py-3 shadow-sm"
             >
-              <div className="flex items-center justify-between rounded-lg border border-gray-600 px-5 py-3">
-                <span className={cn("text-sm text-gray-200", !!record && "font-medium text-white")}>
-                  {PeriodProps[period].name}
+              <span className="text-sm font-medium text-white group-hover:underline">
+                {PeriodProps[period].name}
+              </span>
+              <div className="flex flex-col items-end">
+                <span className="mb-1 text-sm">
+                  <FormattedNumber value={record.value} colored />
                 </span>
-                {!!record ? (
-                  <div className="flex flex-col items-end">
-                    <span className="mb-1 text-sm">
-                      <FormattedNumber value={record.value} colored />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="text-xs text-gray-200">
+                      <LocalDate mode="date" isoDate={record.updatedAt.toISOString()} />
                     </span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-xs text-gray-200">
-                          <LocalDate mode="date" isoDate={record.updatedAt.toISOString()} />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
-                    </Tooltip>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-end text-gray-200">
-                    <span className="mb-1 text-sm">N/A</span>
-                    <span className="text-xs">Not set</span>
-                  </div>
-                )}
+                  </TooltipTrigger>
+                  <TooltipContent>{formatDatetime(record.updatedAt)}</TooltipContent>
+                </Tooltip>
               </div>
             </Link>
           );

@@ -154,7 +154,7 @@ function MetricSelect(props: MetricSelectProps) {
       }}
     >
       <ComboboxButton className="py-5" isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !metric && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !metric && "text-gray-200")}>
           {metric && <MetricIconSmall metric={metric} />}
           <span className="line-clamp-1 text-left">{metric ? MetricProps[metric].name : "Metric"} </span>
         </div>
@@ -225,7 +225,7 @@ function StatusSelect(props: StatusSelectProps) {
       }}
     >
       <ComboboxButton className="py-5" isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !status && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !status && "text-gray-200")}>
           {status && (
             <div
               className={cn("h-2 w-2 rounded-full", {
@@ -282,7 +282,7 @@ function TypeSelect(props: TypeSelectProps) {
       }}
     >
       <ComboboxButton className="py-5" isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !type && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !type && "text-gray-200")}>
           {type ? CompetitionTypeProps[type].name : "Competition type"}
         </div>
       </ComboboxButton>

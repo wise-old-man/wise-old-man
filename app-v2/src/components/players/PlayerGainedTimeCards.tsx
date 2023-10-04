@@ -59,7 +59,7 @@ interface InfoPanelProps {
 
 function InfoPanel(props: InfoPanelProps) {
   return (
-    <div className="flex flex-col items-start gap-y-1 rounded-lg border border-gray-600 p-4">
+    <div className="flex flex-col items-start gap-y-1 rounded-lg border border-gray-500 bg-gray-800 p-4 shadow-sm">
       <span className="line-clamp-1 text-xs text-gray-200">{props.label}</span>
       {props.stringValue ? (
         <span className="line-clamp-1 text-xs text-white">{props.stringValue}</span>

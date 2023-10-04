@@ -29,7 +29,7 @@ export default async function GroupCompetitionsPage(props: PageProps) {
 
   if (!competitions || competitions.length === 0) {
     return (
-      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-300">
+      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-200">
         {group.name} has no competitions.
       </div>
     );

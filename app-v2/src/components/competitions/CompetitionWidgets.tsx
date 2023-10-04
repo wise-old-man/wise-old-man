@@ -59,7 +59,7 @@ export function CompetitionWidgets(props: CompetitionWidgetsProps) {
         <CompetitionDuration startsAt={startsAt} endsAt={endsAt} showUTC={showUTC} />
       </div>
       <div>
-        <Label className="mb-2 block text-xs text-gray-300">
+        <Label className="mb-2 block text-xs text-gray-200">
           {isUpcoming ? "Time until start" : "Time remaining"}
         </Label>
         <CompetitionCountdown startsAt={startsAt} endsAt={endsAt} />
@@ -100,7 +100,7 @@ function TopParticipantWidget(props: TopParticipantWidgetrops) {
   const { player, progress } = topParticipant;
 
   return (
-    <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 px-5">
+    <div className="flex h-24 w-full items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-5 shadow-md">
       <div className="flex w-full items-end justify-between">
         <div className="flex flex-col gap-y-px">
           <span className="text-base font-medium text-white">{player.displayName}</span>
@@ -172,7 +172,7 @@ function CompetitionCountdown(props: CompetitionCountdownProps) {
   const { days, hours, minutes, seconds } = durationBetween(new Date(), isOngoing ? endsAt : startsAt);
 
   return (
-    <div className="relative flex h-24 w-full items-center justify-around overflow-hidden rounded-lg border border-gray-500 px-3">
+    <div className="relative flex h-24 w-full items-center justify-around overflow-hidden rounded-lg border border-gray-500 bg-gray-800 px-3 shadow-md">
       <div className="flex flex-col items-center">
         <span className="text-2xl font-medium">{padNumber(days)}</span>
         <span className="text-xs text-gray-200">days</span>
@@ -219,7 +219,7 @@ function CompetitionDuration(props: CompetitionDurationProps) {
   if (duration.minutes > 0) durationSegments.push(`${duration.minutes} minutes`);
 
   return (
-    <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500">
+    <div className="flex h-24 w-full flex-col items-center overflow-hidden rounded-lg border border-gray-500 bg-gray-800 shadow-md">
       <div className="grid w-full grow grid-cols-2 items-center divide-x divide-gray-500">
         <div className="flex flex-col py-3 pl-3">
           <span className="text-xs text-gray-200">Start</span>
@@ -259,7 +259,7 @@ function TopParticipantSelector(props: TopParticipantSelectorProps) {
 
   return (
     <Combobox value={sorting} onValueChanged={(val) => onSortingChanged(val as TopParticipantSorting)}>
-      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-300">
+      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-200">
         {sorting === "by_value" ? "Top participant" : "Top participant (%)"}
         <ChevronDownIcon className="h-4 w-4" />
       </ComboboxTrigger>
@@ -285,7 +285,7 @@ function AverageSelector(props: AverageSelectorProps) {
 
   return (
     <Combobox value={String(showAverage)} onValueChanged={(val) => onShowAverageChanged(val === "true")}>
-      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-300">
+      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-200">
         {!showAverage ? "Total gained" : "Average gained"}
         <ChevronDownIcon className="h-4 w-4" />
       </ComboboxTrigger>
@@ -316,7 +316,7 @@ function TimezoneSelector(props: TimezoneSelectorProps) {
         onShowUTCChanged(val === "utc");
       }}
     >
-      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-300">
+      <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-200">
         Duration ({showUTC ? "UTC" : "local timezone"})
         <ChevronDownIcon className="h-4 w-4" />
       </ComboboxTrigger>

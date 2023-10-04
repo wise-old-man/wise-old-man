@@ -32,7 +32,7 @@ export default async function PlayerNameChangesPage(props: PageProps) {
 
   if (!nameChanges || nameChanges.length === 0) {
     return (
-      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-300">
+      <div className="flex h-32 w-full items-center justify-center rounded-lg border border-gray-600 text-gray-200">
         {player.displayName} has no known name changes.
       </div>
     );
@@ -45,7 +45,7 @@ export default async function PlayerNameChangesPage(props: PageProps) {
         <p className="text-body text-gray-200">Previous usernames this account used to hold.</p>
       </div>
       <div className="mt-5">
-        <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">
+        <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm shadow-sm">
           {player.displayName}
           <span className="ml-2 text-xs text-gray-200">(current)</span>
         </div>
@@ -57,7 +57,7 @@ export default async function PlayerNameChangesPage(props: PageProps) {
                 <LocalDate isoDate={(nameChange.resolvedAt || new Date()).toISOString()} />
               </span>
             </div>
-            <div className="rounded-lg border border-gray-600 px-5 py-4 text-sm">
+            <div className="rounded-lg border border-gray-500 bg-gray-800 px-5 py-4 text-sm">
               {nameChange.oldName}
             </div>
           </Fragment>

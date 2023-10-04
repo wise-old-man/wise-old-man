@@ -262,7 +262,7 @@ function PlayerTypeSelect(props: PlayerTypeSelectProps) {
       }}
     >
       <ComboboxButton className="w-full" isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-200")}>
           {playerType && <PlayerTypeIcon playerType={playerType} />}
           {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
         </div>
@@ -305,7 +305,7 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
       }}
     >
       <ComboboxButton className="w-full" isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !playerBuild && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !playerBuild && "text-gray-200")}>
           {playerBuild ? PlayerBuildProps[playerBuild].name : "Player Build"}
         </div>
       </ComboboxButton>
@@ -347,7 +347,7 @@ function CountrySelect(props: CountrySelectProps) {
       }}
     >
       <ComboboxButton isPending={isPending}>
-        <div className={cn("flex items-center gap-x-2", !country && "text-gray-300")}>
+        <div className={cn("flex items-center gap-x-2", !country && "text-gray-200")}>
           {country && <CountryIcon country={country} />}
           <span className="line-clamp-1 text-left">
             {country ? CountryProps[country].name : "Country"}

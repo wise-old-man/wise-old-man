@@ -66,7 +66,7 @@ function Stat(props: StatProps) {
   }
 
   return (
-    <div className="group flex h-[4rem] w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-600 px-4">
+    <div className="group flex h-[4rem] w-full flex-col items-start justify-center gap-y-1 rounded-lg border border-gray-500 bg-gray-800 px-4 shadow-sm">
       <Label className="line-clamp-1 text-xs text-gray-200">{label}</Label>
       <div className="flex items-end gap-x-2">
         {(isMetric(metric) || metric === "combat") && <MetricIconSmall metric={metric} />}

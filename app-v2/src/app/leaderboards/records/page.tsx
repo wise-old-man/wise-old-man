@@ -71,7 +71,7 @@ async function RecordLeaderboard(props: RecordLeaderboardProps) {
     <div>
       <h3 className="pb-3 text-h3 font-bold">{PeriodProps[period].name}</h3>
       {data.length === 0 ? (
-        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-300">
+        <div className="w-full rounded border border-gray-700 py-10 text-center text-sm text-gray-200">
           No results were found
         </div>
       ) : (
