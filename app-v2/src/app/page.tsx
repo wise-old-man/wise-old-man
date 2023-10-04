@@ -124,27 +124,29 @@ async function StatsDisplay() {
 
 function PlayersSection() {
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-10 py-[10rem]">
+    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-5 py-[10rem] md:px-10">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Track your hiscores over time</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         By periodically checking your hiscores, the Wise Old Man can create a historical record, this
         allows you to:
       </p>
       <div className="mt-16 grid w-full grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="flex flex-col items-center overflow-visible rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 p-10 md:overflow-hidden xl:overflow-visible">
+        <div className="flex flex-col items-center overflow-hidden rounded-xl border border-gray-600 bg-gradient-to-b from-[#0B1120]/50 to-gray-900 p-10 xl:overflow-visible">
           <h3 className="text-center text-xl font-medium leading-8 text-gray-100 md:text-left lg:max-w-[23rem]">
             Check your gains, all-time records and collect achievements
           </h3>
-          <div className="relative">
-            <PlayersChartSVG width={365} height={306} className="translate-y-[2.5rem]" />
-            <Image
-              src={PlayersChartOverlayImage}
-              width={178}
-              height={72}
-              alt="99 Ranged Achievement"
-              className="absolute -right-[5.2rem] bottom-[3.2rem]"
-            />
-            {/* <div className="absolute inset-0 translate-y-[2.5rem] bg-gradient-to-b from-gray-900/0 to-gray-900/80" /> */}
+          <div className="max-w-[calc(100%-1rem)]">
+            <div className="relative">
+              <PlayersChartSVG width={365} height={306} className="translate-y-[2.5rem]" />
+              <Image
+                src={PlayersChartOverlayImage}
+                width={178}
+                height={72}
+                alt="99 Ranged Achievement"
+                className="absolute -right-[5.2rem] bottom-[3.2rem] hidden sm:block md:hidden xl:block"
+              />
+              {/* <div className="absolute inset-0 translate-y-[2.5rem] bg-gradient-to-b from-gray-900/0 to-gray-900/80" /> */}
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-y-5">
@@ -174,7 +176,7 @@ function PlayersSection() {
 
 function GroupsSection() {
   return (
-    <section className="mx-auto flex max-w-5xl flex-col items-center px-10 py-8">
+    <section className="mx-auto flex max-w-5xl flex-col items-center px-5 py-8 md:px-10">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Follow your clan&apos;s progress</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         By creating a group on Wise Old Man and keeping all your members updated, you are then able to:
@@ -243,10 +245,10 @@ function GroupsSection() {
 
 function DiscordSection() {
   return (
-    <section className="mx-auto max-w-5xl px-10 py-8 md:py-16">
-      <div className="relative mt-16 flex flex-col overflow-hidden rounded-2xl border border-gray-600 bg-gray-800 px-12 pt-12 sm:overflow-visible md:flex-row md:px-16 md:pb-12 lg:max-w-[calc(80vw-8rem)] xl:max-w-5xl">
+    <section className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-16">
+      <div className="relative mt-16 flex flex-col overflow-hidden rounded-2xl border border-gray-600 bg-gray-800 px-12 pt-12 sm:overflow-visible md:flex-row md:px-16 md:pb-12 xl:max-w-5xl">
         <div className="relative z-10 flex max-w-md flex-col items-start">
-          <h2 className="max-w-xs text-3xl font-semibold leading-[2.75rem]">
+          <h2 className="max-w-xs text-2xl font-semibold leading-[2.75rem] sm:text-3xl">
             Get all your clan updates on Discord
           </h2>
           <div className="mb-8 mt-7 flex flex-col gap-y-3">
@@ -296,7 +298,7 @@ async function RuneliteSection() {
   const pluginInstalls = await fetchRuneliteInstalls();
 
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-10 py-[5rem]">
+    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-5 py-[5rem] md:px-10">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Integrate with RuneLite</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         You can install our RuneLite plugin to help you integrate the Wise Old Man right into your game
@@ -351,7 +353,7 @@ async function RuneliteSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center bg-howto-gradient px-10 py-[5rem]">
+    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center bg-howto-gradient px-5 py-[5rem] md:px-10">
       <h2 className="text-2xl font-bold md:text-4xl">How does it work?</h2>
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
