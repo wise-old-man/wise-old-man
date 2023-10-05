@@ -163,6 +163,7 @@ function MetricSelect(props: MetricSelectProps) {
         <ComboboxInput placeholder="Search metrics..." />
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
+          <ComboboxItem>Any metric</ComboboxItem>
           <ComboboxItemGroup label="Skills">
             {SKILLS.map((skill) => (
               <ComboboxItem key={skill} value={skill}>
@@ -241,6 +242,7 @@ function StatusSelect(props: StatusSelectProps) {
       <ComboboxContent className="w-full">
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Status">
+            <ComboboxItem>Any status</ComboboxItem>
             <ComboboxItem value="ongoing">
               <div className="h-2 w-2 rounded-full bg-green-500" />
               Ongoing
@@ -289,6 +291,7 @@ function TypeSelect(props: TypeSelectProps) {
       <ComboboxContent className="w-full">
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Type">
+            <ComboboxItem>Any type</ComboboxItem>
             <ComboboxItem value="classic">Classic</ComboboxItem>
             <ComboboxItem value="team">Team</ComboboxItem>
           </ComboboxItemGroup>

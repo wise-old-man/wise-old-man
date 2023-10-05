@@ -139,6 +139,7 @@ function StatusSelect(props: StatusSelectProps) {
       <ComboboxContent>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Status">
+            <ComboboxItem>Any status</ComboboxItem>
             <ComboboxItem value="pending">
               <div className="h-2 w-2 rounded-full bg-gray-200" />
               Pending

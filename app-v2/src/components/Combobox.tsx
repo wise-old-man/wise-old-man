@@ -109,9 +109,7 @@ const CommandItem = forwardRef<
     <CommandPrimitive.Item
       ref={ref}
       onSelect={() => {
-        if (selectedValue === props.value) {
-          onItemSelected(undefined);
-        } else {
+        if (selectedValue !== props.value) {
           onItemSelected(props.value);
         }
       }}
