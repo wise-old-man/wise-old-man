@@ -270,6 +270,7 @@ function PlayerTypeSelect(props: PlayerTypeSelectProps) {
       <ComboboxContent>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Player Type">
+            <ComboboxItem>Any player type</ComboboxItem>
             {PLAYER_TYPES.filter((type) => type !== PlayerType.UNKNOWN).map((t) => (
               <ComboboxItem key={t} value={t}>
                 <PlayerTypeIcon playerType={t} />
@@ -312,6 +313,7 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
       <ComboboxContent>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Player Build">
+            <ComboboxItem>Any player build</ComboboxItem>
             {PLAYER_BUILDS.map((b) => (
               <ComboboxItem key={b} value={b}>
                 {PlayerBuildProps[b].name}
@@ -359,6 +361,7 @@ function CountrySelect(props: CountrySelectProps) {
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
           <ComboboxItemGroup label="Countries">
+            <ComboboxItem>Any country</ComboboxItem>
             {COUNTRY_CODES.map((c) => (
               <ComboboxItem key={c} value={`${c}_${CountryProps[c].name}`}>
                 <CountryIcon country={c} />

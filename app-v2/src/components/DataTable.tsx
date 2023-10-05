@@ -81,8 +81,8 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                       if (props.onRowClick) props.onRowClick(row);
                     }}
                     className={cn(
-                      props.onRowClick && "relative cursor-pointer hover:bg-gray-800",
-                      props.selectedRowId === row.id && "bg-gray-800 text-white"
+                      props.onRowClick && "relative cursor-pointer hover:bg-gray-700",
+                      props.selectedRowId === row.id && "bg-gray-700 text-white"
                     )}
                   >
                     {row.getVisibleCells().map((cell, idx) => (

@@ -258,7 +258,12 @@ function TopParticipantSelector(props: TopParticipantSelectorProps) {
   const { sorting, onSortingChanged } = props;
 
   return (
-    <Combobox value={sorting} onValueChanged={(val) => onSortingChanged(val as TopParticipantSorting)}>
+    <Combobox
+      value={sorting}
+      onValueChanged={(val) => {
+        onSortingChanged(val as TopParticipantSorting);
+      }}
+    >
       <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-200">
         {sorting === "by_value" ? "Top participant" : "Top participant (%)"}
         <ChevronDownIcon className="h-4 w-4" />
@@ -284,7 +289,12 @@ function AverageSelector(props: AverageSelectorProps) {
   const { showAverage, onShowAverageChanged } = props;
 
   return (
-    <Combobox value={String(showAverage)} onValueChanged={(val) => onShowAverageChanged(val === "true")}>
+    <Combobox
+      value={String(showAverage)}
+      onValueChanged={(val) => {
+        onShowAverageChanged(val === "true");
+      }}
+    >
       <ComboboxTrigger className="mb-2 flex items-center gap-x-1 text-xs text-gray-200">
         {!showAverage ? "Total gained" : "Average gained"}
         <ChevronDownIcon className="h-4 w-4" />

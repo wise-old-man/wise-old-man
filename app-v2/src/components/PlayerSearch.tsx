@@ -112,7 +112,7 @@ export function PlayerSearch(props: PlayerSearchProps) {
           >
             <HeadlessCombobox.Options
               static={open}
-              className="custom-scroll absolute right-0 z-10 mt-1 max-h-60 w-full translate-y-1 overflow-auto rounded-md border border-gray-500 bg-gray-700 p-1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+              className="custom-scroll absolute right-0 z-10 mt-1 max-h-60 w-full translate-y-1 overflow-auto overscroll-contain rounded-md border border-gray-500 bg-gray-700 p-1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
             >
               {query.length > 0 && !players ? (
                 <LoadingState />
