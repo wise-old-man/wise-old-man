@@ -101,6 +101,13 @@ export function PlayerSearch(props: PlayerSearchProps) {
               setQuery(e.target.value);
               if (!open) setOpen(true);
             }}
+            onKeyDown={(e) => {
+              if (!("value" in e.target)) return;
+
+              if (e.key === "Enter" && !activeOption) {
+                handlePlayerSelected(String(e.target.value));
+              }
+            }}
             renderHotkey={mode === "navigate"}
           />
           <Transition
@@ -277,7 +284,7 @@ function SearchResultItem(props: { player: Player }) {
   );
 }
 
-interface SearchInputProps {
+interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   renderHotkey: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
