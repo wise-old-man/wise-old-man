@@ -37,11 +37,9 @@ export default async function GroupNameChangesOage(props: PageProps) {
 
   return (
     <>
-      <div className="mt-7">
-        <GroupNameChangesTable nameChanges={nameChanges} />
-        <div className="mt-4">
-          <Pagination currentPage={page} hasMorePages={nameChanges.length >= RESULTS_PER_PAGE} />
-        </div>
+      <GroupNameChangesTable nameChanges={nameChanges} />
+      <div className="mt-4">
+        <Pagination currentPage={page} hasMorePages={nameChanges.length >= RESULTS_PER_PAGE} />
       </div>
     </>
   );

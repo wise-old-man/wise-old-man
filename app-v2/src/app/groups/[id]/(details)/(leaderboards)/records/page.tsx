@@ -47,7 +47,7 @@ export default async function GroupRecordsPage(props: PageProps) {
   return (
     <>
       <GroupLeaderboardsNavigation />
-      <div className="mt-10">
+      <div className="mt-7">
         <GroupRecordsTable group={group} metric={metric} period={period} records={records} />
         <div className="mt-4">
           <Pagination currentPage={page} hasMorePages={records.length >= RESULTS_PER_PAGE} />
