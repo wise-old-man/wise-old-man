@@ -40,7 +40,7 @@ export default async function GroupCompetitionsPage(props: PageProps) {
   const finished = competitions.filter((c) => getCompetitionStatus(c) === CompetitionStatus.FINISHED);
 
   return (
-    <div className="flex flex-col gap-y-7">
+    <div className="-mt-2 flex flex-col gap-y-7">
       {ongoing.length + upcoming.length > 0 && ongoing.length + upcoming.length < 2 ? (
         <div>
           <Label className="text-xs text-gray-200">Featured competitions</Label>

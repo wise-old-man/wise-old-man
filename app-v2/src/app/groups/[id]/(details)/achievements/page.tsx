@@ -37,11 +37,9 @@ export default async function GroupAchievementsPage(props: PageProps) {
 
   return (
     <>
-      <div className="mt-7">
-        <GroupAchievementsTable achievements={achievements} />
-        <div className="mt-4">
-          <Pagination currentPage={page} hasMorePages={achievements.length >= RESULTS_PER_PAGE} />
-        </div>
+      <GroupAchievementsTable achievements={achievements} />
+      <div className="mt-4">
+        <Pagination currentPage={page} hasMorePages={achievements.length >= RESULTS_PER_PAGE} />
       </div>
     </>
   );

@@ -3,7 +3,7 @@ import { ListTable, ListTableCell, ListTableRow } from "~/components/ListTable";
 export default function Loading() {
   return (
     <div>
-      <div className="mb-1 mt-8 h-3 w-32 animate-pulse rounded-full bg-gray-700" />
+      <div className="mb-1 h-3 w-32 animate-pulse rounded-full bg-gray-700" />
       <div className="custom-scroll overflow-x-auto">
         <ListTable className="border-spacing-y-3">
           {[...Array(3)].map((_, i) => (

@@ -19,12 +19,12 @@ import {
 } from "~/components/Dropdown";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { CompetitionPreviewWarning } from "~/components/competitions/CompetitionPreviewWarning";
 import { DeleteCompetitionDialog } from "~/components/competitions/DeleteCompetitionDialog";
 import { ExportCompetitionDialog } from "~/components/competitions/ExportCompetitionDialog";
 import { PreviewMetricDialog } from "~/components/competitions/PreviewMetricDialog";
 import { UpdateAllParticipantsDialog } from "~/components/competitions/UpdateAllParticipantsDialog";
+import { CompetitionDetailsNavigation } from "~/components/competitions/CompetitionDetailsNavigation";
 
 import OverflowIcon from "~/assets/overflow.svg";
 
@@ -40,16 +40,13 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
   const { children, params } = props;
   const { id } = params;
 
-  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
-  const routeSegment = children.props.childProp.segment;
-
   const competition = await getCompetitionDetails(id);
 
   return (
     <Container>
       <Header {...competition} />
       <div className="mt-7">
-        <Navigation id={id} routeSegment={routeSegment} competition={competition} />
+        <CompetitionDetailsNavigation competition={competition} />
       </div>
       <CompetitionPreviewWarning trueMetric={competition.metric} />
       {children}
@@ -60,55 +57,6 @@ export default async function CompetitionLayout(props: PropsWithChildren<PagePro
       <UpdateAllParticipantsDialog competitionId={id} />
       <PreviewMetricDialog trueMetric={competition.metric} />
     </Container>
-  );
-}
-
-interface NavigationProps {
-  id: number;
-  routeSegment: string;
-  competition: CompetitionDetails;
-}
-
-function Navigation(props: NavigationProps) {
-  const { id, routeSegment, competition } = props;
-
-  let selectedSegment: string | undefined;
-
-  if (routeSegment === "top-5") {
-    selectedSegment = "top-5";
-  } else if (routeSegment === "participants" && competition.type === CompetitionType.TEAM) {
-    selectedSegment = "participants";
-  } else {
-    selectedSegment = "overview";
-  }
-
-  return (
-    <div className="pointer-events-none relative pb-8">
-      <div className="pointer-events-auto bg-gray-900">
-        <Tabs defaultValue={selectedSegment}>
-          <TabsList aria-label="Competition Navigation">
-            <Link href={`/competitions/${id}`} aria-label="Navigate to the competition's overview">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-            </Link>
-            {competition.type === CompetitionType.TEAM && (
-              <Link
-                href={`/competitions/${id}/participants`}
-                aria-label="Navigate to the competition's participants"
-              >
-                <TabsTrigger value="participants">Participants</TabsTrigger>
-              </Link>
-            )}
-            <Link
-              href={`/competitions/${id}/top-5`}
-              aria-label="Navigate to competition's top 5 participants chart"
-            >
-              <TabsTrigger value="top-5">Top 5 chart</TabsTrigger>
-            </Link>
-          </TabsList>
-        </Tabs>
-      </div>
-      <div className="absolute -bottom-2 left-0 right-0 h-10 bg-gradient-to-b from-gray-900 to-gray-900/0" />
-    </div>
   );
 }
 

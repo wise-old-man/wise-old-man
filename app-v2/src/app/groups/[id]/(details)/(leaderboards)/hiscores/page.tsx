@@ -45,7 +45,7 @@ export default async function GroupHiscoresPage(props: PageProps) {
   return (
     <>
       <GroupLeaderboardsNavigation />
-      <div className="mt-10">
+      <div className="mt-7">
         <GroupHiscoresTable group={group} metric={metric} hiscores={hiscores} />
         <div className="mt-4">
           <Pagination currentPage={page} hasMorePages={hiscores.length >= RESULTS_PER_PAGE} />

@@ -67,7 +67,7 @@ export default async function GroupGainedPage(props: PageProps) {
   return (
     <>
       <GroupLeaderboardsNavigation />
-      <div className="mt-10">
+      <div className="mt-7">
         <GroupGainedTable group={group} metric={metric} timeRange={timeRange} gains={gains} />
         <div className="mt-4">
           <Pagination currentPage={page} hasMorePages={gains.length >= RESULTS_PER_PAGE} />

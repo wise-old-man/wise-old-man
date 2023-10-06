@@ -5,10 +5,10 @@ import { getGroupDetails } from "~/services/wiseoldman";
 import { Button } from "~/components/Button";
 import { QueryLink } from "~/components/QueryLink";
 import { Container } from "~/components/Container";
-import { Tabs, TabsList, TabsTrigger } from "~/components/Tabs";
 import { DeleteGroupDialog } from "~/components/groups/DeleteGroupDialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { UpdateAllMembersDialog } from "~/components/groups/UpdateAllMembersDialog";
+import { GroupDetailsNavigation } from "~/components/groups/GroupDetailsNavigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,16 +34,13 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
   const { children, params } = props;
   const { id } = params;
 
-  // @ts-ignore - There's no decent API from Next.js yet (as of 13.4.0)
-  const routeSegment = children.props.childProp.segment;
-
   const group = await getGroupDetails(id);
 
   return (
     <Container>
       <Header {...group} />
-      <div className="mt-7">
-        <Navigation id={id} routeSegment={routeSegment} />
+      <div className="custom-scroll pointer-events-auto relative mt-7 overflow-x-auto bg-gray-900">
+        <GroupDetailsNavigation id={id} />
       </div>
       {children}
 
@@ -51,61 +48,6 @@ export default async function GroupDetailsLayout(props: PropsWithChildren<PagePr
       <DeleteGroupDialog groupId={id} />
       <UpdateAllMembersDialog groupId={id} />
     </Container>
-  );
-}
-
-interface NavigationProps {
-  id: number;
-  routeSegment: string;
-}
-
-function Navigation(props: NavigationProps) {
-  const { id, routeSegment } = props;
-
-  const validTabs = [
-    "overview",
-    "competitions",
-    "leaderboards",
-    "achievements",
-    "name-changes",
-    "statistics",
-  ];
-
-  let selectedSegment: string | undefined;
-
-  if (validTabs.includes(routeSegment)) {
-    selectedSegment = routeSegment;
-  } else if (routeSegment === "hiscores" || routeSegment === "gained" || routeSegment === "records") {
-    selectedSegment = "leaderboards";
-  } else {
-    selectedSegment = "overview";
-  }
-
-  return (
-    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900 pb-2">
-      <Tabs defaultValue={selectedSegment}>
-        <TabsList aria-label="Competition Navigation">
-          <Link href={`/groups/${id}`} aria-label="Navigate to the groups's overview">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/competitions`} aria-label="Navigate to groups's competitions list">
-            <TabsTrigger value="competitions">Competitions</TabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/hiscores`} aria-label="Navigate to groups's leaderboards">
-            <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/achievements`} aria-label="Navigate to groups's achievements">
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/name-changes`} aria-label="Navigate to groups's name changes">
-            <TabsTrigger value="name-changes">Name changes</TabsTrigger>
-          </Link>
-          <Link href={`/groups/${id}/statistics`} aria-label="Navigate to groups's statistics">
-            <TabsTrigger value="statistics">Statistics</TabsTrigger>
-          </Link>
-        </TabsList>
-      </Tabs>
-    </div>
   );
 }
 
