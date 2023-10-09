@@ -163,8 +163,8 @@ function MetricSelect(props: MetricSelectProps) {
         <ComboboxInput placeholder="Search metrics..." />
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>
-          <ComboboxItem>Any metric</ComboboxItem>
           <ComboboxItemGroup label="Skills">
+            <ComboboxItem>Any metric</ComboboxItem>
             {SKILLS.map((skill) => (
               <ComboboxItem key={skill} value={skill}>
                 <MetricIconSmall metric={skill} />
