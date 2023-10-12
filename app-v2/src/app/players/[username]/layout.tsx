@@ -234,7 +234,7 @@ function PlayerStatusAlert(props: { player: Player }) {
         <AlertDescription>
           <p>
             {`This player could not be found on the hiscores last time we checked. This can either mean
-              they&apos;ve changed their name, they&apos;re banned or they have dropped out of the hiscores
+              they have changed their name, they're banned or they have dropped out of the hiscores
               due to low levels.`}
           </p>
           <p className="mt-5">
