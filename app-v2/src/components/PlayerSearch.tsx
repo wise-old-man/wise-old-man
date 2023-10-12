@@ -63,12 +63,14 @@ export function PlayerSearch(props: PlayerSearchProps) {
   }, [mode]);
 
   function handlePlayerSelected(username: string) {
-    addSearchTerm(username);
-
     if (mode === "select") {
       setQuery("");
-    } else if (!query) {
-      setQuery(username);
+    } else {
+      addSearchTerm(username);
+
+      if (!query) {
+        setQuery(username);
+      }
     }
 
     setTimeout(() => {
