@@ -5,6 +5,7 @@ import {
   MetricMeasure,
   MetricProps,
   MetricType,
+  Player,
   REAL_SKILLS,
   formatNumber,
   getLevel,
@@ -20,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
+import { getBuildContextMetrics } from "~/utils/metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,8 @@ export default async function PlayerAchievements(props: PageProps) {
 
   const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
+
+  const player = await getPlayerDetails(username);
 
   const achievements = await getPlayerAchievementProgress(username);
   const completedAchievements = achievements.filter((a) => !!a.createdAt);
@@ -84,7 +88,7 @@ export default async function PlayerAchievements(props: PageProps) {
           <NearestAchievements achievements={achievements} metricType={metricType} />
         </div>
         <div className="col-span-12 xl:col-span-8">
-          <ProgressTable achievements={achievements} metricType={metricType} />
+          <ProgressTable player={player} achievements={achievements} metricType={metricType} />
         </div>
       </div>
     </div>
@@ -92,14 +96,17 @@ export default async function PlayerAchievements(props: PageProps) {
 }
 
 interface ProgressTableProps {
+  player: Player;
   achievements: AchievementProgress[];
   metricType?: MetricType;
 }
 
 function ProgressTable(props: ProgressTableProps) {
-  const { metricType, achievements } = props;
+  const { player, metricType, achievements } = props;
 
-  const groups = groupAchievementsByType(achievements).filter(
+  const filteredAchievements = getBuildContextMetrics(player, achievements);
+
+  const groups = groupAchievementsByType(filteredAchievements).filter(
     (g) => !metricType || MetricProps[g.metric].type === metricType
   );
 

@@ -7,6 +7,8 @@ import {
   ActivityValue,
   Boss,
   BossValue,
+  COMBAT_SKILLS,
+  MEMBER_SKILLS,
   Metric,
   MetricProps,
   MetricType,
@@ -46,6 +48,7 @@ import {
 } from "../Dropdown";
 
 import TableCogIcon from "~/assets/table_cog.svg";
+import { getBuildContextMetrics } from "~/utils/metrics";
 
 interface PlayerStatsTableProps {
   player: PlayerDetails;
@@ -160,12 +163,15 @@ function PlayerSkillsTable(
     ...Object.values(player.latestSnapshot.data.skills),
   ];
 
+  //Filter out skills based on player build
+  const filteredRows = getBuildContextMetrics(player, rows);
+
   const columnDefs = useMemo(
     () => getSkillColumnDefinitions(player, showVirtualLevels),
     [player, showVirtualLevels]
   );
 
-  return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
+  return <DataTable columns={columnDefs} data={filteredRows} headerSlot={<TableTitle>{children}</TableTitle>} />;
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {
