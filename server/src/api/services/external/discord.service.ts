@@ -2,7 +2,7 @@ import axios from 'axios';
 import { WebhookClient } from 'discord.js';
 import env, { isTesting } from '../../../env';
 import prisma, { Achievement, Competition, Player } from '../../../prisma';
-import { FlaggedPlayerReviewContext, MemberRoleChangeEvent } from '../../../utils';
+import { FlaggedPlayerReviewContext, MemberJoinedEvent, MemberRoleChangeEvent } from '../../../utils';
 import { omit } from '../../util/objects';
 import logger from '../../util/logging';
 import {
@@ -116,16 +116,46 @@ async function dispatchNameChanged(player: Player, previousDisplayName: string) 
 }
 
 async function dispatchMembersRolesChanged(events: MemberRoleChangeEvent[]) {
-  dispatch('GROUP_MEMBERS_CHANGED_ROLES', events);
+  if (events.length === 0) return;
+
+  const groupId = events[0].groupId;
+  const playerIds = events.map(m => m.playerId);
+
+  // Fetch all the affected players
+  const players = await playerServices.findPlayers({ ids: playerIds });
+  if (players.length === 0) return;
+
+  const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
+
+  dispatch('GROUP_MEMBERS_CHANGED_ROLES', {
+    groupId,
+    members: events.map(e => {
+      const player = playersMap.get(e.playerId);
+      if (!player) return null;
+
+      return { role: e.role, previousRole: e.previousRole, player };
+    })
+  });
 }
 
 /**
  * Select all new group members and dispatch them to our discord API,
  * so that it can notify any relevant guilds/servers.
  */
-async function dispatchMembersJoined(groupId: number, players: Player[]) {
-  if (!players || players.length === 0) return;
-  dispatch('GROUP_MEMBERS_JOINED', { groupId, players });
+async function dispatchMembersJoined(groupId: number, events: MemberJoinedEvent[], players: Player[]) {
+  if (events.length === 0 || players.length === 0) return;
+
+  const playersMap = new Map<number, Player>(players.map(p => [p.id, p]));
+
+  dispatch('GROUP_MEMBERS_JOINED', {
+    groupId,
+    members: events.map(e => {
+      const player = playersMap.get(e.playerId);
+      if (!player) return null;
+
+      return { role: e.role, player };
+    })
+  });
 }
 
 /**

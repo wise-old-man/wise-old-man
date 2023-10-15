@@ -563,8 +563,7 @@ describe('Group API', () => {
         playerId: changedMembershipZezima.playerId,
         role: 'firemaker',
         previousRole: 'member',
-        type: 'changed_role',
-        displayName: changedMembershipZezima.player.displayName
+        type: 'changed_role'
       });
 
       const latestActivities = await prisma.memberActivity.findMany({
@@ -824,8 +823,7 @@ describe('Group API', () => {
         role: 'owner',
         previousRole: 'member',
         playerId: changedMembershipPsikoi.playerId,
-        type: 'changed_role',
-        displayName: changedMembershipPsikoi.player.displayName
+        type: 'changed_role'
       });
 
       const changedMembershipCookmeplox = memberships.find(m => m.player.username === 'cookmeplox');
@@ -834,8 +832,7 @@ describe('Group API', () => {
         role: 'cook',
         previousRole: 'owner',
         playerId: changedMembershipCookmeplox.playerId,
-        type: 'changed_role',
-        displayName: changedMembershipCookmeplox.player.displayName
+        type: 'changed_role'
       });
 
       expect(onMembersJoinedEvent).not.toHaveBeenCalled();
@@ -1356,8 +1353,7 @@ describe('Group API', () => {
         playerId: playerSethmare.id,
         type: 'changed_role',
         role: 'dragon',
-        previousRole: 'magician',
-        displayName: playerSethmare.displayName
+        previousRole: 'magician'
       });
 
       const latestActivity = await prisma.memberActivity.findFirst({

@@ -73,12 +73,7 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
         }
       });
 
-      groupEvents.onMembersRolesChanged([
-        omit(
-          { ...activity, previousRole: membership.role, displayName: updatedMembership.player.displayName },
-          'createdAt'
-        )
-      ]);
+      groupEvents.onMembersRolesChanged([omit({ ...activity, previousRole: membership.role }, 'createdAt')]);
 
       return updatedMembership;
     })

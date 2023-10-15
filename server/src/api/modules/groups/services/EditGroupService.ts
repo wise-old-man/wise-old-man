@@ -265,8 +265,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
             groupId: params.id,
             role,
             type: ActivityType.CHANGED_ROLE,
-            previousRole: currentRoleMap.get(id),
-            displayName: keptPlayers.find(p => p.id === id).displayName
+            previousRole: currentRoleMap.get(id)
           }))
         );
       }
@@ -275,7 +274,7 @@ async function executeUpdate(params: EditGroupParams, updatedGroupFields: Prisma
         data: [
           ...leftEvents,
           ...joinedEvents.map(a => ({ ...a, role: null })),
-          ...changedRoleEvents.map(p => omit(p, 'previousRole', 'displayName'))
+          ...changedRoleEvents.map(p => omit(p, 'previousRole'))
         ]
       });
 

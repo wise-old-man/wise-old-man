@@ -23,7 +23,7 @@ async function onMembersJoined(events: MemberJoinedEvent[]) {
   if (!players || players.length === 0) return;
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, players);
+  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, events, players);
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
