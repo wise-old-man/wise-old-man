@@ -413,7 +413,8 @@ function is10HP(snapshot: Snapshot) {
 }
 
 function isZerker(snapshot: Snapshot) {
-  return getLevel(snapshot.defenceExperience) === 45;
+  const defLvl = getLevel(snapshot.defenceExperience);
+  return defLvl >= 40 && defLvl <= 45;
 }
 
 export {

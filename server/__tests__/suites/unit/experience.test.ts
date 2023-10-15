@@ -213,9 +213,27 @@ describe('Util - Experience', () => {
 
     expect(
       isZerker({
+        defenceExperience: 37_200 // lvl 39, almost 40
+      } as Snapshot)
+    ).toBe(false);
+
+    expect(
+      isZerker({
+        defenceExperience: 50_000 // lvl 42, almost 43
+      } as Snapshot)
+    ).toBe(true);
+
+    expect(
+      isZerker({
         defenceExperience: 62_000
       } as Snapshot)
     ).toBe(true);
+
+    expect(
+      isZerker({
+        defenceExperience: 67_983 // lvl 46
+      } as Snapshot)
+    ).toBe(false);
   });
 
   test('get200msCount', () => {
