@@ -124,7 +124,7 @@ Not to be confused with [Player Details](/players-api/player-type-definitions#ob
 | ttm            | float                                                                   | The player's Time to Max (all 99s), in hours.                                                               |
 | ttm200m        | float                                                                   | The player's Time to 200m All, in hours.                                                                    |
 | registeredAt   | date                                                                    | The player's registration date.                                                                             |
-| updatedAt      | date                                                                    | The player's last update date.                                                                              |
+| updatedAt      | date?                                                                   | The player's last successful update date.                                                                   |
 | lastChangedAt  | date?                                                                   | The player's last change (gained exp, kc, etc) date.                                                        |
 | lastImportedAt | date?                                                                   | The date of the last CML history import.                                                                    |
 
