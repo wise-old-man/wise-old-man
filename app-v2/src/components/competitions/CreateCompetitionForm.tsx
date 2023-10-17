@@ -39,15 +39,19 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 
 const MAX_NAME_LENGTH = 50;
 
+type TimezoneOption = "utc" | "local";
 type FormStep = "info" | "group" | "participants";
 
 const CreateCompetitionContext = createContext({
   step: "info" as FormStep,
+  timezone: "local" as TimezoneOption,
   setStep: (_step: FormStep) => {},
+  setTimezone: (_timezone: TimezoneOption) => {},
 });
 
 export function CreateCompetitionForm() {
   const [step, setStep] = useState<FormStep>("info");
+  const [timezone, setTimezone] = useState<TimezoneOption>("local");
 
   const [payload, setPayload] = useState<CreateCompetitionPayload>({
     title: "",
@@ -64,7 +68,7 @@ export function CreateCompetitionForm() {
   }[step];
 
   return (
-    <CreateCompetitionContext.Provider value={{ step, setStep }}>
+    <CreateCompetitionContext.Provider value={{ step, timezone, setStep, setTimezone }}>
       <Container className="mt-8 max-w-2xl">
         <h1 className="text-3xl font-bold">Create a new competition</h1>
         <div className="mt-5 flex gap-x-2">
@@ -86,7 +90,9 @@ export function CreateCompetitionForm() {
         <div className="mt-10">
           {step === "info" && (
             <InfoForm
+              timezone={timezone}
               competition={payload}
+              onTimezoneChanged={setTimezone}
               onSubmit={(title, metric, startsAt, endsAt) => {
                 setPayload({ ...payload, title, metric, startsAt, endsAt });
                 setStep("group");
@@ -100,18 +106,19 @@ export function CreateCompetitionForm() {
 }
 
 interface InfoFormProps {
+  timezone: TimezoneOption;
   competition: Pick<CompetitionDetails, "title" | "metric" | "startsAt" | "endsAt">;
+  onTimezoneChanged: (timezone: TimezoneOption) => void;
   onSubmit: (title: string, metric: Metric, startsAt: Date, endsAt: Date) => void;
 }
 
 function InfoForm(props: InfoFormProps) {
-  const { competition, onSubmit } = props;
+  const { timezone, competition, onSubmit, onTimezoneChanged } = props;
 
   const hasMounted = useHasMounted();
 
   const [title, setTitle] = useState(competition.title);
   const [metric, setMetric] = useState<Metric>(competition.metric);
-  const [timezone, setTimezone] = useState<"utc" | "local">("local");
 
   const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(competition.startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
@@ -181,7 +188,7 @@ function InfoForm(props: InfoFormProps) {
 
       <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-800">
         <div className="border-b border-gray-500 p-4">
-          <TimezoneSelector timezone={timezone} onTimezoneChanged={setTimezone} />
+          <TimezoneSelector timezone={timezone} onTimezoneChanged={onTimezoneChanged} />
           <span className="text-body text-gray-200">
             {`The dates below are shown in `}
             {timezone === "local" ? `your local timezone (${getTimezoneNameAndOffset()})` : "UTC"}
