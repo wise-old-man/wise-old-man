@@ -44,7 +44,6 @@ export function VerificationCodeCheckDialog(props: VerificationCodeCheckDialogPr
       }
     },
     onError: () => {
-      console.log("what");
       toast.toast({ variant: "error", title: "Incorrect verification code." });
     },
     onSuccess: (code) => {
