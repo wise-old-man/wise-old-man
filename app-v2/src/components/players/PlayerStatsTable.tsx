@@ -7,8 +7,6 @@ import {
   ActivityValue,
   Boss,
   BossValue,
-  COMBAT_SKILLS,
-  MEMBER_SKILLS,
   Metric,
   MetricProps,
   MetricType,
