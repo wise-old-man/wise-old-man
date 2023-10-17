@@ -7,6 +7,7 @@ import {
   COMPUTED_METRICS,
   CompetitionDetails,
   CreateCompetitionPayload,
+  GroupDetails,
   Metric,
   MetricProps,
   SKILLS,
@@ -49,9 +50,16 @@ const CreateCompetitionContext = createContext({
   setTimezone: (_timezone: TimezoneOption) => {},
 });
 
-export function CreateCompetitionForm() {
+interface CreateCompetitionFormProps {
+  group?: GroupDetails;
+}
+
+export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
   const [step, setStep] = useState<FormStep>("info");
   const [timezone, setTimezone] = useState<TimezoneOption>("local");
+
+  // TODO: use this in step 2
+  console.log(props.group);
 
   const [payload, setPayload] = useState<CreateCompetitionPayload>({
     title: "",
