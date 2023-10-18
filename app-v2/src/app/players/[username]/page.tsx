@@ -45,7 +45,7 @@ export default async function PlayerPage(props: PageProps) {
           <Suspense fallback={<LoadingSkeleton />}>
             <PlayerOverviewCompetition username={username} />
             <PlayerOverviewMemberships username={username} />
-            <PlayerOverviewAchievements username={player.username} />
+            <PlayerOverviewAchievements player={player} />
           </Suspense>
         </div>
         <div className="col-span-12 mt-8 flex flex-col gap-y-4 lg:col-span-8">

@@ -21,6 +21,7 @@ import {
   getLevel,
 } from "@wise-old-man/utils";
 import { formatDatetime, timeago } from "~/utils/dates";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 import { Label } from "../Label";
 import { Button } from "../Button";
 import { Checkbox } from "../Checkbox";
@@ -160,12 +161,22 @@ function PlayerSkillsTable(
     ...Object.values(player.latestSnapshot.data.skills),
   ];
 
+  // Filter out skills based on player build
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredRows = rows.filter((row) => !hiddenMetrics.includes(row.metric));
+
   const columnDefs = useMemo(
     () => getSkillColumnDefinitions(player, showVirtualLevels),
     [player, showVirtualLevels]
   );
 
-  return <DataTable columns={columnDefs} data={rows} headerSlot={<TableTitle>{children}</TableTitle>} />;
+  return (
+    <DataTable
+      columns={columnDefs}
+      data={filteredRows}
+      headerSlot={<TableTitle>{children}</TableTitle>}
+    />
+  );
 }
 
 function getSkillColumnDefinitions(player: Player, showVirtualLevels: boolean): ColumnDef<SkillValue>[] {

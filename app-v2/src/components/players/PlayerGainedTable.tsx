@@ -13,6 +13,7 @@ import {
   PERIODS,
   Period,
   PeriodProps,
+  Player,
   PlayerDeltasMap,
   PlayerDetails,
   SkillDelta,
@@ -20,6 +21,7 @@ import {
 } from "@wise-old-man/utils";
 import { formatDatetime } from "~/utils/dates";
 import { TimeRangeFilter } from "~/services/wiseoldman";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 import {
   Combobox,
   ComboboxButton,
@@ -131,7 +133,12 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       </div>
       <div className="grid grid-cols-12 gap-y-5">
         <div className="col-span-12 -mb-1.5 xl:col-span-6">
-          <PlayerGainsTable gains={gains} onRowSelected={handleMetricSelected} selectedMetric={metric} />
+          <PlayerGainsTable
+            player={player}
+            gains={gains}
+            onRowSelected={handleMetricSelected}
+            selectedMetric={metric}
+          />
         </div>
         <div className="col-span-12 -ml-px rounded-xl border border-gray-500 bg-gray-800 xl:col-span-6 xl:rounded-t-none">
           {children}
@@ -142,13 +149,14 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
 }
 
 interface PlayerGainsTableProps {
+  player: Player;
   gains: PlayerDeltasMap;
   selectedMetric: Metric;
   onRowSelected: (metric: Metric) => void;
 }
 
 function PlayerGainsTable(props: PlayerGainsTableProps) {
-  const { gains, onRowSelected, selectedMetric } = props;
+  const { player, gains, onRowSelected, selectedMetric } = props;
   const metricType = MetricProps[selectedMetric].type;
 
   function handleRowSelected(row: Row<SkillDelta | BossDelta | ActivityDelta>) {
@@ -207,12 +215,15 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
     ...Object.values(gains.skills),
   ];
 
-  const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredRows = rows.filter((row) => !hiddenMetrics.includes(row.metric));
+
+  const selectedRowId = String(filteredRows.findIndex((g) => g.metric === selectedMetric));
 
   return (
     <DataTable
       columns={SKILL_COLUMN_DEFS}
-      data={rows}
+      data={filteredRows}
       containerClassName="rounded-t-none"
       onRowClick={handleRowSelected}
       selectedRowId={selectedRowId}

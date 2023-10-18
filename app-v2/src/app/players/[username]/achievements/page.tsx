@@ -5,6 +5,7 @@ import {
   MetricMeasure,
   MetricProps,
   MetricType,
+  Player,
   REAL_SKILLS,
   formatNumber,
   getLevel,
@@ -20,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -43,10 +45,11 @@ export async function generateMetadata(props: PageProps) {
 export default async function PlayerAchievements(props: PageProps) {
   const { params, searchParams } = props;
 
-  const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const achievements = await getPlayerAchievementProgress(username);
+  const player = await getPlayerDetails(decodeURI(params.username));
+
+  const achievements = await getPlayerAchievementProgress(player.username);
   const completedAchievements = achievements.filter((a) => !!a.createdAt);
 
   const skillAchievements = completedAchievements.filter((a) => isSkill(a.metric));
@@ -84,7 +87,7 @@ export default async function PlayerAchievements(props: PageProps) {
           <NearestAchievements achievements={achievements} metricType={metricType} />
         </div>
         <div className="col-span-12 xl:col-span-8">
-          <ProgressTable achievements={achievements} metricType={metricType} />
+          <ProgressTable player={player} achievements={achievements} metricType={metricType} />
         </div>
       </div>
     </div>
@@ -92,14 +95,18 @@ export default async function PlayerAchievements(props: PageProps) {
 }
 
 interface ProgressTableProps {
+  player: Player;
   achievements: AchievementProgress[];
   metricType?: MetricType;
 }
 
 function ProgressTable(props: ProgressTableProps) {
-  const { metricType, achievements } = props;
+  const { player, metricType, achievements } = props;
 
-  const groups = groupAchievementsByType(achievements).filter(
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric));
+
+  const groups = groupAchievementsByType(filteredAchievements).filter(
     (g) => !metricType || MetricProps[g.metric].type === metricType
   );
 

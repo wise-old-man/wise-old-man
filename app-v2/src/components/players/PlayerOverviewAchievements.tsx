@@ -1,20 +1,31 @@
-import { SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
+import { Player, SKILL_EXP_AT_99, isSkill } from "@wise-old-man/utils";
 import Link from "next/link";
 import { Label } from "../Label";
 import { AchievementListItem } from "../AchievementListItem";
 import { getPlayerAchievementProgress } from "~/services/wiseoldman";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 interface PlayerOverviewAchievementsProps {
-  username: string;
+  player: Player;
 }
 
 export async function PlayerOverviewAchievements(props: PlayerOverviewAchievementsProps) {
-  const { username } = props;
+  const { player } = props;
 
-  const achievementsProgress = await getPlayerAchievementProgress(username);
+  const achievementsProgress = await getPlayerAchievementProgress(player.username);
 
+  // Filter achievement skills based on player build
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+
+  // Compute nearest 99s
   const nearest99s = achievementsProgress
-    .filter((a) => isSkill(a.metric) && a.threshold === SKILL_EXP_AT_99 && !a.createdAt)
+    .filter(
+      (a) =>
+        isSkill(a.metric) &&
+        !hiddenMetrics.includes(a.metric) &&
+        a.threshold === SKILL_EXP_AT_99 &&
+        !a.createdAt
+    )
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 3);
 
@@ -35,7 +46,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
           </div>
           <div className="mt-3 flex justify-end">
             <Link
-              href={`/players/${username}/achievements`}
+              href={`/players/${player.username}/achievements`}
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
@@ -53,7 +64,7 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
           </div>
           <div className="mt-3 flex justify-end">
             <Link
-              href={`/players/${username}/achievements`}
+              href={`/players/${player.username}/achievements`}
               className="text-xs font-medium text-gray-200 hover:underline"
             >
               View all
