@@ -13,17 +13,19 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
   const { player } = props;
 
   const achievementsProgress = await getPlayerAchievementProgress(player.username);
-  
-  //Filter achievement skills
-  const achivementProgressSkills = achievementsProgress.filter((a) => isSkill(a.metric));
 
-  //Filter achievement skills based on player build
+  // Filter achievement skills based on player build
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredAchivementProgressSkills = achivementProgressSkills.filter(achievementSkill => !hiddenMetrics.includes(achievementSkill.metric));
 
-  //Compute nearest 99s
-  const nearest99s = filteredAchivementProgressSkills
-    .filter((a) => a.threshold === SKILL_EXP_AT_99 && !a.createdAt)
+  // Compute nearest 99s
+  const nearest99s = achievementsProgress
+    .filter(
+      (a) =>
+        isSkill(a.metric) &&
+        !hiddenMetrics.includes(a.metric) &&
+        a.threshold === SKILL_EXP_AT_99 &&
+        !a.createdAt
+    )
     .sort((a, b) => b.absoluteProgress - a.absoluteProgress)
     .slice(0, 3);
 

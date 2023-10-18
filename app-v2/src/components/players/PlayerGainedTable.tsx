@@ -21,6 +21,7 @@ import {
 } from "@wise-old-man/utils";
 import { formatDatetime } from "~/utils/dates";
 import { TimeRangeFilter } from "~/services/wiseoldman";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 import {
   Combobox,
   ComboboxButton,
@@ -34,7 +35,6 @@ import { FormattedNumber } from "../FormattedNumber";
 import { MetricIconSmall } from "../Icon";
 import { TableSortButton } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 interface PlayerGainedTableProps {
   player: PlayerDetails;
@@ -133,7 +133,12 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
       </div>
       <div className="grid grid-cols-12 gap-y-5">
         <div className="col-span-12 -mb-1.5 xl:col-span-6">
-          <PlayerGainsTable player={player} gains={gains} onRowSelected={handleMetricSelected} selectedMetric={metric} />
+          <PlayerGainsTable
+            player={player}
+            gains={gains}
+            onRowSelected={handleMetricSelected}
+            selectedMetric={metric}
+          />
         </div>
         <div className="col-span-12 -ml-px rounded-xl border border-gray-500 bg-gray-800 xl:col-span-6 xl:rounded-t-none">
           {children}
@@ -169,7 +174,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
       } as unknown as BossDelta,
       ...Object.values(gains.bosses),
     ];
-    
+
     const selectedRowId = String(rows.findIndex((g) => g.metric === selectedMetric));
 
     return (
@@ -211,7 +216,7 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
   ];
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredRows = rows.filter(row => !hiddenMetrics.includes(row.metric));
+  const filteredRows = rows.filter((row) => !hiddenMetrics.includes(row.metric));
 
   const selectedRowId = String(filteredRows.findIndex((g) => g.metric === selectedMetric));
 

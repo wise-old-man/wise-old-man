@@ -45,12 +45,11 @@ export async function generateMetadata(props: PageProps) {
 export default async function PlayerAchievements(props: PageProps) {
   const { params, searchParams } = props;
 
-  const username = decodeURI(params.username);
   const metricType = convertMetricType(searchParams.view);
 
-  const player = await getPlayerDetails(username);
+  const player = await getPlayerDetails(decodeURI(params.username));
 
-  const achievements = await getPlayerAchievementProgress(username);
+  const achievements = await getPlayerAchievementProgress(player.username);
   const completedAchievements = achievements.filter((a) => !!a.createdAt);
 
   const skillAchievements = completedAchievements.filter((a) => isSkill(a.metric));
@@ -105,7 +104,7 @@ function ProgressTable(props: ProgressTableProps) {
   const { player, metricType, achievements } = props;
 
   const hiddenMetrics = getBuildHiddenMetrics(player.build);
-  const filteredAchievements = achievements.filter(achievement => !hiddenMetrics.includes(achievement.metric));
+  const filteredAchievements = achievements.filter((a) => !hiddenMetrics.includes(a.metric));
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
     (g) => !metricType || MetricProps[g.metric].type === metricType
