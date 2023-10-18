@@ -11,6 +11,14 @@ type Prisma_Base_Achievement = {
   createdAt: Date;
 };
 
+export type MemberActivity = {
+  groupId: number;
+  playerId: number;
+  type: ActivityType;
+  role?: GroupRole;
+  createdAt: Date;
+};
+
 export type Membership = {
   playerId: number;
   groupId: number;

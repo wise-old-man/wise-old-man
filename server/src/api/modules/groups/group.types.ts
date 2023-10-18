@@ -1,6 +1,8 @@
 import { GroupRole } from '../../../utils';
-import { Group, Membership, Player } from '../../../prisma';
+import { Group, Membership, Player, MemberActivity } from '../../../prisma';
 import { MetricLeaders, FormattedSnapshot } from '../snapshots/snapshot.types';
+
+export { ActivityType } from '../../../prisma/enum-adapter';
 
 export interface GroupListItem extends Omit<Group, 'verificationHash'> {
   memberCount: number;
@@ -77,4 +79,12 @@ export interface TempleGroupData {
   leaders: string[];
 }
 
-export { Group, Membership };
+export type MemberRoleChangeEvent = Omit<MemberActivity, 'createdAt'> & {
+  previousRole: GroupRole;
+};
+
+export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt'>;
+
+export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'role'>;
+
+export { Group, Membership, MemberActivity };

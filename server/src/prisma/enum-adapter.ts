@@ -747,3 +747,11 @@ export const Country = {
 } as const;
 
 export type Country = typeof Country[keyof typeof Country];
+
+export const ActivityType = {
+  JOINED: 'joined',
+  LEFT: 'left',
+  CHANGED_ROLE: 'changed_role'
+} as const;
+
+export type ActivityType = typeof ActivityType[keyof typeof ActivityType];

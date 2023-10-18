@@ -1,8 +1,11 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
-import { ServerError, BadRequestError } from '../../../errors';
+import { BadRequestError, ServerError } from '../../../errors';
 import logger from '../../../util/logging';
 import * as playerServices from '../../players/player.services';
+import * as groupEvents from '../group.events';
+import { ActivityType } from '../group.types';
+import { fetchGroupDetails } from './FetchGroupDetailsService';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -16,37 +19,60 @@ type RemoveMembersService = z.infer<typeof inputSchema>;
 async function removeMembers(payload: RemoveMembersService): Promise<{ count: number }> {
   const params = inputSchema.parse(payload);
 
-  const playersToRemove = await playerServices.findPlayers({
-    usernames: params.usernames
-  });
+  const groupMemberIds = (await fetchGroupDetails({ id: params.id })).memberships.map(
+    membership => membership.player.id
+  );
 
-  if (!playersToRemove || !playersToRemove.length) {
-    throw new BadRequestError('No valid tracked players were given.');
-  }
+  const toRemovePlayerIds = (await playerServices.findPlayers({ usernames: params.usernames }))
+    .map(p => p.id)
+    .filter(id => groupMemberIds.includes(id));
 
-  const { count } = await prisma.membership.deleteMany({
-    where: {
-      groupId: params.id,
-      playerId: { in: playersToRemove.map(p => p.id) }
-    }
-  });
-
-  if (!count) {
+  if (!toRemovePlayerIds || !toRemovePlayerIds.length) {
     throw new BadRequestError('None of the players given were members of that group.');
   }
 
-  try {
-    await prisma.group.update({
-      where: { id: params.id },
-      data: { updatedAt: new Date() }
+  const newActivites = toRemovePlayerIds.map(playerId => {
+    return {
+      playerId,
+      groupId: params.id,
+      type: ActivityType.LEFT
+    };
+  });
+
+  const removedCount = await prisma
+    .$transaction(async transaction => {
+      const { count } = await transaction.membership.deleteMany({
+        where: {
+          groupId: params.id,
+          playerId: { in: toRemovePlayerIds }
+        }
+      });
+
+      // This shouldn't ever happen since these get validated before entering the transaction,
+      // but on the off chance that they do, throw a generic error to be caught by the catch block.
+      if (count === 0) {
+        throw new Error();
+      }
+
+      await transaction.group.update({
+        where: { id: params.id },
+        data: { updatedAt: new Date() }
+      });
+
+      await transaction.memberActivity.createMany({ data: newActivites });
+
+      return count;
+    })
+    .catch(error => {
+      logger.error('Failed to remove members', error);
+      throw new ServerError('Failed to remove members');
     });
-  } catch (error) {
-    throw new ServerError('Failed to remove members.');
-  }
 
-  logger.moderation(`[Group:${params.id}] (${playersToRemove.map(p => p.id)}) removed`);
+  groupEvents.onMembersLeft(newActivites);
 
-  return { count };
+  logger.moderation(`[Group:${params.id}] (${toRemovePlayerIds}) removed`);
+
+  return { count: removedCount };
 }
 
 export { removeMembers };

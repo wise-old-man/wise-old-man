@@ -5,6 +5,8 @@ import logger from '../../../util/logging';
 import { BadRequestError, ServerError } from '../../../errors';
 import { isValidUsername, standardize } from '../../players/player.utils';
 import * as playerServices from '../../players/player.services';
+import * as groupEvents from '../group.events';
+import { ActivityType } from '../group.types';
 
 const MEMBER_INPUT_SCHEMA = z.object(
   {
@@ -65,22 +67,45 @@ async function addMembers(payload: AddMembersService): Promise<{ count: number }
     return { groupId: params.id, playerId: player.id, role };
   });
 
-  const { count } = await prisma.membership.createMany({
-    data: newMemberships
+  const newActivites = newMemberships.map(membership => {
+    return {
+      groupId: membership.groupId,
+      playerId: membership.playerId,
+      type: ActivityType.JOINED
+    };
   });
 
-  try {
-    await prisma.group.update({
-      where: { id: params.id },
-      data: { updatedAt: new Date() }
+  const addedCount = await prisma
+    .$transaction(async transaction => {
+      const { count } = await transaction.membership.createMany({
+        data: newMemberships
+      });
+
+      // This shouldn't ever happen since these get validated before entering the transaction,
+      // but on the off chance that they do, throw a generic error to be caught by the catch block.
+      if (count === 0) {
+        throw new Error();
+      }
+
+      await transaction.group.update({
+        where: { id: params.id },
+        data: { updatedAt: new Date() }
+      });
+
+      await transaction.memberActivity.createMany({ data: newActivites });
+
+      groupEvents.onMembersJoined(newMemberships.map(m => ({ ...m, type: ActivityType.JOINED })));
+
+      return count;
+    })
+    .catch(error => {
+      logger.error('Failed to add members', error);
+      throw new ServerError('Failed to add members.');
     });
-  } catch (error) {
-    throw new ServerError('Failed to add members.');
-  }
 
   logger.moderation(`[Group:${params.id}] (${newMemberships.map(m => m.playerId)}) joined`);
 
-  return { count };
+  return { count: addedCount };
 }
 
 export { addMembers };

@@ -1,9 +1,12 @@
 import { z } from 'zod';
 import prisma from '../../../../prisma';
 import { GroupRole } from '../../../../utils';
+import logger from '../../../util/logging';
+import { omit } from '../../../util/objects';
 import { BadRequestError, ServerError } from '../../../errors';
-import { MembershipWithPlayer } from '../group.types';
+import { ActivityType, MembershipWithPlayer } from '../group.types';
 import { standardize } from '../../players/player.utils';
+import * as groupEvents from '../group.events';
 
 const inputSchema = z.object({
   id: z.number().positive(),
@@ -39,27 +42,47 @@ async function changeMemberRole(payload: ChangeMemberRoleService): Promise<Membe
     throw new BadRequestError(`${params.username} is already a ${membership.role}.`);
   }
 
-  const updatedMembership = await prisma.membership.update({
-    where: {
-      playerId_groupId: {
-        playerId: membership.playerId,
-        groupId: membership.groupId
-      }
-    },
-    data: {
-      role: params.role,
-      group: {
-        update: {
-          updatedAt: new Date()
+  const result = await prisma
+    .$transaction(async transaction => {
+      const updatedMembership = await transaction.membership.update({
+        where: {
+          playerId_groupId: {
+            playerId: membership.playerId,
+            groupId: membership.groupId
+          }
+        },
+        data: {
+          role: params.role,
+          group: {
+            update: {
+              updatedAt: new Date()
+            }
+          }
+        },
+        include: {
+          player: true
         }
-      }
-    },
-    include: {
-      player: true
-    }
-  });
+      });
 
-  return updatedMembership;
+      const activity = await transaction.memberActivity.create({
+        data: {
+          groupId: membership.groupId,
+          playerId: membership.playerId,
+          type: ActivityType.CHANGED_ROLE,
+          role: params.role
+        }
+      });
+
+      groupEvents.onMembersRolesChanged([omit({ ...activity, previousRole: membership.role }, 'createdAt')]);
+
+      return updatedMembership;
+    })
+    .catch(error => {
+      logger.error('Failed to change member role', error);
+      throw new ServerError('Failed to change member role.');
+    });
+
+  return result;
 }
 
 export { changeMemberRole };

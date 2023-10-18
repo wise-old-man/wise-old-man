@@ -594,6 +594,9 @@ describe('Snapshots API', () => {
       const trackResponse = await api.post(`/players/jakesterwars`);
       expect(trackResponse.status).toBe(201);
 
+      // Reset the timers to the current (REAL) time
+      jest.useRealTimers();
+
       globalData.secondaryPlayerId = trackResponse.body.id;
 
       const addToGroupResponse = await api.post(`/groups/${globalData.testGroupId}/members`).send({
@@ -601,9 +604,6 @@ describe('Snapshots API', () => {
         members: [{ username: 'jakesterwars' }]
       });
       expect(addToGroupResponse.status).toBe(200);
-
-      // Reset the timers to the current (REAL) time
-      jest.useRealTimers();
 
       const result = await services.findGroupSnapshots({
         groupId: globalData.testGroupId,

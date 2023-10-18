@@ -1,13 +1,17 @@
-import { Membership, PlayerType } from '../../../utils';
+import { MemberJoinedEvent, MemberLeftEvent, MemberRoleChangeEvent, PlayerType } from '../../../utils';
 import { jobManager, JobType } from '../../jobs';
 import metrics from '../../services/external/metrics.service';
 import * as discordService from '../../services/external/discord.service';
 import * as playerServices from '../players/player.services';
 import * as competitionServices from '../competitions/competition.services';
 
-async function onMembersJoined(memberships: Membership[]) {
-  const groupId = memberships[0].groupId;
-  const playerIds = memberships.map(m => m.playerId);
+async function onMembersRolesChanged(events: MemberRoleChangeEvent[]) {
+  await metrics.trackEffect(discordService.dispatchMembersRolesChanged, events);
+}
+
+async function onMembersJoined(events: MemberJoinedEvent[]) {
+  const groupId = events[0].groupId;
+  const playerIds = events.map(m => m.playerId);
 
   // Add these new members to all upcoming and ongoing competitions
   await metrics.trackEffect(competitionServices.addToGroupCompetitions, { groupId, playerIds });
@@ -19,7 +23,7 @@ async function onMembersJoined(memberships: Membership[]) {
   if (!players || players.length === 0) return;
 
   // Dispatch this event to the discord service
-  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, players);
+  await metrics.trackEffect(discordService.dispatchMembersJoined, groupId, events, players);
 
   // Request updates for any new players
   players.forEach(({ username, type, registeredAt }) => {
@@ -28,7 +32,10 @@ async function onMembersJoined(memberships: Membership[]) {
   });
 }
 
-async function onMembersLeft(groupId: number, playerIds: number[]) {
+async function onMembersLeft(events: MemberLeftEvent[]) {
+  const groupId = events[0].groupId;
+  const playerIds = events.map(m => m.playerId);
+
   // Remove these players from ongoing/upcoming group competitions
   await metrics.trackEffect(competitionServices.removeFromGroupCompetitions, { groupId, playerIds });
 
@@ -36,4 +43,4 @@ async function onMembersLeft(groupId: number, playerIds: number[]) {
   await metrics.trackEffect(discordService.dispatchMembersLeft, groupId, playerIds);
 }
 
-export { onMembersJoined, onMembersLeft };
+export { onMembersJoined, onMembersLeft, onMembersRolesChanged };
