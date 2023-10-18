@@ -34,7 +34,7 @@ import { FormattedNumber } from "../FormattedNumber";
 import { MetricIconSmall } from "../Icon";
 import { TableSortButton } from "../Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { getBuildContextMetrics } from "~/utils/metrics";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 interface PlayerGainedTableProps {
   player: PlayerDetails;
@@ -210,7 +210,8 @@ function PlayerGainsTable(props: PlayerGainsTableProps) {
     ...Object.values(gains.skills),
   ];
 
-  const filteredRows = getBuildContextMetrics(player, rows) as unknown as SkillDelta[];
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredRows = rows.filter(row => !hiddenMetrics.includes(row.metric));
 
   const selectedRowId = String(filteredRows.findIndex((g) => g.metric === selectedMetric));
 

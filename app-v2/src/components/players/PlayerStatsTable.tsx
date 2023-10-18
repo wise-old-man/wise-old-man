@@ -46,7 +46,7 @@ import {
 } from "../Dropdown";
 
 import TableCogIcon from "~/assets/table_cog.svg";
-import { getBuildContextMetrics } from "~/utils/metrics";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 interface PlayerStatsTableProps {
   player: PlayerDetails;
@@ -162,7 +162,8 @@ function PlayerSkillsTable(
   ];
 
   //Filter out skills based on player build
-  const filteredRows = getBuildContextMetrics(player, rows);
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredRows = rows.filter(row => !hiddenMetrics.includes(row.metric));
 
   const columnDefs = useMemo(
     () => getSkillColumnDefinitions(player, showVirtualLevels),

@@ -1,14 +1,14 @@
-import { COMBAT_SKILLS, MEMBER_SKILLS, Player } from "@wise-old-man/utils";
+import { COMBAT_SKILLS, MEMBER_SKILLS, Metric, PlayerBuild } from "@wise-old-man/utils";
 
-export function getBuildContextMetrics(player: Player, metrics: any[]) {
-    switch(player.build) {
+export function getBuildHiddenMetrics(build: PlayerBuild): Metric[] {
+    switch(build) {
         case 'f2p':
-        return metrics.filter(item => !MEMBER_SKILLS.includes(item.metric));
+        return MEMBER_SKILLS;
         case 'f2p_lvl3':
-        return metrics.filter(item => ![...MEMBER_SKILLS, ...COMBAT_SKILLS].includes(item.metric));
+        return [...MEMBER_SKILLS, ...COMBAT_SKILLS];
         case 'lvl3':
-        return metrics.filter(item => !COMBAT_SKILLS.includes(item.metric));
+        return COMBAT_SKILLS;
     }
 
-    return metrics;
+    return [];
 }

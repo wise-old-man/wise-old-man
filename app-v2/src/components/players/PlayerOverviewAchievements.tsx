@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Label } from "../Label";
 import { AchievementListItem } from "../AchievementListItem";
 import { getPlayerAchievementProgress } from "~/services/wiseoldman";
-import { getBuildContextMetrics } from "~/utils/metrics";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 interface PlayerOverviewAchievementsProps {
   player: Player;
@@ -18,7 +18,8 @@ export async function PlayerOverviewAchievements(props: PlayerOverviewAchievemen
   const achivementProgressSkills = achievementsProgress.filter((a) => isSkill(a.metric));
 
   //Filter achievement skills based on player build
-  const filteredAchivementProgressSkills = getBuildContextMetrics(player, achivementProgressSkills);
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredAchivementProgressSkills = achivementProgressSkills.filter(achievementSkill => !hiddenMetrics.includes(achievementSkill.metric));
 
   //Compute nearest 99s
   const nearest99s = filteredAchivementProgressSkills

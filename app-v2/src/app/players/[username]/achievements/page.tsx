@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/Tooltip";
 import { MetricIcon } from "~/components/Icon";
 import { QueryLink } from "~/components/QueryLink";
 import { AchievementAccuracyTooltip, IncompleteAchievementTooltip } from "~/components/AchievementDate";
-import { getBuildContextMetrics } from "~/utils/metrics";
+import { getBuildHiddenMetrics } from "~/utils/metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -104,7 +104,8 @@ interface ProgressTableProps {
 function ProgressTable(props: ProgressTableProps) {
   const { player, metricType, achievements } = props;
 
-  const filteredAchievements = getBuildContextMetrics(player, achievements);
+  const hiddenMetrics = getBuildHiddenMetrics(player.build);
+  const filteredAchievements = achievements.filter(achievement => !hiddenMetrics.includes(achievement.metric));
 
   const groups = groupAchievementsByType(filteredAchievements).filter(
     (g) => !metricType || MetricProps[g.metric].type === metricType
