@@ -5,7 +5,7 @@ import MockAdapter from 'axios-mock-adapter';
 import prisma from '../../../src/prisma';
 import env from '../../../src/env';
 import apiServer from '../../../src/api';
-import { Achievement, Metric, PlayerType } from '../../../src/utils';
+import { Achievement, Metric, PlayerType, SKILL_EXP_AT_99 } from '../../../src/utils';
 import * as achievementEvents from '../../../src/api/modules/achievements/achievement.events';
 import { ACHIEVEMENT_TEMPLATES } from '../../../src/api/modules/achievements/achievement.templates';
 import {
@@ -391,6 +391,29 @@ describe('Achievements API', () => {
       expect(fetchResponse.body.find(a => a.name === '50m Attack').createdAt).not.toBe(0);
       // accuracy should be less than 10 seconds, since we just updated the player (plus/minus async request delays and such)
       expect(fetchResponse.body.find(a => a.name === '50m Attack').accuracy).toBeLessThan(10_000);
+    });
+
+    it('should not count very-close achievements as complete', async () => {
+      const modifiedRawData = modifyRawHiscoresData(globalData.hiscoresRawDataA, [
+        { metric: Metric.AGILITY, value: SKILL_EXP_AT_99 - 50 } // 50 exp away from 99
+      ]);
+
+      registerHiscoresMock(axiosMock, {
+        [PlayerType.REGULAR]: { statusCode: 200, rawData: modifiedRawData },
+        [PlayerType.IRONMAN]: { statusCode: 404 }
+      });
+
+      const trackResponse = await api.post(`/players/nightfirecat`);
+      expect(trackResponse.status).toBe(201);
+
+      const fetchResponse = await api.get(`/players/nightfirecat/achievements/progress`);
+      expect(fetchResponse.status).toBe(200);
+
+      const agilityAchievements = fetchResponse.body.filter(a => a.metric === Metric.AGILITY);
+
+      // Ensure the 99 agility achievement is not marked as at 100% completion (none should be tbh)
+      expect(agilityAchievements.filter(a => a.relativeProgress === 1).length).toBe(0);
+      expect(agilityAchievements.filter(a => a.absoluteProgress === 1).length).toBe(0);
     });
   });
 });

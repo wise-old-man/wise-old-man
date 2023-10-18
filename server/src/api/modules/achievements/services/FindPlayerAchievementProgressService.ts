@@ -41,14 +41,21 @@ async function findPlayerAchievementProgress(payload: FindProgressParams): Promi
 
     const existingAchievement = currentAchievementMap.get(d.name);
 
+    let absoluteProgress = clamp((currentValue - startValue) / (d.threshold - startValue));
+    let relativeProgress = clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold));
+
+    // Prevent rounding progress to 1.0 if the player has not yet reached the threshold
+    if (absoluteProgress === 1 && currentValue < d.threshold) absoluteProgress = 0.9999;
+    if (relativeProgress === 1 && currentValue < d.threshold) relativeProgress = 0.9999;
+
     return {
       ...d,
       playerId: params.id,
       createdAt: existingAchievement?.createdAt || null,
       accuracy: existingAchievement?.accuracy || null,
       currentValue,
-      absoluteProgress: clamp((currentValue - startValue) / (d.threshold - startValue)),
-      relativeProgress: clamp((currentValue - prevThreshold) / (d.threshold - prevThreshold))
+      absoluteProgress,
+      relativeProgress
     };
   });
 }
