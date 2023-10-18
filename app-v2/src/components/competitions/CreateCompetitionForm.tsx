@@ -7,7 +7,7 @@ import {
   ACTIVITIES,
   BOSSES,
   COMPUTED_METRICS,
-  CompetitionDetails,
+  CompetitionType,
   CreateCompetitionPayload,
   GroupDetails,
   GroupListItem,
@@ -49,20 +49,41 @@ import LoadingIcon from "~/assets/loading.svg";
 import VerifiedIcon from "~/assets/verified.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
 
 const MAX_NAME_LENGTH = 50;
 
 type TimezoneOption = "utc" | "local";
 type FormStep = "info" | "group" | "participants";
 
-const CreateCompetitionContext = createContext({
-  group: undefined as GroupListItem | undefined,
-  step: "info" as FormStep,
-  timezone: "local" as TimezoneOption,
-  setStep: (_step: FormStep) => {},
-  setGroup: (_group: GroupListItem | undefined) => {},
-  setTimezone: (_timezone: TimezoneOption) => {},
-});
+const CreateCompetitionContext = createContext<
+  | {
+      group: GroupListItem | undefined;
+      setGroup: (group: GroupListItem | undefined) => void;
+
+      groupVerificationCode: string | undefined;
+      setGroupVerificationCode: (code: string) => void;
+
+      type: CompetitionType;
+      setType: (type: CompetitionType) => void;
+
+      competition: CreateCompetitionPayload;
+      setCompetition: (competition: CreateCompetitionPayload) => void;
+
+      step: FormStep;
+      setStep: (step: FormStep) => void;
+
+      timezone: TimezoneOption;
+      setTimezone: (timezone: TimezoneOption) => void;
+    }
+  | undefined
+>(undefined);
+
+function useFormContext() {
+  const ctx = useContext(CreateCompetitionContext);
+  if (!ctx) throw new Error("No Context.Provider found when calling useContext.");
+  return ctx;
+}
 
 interface CreateCompetitionFormProps {
   group?: GroupDetails;
@@ -71,10 +92,12 @@ interface CreateCompetitionFormProps {
 export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
   const [group, setGroup] = useState<GroupListItem | undefined>(props.group);
   const [groupVerificationCode, setGroupVerificationCode] = useState("");
+
   const [step, setStep] = useState<FormStep>("info");
   const [timezone, setTimezone] = useState<TimezoneOption>("local");
 
-  const [payload, setPayload] = useState<CreateCompetitionPayload>({
+  const [type, setType] = useState<CompetitionType>(CompetitionType.CLASSIC);
+  const [competition, setCompetition] = useState<CreateCompetitionPayload>({
     title: "",
     metric: Metric.OVERALL,
     startsAt: getDefaultStartDate(),
@@ -92,11 +115,17 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
     <CreateCompetitionContext.Provider
       value={{
         group,
-        step,
-        timezone,
-        setStep,
-        setTimezone,
         setGroup,
+        groupVerificationCode,
+        setGroupVerificationCode,
+        step,
+        setStep,
+        timezone,
+        setTimezone,
+        type,
+        setType,
+        competition,
+        setCompetition,
       }}
     >
       <Container className="mt-8 max-w-2xl">
@@ -118,67 +147,46 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
         </div>
         <h2 className="mt-3 text-sm text-white">{stepLabel}</h2>
         <div className="mt-10">
-          {step === "info" && (
-            <InfoForm
-              timezone={timezone}
-              competition={payload}
-              onTimezoneChanged={setTimezone}
-              onSubmit={(title, metric, startsAt, endsAt) => {
-                setPayload({ ...payload, title, metric, startsAt, endsAt });
-                setStep("group");
-              }}
-            />
-          )}
-          {step === "group" && (
-            <GroupForm
-              groupVerificationCode={groupVerificationCode}
-              onSubmit={(code) => setGroupVerificationCode(code)}
-            />
-          )}
-          {step === "participants" && <button onClick={() => setStep("group")}>back</button>}
+          {step === "info" && <InfoForm />}
+          {step === "group" && <GroupForm />}
+          {step === "participants" && <TypeAndParticipantsForm />}
         </div>
       </Container>
     </CreateCompetitionContext.Provider>
   );
 }
 
-interface InfoFormProps {
-  timezone: TimezoneOption;
-  competition: Pick<CompetitionDetails, "title" | "metric" | "startsAt" | "endsAt">;
-  onTimezoneChanged: (timezone: TimezoneOption) => void;
-  onSubmit: (title: string, metric: Metric, startsAt: Date, endsAt: Date) => void;
-}
-
-function InfoForm(props: InfoFormProps) {
-  const { timezone, competition, onSubmit, onTimezoneChanged } = props;
+function InfoForm() {
+  const ctx = useFormContext();
 
   const hasMounted = useHasMounted();
 
-  const [title, setTitle] = useState(competition.title);
-  const [metric, setMetric] = useState<Metric>(competition.metric);
+  const [title, setTitle] = useState(ctx.competition.title);
+  const [metric, setMetric] = useState<Metric>(ctx.competition.metric);
 
-  const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(competition.startsAt));
+  const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(ctx.competition.startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
-    new Time(competition.startsAt.getHours(), competition.startsAt.getMinutes())
+    new Time(ctx.competition.startsAt.getHours(), ctx.competition.startsAt.getMinutes())
   );
 
-  const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(competition.endsAt));
+  const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(ctx.competition.endsAt));
   const [endTime, setEndTime] = useState<TimeValue>(
-    new Time(competition.endsAt.getHours(), competition.endsAt.getMinutes())
+    new Time(ctx.competition.endsAt.getHours(), ctx.competition.endsAt.getMinutes())
   );
 
   function handleSubmit() {
-    let startDateTime = toDate(startDate, startTime);
-    let endDateTime = toDate(endDate, endTime);
+    let startsAt = toDate(startDate, startTime);
+    let endsAt = toDate(endDate, endTime);
 
-    if (timezone === "utc") {
+    if (ctx.timezone === "utc") {
       const offsetMs = new Date().getTimezoneOffset() * -1 * 60_000;
 
-      startDateTime = new Date(startDateTime.getTime() + offsetMs);
-      endDateTime = new Date(endDateTime.getTime() + offsetMs);
+      startsAt = new Date(startsAt.getTime() + offsetMs);
+      endsAt = new Date(endsAt.getTime() + offsetMs);
     }
 
-    onSubmit(title, metric, startDateTime, endDateTime);
+    ctx.setStep("group");
+    ctx.setCompetition({ ...ctx.competition, title, metric, startsAt, endsAt });
   }
 
   if (!hasMounted) {
@@ -225,10 +233,10 @@ function InfoForm(props: InfoFormProps) {
 
       <div className="overflow-hidden rounded-md border border-gray-500 bg-gray-800">
         <div className="border-b border-gray-500 p-4">
-          <TimezoneSelector timezone={timezone} onTimezoneChanged={onTimezoneChanged} />
+          <TimezoneSelector timezone={ctx.timezone} onTimezoneChanged={ctx.setTimezone} />
           <span className="text-body text-gray-200">
             {`The dates below are shown in `}
-            {timezone === "local" ? `your local timezone (${getTimezoneNameAndOffset()})` : "UTC"}
+            {ctx.timezone === "local" ? `your local timezone (${getTimezoneNameAndOffset()})` : "UTC"}
           </span>
         </div>
         <div className="p-4">
@@ -264,23 +272,19 @@ function InfoForm(props: InfoFormProps) {
   );
 }
 
-interface GroupFormProps {
-  groupVerificationCode: string;
-  onSubmit: (groupVerificationCode: string) => void;
-}
-
-function GroupForm(props: GroupFormProps) {
+function GroupForm() {
   const toast = useToast();
-  const ctx = useContext(CreateCompetitionContext);
+  const ctx = useFormContext();
 
-  const [groupVerificationCode, setGroupVerificationCode] = useState(props.groupVerificationCode);
   const [isGroupCompetition, setIsGroupCompetition] = useState(!!ctx.group);
+  const [groupVerificationCode, setGroupVerificationCode] = useState(ctx.groupVerificationCode);
 
-  const canContinue = !isGroupCompetition || (ctx.group && groupVerificationCode.length === 11);
+  const canContinue =
+    !isGroupCompetition || (ctx.group && groupVerificationCode && groupVerificationCode.length === 11);
 
   const checkMutation = useMutation({
     mutationFn: async () => {
-      if (!ctx.group) return;
+      if (!ctx.group || !groupVerificationCode) return;
 
       const client = new WOMClient({
         userAgent: "WiseOldMan - App v2 (Client Side)",
@@ -302,8 +306,8 @@ function GroupForm(props: GroupFormProps) {
     },
     onSuccess: (code) => {
       if (code) {
-        props.onSubmit(code);
         ctx.setStep("participants");
+        ctx.setGroupVerificationCode(code);
       }
     },
   });
@@ -313,7 +317,12 @@ function GroupForm(props: GroupFormProps) {
       className="flex flex-col gap-y-7"
       onSubmit={(e) => {
         e.preventDefault();
-        checkMutation.mutate();
+
+        if (isGroupCompetition) {
+          checkMutation.mutate();
+        } else {
+          ctx.setStep("participants");
+        }
       }}
     >
       <Alert>
@@ -379,6 +388,59 @@ function GroupForm(props: GroupFormProps) {
         </Button>
         <Button variant="blue" disabled={!canContinue || checkMutation.isPending}>
           {checkMutation.isPending ? "Checking..." : "Next"}
+          <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function TypeAndParticipantsForm() {
+  const ctx = useFormContext();
+
+  function handleSubmit() {
+    console.log("submit!!");
+  }
+
+  return (
+    <form
+      className="flex flex-col gap-y-12"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+    >
+      <div>
+        <Label htmlFor="type" className="mb-2 block text-xs text-gray-200">
+          Type
+        </Label>
+        <CompetitionTypeSelector id="type" type={ctx.type} onTypeChanged={ctx.setType} />
+      </div>
+      <div>
+        <Label htmlFor="type" className="mb-2 block text-xs text-gray-200">
+          Participants
+        </Label>
+        {ctx.group && ctx.type === CompetitionType.CLASSIC ? (
+          <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-gray-500 text-xs text-gray-200">
+            All&nbsp;<span className="text-white">{ctx.group?.name}</span>&nbsp;members will be
+            automatically added as participants.
+          </div>
+        ) : (
+          <>dhdhdhd</>
+        )}
+      </div>
+      <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
+        <Button
+          variant="outline"
+          onClick={() => {
+            ctx.setStep("group");
+          }}
+        >
+          <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+          Previous
+        </Button>
+        <Button variant="blue">
+          Next
           <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
         </Button>
       </div>
