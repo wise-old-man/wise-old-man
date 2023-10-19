@@ -42,12 +42,15 @@ async function computeEfficiencyRank(payload: ComputeEfficiencyRankParams): Prom
     }
   });
 
+  // Sort by the efficiency metric, and tie-break with overall rank
   const smarterRank = topPlayers
-    .sort(
-      (a, b) =>
+    .sort((a, b) => {
+      return (
+        (b[params.metric] ?? 0) - (a[params.metric] ?? 0) ||
         (a.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER) -
-        (b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER)
-    )
+          (b.latestSnapshot?.overallRank ?? Number.MAX_SAFE_INTEGER)
+      );
+    })
     .findIndex(p => p.id === params.player.id);
 
   return smarterRank < 0 ? rank + 1 : smarterRank + 1;
