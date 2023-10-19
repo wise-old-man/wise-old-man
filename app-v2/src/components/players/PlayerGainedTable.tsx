@@ -140,7 +140,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
             selectedMetric={metric}
           />
         </div>
-        <div className="col-span-12 -ml-px rounded-xl border border-gray-500 bg-gray-800 xl:col-span-6 xl:rounded-t-none">
+        <div className="col-span-12 -ml-px rounded-lg border border-gray-500 bg-gray-800 xl:col-span-6 xl:rounded-t-none">
           {children}
         </div>
       </div>
