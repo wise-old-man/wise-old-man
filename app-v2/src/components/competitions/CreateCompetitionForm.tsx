@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { Time } from "@internationalized/date";
+import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
 import {
   ACTIVITIES,
@@ -17,11 +17,14 @@ import {
   WOMClient,
   isMetric,
 } from "@wise-old-man/utils";
-import { createContext, useContext, useState } from "react";
+import Link from "next/link";
 import { DateValue, TimeValue } from "react-aria";
+import { createContext, useContext, useState } from "react";
+import { useToast } from "~/hooks/useToast";
 import { useHasMounted } from "~/hooks/useHasMounted";
 import { cn } from "~/utils/styling";
-import { useToast } from "~/hooks/useToast";
+import { standardizeUsername } from "~/utils/strings";
+import { Button } from "../Button";
 import {
   Combobox,
   ComboboxButton,
@@ -36,20 +39,21 @@ import {
 } from "../Combobox";
 import { Input } from "../Input";
 import { Label } from "../Label";
-import { Button } from "../Button";
 import { Switch } from "../Switch";
 import { Container } from "../Container";
 import { MetricIconSmall } from "../Icon";
+import { DataTable } from "../DataTable";
+import { PlayerSearch } from "../PlayerSearch";
 import { Alert, AlertDescription } from "../Alert";
-import { GroupSearch } from "../groups/GroupSearch";
+import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
+import { GroupSearch } from "../groups/GroupSearch";
 
 import CloseIcon from "~/assets/close.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import VerifiedIcon from "~/assets/verified.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
-import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
 
 const MAX_NAME_LENGTH = 50;
 
@@ -414,19 +418,39 @@ function TypeAndParticipantsForm() {
         <Label htmlFor="type" className="mb-2 block text-xs text-gray-200">
           Type
         </Label>
-        <CompetitionTypeSelector id="type" type={ctx.type} onTypeChanged={ctx.setType} />
+        <CompetitionTypeSelector
+          id="type"
+          type={ctx.type}
+          onTypeChanged={(type) => {
+            ctx.setType(type);
+
+            if (type === CompetitionType.CLASSIC) {
+              ctx.setCompetition({ ...ctx.competition, participants: [] });
+            } else {
+              ctx.setCompetition({ ...ctx.competition, teams: [] });
+            }
+          }}
+        />
       </div>
       <div>
-        <Label htmlFor="type" className="mb-2 block text-xs text-gray-200">
-          Participants
-        </Label>
-        {ctx.group && ctx.type === CompetitionType.CLASSIC ? (
-          <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-gray-500 text-xs text-gray-200">
-            All&nbsp;<span className="text-white">{ctx.group?.name}</span>&nbsp;members will be
-            automatically added as participants.
-          </div>
+        {ctx.type === CompetitionType.CLASSIC ? (
+          <>
+            {ctx.group ? (
+              <>
+                <Label className="mb-2 block text-xs text-gray-200">Participants</Label>
+                <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-gray-500 px-16 text-center text-xs leading-5 text-gray-200">
+                  All {ctx.group.name} members will be automatically added as participants.
+                </div>
+              </>
+            ) : (
+              <ParticipantsSelection />
+            )}
+          </>
         ) : (
-          <>dhdhdhd</>
+          <>
+            <Label className="mb-2 block text-xs text-gray-200">Teams</Label>
+            <TeamsSelection />
+          </>
         )}
       </div>
       <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
@@ -446,6 +470,92 @@ function TypeAndParticipantsForm() {
       </div>
     </form>
   );
+}
+
+function ParticipantsSelection() {
+  const ctx = useContext(CreateCompetitionContext);
+
+  const participants =
+    ctx && ctx.competition && "participants" in ctx.competition ? ctx.competition.participants : [];
+
+  function handleAddPlayers(usernames: string) {
+    if (!ctx) return;
+
+    // Handle comma separated usernames
+    const playersToAdd = usernames.split(",").filter((s) => s.length > 0);
+
+    const unique: string[] = [];
+
+    playersToAdd.forEach((p) => {
+      if (unique.map(standardizeUsername).includes(standardizeUsername(p))) return;
+      if (participants.map(standardizeUsername).includes(standardizeUsername(p))) return;
+
+      unique.push(p);
+    });
+
+    ctx.setCompetition({ ...ctx.competition, participants: [...participants, ...unique] });
+  }
+
+  function handleRemovePlayer(username: string) {
+    if (!ctx) return;
+
+    ctx.setCompetition({
+      ...ctx.competition,
+      participants: participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username)),
+    });
+  }
+
+  const PARTICIPANTS_COLUMN_DEFS: ColumnDef<string>[] = [
+    {
+      accessorKey: "username",
+      header: "Player",
+      cell: ({ row }) => {
+        return (
+          <div className="pr-5 text-sm font-medium text-white">
+            <Link href={`/players/${row.original}`} className="hover:underline">
+              {row.original}
+            </Link>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-end text-sm text-gray-200">
+            <Button size="sm" onClick={() => handleRemovePlayer(row.original)}>
+              Remove
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <>
+      <Label className="mb-2 block text-xs text-gray-200">
+        Add participants ({participants.length})
+      </Label>
+      <PlayerSearch mode="select" onPlayerSelected={handleAddPlayers} />
+      <div className="mt-7">
+        {participants.length === 0 ? (
+          <div className="flex justify-center rounded border border-dashed border-gray-400 p-7">
+            <p className="max-w-xs text-center text-sm font-normal leading-6 text-gray-200">
+              No participants yet. Please use the search bar above to start selecting players.
+            </p>
+          </div>
+        ) : (
+          <DataTable data={participants} columns={PARTICIPANTS_COLUMN_DEFS} enablePagination />
+        )}
+      </div>
+    </>
+  );
+}
+
+function TeamsSelection() {
+  return <div>Teams selection</div>;
 }
 
 interface GroupSelectorProps {
@@ -533,7 +643,7 @@ function MetricSelect(props: MetricSelectProps) {
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
         </div>
       </ComboboxButton>
-      <ComboboxContent>
+      <ComboboxContent className="max-h-64">
         <ComboboxInput placeholder="Search metrics..." />
         <ComboboxEmpty>No results were found</ComboboxEmpty>
         <ComboboxItemsContainer>

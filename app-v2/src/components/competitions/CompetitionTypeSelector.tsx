@@ -53,7 +53,7 @@ export function CompetitionTypeSelector(props: CompetitionTypeSelectorProps) {
     >
       <Label
         htmlFor="classic"
-        className="flex gap-x-2 space-x-2 rounded-md border border-gray-500 bg-gray-800 p-5 shadow-sm transition-colors hover:border-gray-400 hover:bg-gray-700"
+        className="flex cursor-pointer gap-x-2 space-x-2 rounded-md border border-gray-500 bg-gray-800 p-5 shadow-sm transition-colors hover:border-gray-400 hover:bg-gray-700"
       >
         <RadioGroupItem value="classic" id="classic" />
         <div className="-mt-1">
@@ -66,7 +66,7 @@ export function CompetitionTypeSelector(props: CompetitionTypeSelectorProps) {
 
       <Label
         htmlFor="team"
-        className="flex gap-x-2 space-x-2 rounded-md border border-gray-500 bg-gray-800 p-5 shadow-sm transition-colors hover:border-gray-400 hover:bg-gray-700"
+        className="flex cursor-pointer gap-x-2 space-x-2 rounded-md border border-gray-500 bg-gray-800 p-5 shadow-sm transition-colors hover:border-gray-400 hover:bg-gray-700"
       >
         <RadioGroupItem value="team" id="team" />
         <div className="-mt-1">

@@ -31,17 +31,19 @@ function RootLayout(props: PropsWithChildren) {
   return (
     <html lang="en" className={cn(inter.variable, "h-full")}>
       <body className="h-full bg-gray-900 text-white">
-        <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
-          <span className="text-sm">
-            This beta version of the website is still under construction. We&apos;d appreciate your
-            ideas, bug reports and feedback!
-          </span>
-          <a href="https://discord.gg/Xhg5cUaWPR" target="_blank" rel="noopener noreferrer">
-            <Button size="sm" variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
-              Share feedback
-            </Button>
-          </a>
-        </div>
+        {process.env.NODE_ENV === "production" && (
+          <div className="flex items-center justify-between gap-x-4 bg-blue-600 p-3">
+            <span className="text-sm">
+              This beta version of the website is still under construction. We&apos;d appreciate your
+              ideas, bug reports and feedback!
+            </span>
+            <a href="https://discord.gg/Xhg5cUaWPR" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="outline" className="bg-white text-blue-600 hover:bg-blue-50">
+                Share feedback
+              </Button>
+            </a>
+          </div>
+        )}
         <NavigationLoadingBar />
         <TooltipProvider delayDuration={300}>
           <ReactQueryProvider>
