@@ -1,5 +1,5 @@
-import { EditGroupForm } from "~/components/groups/EditGroupForm";
 import { getGroupDetails } from "~/services/wiseoldman";
+import { EditGroupForm } from "~/components/groups/EditGroupForm";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function generateMetadata(props: PageProps) {
   const group = await getGroupDetails(id);
 
   return {
-    title: `Editing ${group.name}`,
+    title: `Edit - ${group.name}`,
     description: group.description,
   };
 }
