@@ -42,14 +42,16 @@ interface CompetitionTypeSelectorProps
 }
 
 export function CompetitionTypeSelector(props: CompetitionTypeSelectorProps) {
+  const { type, onTypeChanged, ...radioGroupProps } = props;
+
   return (
     <RadioGroup
-      {...props}
-      value={props.type}
+      {...radioGroupProps}
+      value={type}
       onValueChange={(e) => {
-        if (isCompetitionType(e)) props.onTypeChanged(e);
+        if (isCompetitionType(e)) onTypeChanged(e);
       }}
-      className="flex flex-col gap-x-3 sm:flex-row"
+      className="flex flex-col gap-x-4 sm:flex-row"
     >
       <Label
         htmlFor="classic"

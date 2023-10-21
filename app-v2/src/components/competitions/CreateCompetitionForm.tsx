@@ -1,6 +1,7 @@
 "use client";
 
 import { Time } from "@internationalized/date";
+import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -14,6 +15,7 @@ import {
   Metric,
   MetricProps,
   SKILLS,
+  Team,
   WOMClient,
   isMetric,
 } from "@wise-old-man/utils";
@@ -45,15 +47,21 @@ import { MetricIconSmall } from "../Icon";
 import { DataTable } from "../DataTable";
 import { PlayerSearch } from "../PlayerSearch";
 import { Alert, AlertDescription } from "../Alert";
+import { EditTeamDialog } from "./EditTeamDialog";
 import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
 import { DateTimePicker, TimeField, toCalendarDate, toDate } from "../DatePicker";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../Dropdown";
+import { SaveCompetitionVerificationCodeDialog } from "../competitions/SaveCompetitionVerificationCodeDialog";
 import { GroupSearch } from "../groups/GroupSearch";
 
+import PlusIcon from "~/assets/plus.svg";
 import CloseIcon from "~/assets/close.svg";
 import LoadingIcon from "~/assets/loading.svg";
 import VerifiedIcon from "~/assets/verified.svg";
+import OverflowIcon from "~/assets/overflow.svg";
 import ArrowRightIcon from "~/assets/arrow_right.svg";
 import ChevronDownIcon from "~/assets/chevron_down.svg";
+import { Badge } from "../Badge";
 
 const MAX_NAME_LENGTH = 50;
 
@@ -79,6 +87,8 @@ const CreateCompetitionContext = createContext<
 
       timezone: TimezoneOption;
       setTimezone: (timezone: TimezoneOption) => void;
+
+      onSubmit: () => void;
     }
   | undefined
 >(undefined);
@@ -94,6 +104,9 @@ interface CreateCompetitionFormProps {
 }
 
 export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
+  const toast = useToast();
+  const router = useRouter();
+
   const [group, setGroup] = useState<GroupListItem | undefined>(props.group);
   const [groupVerificationCode, setGroupVerificationCode] = useState("");
 
@@ -115,6 +128,34 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
     participants: "3. Participants",
   }[step];
 
+  const createMutation = useMutation({
+    mutationFn: (competition: CreateCompetitionPayload) => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
+      const payload = {
+        ...competition,
+      };
+
+      if (group && groupVerificationCode) {
+        payload.groupId = group.id;
+        payload.groupVerificationCode = groupVerificationCode;
+      }
+
+      return client.competitions.createCompetition(payload);
+    },
+    onSuccess: (data) => {
+      router.prefetch(`/competitions/${data.competition.id}`);
+      toast.toast({ variant: "success", title: "Group created successfully!" });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
   return (
     <CreateCompetitionContext.Provider
       value={{
@@ -130,6 +171,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
         setType,
         competition,
         setCompetition,
+        onSubmit: () => createMutation.mutate(competition),
       }}
     >
       <Container className="mt-8 max-w-2xl">
@@ -156,6 +198,15 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
           {step === "participants" && <TypeAndParticipantsForm />}
         </div>
       </Container>
+      <SaveCompetitionVerificationCodeDialog
+        isOpen={!!createMutation.data}
+        isGroupCompetition={!!createMutation.data?.competition.groupId}
+        verificationCode={createMutation.data?.verificationCode || ""}
+        onClose={() => {
+          if (!createMutation.data) return;
+          router.push(`/competitions/${createMutation.data?.competition.id}`);
+        }}
+      />
     </CreateCompetitionContext.Provider>
   );
 }
@@ -382,6 +433,7 @@ function GroupForm() {
 
       <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
         <Button
+          type="button"
           variant="outline"
           onClick={() => {
             ctx.setStep("info");
@@ -402,18 +454,15 @@ function GroupForm() {
 function TypeAndParticipantsForm() {
   const ctx = useFormContext();
 
-  function handleSubmit() {
-    console.log("submit!!");
-  }
+  const participants =
+    ctx.competition && "participants" in ctx.competition ? ctx.competition.participants : [];
+  const teams = ctx.competition && "teams" in ctx.competition ? ctx.competition.teams : [];
+
+  const canSubmit =
+    ctx.type === CompetitionType.CLASSIC ? !!ctx.group || participants.length > 0 : teams.length > 0;
 
   return (
-    <form
-      className="flex flex-col gap-y-12"
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}
-    >
+    <div className="flex flex-col gap-y-12">
       <div>
         <Label htmlFor="type" className="mb-2 block text-xs text-gray-200">
           Type
@@ -448,39 +497,31 @@ function TypeAndParticipantsForm() {
           </>
         ) : (
           <>
-            <Label className="mb-2 block text-xs text-gray-200">Teams</Label>
             <TeamsSelection />
           </>
         )}
       </div>
       <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
-        <Button
-          variant="outline"
-          onClick={() => {
-            ctx.setStep("group");
-          }}
-        >
+        <Button variant="outline" onClick={() => ctx.setStep("group")}>
           <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
           Previous
         </Button>
-        <Button variant="blue">
+        <Button variant="blue" disabled={!canSubmit} onClick={() => ctx.onSubmit()}>
           Next
           <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
 function ParticipantsSelection() {
-  const ctx = useContext(CreateCompetitionContext);
+  const ctx = useFormContext();
 
   const participants =
-    ctx && ctx.competition && "participants" in ctx.competition ? ctx.competition.participants : [];
+    ctx.competition && "participants" in ctx.competition ? ctx.competition.participants : [];
 
   function handleAddPlayers(usernames: string) {
-    if (!ctx) return;
-
     // Handle comma separated usernames
     const playersToAdd = usernames.split(",").filter((s) => s.length > 0);
 
@@ -497,8 +538,6 @@ function ParticipantsSelection() {
   }
 
   function handleRemovePlayer(username: string) {
-    if (!ctx) return;
-
     ctx.setCompetition({
       ...ctx.competition,
       participants: participants.filter((p) => standardizeUsername(p) !== standardizeUsername(username)),
@@ -524,7 +563,7 @@ function ParticipantsSelection() {
       cell: ({ row }) => {
         return (
           <div className="flex justify-end text-sm text-gray-200">
-            <Button size="sm" onClick={() => handleRemovePlayer(row.original)}>
+            <Button type="button" size="sm" onClick={() => handleRemovePlayer(row.original)}>
               Remove
             </Button>
           </div>
@@ -555,7 +594,155 @@ function ParticipantsSelection() {
 }
 
 function TeamsSelection() {
-  return <div>Teams selection</div>;
+  const toast = useToast();
+  const ctx = useFormContext();
+
+  const teams = ctx.competition && "teams" in ctx.competition ? ctx.competition.teams : [];
+
+  const [isEditing, setEditing] = useState(false);
+  const [editingTeamName, setEditingTeamName] = useState<string | undefined>();
+
+  const editingTeam = editingTeamName ? teams.find((t) => t.name === editingTeamName) ?? null : null;
+
+  function handleAddTeam(team: Team) {
+    const hasRepeatedNames = teams
+      .map((t) => standardizeUsername(t.name))
+      .includes(standardizeUsername(team.name));
+
+    if (hasRepeatedNames) {
+      const errorMessage = "Failed to add team: Repeated team name";
+      toast.toast({ variant: "error", title: errorMessage });
+      return;
+    }
+
+    ctx.setCompetition({
+      ...ctx.competition,
+      teams: [...teams, team],
+    });
+
+    setEditing(false);
+  }
+
+  function handleEditTeam(team: Team) {
+    if (!editingTeamName) return;
+
+    const hasRepeatedNames = teams
+      .filter((t) => t.name !== editingTeamName)
+      .map((t) => standardizeUsername(t.name))
+      .includes(standardizeUsername(team.name));
+
+    if (hasRepeatedNames) {
+      const errorMessage = "Failed to add team: Repeated team name";
+      toast.toast({ variant: "error", title: errorMessage });
+      return;
+    }
+
+    ctx.setCompetition({
+      ...ctx.competition,
+      teams: teams.map((t) => (t.name === editingTeamName ? team : t)),
+    });
+
+    setEditing(false);
+    setEditingTeamName(undefined);
+  }
+
+  function handleDeleteTeam(teamName: string) {
+    ctx.setCompetition({
+      ...ctx.competition,
+      teams: teams.filter((t) => t.name !== teamName),
+    });
+  }
+
+  return (
+    <>
+      <Label className="mb-2 block text-xs text-gray-200">Teams ({teams.length})</Label>
+      {teams.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded border border-dashed border-gray-400 p-7">
+          <p className="max-w-[18rem] text-center text-sm font-normal leading-6 text-gray-200">
+            No teams yet. Please click below to start adding teams to your competition.
+          </p>
+          <button
+            type="button"
+            className="mt-5 text-sm font-medium text-blue-400 hover:underline"
+            onClick={() => {
+              setEditing(true);
+              setEditingTeamName(undefined);
+            }}
+          >
+            Add new team
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {teams.map((team) => {
+            return (
+              <div key={team.name} className="rounded-md border border-gray-500 bg-gray-800 shadow-sm">
+                <div className="flex justify-between gap-x-3 border-b border-gray-600 px-4 py-3">
+                  <span className="truncate overflow-ellipsis font-medium">{team.name}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="group">
+                      <OverflowIcon className="h-5 w-5 group-hover:text-gray-200" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setEditing(true);
+                          setEditingTeamName(team.name);
+                        }}
+                      >
+                        Edit team
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDeleteTeam(team.name)}>
+                        Delete team
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="flex flex-wrap gap-2 px-4 py-3">
+                  {team.participants.map((p) => (
+                    <Badge key={p} className="bg-gray-500 text-sm">
+                      {p}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            className="group flex min-h-[10rem] flex-col items-center justify-center rounded-md border border-gray-500 py-7 text-sm text-gray-200 hover:border-gray-400 hover:text-gray-100"
+            onClick={() => {
+              setEditing(true);
+              setEditingTeamName(undefined);
+            }}
+          >
+            <div className="mb-3 rounded-full border border-gray-200 p-1 group-hover:border-gray-100">
+              <PlusIcon className="h-5 w-5" />
+            </div>
+            Add new team
+          </button>
+        </div>
+      )}
+      <EditTeamDialog
+        key={editingTeamName}
+        team={editingTeam}
+        isOpen={isEditing}
+        onClose={() => {
+          setEditing(false);
+          setEditingTeamName(undefined);
+        }}
+        onSubmit={(team) => {
+          if (editingTeamName) {
+            handleEditTeam(team);
+          } else {
+            handleAddTeam(team);
+          }
+          setEditing(false);
+          setEditingTeamName(undefined);
+        }}
+      />
+    </>
+  );
 }
 
 interface GroupSelectorProps {
@@ -575,7 +762,7 @@ function GroupSelector(props: GroupSelectorProps) {
             {group.verified && <VerifiedIcon className="h-4 w-4" />}
           </div>
         </div>
-        <button onClick={() => onGroupSelected(undefined)}>
+        <button type="button" onClick={() => onGroupSelected(undefined)}>
           <CloseIcon className="-mr-1 h-7 w-7 rounded p-1 text-gray-200 hover:bg-gray-600 hover:text-gray-100" />
         </button>
       </div>

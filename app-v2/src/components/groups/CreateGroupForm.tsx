@@ -36,7 +36,7 @@ import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
 import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
 import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
 import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
-import { SaveVerificationCodeDialog } from "~/components/groups/SaveVerificationCodeDialog";
+import { SaveGroupVerificationCodeDialog } from "~/components/groups/SaveGroupVerificationCodeDialog";
 import { standardizeUsername } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
@@ -189,7 +189,7 @@ export function CreateGroupForm() {
             </>
           )}
         </div>
-        <SaveVerificationCodeDialog
+        <SaveGroupVerificationCodeDialog
           isOpen={!!createMutation.data}
           verificationCode={createMutation.data?.verificationCode || ""}
           onClose={() => {
