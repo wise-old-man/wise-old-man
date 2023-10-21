@@ -36,7 +36,7 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
         </div>
       </div>
 
-      {competition.group ? (
+      {/* {competition.group ? (
         <GroupVerificationCodeCheckDialog
           group={competition.group}
           isOpen={!verificationCode}
@@ -49,7 +49,7 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
           isOpen={!verificationCode}
           onValidated={setVerificationCode}
         />
-      )}
+      )} */}
     </Container>
   );
 }
