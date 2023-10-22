@@ -16,7 +16,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import PlusIcon from "~/assets/plus.svg";
 import OverflowIcon from "~/assets/overflow.svg";
-import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 interface CompetitionParticipantsFormProps {
   type: CompetitionType;
@@ -24,8 +23,8 @@ interface CompetitionParticipantsFormProps {
   competition: CreateCompetitionPayload;
   onTeamsChanged: (teams: Team[]) => void;
   onParticipantsChanged: (participants: string[]) => void;
-  onSubmit: () => void;
-  onPreviousClicked: () => void;
+
+  formActions: (disabled: boolean) => JSX.Element;
 }
 
 export function CompetitionParticipantsForm(props: CompetitionParticipantsFormProps) {
@@ -62,16 +61,8 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
           </>
         )}
       </div>
-      <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
-        <Button variant="outline" onClick={props.onPreviousClicked}>
-          <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
-          Previous
-        </Button>
-        <Button variant="blue" disabled={!canSubmit} onClick={props.onSubmit}>
-          Next
-          <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
-        </Button>
-      </div>
+      {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
+      <div className="mt-3 border-t border-gray-500 py-5">{props.formActions(!canSubmit)}</div>
     </>
   );
 }

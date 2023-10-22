@@ -14,7 +14,6 @@ import {
 import { useState } from "react";
 import { DateValue, TimeValue } from "react-aria";
 import { useHasMounted } from "~/hooks/useHasMounted";
-import { Button } from "../Button";
 import {
   Combobox,
   ComboboxButton,
@@ -45,6 +44,8 @@ interface CompetitionInfoFormProps {
 
   timezone: TimezoneOption;
   onTimezoneChanged: (timezone: TimezoneOption) => void;
+
+  formActions: (disabled: boolean) => JSX.Element;
 }
 
 export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
@@ -55,15 +56,22 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
   const [title, setTitle] = useState(competition.title);
   const [metric, setMetric] = useState<Metric>(competition.metric);
 
-  const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(competition.startsAt));
+  let startsAt = competition.startsAt;
+  let endsAt = competition.endsAt;
+
+  if (timezone === "utc") {
+    const offsetMs = new Date().getTimezoneOffset() * 60_000;
+    startsAt = offsetDate(startsAt, offsetMs);
+    endsAt = offsetDate(endsAt, offsetMs);
+  }
+
+  const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(startsAt));
   const [startTime, setStartTime] = useState<TimeValue>(
-    new Time(competition.startsAt.getHours(), competition.startsAt.getMinutes())
+    new Time(startsAt.getHours(), startsAt.getMinutes())
   );
 
-  const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(competition.endsAt));
-  const [endTime, setEndTime] = useState<TimeValue>(
-    new Time(competition.endsAt.getHours(), competition.endsAt.getMinutes())
-  );
+  const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(endsAt));
+  const [endTime, setEndTime] = useState<TimeValue>(new Time(endsAt.getHours(), endsAt.getMinutes()));
 
   function handleSubmit() {
     let startsAt = toDate(startDate, startTime);
@@ -150,11 +158,8 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
           </div>
         </div>
       </div>
-      <div className="flex justify-end">
-        <Button variant="blue" disabled={title.length === 0}>
-          Next
-        </Button>
-      </div>
+      {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
+      {props.formActions(title.length === 0)}
     </form>
   );
 }
@@ -268,4 +273,8 @@ function getTimezoneNameAndOffset() {
   if (offset === 0) return timezone;
 
   return `${timezone}, UTC${offset > 0 ? "+" : ""}${offset}`;
+}
+
+function offsetDate(date: Date, offsetMs: number) {
+  return new Date(date.getTime() + offsetMs);
 }

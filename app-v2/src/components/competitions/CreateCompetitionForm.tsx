@@ -14,12 +14,15 @@ import {
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
 import { Label } from "../Label";
+import { Button } from "../Button";
 import { Container } from "../Container";
 import { CompetitionInfoForm } from "./CompetitionInfoForm";
 import { CompetitionGroupForm } from "./CompetitionGroupForm";
 import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
 import { CompetitionParticipantsForm } from "./CompetitionParticipantsForm";
 import { SaveCompetitionVerificationCodeDialog } from "./SaveCompetitionVerificationCodeDialog";
+
+import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 type FormStep = "info" | "group" | "participants";
 type TimezoneOption = "local" | "utc";
@@ -110,9 +113,16 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
               setTimezone(tz);
             }}
             onCompetitionChanged={(c) => {
-              setCompetition(c);
+              setCompetition((prev) => ({ ...prev, ...c }));
               setStep("group");
             }}
+            formActions={(disabled) => (
+              <div className="flex justify-end">
+                <Button variant="blue" disabled={disabled}>
+                  Next
+                </Button>
+              </div>
+            )}
           />
         )}
         {step === "group" && (
@@ -129,9 +139,18 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
               setStep("participants");
               setGroupVerificationCode(code);
             }}
-            onPreviousClicked={() => {
-              setStep("info");
-            }}
+            formActions={(disabled, loading) => (
+              <div className="flex justify-between gap-x-3">
+                <Button type="button" variant="outline" onClick={() => setStep("info")}>
+                  <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+                  Previous
+                </Button>
+                <Button variant="blue" disabled={disabled || loading}>
+                  {loading ? "Checking..." : "Next"}
+                  <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                </Button>
+              </div>
+            )}
           />
         )}
         {step === "participants" && (
@@ -158,18 +177,28 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
               type={type}
               group={group}
               competition={competition}
-              onPreviousClicked={() => {
-                setStep("group");
-              }}
-              onSubmit={() => {
-                createMutation.mutate(competition);
-              }}
               onTeamsChanged={(teams) => {
                 setCompetition({ ...competition, teams });
               }}
               onParticipantsChanged={(participants) => {
                 setCompetition({ ...competition, participants });
               }}
+              formActions={(disabled) => (
+                <div className="flex justify-between gap-x-3">
+                  <Button variant="outline" onClick={() => setStep("group")}>
+                    <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="blue"
+                    disabled={disabled}
+                    onClick={() => createMutation.mutate(competition)}
+                  >
+                    Next
+                    <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             />
           </div>
         )}

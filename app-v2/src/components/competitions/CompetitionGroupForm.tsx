@@ -7,7 +7,6 @@ import { GroupListItem, WOMClient } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { cn } from "~/utils/styling";
 import { Alert, AlertDescription } from "../Alert";
-import { Button } from "../Button";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { Switch } from "../Switch";
@@ -15,28 +14,28 @@ import { GroupSearch } from "../groups/GroupSearch";
 
 import CloseIcon from "~/assets/close.svg";
 import VerifiedIcon from "~/assets/verified.svg";
-import ArrowRightIcon from "~/assets/arrow_right.svg";
 
 interface CompetitionGroupFormProps {
   group: GroupListItem | undefined;
   groupVerificationCode: string | undefined;
 
   onSkip: () => void;
-  onPreviousClicked: () => void;
   onCodeConfirmed: (code: string) => void;
   onGroupSelected: (group: GroupListItem | undefined) => void;
+
+  formActions: (disabled: boolean, loading: boolean) => JSX.Element;
 }
 
 export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
   const toast = useToast();
 
-  const { group, onSkip, onGroupSelected, onCodeConfirmed, onPreviousClicked } = props;
+  const { group, onSkip, onGroupSelected, onCodeConfirmed } = props;
 
   const [isGroupCompetition, setIsGroupCompetition] = useState(!!group);
   const [groupVerificationCode, setGroupVerificationCode] = useState(props.groupVerificationCode);
 
-  const canContinue =
-    !isGroupCompetition || (group && groupVerificationCode && groupVerificationCode.length === 11);
+  const canSubmit =
+    !isGroupCompetition || !!(group && groupVerificationCode && groupVerificationCode.length === 11);
 
   const checkMutation = useMutation({
     mutationFn: async () => {
@@ -131,15 +130,9 @@ export function CompetitionGroupForm(props: CompetitionGroupFormProps) {
         </div>
       </div>
 
-      <div className="mt-3 flex justify-between gap-x-3 border-t border-gray-500 py-5">
-        <Button type="button" variant="outline" onClick={onPreviousClicked}>
-          <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
-          Previous
-        </Button>
-        <Button variant="blue" disabled={!canContinue || checkMutation.isPending}>
-          {checkMutation.isPending ? "Checking..." : "Next"}
-          <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
-        </Button>
+      {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
+      <div className="mt-3 border-t border-gray-500 py-5">
+        {props.formActions(!canSubmit, checkMutation.isPending)}
       </div>
     </form>
   );
