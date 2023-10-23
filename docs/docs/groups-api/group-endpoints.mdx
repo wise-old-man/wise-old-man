@@ -1770,3 +1770,109 @@ const statistics = await client.groups.getGroupStatistics(123);
   }
 }
 ```
+
+---
+
+## Get Group Activities
+
+<Endpoint verb="GET" path="/groups/:id/activities" />
+<br />
+
+Fetches a group's activities. Returns an array of [GroupActivity](/groups-api/group-type-definitions#object-group-activity) objects.
+
+<br />
+
+**Request Params**
+
+| Field | Type    | Required | Description     |
+| ----- | ------- | -------- | --------------- |
+| id    | integer | `true`   | The group's ID. |
+
+<br />
+
+**Query Params**
+
+| Field  | Type    | Required | Description                                           |
+| ------ | ------- | -------- | ----------------------------------------------------- |
+| limit  | integer | `false`  | The pagination limit. See [Pagination](/#pagination)  |
+| offset | integer | `false`  | The pagination offset. See [Pagination](/#pagination) |
+
+<br />
+
+**Example Request**
+
+<TabbedCodeBlock>
+
+```curl
+curl -X GET https://api.wiseoldman.net/v2/groups/123/activities?limit=5 \
+ -H "Content-type: application/json"
+```
+
+```javascript
+const { WOMClient } = require('@wise-old-man/utils');
+
+const client = new WOMClient();
+
+const activity = await client.groups.getGroupActivity(123);
+```
+
+</TabbedCodeBlock>
+
+<br />
+
+**Example Response**
+
+```json
+[
+  {
+    "groupId": 139,
+    "playerId": 4156,
+    "type": "changed_role",
+    "role": "iron",
+    "createdAt": "2023-10-23T20:39:45.104Z",
+    "player": {
+      "id": 4156,
+      "username": "rro",
+      "displayName": "Rro",
+      "type": "regular",
+      "build": "main",
+      "status": "active",
+      "country": "SE",
+      "exp": 694156199,
+      "ehp": 1635.832120000001,
+      "ehb": 1160.30569,
+      "ttm": 0,
+      "tt200m": 11177.97617,
+      "registeredAt": "2020-05-03T16:55:16.933Z",
+      "updatedAt": "2023-10-23T20:23:24.508Z",
+      "lastChangedAt": "2023-10-18T23:54:41.785Z",
+      "lastImportedAt": "2023-06-26T22:03:44.480Z"
+    }
+  },
+  {
+    "groupId": 139,
+    "playerId": 9899,
+    "type": "joined",
+    "role": null,
+    "createdAt": "2023-10-16T13:20:50.273Z",
+    "player": {
+      "id": 9899,
+      "username": "jakesterwars",
+      "displayName": "jakesterwars",
+      "type": "regular",
+      "build": "main",
+      "status": "active",
+      "country": "US",
+      "exp": 79040233,
+      "ehp": 261.2681500000017,
+      "ehb": 0,
+      "ttm": 703.17317,
+      "tt200m": 12552.54014,
+      "registeredAt": "2020-05-18T02:54:10.427Z",
+      "updatedAt": "2023-10-11T05:22:14.355Z",
+      "lastChangedAt": "2023-07-08T19:11:51.285Z",
+      "lastImportedAt": "2022-11-07T11:54:20.482Z"
+    }
+  }
+]
+```

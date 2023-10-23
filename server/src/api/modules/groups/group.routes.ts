@@ -26,6 +26,7 @@ api.get('/:id/records', setupController(controller.records));
 api.get('/:id/hiscores', setupController(controller.hiscores));
 api.get('/:id/name-changes', setupController(controller.nameChanges));
 api.get('/:id/statistics', setupController(controller.statistics));
+api.get('/:id/activities', setupController(controller.activities));
 
 api.get('/migrate/temple/:id', setupController(controller.migrateTemple));
 api.get('/migrate/cml/:id', setupController(controller.migrateCML));
