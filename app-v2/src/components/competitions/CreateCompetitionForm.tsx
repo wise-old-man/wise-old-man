@@ -19,6 +19,7 @@ import { Container } from "../Container";
 import { CompetitionInfoForm } from "./CompetitionInfoForm";
 import { CompetitionGroupForm } from "./CompetitionGroupForm";
 import { CompetitionTypeSelector } from "./CompetitionTypeSelector";
+import { CompetitionTeamsForm } from "./CompetitionTeamsForm";
 import { CompetitionParticipantsForm } from "./CompetitionParticipantsForm";
 import { SaveCompetitionVerificationCodeDialog } from "./SaveCompetitionVerificationCodeDialog";
 
@@ -164,7 +165,6 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                 type={type}
                 onTypeChanged={(type) => {
                   setType(type);
-
                   if (type === CompetitionType.CLASSIC) {
                     setCompetition({ ...competition, participants: [] });
                   } else {
@@ -173,33 +173,57 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
                 }}
               />
             </div>
-            <CompetitionParticipantsForm
-              type={type}
-              group={group}
-              competition={competition}
-              onTeamsChanged={(teams) => {
-                setCompetition({ ...competition, teams });
-              }}
-              onParticipantsChanged={(participants) => {
-                setCompetition({ ...competition, participants });
-              }}
-              formActions={(disabled) => (
-                <div className="flex justify-between gap-x-3">
-                  <Button variant="outline" onClick={() => setStep("group")}>
-                    <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
-                    Previous
-                  </Button>
-                  <Button
-                    variant="blue"
-                    disabled={disabled}
-                    onClick={() => createMutation.mutate(competition)}
-                  >
-                    Next
-                    <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            />
+
+            {type === CompetitionType.CLASSIC ? (
+              <CompetitionParticipantsForm
+                group={group}
+                participants={
+                  competition && "participants" in competition ? competition.participants : []
+                }
+                onParticipantsChanged={(participants) => {
+                  setCompetition({ ...competition, participants });
+                }}
+                formActions={(disabled) => (
+                  <div className="flex justify-between gap-x-3">
+                    <Button variant="outline" onClick={() => setStep("group")}>
+                      <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="blue"
+                      disabled={disabled}
+                      onClick={() => createMutation.mutate(competition)}
+                    >
+                      Next
+                      <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              />
+            ) : (
+              <CompetitionTeamsForm
+                teams={competition && "teams" in competition ? competition.teams : []}
+                onTeamsChanged={(teams) => {
+                  setCompetition({ ...competition, teams });
+                }}
+                formActions={(disabled) => (
+                  <div className="flex justify-between gap-x-3">
+                    <Button variant="outline" onClick={() => setStep("group")}>
+                      <ArrowRightIcon className="-ml-1.5 h-4 w-4 -rotate-180" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="blue"
+                      disabled={disabled}
+                      onClick={() => createMutation.mutate(competition)}
+                    >
+                      Next
+                      <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              />
+            )}
           </div>
         )}
       </div>

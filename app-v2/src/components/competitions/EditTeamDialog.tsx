@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Team } from "@wise-old-man/utils";
 import { Label } from "../Label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../Dialog";
@@ -121,7 +121,7 @@ export function EditTeamDialog(props: EditTeamDialogProps) {
             className="justify-center"
             disabled={name.length === 0 || participants.length === 0}
           >
-            {team ? "Save changes" : "Add team"} 
+            {team ? "Confirm" : "Add team"}
           </Button>
         </form>
       </DialogContent>
