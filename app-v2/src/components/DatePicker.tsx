@@ -94,6 +94,7 @@ export const DateTimePicker = forwardRef<
           <div {...dialogProps} className="space-y-3">
             <Calendar
               {...calendarProps}
+              selected={calendarProps.value ? toDate(calendarProps.value) : undefined}
               mode="single"
               onSelect={(d) => {
                 if (!d || !calendarProps.onChange) return;
