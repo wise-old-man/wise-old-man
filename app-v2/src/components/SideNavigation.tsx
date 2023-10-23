@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import { usePathname } from "next/navigation";
 import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
 import { cn } from "~/utils/styling";
+import useChangelog from "~/hooks/useChangelog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 import LogoAlt from "~/assets/logo_alt.svg";
@@ -19,6 +20,7 @@ import TwitterIcon from "~/assets/twitter.svg";
 import DiscordIcon from "~/assets/discord.svg";
 import PatreonIcon from "~/assets/patreon.svg";
 import RuneliteIcon from "~/assets/runelite.svg";
+import NewspaperIcon from "~/assets/newspaper.svg";
 import LeaderboardsIcon from "~/assets/leaderboards.svg";
 
 const ROUTES = [
@@ -126,6 +128,8 @@ interface SideBarProps {
 function SideBar(props: SideBarProps) {
   const { currentRouteHref, onRouteSelected } = props;
 
+  const { latestChangelog, hasUnreadChangelog, readLatestChangelog } = useChangelog();
+
   return (
     <nav className="custom-scroll flex h-full w-full flex-col overflow-y-auto border-r border-gray-700 bg-gray-800 shadow-lg">
       <Link
@@ -156,6 +160,25 @@ function SideBar(props: SideBarProps) {
       </ul>
       <div className="w-[calc(100% - 1.6rem)] mx-5 my-4 h-px shrink-0 bg-gray-600" />
       <ul className="flex flex-col">
+        {latestChangelog && (
+          <li>
+            <a
+              href={latestChangelog.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => readLatestChangelog()}
+              className="flex items-center px-7 py-4 text-sm font-medium text-gray-200 hover:bg-gray-700"
+            >
+              <div className="relative mr-2">
+                <NewspaperIcon className="h-5 w-5" />
+                {hasUnreadChangelog && (
+                  <div className="absolute right-0 top-0 h-2 w-2 rounded-full bg-blue-600" />
+                )}
+              </div>
+              Changelog
+            </a>
+          </li>
+        )}
         {EXTERNAL_LINKS.map((link) => (
           <li key={link.href}>
             <a
