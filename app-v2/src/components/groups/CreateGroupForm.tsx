@@ -142,16 +142,17 @@ export function CreateGroupForm() {
                 homeworld: payload.homeworld ?? null,
                 description: payload.description ?? null,
               }}
-              onSubmit={(name, clanChat, homeworld, description) => {
+              onGroupChanged={(name, clanChat, homeworld, description) => {
                 setPayload({ ...payload, name, clanChat, homeworld, description });
                 setStep("import");
               }}
-              ctaContent={
-                <>
-                  Next
-                  <ArrowRightIcon className="-mr-1.5 h-4 w-4" />
-                </>
-              }
+              formActions={(disabled) => (
+                <div className="flex justify-end">
+                  <Button variant="blue" disabled={disabled}>
+                    Next
+                  </Button>
+                </div>
+              )}
             />
           )}
           {step === "import" && <GroupImportOptions />}

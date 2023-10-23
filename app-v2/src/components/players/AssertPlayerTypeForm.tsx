@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { Player, PlayerTypeProps, WOMClient } from "@wise-old-man/utils";
@@ -13,6 +14,8 @@ export function AssertPlayerTypeForm(props: { player: Player }) {
 
   const toast = useToast();
   const router = useRouter();
+
+  const [isTransitioning, startTransition] = useTransition();
 
   const assertMutation = useMutation({
     mutationFn: () => {
@@ -28,12 +31,10 @@ export function AssertPlayerTypeForm(props: { player: Player }) {
           PlayerTypeProps[result.player.type].name
         }`;
 
-        toast.toast({
-          variant: "success",
-          title: successMessage,
+        startTransition(() => {
+          router.refresh();
+          toast.toast({ variant: "success", title: successMessage });
         });
-
-        router.refresh();
       } else {
         toast.toast({
           variant: "success",
@@ -50,13 +51,13 @@ export function AssertPlayerTypeForm(props: { player: Player }) {
 
   return (
     <DropdownMenuItem
-      disabled={assertMutation.isPending}
+      disabled={assertMutation.isPending || isTransitioning}
       onClick={(e) => {
         e.preventDefault();
         assertMutation.mutate();
       }}
     >
-      {assertMutation.isPending ? (
+      {assertMutation.isPending || isTransitioning ? (
         <div className="flex animate-pulse items-center">
           <LoadingIcon className="mr-2 h-4 w-4 animate-spin" />
           Checking...

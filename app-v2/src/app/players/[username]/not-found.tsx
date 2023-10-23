@@ -1,8 +1,9 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useTransition } from "react";
 import { WOMClient } from "@wise-old-man/utils";
-import { useParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
 import { useToast } from "~/hooks/useToast";
 import { Button } from "~/components/Button";
 
@@ -13,15 +14,20 @@ export default function PlayerNotFound() {
   const username = decodeURI(String(params.username));
 
   const toast = useToast();
+  const router = useRouter();
+
+  const [isTransitioning, startTransition] = useTransition();
 
   const updateMutation = useMutation({
     mutationFn: () => {
       const client = new WOMClient({ userAgent: "WiseOldMan - App v2 (Client Side)" });
       return client.players.updatePlayer(username);
     },
-    onSuccess: () => {
-      toast.toast({ variant: "success", title: "Player successfully tracked. Please wait..." });
-      location.reload();
+    onSuccess: (player) => {
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
+      });
     },
     onError: (error) => {
       toast.toast({ variant: "error", title: error.message });
@@ -40,8 +46,8 @@ export default function PlayerNotFound() {
           updateMutation.mutate();
         }}
       >
-        <Button variant="blue" disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? (
+        <Button variant="blue" disabled={isTransitioning || updateMutation.isPending}>
+          {isTransitioning || updateMutation.isPending ? (
             <>
               Tracking
               <LoadingIcon className="-mr-1.5 ml-1 h-5 w-5 animate-spin" />

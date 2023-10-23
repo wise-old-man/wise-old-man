@@ -5,10 +5,7 @@ import { useState } from "react";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { TextArea } from "../TextArea";
-import { Button } from "../Button";
 import { Alert, AlertDescription } from "../Alert";
-
-import WarningIcon from "~/assets/warning.svg";
 
 const MAX_NAME_LENGTH = 30;
 const MAX_CLAN_CHAT_LENGTH = 12;
@@ -18,27 +15,25 @@ const MAX_DESCRIPTION_LENGTH = 100;
 interface GroupInformationFormProps {
   isEditing: boolean;
   group: Pick<Group, "name" | "clanChat" | "homeworld" | "description">;
-  onSubmit: (name: string, clanChat: string, homeworld: number, description: string) => void;
-  ctaContent: React.ReactNode;
-  ctaDisabled?: boolean;
-  showUnsavedChangesWarning?: boolean;
+  onGroupChanged: (name: string, clanChat: string, homeworld: number, description: string) => void;
+  formActions: (disabled: boolean, hasUnsavedChanges: boolean) => JSX.Element;
 }
 
 export function GroupInformationForm(props: GroupInformationFormProps) {
-  const { group, isEditing, showUnsavedChangesWarning, onSubmit, ctaContent, ctaDisabled } = props;
+  const { group, onGroupChanged, isEditing, formActions } = props;
 
   const [name, setName] = useState(group.name);
   const [clanChat, setClanChat] = useState(group.clanChat || "");
   const [homeworld, setHomeworld] = useState(group.homeworld ? group.homeworld.toString() : "");
   const [description, setDescription] = useState(group.description || "");
 
-  const canContinue =
+  const canSubmit =
     name.length > 0 && clanChat.length > 0 && homeworld.length > 0 && description.length > 0;
 
   function handleSubmit() {
-    if (!canContinue) return;
+    if (!canSubmit) return;
 
-    onSubmit(name, clanChat, Number(homeworld), description);
+    onGroupChanged(name, clanChat, Number(homeworld), description);
   }
 
   const missingOptionals = [];
@@ -152,22 +147,8 @@ export function GroupInformationForm(props: GroupInformationFormProps) {
           }
         />
       </div>
-      <div className="flex">
-        {hasUnsavedChanges && showUnsavedChangesWarning && (
-          <div className="flex items-center justify-center text-center text-xs text-gray-200">
-            <WarningIcon className="mr-1 h-4 w-4" />
-            You have unsaved changes
-          </div>
-        )}
-        <div className="flex grow justify-end">
-          <Button
-            variant="blue"
-            disabled={!canContinue || (showUnsavedChangesWarning && !hasUnsavedChanges) || ctaDisabled}
-          >
-            {ctaContent}
-          </Button>
-        </div>
-      </div>
+      {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
+      {props.formActions(!canSubmit, hasUnsavedChanges)}
     </form>
   );
 }

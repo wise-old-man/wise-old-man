@@ -13,7 +13,7 @@ import {
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useToast } from "~/hooks/useToast";
 import { standardizeUsername } from "~/utils/strings";
 import { cn } from "~/utils/styling";
@@ -94,8 +94,10 @@ type EditableMemberFragment = GroupMemberFragment & { isNew: boolean };
 function MembersSection(props: EditGroupFormProps & { verificationCode: string }) {
   const { group, verificationCode } = props;
 
-  const router = useRouter();
   const toast = useToast();
+  const router = useRouter();
+
+  const [isTransitioning, startTransition] = useTransition();
 
   const [showingEmptyGroupDialog, setShowingEmptyGroupDialog] = useState(false);
 
@@ -116,8 +118,10 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
       return client.groups.editGroup(group.id, { members }, verificationCode);
     },
     onSuccess: () => {
-      router.refresh();
-      toast.toast({ variant: "success", title: "Group edited successfully!" });
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -246,10 +250,10 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         <div className="flex grow justify-end">
           <Button
             variant="blue"
-            disabled={editMembersMutation.isPending || !hasUnsavedChanges}
+            disabled={editMembersMutation.isPending || isTransitioning || !hasUnsavedChanges}
             onClick={handleSubmit}
           >
-            {editMembersMutation.isPending ? (
+            {isTransitioning || editMembersMutation.isPending ? (
               <>
                 <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                 Saving...
@@ -280,8 +284,10 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
 function GeneralSection(props: EditGroupFormProps & { verificationCode: string }) {
   const { group, verificationCode } = props;
 
-  const router = useRouter();
   const toast = useToast();
+  const router = useRouter();
+
+  const [isTransitioning, startTransition] = useTransition();
 
   const editGeneralMutation = useMutation({
     mutationFn: (payload: {
@@ -297,8 +303,10 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
       return client.groups.editGroup(group.id, payload, verificationCode);
     },
     onSuccess: () => {
-      router.refresh();
-      toast.toast({ variant: "success", title: "Group edited successfully!" });
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -309,23 +317,34 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
 
   return (
     <GroupInformationForm
-      isEditing={true}
+      isEditing
       group={group}
-      onSubmit={(name, clanChat, homeworld, description) =>
+      onGroupChanged={(name, clanChat, homeworld, description) =>
         editGeneralMutation.mutate({ name, clanChat, homeworld, description })
       }
-      ctaDisabled={editGeneralMutation.isPending}
-      ctaContent={
-        editGeneralMutation.isPending ? (
-          <>
-            <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          <>Save</>
-        )
-      }
-      showUnsavedChangesWarning
+      formActions={(disabled, hasUnsavedChanges) => (
+        <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
+          {hasUnsavedChanges && (
+            <div className="flex items-center justify-center text-center text-xs text-gray-200">
+              <WarningIcon className="mr-1 h-4 w-4" />
+              You have unsaved changes
+            </div>
+          )}
+          <Button
+            variant="blue"
+            disabled={disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending}
+          >
+            {editGeneralMutation.isPending || isTransitioning ? (
+              <>
+                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Save</>
+            )}
+          </Button>
+        </div>
+      )}
     />
   );
 }

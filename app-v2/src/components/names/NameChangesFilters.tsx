@@ -73,7 +73,7 @@ interface SearchInputProps {
 function SearchInput(props: SearchInputProps) {
   const { search, onSearchChanged } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const [searchInput, setSearchInput] = useState(search);
 
@@ -91,7 +91,7 @@ function SearchInput(props: SearchInputProps) {
       containerClassName="md:max-w-xs w-full"
       leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
       rightElement={
-        isPending ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
+        isTransitioning ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
       }
       onChange={(e) => {
         setSearchInput(e.target.value);
@@ -109,7 +109,7 @@ interface StatusSelectProps {
 function StatusSelect(props: StatusSelectProps) {
   const { status, onStatusSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -122,7 +122,7 @@ function StatusSelect(props: StatusSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="w-full sm:w-48" isPending={isPending}>
+      <ComboboxButton className="w-full sm:w-48" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !status && "text-gray-200")}>
           {status && (
             <div

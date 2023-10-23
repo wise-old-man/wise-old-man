@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { WOMClient } from "@wise-old-man/utils";
@@ -55,6 +55,8 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   const toast = useToast();
   const router = useRouter();
 
+  const [isTransitioning, startTransition] = useTransition();
+
   const [oldName, setOldName] = useState(props.oldName || "");
   const [newName, setNewName] = useState("");
 
@@ -70,14 +72,16 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
       return client.nameChanges.submitNameChange(params.oldName, params.newName);
     },
     onSuccess: () => {
-      toast.toast({
-        variant: "success",
-        title: "Name change submitted succesfully!",
-        description: `It should be auto-reviewed within the next few minutes.`,
-      });
+      startTransition(() => {
+        router.refresh();
+        router.push("/names");
 
-      router.refresh();
-      router.push("/names");
+        toast.toast({
+          variant: "success",
+          title: "Name change submitted succesfully!",
+          description: `It should be auto-reviewed within the next few minutes.`,
+        });
+      });
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -132,9 +136,9 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
         size="lg"
         variant="blue"
         className="mt-2 justify-center"
-        disabled={!canSubmit || submitMutation.isPending}
+        disabled={!canSubmit || isTransitioning || submitMutation.isPending}
       >
-        {submitMutation.isPending ? "Submitting..." : "Confirm"}
+        {isTransitioning || submitMutation.isPending ? "Submitting..." : "Confirm"}
       </Button>
     </form>
   );

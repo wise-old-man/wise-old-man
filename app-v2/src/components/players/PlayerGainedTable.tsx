@@ -401,7 +401,7 @@ interface MetricTypeSelectProps {
 function MetricTypeSelect(props: MetricTypeSelectProps) {
   const { metric, metricType, onMetricTypeSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -416,7 +416,7 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isPending}>
+      <ComboboxButton className="w-32" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {(metricType === MetricType.SKILL || metric === Metric.EHP) && "Skills"}
           {(metricType === MetricType.BOSS || metric === Metric.EHB) && "Bosses"}
@@ -444,7 +444,7 @@ interface PeriodSelectProps {
 function PeriodSelect(props: PeriodSelectProps) {
   const { period, onPeriodSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -459,7 +459,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isPending}>
+      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {period ? PeriodProps[period].name : "Custom period"}
         </div>

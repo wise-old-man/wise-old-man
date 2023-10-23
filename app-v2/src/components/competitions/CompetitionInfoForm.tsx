@@ -46,7 +46,7 @@ interface CompetitionInfoFormProps {
   timezone: TimezoneOption;
   onTimezoneChanged: (timezone: TimezoneOption) => void;
 
-  formActions: (disabled: boolean, hasUnsavedChanged: boolean) => JSX.Element;
+  formActions: (disabled: boolean, hasUnsavedChanges: boolean) => JSX.Element;
 }
 
 export function CompetitionInfoForm(props: CompetitionInfoFormProps) {

@@ -135,7 +135,7 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
 
   const toast = useToast();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const [timezone, setTimezone] = useState<TimezoneOption>("local");
 
@@ -181,9 +181,9 @@ function GeneralSection(props: EditCompetitionFormProps & { verificationCode: st
           )}
           <Button
             variant="blue"
-            disabled={disabled || !hasUnsavedChanges || isPending || editGeneralMutation.isPending}
+            disabled={disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending}
           >
-            {editGeneralMutation.isPending || isPending ? (
+            {editGeneralMutation.isPending || isTransitioning ? (
               <>
                 <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                 Saving...
@@ -203,7 +203,7 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
 
   const toast = useToast();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const previousParticipants = competition.participations.map((p) => p.player.displayName);
 
@@ -260,10 +260,10 @@ function ParticipantsSection(props: EditCompetitionFormProps & { verificationCod
               variant="blue"
               onClick={() => editParticipantsMutation.mutate({ participants })}
               disabled={
-                disabled || !hasUnsavedChanges || isPending || editParticipantsMutation.isPending
+                disabled || !hasUnsavedChanges || isTransitioning || editParticipantsMutation.isPending
               }
             >
-              {editParticipantsMutation.isPending || isPending ? (
+              {editParticipantsMutation.isPending || isTransitioning ? (
                 <>
                   <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                   Saving...
@@ -284,7 +284,7 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
 
   const toast = useToast();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const previousTeams = getTeams(competition);
 
@@ -328,9 +328,11 @@ function TeamsSection(props: EditCompetitionFormProps & { verificationCode: stri
           <Button
             variant="blue"
             onClick={() => editParticipantsMutation.mutate({ teams })}
-            disabled={disabled || !hasUnsavedChanges || isPending || editParticipantsMutation.isPending}
+            disabled={
+              disabled || !hasUnsavedChanges || isTransitioning || editParticipantsMutation.isPending
+            }
           >
-            {editParticipantsMutation.isPending || isPending ? (
+            {editParticipantsMutation.isPending || isTransitioning ? (
               <>
                 <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                 Saving...

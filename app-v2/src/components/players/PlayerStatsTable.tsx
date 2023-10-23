@@ -523,7 +523,7 @@ interface MetricTypeSelectProps {
 function MetricTypeSelect(props: MetricTypeSelectProps) {
   const { metricType, onMetricTypeSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -538,7 +538,7 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isPending}>
+      <ComboboxButton className="w-32" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {metricType === MetricType.SKILL && "Skills"}
           {metricType === MetricType.BOSS && "Bosses"}

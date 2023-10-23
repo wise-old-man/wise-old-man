@@ -45,7 +45,7 @@ export function MembersFilter(props: MembersFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   function handleFilterChanged(filter: string | undefined) {
     const nextParams = new URLSearchParams(searchParams);
@@ -69,7 +69,7 @@ export function MembersFilter(props: MembersFilterProps) {
       value={filter}
       onValueChanged={(val) => handleFilterChanged(val === "all" ? undefined : val)}
     >
-      <ComboboxButton className="w-full sm:w-48" isPending={isPending}>
+      <ComboboxButton className="w-full sm:w-48" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {FILTERS.find((f) => f.value === filter)?.label || FILTERS[0].label}
         </div>

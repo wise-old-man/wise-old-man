@@ -13,7 +13,7 @@ export function GroupGainedCustomPeriodDialog(props: GroupGainedCustomPeriodDial
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   function handleSelection(startDate: Date, endDate: Date) {
     const nextParams = new URLSearchParams(searchParams);
@@ -39,7 +39,7 @@ export function GroupGainedCustomPeriodDialog(props: GroupGainedCustomPeriodDial
   return (
     <CustomPeriodDialog
       isOpen={searchParams.get("dialog") === "custom_period"}
-      isPending={isPending}
+      isPending={isTransitioning}
       onClose={handleClose}
       onSelected={handleSelection}
     />
