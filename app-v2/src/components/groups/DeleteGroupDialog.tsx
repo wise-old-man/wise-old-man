@@ -59,12 +59,12 @@ function DeleteGroupForm(props: DeleteGroupFormProps) {
 
   const [verificationCode, setVerificationCode] = useState("");
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const deleteMutation = useMutation({
     mutationFn: () => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.groups.deleteGroup(groupId, verificationCode);
     },
     onSuccess: () => {

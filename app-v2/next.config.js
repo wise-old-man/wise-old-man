@@ -12,7 +12,6 @@ const nextConfig = withBundleAnalyzer(
       domains: ["wiseoldman.net"],
     },
     experimental: {
-      serverActions: true,
       logging: {
         level: "verbose",
         fullUrl: true,
