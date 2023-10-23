@@ -41,8 +41,8 @@ interface SearchInputProps {
 function SearchInput(props: SearchInputProps) {
   const { search, onSearchChanged } = props;
 
-  const [isPending, startTransition] = useTransition();
   const [searchInput, setSearchInput] = useState(search);
+  const [isTransitioning, startTransition] = useTransition();
 
   const debouncedUrlUpdate = useDebounceCallback((val) => {
     startTransition(() => {
@@ -58,7 +58,7 @@ function SearchInput(props: SearchInputProps) {
       containerClassName="md:max-w-xs w-full"
       leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
       rightElement={
-        isPending ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
+        isTransitioning ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
       }
       onChange={(e) => {
         setSearchInput(e.target.value);

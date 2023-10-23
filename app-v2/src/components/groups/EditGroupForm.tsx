@@ -94,8 +94,10 @@ type EditableMemberFragment = GroupMemberFragment & { isNew: boolean };
 function MembersSection(props: EditGroupFormProps & { verificationCode: string }) {
   const { group, verificationCode } = props;
 
-  const router = useRouter();
   const toast = useToast();
+  const router = useRouter();
+
+  const [isTransitioning, startTransition] = useTransition();
 
   const [showingEmptyGroupDialog, setShowingEmptyGroupDialog] = useState(false);
 
@@ -116,8 +118,10 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
       return client.groups.editGroup(group.id, { members }, verificationCode);
     },
     onSuccess: () => {
-      router.refresh();
-      toast.toast({ variant: "success", title: "Group edited successfully!" });
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Group edited successfully!" });
+      });
     },
     onError: (error) => {
       if (error instanceof Error) {
@@ -246,10 +250,10 @@ function MembersSection(props: EditGroupFormProps & { verificationCode: string }
         <div className="flex grow justify-end">
           <Button
             variant="blue"
-            disabled={editMembersMutation.isPending || !hasUnsavedChanges}
+            disabled={editMembersMutation.isPending || isTransitioning || !hasUnsavedChanges}
             onClick={handleSubmit}
           >
-            {editMembersMutation.isPending ? (
+            {isTransitioning || editMembersMutation.isPending ? (
               <>
                 <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                 Saving...
@@ -283,7 +287,7 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
   const toast = useToast();
   const router = useRouter();
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const editGeneralMutation = useMutation({
     mutationFn: (payload: {
@@ -328,9 +332,9 @@ function GeneralSection(props: EditGroupFormProps & { verificationCode: string }
           )}
           <Button
             variant="blue"
-            disabled={disabled || !hasUnsavedChanges || isPending || editGeneralMutation.isPending}
+            disabled={disabled || !hasUnsavedChanges || isTransitioning || editGeneralMutation.isPending}
           >
-            {editGeneralMutation.isPending || isPending ? (
+            {editGeneralMutation.isPending || isTransitioning ? (
               <>
                 <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
                 Saving...

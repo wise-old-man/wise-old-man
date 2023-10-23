@@ -168,7 +168,7 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -183,7 +183,7 @@ function MetricSelect(props: MetricSelectProps) {
         });
       }}
     >
-      <ComboboxButton isPending={isPending} className="min-w-[12rem]">
+      <ComboboxButton isPending={isTransitioning} className="min-w-[12rem]">
         <div className="flex items-center gap-x-2">
           <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -241,7 +241,7 @@ interface PeriodSelectProps {
 function PeriodSelect(props: PeriodSelectProps) {
   const { period, onPeriodSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -256,7 +256,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isPending}>
+      <ComboboxButton className="w-32" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">{PeriodProps[period].name}</div>
       </ComboboxButton>
       <ComboboxContent>

@@ -16,7 +16,7 @@ export default function PlayerNotFound() {
   const toast = useToast();
   const router = useRouter();
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   const updateMutation = useMutation({
     mutationFn: () => {
@@ -46,8 +46,8 @@ export default function PlayerNotFound() {
           updateMutation.mutate();
         }}
       >
-        <Button variant="blue" disabled={isPending || updateMutation.isPending}>
-          {isPending || updateMutation.isPending ? (
+        <Button variant="blue" disabled={isTransitioning || updateMutation.isPending}>
+          {isTransitioning || updateMutation.isPending ? (
             <>
               Tracking
               <LoadingIcon className="-mr-1.5 ml-1 h-5 w-5 animate-spin" />

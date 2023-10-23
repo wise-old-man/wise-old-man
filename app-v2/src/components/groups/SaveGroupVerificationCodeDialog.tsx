@@ -24,7 +24,7 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
   const [openedTimestamp, setOpenedTimestamp] = useState<number | null>(null);
 
   useTicker(500, isOpen);
@@ -82,14 +82,14 @@ export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCode
           size="lg"
           variant="blue"
           className="mt-4 justify-center tabular-nums"
-          disabled={!hasWaited || isPending}
+          disabled={!hasWaited || isTransitioning}
           onClick={() => {
             startTransition(() => {
               onClose();
             });
           }}
         >
-          {isPending ? (
+          {isTransitioning ? (
             "Redirecting..."
           ) : (
             <>

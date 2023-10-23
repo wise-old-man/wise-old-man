@@ -117,7 +117,7 @@ interface ComputedMetricSelectProps {
 function ComputedMetricSelect(props: ComputedMetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -132,7 +132,7 @@ function ComputedMetricSelect(props: ComputedMetricSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-full" isPending={isPending}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {metric === "combined" ? (
             <>
@@ -175,7 +175,7 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -190,7 +190,7 @@ function MetricSelect(props: MetricSelectProps) {
         });
       }}
     >
-      <ComboboxButton isPending={isPending}>
+      <ComboboxButton isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -248,7 +248,7 @@ interface PlayerTypeSelectProps {
 function PlayerTypeSelect(props: PlayerTypeSelectProps) {
   const { playerType, onPlayerTypeSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -261,7 +261,7 @@ function PlayerTypeSelect(props: PlayerTypeSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="w-full" isPending={isPending}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !playerType && "text-gray-200")}>
           {playerType && <PlayerTypeIcon playerType={playerType} />}
           {playerType ? PlayerTypeProps[playerType].name : "Player Type"}
@@ -292,7 +292,7 @@ interface PlayerBuildSelectProps {
 function PlayerBuildSelect(props: PlayerBuildSelectProps) {
   const { playerBuild, onPlayerBuildSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -305,7 +305,7 @@ function PlayerBuildSelect(props: PlayerBuildSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="w-full" isPending={isPending}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !playerBuild && "text-gray-200")}>
           {playerBuild ? PlayerBuildProps[playerBuild].name : "Player Build"}
         </div>
@@ -334,7 +334,7 @@ interface CountrySelectProps {
 function CountrySelect(props: CountrySelectProps) {
   const { country, onCountrySelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -348,7 +348,7 @@ function CountrySelect(props: CountrySelectProps) {
         });
       }}
     >
-      <ComboboxButton isPending={isPending}>
+      <ComboboxButton isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !country && "text-gray-200")}>
           {country && <CountryIcon country={country} />}
           <span className="line-clamp-1 text-left">

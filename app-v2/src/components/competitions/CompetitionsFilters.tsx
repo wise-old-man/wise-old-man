@@ -105,7 +105,7 @@ interface SearchInputProps {
 function SearchInput(props: SearchInputProps) {
   const { search, onSearchChanged } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
   const [searchInput, setSearchInput] = useState(search);
 
   const debouncedUrlUpdate = useDebounceCallback((val) => {
@@ -122,7 +122,7 @@ function SearchInput(props: SearchInputProps) {
       containerClassName="md:max-w-xs w-full"
       leftElement={<SearchIcon className="h-5 w-5 text-gray-300" />}
       rightElement={
-        isPending ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
+        isTransitioning ? <LoadingIcon className="h-5 w-5 animate-spin text-gray-400" /> : undefined
       }
       onChange={(e) => {
         setSearchInput(e.target.value);
@@ -140,7 +140,7 @@ interface MetricSelectProps {
 function MetricSelect(props: MetricSelectProps) {
   const { metric, onMetricSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -153,7 +153,7 @@ function MetricSelect(props: MetricSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="py-5" isPending={isPending}>
+      <ComboboxButton className="py-5" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !metric && "text-gray-200")}>
           {metric && <MetricIconSmall metric={metric} />}
           <span className="line-clamp-1 text-left">{metric ? MetricProps[metric].name : "Metric"} </span>
@@ -212,7 +212,7 @@ interface StatusSelectProps {
 function StatusSelect(props: StatusSelectProps) {
   const { status, onStatusSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -225,7 +225,7 @@ function StatusSelect(props: StatusSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="py-5" isPending={isPending}>
+      <ComboboxButton className="py-5" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !status && "text-gray-200")}>
           {status && (
             <div
@@ -270,7 +270,7 @@ interface TypeSelectProps {
 function TypeSelect(props: TypeSelectProps) {
   const { type, onTypeSelected } = props;
 
-  const [isPending, startTransition] = useTransition();
+  const [isTransitioning, startTransition] = useTransition();
 
   return (
     <Combobox
@@ -283,7 +283,7 @@ function TypeSelect(props: TypeSelectProps) {
         }
       }}
     >
-      <ComboboxButton className="py-5" isPending={isPending}>
+      <ComboboxButton className="py-5" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !type && "text-gray-200")}>
           {type ? CompetitionTypeProps[type].name : "Competition type"}
         </div>
