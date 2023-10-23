@@ -72,7 +72,7 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
   ];
 
   return (
-    <>
+    <div>
       <div>
         {!!group ? (
           <>
@@ -95,14 +95,14 @@ export function CompetitionParticipantsForm(props: CompetitionParticipantsFormPr
                   </p>
                 </div>
               ) : (
-                <DataTable data={participants} columns={PARTICIPANTS_COLUMN_DEFS} enablePagination />
+                <DataTable data={participants} columns={PARTICIPANTS_COLUMN_DEFS} />
               )}
             </div>
           </>
         )}
       </div>
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
-      <div className="mt-3 border-t border-gray-500 py-5">{formActions(!canSubmit)}</div>
-    </>
+      <div className="border-gray-500 py-5">{formActions(!canSubmit)}</div>
+    </div>
   );
 }
