@@ -12,13 +12,13 @@ import ClipboardIcon from "~/assets/clipboard.svg";
 
 const MIN_WAIT_PERIOD_SECONDS = 10;
 
-interface SaveVerificationCodeDialogProps {
+interface SaveGroupVerificationCodeDialogProps {
   isOpen: boolean;
   verificationCode: string;
   onClose: () => void;
 }
 
-export function SaveVerificationCodeDialog(props: SaveVerificationCodeDialogProps) {
+export function SaveGroupVerificationCodeDialog(props: SaveGroupVerificationCodeDialogProps) {
   const { isOpen, onClose, verificationCode } = props;
 
   const toast = useToast();

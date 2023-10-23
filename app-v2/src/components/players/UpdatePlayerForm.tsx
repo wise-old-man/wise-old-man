@@ -26,7 +26,6 @@ export function UpdatePlayerForm(props: { player: Player }) {
     onSuccess: (player) => {
       startTransition(() => {
         router.refresh();
-        router.push(`/players/${player.displayName}`);
         toast.toast({ variant: "success", title: `${player.displayName} has been updated!` });
       });
     },

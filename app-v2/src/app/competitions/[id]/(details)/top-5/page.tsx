@@ -25,7 +25,7 @@ export default async function TopParticipants(props: PageProps) {
   const metric = previewMetric || competition.metric;
 
   return (
-    <div className="rounded-xl border border-gray-500 bg-gray-800 shadow-md">
+    <div className="rounded-lg border border-gray-500 bg-gray-800 shadow-md">
       <div className="flex w-full items-center justify-between border-b border-gray-600 px-5 py-4">
         <h3 className="text-h3 font-medium">Top 5 participants</h3>
       </div>

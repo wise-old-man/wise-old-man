@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "~/utils/styling";
 import { useMutation } from "@tanstack/react-query";
-import { WOMClient } from "@wise-old-man/utils";
+import { CompetitionListItem, WOMClient } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
 import { Input } from "../Input";
 import { Label } from "../Label";
@@ -14,14 +14,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import InfoIcon from "~/assets/info.svg";
 import CheckIcon from "~/assets/check.svg";
 
-interface VerificationCodeCheckDialogProps {
+interface CompetitionVerificationCodeCheckDialogProps {
   isOpen: boolean;
-  groupId: number;
+  competition: CompetitionListItem;
   onValidated: (code: string) => void;
 }
 
-export function VerificationCodeCheckDialog(props: VerificationCodeCheckDialogProps) {
-  const { groupId, isOpen, onValidated } = props;
+export function CompetitionVerificationCodeCheckDialog(
+  props: CompetitionVerificationCodeCheckDialogProps
+) {
+  const { competition, isOpen, onValidated } = props;
 
   const toast = useToast();
   const [verificationCode, setVerificationCode] = useState("");
@@ -33,7 +35,7 @@ export function VerificationCodeCheckDialog(props: VerificationCodeCheckDialogPr
       });
 
       try {
-        await client.groups.editGroup(groupId, {}, verificationCode);
+        await client.competitions.editCompetition(competition.id, {}, verificationCode);
       } catch (error) {
         if (!(error instanceof Error) || !("statusCode" in error)) throw new Error();
 
@@ -44,7 +46,6 @@ export function VerificationCodeCheckDialog(props: VerificationCodeCheckDialogPr
       }
     },
     onError: () => {
-      console.log("what");
       toast.toast({ variant: "error", title: "Incorrect verification code." });
     },
     onSuccess: (code) => {
@@ -58,11 +59,11 @@ export function VerificationCodeCheckDialog(props: VerificationCodeCheckDialogPr
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="w-[28rem]" hideClose>
+      <DialogContent className="w-[22rem]" hideClose>
         <DialogHeader>
           <DialogTitle>Verification check</DialogTitle>
           <DialogDescription>
-            To edit this group, you must first verify that you are the owner of the group.
+            To edit this competition, you must first verify that you are the owner.
           </DialogDescription>
         </DialogHeader>
         <form

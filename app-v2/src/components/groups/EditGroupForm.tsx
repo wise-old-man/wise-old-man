@@ -39,7 +39,7 @@ import { QueryLink } from "../QueryLink";
 import { GroupInformationForm } from "./GroupInformationForm";
 import { RuneLiteSyncDialog } from "./RuneLiteSyncDialog";
 import { EmptyGroupDialog } from "./EmptyGroupDialog";
-import { VerificationCodeCheckDialog } from "./VerificationCodeCheckDialog";
+import { GroupVerificationCodeCheckDialog } from "./GroupVerificationCodeCheckDialog";
 
 import WarningIcon from "~/assets/warning.svg";
 import LoadingIcon from "~/assets/loading.svg";
@@ -53,7 +53,6 @@ export function EditGroupForm(props: EditGroupFormProps) {
   const { group } = props;
 
   const section = useSearchParams().get("section");
-
   const [verificationCode, setVerificationCode] = useState<string | undefined>();
 
   return (
@@ -81,8 +80,8 @@ export function EditGroupForm(props: EditGroupFormProps) {
         </div>
       </div>
 
-      <VerificationCodeCheckDialog
-        groupId={group.id}
+      <GroupVerificationCodeCheckDialog
+        group={group}
         isOpen={!verificationCode}
         onValidated={setVerificationCode}
       />

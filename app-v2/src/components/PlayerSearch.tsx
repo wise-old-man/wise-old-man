@@ -18,11 +18,12 @@ import LoadingIcon from "~/assets/loading.svg";
 
 interface PlayerSearchProps {
   mode: "navigate" | "select";
+  className?: string;
   onPlayerSelected?: (username: string) => void;
 }
 
 export function PlayerSearch(props: PlayerSearchProps) {
-  const { mode, onPlayerSelected } = props;
+  const { mode, className, onPlayerSelected } = props;
 
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -99,6 +100,7 @@ export function PlayerSearch(props: PlayerSearchProps) {
         >
           <SearchInput
             ref={inputRef}
+            className={className}
             onChange={(e) => {
               setQuery(e.target.value);
               if (!open) setOpen(true);
@@ -292,7 +294,7 @@ interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) => {
-  const { renderHotkey, onChange, ...inputProps } = props;
+  const { renderHotkey, className, onChange, ...inputProps } = props;
   return (
     <div className="relative">
       <HeadlessCombobox.Input
@@ -302,7 +304,8 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>((props, ref) 
         onChange={onChange}
         className={cn(
           "flex h-10 w-full items-center rounded-md border border-gray-600 bg-gray-950 px-10 text-sm leading-7 shadow-inner shadow-black/50 placeholder:text-gray-300",
-          "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0"
+          "focus-visible:bg-black focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-500 focus-visible:ring-offset-0",
+          className
         )}
         {...inputProps}
       />

@@ -36,7 +36,7 @@ import { ImportFromCMLDialog } from "~/components/groups/ImportFromCMLDialog";
 import { ImportFromTempleDialog } from "~/components/groups/ImportFromTempleDialog";
 import { ImportFromFileDialog } from "~/components/groups/ImportFromFileDialog";
 import { EmptyGroupDialog } from "~/components/groups/EmptyGroupDialog";
-import { SaveVerificationCodeDialog } from "~/components/groups/SaveVerificationCodeDialog";
+import { SaveGroupVerificationCodeDialog } from "~/components/groups/SaveGroupVerificationCodeDialog";
 import { standardizeUsername } from "~/utils/strings";
 
 import ArrowRightIcon from "~/assets/arrow_right.svg";
@@ -189,7 +189,7 @@ export function CreateGroupForm() {
             </>
           )}
         </div>
-        <SaveVerificationCodeDialog
+        <SaveGroupVerificationCodeDialog
           isOpen={!!createMutation.data}
           verificationCode={createMutation.data?.verificationCode || ""}
           onClose={() => {
@@ -302,7 +302,7 @@ function GroupMembersForm(props: GroupMembersFormProps) {
         {members.length === 0 ? (
           <div className="flex justify-center rounded border border-dashed border-gray-400 p-7">
             <p className="max-w-xs text-center text-sm font-normal leading-6 text-gray-200">
-              No members yet. Please use the search bar above to start selecting members.
+              No members yet. Please use the search bar above to start selecting players.
             </p>
           </div>
         ) : (
