@@ -1,13 +1,22 @@
 "use client";
 
-import { CompetitionDetails, CompetitionType } from "@wise-old-man/utils";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { CompetitionDetails, CompetitionType, Metric, WOMClient } from "@wise-old-man/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { Container } from "../Container";
 import { QueryLink } from "../QueryLink";
 import { cn } from "~/utils/styling";
 import { GroupVerificationCodeCheckDialog } from "../groups/GroupVerificationCodeCheckDialog";
 import { CompetitionVerificationCodeCheckDialog } from "./CompetitionVerificationCodeCheckDialog";
+import { CompetitionInfoForm } from "./CompetitionInfoForm";
+import { Button } from "../Button";
+import { useToast } from "~/hooks/useToast";
+import { useMutation } from "@tanstack/react-query";
+
+import WarningIcon from "~/assets/warning.svg";
+import LoadingIcon from "~/assets/loading.svg";
+
+type TimezoneOption = "local" | "utc";
 
 interface EditCompetitionFormProps {
   competition: CompetitionDetails;
@@ -17,7 +26,7 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
   const { competition } = props;
 
   const section = useSearchParams().get("section");
-  const [verificationCode, setVerificationCode] = useState<string | undefined>();
+  const [verificationCode, setVerificationCode] = useState<string>("600-519-911");
 
   return (
     <Container className="max-w-4xl">
@@ -31,7 +40,13 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
           {section === "teams" ? (
             <div>teams!</div>
           ) : (
-            <>{section === "participants" ? <div>participants!</div> : <>general</>}</>
+            <>
+              {section === "participants" ? (
+                <div>participants!</div>
+              ) : (
+                <GeneralSection {...props} verificationCode={verificationCode} />
+              )}
+            </>
           )}
         </div>
       </div>
@@ -101,5 +116,73 @@ function SideNavigation(props: { type: CompetitionType }) {
         </QueryLink>
       )}
     </ul>
+  );
+}
+
+function GeneralSection(props: EditCompetitionFormProps & { verificationCode: string }) {
+  const { competition, verificationCode } = props;
+
+  const toast = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const [timezone, setTimezone] = useState<TimezoneOption>("local");
+
+  const editGeneralMutation = useMutation({
+    mutationFn: (payload: { title: string; metric: Metric; startsAt: Date; endsAt: Date }) => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
+      return client.competitions.editCompetition(competition.id, payload, verificationCode);
+    },
+    onSuccess: () => {
+      startTransition(() => {
+        router.refresh();
+        toast.toast({ variant: "success", title: "Competition edited successfully!" });
+      });
+    },
+    onError: (error) => {
+      if (error instanceof Error) {
+        toast.toast({ variant: "error", title: error.message });
+      }
+    },
+  });
+
+  return (
+    <CompetitionInfoForm
+      timezone={timezone}
+      competition={competition}
+      onTimezoneChanged={(tz) => {
+        setTimezone(tz);
+      }}
+      onCompetitionChanged={(payload) => {
+        const { title, metric, startsAt, endsAt } = payload;
+        editGeneralMutation.mutate({ title, metric, startsAt, endsAt });
+      }}
+      formActions={(disabled, hasUnsavedChanges) => (
+        <div className={cn("flex", hasUnsavedChanges ? "justify-between" : "justify-end")}>
+          {hasUnsavedChanges && (
+            <div className="flex items-center justify-center text-center text-xs text-gray-200">
+              <WarningIcon className="mr-1 h-4 w-4" />
+              You have unsaved changes
+            </div>
+          )}
+          <Button
+            variant="blue"
+            disabled={disabled || !hasUnsavedChanges || isPending || editGeneralMutation.isPending}
+          >
+            {editGeneralMutation.isPending || isPending ? (
+              <>
+                <LoadingIcon className="-ml-1 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Save</>
+            )}
+          </Button>
+        </div>
+      )}
+    />
   );
 }

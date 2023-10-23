@@ -76,7 +76,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
     },
     onSuccess: (data) => {
       router.prefetch(`/competitions/${data.competition.id}`);
-      toast.toast({ variant: "success", title: "Group created successfully!" });
+      toast.toast({ variant: "success", title: "Competition created successfully!" });
     },
     onError: (error) => {
       if (error instanceof Error) {

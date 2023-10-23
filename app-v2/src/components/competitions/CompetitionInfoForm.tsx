@@ -37,15 +37,16 @@ import ChevronDownIcon from "~/assets/chevron_down.svg";
 const MAX_NAME_LENGTH = 50;
 
 type TimezoneOption = "utc" | "local";
+type Payload = Pick<CreateCompetitionPayload, "title" | "metric" | "startsAt" | "endsAt">;
 
 interface CompetitionInfoFormProps {
-  competition: CreateCompetitionPayload;
-  onCompetitionChanged: (competition: CreateCompetitionPayload) => void;
+  competition: Payload;
+  onCompetitionChanged: (competition: Payload) => void;
 
   timezone: TimezoneOption;
   onTimezoneChanged: (timezone: TimezoneOption) => void;
 
-  formActions: (disabled: boolean) => JSX.Element;
+  formActions: (disabled: boolean, hasUnsavedChanged: boolean) => JSX.Element;
 }
 
 export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
@@ -61,8 +62,8 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   if (timezone === "utc") {
     const offsetMs = new Date().getTimezoneOffset() * 60_000;
-    startsAt = offsetDate(startsAt, offsetMs);
-    endsAt = offsetDate(endsAt, offsetMs);
+    startsAt = new Date(startsAt.getTime() + offsetMs);
+    endsAt = new Date(endsAt.getTime() + offsetMs);
   }
 
   const [startDate, setStartDate] = useState<DateValue>(toCalendarDate(startsAt));
@@ -72,6 +73,12 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
 
   const [endDate, setEndDate] = useState<DateValue>(toCalendarDate(endsAt));
   const [endTime, setEndTime] = useState<TimeValue>(new Time(endsAt.getHours(), endsAt.getMinutes()));
+
+  const hasUnsavedChanges = checkUnsavedChanges(
+    competition,
+    { title, metric, startsAt: toDate(startDate, startTime), endsAt: toDate(endDate, endTime) },
+    timezone
+  );
 
   function handleSubmit() {
     let startsAt = toDate(startDate, startTime);
@@ -159,7 +166,7 @@ export function CompetitionInfoForm(props: CompetitionInfoFormProps) {
         </div>
       </div>
       {/* Allow the parent pages to render what they need on the actions slot (Previous/Next or Save) */}
-      {props.formActions(title.length === 0)}
+      {props.formActions(title.length === 0, hasUnsavedChanges)}
     </form>
   );
 }
@@ -275,6 +282,21 @@ function getTimezoneNameAndOffset() {
   return `${timezone}, UTC${offset > 0 ? "+" : ""}${offset}`;
 }
 
-function offsetDate(date: Date, offsetMs: number) {
-  return new Date(date.getTime() + offsetMs);
+function checkUnsavedChanges(previous: Payload, next: Payload, timezone: TimezoneOption) {
+  let startsAt = next.startsAt;
+  let endsAt = next.endsAt;
+
+  if (timezone === "utc") {
+    const offsetMs = new Date().getTimezoneOffset() * -1 * 60_000;
+
+    startsAt = new Date(startsAt.getTime() + offsetMs);
+    endsAt = new Date(endsAt.getTime() + offsetMs);
+  }
+
+  return (
+    previous.title !== next.title ||
+    previous.metric !== next.metric ||
+    previous.startsAt.getTime() !== startsAt.getTime() ||
+    previous.endsAt.getTime() !== endsAt.getTime()
+  );
 }
