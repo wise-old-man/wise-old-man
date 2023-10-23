@@ -61,12 +61,12 @@ function SubmitNameChangeForm(props: NameChangeSubmissionDialogProps) {
   const oldNameError = validate(oldName);
   const newNameError = validate(newName);
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const submitMutation = useMutation({
     mutationFn: (params: { oldName: string; newName: string }) => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.nameChanges.submitNameChange(params.oldName, params.newName);
     },
     onSuccess: () => {

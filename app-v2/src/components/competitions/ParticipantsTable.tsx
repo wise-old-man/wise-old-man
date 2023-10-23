@@ -386,12 +386,12 @@ function UpdateParticipantCell(props: { player: Player; competition: Competition
   const toast = useToast();
   const [hasUpdated, setHasUpdated] = useState(false);
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const updateMutation = useMutation({
     mutationFn: () => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.players.updatePlayer(player.username);
     },
     onSuccess: () => {

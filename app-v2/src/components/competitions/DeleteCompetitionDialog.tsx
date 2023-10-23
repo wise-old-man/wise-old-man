@@ -59,12 +59,12 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
 
   const [verificationCode, setVerificationCode] = useState("");
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const deleteMutation = useMutation({
     mutationFn: () => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.competitions.deleteCompetition(competitionId, verificationCode);
     },
     onSuccess: () => {

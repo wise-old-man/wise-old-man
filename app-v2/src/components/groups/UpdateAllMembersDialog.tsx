@@ -52,12 +52,12 @@ function UpdateAllMembersForm(props: UpdateAllMembersDialogProps) {
 
   const [verificationCode, setVerificationCode] = useState("");
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const updateMutation = useMutation({
     mutationFn: () => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.groups.updateAll(groupId, verificationCode);
     },
     onSuccess: () => {

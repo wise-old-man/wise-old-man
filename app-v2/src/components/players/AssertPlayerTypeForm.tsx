@@ -14,12 +14,12 @@ export function AssertPlayerTypeForm(props: { player: Player }) {
   const toast = useToast();
   const router = useRouter();
 
-  const client = new WOMClient({
-    userAgent: "WiseOldMan - App v2 (Client Side)",
-  });
-
   const assertMutation = useMutation({
     mutationFn: () => {
+      const client = new WOMClient({
+        userAgent: "WiseOldMan - App v2 (Client Side)",
+      });
+
       return client.players.assertPlayerType(player.username);
     },
     onSuccess: (result) => {
