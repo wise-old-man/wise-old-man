@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
-import { GroupActivityType } from '../group.types';
+import { MemberActivityWithPlayer } from '../group.types';
 import prisma from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import * as playerSevice from '../../players/player.services';
@@ -11,9 +11,9 @@ const inputSchema = z
   })
   .merge(PAGINATION_SCHEMA);
 
-type FetchGroupActivitiesParams = z.infer<typeof inputSchema>;
+type FetchGroupActivityParams = z.infer<typeof inputSchema>;
 
-async function fetchGroupActivities(payload: FetchGroupActivitiesParams): Promise<GroupActivityType[]> {
+async function fetchGroupActivity(payload: FetchGroupActivityParams): Promise<MemberActivityWithPlayer[]> {
   const params = inputSchema.parse(payload);
 
   const activities = await prisma.memberActivity.findMany({
@@ -52,4 +52,4 @@ async function fetchGroupActivities(payload: FetchGroupActivitiesParams): Promis
   return result;
 }
 
-export { fetchGroupActivities };
+export { fetchGroupActivity };

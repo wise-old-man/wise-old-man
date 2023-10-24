@@ -196,9 +196,9 @@ async function competitions(req: Request): Promise<ControllerResponse> {
   return { statusCode: 200, response: results };
 }
 
-// GET /groups/:id/activities
-async function activities(req: Request): Promise<ControllerResponse> {
-  const results = await groupServices.fetchGroupActivities({
+// GET /groups/:id/activity
+async function activity(req: Request): Promise<ControllerResponse> {
+  const results = await groupServices.fetchGroupActivity({
     groupId: getNumber(req.params.id),
     limit: getNumber(req.query.limit),
     offset: getNumber(req.query.offset)
@@ -313,7 +313,7 @@ export {
   nameChanges,
   statistics,
   competitions,
-  activities,
+  activity,
   addMembers,
   removeMembers,
   migrateTemple,

@@ -87,7 +87,7 @@ export type MemberJoinedEvent = Omit<MemberActivity, 'createdAt'>;
 
 export type MemberLeftEvent = Omit<MemberActivity, 'createdAt' | 'role'>;
 
-export type GroupActivityType = MemberActivity & {
+export type MemberActivityWithPlayer = MemberActivity & {
   player: Player;
 };
 

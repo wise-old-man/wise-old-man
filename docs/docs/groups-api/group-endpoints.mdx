@@ -1773,12 +1773,12 @@ const statistics = await client.groups.getGroupStatistics(123);
 
 ---
 
-## Get Group Activities
+## Get Group Activity
 
-<Endpoint verb="GET" path="/groups/:id/activities" />
+<Endpoint verb="GET" path="/groups/:id/activity" />
 <br />
 
-Fetches a group's activities. Returns an array of [GroupActivity](/groups-api/group-type-definitions#object-group-activity) objects.
+Fetches a group's activity. Returns an array of [GroupActivity](/groups-api/group-type-definitions#object-group-activity) objects.
 
 <br />
 
@@ -1804,7 +1804,7 @@ Fetches a group's activities. Returns an array of [GroupActivity](/groups-api/gr
 <TabbedCodeBlock>
 
 ```curl
-curl -X GET https://api.wiseoldman.net/v2/groups/123/activities?limit=5 \
+curl -X GET https://api.wiseoldman.net/v2/groups/139/activity?limit=5 \
  -H "Content-type: application/json"
 ```
 
@@ -1813,7 +1813,7 @@ const { WOMClient } = require('@wise-old-man/utils');
 
 const client = new WOMClient();
 
-const activity = await client.groups.getGroupActivity(123);
+const activity = await client.groups.getGroupActivity(139);
 ```
 
 </TabbedCodeBlock>
