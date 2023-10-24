@@ -9,7 +9,8 @@ import {
   GroupStatistics,
   RecordLeaderboardEntry,
   ExtendedAchievementWithPlayer,
-  DeltaGroupLeaderboardEntry
+  DeltaGroupLeaderboardEntry,
+  MemberActivityWithPlayer
 } from '../../../server/src/utils';
 import type {
   CreateGroupPayload,
@@ -170,5 +171,13 @@ export default class GroupsClient extends BaseAPIClient {
    */
   getGroupStatistics(id: number) {
     return this.getRequest<GroupStatistics>(`/groups/${id}/statistics`);
+  }
+
+  /**
+   * Fetches a group's activity.
+   * @returns A list of a group's (join, leave and role changed) activity.
+   */
+  getGroupActivity(id: number, pagination?: PaginationOptions) {
+    return this.getRequest<MemberActivityWithPlayer>(`/groups/${id}/activity`, { ...pagination });
   }
 }
