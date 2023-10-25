@@ -1,5 +1,5 @@
 import { NameChange } from '../../../prisma';
-import { MapOf, Metric } from '../../../utils';
+import { MapOf, Metric, Player } from '../../../utils';
 import { FormattedSnapshot } from '../snapshots/snapshot.types';
 
 export { NameChangeStatus } from '../../../prisma/enum-adapter';
@@ -52,6 +52,10 @@ export type NameChangeDetails = {
     oldStats: FormattedSnapshot;
     newStats: FormattedSnapshot;
   };
+};
+
+export type NameChangeWithPlayer = NameChange & {
+  player: Player;
 };
 
 export { NameChange };

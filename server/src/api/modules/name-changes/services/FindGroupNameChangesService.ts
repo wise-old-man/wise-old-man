@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import prisma, { NameChange, NameChangeStatus, Player } from '../../../../prisma';
+import prisma, { NameChangeStatus } from '../../../../prisma';
 import { NotFoundError } from '../../../errors';
 import { PAGINATION_SCHEMA } from '../../../util/validation';
+import { NameChangeWithPlayer } from '../name-change.types';
 
 const inputSchema = z
   .object({
@@ -11,7 +12,7 @@ const inputSchema = z
 
 type FindGroupNameChangesParams = z.infer<typeof inputSchema>;
 
-async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promise<NameChange[]> {
+async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promise<NameChangeWithPlayer[]> {
   const params = inputSchema.parse(payload);
 
   // Fetch this group and all of its memberships
@@ -43,7 +44,7 @@ async function findGroupNameChanges(payload: FindGroupNameChangesParams): Promis
     skip: params.offset
   });
 
-  return nameChanges as unknown as Array<NameChange & { player: Player }>;
+  return nameChanges as unknown as NameChangeWithPlayer[];
 }
 
 export { findGroupNameChanges };
