@@ -278,8 +278,8 @@ Used as an input for group modification endpoints (create, edit, add members, et
 | Field     | Type                                                                  | Description                                |
 | :-------- | :-------------------------------------------------------------------- | :----------------------------------------- |
 | groupId   | integer                                                               | The group's ID.                            |
-| playerId  | integer                                                               | The players's ID.                          |
-| type      | [ActivityType](/groups-api/group-type-definitions#enum-activity-type) | The type of activity                       |
+| playerId  | integer                                                               | The player's ID.                           |
+| type      | [ActivityType](/groups-api/group-type-definitions#enum-activity-type) | The type of activity.                      |
 | role      | [GroupRole](/groups-api/group-type-definitions#enum-group-role)?      | The player's role (rank) in the group.     |
 | createdAt | date                                                                  | The date at which the activity happened.   |
 | player    | [Player](/players-api/player-type-definitions#object-player)          | The activity entry's parent player object. |
