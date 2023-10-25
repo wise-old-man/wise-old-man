@@ -52,9 +52,9 @@ function MembershipListItem(props: MembershipWithGroup) {
     <div className="flex flex-col gap-x-4 gap-y-1 rounded-lg border border-gray-500 bg-gray-800 px-5 py-3 shadow-sm transition-colors">
       <Link
         href={`/groups/${group.id}`}
-        className="flex gap-x-1.5 text-base font-medium hover:underline"
+        className="flex items-center gap-x-1.5 text-base font-medium hover:underline"
       >
-        {group.name}
+        <span className="line-clamp-1">{group.name}</span>
         {group.verified && (
           <Tooltip>
             <TooltipTrigger asChild>
