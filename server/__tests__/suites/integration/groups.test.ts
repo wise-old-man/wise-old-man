@@ -1993,7 +1993,97 @@ describe('Group API', () => {
     });
   });
 
-  describe('11 - View Statistics', () => {
+  describe('11 - View Group Activity', () => {
+    it('should not view group activity (group not found)', async () => {
+      const response = await api.get(`/groups/100000/activity`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe('Group not found.');
+    });
+
+    it('should view group activity (empty)', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupNoMembers.id}/activity`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
+    });
+
+    it('should view group activity', async () => {
+      const response = await api.get(`/groups/${globalData.testGroupOneLeader.id}/activity`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(6);
+
+      // These activities where previously created during the "should edit members list" step
+
+      expect(response.body[0]).toMatchObject({
+        player: { username: 'test player' },
+        role: null,
+        type: 'left'
+      });
+
+      expect(response.body[1]).toMatchObject({
+        player: { username: 'alt player' },
+        role: null,
+        type: 'left'
+      });
+
+      expect(response.body[2]).toMatchObject({
+        player: { username: 'psikoi' },
+        role: null,
+        type: 'joined'
+      });
+
+      expect(response.body[3]).toMatchObject({
+        player: { username: 'alexsuperfly' },
+        role: null,
+        type: 'joined'
+      });
+
+      expect(response.body[4]).toMatchObject({
+        player: { username: 'rorro' },
+        role: null,
+        type: 'joined'
+      });
+
+      expect(response.body[5]).toMatchObject({
+        player: { username: 'zezima' },
+        role: 'firemaker',
+        type: 'changed_role'
+      });
+    });
+
+    it('should view group activity (w/ pagination)', async () => {
+      const response = await api
+        .get(`/groups/${globalData.testGroupOneLeader.id}/activity`)
+        .query({ limit: 3, offset: 2 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(3);
+
+      // These activities where previously created during the "should edit members list" step
+
+      expect(response.body[0]).toMatchObject({
+        player: { username: 'psikoi' },
+        role: null,
+        type: 'joined'
+      });
+
+      expect(response.body[1]).toMatchObject({
+        player: { username: 'alexsuperfly' },
+        role: null,
+        type: 'joined'
+      });
+
+      expect(response.body[2]).toMatchObject({
+        player: { username: 'rorro' },
+        role: null,
+        type: 'joined'
+      });
+    });
+  });
+
+  describe('12 - View Statistics', () => {
     it('should not view statistics (group not found)', async () => {
       const response = await api.get(`/groups/100000/statistics`);
 
@@ -2085,7 +2175,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('12 - Update All', () => {
+  describe('13 - Update All', () => {
     it('should not update all (invalid verification code)', async () => {
       const response = await api.post(`/groups/123456789/update-all`);
 
@@ -2140,7 +2230,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('13 - Reset Verification Code', () => {
+  describe('14 - Reset Verification Code', () => {
     it('should not reset code (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/reset-code`);
 
@@ -2194,7 +2284,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('14 - Verify', () => {
+  describe('15 - Verify', () => {
     it('should not verify group (invalid admin password)', async () => {
       const response = await api.put(`/groups/100000/verify`);
 
@@ -2234,7 +2324,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('15 - Migrate from Temple', () => {
+  describe('16 - Migrate from Temple', () => {
     it('should not migrate from temple (404 error)', async () => {
       // Setup the TempleOSRS request to return our mock raw data
       registerTempleMock(axiosMock, 404);
@@ -2266,7 +2356,7 @@ describe('Group API', () => {
     });
   });
 
-  describe('16 - Migrate from CML', () => {
+  describe('17 - Migrate from CML', () => {
     it('should not migrate from cml (404 error)', async () => {
       // Setup the CML request to return our mock raw data
       registerCMLMock(axiosMock, 404);
