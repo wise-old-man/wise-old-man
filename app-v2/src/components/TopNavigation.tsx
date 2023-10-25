@@ -31,7 +31,7 @@ export function TopNavigation(props: TopNavigationProps) {
       </button>
       <div className="absolute left-20 right-0 lg:left-64">
         <div className="mx-auto mt-0.5 flex w-full max-w-7xl justify-end px-8 md:px-12">
-          <div className="w-60">
+          <div className="w-48 sm:w-60">
             <PlayerSearch
               mode="navigate"
               className="bg-gray-900 shadow-gray-950 focus-visible:bg-gray-950"

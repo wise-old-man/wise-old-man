@@ -81,7 +81,7 @@ function CompetitionCard(props: CompetitionListItem) {
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">
           <span className="line-clamp-1 text-base font-medium">{props.title}</span>
-          <span className="line-clamp-1 flex items-center text-xs text-gray-200">
+          <span className="flex items-center text-xs text-gray-200">
             <div
               className={cn("mr-1.5 h-1.5 w-1.5 rounded-full", {
                 "bg-red-500": status === CompetitionStatus.FINISHED,
@@ -89,7 +89,9 @@ function CompetitionCard(props: CompetitionListItem) {
                 "bg-yellow-500": status === CompetitionStatus.UPCOMING,
               })}
             />
-            {CompetitionStatusProps[status].name} · {timeagoLabel}
+            <span className="line-clamp-1">
+              {CompetitionStatusProps[status].name} · {timeagoLabel}
+            </span>
           </span>
         </div>
       </div>
