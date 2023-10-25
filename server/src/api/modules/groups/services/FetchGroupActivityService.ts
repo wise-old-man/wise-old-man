@@ -31,7 +31,7 @@ async function fetchGroupActivity(payload: FetchGroupActivityParams): Promise<Me
     });
 
     if (!group) {
-      throw new NotFoundError('Group not found');
+      throw new NotFoundError('Group not found.');
     }
     return [];
   }
