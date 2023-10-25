@@ -10,7 +10,8 @@ import {
   RecordLeaderboardEntry,
   ExtendedAchievementWithPlayer,
   DeltaGroupLeaderboardEntry,
-  MemberActivityWithPlayer
+  MemberActivityWithPlayer,
+  Player
 } from '../../../server/src/utils';
 import type {
   CreateGroupPayload,
@@ -162,7 +163,9 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of name change (approved) requests.
    */
   getGroupNameChanges(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<NameChange[]>(`/groups/${id}/name-changes`, { ...pagination });
+    return this.getRequest<(NameChange & { player: Player })[]>(`/groups/${id}/name-changes`, {
+      ...pagination
+    });
   }
 
   /**
@@ -178,6 +181,6 @@ export default class GroupsClient extends BaseAPIClient {
    * @returns A list of a group's (join, leave and role changed) activity.
    */
   getGroupActivity(id: number, pagination?: PaginationOptions) {
-    return this.getRequest<MemberActivityWithPlayer>(`/groups/${id}/activity`, { ...pagination });
+    return this.getRequest<MemberActivityWithPlayer[]>(`/groups/${id}/activity`, { ...pagination });
   }
 }
