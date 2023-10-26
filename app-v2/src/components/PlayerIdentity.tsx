@@ -17,7 +17,7 @@ import WarningFilledIcon from "~/assets/warning_filled.svg";
 
 interface PlayerIdentityProps {
   player: Player;
-  caption?: string;
+  caption?: JSX.Element | string | undefined;
   renderTooltip?: boolean;
   href?: string;
 }
