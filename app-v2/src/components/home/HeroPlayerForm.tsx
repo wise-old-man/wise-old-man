@@ -34,7 +34,10 @@ export function HeroPlayerForm() {
       });
     },
     onError: () => {
-      toast.toast({ variant: "error", title: "Failed to update player." });
+      startTransition(() => {
+        router.push(`/players/${username}`);
+        toast.toast({ variant: "error", title: "Failed to update player." });
+      });
     },
   });
 
