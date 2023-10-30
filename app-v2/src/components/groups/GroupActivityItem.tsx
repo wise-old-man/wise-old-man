@@ -39,18 +39,14 @@ export function GroupActivityItem(props: GroupActivityItemProps) {
   }
 
   return (
-    <div className="@container">
-      <div className="flex flex-col items-start justify-between gap-x-3 px-4 py-3 @xs:flex-row @xs:items-center">
-        <PlayerIdentity player={activity.player} caption={typeElement} />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="hidden shrink-0 text-xs text-gray-200 @xs:block">
-              {timeago.format(activity.createdAt)}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent align="end">{formatDatetime(activity.createdAt)}</TooltipContent>
-        </Tooltip>
-      </div>
+    <div className="flex items-center justify-between gap-x-3 px-4 py-3">
+      <PlayerIdentity player={activity.player} caption={typeElement} />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="shrink-0 text-xs text-gray-200">{timeago.format(activity.createdAt)}</span>
+        </TooltipTrigger>
+        <TooltipContent align="end">{formatDatetime(activity.createdAt)}</TooltipContent>
+      </Tooltip>
     </div>
   );
 }
