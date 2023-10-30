@@ -51,7 +51,7 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
 
   const isOpen = searchParams.get("dialog") === "group-activity";
 
-  const { data, hasNextPage, fetchNextPage } = useInfiniteLoad(groupId, initialData, {
+  const { data, isLoading, hasNextPage, fetchNextPage } = useInfiniteLoad(groupId, initialData, {
     enabled: isOpen,
   });
 
@@ -87,10 +87,14 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
               Loading...
             </li>
           ) : (
-            <li className="py-4 text-center text-xs text-gray-200">
-              <p>No more recent activity.</p>
-              <p>(This feature was introduced on October 18th 2023)</p>
-            </li>
+            <>
+              {!isLoading && (
+                <li className="py-4 text-center text-xs text-gray-200">
+                  <p>No more recent activity.</p>
+                  <p>(This feature was introduced on October 18th 2023)</p>
+                </li>
+              )}
+            </>
           )}
         </ul>
       </DialogContent>
