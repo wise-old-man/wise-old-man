@@ -32,7 +32,7 @@ export function GroupDetailsNavigation(props: GroupDetailsNavigationProps) {
   }
 
   return (
-    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900 pb-2">
+    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900">
       <Tabs defaultValue={selectedTab.route}>
         <TabsList aria-label="Group Details Navigation">
           {TABS.map((tab) => (

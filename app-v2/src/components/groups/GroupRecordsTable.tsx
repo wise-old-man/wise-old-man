@@ -91,17 +91,21 @@ export function GroupRecordsTable(props: GroupRecordsTableProps) {
       enablePagination
       headerSlot={
         <TableTitle>
-          <div>
-            <h3 className="text-h3 font-medium text-white">Records</h3>
-            <p className="text-body text-gray-200">
-              All-time most {MetricProps[metric].name} {MetricProps[metric].measure} gained in a{" "}
-              {PeriodProps[period].name.toLowerCase()} period &nbsp;
-              {page > 1 ? `(page ${page})` : ""}
-            </p>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <PeriodSelect period={period} onPeriodSelected={handlePeriodChanged} />
-            <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
+          <div className="w-full @container">
+            <div className="flex flex-col justify-between gap-5 @2xl:flex-row @2xl:items-center">
+              <div>
+                <h3 className="text-h3 font-medium text-white">Records</h3>
+                <p className="text-body text-gray-200">
+                  All-time most {MetricProps[metric].name} {MetricProps[metric].measure} gained in a{" "}
+                  {PeriodProps[period].name.toLowerCase()} period &nbsp;
+                  {page > 1 ? `(page ${page})` : ""}
+                </p>
+              </div>
+              <div className="flex items-center gap-x-3">
+                <PeriodSelect period={period} onPeriodSelected={handlePeriodChanged} />
+                <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
+              </div>
+            </div>
           </div>
         </TableTitle>
       }
@@ -183,7 +187,7 @@ function MetricSelect(props: MetricSelectProps) {
         });
       }}
     >
-      <ComboboxButton isPending={isTransitioning} className="min-w-[12rem]">
+      <ComboboxButton isPending={isTransitioning} className="w-full min-w-[12rem]">
         <div className="flex items-center gap-x-2">
           <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -256,7 +260,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isTransitioning}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">{PeriodProps[period].name}</div>
       </ComboboxButton>
       <ComboboxContent>

@@ -30,69 +30,70 @@ export function GroupWidgets(props: GroupWidgetsProps) {
 
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-5">
-      <div className="col-span-1 md:col-span-2">
+      <div className="col-span-5 w-full md:col-span-2">
         <Suspense fallback={<FeaturedCompetitionWidgetSkeleton />}>
           <FeaturedCompetitionWidget groupId={group.id} />
         </Suspense>
       </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
-            <div className="flex items-center gap-x-1">
-              <MetricIconSmall metric={Metric.OVERALL} />
-              <Label className="text-xs text-gray-200">Total Experience</Label>
+      <div className="col-span-5 grid grid-cols-3 gap-3 md:col-span-3 lg:gap-5">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
+              <div className="flex items-center gap-x-1">
+                <MetricIconSmall metric={Metric.OVERALL} />
+                <Label className="line-clamp-1 text-xs text-gray-200">Total Exp.</Label>
+              </div>
+              <div className="flex items-end gap-x-2">
+                <span className="line-clamp-1 text-body leading-5 text-white xl:text-lg">
+                  {formatNumber(totalExp, true)}
+                </span>
+              </div>
             </div>
-            <div className="flex items-end gap-x-2">
-              <span className="line-clamp-1 text-lg leading-5 text-white">
-                {formatNumber(totalExp, true)}
-              </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            {formatNumber(totalExp, false)} Total experience. (
+            {formatNumber(Math.round(totalExp / group.memberships.length), false)} avg.)
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
+              <div className="flex items-center gap-x-1">
+                <MetricIconSmall metric={Metric.EHP} />
+                <Label className="line-clamp-1 text-xs text-gray-200">Total EHP</Label>
+              </div>
+              <div className="flex items-end gap-x-2">
+                <span className="line-clamp-1 text-body leading-5 text-white xl:text-lg">
+                  {formatNumber(totalEHP, true)}
+                </span>
+              </div>
             </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          {formatNumber(totalExp, false)} Total experience. (
-          {formatNumber(Math.round(totalExp / group.memberships.length), false)} avg.)
-        </TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
-            <div className="flex items-center gap-x-1">
-              <MetricIconSmall metric={Metric.EHP} />
-              <Label className="text-xs text-gray-200">Total EHP</Label>
+          </TooltipTrigger>
+          <TooltipContent>
+            {formatNumber(totalEHP, false)} Total Efficient Hours Played. (
+            {formatNumber(Math.round(totalEHP / group.memberships.length), false)} avg.)
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
+              <div className="flex items-center gap-x-1">
+                <MetricIconSmall metric={Metric.EHB} />
+                <Label className="line-clamp-1 text-xs text-gray-200">Total EHB</Label>
+              </div>
+              <div className="flex items-end gap-x-2">
+                <span className="line-clamp-1 text-body leading-5 text-white xl:text-lg">
+                  {formatNumber(totalEHB, true)}
+                </span>
+              </div>
             </div>
-            <div className="flex items-end gap-x-2">
-              <span className="line-clamp-1 text-lg leading-5 text-white">
-                {formatNumber(totalEHP, true)}
-              </span>
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          {formatNumber(totalEHP, false)} Total Efficient Hours Played. (
-          {formatNumber(Math.round(totalEHP / group.memberships.length), false)} avg.)
-        </TooltipContent>
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
-            <div className="flex items-center gap-x-1">
-              <MetricIconSmall metric={Metric.EHB} />
-              <Label className="text-xs text-gray-200">Total EHB</Label>
-            </div>
-            <div className="flex items-end gap-x-2">
-              <span className="line-clamp-1 text-lg leading-5 text-white">
-                {formatNumber(totalEHB, true)}
-              </span>
-            </div>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          {formatNumber(totalEHB, false)} Total Efficient Hours Bossed. (
-          {formatNumber(Math.round(totalEHB / group.memberships.length), false)} avg.)
-        </TooltipContent>
-      </Tooltip>
+          </TooltipTrigger>
+          <TooltipContent>
+            {formatNumber(totalEHB, false)} Total Efficient Hours Bossed. (
+            {formatNumber(Math.round(totalEHB / group.memberships.length), false)} avg.)
+          </TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 }

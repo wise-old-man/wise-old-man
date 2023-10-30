@@ -18,12 +18,12 @@ export default async function GroupStatisticsLayout(props: PropsWithChildren<Pag
 
   return (
     <div className="grid grid-cols-12 gap-x-4">
-      <div className="col-span-3 flex flex-col gap-y-3">
+      <div className="col-span-12 flex gap-3 md:col-span-3 md:flex-col">
         <Stat label="# Maxed Overall" value={String(statistics.maxedTotalCount)} />
         <Stat label="# Maxed Combat" value={String(statistics.maxedCombatCount)} />
         <Stat label="# 200m skills" value={String(statistics.maxed200msCount)} />
       </div>
-      <div className="col-span-9">
+      <div className="col-span-12 mt-7 md:col-span-9 md:mt-0">
         <GroupStatisticsNavigation id={id} />
         <div className="mt-5">{props.children}</div>
       </div>
