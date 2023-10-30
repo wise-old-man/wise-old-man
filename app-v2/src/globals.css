@@ -20,8 +20,7 @@ textarea {
 
 /* body ::-webkit-scrollbar, */
 .custom-scroll::-webkit-scrollbar {
-  @apply w-1.5;
-  @apply h-1.5;
+  @apply h-0.5 w-0.5 md:h-1.5 md:w-1.5;
 }
 
 /* body ::-webkit-scrollbar-track, */

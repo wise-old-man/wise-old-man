@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { cn } from "~/utils/styling";
 import { Country, CountryProps, GroupRole, Metric, PlayerType } from "@wise-old-man/utils";
 
 export function MetricIcon(props: { metric: Metric | "ttm" | "tt200m" | "combat" }) {
@@ -21,15 +22,15 @@ export function MetricIconSmall(props: { metric: Metric | "ehp+ehb" | "combat" }
   );
 }
 
-export function PlayerTypeIcon(props: { playerType: PlayerType; size?: "sm" | "lg" }) {
-  const { playerType, size } = props;
+export function PlayerTypeIcon(props: { playerType: PlayerType; className?: string }) {
+  const { playerType, className } = props;
   return (
     <Image
-      width={size === "lg" ? 20 : 10}
-      height={size === "lg" ? 26 : 13}
+      width={10}
+      height={13}
       alt={playerType}
       src={`/img/player_types/${playerType}.png`}
-      className="shrink-0"
+      className={cn("shrink-0", className)}
       style={{ imageRendering: "pixelated" }}
     />
   );

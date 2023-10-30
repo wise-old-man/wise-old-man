@@ -119,7 +119,7 @@ export function PlayerGainedTable(props: PropsWithChildren<PlayerGainedTableProp
             )}
           </p>
         </div>
-        <div className="flex items-center gap-x-3">
+        <div className="flex items-center gap-x-3 md:w-80">
           <PeriodSelect
             period={"period" in timeRange ? timeRange.period : undefined}
             onPeriodSelected={handlePeriodSelected}
@@ -416,7 +416,7 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isTransitioning}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {(metricType === MetricType.SKILL || metric === Metric.EHP) && "Skills"}
           {(metricType === MetricType.BOSS || metric === Metric.EHB) && "Bosses"}
@@ -459,7 +459,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isTransitioning}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {period ? PeriodProps[period].name : "Custom period"}
         </div>

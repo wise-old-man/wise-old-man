@@ -82,7 +82,7 @@ export default async function PlayerAchievements(props: PageProps) {
         </QueryLink>
       </div>
       <div className="mt-7 grid grid-cols-12 gap-4">
-        <div className="col-span-12 grid grid-cols-2 flex-col gap-x-4 gap-y-7 xl:col-span-4 xl:flex">
+        <div className="col-span-12 grid grid-cols-1 flex-col gap-x-4 gap-y-7 sm:grid-cols-2 xl:col-span-4 xl:flex">
           <RecentAchievements achievements={completedAchievements} metricType={metricType} />
           <NearestAchievements achievements={achievements} metricType={metricType} />
         </div>
