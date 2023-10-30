@@ -68,10 +68,7 @@ export function PlayerSearch(props: PlayerSearchProps) {
       setQuery("");
     } else {
       addSearchTerm(username);
-
-      if (!query) {
-        setQuery(username);
-      }
+      setQuery(username);
     }
 
     setTimeout(() => {
@@ -105,13 +102,6 @@ export function PlayerSearch(props: PlayerSearchProps) {
               setQuery(e.target.value);
               if (!open) setOpen(true);
             }}
-            onKeyDown={(e) => {
-              if (!("value" in e.target)) return;
-
-              if (e.key === "Enter" && !activeOption) {
-                handlePlayerSelected(String(e.target.value));
-              }
-            }}
             renderHotkey={mode === "navigate"}
           />
           <Transition
@@ -125,8 +115,17 @@ export function PlayerSearch(props: PlayerSearchProps) {
               static={open}
               className="custom-scroll absolute right-0 z-10 mt-1 max-h-60 w-full translate-y-1 overflow-auto overscroll-contain rounded-md border border-gray-500 bg-gray-700 p-1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
             >
-              {query.length > 0 && !players ? (
-                <LoadingState />
+              {query.length > 0 && (!players || debouncedSearchQuery !== query) ? (
+                <>
+                  <div className="select-none p-2 text-xs text-gray-100">
+                    Search results for &quot;{query}&quot;
+                  </div>
+                  <SearchSuggestionItem
+                    searchAction={mode === "navigate" ? "Go to" : "Select"}
+                    searchTerm={query}
+                  />
+                  <LoadingState />
+                </>
               ) : (
                 <>
                   {query.length === 0 ? (
