@@ -103,39 +103,43 @@ export function GroupGainedTable(props: GroupGainedTableProps) {
       enablePagination
       headerSlot={
         <TableTitle>
-          <div>
-            <h3 className="text-h3 font-medium text-white">Gained</h3>
-            <p className="text-body text-gray-200">
-              {"period" in timeRange ? (
-                <>
-                  Most {MetricProps[metric].name} {MetricProps[metric].measure} gained in the past{" "}
-                  {PeriodProps[timeRange.period].name.toLowerCase()}
-                </>
-              ) : (
-                <>
-                  Most {MetricProps[metric].name} {MetricProps[metric].measure} gained during:{" "}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="text-white underline">custom period</span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      Start: {formatDatetime(timeRange.startDate)}
-                      <br />
-                      End: {formatDatetime(timeRange.endDate)}
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              )}
-              &nbsp;
-              {page > 1 ? `(page ${page})` : ""}
-            </p>
-          </div>
-          <div className="flex items-center gap-x-3">
-            <PeriodSelect
-              period={"period" in timeRange ? timeRange.period : undefined}
-              onPeriodSelected={handlePeriodChanged}
-            />
-            <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
+          <div className="w-full @container">
+            <div className="flex flex-col justify-between gap-y-5 @2xl:flex-row @2xl:items-center">
+              <div>
+                <h3 className="text-h3 font-medium text-white">Gained</h3>
+                <p className="text-body text-gray-200">
+                  {"period" in timeRange ? (
+                    <>
+                      Most {MetricProps[metric].name} {MetricProps[metric].measure} gained in the past{" "}
+                      {PeriodProps[timeRange.period].name.toLowerCase()}
+                    </>
+                  ) : (
+                    <>
+                      Most {MetricProps[metric].name} {MetricProps[metric].measure} gained during:{" "}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-white underline">custom period</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Start: {formatDatetime(timeRange.startDate)}
+                          <br />
+                          End: {formatDatetime(timeRange.endDate)}
+                        </TooltipContent>
+                      </Tooltip>
+                    </>
+                  )}
+                  &nbsp;
+                  {page > 1 ? `(page ${page})` : ""}
+                </p>
+              </div>
+              <div className="flex items-center gap-x-3">
+                <PeriodSelect
+                  period={"period" in timeRange ? timeRange.period : undefined}
+                  onPeriodSelected={handlePeriodChanged}
+                />
+                <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
+              </div>
+            </div>
           </div>
         </TableTitle>
       }
@@ -204,7 +208,7 @@ function getColumnDefinitions(page: number, metric: Metric) {
         const percent = getPercentGained(metric, start, end, gained);
 
         if (percent <= 0) {
-          return "0%";
+          return "---";
         }
 
         return (
@@ -243,7 +247,7 @@ function MetricSelect(props: MetricSelectProps) {
         });
       }}
     >
-      <ComboboxButton isPending={isTransitioning} className="min-w-[12rem]">
+      <ComboboxButton isPending={isTransitioning} className="w-full min-w-[12rem]">
         <div className="flex items-center gap-x-2">
           <MetricIconSmall metric={metric} />
           <span className="line-clamp-1 text-left">{MetricProps[metric].name} </span>
@@ -316,7 +320,7 @@ function PeriodSelect(props: PeriodSelectProps) {
         });
       }}
     >
-      <ComboboxButton className={period ? "w-32" : "w-44"} isPending={isTransitioning}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {period ? PeriodProps[period].name : "Custom period"}
         </div>

@@ -28,11 +28,19 @@ export function MembersTable(props: MembersTableProps) {
       enablePagination
       headerSlot={
         <TableTitle>
-          <div>
-            <h3 className="text-h3 font-medium text-white">Members</h3>
-            <p className="text-body text-gray-200">{getCaptionLabel(group.name, rows.length, filter)}</p>
+          <div className="w-full @container">
+            <div className="flex flex-col justify-between gap-y-5 @lg:flex-row @lg:items-center">
+              <div>
+                <h3 className="text-h3 font-medium text-white">Members</h3>
+                <p className="text-body text-gray-200">
+                  {getCaptionLabel(group.name, rows.length, filter)}
+                </p>
+              </div>
+              <div className="@lg:w-48">
+                <MembersFilter groupId={group.id} filter={filter} />
+              </div>
+            </div>
           </div>
-          <MembersFilter groupId={group.id} filter={filter} />
         </TableTitle>
       }
     />

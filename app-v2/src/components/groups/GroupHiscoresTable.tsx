@@ -78,14 +78,18 @@ export function GroupHiscoresTable(props: GroupHiscoresTableProps) {
       enablePagination
       headerSlot={
         <TableTitle>
-          <div>
-            <h3 className="text-h3 font-medium text-white">Hiscores</h3>
-            <p className="text-body text-gray-200">
-              {MetricProps[metric].name} hiscores for {group.name} members{" "}
-              {page > 1 ? `(page ${page})` : ""}
-            </p>
+          <div className="w-full @container">
+            <div className="flex flex-col justify-between gap-y-5 @lg:flex-row @lg:items-center">
+              <div>
+                <h3 className="text-h3 font-medium text-white">Hiscores</h3>
+                <p className="text-body text-gray-200">
+                  {MetricProps[metric].name} hiscores for {group.name} members{" "}
+                  {page > 1 ? `(page ${page})` : ""}
+                </p>
+              </div>
+              <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
+            </div>
           </div>
-          <MetricSelect metric={metric} onMetricSelected={handleMetricChanged} />
         </TableTitle>
       }
     />

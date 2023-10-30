@@ -43,10 +43,10 @@ export default async function GroupDetailsPage(props: PageProps) {
     <div className="flex flex-col gap-y-10">
       <GroupWidgets group={groupDetails} />
       <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-12 lg:col-span-6 xl:col-span-8">
+        <div className="col-span-12 xl:col-span-8">
           <MembersTable group={groupDetails} filter={filter} />
         </div>
-        <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+        <div className="col-span-12 xl:col-span-4">
           <GroupActivityList groupId={id} groupActivity={groupActivity} />
         </div>
       </div>
