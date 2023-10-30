@@ -78,52 +78,46 @@ function Header(props: PlayerDetails) {
   let icon: React.ReactNode;
 
   if (status === PlayerStatus.ARCHIVED) {
-    icon = <WarningFilledIcon className="h-8 w-8 text-red-500" />;
+    icon = <WarningFilledIcon className="h-6 w-6 text-red-500 md:h-8 md:w-8" />;
   } else if (status === PlayerStatus.FLAGGED || status === PlayerStatus.BANNED) {
-    icon = <WarningFilledIcon className="h-8 w-8 text-orange-500" />;
+    icon = <WarningFilledIcon className="h-6 w-6 text-orange-500 md:h-8 md:w-8" />;
   } else if (status === PlayerStatus.UNRANKED) {
-    icon = <WarningFilledIcon className="h-8 w-8 text-yellow-500" />;
+    icon = <WarningFilledIcon className="h-6 w-6 text-yellow-500 md:h-8 md:w-8" />;
   } else {
-    icon = <PlayerTypeIcon playerType={type} size="lg" />;
+    icon = <PlayerTypeIcon playerType={type} className="scale-150 md:scale-[2]" />;
   }
 
-  const actionsElement = (
-    <div className="flex shrink-0 items-center gap-x-2">
-      <UpdatePlayerForm player={props} />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button iconButton>
-            <OverflowIcon className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
-          >
-            <DropdownMenuItem>
-              Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
-            </DropdownMenuItem>
-          </a>
-          <QueryLink query={{ dialog: "submit-name" }}>
-            <DropdownMenuItem>Submit name change</DropdownMenuItem>
-          </QueryLink>
-          <AssertPlayerTypeForm player={props} />
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-
   return (
-    <div className="flex items-end justify-between">
-      <div className="absolute left-0 right-0 top-0 flex justify-end border-b border-gray-700 bg-gray-900 px-7 py-4 md:hidden">
-        {actionsElement}
+    <div className="flex flex-col justify-between gap-y-7 md:flex-row-reverse md:items-end">
+      <div className="flex shrink-0 items-center gap-x-2">
+        <UpdatePlayerForm player={props} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button iconButton>
+              <OverflowIcon className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=${props.displayName}`}
+            >
+              <DropdownMenuItem>
+                Open Official Hiscores <ExternalIcon className="ml-2 h-4 w-4" />
+              </DropdownMenuItem>
+            </a>
+            <QueryLink query={{ dialog: "submit-name" }}>
+              <DropdownMenuItem>Submit name change</DropdownMenuItem>
+            </QueryLink>
+            <AssertPlayerTypeForm player={props} />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="mt-12 flex items-center gap-x-5 md:mt-0">
-        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50">
+      <div className="flex items-center gap-x-5">
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gray-600 bg-gray-900 shadow-inner shadow-black/50 md:h-16 md:w-16">
           {country && (
-            <div className="absolute -right-1 bottom-1">
+            <div className="absolute -right-2 bottom-0 md:-right-1 md:bottom-1">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Flag
@@ -151,13 +145,12 @@ function Header(props: PlayerDetails) {
           {icon}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold">{displayName}</h1>
-          <p className="mt-1 whitespace-pre text-body text-gray-200">
+          <h1 className="text-xl font-bold md:text-3xl">{displayName}</h1>
+          <p className="mt-1 text-xs text-gray-200 md:text-body">
             <PlayerAttributes {...props} />
           </p>
         </div>
       </div>
-      <div className="hidden md:block">{actionsElement}</div>
     </div>
   );
 }

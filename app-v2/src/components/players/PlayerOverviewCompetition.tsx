@@ -14,35 +14,17 @@ interface PlayerOverviewCompetitionProps {
 export async function PlayerOverviewCompetition(props: PlayerOverviewCompetitionProps) {
   const { username } = props;
 
-  const participations = await getPlayerCompetitions(username);
+  const featuredCompetition = await getFeaturedCompetition(username);
 
-  let featured: CompetitionListItem | undefined;
-
-  const ongoing = participations
-    .map((p) => p.competition)
-    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
-
-  if (ongoing.length > 0) {
-    featured = ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
-  } else {
-    const upcoming = participations
-      .map((p) => p.competition)
-      .filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING);
-
-    if (upcoming.length > 0) {
-      featured = upcoming.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
-    }
-  }
-
-  if (!featured) return null;
+  if (!featuredCompetition) return null;
 
   return (
     <div>
       <Label className="text-xs leading-4 text-gray-200">
-        {featured.startsAt > new Date() ? "Upcoming competition" : "Ongoing competition"}
+        {featuredCompetition.startsAt > new Date() ? "Upcoming competition" : "Ongoing competition"}
       </Label>
       <div className="mt-2">
-        <CompetitionCard {...featured} />
+        <CompetitionCard {...featuredCompetition} />
       </div>
       <div className="mt-3 flex justify-end">
         <Link
@@ -76,7 +58,7 @@ function CompetitionCard(props: CompetitionListItem) {
           className="pointer-events-none z-0 object-cover transition-all duration-100 group-hover:brightness-110"
           src={`/img/backgrounds/${props.metric}.png`}
         />
-        <div className="z-1 relative mr-1">
+        <div className="z-1 relative mr-1 shrink-0">
           <MetricIcon metric={props.metric} />
         </div>
         <div className="z-1 relative flex flex-col gap-y-1">
@@ -97,4 +79,26 @@ function CompetitionCard(props: CompetitionListItem) {
       </div>
     </Link>
   );
+}
+
+async function getFeaturedCompetition(username: string) {
+  const participations = await getPlayerCompetitions(username);
+
+  const ongoing = participations
+    .map((p) => p.competition)
+    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.ONGOING);
+
+  if (ongoing.length > 0) {
+    return ongoing.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+  }
+
+  const upcoming = participations
+    .map((p) => p.competition)
+    .filter((c) => getCompetitionStatus(c) === CompetitionStatus.UPCOMING);
+
+  if (upcoming.length > 0) {
+    return upcoming.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())[0];
+  }
+
+  return null;
 }

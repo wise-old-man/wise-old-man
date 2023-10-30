@@ -9,7 +9,7 @@ export function AchievementListItem(props: AchievementProgress) {
       <MetricIcon metric={props.metric} />
       <div className="flex grow flex-col gap-y-1">
         <span className="line-clamp-1 text-sm font-medium">{props.name}</span>
-        <span className="text-xs text-gray-200">
+        <span className="line-clamp-1 text-xs text-gray-200">
           {props.createdAt ? (
             <AchievementDate {...props} />
           ) : (

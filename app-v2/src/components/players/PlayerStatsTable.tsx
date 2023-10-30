@@ -112,9 +112,13 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
   if (metricType === MetricType.BOSS) {
     return (
       <PlayerBossesTable player={player}>
-        {tableHeaderElement}
-        <div className="flex items-center gap-x-3">
-          <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+        <div className="w-full @container">
+          <div className="flex flex-col justify-between gap-y-5 @md:flex-row @md:items-center">
+            {tableHeaderElement}
+            <div className="flex items-center gap-x-3 @md:w-48">
+              <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+            </div>
+          </div>
         </div>
       </PlayerBossesTable>
     );
@@ -123,9 +127,13 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
   if (metricType === MetricType.ACTIVITY) {
     return (
       <PlayerActivitiesTable player={player}>
-        {tableHeaderElement}
-        <div className="flex items-center gap-x-3">
-          <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+        <div className="w-full @container">
+          <div className="flex flex-col justify-between gap-y-5 @md:flex-row @md:items-center">
+            {tableHeaderElement}
+            <div className="flex items-center gap-x-3 @md:w-48">
+              <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+            </div>
+          </div>
         </div>
       </PlayerActivitiesTable>
     );
@@ -133,13 +141,17 @@ export function PlayerStatsTable(props: PlayerStatsTableProps) {
 
   return (
     <PlayerSkillsTable player={player} showVirtualLevels={showVirtualLevels}>
-      {tableHeaderElement}
-      <div className="flex items-center gap-x-3">
-        <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
-        <TableOptionsMenu
-          showVirtualLevels={showVirtualLevels}
-          onVirtualLevelsToggle={handleShowVirtualLevelsChanged}
-        />
+      <div className="w-full @container">
+        <div className="flex flex-col justify-between gap-y-5 @md:flex-row @md:items-center">
+          {tableHeaderElement}
+          <div className="flex items-center gap-x-3 @md:w-48">
+            <MetricTypeSelect metricType={metricType} onMetricTypeSelected={handleMetricTypeChanged} />
+            <TableOptionsMenu
+              showVirtualLevels={showVirtualLevels}
+              onVirtualLevelsToggle={handleShowVirtualLevelsChanged}
+            />
+          </div>
+        </div>
       </div>
     </PlayerSkillsTable>
   );
@@ -538,7 +550,7 @@ function MetricTypeSelect(props: MetricTypeSelectProps) {
         });
       }}
     >
-      <ComboboxButton className="w-32" isPending={isTransitioning}>
+      <ComboboxButton className="w-full" isPending={isTransitioning}>
         <div className="flex items-center gap-x-2">
           {metricType === MetricType.SKILL && "Skills"}
           {metricType === MetricType.BOSS && "Bosses"}

@@ -48,7 +48,7 @@ export default async function PlayerPage(props: PageProps) {
             <PlayerOverviewAchievements player={player} />
           </Suspense>
         </div>
-        <div className="col-span-12 mt-8 flex flex-col gap-y-4 lg:col-span-8">
+        <div className="col-span-12 mt-8 flex flex-col gap-y-7 lg:col-span-8 lg:gap-y-4">
           <PlayerOverviewWidgets {...player} />
           {player.latestSnapshot ? (
             <PlayerStatsTable

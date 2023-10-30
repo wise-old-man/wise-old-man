@@ -25,7 +25,7 @@ export function PlayerNavigation(props: PlayerNavigationProps) {
   const selectedTab = TABS.find((t) => t.route.includes(pathname.split("/").at(-1) || "")) || TABS[0];
 
   return (
-    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900 pb-2">
+    <div className="custom-scroll pointer-events-auto relative mb-6 overflow-x-auto bg-gray-900">
       <Tabs defaultValue={selectedTab.route}>
         <TabsList aria-label="Player Navigation">
           {TABS.map((tab) => (
