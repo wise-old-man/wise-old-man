@@ -14,7 +14,7 @@ const client = new WOMClient({
   userAgent: "WiseOldMan - App v2 (Client Side)",
 });
 
-export default function useFetchActivity(
+function useInfiniteLoad(
   groupId: number,
   initialData: MemberActivityWithPlayer[],
   options: { enabled?: boolean }
@@ -51,7 +51,7 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
 
   const isOpen = searchParams.get("dialog") === "group-activity";
 
-  const { data, hasNextPage, fetchNextPage } = useFetchActivity(groupId, initialData, {
+  const { data, hasNextPage, fetchNextPage } = useInfiniteLoad(groupId, initialData, {
     enabled: isOpen,
   });
 
@@ -82,9 +82,14 @@ export function GroupActivityDialog(props: GroupActivityDialogProps) {
               <GroupActivityItem activity={activity} />
             </li>
           ))}
-          {hasNextPage && (
+          {hasNextPage ? (
             <li className="py-4 text-center text-sm text-gray-200" ref={triggerElementRef}>
               Loading...
+            </li>
+          ) : (
+            <li className="py-4 text-center text-xs text-gray-200">
+              <p>No more recent activity.</p>
+              <p>(This feature was introduced on October 18th 2023)</p>
             </li>
           )}
         </ul>

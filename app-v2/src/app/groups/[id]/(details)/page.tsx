@@ -8,6 +8,8 @@ import { GroupActivityDialog } from "~/components/groups/GroupActivityDialog";
 
 export const dynamic = "force-dynamic";
 
+const ACTIVITY_ITEMS_COUNT = 10;
+
 interface PageProps {
   params: {
     id: number;
@@ -34,13 +36,13 @@ export default async function GroupDetailsPage(props: PageProps) {
 
   const [groupDetails, groupActivity] = await Promise.all([
     getGroupDetails(id),
-    getGroupActivity(id, 10),
+    getGroupActivity(id, ACTIVITY_ITEMS_COUNT),
   ]);
 
   return (
     <div className="flex flex-col gap-y-10">
       <GroupWidgets group={groupDetails} />
-      <div className="grid grid-cols-12 gap-x-5">
+      <div className="grid grid-cols-12 gap-5">
         <div className="col-span-12 lg:col-span-6 xl:col-span-8">
           <MembersTable group={groupDetails} filter={filter} />
         </div>
@@ -63,25 +65,38 @@ function GroupActivityList(props: GroupActivityListProps) {
   return (
     <>
       <div className="rounded-lg border border-gray-500 bg-gray-800 shadow-sm">
-        <h3 className="border-b border-gray-600 px-5 py-4 text-h3">Recent activity</h3>
+        <h3 className="border-b border-gray-600 p-4 text-h3">Recent activity</h3>
         <ul className="flex flex-col divide-y divide-gray-600">
-          {groupActivity.map((activity) => (
-            <li key={`${activity.createdAt.toISOString()}_${activity.playerId}`}>
-              <GroupActivityItem activity={activity} />
+          {groupActivity.length === 0 ? (
+            <li className="px-4 py-4 text-center text-xs leading-5 text-gray-200">
+              <p>There is no recent activity for this group.</p>
+              <p>(Since October 18th 2023)</p>
             </li>
-          ))}
+          ) : (
+            <>
+              {groupActivity.map((activity) => (
+                <li key={`${activity.createdAt.toISOString()}_${activity.playerId}`}>
+                  <GroupActivityItem activity={activity} />
+                </li>
+              ))}
+            </>
+          )}
         </ul>
       </div>
-      <div className="mt-3 flex justify-end">
-        <QueryLink
-          className="text-xs font-medium text-gray-200 hover:underline"
-          query={{ dialog: "group-activity" }}
-          scroll={false}
-        >
-          View more
-        </QueryLink>
-      </div>
-      <GroupActivityDialog groupId={groupId} initialData={groupActivity} />
+      {groupActivity.length === ACTIVITY_ITEMS_COUNT && (
+        <>
+          <div className="mt-3 flex justify-end">
+            <QueryLink
+              className="text-xs font-medium text-gray-200 hover:underline"
+              query={{ dialog: "group-activity" }}
+              scroll={false}
+            >
+              View more
+            </QueryLink>
+          </div>
+          <GroupActivityDialog groupId={groupId} initialData={groupActivity} />
+        </>
+      )}
     </>
   );
 }

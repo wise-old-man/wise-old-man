@@ -1,7 +1,8 @@
 import { MemberActivityWithPlayer, ActivityType, GroupRoleProps } from "@wise-old-man/utils";
-import { timeago } from "~/utils/dates";
+import { formatDatetime, timeago } from "~/utils/dates";
 import { GroupRoleIcon } from "../Icon";
 import { PlayerIdentity } from "../PlayerIdentity";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
 
 import ArrowBottomRightIcon from "~/assets/arrow_bottom_right.svg";
 
@@ -30,8 +31,7 @@ export function GroupActivityItem(props: GroupActivityItemProps) {
   } else if (activity.role) {
     typeElement = (
       <div className="flex items-center gap-x-1 text-xs text-gray-200">
-        <span className="line-clamp-1 hidden 2xl:inline">Role changed to</span>
-        <span className="line-clamp-1 inline 2xl:hidden">Changed to</span>
+        <span className="line-clamp-1">Changed to</span>
         <GroupRoleIcon role={activity.role} />
         <span className="line-clamp-1 text-white">{GroupRoleProps[activity.role].name}</span>
       </div>
@@ -39,9 +39,18 @@ export function GroupActivityItem(props: GroupActivityItemProps) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-x-3 px-5 py-3">
-      <PlayerIdentity player={activity.player} caption={typeElement} />
-      <span className="shrink-0 text-xs text-gray-200">{timeago.format(activity.createdAt)}</span>
+    <div className="@container">
+      <div className="flex flex-col items-start justify-between gap-x-3 px-4 py-3 @xs:flex-row @xs:items-center">
+        <PlayerIdentity player={activity.player} caption={typeElement} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="hidden shrink-0 text-xs text-gray-200 @xs:block">
+              {timeago.format(activity.createdAt)}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent align="end">{formatDatetime(activity.createdAt)}</TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 }
