@@ -20,38 +20,46 @@ export function CompetitionsList(props: CompetitionsListProps) {
 
         return (
           <ListTableRow key={competition.id}>
-            <ListTableCell className="flex items-center gap-x-4">
-              <MetricIcon metric={competition.metric} />
-              <div className="flex flex-col">
-                <Link
-                  href={`/competitions/${competition.id}`}
-                  className="truncate text-base font-medium leading-7 text-white hover:underline"
-                >
-                  {competition.title}
-                </Link>
-                <span className="truncate text-xs">
-                  {competition.group && props.showHost ? (
-                    <>
-                      Hosted by&nbsp;
-                      <Link
-                        href={`/groups/${competition.group.id}`}
-                        className="font-medium text-blue-400 hover:underline"
-                      >
-                        {competition.group.name}
-                      </Link>
-                      <span> · {participantLabel}</span>
-                    </>
-                  ) : (
-                    <>{participantLabel}</>
-                  )}
-                </span>
+            <ListTableCell>
+              <div className="flex items-center gap-x-4">
+                <MetricIcon metric={competition.metric} />
+                <div className="flex flex-col">
+                  <Link
+                    href={`/competitions/${competition.id}`}
+                    className="truncate text-base font-medium leading-7 text-white hover:underline"
+                  >
+                    {competition.title}
+                  </Link>
+                  <span className="truncate text-xs">
+                    {competition.group && props.showHost ? (
+                      <>
+                        Hosted by&nbsp;
+                        <Link
+                          href={`/groups/${competition.group.id}`}
+                          className="font-medium text-blue-400 hover:underline"
+                        >
+                          {competition.group.name}
+                        </Link>
+                        <span> · {participantLabel}</span>
+                      </>
+                    ) : (
+                      <>{participantLabel}</>
+                    )}
+                  </span>
+                </div>
+              </div>
+              <div className="mr-5 flex items-center gap-x-5 pt-5 md:hidden">
+                <Badge>{CompetitionTypeProps[competition.type].name}</Badge>
+                <CompetitionTime startsAt={competition.startsAt} endsAt={competition.endsAt} />
               </div>
             </ListTableCell>
-            <ListTableCell className="w-40 pr-4">
+            <ListTableCell className="hidden w-40 pr-4 md:table-cell">
               <CompetitionTime startsAt={competition.startsAt} endsAt={competition.endsAt} />
             </ListTableCell>
             <ListTableCell className="w-28 pl-0 text-right">
-              <Badge>{CompetitionTypeProps[competition.type].name}</Badge>
+              <Badge className="hidden md:inline-block">
+                {CompetitionTypeProps[competition.type].name}
+              </Badge>
             </ListTableCell>
           </ListTableRow>
         );
