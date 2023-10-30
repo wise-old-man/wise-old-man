@@ -68,10 +68,7 @@ export function PlayerSearch(props: PlayerSearchProps) {
       setQuery("");
     } else {
       addSearchTerm(username);
-
-      if (!query) {
-        setQuery(username);
-      }
+      setQuery(username);
     }
 
     setTimeout(() => {
