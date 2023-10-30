@@ -14,6 +14,7 @@ import {
   Player,
   CompetitionType,
   NameChangeStatus,
+  MemberActivityWithPlayer,
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 
@@ -124,11 +125,7 @@ export const getGroupHiscores = cache((id: number, metric: Metric, limit: number
 });
 
 export const getGroupNameChanges = cache((id: number, limit: number, offset: number) => {
-  return handleNotFound(
-    apiClient.groups.getGroupNameChanges(id, { limit, offset }) as Promise<
-      Array<NameChange & Player> // TODO: this type should come correct from the API
-    >
-  );
+  return handleNotFound(apiClient.groups.getGroupNameChanges(id, { limit, offset }));
 });
 
 export const getGroupRecords = cache(
@@ -136,6 +133,10 @@ export const getGroupRecords = cache(
     return handleNotFound(apiClient.groups.getGroupRecords(id, { metric, period }, { limit, offset }));
   }
 );
+
+export const getGroupActivity = cache((id: number, limit?: number, offset?: number) => {
+  return handleNotFound(apiClient.groups.getGroupActivity(id, { limit, offset }));
+});
 
 export const getGroupStatistics = cache((id: number) => {
   return handleNotFound(apiClient.groups.getGroupStatistics(id));

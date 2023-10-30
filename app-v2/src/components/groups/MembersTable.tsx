@@ -47,30 +47,21 @@ const COLUMN_DEFS: ColumnDef<MembershipWithPlayer>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className="pr-5">
-          <PlayerIdentity player={row.original.player} />
+        <div>
+          <PlayerIdentity
+            player={row.original.player}
+            caption={
+              <div className="flex items-center gap-x-1 pr-5">
+                <GroupRoleIcon role={row.original.role} />
+                <span>{GroupRoleProps[row.original.role].name}</span>
+              </div>
+            }
+          />
         </div>
       );
     },
     sortingFn: (rowA, rowB) => {
       return rowA.original.player.displayName.localeCompare(rowB.original.player.displayName);
-    },
-  },
-  {
-    accessorKey: "role",
-    header: ({ column }) => {
-      return <TableSortButton column={column}>Role</TableSortButton>;
-    },
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center gap-x-2 pr-5">
-          <GroupRoleIcon role={row.original.role} />
-          <span>{GroupRoleProps[row.original.role].name}</span>
-        </div>
-      );
-    },
-    sortingFn: (rowA, rowB) => {
-      return rowA.original.role.localeCompare(rowB.original.role);
     },
   },
   {
