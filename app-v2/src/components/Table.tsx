@@ -69,7 +69,7 @@ const TableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTableCel
     <th
       ref={ref}
       className={cn(
-        "h-10 px-4 text-left align-middle text-xs font-medium tabular-nums text-gray-200 [&:has([role=checkbox])]:pr-0",
+        "h-10 whitespace-nowrap px-4 text-left align-middle text-xs font-medium tabular-nums text-gray-200 [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -82,7 +82,7 @@ const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCel
   ({ className, ...props }, ref) => (
     <td
       ref={ref}
-      className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+      className={cn("whitespace-nowrap p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
       {...props}
     />
   )

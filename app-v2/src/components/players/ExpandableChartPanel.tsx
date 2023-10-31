@@ -53,13 +53,13 @@ function ChartPanel(props: ExpandableChartPanelProps & { isExpanded: boolean }) 
     <div className="p-5">
       <div
         className={cn(
-          "mb-7 flex justify-between",
+          "mb-7 flex justify-between gap-x-5",
           props.isExpanded && "-mx-5 border-b border-gray-500 px-5 pb-4"
         )}
       >
         <div>
-          <h3 className="text-h3 font-medium text-white">{props.titleSlot}</h3>
-          <p className="text-body text-gray-200">{props.descriptionSlot}</p>
+          <h3 className="text-base font-medium leading-7 text-white md:text-h3">{props.titleSlot}</h3>
+          <p className="text-xs text-gray-200 md:text-body">{props.descriptionSlot}</p>
         </div>
         {!props.isExpanded && (
           <QueryLink query={{ expand: props.id }} scroll={false}>

@@ -55,7 +55,7 @@ export default async function PlayerLayout(props: PropsWithChildren<PageProps>) 
   return (
     <Container className="relative">
       {player.status !== PlayerStatus.ACTIVE && (
-        <div className="mt-12 md:mb-10 md:mt-0">
+        <div className="mb-7">
           <PlayerStatusAlert player={player} />
         </div>
       )}

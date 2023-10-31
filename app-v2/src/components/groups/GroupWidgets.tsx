@@ -35,7 +35,7 @@ export function GroupWidgets(props: GroupWidgetsProps) {
           <FeaturedCompetitionWidget groupId={group.id} />
         </Suspense>
       </div>
-      <div className="col-span-5 grid grid-cols-3 gap-3 md:col-span-3 lg:gap-5">
+      <div className="col-span-5 grid grid-cols-1 gap-3 sm:grid-cols-3 md:col-span-3 lg:gap-5">
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="group flex h-[5rem] w-full flex-col items-start justify-center gap-y-2 rounded-lg border border-gray-500 bg-gray-800 px-6 shadow-sm">
