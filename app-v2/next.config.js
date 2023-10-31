@@ -31,6 +31,12 @@ const nextConfig = withBundleAnalyzer(
           destination: "/ehb/main",
           permanent: true,
         },
+        // RuneLite link redirects (old app's url format -> new app's url format)
+        {
+          source: "/players/:username/gained/skilling",
+          destination: "/players/:username/gained",
+          permanent: true,
+        },
       ];
     },
   })
