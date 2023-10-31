@@ -8,9 +8,6 @@ const withSvgr = require("next-plugin-svgr");
 
 const nextConfig = withBundleAnalyzer(
   withSvgr({
-    images: {
-      domains: ["wiseoldman.net"],
-    },
     experimental: {
       logging: {
         level: "verbose",
