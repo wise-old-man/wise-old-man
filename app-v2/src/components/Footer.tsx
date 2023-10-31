@@ -25,7 +25,7 @@ const navigation = {
   ],
   projects: [
     { name: "Discord Bot", href: "https://bot.wiseoldman.net/" },
-    { name: "RuneLite Plugin", href: "https://wiseoldman.net/runelite-plugin" },
+    { name: "RuneLite Plugin", href: "https://runelite.net/plugin-hub/show/wom-utils" },
     { name: "API Documentation", href: "https://docs.wiseoldman.net/" },
   ],
 };

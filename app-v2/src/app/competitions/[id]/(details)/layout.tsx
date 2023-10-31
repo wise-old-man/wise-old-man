@@ -66,14 +66,14 @@ function Header(props: CompetitionDetails) {
   const status = getCompetitionStatus(props);
 
   return (
-    <div className="flex flex-col-reverse items-end justify-between gap-x-5 gap-y-7 md:flex-row">
+    <div className="flex flex-col-reverse items-start justify-between gap-x-5 gap-y-7 md:flex-row">
       <div className="flex w-full grow items-center gap-x-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gray-500 bg-gray-800">
           <MetricIcon metric={metric} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">{title}</h1>
-          <div className="line-clamp-1 text-body text-gray-200">
+          <h1 className="text-lg font-bold sm:text-2xl">{title}</h1>
+          <div className="mt-1 text-xs text-gray-200 sm:mt-0 sm:text-body">
             <div
               className={cn("mb-px mr-1.5 inline-block h-2 w-2 rounded-full border", {
                 "border-red-500 bg-red-600": status === CompetitionStatus.FINISHED,
