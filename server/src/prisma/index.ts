@@ -6,6 +6,7 @@ import {
   Record as PrismaRecord,
   Snapshot as PrismaSnapshot,
   Achievement as PrismaAchievement,
+  Patron,
   Competition,
   Participation,
   NameChange as PrismaNameChange,
@@ -125,6 +126,7 @@ export {
   PrismaPromise,
   // Models
   NameChange,
+  Patron,
   Group,
   Membership,
   Competition,
