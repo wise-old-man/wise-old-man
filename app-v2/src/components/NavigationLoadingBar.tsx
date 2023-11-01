@@ -8,7 +8,7 @@ export function NavigationLoadingBar() {
     <Suspense>
       <LoadingProgressBar
         height="3px"
-        color="#bfdbfe"
+        color="#3b82f6"
         options={{ showSpinner: false }}
         shallowRouting
         delay={150}
