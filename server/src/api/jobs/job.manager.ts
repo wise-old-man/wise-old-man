@@ -7,7 +7,7 @@ import redisService from '../services/external/redis.service';
 import { DispatchableJob, JobDefinition, JobPriority, JobType } from './job.types';
 import AssertPlayerTypeJob from './instances/AssertPlayerTypeJob';
 import InvalidatePeriodDeltasJob from './instances/InvalidatePeriodDeltasJob';
-import RefreshApiKeysJob from './instances/RefreshApiKeysJobs';
+import SyncApiKeysJob from './instances/SyncApiKeysJob';
 import ReviewNameChangeJob from './instances/ReviewNameChangeJob';
 import ScheduleNameChangeReviewsJob from './instances/ScheduleNameChangeReviewsJob';
 import ScheduleCompetitionEventsJob from './instances/ScheduleCompetitionEventsJob';
@@ -27,7 +27,7 @@ const JOBS: JobDefinition<unknown>[] = [
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
-  RefreshApiKeysJob,
+  SyncApiKeysJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
@@ -47,7 +47,7 @@ const CRON_JOBS = [
     interval: '* * * * *' // every 1 min
   },
   {
-    type: JobType.REFRESH_API_KEYS,
+    type: JobType.SYNC_API_KEYS,
     interval: '* * * * *' // every 1 min
   },
   {
