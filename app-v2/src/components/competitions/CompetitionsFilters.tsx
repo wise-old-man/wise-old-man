@@ -285,7 +285,7 @@ function TypeSelect(props: TypeSelectProps) {
     >
       <ComboboxButton className="py-5" isPending={isTransitioning}>
         <div className={cn("flex items-center gap-x-2", !type && "text-gray-200")}>
-          {type ? CompetitionTypeProps[type].name : "Competition type"}
+          {type ? CompetitionTypeProps[type].name : "Type"}
         </div>
       </ComboboxButton>
       <ComboboxContent className="w-full">

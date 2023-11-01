@@ -61,9 +61,7 @@ export default async function CompetitionsPage(props: PageProps) {
           No results were found
         </div>
       ) : (
-        <div className="custom-scroll overflow-x-auto">
-          <CompetitionsList data={data} showHost />
-        </div>
+        <CompetitionsList data={data} showHost />
       )}
       <div className="mt-4">
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
