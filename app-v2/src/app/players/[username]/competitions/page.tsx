@@ -50,7 +50,7 @@ export default async function PlayerCompetitionsPage(props: PageProps) {
   );
 
   return (
-    <div className="custom-scroll flex flex-col gap-y-7 overflow-x-auto">
+    <div className="-mt-2 flex flex-col gap-y-7">
       {ongoing.length + upcoming.length > 0 && ongoing.length + upcoming.length < 2 ? (
         <div>
           <Label className="text-xs text-gray-200">Featured competitions</Label>
