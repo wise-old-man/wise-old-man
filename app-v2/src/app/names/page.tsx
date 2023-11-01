@@ -63,60 +63,67 @@ export default async function NameChangesPage(props: PageProps) {
           No results were found
         </div>
       ) : (
-        <div className="custom-scroll overflow-x-auto">
-          <ListTable>
+        <>
+          <div className="custom-scroll hidden overflow-x-auto lg:block">
+            <ListTable>
+              {data.map((nameChange) => (
+                <ListTableRow key={nameChange.id}>
+                  <ListTableCell>{nameChange.id}</ListTableCell>
+                  <ListTableCell className="py-4 text-sm font-medium text-white">
+                    {nameChange.oldName}
+                  </ListTableCell>
+                  <ListTableCell>
+                    <ArrowRightIcon className="h-4 w-4 text-white" />
+                  </ListTableCell>
+                  <ListTableCell className="text-sm font-medium text-white">
+                    {nameChange.newName}
+                  </ListTableCell>
+                  <ListTableCell>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>Submitted {timeago.format(nameChange.createdAt)}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{formatDatetime(nameChange.createdAt)}</TooltipContent>
+                    </Tooltip>
+                  </ListTableCell>
+                  <ListTableCell>
+                    {nameChange.resolvedAt && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>{getResolvedTimeago(nameChange)}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{formatDatetime(nameChange.resolvedAt)}</TooltipContent>
+                      </Tooltip>
+                    )}
+                    {!nameChange.resolvedAt && nameChange.reviewContext && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>{getResolvedTimeago(nameChange)}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>{formatDatetime(nameChange.updatedAt)}</TooltipContent>
+                      </Tooltip>
+                    )}
+                  </ListTableCell>
+                  <ListTableCell className="w-20">
+                    <StatusBadge status={nameChange.status} />
+                  </ListTableCell>
+                  <ListTableCell>
+                    {nameChange.reviewContext && (
+                      <ReviewContextTooltip {...nameChange}>
+                        <InfoIcon className="h-4 w-4 text-gray-300" />
+                      </ReviewContextTooltip>
+                    )}
+                  </ListTableCell>
+                </ListTableRow>
+              ))}
+            </ListTable>
+          </div>
+          <div className="mt-3 flex flex-col gap-y-3 lg:hidden">
             {data.map((nameChange) => (
-              <ListTableRow key={nameChange.id}>
-                <ListTableCell>{nameChange.id}</ListTableCell>
-                <ListTableCell className="py-4 text-sm font-medium text-white">
-                  {nameChange.oldName}
-                </ListTableCell>
-                <ListTableCell>
-                  <ArrowRightIcon className="h-4 w-4 text-white" />
-                </ListTableCell>
-                <ListTableCell className="text-sm font-medium text-white">
-                  {nameChange.newName}
-                </ListTableCell>
-                <ListTableCell>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>Submitted {timeago.format(nameChange.createdAt)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>{formatDatetime(nameChange.createdAt)}</TooltipContent>
-                  </Tooltip>
-                </ListTableCell>
-                <ListTableCell>
-                  {nameChange.resolvedAt && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>{getResolvedTimeago(nameChange)}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{formatDatetime(nameChange.resolvedAt)}</TooltipContent>
-                    </Tooltip>
-                  )}
-                  {!nameChange.resolvedAt && nameChange.reviewContext && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>{getResolvedTimeago(nameChange)}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{formatDatetime(nameChange.updatedAt)}</TooltipContent>
-                    </Tooltip>
-                  )}
-                </ListTableCell>
-                <ListTableCell className="w-20">
-                  <StatusBadge status={nameChange.status} />
-                </ListTableCell>
-                <ListTableCell>
-                  {nameChange.reviewContext && (
-                    <ReviewContextTooltip {...nameChange}>
-                      <InfoIcon className="h-4 w-4 text-gray-300" />
-                    </ReviewContextTooltip>
-                  )}
-                </ListTableCell>
-              </ListTableRow>
+              <NameChangeCard key={nameChange.id} nameChange={nameChange} />
             ))}
-          </ListTable>
-        </div>
+          </div>
+        </>
       )}
       <div className="mt-4">
         <Pagination currentPage={page} hasMorePages={data.length >= RESULTS_PER_PAGE} />
@@ -150,4 +157,23 @@ function getResolvedTimeago(nameChange: NameChange) {
   }
 
   return "";
+}
+
+function NameChangeCard(props: { nameChange: NameChange }) {
+  const { nameChange } = props;
+
+  return (
+    <div className="flex flex-col rounded-md border border-gray-500 bg-gray-800 px-4 py-3 shadow-sm">
+      <span className="text-xs text-gray-200">#{nameChange.id}</span>
+      <div className="flex items-center gap-x-3">
+        <span className="text-sm font-medium leading-7 text-white">{nameChange.oldName}</span>
+        <ArrowRightIcon className="h-4 w-4 text-white" />
+        <span className="text-sm font-medium leading-7 text-white">{nameChange.newName}</span>
+      </div>
+      <div className="mt-4 flex items-center gap-x-3">
+        <StatusBadge status={nameChange.status} />
+        <span className="text-xs text-gray-200">Submitted {timeago.format(nameChange.createdAt)}</span>
+      </div>
+    </div>
+  );
 }
