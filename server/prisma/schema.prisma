@@ -182,6 +182,7 @@ model Group {
   description      String?  @db.VarChar(100)
   homeworld        Int?
   verified         Boolean  @default(false)
+  patron           Boolean  @default(false)
   score            Int      @default(0)
   verificationHash String   @db.VarChar(255)
   createdAt        DateTime @default(now()) @db.Timestamptz(6)
@@ -191,6 +192,7 @@ model Group {
   competitions   Competition[]
   memberships    Membership[]
   memberActivity MemberActivity[]
+  Patron         Patron[]
 
   // Constraints
   @@unique([name], map: "groups_name_key")
@@ -271,6 +273,7 @@ model Player {
   build            PlayerBuild  @default(main)
   status           PlayerStatus @default(active)
   country          Country?
+  patron           Boolean      @default(false)
   exp              BigInt       @default(0)
   ehp              Float        @default(0)
   ehb              Float        @default(0)
@@ -293,6 +296,7 @@ model Player {
   snapshots      Snapshot[]
   archives       PlayerArchive[]
   memberActivity MemberActivity[]
+  Patron         Patron[]
 
   // Indices
   @@index([build], map: "players_build")
@@ -575,8 +579,14 @@ model Patron {
   name      String
   email     String
   discordId String?
+  groupId   Int?
+  playerId  Int?
   tier      Int
   createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  group  Group?  @relation(fields: [groupId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   // Map
   @@map("patrons")

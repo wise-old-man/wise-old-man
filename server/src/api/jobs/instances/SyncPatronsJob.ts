@@ -35,6 +35,10 @@ class SyncPatronsJob implements JobDefinition<unknown> {
       }
     });
 
+    if (toAdd.length === 0 && toUpdate.length === 0 && toDelete.length === 0) {
+      return;
+    }
+
     await prisma.$transaction(async transaction => {
       if (toAdd.length > 0) {
         await transaction.patron.createMany({
@@ -56,6 +60,57 @@ class SyncPatronsJob implements JobDefinition<unknown> {
           });
         }
       }
+    });
+
+    const updatedPatrons = await prisma.patron.findMany();
+
+    const patronGroupIds = updatedPatrons.map(p => p.groupId).filter((id): id is number => id !== null);
+    const patronPlayerIds = updatedPatrons.map(p => p.playerId).filter((id): id is number => id !== null);
+
+    await prisma.$transaction(async transaction => {
+      // Every player who wasn't a patron and should be, becomes a patron
+      await transaction.player.updateMany({
+        where: {
+          id: { in: patronPlayerIds },
+          patron: false
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      // Every player who was a patron and shouldn't be, is no longer a patron
+      await transaction.player.updateMany({
+        where: {
+          id: { notIn: patronPlayerIds },
+          patron: true
+        },
+        data: {
+          patron: false
+        }
+      });
+
+      // Every group who wasn't a patron and should be, becomes a patron
+      await transaction.group.updateMany({
+        where: {
+          id: { in: patronGroupIds },
+          patron: false
+        },
+        data: {
+          patron: true
+        }
+      });
+
+      // Every group who was a patron and shouldn't be, is no longer a patron
+      await transaction.group.updateMany({
+        where: {
+          id: { notIn: patronGroupIds },
+          patron: true
+        },
+        data: {
+          patron: false
+        }
+      });
     });
   }
 }
