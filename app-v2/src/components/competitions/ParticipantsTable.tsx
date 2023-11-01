@@ -104,8 +104,6 @@ export function ParticipantsTable(props: ParticipantsTableProps) {
 }
 
 function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
-  const showLevelsGained = isSkill(metric);
-
   const columns: ColumnDef<ParticipationWithPlayerAndProgress>[] = [
     {
       id: "rank",
@@ -191,7 +189,7 @@ function getColumnDefinitions(metric: Metric, competition: CompetitionDetails) {
     },
   ];
 
-  if (showLevelsGained) {
+  if (isSkill(metric) && metric !== Metric.OVERALL) {
     columns.splice(3, 0, {
       id: "levels",
       header: ({ column }) => {
