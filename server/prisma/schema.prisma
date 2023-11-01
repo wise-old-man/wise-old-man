@@ -188,8 +188,8 @@ model Group {
   updatedAt        DateTime @updatedAt @db.Timestamptz(6)
 
   // Relations
-  competitions Competition[]
-  memberships  Membership[]
+  competitions   Competition[]
+  memberships    Membership[]
   memberActivity MemberActivity[]
 
   // Constraints
@@ -283,7 +283,7 @@ model Player {
   latestSnapshotId Int?
 
   // Relations
-  latestSnapshot Snapshot?       @relation("player_latest_snapshot", fields: [latestSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  latestSnapshot Snapshot?        @relation("player_latest_snapshot", fields: [latestSnapshotId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   achievements   Achievement[]
   deltas         Delta[]
   memberships    Membership[]
@@ -559,7 +559,7 @@ model MemberActivity {
   createdAt DateTime     @default(now()) @db.Timestamptz(6)
 
   // Relations
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   // Constraints
@@ -568,6 +568,18 @@ model MemberActivity {
   @@index([groupId, createdAt(sort: Desc)], map: "member_activity_group_id_created_at")
   // Map
   @@map("member_activity")
+}
+
+model Patron {
+  id        String   @id
+  name      String
+  email     String
+  discordId String?
+  tier      Int
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  // Map
+  @@map("patrons")
 }
 
 enum NameChangeStatus {
