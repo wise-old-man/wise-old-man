@@ -21,6 +21,7 @@ import CheckPlayerBannedJob from './instances/CheckPlayerBannedJob';
 import CheckPlayerRankedJob from './instances/CheckPlayerRankedJob';
 import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReviewJob';
 import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
+import SyncPatronsJob from './instances/SyncPatronsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
@@ -28,6 +29,7 @@ const JOBS: JobDefinition<unknown>[] = [
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
   SyncApiKeysJob,
+  SyncPatronsJob,
   ReviewNameChangeJob,
   ScheduleCompetitionEventsJob,
   ScheduleCompetitionScoreUpdatesJob,
@@ -48,6 +50,10 @@ const CRON_JOBS = [
   },
   {
     type: JobType.SYNC_API_KEYS,
+    interval: '* * * * *' // every 1 min
+  },
+  {
+    type: JobType.SYNC_PATRONS,
     interval: '* * * * *' // every 1 min
   },
   {
