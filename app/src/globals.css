@@ -18,6 +18,10 @@ textarea {
   }
 }
 
+:root {
+  scrollbar-color: hsl(220 23% 31%) transparent;
+}
+
 /* body ::-webkit-scrollbar, */
 .custom-scroll::-webkit-scrollbar {
   @apply h-0.5 w-0.5 md:h-1.5 md:w-1.5;

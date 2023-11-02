@@ -52,7 +52,7 @@ export default async function LandingPage() {
 async function HeroSection() {
   return (
     <section className="relative flex w-full items-center justify-center bg-[#10141f] py-10 md:py-0">
-      <div className="absolute inset-0 mx-auto max-w-7xl bg-hero-gradient" />
+      <div className="absolute inset-0 mx-auto max-w-[100vw] bg-hero-gradient lg:max-w-7xl" />
       <div className="flex items-center">
         <div className="flex w-auto flex-col items-start">
           <div className="z-10 flex flex-col px-5 pb-12 pt-14 md:px-14">
@@ -124,7 +124,7 @@ async function StatsDisplay() {
 
 function PlayersSection() {
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-5 py-[10rem] md:px-10">
+    <section className="mx-auto mt-10 flex max-w-[calc(100vw-1.25rem)] flex-col items-center px-5 py-[10rem] md:px-10 lg:max-w-5xl">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Track your hiscores over time</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         By periodically checking your hiscores, the Wise Old Man can create a historical record, this
@@ -176,7 +176,7 @@ function PlayersSection() {
 
 function GroupsSection() {
   return (
-    <section className="mx-auto flex max-w-5xl flex-col items-center px-5 py-8 md:px-10">
+    <section className="mx-auto flex max-w-[calc(100vw-1.25rem)] flex-col items-center px-5 py-8 md:px-10 lg:max-w-5xl">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Follow your clan&apos;s progress</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         By creating a group on Wise Old Man and keeping all your members updated, you are then able to:
@@ -245,7 +245,7 @@ function GroupsSection() {
 
 function DiscordSection() {
   return (
-    <section className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-16">
+    <section className="mx-auto max-w-[calc(100vw-1.25rem)] px-5 py-8 md:px-10 md:py-16 lg:max-w-5xl">
       <div className="relative mt-16 flex flex-col overflow-hidden rounded-2xl border border-gray-600 bg-gray-800 px-12 pt-12 sm:overflow-visible md:flex-row md:px-16 md:pb-12 xl:max-w-5xl">
         <div className="relative z-10 flex max-w-md flex-col items-start">
           <h2 className="max-w-xs text-2xl font-semibold leading-[2.75rem] sm:text-3xl">
@@ -298,7 +298,7 @@ async function RuneliteSection() {
   const pluginInstalls = await fetchRuneliteInstalls();
 
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center px-5 py-[5rem] md:px-10">
+    <section className="mx-auto mt-10 flex max-w-[calc(100vw-1.25rem)] flex-col items-center px-5 py-[5rem] md:px-10 lg:max-w-5xl">
       <h2 className="text-center text-xl font-bold sm:text-4xl">Integrate with RuneLite</h2>
       <p className="mt-3 max-w-sm text-center text-body text-gray-200 sm:max-w-lg sm:text-lg">
         You can install our RuneLite plugin to help you integrate the Wise Old Man right into your game
@@ -353,7 +353,7 @@ async function RuneliteSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="mx-auto mt-10 flex max-w-5xl flex-col items-center bg-howto-gradient px-5 py-[5rem] md:px-10">
+    <section className="mx-auto mt-10 flex max-w-[calc(100vw-1.25rem)] flex-col items-center bg-howto-gradient px-5 py-[5rem] md:px-10 lg:max-w-5xl">
       <h2 className="text-2xl font-bold md:text-4xl">How does it work?</h2>
       <div className="mt-16 flex max-w-2xl flex-col md:w-full">
         <div className="flex w-full gap-x-8">
@@ -402,7 +402,7 @@ function HowItWorksSection() {
 
 function CommunitySection() {
   return (
-    <section className="mx-auto flex max-w-5xl flex-col items-center px-10 pb-40 pt-10">
+    <section className="mx-auto flex max-w-[calc(100vw-1.25rem)] flex-col items-center px-10 pb-40 pt-10 lg:max-w-5xl">
       <h2 className="text-3xl font-semibold">Community driven</h2>
       <p className="mb-10 mt-5 max-w-xl text-center leading-7 text-gray-200">
         Wise Old Man is also a free Open Source project, meaning anyone in the community can contribute
