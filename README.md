@@ -58,7 +58,6 @@ The repository is currently divided into 3 components:
   - RadixUI
 
 - **Docs**: (The API documentation)
-
   - Docusaurus
 
 <br />
