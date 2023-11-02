@@ -23,10 +23,12 @@ import ScheduleFlaggedPlayerReview from './instances/ScheduleFlaggedPlayerReview
 import SchedulePlayerBannedChecks from './instances/SchedulePlayerBannedChecksJob';
 import SyncPatronsJob from './instances/SyncPatronsJob';
 import AutoUpdatePatronPlayersJob from './instances/AutoUpdatePatronPlayersJob';
+import AutoUpdatePatronGroupsJob from './instances/AutoUpdatePatronGroupsJob';
 
 const JOBS: JobDefinition<unknown>[] = [
   AssertPlayerTypeJob,
   AutoUpdatePatronPlayersJob,
+  AutoUpdatePatronGroupsJob,
   CheckPlayerBannedJob,
   CheckPlayerRankedJob,
   InvalidatePeriodDeltasJob,
@@ -60,7 +62,11 @@ const CRON_JOBS = [
   },
   {
     type: JobType.AUTO_UPDATE_PATRON_PLAYERS,
-    interval: '* * * * *' // every 1 min
+    interval: '*/5 * * * *' // every 5 mins
+  },
+  {
+    type: JobType.AUTO_UPDATE_PATRON_GROUPS,
+    interval: '*/5 * * * *' // every 5 mins
   },
   {
     type: JobType.SCHEDULE_DELTA_INVALIDATIONS,
