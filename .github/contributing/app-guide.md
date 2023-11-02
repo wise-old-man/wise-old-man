@@ -1,6 +1,6 @@
 # How to contribute to the Wise Old Man API Documentation
 
-This should be a pretty simple setup, as the documentation doesn't have many dependencies.
+This should be a pretty simple setup, as the app doesn't have many external service dependencies.
 
 ## Forking and Cloning the project
 
@@ -16,8 +16,6 @@ I suggest reading the [Github's guide on forking projects.](https://guides.githu
 
 I also suggest using Visual Studio Code as your IDE, with the following extensions installed:
 
-- Docker
-- ES7 React/Redux/GraphQL/React-Native snippets
 - ESLint
 - Prettier - Code formatter
 
@@ -25,9 +23,9 @@ I also suggest using Visual Studio Code as your IDE, with the following extensio
 
 ## Installing Node.js
 
-The documentation is built with Next.js, which uses Node.js, a JavaScript backend framework.
+The app depend on Node.js, a JavaScript runtime built on Chrome's V8 Engine.
 
-You can download it here: https://nodejs.org/en/download/
+You can download it here: https://nodejs.org/en/download/. The project currently supports version 18.17+
 
 <br />
 
@@ -62,11 +60,10 @@ cp .env.example .env
 By default the example file contains the following snippet
 
 ```
-SKIP_PREFLIGHT_CHECK=true
-# REACT_APP_BASE_API_URL=http://localhost:5000/api
+# BASE_API_URL="http://localhost:5000"
 ```
 
-**Notice how the REACT_APP_BASE_API_URL variable is commented out using a `#` at the start of it. When this variable is commented out, the app will use the production API URL (`https://api.wiseoldman.net`) by default. If you are running your own local server, you can uncomment that variable and insert your local server URL. This local server URL can differ from localhost,  you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md).**
+**Notice how the BASE_API_URL variable is commented out using a `#` at the start of it. When this variable is commented out, the app will use the production API URL (`https://api.wiseoldman.net`) by default. If you are running your own local server, you can uncomment that variable and insert your local server URL. This local server URL can differ from localhost, you can find out what yours is by visiting the "Running the Server" section of the [server development guide](https://github.com/wise-old-man/wise-old-man/blob/master/.github/contributing/server-guide.md).**
 
 <br />
 <br />
@@ -86,7 +83,7 @@ cd app
 And now you can start the app by running the command:
 
 ```
-npm start
+npm run dev
 ```
 
 And there it is! You can now access the app at:

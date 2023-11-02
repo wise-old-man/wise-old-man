@@ -1,14 +1,16 @@
 <div align = "center">
 
-![Wise Old Man](https://user-images.githubusercontent.com/3278148/86636807-a32b9f00-bfcc-11ea-963f-8fb2920447f4.png)
+![Wise Old Man logo](https://github.com/wise-old-man/wise-old-man/assets/3278148/c4c8a2ce-7f61-4b6e-ba97-5d9d5bf6b1d1)
 
 🔗 [www.wiseoldman.net](https://wiseoldman.net/)
 
 The Open Source Old School Runescape progress tracker.
 
-![MIT license](https://img.shields.io/github/license/wise-old-man/wise-old-man) ![Core repo](https://img.shields.io/badge/wise%20old%20man-core-blue)
+<p align="center">
+  <img src="https://img.shields.io/discord/886733267284398130.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge">
+</p>
 
-The Wise Old Man is a web app (and API) that measures your Old School Runescape player progress. Built on top of the OSRS hiscores, it allows you to keep track of your gains, participate in group competitions, collect achievements and much more.
+The Wise Old Man is a web app (and API) that tracks and measures your Old School Runescape player progress. Built on top of the OSRS hiscores, it allows you to keep track of your gains, participate in group competitions, collect achievements and much more.
 
 [Website](https://wiseoldman.net/) |
 [Discord](https://discord.gg/Ky5vNt2) |
@@ -22,8 +24,8 @@ The Wise Old Man is a web app (and API) that measures your Old School Runescape 
 
 Although this is the core repository, some related repositories have been created to expand the functionality of this project.
 
-- [Discord Bot](https://github.com/wise-old-man/discord-bot)
-- [Discord Bot Landing Page](https://github.com/wise-old-man/bot.wiseoldman.net)
+- [Discord Bot](https://github.com/wise-old-man/wiseoldman-discord-bot)
+- [RuneLite Plugin](https://github.com/wise-old-man/wiseoldman-runelite-plugin)
 
 <br />
 
@@ -39,24 +41,24 @@ The repository is currently divided into 3 components:
 
 - **Server**: (The backend & API)
 
-  - **Runtime:** Node.js
-  - **Language:** TypeScript
-  - **Database:** PostgresSQL
-  - **Caching:** Redis
-  - **Message Queue:** BullMQ
-  - **API Framework:** Express
-  - **ORM:** Prisma
-  - **Test Runner:** Jest
+  - Node.js
+  - TypeScript
+  - PostgresSQL
+  - Redis
+  - BullMQ
+  - Express
+  - Prisma
+  - Jest
 
 - **App**: (The web app)
 
-  - React.js
-  - Redux: State management
-  - Reselect: Selector memoization
+  - Next.js 14 (App Router)
+  - TailwindCSS
+  - HeadlessUI
+  - RadixUI
 
 - **Docs**: (The API documentation)
-
-  - **Framework:** Docusaurus
+  - Docusaurus
 
 <br />
 

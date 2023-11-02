@@ -1,6 +1,6 @@
 # How to contribute to the Wise Old Man API Documentation
 
-This should be a pretty simple setup, as the documentation doesn't have many dependencies.
+This should be a pretty simple setup, as the documentation doesn't have many external service dependencies.
 
 ## Forking and Cloning the project
 
