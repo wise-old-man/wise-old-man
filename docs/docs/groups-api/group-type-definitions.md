@@ -25,18 +25,19 @@ sidebar_position: 1
 
 ### `(Object)` Group
 
-| Field       | Type    | Description                              |
-| :---------- | :------ | :--------------------------------------- |
-| id          | integer | The group's ID.                          |
-| name        | string  | The group's name.                        |
-| clanChat    | string  | The group's clan chat (1-12 characters). |
-| description | string? | The group's description.                 |
-| homeworld   | number? | The group's homeworld.                   |
-| verified    | boolean | The group's verified status.             |
-| score       | integer | The group's global ranking score.        |
-| createdAt   | date    | The group's creation date.               |
-| updatedAt   | date    | The group's last modification date.      |
-| memberCount | integer | The group's total number of members.     |
+| Field       | Type    | Description                                               |
+| :---------- | :------ | :-------------------------------------------------------- |
+| id          | integer | The group's ID.                                           |
+| name        | string  | The group's name.                                         |
+| clanChat    | string  | The group's clan chat (1-12 characters).                  |
+| description | string? | The group's description.                                  |
+| homeworld   | number? | The group's homeworld.                                    |
+| verified    | boolean | The group's verified status.                              |
+| patron      | boolean | The groups's patronage status (subscribed to our Patreon) |
+| score       | integer | The group's global ranking score.                         |
+| createdAt   | date    | The group's creation date.                                |
+| updatedAt   | date    | The group's last modification date.                       |
+| memberCount | integer | The group's total number of members.                      |
 
 <br />
 
