@@ -1,7 +1,6 @@
 import env from '../../../env';
 import { z } from 'zod';
 import axios from 'axios';
-import { Patron } from '../../../prisma';
 import { isValidDate } from '../../util/dates';
 
 const CAMPAIGN_ID = '4802084';
@@ -108,7 +107,7 @@ function parsePatronages(pledgesResponse: PledgesResponse) {
     userMap.set(object.id, object);
   });
 
-  const patrons: Patron[] = [];
+  const patrons = [];
 
   pledgesResponse.data.forEach(pledge => {
     const userId = pledge.relationships.patron.data.id;

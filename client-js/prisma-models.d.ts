@@ -34,6 +34,7 @@ export type Group = {
   description: string | null;
   homeworld: number | null;
   verified: boolean;
+  patron: boolean;
   score: number;
   verificationHash: string;
   createdAt: Date;
@@ -84,6 +85,7 @@ type Prisma_Base_Player = {
   build: PlayerBuild;
   status: PlayerStatus;
   country: Country | null;
+  patron: boolean;
   exp: bigint;
   ehp: number;
   ehb: number;
