@@ -116,16 +116,12 @@ class SyncPatronsJob implements JobDefinition<unknown> {
 
     toAdd.forEach(p => {
       const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-      sendPatreonUpdateMessage(
-        `**🎉 New Patron:** ${p.name} (T${p.tier}) - ${p.email ?? '---'} ${discordTag}`
-      );
+      sendPatreonUpdateMessage(`**🎉 New Patron:** ${p.name} (T${p.tier}) - ${discordTag}`);
     });
 
     toDelete.forEach(p => {
       const discordTag = p.discordId ? `<@${p.discordId}>` : '';
-      sendPatreonUpdateMessage(
-        `**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${p.email ?? '---'} ${discordTag}`
-      );
+      sendPatreonUpdateMessage(`**😢 Patron canceled:** ${p.name} (T${p.tier}) - ${discordTag}`);
     });
   }
 }
