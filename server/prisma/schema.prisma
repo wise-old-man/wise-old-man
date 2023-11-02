@@ -192,7 +192,7 @@ model Group {
   competitions   Competition[]
   memberships    Membership[]
   memberActivity MemberActivity[]
-  Patron         Patron[]
+  patronages     Patron[]
 
   // Constraints
   @@unique([name], map: "groups_name_key")
@@ -296,7 +296,7 @@ model Player {
   snapshots      Snapshot[]
   archives       PlayerArchive[]
   memberActivity MemberActivity[]
-  Patron         Patron[]
+  patronages     Patron[]
 
   // Indices
   @@index([build], map: "players_build")
