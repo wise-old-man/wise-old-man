@@ -16,6 +16,39 @@ const nextConfig = withBundleAnalyzer(
     },
     async redirects() {
       return [
+        // Redirects to external websites
+        {
+          source: "/github",
+          destination: "https://github.com/wise-old-man/wise-old-man",
+          permanent: true,
+        },
+        {
+          source: "/twitter",
+          destination: "https://twitter.com/RubenPsikoi",
+          permanent: true,
+        },
+        {
+          source: "/discord",
+          destination: "https://discordapp.com/invite/Ky5vNt2",
+          permanent: true,
+        },
+        {
+          source: "/patreon",
+          destination: "https://patreon.com/wiseoldman",
+          permanent: true,
+        },
+        {
+          source: "/flags",
+          destination:
+            "https://github.com/wise-old-man/wise-old-man/wiki/User-Guide:-How-to-setup-countries-flags",
+          permanent: true,
+        },
+        {
+          source: "/docs",
+          destination: "https://docs.wiseoldman.net",
+          permanent: true,
+        },
+        // Redirects to page defaults
         {
           source: "/leaderboards",
           destination: "/leaderboards/top",
