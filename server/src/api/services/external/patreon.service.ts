@@ -1,6 +1,7 @@
 import env from '../../../env';
 import { z } from 'zod';
 import axios from 'axios';
+import { Patron } from '../../../prisma';
 import { isValidDate } from '../../util/dates';
 
 const CAMPAIGN_ID = '4802084';
@@ -107,7 +108,7 @@ function parsePatronages(pledgesResponse: PledgesResponse) {
     userMap.set(object.id, object);
   });
 
-  const patrons = [];
+  const patrons: Patron[] = [];
 
   pledgesResponse.data.forEach(pledge => {
     const userId = pledge.relationships.patron.data.id;
@@ -121,7 +122,9 @@ function parsePatronages(pledgesResponse: PledgesResponse) {
       email: user.attributes.email,
       discordId: user.attributes.social_connections.discord?.user_id ?? null,
       tier: 1,
-      createdAt: new Date(pledge.attributes.created_at)
+      createdAt: new Date(pledge.attributes.created_at),
+      playerId: undefined,
+      groupId: undefined
     });
   });
 
