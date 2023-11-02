@@ -2,11 +2,11 @@ import prisma from '../../../prisma';
 import redisService from '../../services/external/redis.service';
 import { JobType, JobDefinition } from '../job.types';
 
-class RefreshApiKeysJob implements JobDefinition<unknown> {
+class SyncApiKeysJob implements JobDefinition<unknown> {
   type: JobType;
 
   constructor() {
-    this.type = JobType.REFRESH_API_KEYS;
+    this.type = JobType.SYNC_API_KEYS;
   }
 
   async execute() {
@@ -19,4 +19,4 @@ class RefreshApiKeysJob implements JobDefinition<unknown> {
   }
 }
 
-export default new RefreshApiKeysJob();
+export default new SyncApiKeysJob();

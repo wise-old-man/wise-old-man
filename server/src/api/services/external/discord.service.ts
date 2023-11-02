@@ -20,12 +20,24 @@ function sendMonitoringMessage(text: string, tagAdmin?: boolean) {
   if (isTesting()) return;
 
   if (!env.DISCORD_MONITORING_WEBHOOK_URL) {
-    logger.error('Missing Discord Webhook URL.');
+    logger.error('Missing Discord Monitoring Webhook URL.');
     return;
   }
 
   const webhookClient = new WebhookClient({ url: env.DISCORD_MONITORING_WEBHOOK_URL });
   return webhookClient.send({ content: `${text} ${tagAdmin ? '<@329256344798494773>' : ''}` });
+}
+
+function sendPatreonUpdateMessage(text: string) {
+  if (isTesting()) return;
+
+  if (!env.DISCORD_PATREON_WEBHOOK_URL) {
+    logger.error('Missing Discord Patreon Webhook URL.');
+    return;
+  }
+
+  const webhookClient = new WebhookClient({ url: env.DISCORD_PATREON_WEBHOOK_URL });
+  return webhookClient.send({ content: text });
 }
 
 /**
@@ -242,6 +254,7 @@ function dispatchCompetitionEnding(competition: Competition, period: EventPeriod
 
 export {
   sendMonitoringMessage,
+  sendPatreonUpdateMessage,
   dispatch,
   dispatchAchievements,
   dispatchHardcoreDied,

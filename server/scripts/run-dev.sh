@@ -1,3 +1,5 @@
+#!/bin/sh 
+
 # Setup the docker dependencies (Postgres, PGAdmin and Redis)
 docker-compose up --build -d
 
