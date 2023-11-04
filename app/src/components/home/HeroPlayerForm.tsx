@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { WOMClient } from "@wise-old-man/utils";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Input } from "~/components/Input";
 import { Button } from "~/components/Button";
 
@@ -14,16 +14,13 @@ import ArrowRightIcon from "~/assets/arrow_right.svg";
 export function HeroPlayerForm() {
   const toast = useToast();
   const router = useRouter();
+  const client = useWOMClient();
 
   const [username, setUsername] = useState("");
   const [isTransitioning, startTransition] = useTransition();
 
   const submitMutation = useMutation({
     mutationFn: (params: { username: string }) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.players.updatePlayer(params.username);
     },
     onSuccess: (player) => {

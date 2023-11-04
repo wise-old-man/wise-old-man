@@ -3,24 +3,22 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Player, WOMClient } from "@wise-old-man/utils";
+import { Player } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Button } from "../Button";
 
 import LoadingIcon from "~/assets/loading.svg";
 
 export function UpdatePlayerForm(props: { player: Player }) {
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
 
   const [isTransitioning, startTransition] = useTransition();
 
   const submitMutation = useMutation({
     mutationFn: () => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.players.updatePlayer(props.player.username);
     },
     onSuccess: (player) => {

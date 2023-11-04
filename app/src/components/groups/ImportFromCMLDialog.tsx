@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { GroupMemberFragment, GroupRole, WOMClient } from "@wise-old-man/utils";
+import { GroupMemberFragment, GroupRole } from "@wise-old-man/utils";
 import useDebouncedValue from "~/hooks/useDebouncedValue";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { cn } from "~/utils/styling";
 import { useState } from "react";
 import { Input } from "../Input";
@@ -45,15 +46,12 @@ function ImportFromCMLForm(props: ImportFromCMLDialogProps) {
   const [urlInput, setUrlInput] = useState("");
 
   const debouncedValue = useDebouncedValue(urlInput, 300);
+  const client = useWOMClient();
 
   const { data, error, isLoading } = useQuery<{ members: string[] }>({
     queryKey: ["cmlImport", debouncedValue],
     queryFn: () => {
       const parsedId = parseURL(debouncedValue);
-
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
 
       return client.getRequest(`/groups/migrate/cml/${parsedId}`);
     },

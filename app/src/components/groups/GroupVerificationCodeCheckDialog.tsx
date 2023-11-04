@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { cn } from "~/utils/styling";
 import { useMutation } from "@tanstack/react-query";
-import { GroupListItem, WOMClient } from "@wise-old-man/utils";
+import { GroupListItem } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { Button } from "../Button";
@@ -25,14 +26,11 @@ export function GroupVerificationCodeCheckDialog(props: GroupVerificationCodeChe
   const { group, isOpen, isEditingGroupCompetition = false, onValidated } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
   const [verificationCode, setVerificationCode] = useState("");
 
   const checkMutation = useMutation({
     mutationFn: async () => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       try {
         await client.groups.editGroup(group.id, {}, verificationCode);
       } catch (error) {

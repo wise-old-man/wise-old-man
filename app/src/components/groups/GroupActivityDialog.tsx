@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { WOMClient } from "@wise-old-man/utils";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../Dialog";
 import { MemberActivityWithPlayer } from "@wise-old-man/utils";
 import { GroupActivityItem } from "./GroupActivityItem";
@@ -10,15 +10,13 @@ import { useInView } from "react-intersection-observer";
 
 const RESULTS_PER_PAGE = 20;
 
-const client = new WOMClient({
-  userAgent: "WiseOldMan - App v2 (Client Side)",
-});
-
 function useInfiniteLoad(
   groupId: number,
   initialData: MemberActivityWithPlayer[],
   options: { enabled?: boolean }
 ) {
+  const client = useWOMClient();
+
   const query = useInfiniteQuery({
     queryKey: ["groupActivity", groupId],
     queryFn: ({ pageParam }) => {

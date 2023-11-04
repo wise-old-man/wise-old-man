@@ -18,6 +18,13 @@ import {
 } from "@wise-old-man/utils";
 import { notFound } from "next/navigation";
 
+/**
+ * The WOM client used to make requests to the API from server components.
+ *
+ * **NOTE**: Do not import into client components due to API key leakage.
+ *
+ * See the `useWOMClient` hook for client components.
+ */
 export const apiClient = new WOMClient({
   userAgent: "Wise Old Man App (v2)",
   apiKey: process.env.APP_API_KEY,

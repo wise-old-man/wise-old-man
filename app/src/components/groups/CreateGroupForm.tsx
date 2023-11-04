@@ -9,11 +9,11 @@ import {
   GroupMemberFragment,
   GroupRole,
   GroupRoleProps,
-  WOMClient,
 } from "@wise-old-man/utils";
 import Link from "next/link";
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { createContext, useContext, useState } from "react";
 import { Button } from "~/components/Button";
 import {
@@ -56,6 +56,7 @@ const CreateGroupContext = createContext({
 
 export function CreateGroupForm() {
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
 
   const [step, setStep] = useState<FormStep>("info");
@@ -74,10 +75,6 @@ export function CreateGroupForm() {
 
   const createMutation = useMutation({
     mutationFn: (group: CreateGroupPayload) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.groups.createGroup(group);
     },
     onSuccess: (data) => {

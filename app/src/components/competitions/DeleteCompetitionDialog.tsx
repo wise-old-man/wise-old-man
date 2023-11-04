@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { WOMClient } from "@wise-old-man/utils";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Input } from "../Input";
 import { Label } from "../Label";
 import { Button } from "../Button";
@@ -56,15 +56,12 @@ function DeleteCompetitionForm(props: DeleteCompetitionFormProps) {
   const { competitionId, onQuit, onSubmitted } = props;
 
   const toast = useToast();
+  const client = useWOMClient();
 
   const [verificationCode, setVerificationCode] = useState("");
 
   const deleteMutation = useMutation({
     mutationFn: () => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       return client.competitions.deleteCompetition(competitionId, verificationCode);
     },
     onSuccess: () => {

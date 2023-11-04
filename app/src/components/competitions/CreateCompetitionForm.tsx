@@ -9,10 +9,10 @@ import {
   GroupDetails,
   GroupListItem,
   Metric,
-  WOMClient,
 } from "@wise-old-man/utils";
 import { cn } from "~/utils/styling";
 import { useToast } from "~/hooks/useToast";
+import { useWOMClient } from "~/hooks/useWOMClient";
 import { Label } from "../Label";
 import { Button } from "../Button";
 import { Container } from "../Container";
@@ -34,6 +34,7 @@ interface CreateCompetitionFormProps {
 
 export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
   const toast = useToast();
+  const client = useWOMClient();
   const router = useRouter();
 
   const [group, setGroup] = useState<GroupListItem | undefined>(props.group);
@@ -60,10 +61,6 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
 
   const createMutation = useMutation({
     mutationFn: (competition: CreateCompetitionPayload) => {
-      const client = new WOMClient({
-        userAgent: "WiseOldMan - App v2 (Client Side)",
-      });
-
       const payload = {
         ...competition,
       };
