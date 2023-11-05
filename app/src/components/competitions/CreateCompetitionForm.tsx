@@ -87,7 +87,7 @@ export function CreateCompetitionForm(props: CreateCompetitionFormProps) {
   });
 
   return (
-    <Container className="mt-8 max-w-2xl">
+    <Container className="mt-8" style={{ "--max-width": "42rem" }}>
       <h1 className="text-3xl font-bold">Create a new competition</h1>
       <div className="mt-5 flex gap-x-2">
         <div className="h-1 w-12 rounded-full bg-blue-500" />

@@ -38,7 +38,7 @@ export function EditCompetitionForm(props: EditCompetitionFormProps) {
   const [verificationCode, setVerificationCode] = useState<string | undefined>();
 
   return (
-    <Container className="max-w-4xl">
+    <Container style={{ "--max-width": "56rem" }}>
       <h1 className="mt-3 border-b border-gray-600 pb-7 text-3xl font-bold">{competition.title}</h1>
 
       <div className="grid grid-cols-10 gap-x-12">
